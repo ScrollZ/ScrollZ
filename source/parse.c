@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.15 1999-05-24 21:23:45 f Exp $
+ * $Id: parse.c,v 1.16 1999-06-05 11:13:13 f Exp $
  */
 
 #include "irc.h"
@@ -1024,7 +1024,8 @@ pong(from, ArgList)
                         update_all_status();
                     }
                 }
-                else if (!strcmp(ArgList[1],"szlagmeter")) {
+                else if (!strcmp(ArgList[1],"szlagmeter") ||
+                         !strcmp(ArgList[0],get_server_itsname(from_server))) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
                     gettimeofday(&LagTimer,NULL);
                     LagTimer.tv_sec-=PingSent.tv_sec;
