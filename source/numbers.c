@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.66 2002-08-12 18:25:45 f Exp $
+ * $Id: numbers.c,v 1.67 2002-08-28 17:51:29 f Exp $
  */
 
 #include "irc.h"
@@ -1306,10 +1306,16 @@ numbered_command(from, comm, ArgList)
         case 437:		/* Nickname/channel temp. unavailable */
 		if (!is_channel(*ArgList))
 		{
+/**************************** Patched by Flier ******************************/
+                        char *tmpnick = NULL;
+
+                        malloc_strcpy(&tmpnick, ArgList[0]);
+/****************************************************************************/
 			nickname_in_use(from, ArgList);
 /**************************** PATCHED by Flier ******************************/
                         if (!(server_list[parsing_server_index].connected))
-                            AutoChangeNick(ArgList[0]);
+                            AutoChangeNick(tmpnick);
+                        new_free(&tmpnick);
 /****************************************************************************/
                 }
 /**************************** PATCHED by Flier ******************************/
