@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.70 2003-04-20 19:05:21 f Exp $
+ * $Id: numbers.c,v 1.71 2003-05-07 17:37:13 f Exp $
  */
 
 #include "irc.h"
@@ -1134,6 +1134,10 @@ numbered_command(from, comm, ArgList)
 		break;
 
 /**************************** PATCHED by Flier ******************************/
+        case 305:		/* #define RPL_SETBACK */
+                if (!get_int_var(AUTO_UNMARK_AWAY_VAR)) say("%s",ArgList[0]);
+                break;
+
 /* Patched by Zakath */
 #ifdef CELE
         case 306:		/* #define RPL_SETAWAY */
