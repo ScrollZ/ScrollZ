@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.19 2002-01-25 18:58:31 f Exp $
+ * $Id: funny.c,v 1.20 2002-03-04 18:01:41 f Exp $
  */
 
 #include "irc.h"
@@ -402,7 +402,8 @@ funny_mode(from, ArgList)
 	{
 /**************************** PATCHED by Flier ******************************/
 		/*update_channel_mode(channel, parsing_server_index, mode);*/
-		update_channel_mode(channel, parsing_server_index, mode, NULL, NULL, NULL, NULL, tmp);
+		update_channel_mode(channel, parsing_server_index, mode, strlen(mode),
+                                    NULL, NULL, NULL, NULL, tmp);
                 if ((get_server_version(from_server) == Server2_9 || 
                      get_server_version(from_server) == Server2_10) &&
                     IsIrcNetOperChannel(channel)) {

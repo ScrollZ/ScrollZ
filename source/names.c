@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.38 2002-02-20 20:17:07 f Exp $
+ * $Id: names.c,v 1.39 2002-03-04 18:01:41 f Exp $
  */
 
 #include "irc.h"
@@ -90,7 +90,7 @@ static	char	*recreate_mode _((ChannelList *));
 static	int	decifer_mode _((char *, u_long *, int *, NickList **, char **));*/
 void	clear_channel _((ChannelList *));
 char	*recreate_mode _((ChannelList *));
-static	int	decifer_mode _((char *, u_long *, int *, NickList **, char **, ChannelList *, char *, char *, char *, char *));
+static	int	decifer_mode _((char *, int, u_long *, int *, NickList **, char **, ChannelList *, char *, char *, char *, char *));
 void    add_nick_to_hash _((ChannelList *, NickList *));
 void    remove_nick_from_hash _((ChannelList *, NickList *));
 /****************************************************************************/
@@ -623,8 +623,9 @@ decifer_mode(mode_string, mode, chop, nicks, key)
 	NickList **nicks;
 	char	**key;*/
 static int
-decifer_mode(mode_string,mode,chop,nicks,key,chan,from,userhost,nethacks,servmodes)
+decifer_mode(mode_string,modelen,mode,chop,nicks,key,chan,from,userhost,nethacks,servmodes)
 char	*mode_string;
+int     modelen;
 u_long	*mode;
 int	*chop;
 NickList **nicks;
@@ -1391,12 +1392,12 @@ char    *servmodes;
                 HandleGotOps(mynick, chan);
             if (chan->CompressModes) {
                 *compmodeadd = '\0';
-                if (*compmode) snprintf(origmode, sizeof(origmode), "%s %s", compmode, compline);
+                if (*compmode) snprintf(origmode, modelen, "%s %s", compmode, compline);
                 else *origmode = '\0';
                 if (*origmode && origmode[strlen(origmode) - 1] == ' ')
                     origmode[strlen(origmode) - 1] = '\0';
             }
-            else strmcpy(origmode, tmporigmode, sizeof(tmpbuf));
+            else strmcpy(origmode, tmporigmode, modelen);
         }
 /****************************************************************************/
 	if (limit_set)
@@ -1432,10 +1433,11 @@ void
 	char	*channel;
 	int	server;
 	char	*mode;*/
-update_channel_mode(channel,server,mode,from,userhost,nethacks,servmodes,tmpchan)
+update_channel_mode(channel,server,mode,modelen,from,userhost,nethacks,servmodes,tmpchan)
 char *channel;
 int   server;
 char *mode;
+int  modelen;
 char *from;
 char *userhost;
 char *nethacks;
@@ -1452,8 +1454,8 @@ ChannelList *tmpchan;
 	/*if ((tmp = lookup_channel(channel, server, CHAN_NOUNLINK)) &&*/
 	if (tmp &&
                 /*(limit = decifer_mode(mode, &(tmp->mode), &(tmp->chop), &(tmp->nicks), &(tmp->key))) != -1)*/
-                (limit=decifer_mode(mode,&(tmp->mode),&(tmp->status),&(tmp->nicks),
-                                    &(tmp->key),tmp,from,userhost,nethacks,servmodes))!=-1)
+                (limit = decifer_mode(mode, modelen, &(tmp->mode), &(tmp->status), &(tmp->nicks),
+                                      &(tmp->key), tmp, from, userhost, nethacks, servmodes))!=-1)
 /****************************************************************************/
 		tmp->limit = limit;
 }

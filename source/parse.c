@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.61 2002-02-20 20:17:07 f Exp $
+ * $Id: parse.c,v 1.62 2002-03-04 18:01:41 f Exp $
  */
 
 #include "irc.h"
@@ -1532,7 +1532,7 @@ p_mode(from, ArgList)
 						line, channel, from);
 			update_channel_mode(channel, parsing_server_index, line);*/
                         strmcpy(tmpbuf3,line,sizeof(tmpbuf3));
-                        update_channel_mode(channel,parsing_server_index,tmpbuf3,
+                        update_channel_mode(channel,parsing_server_index,tmpbuf3,sizeof(tmpbuf3),
                                             from,FromUserHost,tmpbuf1,tmpbuf2,NULL);
                         if (flag!=IGNORED) flag=double_ignore(channel,NULL,IGNORE_CRAP);
                         if (*tmpbuf3 && flag!=IGNORED && do_hook(MODE_LIST, "%s %s %s",

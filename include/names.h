@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.6 2002-02-20 20:17:06 f Exp $
+ * $Id: names.h,v 1.7 2002-03-04 18:01:41 f Exp $
  */
 
 #ifndef __names_h_
@@ -97,7 +97,7 @@
 	void	rename_nick _((char *, char *, int));
 /**************************** PATCHED by Flier ******************************/
         /*void	update_channel_mode _((char *, int, char *));*/
-        void	update_channel_mode _((char *, int, char *, char *, char *, char *, char *, ChannelList *));
+        void	update_channel_mode _((char *, int, char *, int, char *, char *, char *, char *, ChannelList *));
 /****************************************************************************/
 	void	set_channel_window _((Window *, char *, int));
 	char	*create_channel_list _((Window *));
