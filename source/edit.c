@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.79 2002-01-23 18:48:10 f Exp $
+ * $Id: edit.c,v 1.80 2002-01-23 19:31:02 f Exp $
  */
 
 #include "irc.h"
@@ -4855,8 +4855,7 @@ show_timer(command)
 	/*time_t	current,
 		time_left;*/
         struct timeval current, time_left;
-        char tmpbuf1[mybufsize / 16];
-        char tmpbuf2[mybufsize / 32];
+        char tmpbuf[mybufsize / 16];
 /****************************************************************************/
 
 	if (!PendingTimers)
@@ -4869,7 +4868,7 @@ show_timer(command)
 	/*time(&current);*/
         gettimeofday(&current, NULL);
 /****************************************************************************/
-	say("Timer Seconds   Command");
+	say("Timer Seconds      Command");
 	for (tmp = PendingTimers; tmp; tmp = tmp->next)
 	{
 /**************************** Patched by Flier ******************************/
@@ -4885,10 +4884,8 @@ show_timer(command)
                     time_left.tv_usec = time_left.tv_usec - current.tv_usec + 1000000;
                     time_left.tv_sec--;
                 }
-                snprintf(tmpbuf2, sizeof(tmpbuf2), "%06d", time_left.tv_usec);
-                tmpbuf2[3] = '\0';
-                snprintf(tmpbuf1, sizeof(tmpbuf1), "%d.%s", time_left.tv_sec, tmpbuf2);
-                say("%-5d %-9s %s", tmp->ref, tmpbuf1, tmp->command);
+                snprintf(tmpbuf, sizeof(tmpbuf), "%d.%06d", time_left.tv_sec, time_left.tv_usec);
+                say("%-5d %-12s %s", tmp->ref, tmpbuf, tmp->command);
 /****************************************************************************/
 	}
 }
