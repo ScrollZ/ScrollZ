@@ -54,7 +54,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.27 1999-03-09 20:37:48 f Exp $
+ * $Id: edit6.c,v 1.28 1999-03-19 18:14:21 f Exp $
  */
 
 #include "irc.h"
@@ -1783,34 +1783,31 @@ char **ArgList;
 {
     char *channel;
     time_t createtime;
-    ChannelList *chan;
 
     if (ArgList[1] && is_channel(ArgList[0])) {
         channel=ArgList[0];
         createtime=atoi(ArgList[1]);
-        if ((chan=lookup_channel(channel,from_server,0))) {
-            save_message_from();
-            message_from(ArgList[0],LOG_CRAP);
-            if (createtime) {
+        save_message_from();
+        message_from(channel,LOG_CRAP);
+        if (createtime) {
 #ifdef WANTANSI
-                put_it("%s Channel %s%s%s created on %s%.24s%s",numeric_banner(),
-                       CmdsColors[COLJOIN].color3,channel,Colors[COLOFF],
-                       CmdsColors[COLJOIN].color4,ctime(&createtime),Colors[COLOFF]);
+            put_it("%s Channel %s%s%s created on %s%.24s%s",numeric_banner(),
+                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF],
+                    CmdsColors[COLJOIN].color4,ctime(&createtime),Colors[COLOFF]);
 #else
-                put_it("%s Channel %s created on %.24s",numeric_banner(),channel,
-                       ctime(&createtime));
+            put_it("%s Channel %s created on %.24s",numeric_banner(),channel,
+                    ctime(&createtime));
 #endif
-            }
-            else {
-#ifdef WANTANSI
-                put_it("%s Time stamping is off for channel %s%s%s",numeric_banner(),
-                       CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
-#else
-                put_it("%s Time stamping is off for channel %s",numeric_banner(),channel);
-#endif
-            }
-            restore_message_from();
         }
+        else {
+#ifdef WANTANSI
+            put_it("%s Time stamping is off for channel %s%s%s",numeric_banner(),
+                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
+#else
+            put_it("%s Time stamping is off for channel %s",numeric_banner(),channel);
+#endif
+        }
+        restore_message_from();
     }
 }
 
