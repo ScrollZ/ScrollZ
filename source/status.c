@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.30 2003-01-08 20:00:54 f Exp $
+ * $Id: status.c,v 1.31 2003-10-04 18:15:23 f Exp $
  */
 
 #include "irc.h"
@@ -1575,8 +1575,8 @@ status_umode(window)
 /**************************** PATCHED by Flier ******************************/
                 for (i = 0; i < 26; i++)
                     if (get_server_umode_flag(window->server, 'a' + i)) *c ++= 'a' + i;
-                for (i = 0; i < 26; i++)
-                    if (get_server_umode_flag(window->server, 'A' + i)) *c ++= 'A' + i;
+                for (i = 0; i < 27; i++)
+                    if (get_server_umode_flag(window->server, '@' + i)) *c ++= '@' + i;
 /****************************************************************************/
 		*c++ = '\0';
 		if (*localbuf != '\0' && umode_format)

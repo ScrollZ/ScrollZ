@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.57 2003-10-03 19:00:56 f Exp $
+ * $Id: server.c,v 1.58 2003-10-04 18:15:23 f Exp $
  */
 
 #include "irc.h"
@@ -2014,8 +2014,8 @@ int add;
     char c = '`';
 
     if (server_index == -1) server_index = primary_server;
-    if (isupper(flag)) {
-        c = 'A';
+    if (isupper(flag) || (flag == '@')) {
+        c = '?';
         flags = &server_list[server_index].umodeflags2;
     }
     else flags = &server_list[server_index].umodeflags;
@@ -2033,8 +2033,8 @@ char flag;
     char c = '`';
 
     if (server_index == -1) server_index = primary_server;
-    if (isupper(flag)) {
-        c = 'A';
+    if (isupper(flag) || (flag == '@')) {
+        c = '?';
         flags = server_list[server_index].umodeflags2;
     }
     else flags = server_list[server_index].umodeflags;
