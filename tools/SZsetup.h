@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id: SZsetup.h,v 1.2 2001-10-05 18:32:40 f Exp $
  */
 
 #define mybufsize     1024

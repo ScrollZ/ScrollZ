@@ -23,7 +23,7 @@ exec wish "$0" "$*"
 # (i.e. remove all -anchor and -justify switches). Be warned that look
 # might suffer under Tk older than 4.1.
 #
-# $id$
+# $Id: xSZsetup,v 1.2 2001-10-05 18:32:40 f Exp $
 #
 
 # some global variables

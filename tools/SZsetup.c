@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $id$
+ * $Id: SZsetup.c,v 1.2 2001-10-05 18:32:40 f Exp $
  */
 
 #include <stdio.h>
