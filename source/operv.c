@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.10 1999-09-26 16:10:14 f Exp $
+ * $Id: operv.c,v 1.11 1999-10-03 09:15:55 f Exp $
  */
 
 #include "irc.h"
@@ -630,6 +630,11 @@ char *from;
         strcpy(word2,OVgetword(0,3,tmpline));
         sprintf(tmpbuf,"Sending %s%s%s %s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+    }
+    else if (!strncmp(tmpline,"Rejecting connection from ",26)) {
+        strcpy(word1,OVgetword(0,4,tmpline));
+        sprintf(tmpbuf,"Rejecting connection from %s%s%s",
+		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
     }
     else if (strstr(tmpline,"whois on you")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
