@@ -337,6 +337,9 @@
 /* Define this if you have getloadavg(), BSD systems do */
 #undef HAVEGETLOADAVG
 
+/* Define this if you have regexec(), POSIX.2 systems do */
+#undef HAVE_REGCOMP
+
 /* Define this if you want one OperVision window for several servers */
 #undef MULTI_SERVER_OV
 

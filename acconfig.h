@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.11 2002-10-03 18:13:59 f Exp $
+ * $Id: acconfig.h,v 1.12 2005-01-18 19:22:30 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -282,4 +282,7 @@
 
 /* define this if you have OpenSSL */
 #undef HAVE_SSL
+
+/* define this if you have regexec() */
+#undef HAVE_REGCOMP
 /****************************************************************************/

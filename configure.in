@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.31 2004-05-12 15:53:07 f Exp $
+dnl @(#)$Id: configure.in,v 1.32 2005-01-18 19:22:30 f Exp $
 
-AC_REVISION($Revision: 1.31 $)dnl
+AC_REVISION($Revision: 1.32 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.31 2004-05-12 15:53:07 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.32 2005-01-18 19:22:30 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1217,6 +1217,29 @@ AC_ARG_WITH(ssl,
   esac ],
   AC_MSG_RESULT(no)
 )
+
+AC_MSG_CHECKING(whether to enable regexp support)
+AC_ARG_ENABLE(regexp,
+[  --enable-regexp         Enable POSIX.2 regexp support],
+[ case "$enableval" in
+  yes) AC_TRY_LINK([
+#include <sys/types.h>
+#include <regex.h>
+],   [ int rc;
+       regex_t preg;
+       rc = regcomp(&preg, "blah", REG_EXTENDED);
+       if (rc != 0) return 1;
+       else return 0; ],
+     [ AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_REGCOMP)
+     regexp=yes ],
+     [ AC_MSG_RESULT(no)
+     LIBS="$ac_save_LIBS"
+     regexp=no ])
+     ;;
+  *)   AC_MSG_RESULT(no)
+       ;;		
+  esac ])
 
 if test -n "$hpux"
 then
