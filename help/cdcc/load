@@ -1,4 +1,4 @@
-!	 $Id: load,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: load,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -11,23 +11,13 @@ Usage: CDCC LOAD [file name]
   If no file name is given, ScrollZ.offer is used.
 
 See also:
-  CDCC
-  SAVE
-  CDCC
-  PLIST
-  CDCC
-  PTIME
-  CDCC
-  NTIME
-  CDCC
-  OFFER
-  CDCC
-  DOFFER
-  CDCC
-  PSEND
-  CDCC
-  LIST
-  CDCC
-  NOTICE
-  CDCC
-  REQUEST
+  CDCC SAVE
+  CDCC PLIST
+  CDCC PTIME
+  CDCC NTIME
+  CDCC OFFER
+  CDCC DOFFER
+  CDCC PSEND
+  CDCC LIST
+  CDCC NOTICE
+  CDCC REQUEST

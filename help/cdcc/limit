@@ -1,4 +1,4 @@
-!	 $Id: limit,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: limit,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -14,5 +14,4 @@ Usage: CDCC LIMIT limit [queue limit]
   for unlimited queue size.
 
 See also:
-  CDCC
-  QUEUE
+  CDCC QUEUE

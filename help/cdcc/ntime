@@ -1,4 +1,4 @@
-!	 $Id: ntime,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: ntime,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -9,23 +9,13 @@ Usage: CDCC NTIME seconds
   Sets time to pass between automatic CDCC NOTICE output
 
 See also:
-  CDCC
-  NOTICE
-  CDCC
-  PLIST
-  CDCC
-  CHAN
-  CDCC
-  OFFER
-  CDCC
-  DOFFER
-  CDCC
-  PSEND
-  CDCC
-  LIST
-  CDCC
-  LOAD
-  CDCC
-  SAVE
-  CDCC
-  REQUEST
+  CDCC NOTICE
+  CDCC PLIST
+  CDCC CHAN
+  CDCC OFFER
+  CDCC DOFFER
+  CDCC PSEND
+  CDCC LIST
+  CDCC LOAD
+  CDCC SAVE
+  CDCC REQUEST

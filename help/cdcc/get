@@ -1,4 +1,4 @@
-!	 $Id: get,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: get,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -26,11 +26,8 @@ Usage: CDCC GET [pattern]
   Separator can be anything other than digits and -.
 
 See also:
-  CDCC
-  SEND
-  CDCC
-  RESEND
-  CDCC
-  PSEND
-  CDCC
-  CLOSE
+  CDCC SEND
+  CDCC FSEND
+  CDCC RESEND
+  CDCC PSEND
+  CDCC CLOSE

@@ -1,4 +1,4 @@
-!	 $Id: resend,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: resend,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -13,13 +13,9 @@ Usage: CDCC RESEND [pattern1 pattern2 , nick1 nick2]
   have to enter nick(s) (like : nick1 nick2 nick3).
 
 See also:
-  CDCC
-  SEND
-  CDCC
-  PSEND
-  CDCC
-  GET
-  CDCC
-  CLOSE
-  CDCC
-  LIMIT
+  CDCC SEND
+  CDCC FSEND
+  CDCC PSEND
+  CDCC GET
+  CDCC CLOSE
+  CDCC LIMIT

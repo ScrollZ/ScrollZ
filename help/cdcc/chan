@@ -1,4 +1,4 @@
-!	 $Id: chan,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: chan,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -14,21 +14,12 @@ Usage: CDCC CHAN channels
   format will be used for that channel.
 
 See also:
-  CDCC
-  PLIST
-  CDCC
-  PTIME
-  CDCC
-  OFFER
-  CDCC
-  DOFFER
-  CDCC
-  PSEND
-  CDCC
-  LIST
-  CDCC
-  LOAD
-  CDCC
-  SAVE
-  CDCC
-  REQUEST
+  CDCC PLIST
+  CDCC PTIME
+  CDCC OFFER
+  CDCC DOFFER
+  CDCC PSEND
+  CDCC LIST
+  CDCC LOAD
+  CDCC SAVE
+  CDCC REQUEST

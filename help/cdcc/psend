@@ -1,4 +1,4 @@
-!	 $Id: psend,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: psend,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,7 @@
 ! information.
 !
 Usage: CDCC PSEND [pattern , nick1 nick2]
-  Sends pack(s) to nick(s)
+  Sends pack(s) to nick(s) ignoring Cdcc queue
 
   First you have to create pack(s) with CDCC OFFER. Then you
   enter nick(s) to send pack(s) to (like : nick1 nick2 nick3).
@@ -14,23 +14,13 @@ Usage: CDCC PSEND [pattern , nick1 nick2]
   to choose what pack(s) to send refer to CDCC GET).
 
 See also:
-  CDCC
-  SEND
-  CDCC
-  RESEND
-  CDCC
-  GET
-  CDCC
-  CLOSE
-  CDCC
-  OFFER
-  CDCC
-  DOFFER
-  CDCC
-  PLIST
-  CDCC
-  LOAD
-  CDCC
-  SAVE
-  CDCC
-  LIMIT
+  CDCC SEND
+  CDCC RESEND
+  CDCC GET
+  CDCC CLOSE
+  CDCC OFFER
+  CDCC DOFFER
+  CDCC PLIST
+  CDCC LOAD
+  CDCC SAVE
+  CDCC LIMIT

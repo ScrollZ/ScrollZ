@@ -1,4 +1,4 @@
-!	 $Id: send,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: send,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -15,13 +15,9 @@ Usage: CDCC SEND [pattern1 pattern2 , nick1 nick2]
   (like : nick1 nick2 nick3).
 
 See also:
-  CDCC
-  RESEND
-  CDCC
-  PSEND
-  CDCC
-  GET
-  CDCC
-  CLOSE
-  CDCC
-  LIMIT
+  CDCC FSEND
+  CDCC RESEND
+  CDCC PSEND
+  CDCC GET
+  CDCC CLOSE
+  CDCC LIMIT

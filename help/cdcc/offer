@@ -1,4 +1,4 @@
-!	 $Id: offer,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: offer,v 1.4 2002-05-04 14:55:54 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -14,19 +14,11 @@ Usage: CDCC OFFER [pattern1 pattern2 , speed , description]
   offer the pack(s).
 
 See also:
-  CDCC
-  DOFFER
-  CDCC
-  PSEND
-  CDCC
-  LIST
-  CDCC
-  PLIST
-  CDCC
-  LOAD
-  CDCC
-  SAVE
-  CDCC
-  REQUEST
-  CDCC
-  LIMIT
+  CDCC DOFFER
+  CDCC PSEND
+  CDCC LIST
+  CDCC PLIST
+  CDCC LOAD
+  CDCC SAVE
+  CDCC REQUEST
+  CDCC LIMIT
