@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
+ * Copyright (c) 1992-2000 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.8 2000-09-24 17:10:33 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.9 2001-12-23 17:13:44 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -49,9 +49,14 @@ IRCII_RCSID("@(#)$Id: crypt.c,v 1.8 2000-09-24 17:10:33 f Exp $");
 
 #ifndef LITE
 
-static	void	add_to_crypt _((char *, char *, CryptFunc, CryptFunc, char *));
-static	int	remove_crypt _((char *));
-static	char	*do_crypt _((char *, crypt_key *, int, char **));
+/**************************** Patched by Flier ******************************/
+#define my_strlen(x)    strlen((char *) x)
+#define my_strcpy(x, y) strcpy((char *) x, (char *) y)
+/****************************************************************************/
+
+static	void	add_to_crypt _((u_char *, u_char *, CryptFunc, CryptFunc, u_char *));
+static	int	remove_crypt _((u_char *));
+static	u_char	*do_crypt _((u_char *, crypt_key *, int, u_char **));
 
 #ifdef HAVE_DEV_RANDOM
 static	int	crypt_dev_random_byte _((void));
@@ -79,7 +84,7 @@ static	int	crypt_dev_random_byte _((void));
 typedef struct	CryptStru
 {
 	struct	CryptStru *next;
-	char	*nick;
+	u_char	*nick;
 	crypt_key	*key;
 }	Crypt;
 
@@ -93,11 +98,11 @@ static	Crypt	*crypt_list = (Crypt *) 0;
  */
 static	void
 add_to_crypt(nick, keystr, enc, dec, type)
-	char	*nick;
-	char	*keystr;
+	u_char	*nick;
+	u_char	*keystr;
 	CryptFunc enc;
 	CryptFunc dec;
-	char	*type;
+	u_char	*type;
 {
 	Crypt	*new;
 
@@ -111,10 +116,10 @@ add_to_crypt(nick, keystr, enc, dec, type)
 	}
 	new = (Crypt *) new_malloc(sizeof(Crypt));
 	new->key = (crypt_key *) new_malloc(sizeof(*new->key));
-	new->nick = (char *) 0;
+	new->nick = (u_char *) 0;
 	new->key->key = (u_char *) 0;
 	new->key->type = type;
-	malloc_strcpy(&(new->nick), nick);
+	malloc_strcpy((char **) &(new->nick), nick);
 	malloc_strcpy((char **) &(new->key->key), keystr);
 	new->key->crypt = enc;
 	new->key->decrypt = dec;
@@ -127,7 +132,7 @@ add_to_crypt(nick, keystr, enc, dec, type)
  */
 static	int
 remove_crypt(nick)
-	char	*nick;
+	u_char	*nick;
 {
 	Crypt	*tmp;
 
@@ -149,7 +154,7 @@ remove_crypt(nick)
  */
 crypt_key *
 is_crypted(nick)
-	char	*nick;
+	u_char	*nick;
 {
 	Crypt	*tmp;
 
@@ -167,28 +172,28 @@ is_crypted(nick)
 /*ARGSUSED*/
 void
 encrypt_cmd(command, args, subargs)
-	char	*command,
+	u_char	*command,
 		*args,
 		*subargs;
 {
 	CryptFunc enc = DEFAULT_CRYPTER, dec = DEFAULT_DECRYPTER;
-	char	*type = DEFAULT_CRYPTYPE;
-	char	*nick,
+	u_char	*type = DEFAULT_CRYPTYPE;
+	u_char	*nick,
 		*keystr;
 	int	showkeys = 0;
 
 restart:
-	if ((nick = next_arg(args, &args)) != NULL)
+	if ((nick = next_arg((char *) args, (char **) &args)) != NULL)
 	{
- 		size_t len = strlen(nick);
+ 		size_t len = strlen((char *) nick);
 
- 		if (my_strnicmp(nick, "-showkeys", len) == 0)
+ 		if (my_strnicmp((char *) nick, "-showkeys", len) == 0)
  		{
  			showkeys = 1;
  			goto restart;
  		}
 #ifdef USE_CAST
- 		else if (my_strnicmp(nick, "-cast", len) == 0)
+ 		else if (my_strnicmp((char *) nick, "-cast", len) == 0)
 		{
 			enc = cast_encrypt_str;
 			dec = cast_decrypt_str;
@@ -198,7 +203,7 @@ restart:
 #endif
 
 #ifdef USE_SED
-		else if (my_strnicmp(nick, "-sed", len) == 0)
+		else if (my_strnicmp((char *) nick, "-sed", len) == 0)
 		{
 			enc = sed_encrypt_str;
 			dec = sed_decrypt_str;
@@ -238,18 +243,18 @@ restart:
 	}
 }
 
-static	char	*
+static	u_char	*
 do_crypt(str, key, flag, type)
-	char	*str;
+	u_char	*str;
 	crypt_key *key;
 	int	flag;
-	char	**type;
+	u_char	**type;
 {
 	int	in[2],
 		out[2];
 	size_t	c;
-	char	lbuf[CRYPT_BUFFER_SIZE + 1];
-	char	*ptr = (char *) 0,
+	u_char	lbuf[CRYPT_BUFFER_SIZE + 1];
+	u_char	*ptr = (char *) 0,
 		*encrypt_program;
 
 #ifndef _Windows
@@ -260,7 +265,7 @@ do_crypt(str, key, flag, type)
 		if (DAEMON_UID == getuid())
 		{
 			say("ENCRYPT_PROGRAM not available from daemon mode");
-			return (char *) 0;
+			return (u_char *) 0;
 		}
 #endif /* DAEMON_ID */
 		in[0] = in[1] = -1;
@@ -268,13 +273,13 @@ do_crypt(str, key, flag, type)
 		if (access(encrypt_program, X_OK))
 		{
 			say("Unable to execute encryption program: %s", encrypt_program);
-			return ((char *) 0);
+			return ((u_char *) 0);
 		}
-		c = strlen(str);
+		c = strlen((char *) str);
 		if (!flag)
 			ptr = ctcp_unquote_it(str, &c);
 		else 
-			malloc_strcpy(&ptr, str);
+			malloc_strcpy((char **) &ptr, str);
 		if (pipe(in) || pipe(out))
 		{
 			say("Unable to start encryption process: %s", strerror(errno));
@@ -293,7 +298,7 @@ do_crypt(str, key, flag, type)
 		{
 		case -1:
 			say("Unable to start encryption process: %s", strerror(errno));
-			return ((char *) 0);
+			return ((u_char *) 0);
 		case 0:
 			MY_SIGNAL(SIGINT, (sigfunc *) SIG_IGN, 0);
 			dup2(out[1], 1);
@@ -318,20 +323,20 @@ do_crypt(str, key, flag, type)
 			new_close(in[1]);
 			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);
 			wait(NULL);
-			lbuf[c] = (char) 0;
+			lbuf[c] = (u_char) 0;
 			new_close(out[0]);
 			break;
 		}
 		new_free(&ptr);
 		if (flag)
-			ptr = ctcp_quote_it(lbuf, strlen(lbuf));
+			ptr = ctcp_quote_it(lbuf, strlen((char *) lbuf));
 		else
-			malloc_strcpy(&ptr, lbuf);
+			malloc_strcpy((char **) &ptr, lbuf);
 	}
 	else
 #endif /* _Windows */
 	{
-		c = strlen(str);
+		c = strlen((char *) str);
 		if (flag)
 		{
 			key->crypt(&str, (int *)&c, key);
@@ -354,24 +359,24 @@ do_crypt(str, key, flag, type)
  * string is ready to be sent over irc.  If flag is false, the string is
  * decrypted and the returned string should be readable.
  */
-char	*
+u_char	*
 crypt_msg(str, key, flag)
-	char	*str;
+	u_char	*str;
 	crypt_key *key;
 	int	flag;
 {
-	static	char	lbuf[CRYPT_BUFFER_SIZE + 1];
-	char	*ptr,
+	static	u_char	lbuf[CRYPT_BUFFER_SIZE + 1];
+	u_char	*ptr,
 		*rest,
 		*type;
 	int	on = 1;
 
 	if (flag)
 	{
-		*lbuf = (char) 0;
-		while ((rest = index(str, '\005')) != NULL)
+		*lbuf = (u_char) 0;
+		while ((rest = index((char *) str, '\005')) != NULL)
 		{
-			*(rest++) = (char) 0;
+			*(rest++) = (u_char) 0;
 			if (on && *str && (ptr = do_crypt(str, key, flag, &type)))
 			{
 				sprintf(lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
@@ -420,7 +425,7 @@ static int
 crypt_dev_random_byte()
 {
 	static	int	devrndfd = -1;
-	char	c;
+	u_char	c;
 
 	if (devrndfd == -1)
 	{

@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
+ * Copyright (c) 1992-1999 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#)$Id: crypt.h,v 1.4 2000-08-09 19:31:20 f Exp $
+ * @(#)$Id: crypt.h,v 1.5 2001-12-23 17:13:44 f Exp $
  */
 
 #ifndef __crypt_h_
@@ -47,7 +47,7 @@
 
 typedef struct crypt_key crypt_key;
 
-typedef void (*CryptFunc) _((char **, int *, crypt_key *));
+typedef void (*CryptFunc) _((u_char **, int *, crypt_key *));
 
 struct crypt_key
 {
@@ -60,9 +60,9 @@ struct crypt_key
 /*
  * function interfaces we have
  */
-char		*crypt_msg _((char *, crypt_key *, int));
-void		encrypt_cmd _((char *, char *, char *));
-crypt_key	*is_crypted _((char *));
+u_char		*crypt_msg _((u_char *, crypt_key *, int));
+void		encrypt_cmd _((u_char *, u_char *, u_char *));
+crypt_key	*is_crypted _((u_char *));
 
 /*
  * the broken old `ctcp sed' crap.  we retain this but make it
@@ -79,7 +79,7 @@ crypt_key	*is_crypted _((char *));
  * for to be the default.
  */
 #ifdef USE_CAST
-# define CAST_STRING	"CAST128-CBC"
+# define CAST_STRING	"CAST128ED-CBC"
 # define CAST_CTCP_ENTRY { CAST_STRING, "contains CAST-128 strongly encrypted data, CBC mode", \
 		CTCP_SHUTUP | CTCP_NOREPLY, do_crypto },
 # ifndef DEFAULT_CRYPTER
