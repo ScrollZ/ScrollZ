@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.99 2003-01-08 20:22:56 f Exp $
+ * $Id: edit5.c,v 1.100 2003-01-08 20:31:16 f Exp $
  */
 
 #include "irc.h"
@@ -151,6 +151,7 @@ extern int  CheckServer _((int));
 extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  EncryptString _((char *, char *, char *, int, int));
+extern int  DecryptString _((char *, char *, char *, int, int));
 
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
@@ -1749,45 +1750,48 @@ void PlayBack2(stuff,line)
 char *stuff;
 char *line;
 {
-    int  count=2;
-    int  readline=1;
-    char tmpbuf[mybufsize];
+    int  count = 2;
+    int  readline = 1;
+    char tmpbuf[2 * mybufsize + 1];
+    char tmpbuf2[2 * mybufsize + 1];
 
-    if (line && (*line=='q' || *line=='Q')) {
+    if (line && (*line == 'q' || *line == 'Q')) {
         if (awayfile) fclose(awayfile);
-        add_wait_prompt("Delete message file (y/n) ? ",SetBackDelete,stuff,WAIT_PROMPT_KEY);
+        add_wait_prompt("Delete message file (y/n) ? ", SetBackDelete, stuff, WAIT_PROMPT_KEY);
         return;
     }
-    else if (line && (*line=='c' || *line=='C')) DontHold=1;
-    while (count<curr_scr_win->display_size && readline) {
+    else if (line && (*line == 'c' || *line == 'C')) DontHold = 1;
+    while (count < curr_scr_win->display_size && readline) {
         if (PlayReverse) {
-            readline=rfgets(tmpbuf,mybufsize,awayfile)?1:0;
-            if (readline && tmpbuf[strlen(tmpbuf)-1]=='\n')
-                tmpbuf[strlen(tmpbuf)-1]='\0';
+            readline = rfgets(tmpbuf,mybufsize,awayfile) ? 1 : 0;
+            if (readline && tmpbuf[strlen(tmpbuf) - 1] == '\n')
+                tmpbuf[strlen(tmpbuf) - 1] = '\0';
         }
-        else readline=readln(awayfile,tmpbuf);
+        else readline = readln(awayfile, tmpbuf);
         if (readline) {
-            if (playpattern && !wild_match(playpattern,tmpbuf)) continue;
+            if (playpattern && !wild_match(playpattern, tmpbuf)) continue;
 #ifdef WANTANSI
-            count+=(strlen(tmpbuf)-CountAnsi(tmpbuf,-1)+6)/current_screen->co+1;
+            count += (strlen(tmpbuf) - CountAnsi(tmpbuf, -1) + 6) / current_screen->co + 1;
 #else
-            count+=(strlen(tmpbuf)+6)/current_screen->co+1;
+            count += (strlen(tmpbuf) + 6) / current_screen->co + 1;
 #endif
-            say("%s",tmpbuf);
+            if (AwayEncrypt && EncryptPassword) DecryptString(tmpbuf2, tmpbuf, EncryptPassword, 2 * mybufsize, 0);
+            else strcpy(tmpbuf2, tmpbuf);
+            say("%s", tmpbuf2);
         }
     }
     if (!readline) {
         if (awayfile) fclose(awayfile);
-        add_wait_prompt("Delete message file (y/n) ? ",SetBackDelete,stuff,WAIT_PROMPT_KEY);
+        add_wait_prompt("Delete message file (y/n) ? ", SetBackDelete, stuff, WAIT_PROMPT_KEY);
         return;
     }
-    if (DontHold) PlayBack2(stuff,line);
-    else if (count>=curr_scr_win->display_size) {
-        readline=((float) (100*ftell(awayfile))/(float) filesize);
-        if (PlayReverse) readline=100-readline;
-        snprintf(tmpbuf,sizeof(tmpbuf),"[%2d%%] Press any key to continue, 'c' for continuous, 'q' to quit",
+    if (DontHold) PlayBack2(stuff, line);
+    else if (count >= curr_scr_win->display_size) {
+        readline = ((float) (100 * ftell(awayfile)) / (float) filesize);
+        if (PlayReverse) readline = 100 - readline;
+        snprintf(tmpbuf, sizeof(tmpbuf), "[%2d%%] Press any key to continue, 'c' for continuous, 'q' to quit",
                 readline);
-        add_wait_prompt(tmpbuf,PlayBack2,stuff,WAIT_PROMPT_KEY);
+        add_wait_prompt(tmpbuf, PlayBack2, stuff, WAIT_PROMPT_KEY);
     }
 }
 
