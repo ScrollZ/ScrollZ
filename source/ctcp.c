@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.49 2004-05-11 18:13:48 f Exp $
+ * $Id: ctcp.c,v 1.50 2004-11-25 17:40:00 f Exp $
  */
 
 #include "irc.h"
@@ -1433,10 +1433,10 @@ do_atmosphere(ctcp, from, to, cmd)
         char    thing;
 #ifdef WANTANSI
         char    *color = CmdsColors[COLME].color3;
-        char    tmpbuf1[mybufsize / 2];
 #else
         char    *color = "";
 #endif
+        char    tmpbuf1[mybufsize / 2];
         void    (*func)();
         ChannelList *chan;
 	NickList *joiner;
