@@ -4,7 +4,7 @@
  *
  * Written by Flier
  *
- * $Id: files.c,v 1.2 1998-09-10 17:45:02 f Exp $
+ * $Id: files.c,v 1.3 1998-10-26 19:17:14 f Exp $
  */
 
 #include "irc.h"
@@ -134,10 +134,15 @@ int FileWrite(fd,stuff)
 int  fd;
 char *stuff;
 {
+    int  result;
     File *ptr=LookupFile(fd);
 
     if (!ptr) return(-1);
-    else return(fprintf(ptr->file,"%s\n",stuff));
+    else {
+        result=fprintf(ptr->file,"%s\n",stuff);
+        fflush(ptr->file);
+        return(result);
+    }
 }
 
 char *FileRead(fd)
