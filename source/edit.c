@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.9 1998-11-16 20:58:13 f Exp $
+ * $Id: edit.c,v 1.10 1998-12-02 20:58:01 f Exp $
  */
 
 #include "irc.h"
@@ -459,7 +459,9 @@ static	IrcCommand FAR irc_command[] =
  	{ "CHANNEL",	"JOIN",		e_channel,		SERVERREQ },
   { "CHANST", 		NULL, 		ChanStat, 		SERVERREQ },
   { "CHAT", 		NULL, 		Chat, 			SERVERREQ },
+#ifdef EXTRAS
   { "CHSIGNOFF",	"CHSIGNOFF", 	ChannelCommand, 	0 },
+#endif
 	{ "CLEAR",	NULL,		my_clear,		0 },
   { "CLEARTAB", 	NULL, 		ClearTab, 		0 },
 #ifdef WANTANSI
