@@ -239,13 +239,14 @@ channel is used. If filter is given, idle time for users matching filter
 is displayed.
 Also look at $2IDLEKICK$0 and $2IDLETIME$0
 :SHOWUSER      Shows all users that match filter and channel
-Usage $3SHOWUSER$0 [$3-O$0] [$3-N$0] [$3-F$0] [$3-V$0] [$3-S$0] $0[$3#channels$0] $3filter filter...$0
-$3-O$0 lists channel operators, $3-N$0 lists people that are not channel
-operators, $3-F$0 lists friends, $3-V$0 lists voiced (+v) users, and
-$3-S$0 lists shitlisted people. You can combine multiple flags together.
-Filter can include * and ?. Channels is a list of channels separated
-with ',' (it must start with #). You can include * and ?.
-Default is to list all people on current_channel.
+Usage $3SHOWUSER$0 [$3-O$0] [$3-F$0] [$3-V$0] [$3-S$0] $0[$3#channels$0] $3filter filter...$0
+$3-O$0 lists channel operators, $3-F$0 lists friends, $3-V$0 lists voiced
+(+v) users, and $3-S$0 lists shitlisted people. You can combine
+multiple flags together. If you prepend N before O, F, V or S people
+with that attribute NOT set will match. Filter can include * and ?.
+Channels is a list of channels separated with ',' (it must start
+with #), it can include * and ?. Default is to list all people
+on current channel.
 :VER           Does CTCP target VERSION
 Usage $3VER nick$0|$3#channel$0
 If no arguments are given, current channel will be versioned.
@@ -456,10 +457,11 @@ Default auto-op time is 4. Setting this to 0 disables auto-op delay.
 Usage $3AWAYSAVE $0[$3-$0]$3type$0
 Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
 PROT, HACK, SRVMODE, CTCP, FLOOD, INVITE, KILL, KICK, SERVER, FAKE,
-AREPLY, CHAT, NOTIFY or ALL. You can combine them together, space
-separates them. You can turn it off by specifying NONE. If preceeded by
-minus such events will not be saved. Note that effects accumulate so if
-you specify only one type it will be added to current set.
+AREPLY, CHAT, NOTIFY, SENTMSG or ALL. You can specify multiple
+types by separating them with space. You can turn it off by specifying
+NONE. If preceeded by minus such events will not be saved. Note that
+effects accumulate so if you specify only one type it will be added
+to current set.
 :AWAYT         Sets time before you're automatically set away if idle
 Usage $3AWAYT time_in_minutes$0
 Default auto-away time is 10. Setting this to 0 disables auto-away.
