@@ -1,8 +1,8 @@
-!	 $Id: foreground_colour,v 1.2 2002-02-19 19:39:19 f Exp $
+!	 $Id: foreground_colour,v 1.3 2002-02-19 19:43:28 f Exp $
 !
 ! Copyright (c) 2000  Matthew Green.
 !
-! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
 Usage: SET FOREGROUND_COLOUR [0-15]

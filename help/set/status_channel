@@ -1,9 +1,9 @@
-!	 $Id: status_channel,v 1.2 2002-02-19 19:39:19 f Exp $
+!	 $Id: status_channel,v 1.3 2002-02-19 19:43:28 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
 !
-! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
 Usage: SET STATUS_CHANNEL <Status line text for display of channel>

@@ -1,7 +1,7 @@
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
 !
-! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
 Usage: ON [#|+|-|^|&|@]RAW_SEND [-|^]<parameters> [action]

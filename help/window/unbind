@@ -1,8 +1,8 @@
-!	 $Id: unbind,v 1.2 2002-02-19 19:39:19 f Exp $
+!	 $Id: unbind,v 1.3 2002-02-19 19:43:28 f Exp $
 !
 ! Copyright (c) 1990-2001 Matthew Green.
 !
-! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
 Usage: WINDOW UNBIND <channel>
