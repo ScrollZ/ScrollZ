@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.12 2001-07-04 17:34:59 f Exp $
+# @(#)$Id: Makefile.in,v 1.13 2001-07-11 19:54:15 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -170,13 +170,13 @@ MFLAGS ='CC=$(CC)'					\
 
 all: scrollz
 
-install: all installbin installdirs
+install: all installbin installdirs installman
 
 scrollz: source/Makefile Makefile
 	@cd include; $(MAKE)
 	@cd source; $(MAKE) all
 
-installeverything: install installflush installio installwserv
+installeverything: install installman installflush installio installwserv
 
 everything: all ircflush ircio wserv
 
@@ -202,6 +202,9 @@ installirc: scrollz installdirs
 	@cp ScrollZ.help $(HELP_DIR)
 	@cp doc/ScrollZ.doc $(IRCDOC)
 
+installman:
+	$(INSTALL) scrollz.1 $(mandir)
+
 installserv: installio
 installio: ircio installdirs
 	$(INSTALL) source/ircio $(INSTALL_IRCIO)
@@ -221,7 +224,7 @@ clena clean:
 	@-if test -f include/Makefile; then cd include; $(MAKE) clean; fi
 
 distclean cleandir realclean: clean
-	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h ircbug
+	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h include/hook.h include/keys.h include/vars.h ircbug
 
 lint:
 	@if test -f source/Makefile; then cd source; $(MAKE) lint; fi
