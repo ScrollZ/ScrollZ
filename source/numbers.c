@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.55 2002-01-28 16:24:12 f Exp $
+ * $Id: numbers.c,v 1.56 2002-01-31 18:03:39 f Exp $
  */
 
 #include "irc.h"
@@ -1648,9 +1648,9 @@ numbered_command(from, comm, ArgList)
 /**************************** Patched by Flier ******************************/
 		case 263:		/* #define RPL_LOAD2HI		263 */
                         PasteArgs(ArgList, 0);
-                        say("%s",ArgList[0]);
+                        say("%s", ArgList[0]);
 			/* allow us to do these commands again.. as soon as we like */
-                        inSZLinks=0;
+                        inSZLinks = 0;
                         break;
 /****************************************************************************/
 
