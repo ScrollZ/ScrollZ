@@ -1,0 +1,25 @@
+!	 $Id: decrypt_program,v 1.1 2002-04-08 15:48:09 f Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET DECRYPT_PROGRAM <decryption program path>
+  Sets the program used to decrypt messages.  The program
+  selected must take a decryption key as the first line
+  written to work with ircII, with the second and subsequent
+  lines the text to be decrypted, which is expected on the
+  programs standard output.
+
+  Note that in ircII 4.4 and previous, this variables program
+  API was different.  Originally the decryption key was the
+  command line argument, and the program a true filter.
+  However, it is not secure from local users snooping the
+  key and being able to encrypt messages, should they obtain
+  them.  Set the OLD_ENCRYPT_PROGRAM variable to ON
+  to obtain this old behaviour.
+
+See also:
+  SET ENCRYPT_PROGRAM
