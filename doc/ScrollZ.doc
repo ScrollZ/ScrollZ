@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.4 2001-08-05 16:14:38 f Exp $
+  $Id: ScrollZ.doc,v 1.5 2001-08-11 15:59:01 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -105,8 +105,8 @@
 
   As I have already said ScrollZ _is_ ircII so everything that can be
   done in ircII can be done in ScrollZ too and all ircII scripts work
-  without a problem. NOTE: there is no ICB support in ScrollZ so the
-  ircII ICB related stuff does NOT work!
+  without a problem. NOTE: there is no ICB support nor DCC TALK support
+  in ScrollZ so the ircII ICB or DCC TALK related stuff does NOT work!
 
   3.  Installing it
 
@@ -268,11 +268,13 @@
   Commands that control friends list are :
 
      addf      - add person to friends list
-     addfflag  - add/remove flag from friends' list entry
-     addfchan  - add/remove channel from friends' list entry
+     addfflag  - add flag to friends' list entry
+     addfchan  - add channel to friends' list entry
      frlist    - sets friends list on/off
      listf     - list people on friends list
      remf      - remove person from friends list
+     remfflag  - remove flag from friends' list entry
+     remfchan  - remove channel from friends' list entry
 
   Commands that control shit list are :
 
@@ -310,6 +312,8 @@
      addw         - add word to word kick list
      listw        - list words on word kick list
      remw         - remove word from word kick list
+     idlekick     - kick idle users from a channel
+     idletime     - sets idle kick timeout
 
   4.5.  Netsplits, nethacks and netjoins
 
@@ -317,7 +321,7 @@
   controlled via '/nhprot' command - so '/shelp nhprot' for more info. If
   you have this option turned on you better make sure your userlist is
   pretty complete (most of regular channel ops should be on it) or else
-  you will not be very popular channel op :D.
+  you will not be very popular channel op.
 
   4.6.  DCC - sending and receiving files, dcc chat
 
@@ -425,6 +429,8 @@
 
      * if you don't want to be automatically set away after certain
        amount of time elapses without your activity do '/awayt 0'.
+       Some channels don't like clients announcing they're away/back
+       and you can control that with '/showaway'.
 
   5.  ScrollZ key bindings
 
@@ -562,6 +568,16 @@
                     greenbg,yellowbg,bluebg,purplebg,cyanbg,whitebg
      * country    - country(2_letter_code) returns country name,
                     unknown on error, only if compiled with COUNTRY
+     * chanusers  - like ircII but extended with second argument, if that
+                    argument is set to 1 channel operators will have @ in
+                    front of their nick and voiced users will have +
+     * szvar      - query ScrollZ settings (all not controllable by /set),
+                    example: '/eval echo $szvar(nhprot)'
+     * topic      - return channel's topic, who set it and when they did it
+     * url        - return URL from internally cached list of URLs,
+                    if number is given return given URL number
+     * cdccslots  - return number of free Cdcc slots
+     * cdccqslots - return number of free Cdcc queue slots
 
   File operations :
 
@@ -585,16 +601,28 @@
      * uhost      - uhost(n!u@h) returns u@h part, empty otherwise
      * hhost      - hhost(n!u@h) returns h part, empty otherwise
 
+  String functions :
+
+     * strstr     - search for a substring in given string, example:
+                    $strstr(/hello john/ john)
+     * strlen     - returns string length
+     * strnum     - returns number of words in given string
+     * sar        - search and replace data, $sar(command/search/replace/data)
+                    command = r - treat data as a variable name and
+                                  return the replaced data to the variable
+                              g - Replace all instances, not just the first one
+
   7.2.  ON hooks
 
-     * cdcc_plist
-     * cdcc_plist_footer
-     * cdcc_plist_header
-     * channel_synch
-     * dcc_list
-     * dcc_list_footer
-     * dcc_list_header
-     * join_me
-     * notify_signoff_uh
-     * notify_signon_uh
-     * send_ctcp
+     * cdcc_plist         - activated for every entry from the offer list
+     * cdcc_plist_footer  - activated when offer list is to be sent out
+     * cdcc_plist_header  - activated at the end of the offer list
+     * channel_synch      - activated when channel is synched
+     * channel_wallop     - activated when message is sent to channel operators
+     * dcc_list           - activated for every entry from the DCC list
+     * dcc_list_footer    - activated when DCC list is to be printed
+     * dcc_list_header    - activated at the end of the DCC list
+     * join_me            - activated when you join a channel
+     * notify_signoff_uh  - activated upon notify signoff and we have userhost
+     * notify_signon_uh   - activated when we have userhost for notify entry
+     * send_ctcp          - activated when CTCP is sent
