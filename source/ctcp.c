@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.45 2003-11-17 17:21:20 f Exp $
+ * $Id: ctcp.c,v 1.46 2003-11-17 17:22:13 f Exp $
  */
 
 #include "irc.h"
@@ -92,6 +92,7 @@ extern char *YNreply _((int));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  AutoReplyMatch _((char *));
+extern void Check4WordKick _((char *, NickList *, int, ChannelList *));
 /****************************************************************************/
 
 static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
