@@ -61,7 +61,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.74 2001-01-14 11:06:35 f Exp $
+ * $Id: edit6.c,v 1.75 2001-01-25 17:53:52 f Exp $
  */
 
 #include "irc.h"
@@ -1507,25 +1507,32 @@ char *args;
 char *subargs;
 {
     int  i;
+    int  isorignick;
     char *tmpstr;
     char *tmpchan;
+    char *quietstr;
     char tmpbuf[mybufsize/8];
 
+    OrigNickQuiet=0;
     upper(command);
     for (i=0;command_list[i].command;i++)
         if (!strcmp(command_list[i].command,command)) break;
     if (!(command_list[i].command)) return;
+    isorignick=!strcmp(command_list[i].command,"ORIGNICK");
     tmpstr=new_next_arg(args,&args);
     if (tmpstr) {
         if (!my_stricmp("ON",tmpstr)) {
             tmpchan=new_next_arg(args,&args);
+            quietstr=new_next_arg(args,&args);
             if (tmpchan && *tmpchan) malloc_strcpy(command_list[i].strvar,tmpchan);
             else {
-                sprintf(tmpbuf,"%s on %s/off",command_list[i].command,
-                        !strcmp(command_list[i].command,"ORIGNICK")?"nick":"channels");
+                sprintf(tmpbuf,"%s on %s%s/off",command_list[i].command,
+                        isorignick?"nick":"channels",isorignick?" [quiet]":"");
                 PrintUsage(tmpbuf);
                 return;
             }
+            if (quietstr && *quietstr && isorignick && !my_stricmp(quietstr,"QUIET"))
+                OrigNickQuiet=1;
             *(command_list[i].var)=1;
         }
         else if (!my_stricmp("OFF",tmpstr)) {
@@ -1533,8 +1540,8 @@ char *subargs;
             new_free(command_list[i].strvar);
         }
         else {
-            sprintf(tmpbuf,"%s on %s/off",command_list[i].command,
-                    !strcmp(command_list[i].command,"ORIGNICK")?"nick":"channels");
+            sprintf(tmpbuf,"%s on %s%s/off",command_list[i].command,
+                    isorignick?"nick":"channels",isorignick?" [quiet]":"");
             PrintUsage(tmpbuf);
             return;
         }
@@ -2021,6 +2028,7 @@ void SwitchNick() {
         if (my_stricmp(get_server_nickname(from_server),OrigNick))
             e_nick(NULL,OrigNick,NULL);
         LastNick=timenow+1;
+        OrigNickSent=1;
     }
 }
 

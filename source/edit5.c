@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.54 2001-01-15 17:44:07 f Exp $
+ * $Id: edit5.c,v 1.55 2001-01-25 17:53:52 f Exp $
  */
 
 #include "irc.h"
@@ -805,13 +805,22 @@ char *setting1;
 char *string2;
 char *setting2;
 {
+    int doorignick=0;
+    char quietstr[mybufsize/8];
+
+    if (OrigNickChange && OrigNickQuiet) {
+        doorignick=1;
+        strcpy(quietstr," quietly");
+    }
 #ifdef WANTANSI
-    say("%s is %s%s%s%s %s%s%s",string1,
-        CmdsColors[COLSETTING].color2,setting1,Colors[COLOFF],string2,
+    say("%s is %s%s%s%s%s %s%s%s",string1,
+        CmdsColors[COLSETTING].color2,setting1,
+        doorignick?quietstr:"",Colors[COLOFF],string2,
         CmdsColors[COLSETTING].color5,setting2,Colors[COLOFF]);
 #else
-    say("%s is %c%s%c%s %c%s%c",string1,bold,setting1,bold,
-        string2,bold,setting2,bold);
+    say("%s is %c%s%s%c%s %c%s%c",string1,
+        bold,setting1,doorignick?quietstr:"",
+        bold,string2,bold,setting2,bold);
 #endif
 }
 

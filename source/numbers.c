@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.35 2000-12-10 10:12:35 f Exp $
+ * $Id: numbers.c,v 1.36 2001-01-25 17:53:52 f Exp $
  */
 
 #include "irc.h"
@@ -599,6 +599,15 @@ channel_topic(from, ArgList)
  	restore_message_from();
 }
 
+/**************************** Patched by Flier ******************************/
+int DisplayNickInfo() {
+    int ret=1;
+
+    if (OrigNickChange && OrigNickSent && OrigNickQuiet) ret=0;
+    return(ret);
+}
+/****************************************************************************/
+
 static	void
 nickname_in_use(from, ArgList)
 	char	*from,
@@ -607,11 +616,17 @@ nickname_in_use(from, ArgList)
 	PasteArgs(ArgList, 0);
  	if (is_server_connected(parsing_server_index)) {
 		if (do_hook(current_numeric, "%s", *ArgList))
+/**************************** Patched by Flier ******************************/
+                    if (DisplayNickInfo())
+/****************************************************************************/
 			display_msg(from, ArgList);
  	} else if (never_connected || parsing_server_index != primary_server ||
 	    !attempting_to_connect)
 	{
 		if (do_hook(current_numeric, "%s", *ArgList))
+/**************************** Patched by Flier ******************************/
+                    if (DisplayNickInfo())
+/****************************************************************************/
 			display_msg(from, ArgList);
 /**************************** PATCHED by Flier ******************************/
                 /*reset_nickname();*/
@@ -1167,9 +1182,11 @@ numbered_command(from, comm, ArgList)
                 strmcpy(tmpbuf,ArgList[0],mybufsize/4);
                 if (server_list[parsing_server_index].connected) {
                     tmpnick=tmpbuf;
-                    userhost(NULL,next_arg(tmpnick,&tmpnick),NULL); /* uhost - Zakath */
+                    if (DisplayNickInfo())
+                        userhost(NULL,next_arg(tmpnick,&tmpnick),NULL); /* uhost - Zakath */
                 }
                 else AutoChangeNick(tmpbuf);
+                OrigNickSent=0;
 /****************************************************************************/
 		break;
         case 437:		/* Nickname/channel temp. unavailable */

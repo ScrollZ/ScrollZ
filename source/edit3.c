@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.55 2001-01-14 11:06:08 f Exp $
+ * $Id: edit3.c,v 1.56 2001-01-25 17:53:52 f Exp $
  */
 
 #include "irc.h"
@@ -1677,6 +1677,19 @@ char *message;
             *loaderror=1;
         }
     }
+    else if (!strcmp(command,"ORIGNICK") && !my_stricmp(tmpbuf,"QUIET")) {
+        NextArg(*pointer,pointer,tmpbuf);
+        if (*tmpbuf) {
+            *variable=1;
+            OrigNickQuiet=1;
+            malloc_strcpy(strvar,tmpbuf);
+        }
+        else {
+            sprintf(tmpbuf,"in %s",command);
+            PrintError(message,tmpbuf,lineno);
+            *loaderror=1;
+        }
+    }
     else if (!my_stricmp(tmpbuf,"OFF")) {
         *variable=0;
         new_free(strvar);
@@ -2104,7 +2117,7 @@ int ScrollZLoad()
         else if (!strcmp("AUTOREPLY",tmpbuf3))
             StringSet(pointer,&AutoReplyBuffer,&loaderror,lineno,"AUTOREPLY");
         else if (!strcmp("ORIGNICK",tmpbuf3))
-            ChannelsSet(&pointer,&OrigNickChange,&OrigNick,&loaderror,lineno,"ORIGNICK","must be ON NICK");
+            ChannelsSet(&pointer,&OrigNickChange,&OrigNick,&loaderror,lineno,"ORIGNICK","must be ON/QUIET NICK");
         else if (!strcmp("NOTIFYMODE",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"BRIEF")) NotifyMode=1;
@@ -2617,6 +2630,8 @@ void InitVars() {
     BKList=1;
     CdccVerbose=1;
     ARinWindow=0;
+    OrigNickQuiet=0;
+    OrigNickSent=0;
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.33 2001-01-15 17:16:49 f Exp $
+ * $Id: parse.c,v 1.34 2001-01-25 17:53:52 f Exp $
  */
 
 #include "irc.h"
@@ -1401,6 +1401,9 @@ p_nick(from, ArgList)
  			malloc_strcpy(&nickname, line);
 		set_server_nickname(parsing_server_index, line);
 		its_me = 1;
+/**************************** Patched by Flier ******************************/
+                OrigNickSent=0;
+/****************************************************************************/
 	}
  	save_message_from();
 	if (flag != IGNORED)
