@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.28 2000-10-30 17:17:20 f Exp $
+ * $Id: numbers.c,v 1.29 2000-11-01 09:43:32 f Exp $
  */
 
 #include "irc.h"
@@ -1335,7 +1335,7 @@ numbered_command(from, comm, ArgList)
                 case 422:
                         if (!usersloaded) {
                             ScrollZLoad();
-                            if (PlistTime<3600 || NlistTime<3600)
+                            if (PlistTime<7200 || NlistTime<7200)
                                 CdccTimeWarning();
                         }
                         break;
@@ -1422,7 +1422,7 @@ numbered_command(from, comm, ArgList)
 /**************************** PATCHED by Flier ******************************/
                         if (!usersloaded) {
                             ScrollZLoad();
-                            if (PlistTime<3600 || NlistTime<3600)
+                            if (PlistTime<7200 || NlistTime<7200)
                                 CdccTimeWarning();
                         }
 /****************************************************************************/

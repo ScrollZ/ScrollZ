@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.31 2000-10-30 17:43:44 f Exp $
+ * $Id: cdcc.c,v 1.32 2000-11-01 09:43:32 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2919,16 +2919,16 @@ void CleanUpCdcc() {
 }
 
 void CdccTimeWarning() {
-    say("Warning: your CDCC PLIST or NLIST timer is set below one hour.");
+    say("Warning: your CDCC PLIST or NLIST timer is set below two hours.");
     say("Due to a lot of complaints about this the above timers have been");
-    say("increased to one hour. If you want those values to remain as they");
-    say("were before please execute the following:");
-    if (PlistTime<3600) {
+    say("increased to two hours. If you feel your values are apropriate");
+    say("enter the following commands:");
+    if (PlistTime<7200) {
         say("/CDCC PTIME %d",PlistTime);
-        PlistTime=3600;
+        PlistTime=7200;
     }
-    if (NlistTime<3600) {
+    if (NlistTime<7200) {
         say("/CDCC NTIME %d",NlistTime);
-        NlistTime=3600;
+        NlistTime=7200;
     }
 }
