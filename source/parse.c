@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.64 2002-03-11 20:25:01 f Exp $
+ * $Id: parse.c,v 1.65 2002-04-07 16:42:01 f Exp $
  */
 
 #include "irc.h"
@@ -1218,14 +1218,18 @@ p_channel(from, ArgList)
 /***************************** PATCHED by Flier **************************/	
 			/*add_channel(channel, parsing_server_index, CHAN_JOINED, (ChannelList *) 0);
 			send_to_server("MODE %s", channel);*/
-			add_channel(channel, parsing_server_index, CHAN_JOINED, NULL, NULL);
+                        chan = lookup_channel(channel, parsing_server_index, 0);
+			add_channel(channel, parsing_server_index, CHAN_JOINED, NULL, NULL,
+                                    chan ? chan->gotwho : 0);
+                        chan = lookup_channel(channel, parsing_server_index, 0);
                         if ((get_server_version(from_server) == Server2_9 || 
                              get_server_version(from_server) == Server2_10) &&
                             IsIrcNetOperChannel(channel)) {
                             snprintf(tmpbuf,sizeof(tmpbuf), "MODE %s", channel);
                         }
                         else {
-                            snprintf(tmpbuf,sizeof(tmpbuf), "WHO %s", channel);
+                            if (chan && chan->gotwho) *tmpbuf = '\0';
+                            else snprintf(tmpbuf,sizeof(tmpbuf), "WHO %s", channel);
                             if (*channel != '+') {
                                 snprintf(&tmpbuf[strlen(tmpbuf)], sizeof(tmpbuf),
                                         "\r\nMODE %s\r\nMODE %s e\r\nMODE %s b",
@@ -1237,8 +1241,8 @@ p_channel(from, ArgList)
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);
 /***************************** PATCHED by Flier **************************/	
-                        chan = add_to_channel(channel, from, parsing_server_index, chan_oper,
-                                              chan_halfop, chan_voice, FromUserHost, NULL);
+                        add_to_channel(channel, from, parsing_server_index, chan_oper,
+                                       chan_halfop, chan_voice, FromUserHost, NULL);
                         if (*channel == '+') chan->gotbans = 1;
                         joiner = ChannelJoin(from, channel, chan);
                         donelj = 1;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.89 2002-03-11 20:25:01 f Exp $
+ * $Id: irc.c,v 1.90 2002-04-07 16:42:01 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1886,13 +1886,13 @@ main(argc, argv, envp)
 		if (is_channel(ptr))
 /**************************** Patched by Flier ******************************/
 			/*add_channel(ptr, 0, CHAN_LIMBO, (ChannelList *) 0);*/
-			add_channel(ptr, 0, CHAN_LIMBO, NULL, NULL);
+			add_channel(ptr, 0, CHAN_LIMBO, NULL, NULL, 0);
 /****************************************************************************/
 		while ((ptr = strtok(NULL,",")) != NULL)
 			if (is_channel(ptr))
 /**************************** Patched by Flier ******************************/
 				/*add_channel(ptr, 0, CHAN_LIMBO, (ChannelList *) 0);*/
-				add_channel(ptr, 0, CHAN_LIMBO, NULL, NULL);
+				add_channel(ptr, 0, CHAN_LIMBO, NULL, NULL, 0);
 /****************************************************************************/
 		new_free(&channel);
 	}

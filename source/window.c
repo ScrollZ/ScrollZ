@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.38 2002-02-20 20:17:07 f Exp $
+ * $Id: window.c,v 1.39 2002-04-07 16:42:01 f Exp $
  */
 
 #include "irc.h"
@@ -2079,7 +2079,7 @@ window_set_server(refnum, server, misc)
 				}
 /**************************** Patched by Flier ******************************/
 				/*add_channel(tmp->channel, server, CHAN_LIMBO, tmp);*/
-				add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL);
+				add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL, 0);
 /****************************************************************************/
 			}
 #ifdef NON_BLOCKING_CONNECTS
@@ -2152,7 +2152,7 @@ window_set_server(refnum, server, misc)
 					}
 /**************************** Patched by Flier ******************************/
 					/*add_channel(tmp->channel, server, CHAN_LIMBO, tmp);*/ /* Copy it -Sol */
-					add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL);
+					add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL, 0);
 /****************************************************************************/
 					from_server = old_serv; /* On old_serv,
 								   leave it
@@ -3129,7 +3129,7 @@ windowcmd(command, args, subargs)
                                                 /* from_server can be -1 here
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0,);*/
                                                 if (from_server >= 0)
-                                                    add_channel(arg, from_server, CHAN_JOINING, NULL, key);
+                                                    add_channel(arg, from_server, CHAN_JOINING, NULL, key, 0);
 /****************************************************************************/
  						from_server = server;
  					}

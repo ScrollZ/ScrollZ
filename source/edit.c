@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.89 2002-03-11 20:25:01 f Exp $
+ * $Id: edit.c,v 1.90 2002-04-07 16:42:01 f Exp $
  */
 
 #include "irc.h"
@@ -93,7 +93,10 @@ static	void	show_timer _((char *));
 static	int	create_timer_ref _((int));
 static	void	get_history _((int));
 static	void	oper_password_received _((char *, char *));
-static	char	*do_channel _((char *, int));
+/**************************** Patched by Flier ******************************/
+/*static	char	*do_channel _((char *, int));*/
+static	char	*do_channel _((char *, int, int));
+/****************************************************************************/
 static	void	send_action _((char *, char *));
 
 TimerList *PendingTimers = (TimerList *) 0;
@@ -1626,9 +1629,13 @@ save_settings(command, args, subargs)
  * returns the channel's name if not
  */
 static	char *
-do_channel(chan, force)
+/**************************** Patched by Flier ******************************/
+/*do_channel(chan, force)*/
+do_channel(chan, force, nowho)
 	char	*chan;
 	int force;
+	int nowho;
+/****************************************************************************/
 {
 	ChannelList	*channel;
 	char		*old;
@@ -1636,7 +1643,7 @@ do_channel(chan, force)
         /* use serv_ind instead of curr_scr_win->server because we might
          * be called from hook or from timer and in that case curr_scr_win
          * might not have proper server context */
-        int serv_ind=from_server;
+        int serv_ind = from_server;
 /****************************************************************************/
 
  	if (serv_ind < 0)
@@ -1647,7 +1654,7 @@ do_channel(chan, force)
         /* if you try to join same channel twice and you reached limit for
            maximum number of channels this fix prevents client from removing
            channel from memory */
-        if (channel && channel->connected==CHAN_JOINING) return(NULL);
+        if (channel && channel->connected == CHAN_JOINING) return(NULL);
 /****************************************************************************/
 
 	if (is_bound(chan, serv_ind) && channel && channel->window != curr_scr_win)
@@ -1669,10 +1676,10 @@ do_channel(chan, force)
 /**************************** Patched by Flier ******************************/
                 /* we should not add !!channel on ircd 2.10 as they denote
                    channel creation */
-                if (*chan=='!' && (get_server_version(serv_ind))==Server2_10)
+                if (*chan == '!' && (get_server_version(serv_ind)) == Server2_10)
                     return(chan);
 		/*add_channel(chan, serv_ind, CHAN_JOINING, (ChannelList *) 0);*/
-		add_channel(chan, serv_ind, CHAN_JOINING, NULL, NULL);
+		add_channel(chan, serv_ind, CHAN_JOINING, NULL, NULL, nowho);
 /****************************************************************************/
 		force = 1;
 	}
@@ -1718,6 +1725,7 @@ e_channel(command, args, subargs)
  	int 	force = 0;
 /**************************** PATCHED by Flier ******************************/
         char    *chankey;
+ 	int     nowho = 0;
 /****************************************************************************/
 
 	if (get_server_version(from_server) == Server2_5)
@@ -1726,8 +1734,8 @@ e_channel(command, args, subargs)
 	message_from((char *) 0, LOG_CURRENT);		/* XXX should delete this */
 /**************************** PATCHED by Flier ******************************/
         /* we are /CYCLEing */
-        if (args==subargs) {
-            send_to_server("%s %s",command,args);
+        if (args == subargs) {
+            send_to_server("%s %s", command, args);
             restore_message_from();
             return;
         }
@@ -1742,17 +1750,26 @@ e_channel(command, args, subargs)
 				goto out;	/* XXX: allow /alias join join -force */
 			len = MAX(2, strlen(chan));
 		}
+/**************************** Patched by Flier ******************************/
+                if (my_strnicmp(chan, "-nowho", len) == 0) {
+                    if ((chan = next_arg(args, &args)) == NULL)
+                        goto out;	/* XXX: allow /alias join join -force */
+                    nowho = 1;
+                    len = MAX(2, strlen(chan));
+		}
+/****************************************************************************/
 		if (my_strnicmp(chan, "-invite", len) == 0)
 		{
 			if (invite_channel)
 			{
-				if ((ptr = do_channel(invite_channel, force)))
-/**************************** PATCHED by Flier ******************************/
+/**************************** Patched by Flier ******************************/
+				/*if ((ptr = do_channel(invite_channel, force)))*/
+				if ((ptr = do_channel(invite_channel, force, nowho)))
 					/*send_to_server("%s %s %s", command, invite_channel, args);*/
                                 {
-                                    chankey=CheckJoinKey(invite_channel);
-                                    send_to_server("%s %s %s %s",command,invite_channel,
-                                                   args,chankey);
+                                    chankey = CheckJoinKey(invite_channel);
+                                    send_to_server("%s %s %s %s",command, invite_channel,
+                                                   args, chankey);
                                 }
 /****************************************************************************/
 				else
@@ -1771,14 +1788,13 @@ e_channel(command, args, subargs)
 
 			ptr = strtok(chanstr, ",");
 /**************************** PATCHED by Flier ******************************/
-                        ptr=fix_channel(ptr);
-/****************************************************************************/
-			if ((ptr = do_channel(ptr, force)) && *ptr)
-/**************************** PATCHED by Flier ******************************/
+                        ptr = fix_channel(ptr);
+			/*if ((ptr = do_channel(ptr, force)) && *ptr)*/
+			if ((ptr = do_channel(ptr, force, nowho)) && *ptr)
 				/*send_to_server("%s %s %s", command, ptr, args);*/
                         {
-                            chankey=CheckJoinKey(ptr);
-                            send_to_server("%s %s %s %s",command,ptr,args,chankey);
+                            chankey = CheckJoinKey(ptr);
+                            send_to_server("%s %s %s %s", command, ptr, args, chankey);
                         }
 /****************************************************************************/
 			while ((ptr = strtok(NULL, ",")))
@@ -1786,10 +1802,10 @@ e_channel(command, args, subargs)
 				/*if ((ptr = do_channel(ptr, force)) && *ptr)
 					send_to_server("%s %s %s", command, ptr, args);*/
                         {
-                            ptr=fix_channel(ptr);
-                            if ((ptr=do_channel(ptr,force)) && *ptr) {
-                                chankey=CheckJoinKey(ptr);
-                                send_to_server("%s %s %s %s",command,ptr,args,chankey);
+                            ptr = fix_channel(ptr);
+                            if ((ptr = do_channel(ptr, force, nowho)) && *ptr) {
+                                chankey = CheckJoinKey(ptr);
+                                send_to_server("%s %s %s %s", command, ptr, args, chankey);
                             }
                         }
 /****************************************************************************/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.7 2002-03-04 18:01:41 f Exp $
+ * $Id: names.h,v 1.8 2002-04-07 16:42:01 f Exp $
  */
 
 #ifndef __names_h_
@@ -83,7 +83,7 @@
 /**************************** PATCHED by Flier ******************************/
 	/*void	add_channel _((char *, int, int, ChannelList *));
 	void	add_to_channel _((char *, char *, int, int, int));*/
-	void	add_channel _((char *, int, int, ChannelList *, char *));
+	void	add_channel _((char *, int, int, ChannelList *, char *, int));
         ChannelList *add_to_channel _((char *, char *, int, int, int, int, char *, ChannelList *));
 /****************************************************************************/
 	void	remove_channel _((char *, int));

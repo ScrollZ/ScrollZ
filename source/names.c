@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.40 2002-03-04 18:24:28 f Exp $
+ * $Id: names.c,v 1.41 2002-04-07 16:42:01 f Exp $
  */
 
 #include "irc.h"
@@ -198,7 +198,7 @@ lookup_channel(channel, server, do_unlink)
 void
 /**************************** Patched by Flier ******************************/
 /*add_channel(channel, server, connected, copy)*/
-add_channel(channel, server, connected, copy, key)
+add_channel(channel, server, connected, copy, key, nowho)
 /****************************************************************************/
 	char	*channel;
 	int	server;
@@ -206,12 +206,13 @@ add_channel(channel, server, connected, copy, key)
 	ChannelList *copy;
 /**************************** Patched by Flier ******************************/
 	char	*key;
+	int	nowho;
 /****************************************************************************/
 {
 	ChannelList *new;
 	int	do_add = 0;
 /**************************** PATCHED by Flier ******************************/
-        int     resetchan=0;
+        int     resetchan = 0;
         WhowasChanList *whowaschan;
 /****************************************************************************/
 
@@ -222,8 +223,8 @@ add_channel(channel, server, connected, copy, key)
 		return;
 
 /**************************** PATCHED by Flier ******************************/
-        if ((whowaschan=check_whowas_chan_buffer(channel,1))) {
-            if ((new=lookup_channel(channel,server,CHAN_UNLINK))) {
+        if ((whowaschan = check_whowas_chan_buffer(channel, 1))) {
+            if ((new = lookup_channel(channel, server, CHAN_UNLINK))) {
                 new_free(&(new->channel));
                 new_free(&(new->s_mode));
                 new_free(&(new->key));
@@ -234,11 +235,11 @@ add_channel(channel, server, connected, copy, key)
                 ClearBans(new);
                 new_free(&new);
             }
-            new=whowaschan->channellist;
-            new->next=(ChannelList *) 0;
-            if ((new->window=is_bound(channel,server))==(Window *) 0)
-                new->window=curr_scr_win;
-            do_add=1;
+            new = whowaschan->channellist;
+            new->next = (ChannelList *) 0;
+            if ((new->window = is_bound(channel, server)) == (Window *) 0)
+                new->window = curr_scr_win;
+            do_add = 1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
             new_free(&whowaschan);
         }
@@ -260,17 +261,17 @@ add_channel(channel, server, connected, copy, key)
 		do_add = 1;
 		add_to_list((List **) &server_list[server].chan_list, (List *) new);
 /**************************** PATCHED by Flier ******************************/
-                new->creationtime=time((time_t *) 0);
-                new->modelock=(char *) 0;
-                new->topiclock=(char *) 0;
-                new->chanlogfpath=(char *) 0;
-                resetchan=1;
+                new->creationtime = time((time_t *) 0);
+                new->modelock = (char *) 0;
+                new->topiclock = (char *) 0;
+                new->chanlogfpath = (char *) 0;
+                resetchan = 1;
 /****************************************************************************/
 	}
         else
         {
 /**************************** Patched by Flier ******************************/
-                if (!(new->nicks)) resetchan=1;
+                if (!(new->nicks)) resetchan = 1;
 /****************************************************************************/
 		if (new->connected != CHAN_LIMBO && new->connected != CHAN_JOINING)
 			yell("--- add_channel: add_channel found channel not CHAN_LIMBO/JOINING: %s", new->channel);
@@ -279,54 +280,54 @@ add_channel(channel, server, connected, copy, key)
 	{
 		new->server = server;
 /**************************** PATCHED by Flier ******************************/
-                new->status=0;
-                new->gotbans=0;
-                new->gotwho=0;
-		new->mode=0;
-		new->limit=0;
+                new->status = 0;
+                new->gotbans = 0;
+                new->gotwho = nowho;
+		new->mode = 0;
+		new->limit = 0;
 		new_free(&new->key);
                 new_free(&new->s_mode);
-		new->s_mode=empty_string;
-                gettimeofday(&(new->time),NULL);
+		new->s_mode = empty_string;
+                gettimeofday(&(new->time), NULL);
                 if (resetchan) {
                     int i;
 
                     /* yay for ircII channel join handling, why is this called twice ? */
                     if (!connected) {
-                        new->modelock=(char *) 0;
-                        new->topiclock=(char *) 0;
+                        new->modelock = (char *) 0;
+                        new->topiclock = (char *) 0;
                     }
-                    new->pluso=0;     new->minuso=0;     new->plusb=0;
-                    new->minusb=0;    new->topic=0;      new->kick=0;
-                    new->pub=0;       new->servpluso=0;  new->servminuso=0;
-                    new->servplusb=0; new->servminusb=0;
-		    new->servplush=0; new->servminush=0;
-		    new->plush=0;     new->minush=0;
-                    new->AutoRejoin=AutoRejoin?CheckChannel(channel,AutoRejoinChannels):0;
-                    new->MDopWatch=MDopWatch?CheckChannel(channel,MDopWatchChannels):0;
-                    new->ShowFakes=ShowFakes?CheckChannel(channel,ShowFakesChannels):0;
-                    new->KickOnFlood=KickOnFlood?CheckChannel(channel,KickOnFloodChannels):0;
-                    new->KickWatch=KickWatch?CheckChannel(channel,KickWatchChannels):0;
-                    new->NHProt=NHProt?CheckChannel(channel,NHProtChannels):0;
-                    new->NickWatch=NickWatch?CheckChannel(channel,NickWatchChannels):0;
-                    new->ShowAway=ShowAway?CheckChannel(channel,ShowAwayChannels):0;
-                    new->KickOps=KickOps?CheckChannel(channel,KickOpsChannels):0;
-                    new->KickOnBan=KickOnBan?CheckChannel(channel,KickOnBanChannels):0;
-                    new->Bitch=Bitch?CheckChannel(channel,BitchChannels):0;
-                    new->FriendList=FriendList?CheckChannel(channel,FriendListChannels):0;
+                    new->pluso = 0;     new->minuso = 0;     new->plusb = 0;
+                    new->minusb = 0;    new->topic = 0;      new->kick = 0;
+                    new->pub = 0;       new->servpluso = 0;  new->servminuso = 0;
+                    new->servplusb = 0; new->servminusb = 0;
+		    new->servplush = 0; new->servminush = 0;
+		    new->plush = 0;     new->minush = 0;
+                    new->AutoRejoin = AutoRejoin ? CheckChannel(channel, AutoRejoinChannels) : 0;
+                    new->MDopWatch = MDopWatch ? CheckChannel(channel, MDopWatchChannels) : 0;
+                    new->ShowFakes = ShowFakes ? CheckChannel(channel, ShowFakesChannels) : 0;
+                    new->KickOnFlood = KickOnFlood ? CheckChannel(channel, KickOnFloodChannels) : 0;
+                    new->KickWatch = KickWatch ? CheckChannel(channel, KickWatchChannels) : 0;
+                    new->NHProt = NHProt ? CheckChannel(channel, NHProtChannels) : 0;
+                    new->NickWatch = NickWatch ? CheckChannel(channel, NickWatchChannels) : 0;
+                    new->ShowAway = ShowAway ? CheckChannel(channel, ShowAwayChannels) : 0;
+                    new->KickOps = KickOps ? CheckChannel(channel, KickOpsChannels) : 0;
+                    new->KickOnBan = KickOnBan ? CheckChannel(channel, KickOnBanChannels) : 0;
+                    new->Bitch = Bitch ? CheckChannel(channel, BitchChannels) : 0;
+                    new->FriendList = FriendList ? CheckChannel(channel, FriendListChannels) : 0;
 #ifdef EXTRAS
-                    new->IdleKick=IdleKick?CheckChannel(channel,IdleKickChannels):0;
-                    if (new->IdleKick) new->IdleKick=IdleKick;
+                    new->IdleKick =IdleKick ? CheckChannel(channel, IdleKickChannels) : 0;
+                    if (new->IdleKick) new->IdleKick = IdleKick;
 #endif
-                    new->CompressModes=CompressModes?CheckChannel(channel,CompressModesChannels):0;
-                    new->BKList=BKList?CheckChannel(channel,BKChannels):0;
-                    new->ChanLog=ChanLog?CheckChannel(channel,ChanLogChannels):0;
+                    new->CompressModes = CompressModes ? CheckChannel(channel, CompressModesChannels) : 0;
+                    new->BKList = BKList ? CheckChannel(channel, BKChannels) : 0;
+                    new->ChanLog = ChanLog ? CheckChannel(channel, ChanLogChannels) : 0;
                     if (new->ChanLog) UpdateChanLogFName(new);
-                    new->TryRejoin=0;
-                    new->banlist=NULL;
-                    new->topicstr=NULL;
-                    new->topicwho=NULL;
-                    for (i=0;i<HASHTABLESIZE;i++) new->nickshash[i]=(struct hashstr *) 0;
+                    new->TryRejoin = 0;
+                    new->banlist = NULL;
+                    new->topicstr = NULL;
+                    new->topicwho = NULL;
+                    for (i = 0; i < HASHTABLESIZE; i++) new->nickshash[i] = (struct hashstr *) 0;
                 }
 /****************************************************************************/
 		clear_channel(new);
@@ -353,7 +354,7 @@ add_channel(channel, server, connected, copy, key)
 		while ((tmp = traverse_all_windows(&flag)))
 		{
 /**************************** PATCHED by Flier ******************************/
-                        if (tmp->name && !strcmp(tmp->name,"OV")) continue;
+                        if (tmp->name && !strcmp(tmp->name, "OV")) continue;
 /****************************************************************************/
 			if (tmp->server == server)
 			{
