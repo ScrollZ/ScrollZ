@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.9 2000-09-24 17:10:34 f Exp $
+ * $Id: ircaux.c,v 1.10 2000-10-31 08:56:08 f Exp $
  */
 
 #include "irc.h"
@@ -528,7 +528,7 @@ lower(s)
 }
 
 /**************************** PATCHED by Flier ******************************/
-/* if dcc_ports is set try to find unused port in port range given in /set dcc_ports */
+/* try to find unused port in port range given in /set dcc_ports */
 int BindPort(s,slisten,localaddr)
 int s;
 int slisten;
@@ -545,7 +545,8 @@ struct sockaddr_in *localaddr;
     }
     if (!(locport>=DCCLowPort && locport<=DCCHighPort)) {
         new_close(s);
-        say("Could not allocate DCC port in range %d - %d",DCCLowPort,DCCHighPort);
+        say("Could not allocate DCC port in range %d - %d",
+            DCCLowPort,DCCHighPort);
         return(-4);
     }
     return(s);
