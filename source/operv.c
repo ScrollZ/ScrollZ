@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.5 1998-10-31 18:27:38 f Exp $
+ * $Id: operv.c,v 1.6 1999-02-28 20:11:18 f Exp $
  */
 
 #include "irc.h"
@@ -70,7 +70,7 @@ char *subargs;
                 strcpy(tmpbuf,"NEW NAME OV DOUBLE OFF LEVEL OPNOTE,SNOTE,WALLOP REFNUM 1 GROW 6");
                 display=window_display;
                 window_display=0;
-                window(NULL,tmpbuf,NULL);
+                windowcmd(NULL,tmpbuf,NULL);
                 window_display=display;
                 say("OperVision is now enabled");
 	    }
@@ -86,7 +86,7 @@ char *subargs;
 		strcpy(tmpbuf,"REFNUM OV KILL");
                 display=window_display;
                 window_display=0;
-		window(NULL,tmpbuf,NULL);
+		windowcmd(NULL,tmpbuf,NULL);
                 window_display=display;
 		say("OperVision is now disabled");
 	    }
