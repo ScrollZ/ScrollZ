@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.91 2003-01-09 20:21:21 f Exp $
+ * $Id: edit2.c,v 1.92 2003-04-29 18:05:49 f Exp $
  */
 
 #include "irc.h"
@@ -2120,6 +2120,7 @@ char *subargs;
     fprintf(usfile,"#                    PROT=64   HACK=128   SRVMODE=256   CTCP=512   FLOOD=1024\n");
     fprintf(usfile,"#                    INVITE=2048    KILL=4096    KICK=8192    SERVER=16384\n");
     fprintf(usfile,"#                    FAKE=32768   AREPLY=65536   CHAT=131072   NOTIFY=262144\n");
+    fprintf(usfile,"#                    SENTMSG=524288   AWAY=1048576\n");
     fprintf(usfile,"#\n");
     fprintf(usfile,"AWAYSAVE        %d\n",AwaySaveSet);
     fprintf(usfile,"#\n");
@@ -3365,7 +3366,7 @@ char *subargs;
         say("Can't open file %s",filename);
     else {
         fclose(awayfile);
-        AwaySave("SetAway",0);
+        AwaySave("SetAway",SAVEAWAY);
         update_all_status();
     }
     umask(oldumask);
@@ -3377,7 +3378,7 @@ char *command;
 char *args;
 char *subargs;
 {
-    AwaySave("SetBack",0);
+    AwaySave("SetBack",SAVEAWAY);
     add_wait_prompt("Display message file (y/n/r) ? ",SetBack2,args,WAIT_PROMPT_KEY);
 }
 

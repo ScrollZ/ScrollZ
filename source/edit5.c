@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.103 2003-04-28 19:04:00 f Exp $
+ * $Id: edit5.c,v 1.104 2003-04-29 18:05:49 f Exp $
  */
 
 #include "irc.h"
@@ -1858,6 +1858,7 @@ char *subargs;
             else if (!my_stricmp(tmpstr,"CHAT")) curval=SAVECHAT;
             else if (!my_stricmp(tmpstr,"NOTIFY")) curval=SAVENOTIFY;
             else if (!my_stricmp(tmpstr,"SENTMSG")) curval=SAVESENTMSG;
+            else if (!my_stricmp(tmpstr,"AWAY")) curval=SAVEAWAY;
             else if (!my_stricmp(tmpstr,"ALL")) newtype=SAVEALL;
             else if (!my_stricmp(tmpstr,"NONE")) newtype=0;
             else say("Unknown type %s",tmpstr);
@@ -1890,7 +1891,8 @@ char *subargs;
         if (AwaySaveSet&SAVEAREPLY) malloc_strcat(&tmpstr,"AREPLY ");
         if (AwaySaveSet&SAVECHAT) malloc_strcat(&tmpstr,"CHAT ");
         if (AwaySaveSet&SAVENOTIFY) malloc_strcat(&tmpstr,"NOTIFY ");
-        if (AwaySaveSet&SAVESENTMSG) malloc_strcat(&tmpstr,"SENTMSG");
+        if (AwaySaveSet&SAVESENTMSG) malloc_strcat(&tmpstr,"SENTMSG ");
+        if (AwaySaveSet&SAVEAWAY) malloc_strcat(&tmpstr,"AWAY");
     }
     if (tmpstr) PrintSetting("Away saving",tmpstr,empty_string,empty_string);
     else PrintSetting("Away saving","NONE",empty_string,empty_string);

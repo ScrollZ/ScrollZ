@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.35 2003-04-20 19:05:21 f Exp $
+ * $Id: myvars.h,v 1.36 2003-04-29 18:05:49 f Exp $
  */
 
 #include "mystructs.h"
@@ -89,7 +89,8 @@
 #define SAVECHAT     131072
 #define SAVENOTIFY   262144
 #define SAVESENTMSG  524288
-#define SAVEALL     1048575
+#define SAVEAWAY    1048576
+#define SAVEALL     2097151
 
 extern struct friends *frlist;
 extern struct autobankicks *abklist;

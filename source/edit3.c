@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.81 2002-03-07 16:53:11 f Exp $
+ * $Id: edit3.c,v 1.82 2003-04-29 18:05:49 f Exp $
  */
 
 #include "irc.h"
@@ -211,6 +211,7 @@ int  type;
         else if (type & SAVEAREPLY)  strmcpy(tmpbuf1, "AREPLY", sizeof(tmpbuf1));
         else if (type & SAVENOTIFY)  strmcpy(tmpbuf1, "NOTIFY", sizeof(tmpbuf1));
         else if (type & SAVESENTMSG) strmcpy(tmpbuf1, "SENTMSG", sizeof(tmpbuf1));
+        else if (type & SAVEAWAY)    strmcpy(tmpbuf1, "AWAY", sizeof(tmpbuf1));
         else *tmpbuf1 = '\0';
         if (*tmpbuf1) snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
         else snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
