@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.53 2001-02-27 19:28:13 f Exp $
+ * $Id: edit4.c,v 1.54 2001-03-05 17:13:53 f Exp $
  */
 
 #include "irc.h"
@@ -1063,9 +1063,11 @@ char *command;
 char *args;
 char *subargs;
 {
+    int first=1;
     char *mode=(char *) 0;
     char *tmpchannel=(char *) 0;
     ChannelList *chan;
+    WhowasChanList *whowas;
 
     tmpchannel=new_next_arg(args,&args);
     mode=new_next_arg(args,&args);
@@ -1078,7 +1080,28 @@ char *subargs;
             }
         }
     }
-    else PrintUsage("MODELOCK #channel mode");
+    else {
+        for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
+            if (chan->modelock) {
+                if (first) {
+                    say("%-25.25s %s","Channel","mode");
+                    first=0;
+                }
+                say("%-25.25s %s",chan->channel,chan->modelock);
+            }
+        }
+        for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
+            if (whowas->channellist->modelock) {
+                if (first) {
+                    say("%-25.25s %s","Channel","mode");
+                    first=0;
+                }
+                say("%-25.25s %s",whowas->channellist->channel,
+                     whowas->channellist->modelock);
+            }
+        }
+        if (first) say("No channels are mode locked");
+    }
 }
 
 /* Checks if there is a need to put lock mode back */
