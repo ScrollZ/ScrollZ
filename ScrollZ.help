@@ -452,7 +452,7 @@ Usage $3AREJOIN on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).
 Client will rejoin such channels on kick.
 :AUTOCOMPL     Toggles auto nick completion on/off
-Usage $3AUTOCOMPL on$0|$3auto string$0|$3off$0
+Usage $3AUTOCOMPL on string$0|$3auto string$0|$3off$0
 If set to on or auto, client will do the nick completion for you on
 public messages. If public message starts with 'blah:' client will
 search for nick starting with 'blah' on current channel and insert
