@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.21 2000-08-29 19:04:49 f Exp $
+ * $Id: window.c,v 1.22 2000-08-31 16:57:25 f Exp $
  */
 
 #include "irc.h"
@@ -3394,6 +3394,9 @@ window_get_connected(window, arg, narg, preserve, args)
 		}
 	}
 	window_check_servers();
+/**************************** PATCHED by Flier ******************************/
+        is_current_channel(NULL,curr_scr_win->server,0);
+/****************************************************************************/
 }
 
 static	void
