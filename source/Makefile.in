@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.7 2002-01-21 21:37:35 f Exp $
+# @(#)$Id: Makefile.in,v 1.8 2002-03-03 10:51:51 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -67,6 +67,9 @@ install: scrollz
 
 # .o files needing special compilation flags
 
+edit3.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCPATH=\"$(IRCPATH)\" -c edit3.c
+
 irc.o: Makefile ../Makefile
 	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCLIB=\"$(IRCSHARE)/\" -DIRCPATH=\"$(IRCPATH)\" -c irc.c
 
@@ -127,215 +130,449 @@ wterm.o:
 
 # this is the "depend.mk" file created above.
 # --- ALL BELOW IS AUTOMATICALLY GENERATED ---
-wterm.o : wterm.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/translat.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/screen.h 
-
-alias.o : alias.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/alias.h ../include/dcc.h ../include/status.h \
-  ../include/edit.h ../include/history.h ../include/vars.h ../include/ircaux.h \
-  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
-  ../include/lastlog.h ../include/menu.h ../include/screen.h ../include/input.h \
-  ../include/output.h 
-crypt.o : crypt.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/crypt.h ../include/vars.h \
-  ../include/ircaux.h ../include/list.h ../include/ctcp.h ../include/output.h \
-  ../include/newio.h 
-ctcp.o : ctcp.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/hook.h \
-  ../include/crypt.h ../include/ctcp.h ../include/vars.h ../include/server.h ../include/names.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/status.h ../include/ignore.h ../include/output.h \
-  ../include/dcc.h ../include/parse.h 
-dcc.o : dcc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/server.h \
-  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/whois.h ../include/ctcp.h \
-  ../include/dcc.h ../include/hook.h ../include/vars.h ../include/output.h ../include/newio.h 
-debug.o : debug.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h 
-edit.o : edit.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/parse.h ../include/ircterm.h \
-  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
-  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/crypt.h \
-  ../include/vars.h ../include/ircaux.h ../include/screen.h ../include/whois.h \
-  ../include/hook.h ../include/input.h ../include/ignore.h ../include/keys.h ../include/alias.h \
-  ../include/history.h ../include/funny.h ../include/ctcp.h ../include/dcc.h ../include/translat.h \
-  ../include/output.h ../include/exec.h ../include/notify.h ../include/numbers.h \
-  ../include/status.h ../include/if.h ../include/help.h ../include/stack.h ../include/queue.h 
-exec.o : exec.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/exec.h ../include/vars.h ../include/ircaux.h \
-  ../include/edit.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/menu.h ../include/screen.h ../include/hook.h ../include/input.h ../include/list.h \
-  ../include/server.h ../include/names.h ../include/output.h ../include/parse.h \
-  ../include/dcc.h ../include/newio.h sig.inc 
-file.o : file.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h 
-flood.o : flood.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/hook.h ../include/ircaux.h \
-  ../include/ignore.h ../include/flood.h ../include/vars.h ../include/output.h 
-funny.o : funny.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/hook.h \
-  ../include/vars.h ../include/funny.h ../include/names.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/server.h \
-  ../include/ircterm.h ../include/output.h ../include/numbers.h ../include/parse.h 
-help.o : help.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/server.h \
-  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/vars.h ../include/ircaux.h ../include/input.h \
-  ../include/screen.h ../include/output.h ../include/help.h 
-history.o : history.c ../include/irc.h ../include/defs.h ../include/config.h \
-  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/ircaux.h \
-  ../include/vars.h ../include/history.h ../include/output.h ../include/input.h 
-hold.o : hold.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
-  ../include/vars.h ../include/input.h 
-hook.o : hook.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/hook.h ../include/vars.h ../include/ircaux.h \
-  ../include/alias.h ../include/list.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/server.h ../include/names.h ../include/output.h 
-if.o : if.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/alias.h ../include/ircaux.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/vars.h ../include/output.h ../include/if.h 
-ignore.o : ignore.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ignore.h ../include/ircaux.h \
-  ../include/list.h ../include/vars.h ../include/output.h 
-input.o : input.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/input.h ../include/ircterm.h \
-  ../include/alias.h ../include/vars.h ../include/ircaux.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
-  ../include/exec.h 
-irc.o : irc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/status.h ../include/dcc.h \
-  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/vars.h ../include/input.h ../include/alias.h \
-  ../include/output.h ../include/ircterm.h ../include/exec.h ../include/screen.h \
-  ../include/log.h ../include/server.h ../include/hook.h ../include/keys.h ../include/ircaux.h \
-  ../include/history.h ../include/notify.h ../include/mail.h ../include/newio.h 
-ircaux.o : ircaux.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/output.h \
-  ../include/ircterm.h ../include/newio.h 
-ircflush.o : ircflush.c ../include/irc.h ../include/defs.h ../include/config.h \
-  ../include/irc_std.h ../include/debug.h ../include/struct.h 
-ircio.o : ircio.c ../include/defs.h ../include/irc_std.h ../include/newio.h 
-ircsig.o : ircsig.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h 
-keys.o : keys.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/output.h ../include/keys.h \
-  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/vars.h ../include/translat.h \
-  ../include/ircterm.h ../include/input.h ../include/screen.h 
-lastlog.o : lastlog.c ../include/irc.h ../include/defs.h ../include/config.h \
-  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/lastlog.h \
-  ../include/window.h ../include/hold.h ../include/edit.h ../include/menu.h ../include/screen.h \
-  ../include/vars.h ../include/ircaux.h ../include/output.h 
-list.o : list.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/list.h ../include/ircaux.h 
-log.o : log.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/log.h ../include/vars.h ../include/output.h \
-  ../include/ircaux.h 
-mail.o : mail.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/newio.h ../include/mail.h \
-  ../include/lastlog.h ../include/hook.h ../include/vars.h ../include/ircaux.h \
-  ../include/output.h ../include/window.h ../include/hold.h ../include/edit.h \
-  ../include/menu.h 
-menu.o : menu.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/menu.h ../include/list.h ../include/ircaux.h \
-  ../include/ircterm.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/screen.h ../include/input.h ../include/vars.h ../include/output.h 
-names.o : names.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/names.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/screen.h ../include/server.h ../include/list.h \
-  ../include/output.h 
-newio.o : newio.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/newio.h 
-notice.o : notice.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/whois.h ../include/ctcp.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/flood.h ../include/vars.h ../include/ircaux.h ../include/hook.h \
-  ../include/ignore.h ../include/server.h ../include/names.h ../include/funny.h \
-  ../include/output.h ../include/parse.h ../include/notify.h 
-notify.o : notify.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/list.h ../include/notify.h \
-  ../include/ircaux.h ../include/whois.h ../include/hook.h ../include/server.h \
-  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/output.h ../include/vars.h 
-numbers.o : numbers.c ../include/irc.h ../include/defs.h ../include/config.h \
-  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/input.h \
-  ../include/edit.h ../include/ircaux.h ../include/vars.h ../include/lastlog.h \
-  ../include/hook.h ../include/server.h ../include/names.h ../include/window.h \
-  ../include/hold.h ../include/menu.h ../include/whois.h ../include/numbers.h \
-  ../include/screen.h ../include/output.h ../include/funny.h ../include/parse.h 
-output.o : output.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/output.h ../include/vars.h \
-  ../include/input.h ../include/ircterm.h ../include/lastlog.h ../include/window.h \
-  ../include/hold.h ../include/edit.h ../include/menu.h ../include/screen.h ../include/hook.h \
-  ../include/ctcp.h ../include/log.h 
-parse.o : parse.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/server.h ../include/names.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/vars.h ../include/ctcp.h ../include/hook.h ../include/ignore.h \
-  ../include/whois.h ../include/ircaux.h ../include/funny.h ../include/crypt.h \
-  ../include/ircterm.h ../include/flood.h ../include/screen.h ../include/output.h \
-  ../include/numbers.h ../include/parse.h ../include/notify.h 
-queue.o : queue.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/alias.h ../include/ircaux.h \
-  ../include/output.h ../include/edit.h ../include/if.h ../include/queue.h 
-reg.o : reg.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircaux.h 
-scandir.o : scandir.c ../include/defs.h 
-screen.o : screen.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/screen.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/output.h \
-  ../include/vars.h ../include/server.h ../include/names.h ../include/list.h ../include/ircterm.h \
-  ../include/ircaux.h ../include/input.h ../include/log.h ../include/hook.h ../include/dcc.h \
-  ../include/translat.h ../include/exec.h ../include/newio.h 
-server.o : server.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/server.h ../include/names.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/screen.h ../include/ircaux.h ../include/whois.h \
-  ../include/exec.h ../include/output.h ../include/parse.h ../include/list.h ../include/newio.h 
-stack.o : stack.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/stack.h ../include/hook.h \
-  ../include/alias.h ../include/window.h ../include/hold.h ../include/lastlog.h \
-  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/output.h \
-  ../include/list.h 
-status.o : status.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/status.h \
-  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
-  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/vars.h ../include/hook.h \
-  ../include/input.h ../include/screen.h ../include/mail.h ../include/output.h \
-  ../include/ircaux.h ../include/translat.h 
-term.o : term.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/translat.h \
-  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
-  ../include/menu.h ../include/screen.h 
-translat.o : translat.c ../include/irc.h ../include/defs.h ../include/config.h \
-  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/vars.h \
-  ../include/translat.h ../include/ircaux.h ../include/window.h ../include/hold.h \
-  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
-  ../include/output.h digraph.inc 
-vars.o : vars.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/status.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/log.h \
-  ../include/crypt.h ../include/history.h ../include/notify.h ../include/vars.h \
-  ../include/input.h ../include/ircaux.h ../include/whois.h ../include/translat.h \
-  ../include/ircterm.h ../include/output.h 
-whois.o : whois.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/whois.h ../include/hook.h \
-  ../include/lastlog.h ../include/vars.h ../include/server.h ../include/names.h \
-  ../include/window.h ../include/hold.h ../include/edit.h ../include/menu.h ../include/ignore.h \
-  ../include/ircaux.h ../include/notify.h ../include/numbers.h ../include/output.h \
-  ../include/parse.h ../include/ctcp.h 
-window.o : window.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/screen.h ../include/window.h \
-  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/vars.h \
-  ../include/server.h ../include/names.h ../include/list.h ../include/ircterm.h ../include/ircaux.h \
-  ../include/input.h ../include/status.h ../include/output.h ../include/log.h \
-  ../include/hook.h ../include/dcc.h ../include/translat.h 
-wserv.o : wserv.c ../include/defs.h ../include/irc.h ../include/config.h ../include/irc_std.h \
-  ../include/debug.h ../include/struct.h ../include/ircterm.h 
+alias.o: alias.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/alias.h ../include/dcc.h ../include/status.h \
+      ../include/edit.h ../include/history.h ../include/vars.h \
+      ../include/ircaux.h ../include/server.h ../include/names.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/menu.h ../include/screen.h ../include/input.h \
+      ../include/output.h ../include/parse.h ../include/notify.h \
+      ../include/ignore.h ../include/exec.h ../include/ircterm.h \
+      /usr/include/sys/stat.h ../include/myvars.h
+blowfish.o: blowfish.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/blowfish.h
+cdcc.o: cdcc.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/list.h ../include/server.h ../include/names.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/vars.h \
+      ../include/ircaux.h ../include/input.h ../include/screen.h \
+      ../include/output.h ../include/dcc.h ../include/parse.h \
+      ../include/hook.h ../include/cdcc.h ../include/myvars.h
+celerity.o: celerity.c ../include/defs.h ../include/celerity.h
+crypt.o: crypt.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/list.h ../include/ctcp.h ../include/output.h \
+      ../include/newio.h cast.c ../include/cast_sbox.h sed.c
+ctcp.o: ctcp.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/hook.h ../include/crypt.h \
+      ../include/ctcp.h ../include/vars.h ../include/server.h \
+      ../include/names.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/status.h ../include/ignore.h ../include/output.h \
+      ../include/dcc.h ../include/parse.h ../include/myvars.h \
+      ../include/flood.h ../include/screen.h ../include/ircterm.h
+dcc.o: dcc.c ../include/irc.h ../include/defs.h ../include/celerity.h \
+      ../include/config.h ../include/irc_std.h ../include/debug.h \
+      ../include/struct.h ../include/mystructs.h ../include/server.h \
+      ../include/names.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/ircaux.h ../include/whois.h ../include/ctcp.h \
+      ../include/dcc.h ../include/hook.h ../include/vars.h \
+      ../include/output.h ../include/newio.h ../include/crypt.h \
+      ../include/myvars.h
+debug.o: debug.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h
+edit.o: edit.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/parse.h ../include/ircterm.h ../include/server.h \
+      ../include/names.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/screen.h ../include/whois.h ../include/hook.h \
+      ../include/input.h ../include/ignore.h ../include/keys.h \
+      ../include/alias.h ../include/history.h ../include/funny.h \
+      ../include/ctcp.h ../include/dcc.h ../include/translat.h \
+      ../include/output.h ../include/exec.h ../include/notify.h \
+      ../include/numbers.h ../include/status.h ../include/if.h \
+      ../include/help.h ../include/stack.h ../include/queue.h \
+      ../include/myvars.h
+edit2.o: edit2.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/whois.h \
+      ../include/hook.h ../include/input.h ../include/ignore.h \
+      ../include/keys.h ../include/names.h ../include/alias.h \
+      ../include/history.h ../include/funny.h ../include/ctcp.h \
+      ../include/dcc.h ../include/translat.h ../include/output.h \
+      ../include/notify.h ../include/numbers.h ../include/status.h \
+      ../include/screen.h ../include/server.h ../include/list.h \
+      ../include/parse.h ../include/myvars.h ../include/whowas.h
+edit3.o: edit3.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/whois.h \
+      ../include/hook.h ../include/input.h ../include/ignore.h \
+      ../include/keys.h ../include/names.h ../include/alias.h \
+      ../include/history.h ../include/list.h ../include/funny.h \
+      ../include/ctcp.h ../include/dcc.h ../include/translat.h \
+      ../include/output.h ../include/notify.h ../include/numbers.h \
+      ../include/status.h ../include/screen.h ../include/server.h \
+      ../include/exec.h ../include/parse.h ../include/myvars.h \
+      ../include/whowas.h
+edit4.o: edit4.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/whois.h \
+      ../include/hook.h ../include/input.h ../include/ignore.h \
+      ../include/keys.h ../include/names.h ../include/alias.h \
+      ../include/history.h ../include/funny.h ../include/ctcp.h \
+      ../include/dcc.h ../include/translat.h ../include/output.h \
+      ../include/notify.h ../include/numbers.h ../include/status.h \
+      ../include/screen.h ../include/server.h ../include/ircterm.h \
+      ../include/list.h ../include/parse.h ../include/myvars.h \
+      ../include/whowas.h
+edit5.o: edit5.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/whois.h \
+      ../include/hook.h ../include/input.h ../include/ignore.h \
+      ../include/keys.h ../include/list.h ../include/names.h \
+      ../include/alias.h ../include/history.h ../include/funny.h \
+      ../include/ctcp.h ../include/dcc.h ../include/translat.h \
+      ../include/output.h ../include/notify.h ../include/numbers.h \
+      ../include/status.h ../include/screen.h ../include/server.h \
+      ../include/ircterm.h ../include/parse.h ../include/myvars.h \
+      ../include/whowas.h
+edit6.o: edit6.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/crypt.h ../include/vars.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/whois.h \
+      ../include/hook.h ../include/input.h ../include/ignore.h \
+      ../include/keys.h ../include/list.h ../include/names.h \
+      ../include/alias.h ../include/history.h ../include/funny.h \
+      ../include/exec.h ../include/ctcp.h ../include/dcc.h \
+      ../include/translat.h ../include/output.h ../include/notify.h \
+      ../include/numbers.h ../include/status.h ../include/screen.h \
+      ../include/server.h ../include/parse.h ../include/myvars.h \
+      ../include/whowas.h
+exec.o: exec.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/exec.h ../include/vars.h ../include/ircaux.h \
+      ../include/edit.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/menu.h ../include/screen.h \
+      ../include/hook.h ../include/input.h ../include/list.h \
+      ../include/server.h ../include/names.h ../include/output.h \
+      ../include/parse.h ../include/dcc.h ../include/newio.h \
+      ../include/alias.h sig.inc
+files.o: files.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h
+flood.o: flood.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/hook.h ../include/ircaux.h ../include/ignore.h \
+      ../include/flood.h ../include/vars.h ../include/output.h \
+      ../include/myvars.h
+funny.o: funny.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/hook.h ../include/vars.h \
+      ../include/funny.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/server.h ../include/ircterm.h \
+      ../include/output.h ../include/numbers.h ../include/parse.h \
+      ../include/screen.h ../include/myvars.h
+help.o: help.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircterm.h ../include/server.h ../include/names.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/vars.h \
+      ../include/ircaux.h ../include/input.h ../include/screen.h \
+      ../include/output.h ../include/help.h ../include/scandir.h
+history.o: history.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/vars.h ../include/history.h \
+      ../include/output.h ../include/input.h
+hold.o: hold.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/screen.h ../include/vars.h ../include/input.h
+hook.o: hook.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/hook.h ../include/vars.h ../include/ircaux.h \
+      ../include/alias.h ../include/list.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/server.h ../include/names.h \
+      ../include/output.h ../include/buffer.h
+if.o: if.c ../include/irc.h ../include/defs.h ../include/celerity.h \
+      ../include/config.h ../include/irc_std.h ../include/debug.h \
+      ../include/struct.h ../include/mystructs.h ../include/alias.h \
+      ../include/ircaux.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/vars.h ../include/output.h ../include/if.h
+ignore.o: ignore.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ignore.h ../include/ircaux.h ../include/list.h \
+      ../include/vars.h ../include/output.h ../include/parse.h \
+      ../include/myvars.h
+input.o: input.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/input.h ../include/ircterm.h ../include/alias.h \
+      ../include/vars.h ../include/ircaux.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/exec.h \
+      ../include/output.h ../include/myvars.h
+irc.o: irc.c ../include/irc.h ../include/defs.h ../include/celerity.h \
+      ../include/config.h ../include/irc_std.h ../include/debug.h \
+      ../include/struct.h ../include/mystructs.h ../include/status.h \
+      ../include/dcc.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/vars.h ../include/input.h \
+      ../include/alias.h ../include/output.h ../include/ircterm.h \
+      ../include/exec.h ../include/screen.h ../include/log.h \
+      ../include/server.h ../include/hook.h ../include/keys.h \
+      ../include/ircaux.h ../include/history.h ../include/notify.h \
+      ../include/mail.h ../include/newio.h ../include/ctcp.h \
+      ../include/parse.h ../include/myvars.h ../include/cdcc.h
+ircaux.o: ircaux.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/output.h ../include/ircterm.h \
+      ../include/newio.h
+ircsig.o: ircsig.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h
+keys.o: keys.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/output.h ../include/keys.h ../include/names.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/ircaux.h \
+      ../include/vars.h ../include/translat.h ../include/ircterm.h \
+      ../include/input.h ../include/screen.h ../include/myvars.h
+lastlog.o: lastlog.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/lastlog.h ../include/window.h ../include/hold.h \
+      ../include/edit.h ../include/menu.h ../include/screen.h \
+      ../include/vars.h ../include/ircaux.h ../include/output.h
+list.o: list.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/list.h ../include/ircaux.h
+log.o: log.c ../include/irc.h ../include/defs.h ../include/celerity.h \
+      ../include/config.h ../include/irc_std.h ../include/debug.h \
+      ../include/struct.h ../include/mystructs.h ../include/log.h \
+      ../include/vars.h ../include/output.h ../include/ircaux.h \
+      ../include/myvars.h
+mail.o: mail.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/newio.h ../include/myvars.h ../include/parse.h \
+      ../include/ircaux.h ../include/screen.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/vars.h ../include/ircterm.h \
+      ../include/mail.h ../include/hook.h ../include/output.h
+menu.o: menu.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/menu.h ../include/list.h ../include/ircaux.h \
+      ../include/ircterm.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/screen.h \
+      ../include/input.h ../include/vars.h ../include/output.h
+names.o: names.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/server.h \
+      ../include/list.h ../include/output.h ../include/notify.h \
+      ../include/vars.h ../include/myvars.h ../include/whowas.h
+newio.o: newio.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/newio.h
+notice.o: notice.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/whois.h ../include/ctcp.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/flood.h ../include/vars.h \
+      ../include/ircaux.h ../include/hook.h ../include/ignore.h \
+      ../include/server.h ../include/names.h ../include/funny.h \
+      ../include/output.h ../include/parse.h ../include/notify.h \
+      ../include/status.h ../include/myvars.h
+notify.o: notify.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/list.h ../include/notify.h ../include/ircaux.h \
+      ../include/whois.h ../include/hook.h ../include/server.h \
+      ../include/names.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/output.h ../include/vars.h ../include/myvars.h
+numbers.o: numbers.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/input.h ../include/edit.h ../include/ircaux.h \
+      ../include/vars.h ../include/lastlog.h ../include/hook.h \
+      ../include/server.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/menu.h ../include/whois.h \
+      ../include/numbers.h ../include/screen.h ../include/output.h \
+      ../include/funny.h ../include/parse.h ../include/ignore.h \
+      ../include/status.h ../include/myvars.h
+operv.o: operv.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/output.h ../include/server.h ../include/names.h \
+      ../include/screen.h ../include/status.h ../include/myvars.h
+output.o: output.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/output.h ../include/vars.h ../include/input.h \
+      ../include/ircterm.h ../include/ircaux.h ../include/lastlog.h \
+      ../include/window.h ../include/hold.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/hook.h \
+      ../include/ctcp.h ../include/log.h ../include/alias.h \
+      ../include/buffer.h ../include/status.h ../include/myvars.h
+parse.o: parse.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/server.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/vars.h ../include/ctcp.h \
+      ../include/hook.h ../include/ignore.h ../include/whois.h \
+      ../include/ircaux.h ../include/funny.h ../include/crypt.h \
+      ../include/ircterm.h ../include/flood.h ../include/screen.h \
+      ../include/output.h ../include/numbers.h ../include/parse.h \
+      ../include/notify.h ../include/list.h ../include/status.h \
+      ../include/myvars.h
+queue.o: queue.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/alias.h ../include/ircaux.h ../include/output.h \
+      ../include/edit.h ../include/if.h ../include/queue.h
+reg.o: reg.c ../include/irc.h ../include/defs.h ../include/celerity.h \
+      ../include/config.h ../include/irc_std.h ../include/debug.h \
+      ../include/struct.h ../include/mystructs.h ../include/ircaux.h
+scandir.o: scandir.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircaux.h
+screen.o: screen.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/screen.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/output.h ../include/vars.h ../include/server.h \
+      ../include/names.h ../include/list.h ../include/ircterm.h \
+      ../include/ircaux.h ../include/input.h ../include/log.h \
+      ../include/hook.h ../include/dcc.h ../include/translat.h \
+      ../include/exec.h ../include/newio.h ../include/parse.h \
+      ../include/myvars.h
+server.o: server.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/server.h ../include/names.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/ircaux.h \
+      ../include/whois.h ../include/exec.h ../include/output.h \
+      ../include/parse.h ../include/list.h ../include/newio.h \
+      ../include/vars.h ../include/hook.h ../include/myvars.h
+stack.o: stack.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/stack.h ../include/hook.h ../include/alias.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/ircaux.h \
+      ../include/output.h ../include/list.h
+status.o: status.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircterm.h ../include/status.h ../include/server.h \
+      ../include/names.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/vars.h ../include/hook.h ../include/input.h \
+      ../include/screen.h ../include/mail.h ../include/output.h \
+      ../include/ircaux.h ../include/translat.h ../include/ctcp.h \
+      ../include/myvars.h
+term.o: term.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircterm.h ../include/translat.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/vars.h
+translat.o: translat.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/vars.h ../include/translat.h ../include/ircaux.h \
+      ../include/window.h ../include/hold.h ../include/lastlog.h \
+      ../include/edit.h ../include/menu.h ../include/screen.h \
+      ../include/output.h digraph.inc
+vars.o: vars.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/status.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/log.h ../include/crypt.h ../include/history.h \
+      ../include/notify.h ../include/vars.h ../include/input.h \
+      ../include/ircaux.h ../include/whois.h ../include/translat.h \
+      ../include/ircterm.h ../include/output.h ../include/server.h \
+      ../include/names.h ../include/alias.h ../include/myvars.h
+whois.o: whois.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/whois.h ../include/hook.h ../include/lastlog.h \
+      ../include/vars.h ../include/server.h ../include/names.h \
+      ../include/window.h ../include/hold.h ../include/edit.h \
+      ../include/menu.h ../include/ignore.h ../include/ircaux.h \
+      ../include/notify.h ../include/numbers.h ../include/output.h \
+      ../include/parse.h ../include/ctcp.h ../include/myvars.h
+window.o: window.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/screen.h ../include/window.h ../include/hold.h \
+      ../include/lastlog.h ../include/edit.h ../include/menu.h \
+      ../include/vars.h ../include/server.h ../include/names.h \
+      ../include/list.h ../include/ircterm.h ../include/ircaux.h \
+      ../include/input.h ../include/status.h ../include/output.h \
+      ../include/log.h ../include/hook.h ../include/dcc.h \
+      ../include/translat.h ../include/parse.h ../include/myvars.h
+rijndael-alg-ref.o: rijndael-alg-ref.c ../include/rijndael-alg-ref.h \
+      boxes-ref.dat
+rijndael-api-ref.o: rijndael-api-ref.c ../include/rijndael-alg-ref.h \
+      ../include/rijndael-api-ref.h
+ircio.o: ircio.c ../include/defs.h ../include/celerity.h \
+      ../include/irc_std.h ../include/newio.h
+wserv.o: wserv.c ../include/defs.h ../include/celerity.h \
+      ../include/irc.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircterm.h
+wterm.o: wterm.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/ircterm.h ../include/translat.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/screen.h ../include/vars.h
