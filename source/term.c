@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.8 2000-08-14 20:38:14 f Exp $
+ * $Id: term.c,v 1.9 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -185,7 +185,13 @@ static struct termios	oldb,
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-static	char	termcap[1024];
+#if defined(__CYGWIN__) || defined(__CYGWIN32__)
+#define TGETENT_BUFSIZ 2048
+#else
+#define TGETENT_BUFSIZ 1024
+#endif
+
+static	char	termcap[TGETENT_BUFSIZ];
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
@@ -233,9 +239,7 @@ char	*CM,
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
-int	CO = 79,
-	LI = 24,
-	SG;
+int	SG;
 
 /*
  * term_reset_flag: set to true whenever the terminal is reset, thus letting
@@ -245,8 +249,7 @@ int	term_reset_flag = 0;
 
 static	FILE	*term_fp = 0;
 static	int	term_echo_flag = 1;
-static	int	li,
-		co;
+static	int	li, co;
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -448,17 +451,18 @@ term_reset()
 # else
 	ioctl(tty_des, TCSETA, &oldb);
 # endif /* USE_SGTTY */
+
+# if (defined(mips) && !defined(ultrix)) || defined(ISC22)
+	new_stty("cooked");
+# endif /* mips */
+
 #endif /* HAVE_TERMIOS_H */
 
-#if (defined(mips) && !defined(ultrix)) || defined(ISC22)
-	new_stty("cooked");
-#endif /* mips */
-
 	if (CS)
-		tputs_x(tgoto(CS, LI - 1, 0));
-	if (TE)
+		tputs_x(tgoto(CS, current_screen->li - 1, 0));
+	if (!tflag && TE)
 		tputs_x(TE);
-	term_move_cursor(0, LI - 1);
+	term_move_cursor(0, current_screen->li - 1);
 	term_reset_flag = 1;
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
@@ -494,17 +498,17 @@ term_cont()
 #  else
 	ioctl(tty_des, TCSETA, &newb);
 #  endif /* USE_SGTTY */
-# endif /* HAVE_TERMIOS_H */
 
-# if defined(ISC22)
+#  if defined(ISC22)
 	new_stty("opost");
-# endif /* ISC22 */
-# if defined(mips) && !defined(ultrix) /*ultrix/mips silliness*/
+#  endif /* ISC22 */
+#  if defined(mips) && !defined(ultrix) /*ultrix/mips silliness*/
 	new_stty("raw -echo");
-# endif /* mips */
+#  endif /* mips */
+# endif /* HAVE_TERMIOS_H */
 #endif /* SIGSTOP && SIGTSTP */
 
-	if (TI)
+	if (!tflag && TI)
 		tputs_x(TI);
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
@@ -528,7 +532,6 @@ term_pause(key, ptr)
 }
 #endif /* STTY_ONLY */
 
-
 /*
  * term_init: does all terminal initialization... reads termcap info, sets
  * the terminal to CBREAK, no ECHO mode.   Chooses the best of the terminal
@@ -545,24 +548,24 @@ term_init()
         /* ncurses init and allocation of colormap */
         initscr();
         nonl();
-        intrflush(stdscr,FALSE);
-        keypad(stdscr,FALSE);
-        nodelay(stdscr,TRUE);
+        intrflush(stdscr, FALSE);
+        keypad(stdscr, FALSE);
+        nodelay(stdscr, TRUE);
         noecho();
         cbreak();
         if (has_colors()) {
-            int j,k;
+            int j, k;
             start_color();
             /* index is (bg%8)*8 + fg */
-            for (j=0;j<8;j++) /* j = bg, k = fg */
-                for (k=0;k<8;k++) init_pair(8*j+k,k,j);
+            for (j = 0; j < 8; j++) /* j = bg, k = fg */
+                for (k = 0; k < 8; k++) init_pair(8 * j + k, k, j);
         }
-        co=COLS-1; /* a lucky guess */
-        li=LINES;
-        CO=co;
+        co = COLS - 1; /* a lucky guess */
+        li = LINES;
+        current_screen->co = co;
 #else  /* SZNCURSES */
-	/*char	bp[1024],*/
-	char	bp[2048],
+	/*char	bp[TGETENT_BUFSIZ],*/
+        char bp[2 * TGETENT_BUFSIZ],
 /****************************************************************************/
 		*term,
 		*ptr;
@@ -626,10 +629,10 @@ term_init()
 		term_clear_to_eol = term_null_function;
 
 	TE = tgetstr("te", &ptr);
-	if (TE && (TI = tgetstr("ti", &ptr)) != (char *) 0)
+	if (!tflag && TE && (TI = tgetstr("ti", &ptr)) != (char *) 0 )
 		tputs_x(TI);
 	else
-		TI = (char *) 0;
+		TE = TI = (char *) 0;
 
 	/* if ((ND = tgetstr("nd", &ptr)) || (ND = tgetstr("kr", &ptr))) */
 	if ((ND = tgetstr("nd", &ptr)) != NULL)
@@ -777,11 +780,13 @@ term_init()
 # endif /* USE_SGTTY */
 #endif /* HAVE_TERMIOS_H */
 
+#ifndef HAVE_TERMIOS_H
 #ifndef STTY_ONLY
-#if defined(mips) && !defined(ultrix)
+#if defined(mips) && !defined(ultrix) && !defined(__NetBSD__)
 	new_stty("raw -echo");
 #endif /* mips */
 #endif /* STTY_ONLY */
+#endif /* HAVE_TERMIOS_H */
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/
@@ -798,65 +803,62 @@ term_init()
 int
 term_resize()
 {
-	static	int	old_li = -1,
-			old_co = -1;
-
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
- 	old_li=li;
- 	old_co=co;
+ 	old_li = li;
+ 	old_co = co;
  	endwin();
         /* ncurses init and allocation of colormap */
         initscr();
         nonl();
-        intrflush(stdscr,FALSE);
-        keypad(stdscr,FALSE);
-        nodelay(stdscr,TRUE);
+        intrflush(stdscr, FALSE);
+        keypad(stdscr, FALSE);
+        nodelay(stdscr, TRUE);
         noecho();
         cbreak();
         if (has_colors()) {
-            int j,k;
+            int j, k;
             start_color();
             /* index is (bg%8)*8 + fg */
-            for (j=0;j<8;j++) /* j = bg, k = fg */
-                for (k=0;k<8;k++) init_pair(8*j+k,k,j);
+            for (j = 0; j < 8; j++) /* j = bg, k = fg */
+                for (k = 0; k < 8; k++) init_pair(8 * j + k, k, j);
         }
- 	LI=LINES;
-        CO=COLS-1;
- 	SG=-1; /* what is this ? */
+ 	current_screen->li = LINES;
+        current_screen->co = COLS-1;
+ 	SG = -1; /* what is this ? */
 #else
 /****************************************************************************/
 #ifndef TIOCGWINSZ
-	LI = li;
-	CO = co;
+	current_screen->li = li;
+	current_screen->co = co;
 #else
 	struct	winsize window;
 
 	if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
 	{
-		LI = li;
-		CO = co;
+		current_screen->li = li;
+		current_screen->co = co;
 	}
 	else
 	{
-		if ((LI = window.ws_row) == 0)
-			LI = li;
-		if ((CO = window.ws_col) == 0)
-			CO = co;
+		if ((current_screen->li = window.ws_row) == 0)
+			current_screen->li = li;
+		if ((current_screen->co = window.ws_col) == 0)
+			current_screen->co = co;
 	}
 #endif /* TIOCGWINSZ */
 
-	CO--;
+	current_screen->co--;
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/
-	if ((old_li != LI) || (old_co != CO))
+	if ((current_screen->old_term_li != current_screen->li) || (current_screen->old_term_co != current_screen->co))
 	{
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-		old_li = LI;
-		old_co = CO;
+		current_screen->old_term_li = current_screen->li;
+		current_screen->old_term_co = current_screen->co;
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
@@ -916,7 +918,7 @@ term_space_erase(x)
 	int	i,
 		cnt;
 
-	cnt = CO - x;
+	cnt = current_screen->co - x;
 	for (i = 0; i < cnt; i++)
 		fputc(' ', term_fp);
 }
@@ -940,11 +942,11 @@ term_CS_scroll(line1, line2, n)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
- 	scrollok(stdscr,TRUE);
- 	setscrreg(line1,line2);
+ 	scrollok(stdscr, TRUE);
+ 	setscrreg(line1, line2);
  	scrl(n);
  	wrefresh(stdscr);
- 	scrollok(stdscr,FALSE);
+ 	scrollok(stdscr, FALSE);
 #else
 /**************************** PATCHED by Flier ******************************/
 	int	i;
@@ -971,7 +973,7 @@ term_CS_scroll(line1, line2, n)
 		term_move_cursor(0, line2);
 	for (i = 0; i < n; i++)
 		tputs_x(thing);
-	tputs_x(tgoto(CS, LI - 1, 0));	/* shouldn't do this each time */
+	tputs_x(tgoto(CS, current_screen->li - 1, 0));	/* shouldn't do this each time */
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/

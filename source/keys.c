@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.9 2001-08-16 16:47:08 f Exp $
+ * $Id: keys.c,v 1.10 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -140,14 +140,14 @@ display_key(c)
  * display the key binding for the key in a nice way
  */
 static void
-show_binding(c, meta)
+show_binding(c, m)
 	u_int	c;
-	int	meta;
+	int	m;
 {
 	KeyMap	*map;
 	char	*meta_str;
 
-	switch (meta)
+	switch (m)
 	{
 	case 1:
 		map = meta1_keys;
@@ -210,7 +210,7 @@ parse_key(key_str)
 {
 	u_char	*ptr1, *ptr2;
 	u_char	c;
-	int	meta = 0;
+	int	m = 0;
 
 	ptr2 = ptr1 = key_str;
 	while (*ptr1)
@@ -252,81 +252,81 @@ parse_key(key_str)
 		if (strncmp(cmd, "META1-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 1;
+			m = 1;
 		}
 		else if (strncmp(cmd, "META2-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 2;
+			m = 2;
 		}
 		else if (strncmp(cmd, "META3-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 3;
+			m = 3;
 		}
 		else if (strncmp(cmd, "META4-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 4;
+			m = 4;
 		}
 		else if (strncmp(cmd, "META5-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 5;
+			m = 5;
 		}
 		else if (strncmp(cmd, "META6-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 6;
+			m = 6;
 		}
 		else if (strncmp(cmd, "META7-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 7;
+			m = 7;
 		}
 		else if (strncmp(cmd, "META8-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
-			meta = 8;
+			m = 8;
 		}
 		else if (keys[(u_char) *key_str].index == META1_CHARACTER)
 		{
-			meta = 1;
+			m = 1;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META2_CHARACTER)
 		{
-			meta = 2;
+			m = 2;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META3_CHARACTER)
 		{
-			meta = 3;
+			m = 3;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META4_CHARACTER)
 		{
-			meta = 4;
+			m = 4;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META5_CHARACTER)
 		{
-			meta = 5;
+			m = 5;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META6_CHARACTER)
 		{
-			meta = 6;
+			m = 6;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META7_CHARACTER)
 		{
-			meta = 7;
+			m = 7;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else if (keys[(u_char) *key_str].index == META8_CHARACTER)
 		{
-			meta = 8;
+			m = 8;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
 		else
@@ -336,7 +336,7 @@ parse_key(key_str)
 		}
  		new_free(&cmd);
 	}
-	return (meta);
+	return (m);
 }
 
 /*
@@ -344,18 +344,18 @@ parse_key(key_str)
  * given meta modifier
  */
 static	void
-bind_it(function, string, key, meta)
+bind_it(function, string, key, m)
 	char	*function,
 		*string;
 	u_int	key;
-	int	meta;
+	int	m;
 {
 	KeyMap	*km;
 	int	cnt,
 		func_index,
 		i;
 
-	switch (meta)
+	switch (m)
 	{
 	case 0:
 		km = keys;
@@ -414,8 +414,8 @@ bind_it(function, string, key, meta)
 		km[key].global = loading_global;
 		malloc_strcpy(&(km[key].stuff), string);
 /**************************** PATCHED by Flier ******************************/
-		/*show_binding(key, meta);*/
-		if (usersloaded) show_binding(key, meta);
+		/*show_binding(key, m);*/
+		if (usersloaded) show_binding(key, m);
 /****************************************************************************/
 		break;
 	default:
@@ -470,64 +470,64 @@ bindcmd(command, args, subargs)
 {
 	u_char	*key;
 	char	*function;
-	int	meta;
+	int	m;
 /**************************** PATCHED by Flier ******************************/
-        char    tmpbuf[mybufsize/64];
+        char    tmpbuf[mybufsize / 64];
 /****************************************************************************/
 
 	if ((key = (unsigned char *) next_arg(args, &args)) != NULL)
 	{
 /**************************** PATCHED by Flier ******************************/
-                if (!my_stricmp(key,"F1")) {
-                    strcpy(tmpbuf,"meta5-A");
-                    key=tmpbuf;
+                if (!my_stricmp(key, "F1")) {
+                    strcpy(tmpbuf, "meta5-A");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F2")) {
-                    strcpy(tmpbuf,"meta5-B");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F2")) {
+                    strcpy(tmpbuf, "meta5-B");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F3")) {
-                    strcpy(tmpbuf,"meta5-C");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F3")) {
+                    strcpy(tmpbuf, "meta5-C");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F4")) {
-                    strcpy(tmpbuf,"meta5-D");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F4")) {
+                    strcpy(tmpbuf, "meta5-D");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F5")) {
-                    strcpy(tmpbuf,"meta5-E");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F5")) {
+                    strcpy(tmpbuf, "meta5-E");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F6")) {
-                    strcpy(tmpbuf,"meta5-7");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F6")) {
+                    strcpy(tmpbuf, "meta5-7");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F7")) {
-                    strcpy(tmpbuf,"meta5-8");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F7")) {
+                    strcpy(tmpbuf, "meta5-8");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F8")) {
-                    strcpy(tmpbuf,"meta5-9");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F8")) {
+                    strcpy(tmpbuf, "meta5-9");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F9")) {
-                    strcpy(tmpbuf,"meta5-0");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F9")) {
+                    strcpy(tmpbuf, "meta5-0");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F10")) {
-                    strcpy(tmpbuf,"meta5-1");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F10")) {
+                    strcpy(tmpbuf, "meta5-1");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F11")) {
-                    strcpy(tmpbuf,"meta5-3");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F11")) {
+                    strcpy(tmpbuf, "meta5-3");
+                    key = tmpbuf;
                 }
-                else if (!my_stricmp(key,"F12")) {
-                    strcpy(tmpbuf,"meta5-4");
-                    key=tmpbuf;
+                else if (!my_stricmp(key, "F12")) {
+                    strcpy(tmpbuf, "meta5-4");
+                    key = tmpbuf;
                 }
 /****************************************************************************/
-		if ((meta = parse_key(key)) == -1)
+		if ((m = parse_key(key)) == -1)
 			return;
 		if ((int) strlen((char *) key) > 1)
 		{
@@ -535,9 +535,9 @@ bindcmd(command, args, subargs)
 			return;
 		}
 		if ((function = next_arg(args, &args)) != NULL)
-			bind_it(function, args, *key, meta);
+			bind_it(function, args, *key, m);
 		else
-			show_binding(*key, meta);
+			show_binding(*key, m);
 	}
 	else
 	{
@@ -3515,9 +3515,9 @@ KeyMap	FAR meta8_keys[] =
  * it can be parsed back in later using LOAD or with the -l switch 
  */
 static	void
-write_binding(c, meta, fp, do_all)
+write_binding(c, m, fp, do_all)
  	u_int	c,
-		meta;
+		m;
 	FILE	*fp;
 	int	do_all;
 {
@@ -3526,7 +3526,7 @@ write_binding(c, meta, fp, do_all)
 
 	if (c == 32)
 		return;
-	switch (meta)
+	switch (m)
 	{
 	case 1:
 		map = meta1_keys;

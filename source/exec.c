@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.9 2001-11-10 10:04:54 f Exp $
+ * $Id: exec.c,v 1.10 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -69,6 +69,7 @@
 #include "parse.h"
 #include "dcc.h"
 #include "newio.h"
+#include "alias.h"
 
 #if defined(SVR3) && defined(HAVE_SOCKETPAIR)
 /* SVR3's pipe's are *unidirectional*!  We could spend all day pushing
@@ -84,15 +85,6 @@
 #endif
 
 static	int	wait_index = -1;
-
-static	int	exec_close _((int));
-static	void	start_process _((char *, char *, char *, char *, unsigned int));
-static	void	kill_process _((int, int));
-static	int	delete_process _((int));
-static	void	list_processes _((void));
-static	int	valid_process_index _((int));
-static	void	add_process _((char *, char *, int, int, int, int, char *, char *, unsigned int));
-static	int	is_logical_unique _((char *));
 
 /* Process: the structure that has all the info needed for each process */
 typedef struct
@@ -117,6 +109,16 @@ typedef struct
 
 static	Process **process_list = NULL;
 static	int	process_list_size = 0;
+
+static	int	exec_close _((int));
+static	void	start_process _((char *, char *, char *, char *, unsigned int));
+static	void	kill_process _((int, int));
+static	int	delete_process _((int));
+static	void	list_processes _((void));
+static	int	valid_process_index _((int));
+static	void	add_process _((char *, char *, int, int, int, int, char *, char *, unsigned int));
+static	int	is_logical_unique _((char *));
+static	void	send_exec_result _((Process *, char *));
 
 /*
  * A nice array of the possible signals.  Used by the coredump trapping
@@ -305,6 +307,51 @@ check_process_limits()
 	}
 }
 
+static void
+send_exec_result(proc, exec_buffer)
+	Process *proc;
+	char *exec_buffer;
+{
+	if (proc->redirect)
+	{
+		if (!strcmp(proc->redirect, "FILTER"))
+		{
+			char *rest, *filter;
+			int arg_flag = 0;
+
+			rest = exec_buffer;
+			while (*rest && *rest != ' ')
+				++rest;
+
+			while (*rest == ' ')
+				++rest;
+
+			filter = call_function(proc->who,
+				exec_buffer /* f_args */,
+				empty_string /* args */,
+				&arg_flag);
+			if (filter)
+			{
+				char *sub_buffer = NULL;
+
+				malloc_strcpy(&sub_buffer, filter);
+				malloc_strcat(&sub_buffer, " ");
+				malloc_strcat(&sub_buffer, rest);
+				
+				parse_command(sub_buffer, 0, empty_string);
+				new_free(&sub_buffer);
+				new_free(&filter);
+			}
+		}
+		else
+		{
+			send_text(proc->who, exec_buffer, proc->redirect);
+		}
+	}
+	else
+		put_it("%s", exec_buffer);
+}
+
 /*
  * do_processes: given a set of read-descriptors (as returned by a call to
  * select()), this will determine which of the process has produced output
@@ -320,6 +367,7 @@ do_processes(rd)
 	char	*ptr;
 	Process	*proc;
 	int	old_timeout;
+	int	server;
 
 	if (process_list == (Process **) 0)
 		return;
@@ -330,84 +378,59 @@ do_processes(rd)
 		{
 			if (FD_ISSET(proc->p_stdout, rd))
 			{
-
-	/*
-	 * This switch case indented back to allow for 80 columns,
-	 * phone, jan 1993.
-	 */
 /**************************** PATCHED by Flier *****************************/
-		/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE,
-				proc->p_stdout, (char *) 0))*/
-		switch (dgets(exec_buffer, INPUT_BUFFER_SIZE,
-				proc->p_stdout, (char *) 0, 0))
+				/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stdout, (u_char *) 0))*/
+                                switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stdout, (char *) 0, 0))
 /***************************************************************************/
-		{
-		case 0:
-			if (proc->p_stderr == -1)
-			{
-				proc->p_stdin =
-					exec_close(proc->p_stdin);
-				proc->p_stdout =
-					exec_close(proc->p_stdout);
-				if (proc->exited)
-					delete_process(i);
-			}
-			else
-				proc->p_stdout =
-					exec_close(proc->p_stdout);
-			break;
-		case -1:
-			if (proc->logical)
-				flag = do_hook(EXEC_PROMPT_LIST, "%s %s",
-					proc->logical, exec_buffer);
-			else
-				flag = do_hook(EXEC_PROMPT_LIST, "%d %s", i,
-					exec_buffer);
-			set_prompt_by_refnum(proc->refnum,
-				exec_buffer);
-			update_input(UPDATE_ALL);
-			/* if (flag == 0) */
-			break;
-		default:
-			message_to(proc->refnum);
-			proc->counter++;
- 			exec_buffer[sizeof(exec_buffer) - 1] = '\0';	/* blah... */
-			ptr = exec_buffer + strlen(exec_buffer) - 1;
-			if ((*ptr == '\n') || (*ptr == '\r'))
-			{
-				*ptr = (char) 0;
-				ptr = exec_buffer + strlen(exec_buffer) - 1;
-				if ((*ptr == '\n') || (*ptr == '\r'))
-					*ptr = (char) 0;
-			}
-			if (proc->logical)
-				flag = do_hook(EXEC_LIST, "%s %s",
-					proc->logical, exec_buffer);
-			else
-				flag = do_hook(EXEC_LIST, "%d %s", i,
-					exec_buffer);
-			if (flag)
-			{
-				if (proc->redirect)
 				{
-					int	server;
-
+				case 0:
+					if (proc->p_stderr == -1)
+					{
+						proc->p_stdin = exec_close(proc->p_stdin);
+						proc->p_stdout = exec_close(proc->p_stdout);
+						if (proc->exited)
+							delete_process(i);
+					}
+					else
+						proc->p_stdout = exec_close(proc->p_stdout);
+					break;
+				case -1:
 					server = from_server;
 					from_server = proc->server;
-					send_text(proc->who,
-						exec_buffer,
-						proc->redirect);
+					if (proc->logical)
+						flag = do_hook(EXEC_PROMPT_LIST, "%s %s", proc->logical, exec_buffer);
+					else
+						flag = do_hook(EXEC_PROMPT_LIST, "%d %s", i, exec_buffer);
 					from_server = server;
+					set_prompt_by_refnum(proc->refnum, exec_buffer);
+					update_input(UPDATE_ALL);
+					/* if (flag == 0) */
+					break;
+				default:
+					server = from_server;
+					from_server = proc->server;
+					message_to(proc->refnum);
+					proc->counter++;
+					exec_buffer[sizeof(exec_buffer) - 1] = '\0';	/* blah... */
+					ptr = exec_buffer + strlen(exec_buffer) - 1;
+					if ((*ptr == '\n') || (*ptr == '\r'))
+					{
+						*ptr = (u_char) 0;
+						ptr = exec_buffer + strlen(exec_buffer) - 1;
+						if ((*ptr == '\n') || (*ptr == '\r'))
+							*ptr = (u_char) 0;
+					}
+					if (proc->logical)
+						flag = do_hook(EXEC_LIST, "%s %s", proc->logical, exec_buffer);
+					else
+						flag = do_hook(EXEC_LIST, "%d %s", i, exec_buffer);
+
+					if (flag)
+						send_exec_result(proc, exec_buffer);
+					message_to(0);
+					from_server = server;
+					break;
 				}
-				else
-					put_it("%s", exec_buffer);
-			}
-			message_to(0);
-			break;
-		}
-
-		/* end of special intendation */
-
 			}
 		}
 		if (process_list && i < process_list_size &&
@@ -415,81 +438,58 @@ do_processes(rd)
 		{
 			if (FD_ISSET(proc->p_stderr, rd))
 			{
-
-	/* Do the intendation on this switch as well */
-
 /**************************** PATCHED by Flier *****************************/
-		/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE,
-				proc->p_stderr, (char *) 0))*/
-		switch (dgets(exec_buffer, INPUT_BUFFER_SIZE,
-				proc->p_stderr, (char *) 0, 0))
+				/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stderr, (u_char *) 0))*/
+				switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stderr, (char *) 0, 0))
 /***************************************************************************/
-		{
-		case 0:
-			if (proc->p_stdout == -1)
-			{
-				proc->p_stderr =
-					exec_close(proc->p_stderr);
-				proc->p_stdin =
-					exec_close(proc->p_stdin);
-				if (proc->exited)
-					delete_process(i);
-			}
-			else
-				proc->p_stderr =
-					exec_close(proc->p_stderr);
-			break;
-		case -1:
-			if (proc->logical)
-				flag = do_hook(EXEC_PROMPT_LIST, "%s %s",
-					proc->logical, exec_buffer);
-			else
-				flag = do_hook(EXEC_PROMPT_LIST, "%d %s", i,
-					exec_buffer);
-			set_prompt_by_refnum(proc->refnum,
-				exec_buffer);
-			update_input(UPDATE_ALL);
-			if (flag == 0)
-				break;
-		default:
-			message_to(proc->refnum);
-			(proc->counter)++;
-			ptr = exec_buffer + strlen(exec_buffer) - 1;
-			if ((*ptr == '\n') || (*ptr == '\r'))
-			{
-				*ptr = (char) 0;
-				ptr = exec_buffer + strlen(exec_buffer) - 1;
-				if ((*ptr == '\n') || (*ptr == '\r'))
-					*ptr = (char) 0;
-			}
-			if (proc->logical)
-				flag = do_hook(EXEC_ERRORS_LIST, "%s %s",
-					proc->logical, exec_buffer);
-			else
-				flag = do_hook(EXEC_ERRORS_LIST, "%d %s", i,
-					exec_buffer);
-			if (flag)
-			{
-				if (proc->redirect)
 				{
-					int	server;
+				case 0:
+					if (proc->p_stdout == -1)
+					{
+						proc->p_stderr = exec_close(proc->p_stderr);
+						proc->p_stdin = exec_close(proc->p_stdin);
+						if (proc->exited)
+							delete_process(i);
+					}
+					else
+						proc->p_stderr = exec_close(proc->p_stderr);
+					break;
 
+				case -1:
 					server = from_server;
 					from_server = proc->server;
-					send_text(proc->who,
-						exec_buffer,
-						process_list[i]->redirect);
+					if (proc->logical)
+						flag = do_hook(EXEC_PROMPT_LIST, "%s %s", proc->logical, exec_buffer);
+					else
+						flag = do_hook(EXEC_PROMPT_LIST, "%d %s", i, exec_buffer);
+					set_prompt_by_refnum(proc->refnum, exec_buffer);
+					update_input(UPDATE_ALL);
 					from_server = server;
-				}
-				else
-					put_it("%s", exec_buffer);
-			}
-			message_to(0);
-			break;
-		}
+					if (flag == 0)
+						break;
 
-	/* End of indentation for 80 columns */
-
+				default:
+					server = from_server;
+					from_server = proc->server;
+					message_to(proc->refnum);
+					(proc->counter)++;
+					ptr = exec_buffer + strlen(exec_buffer) - 1;
+					if ((*ptr == '\n') || (*ptr == '\r'))
+					{
+						*ptr = (u_char) 0;
+						ptr = exec_buffer + strlen(exec_buffer) - 1;
+						if ((*ptr == '\n') || (*ptr == '\r'))
+							*ptr = (u_char) 0;
+					}
+					if (proc->logical)
+						flag = do_hook(EXEC_ERRORS_LIST, "%s %s", proc->logical, exec_buffer);
+					else
+						flag = do_hook(EXEC_ERRORS_LIST, "%d %s", i, exec_buffer);
+					if (flag)
+						send_exec_result(proc, exec_buffer);
+					message_to(0);
+					from_server = server;
+					break;
 			}
 		}
 	}
@@ -771,7 +771,7 @@ kill_process(kill_index, sig)
 #  ifdef HPUX
 		pgid = getpgrp2(process_list[kill_index]->pid);
 #  else
-#   ifdef mips
+#   ifdef mips	/* XXX */
 		pgid = getpgrp(process_list[kill_index]->pid);
 #   else
 #    ifdef HAVE_GETSID
@@ -937,7 +937,7 @@ start_process(name, logical, redirect, who, refnum)
 			setgid(getgid());
 			execl(shell, shell, flag, name, (char *) 0);
 		}
-		sprintf(buffer, "*** Error starting shell \"%s\": %s\n", shell,
+		snprintf(buffer, sizeof buffer, "*** Error starting shell \"%s\": %s\n", shell,
 			strerror(errno));
 		write(1, buffer, strlen(buffer));
 		_exit(-1);
@@ -1156,6 +1156,17 @@ execcmd(command, args, subargs)
 						(char *) 0)
 				{
 					say("No nicknames specified");
+					new_free(&cmd);
+					return;
+				}
+			}
+			else if (my_strncmp(cmd, "FILTER", len) == 0)
+			{
+				redirect = "FILTER";
+				if ((who = next_arg(args, &args)) ==
+						(char *) 0)
+				{
+					say("No filter function specified");
 					new_free(&cmd);
 					return;
 				}

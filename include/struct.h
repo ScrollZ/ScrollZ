@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.12 2002-01-14 18:43:28 f Exp $
+ * $Id: struct.h,v 1.13 2002-01-21 21:37:35 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -337,8 +337,32 @@ typedef	struct	ScreenStru
 	int	redirect_server;
 
 	char	*tty_name;
-	int	co;
-	int	li;
+	int	co, li;
+
+	/*
+	 * upper_mark and lower_mark: marks the upper and lower positions in
+	 * the input buffer which will cause the input display to switch to
+	 * the next or previous bunch of text
+	 */
+	int	lower_mark, upper_mark;
+
+	/* input.c:update_input() */
+	int	old_input_co, old_input_li;
+
+	/* the actual screen line where the input goes */
+	int	input_line;
+
+	/* position in buffer of first visible character in the input line */
+	int	str_start;
+
+	/* the amount of editable visible text on the screen */
+	int	zone;
+
+	/* position of the cursor in the input line on the screen */
+	int	cursor;
+
+	/* term.c:term_resize() */
+	int	old_term_co, old_term_li;
 
 	int	alive;
 }	Screen;

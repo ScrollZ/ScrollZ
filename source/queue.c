@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.7 2000-09-24 17:10:34 f Exp $
+ * $Id: queue.c,v 1.8 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -371,7 +371,7 @@ do_queue(queue, noflush)
 	do
 	{
 		if (tmp->what != (char *) 0)
-			parse_line((char *) 0, tmp->what, empty_string, 0, 0);
+			parse_line((char *) 0, tmp->what, empty_string, 0, 0, 0);
 		tmp = tmp->next;
 	}
 	while (tmp != (CmdList *) 0);

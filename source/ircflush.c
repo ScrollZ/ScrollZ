@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircflush.c,v 1.3 2000-08-09 19:31:21 f Exp $
+ * $Id: ircflush.c,v 1.4 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -80,15 +80,15 @@ setup_master_slave()
 
 	for (linec = 'p'; linec <= 's'; linec++)
 	{
-		sprintf(line, "/dev/pty%c0", linec);
+		snprintf(line, sizeof line, "/dev/pty%c0", linec);
 		if (access(line, 0) != 0)
 			break;
 		for (linen = 0; linen < 16; linen++)
 		{
-			sprintf(line, "/dev/pty%c%1x", linec, linen);
+			snprintf(line, sizeof line, "/dev/pty%c%1x", linec, linen);
 			if ((master = open(line, O_RDWR)) >= 0)
 			{
-				sprintf(line, "/dev/tty%c%1x", linec, linen);
+				snprintf(line, sizeof line, "/dev/tty%c%1x", linec, linen);
 				if (access(line, R_OK | W_OK) == 0)
 				{
 					if ((slave = open(line, O_RDWR)) >= 0)

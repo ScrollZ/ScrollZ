@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.10 2000-09-24 17:10:34 f Exp $
+ * $Id: hook.c,v 1.11 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -45,6 +45,8 @@
 #include "server.h"
 #include "output.h"
 #include "edit.h"
+
+#include "buffer.h"
 
 #ifdef	INCLUDE_UNUSED_FUNCTIONS
 static  void	flush_on_hooks _((void));
@@ -156,6 +158,7 @@ extern	int	load_depth;
 	{ "PUBLIC_NOTICE",	(Hook *) 0,	3,	0,	0 },
 	{ "PUBLIC_OTHER",	(Hook *) 0,	3,	0,	0 },
 	{ "RAW_IRC",		(Hook *) 0,	1,	0,	0 },
+	{ "RAW_SEND",		(Hook *) 0,	1,	0,	0 },
 	{ "SEND_ACTION",	(Hook *) 0,	2,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
 	{ "SEND_CTCP",		(Hook *) 0,	3,	0,	0 },
@@ -280,7 +283,7 @@ add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
 	Hook	*new;
 	char	buf[4];
 
-	sprintf(buf, "%3.3u", numeric);
+	snprintf(buf, sizeof buf, "%3.3u", numeric);
 	if ((entry = (NumericList *) find_in_list((List **) &numeric_list, buf, 0)) ==
 			(NumericList *) 0)
 	{
@@ -395,7 +398,7 @@ show_numeric_list(numeric)
 
 	if (numeric)
 	{
-		sprintf(buf, "%3.3u", numeric);
+		snprintf(buf, sizeof buf, "%3.3u", numeric);
 		if ((tmp = (NumericList *) find_in_list((List **) &numeric_list, buf, 0))
 				!= NULL)
 		{
@@ -470,10 +473,6 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 {
 #endif
 	Hook	*tmp, **list;
-/**************************** Patched by Flier ******************************/
- 	/*char	lbuf[BIG_BUFFER_SIZE + 1],*/
-	char	lbuf[4*BIG_BUFFER_SIZE + 1],
-/****************************************************************************/
 		*name = (char *) 0;
 	int	RetVal = 1;
 	unsigned int	display;
@@ -484,18 +483,22 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 	static	int hook_level = 0;
  	size_t	len;
 	char	*foo;
+#ifdef NEED_PUTBUF_DECLARED
+	/* make this buffer *much* bigger than needed */
+	u_char	putbuf[2*BIG_BUFFER_SIZE + 1] = "";
+#endif
+	PUTBUF_INIT
 
 	hook_level++;
- 	bzero(lbuf, sizeof(lbuf));
 
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
- 	vsprintf(lbuf, format, vl);
+	PUTBUF_SPRINTF(format, vl);
 	va_end(vl);
 #else
 /**************************** Patched by Flier ******************************/
- 	/*sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6);*/
- 	sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+	/*snprintf(CP(putbuf), sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6);*/
+	snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 /****************************************************************************/
 #endif
 	if (which < 0)
@@ -503,7 +506,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 		NumericList *hook;
 		char	buf[4];
 
-		sprintf(buf, "%3.3u", -which);
+		snprintf(buf, sizeof buf, "%3.3u", -which);
 		if ((hook = (NumericList *) find_in_list((List **) &numeric_list, buf, 0))
 				!= NULL)
 		{
@@ -524,7 +527,10 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 		}
 	}
 	if (!list)
-		return really_free(--hook_level), 1;
+	{
+		RetVal = 1;
+		goto out;
+	}
 
 	if (which >= 0)
 		hook_functions[which].mark++;
@@ -561,7 +567,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 				bestmatch = (Hook *) 0;
 				continue;
 			}
- 			currmatch = wild_match(tmp->nick,lbuf);
+			currmatch = wild_match(tmp->nick, putbuf);
 			if (currmatch > oldmatch)
 			{
 				oldmatch = currmatch;
@@ -579,13 +585,13 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 		{
 			if (which >= 0)
 				hook_functions[which].mark--;
-			return really_free(--hook_level), RetVal;
+			goto out;
 		}
 		if (tmp->not)
 			continue;
 		send_text_flag = which;
 		if (tmp->noisy > QUIET)
- 			say("%s activated by \"%s\"", name, lbuf);
+			say("%s activated by \"%s\"", name, putbuf);
 		display = window_display;
 		if (tmp->noisy < NOISY)
 			window_display = 0;
@@ -597,7 +603,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 		len = strlen(tmp->stuff) + 1; 
 		foo = new_malloc(len);
 		bcopy(tmp->stuff, foo, len);
- 		parse_line((char *) 0, foo, lbuf, 0, 0);
+		parse_line((char *) 0, foo, putbuf, 0, 0, 1);
 		new_free(&foo);
 		in_on_who = old_in_on_who;
 		window_display = display;
@@ -608,6 +614,8 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 	}
 	if (which >= 0)
 		hook_functions[which].mark--;
+out:
+	PUTBUF_END
 	return really_free(--hook_level), RetVal;
 }
 
@@ -624,7 +632,7 @@ remove_numeric_hook(numeric, nick, server, sernum, quiet)
 		*next;
 	char	buf[4];
 
-	sprintf(buf, "%3.3u", numeric);
+	snprintf(buf, sizeof buf, "%3.3u", numeric);
 	if ((hook = (NumericList *) find_in_list((List **) &numeric_list, buf,0)) != NULL)
 	{
 		if (nick)

@@ -216,13 +216,6 @@
 #undef ZARGS
 
 /*
- * define USE_CAST if you want to use CAST-128 encryption rather than
- * the broken original ircII encryption.  note that cast.c is not
- * distributed with ircII and must be obtained separately.
- */
-#undef USE_CAST
-
-/*
  * define HAVE_DEV_RANDOM if you have /dev/random (*BSD/LINUX).
  * the CAST code uses this if present instead of random(3).
  */
@@ -246,6 +239,12 @@
 
 /* define this if you have crypt(3) */
 #undef HAVE_CRYPT
+
+/* define this if you have fputc(3) */
+#undef HAVE_FPUTC
+
+/* define this if you have fwrite(3) */
+#undef HAVE_FWRITE
 
 /* define this if your struct sockaddr has a sa_len member */
 #undef HAVE_SOCKADDR_SA_LEN

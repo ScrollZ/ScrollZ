@@ -31,12 +31,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.h,v 1.2 1999-09-29 19:27:08 f Exp $
+ * $Id: notify.h,v 1.3 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __notify_h_
 #define __notify_h_
 
+	char *get_notify_list _((int));
+#define NOTIFY_LIST_HERE 	0x1
+#define NOTIFY_LIST_GONE 	0x2
+#define NOTIFY_LIST_ALL		0x3
 	void	show_notify_list _((int));
 	void	notify _((char *, char *, char *));
 	void	do_notify _((void));

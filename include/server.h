@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.10 2001-12-18 20:17:14 f Exp $
+ * $Id: server.h,v 1.11 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __server_h_
@@ -210,9 +210,9 @@ extern	SGroup	*server_group_list;
 	extern	Server	*server_list;
 
 #define	SERVER_2_6_2	0x0100
-#define CLOSE_PENDING	0x0200
+#define CLOSE_PENDING	0x0200	/* set for servers who are being switched away from, but have not yet connected. */
 #define LOGGED_IN	0x0400
-#define	CLEAR_PENDING	0x0800
+#define	CLEAR_PENDING	0x0800	/* set for servers whose channels are to be removed when a connect has been established. */
 /**************************** Patched by Flier ******************************/
 #define SSL_CONNECT     0x100000
 /****************************************************************************/

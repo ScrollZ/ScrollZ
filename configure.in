@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.20 2002-01-17 19:36:59 f Exp $
+dnl @(#)$Id: configure.in,v 1.21 2002-01-21 21:37:35 f Exp $
 
-AC_REVISION($Revision: 1.20 $)dnl
+AC_REVISION($Revision: 1.21 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -53,7 +53,7 @@ dnl grok the version number - from source/irc.c
 dnl
 
 VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*SCROLLZ_VERSION[ 	]*"/s///p' -e '/#define SCROLLZ_VERSION/q' < ${srcdir}/source/irc.c`
-IRCIIVERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c`
+IRCIIVERSION=`sed -n -e 's/"[[^"]]*$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c` 
 echo this is ScrollZ version $VERSION + ircII version $IRCIIVERSION
 echo
 AC_SUBST(VERSION)
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.20 2002-01-17 19:36:59 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.21 2002-01-21 21:37:35 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -246,6 +246,8 @@ AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
 AC_CHECK_FUNC(uname, AC_DEFINE(HAVE_UNAME),)
 AC_CHECK_FUNC(writev, AC_DEFINE(HAVE_WRITEV),)
 AC_CHECK_FUNC(vasprintf, AC_DEFINE(HAVE_VASPRINTF),)
+AC_CHECK_FUNC(fputc, AC_DEFINE(HAVE_FPUTC),)
+AC_CHECK_FUNC(fwrite, AC_DEFINE(HAVE_FWRITE),)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF),)
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF),)
 
@@ -264,6 +266,20 @@ if test x$ac_cv_header_sys_twg_config_h = xyes
 then
   AC_DEFINE(WINS)
 fi
+
+dnl
+dnl check if we need snprintf.c
+dnl
+if test x$ac_cv_func_snprintf != xyes || test x$ac_cv_func_vsnprintf != xyes
+then
+  EXTRA_OBJECTS=snprintf.o
+  EXTRA_SOURCES=snprintf.c
+else
+  EXTRA_OBJECTS=
+  EXTRA_SOURCES=
+fi
+AC_SUBST(EXTRA_OBJECTS)
+AC_SUBST(EXTRA_SOURCES)
 
 dnl
 dnl check for struct linger
@@ -530,9 +546,8 @@ dnl this is for isc.  need the nsl_s library as well.
 if test ! -n "$libinet"; then
 	AC_CHECK_LIB(inet, socket, libnsl=1; LIBS="$LIBS -linet -lnsl_s",)
 fi
-if test ! -n "$libnsl"; then
-	AC_CHECK_LIB(nsl, gethostname, LIBS="$LIBS -lnsl",)
-fi
+AC_CHECK_FUNC(gethostname, ,
+        AC_CHECK_LIB(nsl, gethostname, LIBS="$LIBS -lnsl",) )
 AC_CHECK_LIB(dgc, inet_addr, LIBS="$LIBS -ldgc",)
 AC_CHECK_LIB(resolv, gethostbyname,
   olibs=$LIBS
@@ -714,6 +729,32 @@ else
   libdir="$exec_prefix/lib"
 fi
 
+AC_MSG_CHECKING(for ElectricFence library)
+AC_ARG_WITH(efence,
+[  --with-efence[=PATH]    Compile with the ElectricFence debugging library.],
+[ case "$withval" in
+  no)
+    AC_MSG_RESULT(no)
+    ;;		
+  *)
+    AC_MSG_RESULT(yes)
+    if test "x$withval" = xyes; then
+      withval="-lefence"
+    else
+      if test -d "$withval"; then
+        if test -d "$withval/lib"; then
+	  withval="-L$withval/lib -lefence"
+	else
+	  withval="-L$withval -lefence"
+	fi
+      fi
+    fi
+    LIBS="$withval $LIBS"
+    ;;
+  esac ],
+  AC_MSG_RESULT(no)
+)
+
 AC_MSG_CHECKING(paranoia status)
 AC_ARG_WITH(paranoid,
 [  --with-paranoid         Sets the compile-time paranoid flag.],
@@ -721,29 +762,6 @@ AC_ARG_WITH(paranoid,
   AC_DEFINE_UNQUOTED(PARANOID, 1) ],
   AC_MSG_RESULT(none)
 )
-
-AC_MSG_CHECKING(for CAST support)
-AC_ARG_WITH(cast,
-[  --with-cast             Use CAST-128 bit encryption (requires cast.c)],
-[ case "$withval" in
-    n*|N*)
-      AC_MSG_RESULT(no)
-      ;;
-    *)
-      AC_MSG_RESULT(yes)
-      AC_DEFINE_UNQUOTED(USE_CAST, 1)
-      CAST_SRC=cast.c
-      ;;
-  esac ],
-  if test -f ${srcdir}/source/cast.c; then
-    AC_MSG_RESULT(yes)
-    AC_DEFINE_UNQUOTED(USE_CAST, 1)
-    CAST_SRC=cast.c
-  else
-    AC_MSG_RESULT(no)
-  fi
-)
-AC_SUBST(CAST_SRC)
 
 AC_MSG_CHECKING(for /dev/urandom)
 if test -c /dev/urandom; then
@@ -1252,7 +1270,7 @@ if test x"$ZARGS" != x; then
   AC_DEFINE_UNQUOTED(ZARGS,"$ZARGS")
 fi
 
-AC_FIND_PROGRAM(SENDMAIL,sendmail,/usr/lib:/usr/sbin:/usr/ucblib)
+AC_FIND_PROGRAM(SENDMAIL,sendmail,/usr/sbin:/usr/lib:/usr/ucblib)
 
 AC_SUBST(RM)
 AC_SUBST(LN)

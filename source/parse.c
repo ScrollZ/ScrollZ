@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.53 2002-01-08 17:55:45 f Exp $
+ * $Id: parse.c,v 1.54 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -171,8 +171,7 @@ is_channel(to)
  	if (to == 0)
  		return (0);
 	version = get_server_version(from_server);
-	return ((version < Server2_7 && (isdigit(*to) || (*to == STRING_CHANNEL)
-		|| *to == '-'))
+       	return ((version < Server2_7 && (isdigit(*to) || (*to == STRING_CHANNEL) || *to == '-'))
 		|| (version > Server2_5 && *to == MULTI_CHANNEL)
 		|| (version > Server2_7 && *to == LOCAL_CHANNEL)
  		|| (version > Server2_8 && *to == STRING_CHANNEL)
@@ -481,7 +480,7 @@ whoreply(from, ArgList)
 		*name;
 	int	i;
 /**************************** PATCHED by Flier ******************************/
-        int     show_server=0;
+        int     show_server = 0;
 /****************************************************************************/
 
 	FILE	*fip;
@@ -490,7 +489,7 @@ whoreply(from, ArgList)
 	if (last_width != get_int_var(CHANNEL_NAME_WIDTH_VAR))
 	{
 		if ((last_width = get_int_var(CHANNEL_NAME_WIDTH_VAR)) != 0)
-		    sprintf(format, "%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
+		    snprintf(format, sizeof format, "%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
 					(unsigned char) last_width,
 					(unsigned char) last_width);
 		else
@@ -529,9 +528,9 @@ whoreply(from, ArgList)
 		name = ArgList[i];
 
 /**************************** PATCHED by Flier ******************************/
-        if (who_mask&WHO_SHOW_SERVER) {
-            show_server=1;
-            who_mask&=~WHO_SHOW_SERVER;
+        if (who_mask & WHO_SHOW_SERVER) {
+            show_server = 1;
+            who_mask &= ~WHO_SHOW_SERVER;
         }
 /****************************************************************************/
 	if (who_mask)
@@ -581,10 +580,10 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
                 if (server_list[from_server].SZWho) {
 #ifdef OPER
-                    if (inSZFKill) DoKill(nick,user,host);
-                    else OnWho(nick,user,host,channel,status);
+                    if (inSZFKill) DoKill(nick, user, host);
+                    else OnWho(nick, user, host, channel, status);
 #else
-                    OnWho(nick,user,host,channel,status);
+                    OnWho(nick, user, host, channel, status);
 #endif
                 }
                 else
@@ -596,8 +595,8 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
  				/*put_it(format, channel, nick, status, user, host,
 					name);*/
-                                PrintWho(channel,nick,status,user,host,name,
-                                         server,show_server);
+                                PrintWho(channel, nick, status, user, host, name,
+                                         server, show_server);
 /****************************************************************************/				
 			else
 			{
@@ -611,14 +610,14 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, channel, nick, status, user, host,
 					tmp);*/
-                                PrintWho(channel,nick,status,user,host,tmp,
-                                         server,show_server);
+                                PrintWho(channel, nick, status, user, host, tmp,
+                                         server, show_server);
 /****************************************************************************/				
 			}
 		}
 	}
 /**************************** PATCHED by Flier ******************************/
-        if (show_server) who_mask|=WHO_SHOW_SERVER;
+        if (show_server) who_mask |= WHO_SHOW_SERVER;
 /****************************************************************************/
 }
 
@@ -639,8 +638,8 @@ p_privmsg(from, Args)
 	int	no_flood;
 /**************************** PATCHED by Flier ******************************/
         int     iscrypted;
-        char    tmpbuf[mybufsize/8];
-        time_t  timenow=time((time_t *) 0);
+        char    tmpbuf[mybufsize / 8];
+        time_t  timenow = time(NULL);
         struct  friends *tmpfriend;
 /****************************************************************************/
 
@@ -707,34 +706,34 @@ p_privmsg(from, Args)
 		break;
 	}
 /**************************** Patched by Flier ******************************/
-        if (ignore_type==IGNORE_PUBLIC && double_ignore(to,NULL,IGNORE_PUBLIC)==IGNORED)
+        if (ignore_type == IGNORE_PUBLIC && double_ignore(to, NULL, IGNORE_PUBLIC) == IGNORED)
             goto out;
-        if (ignore_type==IGNORE_PUBLIC && is_channel(to) && double_ignore(from,to,IGNORE_PUBLIC)==IGNORED)
+        if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(from, to, IGNORE_PUBLIC) == IGNORED)
             goto out;
-        if (FloodProt>1 && flood_type==MSG_FLOOD) {
-            sprintf(tmpbuf,"%s!%s",from,FromUserHost);
-            tmpfriend=CheckUsers(tmpbuf,NULL);
-            if (!tmpfriend || (tmpfriend && !(tmpfriend->privs)&FLNOFLOOD)) {
-                if (timenow>LastMsgTime+FloodSeconds) {
-                    LastMsgTime=timenow;
-                    NumberMessages=1;
+        if (FloodProt > 1 && flood_type == MSG_FLOOD) {
+            sprintf(tmpbuf, "%s!%s", from, FromUserHost);
+            tmpfriend = CheckUsers(tmpbuf, NULL);
+            if (!tmpfriend || (tmpfriend && !(tmpfriend->privs) & FLNOFLOOD)) {
+                if (timenow > LastMsgTime + FloodSeconds) {
+                    LastMsgTime = timenow;
+                    NumberMessages = 1;
                 }
                 else NumberMessages++;
-                if (NumberMessages>=FloodMessages && timenow>=LastNickFlood+10) {
-                    LastMsgTime=timenow;
-                    LastNickFlood=timenow;
-                    NumberMessages=0;
-                    sprintf(tmpbuf,"%.7s%c%c",get_server_nickname(from_server),
-                           'a'+(rand()%25),'a'+(rand()%25));
-                    e_nick(NULL,tmpbuf,NULL);
+                if (NumberMessages >= FloodMessages && timenow >= LastNickFlood + 10) {
+                    LastMsgTime = timenow;
+                    LastNickFlood = timenow;
+                    NumberMessages = 0;
+                    sprintf(tmpbuf, "%.7s%c%c", get_server_nickname(from_server),
+                           'a' + (rand() % 25) ,'a' + (rand() % 25));
+                    e_nick(NULL, tmpbuf, NULL);
 #ifdef WANTANSI
-                    sprintf(tmpbuf,"%sFlood attack%s detected, changing nick",
-                            CmdsColors[COLWARNING].color1,Colors[COLOFF]);
+                    sprintf(tmpbuf, "%sFlood attack%s detected, changing nick",
+                            CmdsColors[COLWARNING].color1, Colors[COLOFF]);
 #else
-                    sprintf(tmpbuf,"%cFlood attack%c detected, changing nick",bold,bold);
+                    sprintf(tmpbuf, "%cFlood attack%c detected, changing nick", bold, bold);
 #endif
-                    say("%s",tmpbuf);
-                    if (away_set || LogOn) AwaySave(tmpbuf,SAVEFLOOD);
+                    say("%s", tmpbuf);
+                    if (away_set || LogOn) AwaySave(tmpbuf, SAVEFLOOD);
                 }
             }
         }
@@ -757,23 +756,23 @@ p_privmsg(from, Args)
 /**************************** Patched by Flier ******************************/
                         {
 			    /*put_it("%s(%s/%s)%s %s", high, from, to, high, ptr);*/
-                            char *stampbuf=TimeStamp(2);
+                            char *stampbuf = TimeStamp(2);
 
-			    put_it("%s%s(%s/%s)%s %s",stampbuf,high,from,to,high,ptr);
+			    put_it("%s%s(%s/%s)%s %s", stampbuf, high, from, to, high, ptr);
                         }
 /****************************************************************************/
 			break;
 		case MSG_GROUP_LIST:
 /**************************** Patched by Flier ******************************/
-                        if (*to=='@' && is_channel(to+1)) message_from(to+1,LOG_MSG);
+                        if (*to == '@' && is_channel(to + 1)) message_from(to+1, LOG_MSG);
 /****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from, to, ptr))
 /**************************** Patched by Flier ******************************/
                         {
 			    /*put_it("%s-%s:%s-%s %s", high, from, to, high, ptr);*/
-                            char *stampbuf=TimeStamp(2);
+                            char *stampbuf = TimeStamp(2);
 
-			    put_it("%s-%s:%s- %s",stampbuf,from,to,ptr);
+			    put_it("%s-%s:%s- %s", stampbuf, from, to, ptr);
                         }
 /****************************************************************************/
 			break;
@@ -784,7 +783,7 @@ p_privmsg(from, Args)
 			if (away_set)
 				beep_em(get_int_var(BEEP_WHEN_AWAY_VAR));
 /**************************** PATCHED by Flier ******************************/
-                        iscrypted=DecryptMessage(ptr,from);
+                        iscrypted = DecryptMessage(ptr, from);
 /****************************************************************************/
 			if (do_hook(list_type, "%s %s", from, ptr))
 			{
@@ -793,34 +792,35 @@ p_privmsg(from, Args)
 			    {
 				time_t t;
 				char *msg = (char *) 0;
+				size_t len = my_strlen(ptr) + 20;
 
 				t = time((time_t *) 0);
-				msg = (char *) new_malloc(strlen(ptr) + 20);
-				sprintf(msg, "%s <%.16s>", ptr, ctime(&t));
+				msg = (char *) new_malloc(len);
+				snprintf(msg, len, "%s <%.16s>", ptr, ctime(&t));
 				put_it("%s*%s*%s %s", high, from, high, msg);
 				new_free(&msg);
 			    }
 			    else
 				put_it("%s*%s*%s %s", high, from, high, ptr);*/
-                            PrintMessage(from,FromUserHost,ptr,1,iscrypted);
+                            PrintMessage(from, FromUserHost, ptr, 1, iscrypted);
 /****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
-                        else PrintMessage(from,FromUserHost,ptr,0,iscrypted);
+                        else PrintMessage(from, FromUserHost, ptr, 0, iscrypted);
 /****************************************************************************/
 			break;
 		case PUBLIC_LIST:
 			if (get_int_var(MAKE_NOTICE_MSG_VAR))
 				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
-                        iscrypted=DecryptMessage(ptr,to);
+                        iscrypted = DecryptMessage(ptr, to);
 /****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from, 
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s<%s>%s %s", high, from, high, ptr);*/
-                                PrintPublic(from,NULL,to,ptr,1,iscrypted);
-                        else PrintPublic(from,NULL,to,ptr,0,iscrypted);
+                                PrintPublic(from, NULL, to, ptr, 1, iscrypted);
+                        else PrintPublic(from, NULL, to, ptr, 0, iscrypted);
 /****************************************************************************/
 			doing_privmsg = 0;
 			break;
@@ -828,15 +828,15 @@ p_privmsg(from, Args)
 			if (get_int_var(MAKE_NOTICE_MSG_VAR))
 				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
-                        iscrypted=DecryptMessage(ptr,to);
+                        iscrypted = DecryptMessage(ptr, to);
 /****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from,
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s<%s:%s>%s %s", high, from, to, high,
 					ptr);*/
-                                PrintPublic(from,":",to,ptr,1,iscrypted);
-                        else PrintPublic(from,":",to,ptr,0,iscrypted);
+                                PrintPublic(from, ":", to, ptr, 1, iscrypted);
+                        else PrintPublic(from, ":", to, ptr, 0, iscrypted);
 /****************************************************************************/
 			doing_privmsg = 0;
 			break;
@@ -1437,10 +1437,8 @@ p_server_kill(from, ArgList)
 	{
 		say("You have been killed by operator %s %s", from,
 			ArgList[1] ? ArgList[1] : "(No Reason Given)");
-#ifdef FASCIST_QUIT_ON_OPERATOR_KILL
-  		irc_exit();
-#endif /* FASCIST_QUIT_ON_OPERATOR_KILL */
-                HandleKills(from_server,from,FromUserHost,ArgList[1]);
+/*************************** PATCHED by SHEIK ****************************/
+                HandleKills(from_server, from, FromUserHost, ArgList[1]);
 /****************************************************************************/
 	}
 	close_server(parsing_server_index, empty_string);

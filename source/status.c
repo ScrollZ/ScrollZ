@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.20 2001-08-25 18:25:15 f Exp $
+ * $Id: status.c,v 1.21 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -150,7 +150,7 @@ static	char	*status_Cbarcolorc _((Window *));
 
 /*
  * Maximum number of "%" expressions in a status line format.  If you change
- * this number, you must manually change the sprintf() in make_status 
+ * this number, you must manually change the snprintf() in make_status
  */
 #define MAX_FUNCTIONS 36
 
@@ -206,10 +206,6 @@ static	RETSIGTYPE alarmed _((void));
 	int	do_status_alarmed;
 
 /* alarmed: This is called whenever a SIGALRM is received and the alarm is on */
-/*
- * XXX this is evil; we should set up a flag and make irc_io() do this work
- * for us OUTSIDE of signal context!
- */
 static	RETSIGTYPE
 alarmed()
 {
@@ -341,8 +337,8 @@ set_alarm(str)
 				}
 				if (merid[1] == 'M')
 				{
-					sprintf(time_str, "%02d:%02d%s", h, m,
-						merid);
+					snprintf(time_str, sizeof time_str,
+					    "%02d:%02d%s", h, m, merid);
 					set_string_var(CLOCK_ALARM_VAR,
 						time_str);
 				}
@@ -354,7 +350,8 @@ set_alarm(str)
 			}
 			else
 			{
-				sprintf(time_str, "%02d:%02d", h, m);
+				snprintf(CP(time_str), sizeof time_str,
+				    "%02d:%02d", h, m);
 				set_string_var(CLOCK_ALARM_VAR, time_str);
 			}
 		}
@@ -413,18 +410,18 @@ update_clock(buf, len, flag)
 /**************************** PATCHED by Flier ******************************/
 				/*merid = "AM";*/
 #ifdef TDF
-                                merid="am";
+                                merid = "am";
 #else
-				merid="AM";
+				merid = "AM";
 #endif
 /****************************************************************************/
 			else
 /**************************** PATCHED by Flier ******************************/
 				/*merid = "PM";*/
 #ifdef TDF
-                                merid="pm";
+                                merid = "pm";
 #else
-				merid="PM";
+				merid = "PM";
 #endif
 /****************************************************************************/
 			if (time_val->tm_hour > 12)
@@ -434,7 +431,8 @@ update_clock(buf, len, flag)
 		}
 		server = from_server;
 		from_server = primary_server;
-		sprintf(time_str, "%02d:%02d%s", time_val->tm_hour, time_val->tm_min, merid);
+		snprintf(CP(time_str), sizeof time_str, "%02d:%02d%s",
+		    time_val->tm_hour, time_val->tm_min, merid);
 		if (buf)
 		{
 			strncpy(buf, time_str, len - 1);
@@ -534,7 +532,7 @@ int  bufsize;
  * sub-portions of the status line to a format statement specially designed
  * for that sub-portions.  convert_sub_format looks for a single occurence of
  * %c (where c is passed to the function). When found, it is replaced by "%s"
- * for use is a sprintf.  All other occurences of % followed by any other
+ * for use is a snprintf.  All other occurences of % followed by any other
  * character are left unchanged.  Only the first occurence of %c is
  * converted, all subsequence occurences are left unchanged.  This routine
  * mallocs the returned string. 
@@ -1134,7 +1132,7 @@ make_status(window)
 	char	*func_value[MAX_FUNCTIONS];
 	int	final;
 /**************************** PATCHED by Flier ******************************/
-        int     change=1;
+        int     change = 1;
 /****************************************************************************/
 
 	switch (window->double_status) {
@@ -1163,7 +1161,7 @@ make_status(window)
 		if (k)
 /**************************** PATCHED by Flier ******************************/
 			/*l = 2;*/
-                        l = k+1;
+                        l = k + 1;
 /****************************************************************************/
 		else if (window->double_status)
 			l = 1;
@@ -1174,16 +1172,16 @@ make_status(window)
 		{
  			/*
  			 * XXX: note that this code below depends on the definition
- 			 * of MAX_FUNCTIONS (currently 33), and the sprintf must
+			 * of MAX_FUNCTIONS (currently 33), and the snprintf must
  			 * be updated if MAX_FUNCTIONS is changed.
  			 */
 			for (i = 0; i < MAX_FUNCTIONS; i++)
 				func_value[i] = (status_func[l][i]) (window);
 /**************************** PATCHED by Flier ******************************/
 			/*lbuf[0] = REV_TOG;*/
-                        lbuf[0]=get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
+                        lbuf[0] = get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
 /****************************************************************************/
-			sprintf((char *) lbuf+1, status_format[l],
+			snprintf(CP(lbuf+1), sizeof(lbuf) - 1, CP(status_format[l]),
 				func_value[0], func_value[1], func_value[2],
 				func_value[3], func_value[4], func_value[5],
 				func_value[6], func_value[7], func_value[8],
@@ -1228,7 +1226,7 @@ make_status(window)
 #endif
 /****************************************************************************/
 				{
-					if (RealPosition == CO)
+					if (RealPosition == current_screen->co)
 					{
 						lbuf[i] = '\0';
 						break;
@@ -1261,7 +1259,7 @@ make_status(window)
 				else
 					c = lbuf[RJustifyPos - 1];
 				
-				diff = CO - RealPosition;
+				diff = current_screen->co - RealPosition;
 				
 				for ( ; i >= RJustifyPos; i--)
 					lbuf[i + diff] = lbuf[i];
@@ -1273,7 +1271,7 @@ make_status(window)
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
                         if (get_int_var(DISPLAY_ANSI_VAR))
-                            strcat(lbuf,"[0m");
+                            strcat(lbuf, "[0m");
 #endif
 /****************************************************************************/
 
@@ -1311,7 +1309,7 @@ make_status(window)
 #ifdef WANTANSI
                         i=0;
                         if (window->status_line[k])
-                            change=strcmp(lbuf,window->status_line[k])!=0?1:0;
+                            change = strcmp(lbuf, window->status_line[k]) != 0 ? 1 : 0;
 #else
                         if (window->status_line[k] && (SG == -1))
                         {
@@ -1391,16 +1389,16 @@ status_server(window)
 				    my_strnicmp(name, "icb", 3) != 0)
 				{
 					if (is_number(name))
-						sprintf(lbuf, server_format, name);
+						snprintf(lbuf, sizeof lbuf, server_format, name);
 					else
 					{
 						*rest = '\0';
-						sprintf(lbuf, server_format, name);
+						snprintf(lbuf, sizeof lbuf, server_format, name);
 						*rest = '.';
 					}
 				}
 				else
-					sprintf(lbuf, server_format, name);
+					snprintf(lbuf, sizeof lbuf, server_format, name);
 			}
 			else
 				*lbuf = '\0';
@@ -1424,7 +1422,7 @@ status_group(window)
 	{
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
-		sprintf(lbuf, group_format, find_server_group_name(window->server_group));
+		snprintf(lbuf, sizeof lbuf, group_format, find_server_group_name(window->server_group));
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1438,8 +1436,7 @@ status_query_nick(window)
 {
 	char	*ptr = (char *) 0;
 /**************************** PATCHED by Flier ******************************/
-        int     buflen=get_int_var(CHANNEL_NAME_WIDTH_VAR);
-        char    tmpbuf[mybufsize/4+1];
+        int     buflen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
 /****************************************************************************/
 
 	if (window->query_nick && query_format)
@@ -1447,10 +1444,9 @@ status_query_nick(window)
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
 /**************************** PATCHED by Flier ******************************/
-		/*sprintf(lbuf, query_format, window->query_nick);*/
-                if (buflen>mybufsize/4) buflen=mybufsize/4;
-		strmcpy(tmpbuf,window->query_nick,buflen);
-		sprintf(lbuf,query_format,tmpbuf);
+		/*snprintf(lbuf, sizeof lbuf, query_format, window->query_nick);*/
+		buflen = buflen > sizeof(lbuf) - 1 ? sizeof(lbuf) : buflen;
+		snprintf(lbuf, buflen, query_format, window->query->nick);
 /****************************************************************************/
 		malloc_strcpy(&ptr, lbuf);
 	}
@@ -1490,10 +1486,10 @@ status_notify_windows(window)
 				if (!doneone)
 				{
 					doneone++;
-					sprintf(refnum, "%d", window->refnum);
+					snprintf(refnum, sizeof refnum, "%d", window->refnum);
 				}
 				else
-					sprintf(refnum, ",%d", window->refnum);
+					snprintf(refnum, sizeof refnum, ",%d", window->refnum);
 				strmcat(buf2, refnum, 81);
 			}
 		}
@@ -1502,7 +1498,7 @@ status_notify_windows(window)
 	{
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
-		sprintf(lbuf, notify_format, buf2);
+		snprintf(lbuf, sizeof lbuf, notify_format, buf2);
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1523,7 +1519,7 @@ status_clock(window)
 		char	lbuf[BIG_BUFFER_SIZE+1];
 		char	time_str[16];
 
-		sprintf(lbuf, clock_format, update_clock(time_str, 16, GET_TIME));
+		snprintf(lbuf, sizeof lbuf, clock_format, update_clock(time_str, 16, GET_TIME));
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1545,7 +1541,7 @@ status_mode(window)
 		{
 			char	lbuf[BIG_BUFFER_SIZE+1];
 
-			sprintf(lbuf, mode_format, mode);
+			snprintf(lbuf, sizeof lbuf, mode_format, mode);
 			malloc_strcpy(&ptr, lbuf);
 			return (ptr);
 		}
@@ -1576,15 +1572,15 @@ status_umode(window)
 	{
 		c = localbuf;
 /**************************** PATCHED by Flier ******************************/
-                for (i=0;i<26;i++)
-                    if (get_server_umode_flag(window->server,'a'+i)) *c++='a'+i;
+                for (i = 0; i < 26; i++)
+                    if (get_server_umode_flag(window->server, 'a' + i)) *c ++= 'a' + i;
 /****************************************************************************/
 		*c++ = '\0';
 		if (*localbuf != '\0' && umode_format)
 		{
 			char	lbuf[BIG_BUFFER_SIZE+1];
 
-			sprintf(lbuf, umode_format, localbuf);
+			snprintf(lbuf, sizeof lbuf, umode_format, localbuf);
 			malloc_strcpy(&ptr, lbuf);
 		}
 		else
@@ -1635,8 +1631,8 @@ status_hold_lines(window)
 	{
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
-		sprintf(localbuf, "%d", num);
-		sprintf(lbuf, hold_lines_format, localbuf);
+		snprintf(localbuf, sizeof localbuf, "%d", num);
+		snprintf(lbuf, sizeof lbuf, hold_lines_format, localbuf);
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1670,7 +1666,7 @@ status_channel(window)
 			channel[num] = (char) 0;
 		/* num = atoi(channel); */
 		ptr = (char *) 0;
-		sprintf(lbuf, channel_format, channel);
+		snprintf(lbuf, sizeof lbuf, channel_format, channel);
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1694,7 +1690,7 @@ status_mail(window)
 	{
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
-		sprintf(lbuf, mail_format, number);
+		snprintf(lbuf, sizeof lbuf, mail_format, number);
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
@@ -1707,7 +1703,7 @@ status_insert_mode(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0,
-	*text;
+		*text;
 
 	text = empty_string;
 	if (get_int_var(INSERT_MODE_VAR) && (get_int_var(SHOW_STATUS_ALL_VAR)
@@ -1725,7 +1721,7 @@ status_overwrite_mode(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0,
-	*text;
+		*text;
 
 	text = empty_string;
 	if (!get_int_var(INSERT_MODE_VAR) && (get_int_var(SHOW_STATUS_ALL_VAR)
@@ -1744,7 +1740,7 @@ status_away(window)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*char	*ptr = (char *) 0,
-	*text;*/
+		*text;*/
         char	*ptr = (char *) 0;
         char    buf[10];
 /****************************************************************************/
@@ -1763,8 +1759,8 @@ status_away(window)
 		else
 			malloc_strcpy(&ptr, empty_string);*/
                 if (server_list[window->server].away && away_format) {
-                    sprintf(buf,"%d",AwayMsgNum);
-                    sprintf(locbuf,away_format,buf);
+                    sprintf(buf, "%d", AwayMsgNum);
+                    sprintf(locbuf, away_format, buf);
                     malloc_strcpy(&ptr, locbuf);
                 }
 		else malloc_strcpy(&ptr, empty_string);
@@ -1844,7 +1840,7 @@ status_hold(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0,
-	*text;
+		*text;
 
 	if (window->held && (text = get_string_var(STATUS_HOLD_VAR)))
 		malloc_strcpy(&ptr, text);
@@ -1858,7 +1854,7 @@ status_oper(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0,
-	*text;
+		*text;
 
 	if (!connected_to_server)
 		malloc_strcpy(&ptr, empty_string);
@@ -1878,7 +1874,7 @@ status_window(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0,
-	*text;
+		*text;
 
 	if ((text = get_string_var(STATUS_WINDOW_VAR)) &&
 	    (number_of_windows() > 1) && (window->screen->current_window == window))
@@ -1898,9 +1894,9 @@ status_refnum(window)
 		malloc_strcpy(&ptr, window->name);
 	else
 	{
-		char	lbuf[BIG_BUFFER_SIZE+1];
+		char	lbuf[10];
 
-		sprintf(lbuf, "%u", window->refnum);
+		snprintf(lbuf, sizeof lbuf, "%u", window->refnum);
 		malloc_strcpy(&ptr, lbuf);
 	}
 	return (ptr);

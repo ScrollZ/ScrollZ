@@ -4,12 +4,333 @@
  *
  * Matthew Green, 1993.
  *
- * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000.
+ * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001.
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.8 2001-01-22 18:19:01 f Exp $
+ * @(#)$eterna: ChangeLog,v 2.315 2002/01/15 13:54:10 mrg Exp $
  */
+
+Wed Jan 16 00:33:45 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/crypt.c:
+		put a newline between crypto key & text for external programs.
+		noticed by flier <flier@scrollz.com>.
+
+Wed Dec 19 00:54:04 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/icb.c:
+		don't wipe out the current channel in icb_put_action().
+	source/server.c:
+		rework logic on what server to choose next to avoid skipping
+		one accidentally.
+
+Wed Dec 19 00:11:03 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/icb.c, source/edit.c, include/icb.h:
+		new icb_put_action() function.  make icb_put_public()
+		obey window_display.
+	include/ircterm.h, include/struct.h, source/alias.c, source/funny.c,
+	source/help.c, source/input.c, source/menu.c, source/output.c,
+	source/screen.c, source/status.c, source/term.c, source/window.c:
+		move lower_mark, upper_mark, input_line, str_start, zone
+		and cursor from screen.c into the per-screen struct.  also
+		move the static lines & columns variables from input.c and
+		term.c here as well.  this handles the input prompt on other
+		screen's properly.  move the CO and LI variables from term.c
+		into the per-screen struct as well.  call new_window() at
+		the top of init_screen() to setup the master screen structure
+		earlier.  TODO: have some way of wserv telling the master
+		ircii about screen changes.  but at least for now the input
+		prompt should work much better.
+
+Tue Dec 18 17:34:06 EST 2001 - matthew green <mrg@eterna.com.au>
+	include/irc_std.h:
+		add UPP and CPP macros for char ** conversions.
+
+Mon Dec 17 22:17:22 EST 2001 - Joel Yliluoma <bisqwit@iki.fi>
+	source/edit.c, source/irc.c, include/edit.h:
+		Added support for microsecond resolution in /TIMER.
+		Todo: Add named timers some day.
+	source/dcc.c:
+		Fixed crashing when closing DCC RAW_LISTEN socket.
+	help/exec:
+		Updated the documentation (found a flaw).
+
+Mon Dec 17 21:55:24 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/alias.c, help/alias/functions:
+		new $filestat($file) that returns size, uid, gid, mode,
+		filename of passed in $file.  inspired by a change in
+		the debian bug database.
+
+20011210
+Fri Nov 30 10:03:10 EST 2001 - matthew green <mrg@eterna.com.au>
+	script/times:
+		add a public_other /on as well
+	source/irc.c:
+		call check_wait_status until it returns < 0.  from bisqwit.
+
+Tue Sep 18 11:37:03 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/alias.c:
+		fix $mid(0, ...).  from tristan in private email.
+
+Fri Sep  7 02:49:55 EST 2001 - Joel Yliluoma <bisqwit@iki.fi>
+	help/exec, source/alias.c, source/exec.c, include/exec.h,
+	include/alias.h:
+		Added -FILTER switch to /EXEC, and documented it,
+		Now external programs can be scripted to select
+		recipients on multiple servers.
+
+Fri Sep  7 02:49:52 EST 2001 - Joel Yliluoma <bisqwit@iki.fi>
+	source/server.c, include/hook.h, include/hook.h.proto, source/hook.c,
+	help/on/raw_send:
+		RAW_SEND -list support had vanished from my last
+		update, added it back.
+	source/screen.c:
+		mIRC-colour codes work better now.
+		Rewritten the indent code, colour codes
+		now work in CONTINUED_LINE too.
+	help/on/msg:
+		Updated the documentation of /msg.
+	source/screen.c, source/edit.c, source/edit.h:
+		Allow multiple different target redirection.
+
+20010807
+Tue Aug  7 21:08:32 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/window.c, source/screen.c:
+		set connect_next_as_irc/connect_next_as_icb before calling
+		connect_to_server() always.
+	source/alias.c, source/crypt.c, source/ctcp.c, source/dcc.c,
+	source/edit.c, source/exec.c, source/funny.c, source/help.c,
+	source/hook.c, source/icb.c, source/ignore.c, source/ircaux.c,
+	source/ircflush.c, source/ircio.c, source/mail.c, source/names.c,
+	source/numbers.c, source/parse.c, source/rijndael.c, source/screen.c,
+	source/server.c, source/stack.c, source/status.c, source/translat.c,
+	source/vars.c, source/whois.c, source/window.c:
+		convert sprintf() to snprintf() now that we have that always.
+
+Tue Aug  7 15:42:19 EST 2001 - matthew green <mrg@eterna.com.au>
+	help/icb:
+		add a link to http://www.icb.net/
+	source/output.c:
+		avoid core dumps on empty MOTD lines.  from Bernd Eckenfels
+		<ecki@lina.inka.de>.
+	include/buffer.h, source/output.c, source/hook.c:
+		move PUTBUF macros into new buffer.h, and use them in do_hook.
+	configure.in, configure:
+		look for sendmail in /usr/sbin first.
+	source/output.c:
+		use snprintf() everywhere here.
+
+Fri Jul 27 01:19:04 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/input.c:
+		in update_input(), add some sanity checking on lower_mark,
+		upper_mark & str_start.
+	source/alias.c:
+		fix an underrun in $mid().  pointed out by jnelson@epicsol.org
+		in PR#536.
+
+20010720
+Fri Jul 20 10:49:26 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		in output_line(), don't fwrite() in the CHARSET & COLOUR tag
+		cases, unless we have a greater than zero length.
+
+Fri Jul 20 06:57:28 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		in output_line(), don't blindly step through the string to
+		decode the colour or charset tags, make sure we don't step
+		past the nul.
+	source/lastlog.c:
+		in bits_to_lastlog_level(), the max length of the levels is
+		closer to 120 than 80.. adjust a buffer size.
+
+20010612
+Tue Jun 12 23:12:34 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/irc.c, source/window.c, source/server.c:
+		provide no default quit message anywere.
+	source/parse.c:
+		fix is_channel() for ICB.
+
+Sun May 20 06:48:11 EST 2001 - Joel Yliluoma <bisqwit@iki.fi>
+	include/vars.h.proto, include/vars.h, include/irc.h,
+	include/config.h.dist, source/screen.c, source/vars.c:
+		applied the japanese patch (from galibert@mines.u-nancy.fr),
+		which also fixes the ^V/^B/^_/color handling over broken lines.
+	source/dcc.c, source/irc.c:
+		dcc working with masquerades (new -H switch; IPv4 only)
+	source/notice.c, source/server.c:
+		fixed -q again (prevent also .ircquick)
+	source/alias.c, help/alias/functions:
+		added new functions: SHELLFIX, URLENCODE functions.
+	Makefile.in:
+		remove rijndael-alg-ref.c, rijndael-api-ref.c and config.h on
+		make distclean.
+
+Mon Feb 12 23:53:22 EST 2001 - matthew green <mrg@eterna.com.au>
+	include/server.h, source/funny.c, source/status.c:
+		add usermode `z' support.
+	doc/ircII.1: document the ircII.servers & ircII.motd files.
+
+Mon Feb 12 23:42:30 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/snprintf.c, Makefile.in, acconfig.h, configure, configure.in:
+		look for snprintf() and vsnprintf() and provide replacements if
+		they do not exist.  nothing uses this (yet).
+
+Tue Jan  2 22:26:14 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		don't call get_connected() but just call window_set_server() for
+		the relevant windows, if we fail to connect.  fixes PR#227.
+
+Tue Jan  2 17:09:21 EST 2001 - matthew green <mrg@eterna.com.au>
+	help/alias/functions, include/ignore.h, include/notify.h,
+	source/alias.c, source/ignore.c, source/notify.c:
+		4 new functions, inspired by PR#66:
+		  IGNORED(NICK TYPE)    Returns "ignored", "highlighted", "dont"
+					or "0", depending on what ignore action
+					will be applied to this NICK and TYPE of
+					ignorance.  TYPE must be one of MSGS,
+					PUBLIC, WALLS, WALLOPS, INVITES,
+					NOTICES, NOTES, CTCP or CRAP.
+		  NOTIFY(TYPE)          Returns either the TYPE "here", "gone"
+					or "all" lists, default being "here".
+		  SCREENS()             Returns a list of the current screen.
+		  WINDOWS()             Returns a list of the current windows.
+	inspired by PR#66.
+	include/vars.h.proto, include/vars.h, include/config.h.dist,
+	source/output.c, source/vars.c, help/set/star_prefix:
+		new /set star_prefix variable that replaces the hard coded 
+		"*** " prefix from many messages, and replaces it with the
+		expanded value of this variable, so that /set star_prefix $Z
+		works.  inspired by PR#48.
+	source/numbers.c:
+		be saner in reset_nickname().  deal with various bugs here.
+		inspired by PR#287.
+
+Tue Jan  2 11:50:23 EST 2001 - matthew green <mrg@eterna.com.au>
+	include/vars.h.proto, include/vars.h, include/config.h.dist,
+	include/names.h, source/alias.c, source/names.c, source/status.c,
+	source/vars.c, help/set/status_voice:
+		add new /set status_voice and %v status_format modifier,
+		part of PR#11.
+
+20010101
+Mon Jan  1 22:07:31 EST 2001 - matthew green <mrg@eterna.com.au>
+	source/notice.c, irc.c:
+		load "global" before .ircrc, when using -b.  fixes PR#498.
+	source/window.c:
+		avoid a core dump when re-binding a channel.  fixes PR#497.
+	script/listidle, help/load/listidle:
+		new listidle script from tristan in PR#466.
+	source/numbers.c:
+		re-do numeric 437 processing.  fixes PR#500.
+	source/edit.c:
+		handle /me for ICB.  fixes PR#492.
+	source/whois.c:
+		kill some debug messages.
+	source/term.c:
+		kill some "#ifdef mips" lossage.
+
+Mon Jan  1 12:34:26 EST 2001 - matthew green <mrg@eterna.com.au>
+	acconfig.h, configure, configure.in, include/defs.h.in,
+	include/ircterm.h, source/term.c:
+		check for fwrite/fputc and only redefine them if they are
+		not already present (and if "mips", like it was).  make the
+		fake macros more robust and correct.
+
+20001231
+Tue Dec 19 16:25:55 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/menu.c:
+		fix a core dump, noted by "David O'Shea"
+		<s341595@student.uq.edu.au> in PR#503.
+	source/term.c:
+		give cygwin a 2K buffer.
+
+Mon Dec  4 21:34:19 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		apply patch from <jnelson@acronet.net> to avoid sending
+		"NAMES " to the server in cases it was not meant. PR#501.
+
+20001120
+Mon Nov 20 00:07:40 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		in send_text(), don't do dcc chat/talk or command expansion
+		if the target is actually the current channel.  stops things
+		like groups named `/quit' from being obnoxious.
+
+Mon Nov  6 02:00:46 EST 2000 - matthew green <mrg@eterna.com.au>
+	configure, configure.in:
+		add a `--with-efence' option to include the Electric Fence
+		malloc debugging library.
+	include/ircterm.h:
+		support ncurses tputs(3) variant.
+
+Wed Oct 25 08:35:55 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/output.c:
+		s/buf/putbuf/ in !stdarh.h code. PR#496 from Andreas Ley
+		<andy@rz.uni-karlsruhe.de>.
+
+20001024
+Tue Oct 24 12:52:46 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		in mark_not_connected(), clear the channel status.  fixes
+		PR#495.
+
+Fri Oct 13 22:18:52 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/crypt.h, source/cast.c, source/crypt.c, source/rijndael.c,
+	source/sed.c:
+		toss the generic CBC code for now.  make cast.c like it was,
+		and use the built-in rijndael CBC code.  generate a 32-byte
+		IV for the start of the connection.  disable the rijndael
+		code while it doesn't work.
+	source/irc.c:
+		call srandom() when we start.
+
+20001009
+Mon Oct  9 02:13:16 EST 2000 - matthew green <mrg@eterna.com.au>
+	Makefile.in:
+		regenerate dependancies
+
+Mon Oct  9 02:04:32 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/rijndael.c, source/cast.c, source/crypt.c, source/sed.c,
+	include/crypt.h:
+		further crypto handling simplification.  complete the rijndael
+		cipher (using the new generic CBC-mode handling code).
+
+Sun Oct  8 08:47:31 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/rijndael/:
+		add Rijndael reference source 2.1.
+	Makefile.in:
+		update for Rijndael support.  clean up some things.
+	configure.in, configure:
+		remove --with-cast.  crypto is always there now.
+	include/crypt.h, source/ctcp.c:
+		simplify ctcp crypto handling.
+
+20001007
+Sat Oct  7 21:58:27 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c, source/alias.c, source/irc.c, include/irc.h:
+		remove internal_version, and make irc_version be this YYYYMMDD
+		string instead.
+
+Sat Oct  7 16:36:19 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c, source/alias.c:
+		PR#482 & #483 from maximum entropy <entropy@zippy.bernstein.com>
+		fix off-by-one error calling getcwd.
+	source/irc.c:
+		fix some typos
+	source/screen.c:
+		more robust mIRC code from PR#480 from
+		<wiz@danbala.tuwien.ac.at>.
+	source/ircaux.c:
+		pr#488 from ecki@lina.inka.de: fix off-by-one overflow in
+		strmcpy().
+	configure.in, configure:
+		Reimplemented gethostbyname() check from Arkadiusz Miskiewicz
+		<misiek@pld.org.pl> in PR#486.
+
+Tue Sep 19 02:45:35 EST 2000 - matthew green <mrg@eterna.com.au>
+	doc/ircII.1, include/irc.h, source/irc.c, source/term.c:
+		add new -t command line argument to make ircII not use the
+		termcap "ti" and "te" sequences.  fixes PR#484.  add -T to
+		turn them on (if present) for completeness.
 
 4.4Z
 Thu Aug 31 22:19:55 EST 2000 - matthew green <mrg@eterna.com.au>

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.14 2002-01-08 17:55:45 f Exp $
+ * $Id: funny.c,v 1.15 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -151,10 +151,10 @@ funny_print_widelist()
 	*buffer1 = '\0';
 	for (i = 0; i < wl_elements; i++)
 	{
-		sprintf(buffer2, "%s(%d) ", wide_list[i]->channel,
+		snprintf(buffer2, sizeof buffer2, "%s(%d) ", wide_list[i]->channel,
 				wide_list[i]->users);
 		ptr = index(buffer1, '\0');
-		if ((int) strlen(buffer1) + (int) strlen(buffer2) > CO - 5)
+		if (strlen(buffer1) + strlen(buffer2) > current_screen->co - 5)
 		{
 			if (do_hook(WIDELIST_LIST, "%s", buffer1))
 				say("%s", buffer1);
@@ -193,17 +193,17 @@ funny_list(from, ArgList)
 	{
 /**************************** PATCHED by Flier ******************************/
 		/*if ((last_width = get_int_var(CHANNEL_NAME_WIDTH_VAR)) != 0)
-			sprintf(format, "*** %%-%u.%us %%-5s  %%s",
+			snprintf(CP(format), sizeof format, "*** %%-%u.%us %%-5s  %%s",
 				(unsigned char) last_width,
 				(unsigned char) last_width);
 		else
 			strcpy(format, "*** %s\t%-5s  %s");*/
 		if ((last_width = get_int_var(CHANNEL_NAME_WIDTH_VAR)) != 0)
-			sprintf(format, "%%-%u.%us %%-5s  %%s",
+			snprintf(format, sizeof format, "*** %%-%u.%us %%-5s  %%s",
 				(unsigned char) last_width,
 				(unsigned char) last_width);
 		else
-			sprintf(format, "%%s\t%%-5s  %%s");
+			strcpy(format, "%s\t%-5s  %s");
 /****************************************************************************/
 	}
 	channel = ArgList[0];
@@ -306,7 +306,7 @@ funny_namreply(from, Args)
 	if (last_width != get_int_var(CHANNEL_NAME_WIDTH_VAR))
 	{
 		if ((last_width = get_int_var(CHANNEL_NAME_WIDTH_VAR)) != 0)
-			sprintf(format, "%%s: %%-%u.%us %%s",
+			snprintf(format, sizeof format, "%%s: %%-%u.%us %%s",
 				(unsigned char) last_width,
 				(unsigned char) last_width);
 		else
@@ -448,15 +448,15 @@ funny_mode(from, ArgList)
 void update_user_mode(modes)
 char *modes;
 {
-    int	onoff=1;
+    int	onoff = 1;
 
     while (*modes) {
-        if (*modes=='-') onoff=0;
-        else if (*modes=='+') onoff=1;
+        if (*modes == '-') onoff = 0;
+        else if (*modes == '+') onoff = 1;
         else {
-            if (*modes=='o' || *modes=='O')
-                set_server_operator(parsing_server_index,onoff);
-            set_server_umode_flag(parsing_server_index,*modes,onoff);
+            if (*modes == 'o' || *modes == 'O')
+                set_server_operator(parsing_server_index, onoff);
+            set_server_umode_flag(parsing_server_index, *modes, onoff);
         }
         modes++;
     }
@@ -468,16 +468,14 @@ void reinstate_user_modes()
     char modes[32];
     char *c;
 
-    if (get_server_version(parsing_server_index)<Server2_7) return;
-    c=modes;
-    for (i=0;i<25;i++)
-        if ('a'+i!='o' && get_server_umode_flag(parsing_server_index,'a'+i)) *c++='a'+i;
-    *c='\0';
+    if (get_server_version(parsing_server_index) < Server2_7) return;
+    c = modes;
+    for (i = 0; i < 25; i++)
+        if ('a' + i != 'o' && get_server_umode_flag(parsing_server_index, 'a' + i)) *c ++= 'a' + i;
+    *c = '\0';
     if (PermUserMode)
-        send_to_server("MODE %s %s",get_server_nickname(parsing_server_index),
-                       PermUserMode);
-    else if (c!=modes) send_to_server("MODE %s +%s",
-                                      get_server_nickname(parsing_server_index),modes);
+        send_to_server("MODE %s %s", get_server_nickname(parsing_server_index), PermUserMode);
+    else if (c != modes) send_to_server("MODE %s +%s", get_server_nickname(parsing_server_index), modes);
 #if defined(OPERVISION) && defined(WANTANSI)
     if (OperV) OperVisionReinit();
 #endif

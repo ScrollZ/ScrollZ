@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.h,v 1.3 2000-08-09 19:31:20 f Exp $
+ * $Id: edit.h,v 1.4 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __edit_h_
@@ -45,30 +45,31 @@ extern	u_char	*recv_nick;
 	void	send_text _((char *, char *, char *));
 	void	eval_inputlist _((char *, char *));
 	void	parse_command _((char *, int, char *));
-	void	parse_line _((char *, char *, char *, int, int));
- 	void	edit_char _((u_int));
+	void	parse_line _((char *, char *, char *, int, int, int));
+	void	edit_char _((u_int));
 	void	execute_timer _((void));
 	void	ison_now _((WhoisStuff *, char *, char *));
+	void	redirect_msg _((u_char *, u_char *));
 	void	query _((char *, char *, char *));
- 	void	forward_character _((u_int, char *));
- 	void	backward_character _((u_int, char *));
- 	void	forward_history _((u_int, char *));
- 	void	backward_history _((u_int, char *));
- 	void	toggle_insert_mode _((u_int, char *));
- 	void	send_line _((u_int, char *));
- 	void	meta1_char _((u_int, char *));
- 	void	meta2_char _((u_int, char *));
- 	void	meta3_char _((u_int, char *));
- 	void	meta4_char _((u_int, char *));
- 	void	meta5_char _((u_int, char *));
- 	void	meta6_char _((u_int, char *));
- 	void	meta7_char _((u_int, char *));
- 	void	meta8_char _((u_int, char *));
- 	void	quote_char _((u_int, char *));
- 	void	type_text _((u_int, char *));
- 	void	parse_text _((u_int, char *));
- 	void	irc_clear_screen _((u_int, char *));
- 	void	command_completion _((u_int, char *));
+	void	forward_character _((u_int, char *));
+	void	backward_character _((u_int, char *));
+	void	forward_history _((u_int, char *));
+	void	backward_history _((u_int, char *));
+	void	toggle_insert_mode _((u_int, char *));
+	void	send_line _((u_int, char *));
+	void	meta1_char _((u_int, char *));
+	void	meta2_char _((u_int, char *));
+	void	meta3_char _((u_int, char *));
+	void	meta4_char _((u_int, char *));
+	void	meta5_char _((u_int, char *));
+	void	meta6_char _((u_int, char *));
+	void	meta7_char _((u_int, char *));
+	void	meta8_char _((u_int, char *));
+	void	quote_char _((u_int, char *));
+	void	type_text _((u_int, char *));
+	void	parse_text _((u_int, char *));
+	void	irc_clear_screen _((u_int, char *));
+	void	command_completion _((u_int, char *));
 	void	e_quit _((char *, char *, char *));
 	int	check_wait_command _((char *));
 	
@@ -84,13 +85,9 @@ typedef struct	timerlist_stru
 {
 	int	ref;
 	int	in_on_who;
+	time_t	time;
+	unsigned microseconds;
 /**************************** PATCHED by Flier ******************************/
-	/*time_t	time;*/
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-        struct  timeval time;
-#else
-        time_t	time;
-#endif
         int     visible;
         void    (*func)();
 /****************************************************************************/

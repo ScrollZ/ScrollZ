@@ -34,17 +34,17 @@
 
 #ifndef LITE
 
-static	void	sed_encrypt_str _((u_char **, int *, crypt_key *));
-static	void	sed_decrypt_str _((u_char **, int *, crypt_key *));
+static	int	sed_encrypt_str _((crypt_key *, u_char **, int *));
+static	int	sed_decrypt_str _((crypt_key *, u_char **, int *));
 
 /*
  * these are the old, broken crypt functions.  "cast.c" includes
  */
-static	void
-sed_encrypt_str(str, len, key)
+static	int
+sed_encrypt_str(key, str, len)
+	crypt_key	*key;
 	u_char	**str;
 	int	*len;
-	crypt_key	*key;
 {
 	int	key_len,
 		key_pos,
@@ -63,13 +63,15 @@ sed_encrypt_str(str, len, key)
 		key_pos = (key_pos + 1) % key_len;
 	}
 	(*str)[i] = (char) 0;
+
+	return (0);
 }
 
-static	void
-sed_decrypt_str(str, len, key)
+static	int
+sed_decrypt_str(key, str, len)
+	crypt_key	*key;
 	u_char	**str;
 	int	*len;
-	crypt_key	*key;
 {
 	int	key_len,
 		key_pos,
@@ -89,6 +91,8 @@ sed_decrypt_str(str, len, key)
 		key_pos = (key_pos + 1) % key_len;
 	}
 	(*str)[i] = (char) 0;
+
+	return (0);
 }
 
 #endif /* LITE */

@@ -78,7 +78,9 @@ Meaning of flags:
     + mIRC compatible DCC resume, it has to be enabled in defs.h
       (patch submitted by braneded)
     ~ DCC speed calculation for resend/reget (fixed by braneded)
-    ~ merged ircii-20011210 changes
+    ~ merged ircii-20011210 changes (without ISO-2022-JP stuff and mIRC
+      colour stuff - sorry but my screen.c is too different these days
+      from ircII and ircII won't allow for ANSI colour codes)
 
 ------------------------------------------------------------------------------
 

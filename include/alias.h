@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.h,v 1.3 2000-08-09 19:31:20 f Exp $
+ * $Id: alias.h,v 1.4 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __alias_h_
@@ -61,6 +61,7 @@
  	char	*MatchingBracket _((char *, int, int));
 	void	save_aliases _((FILE *, int));
 	int	word_count _((char *));
+	u_char	*call_function _((u_char *, u_char *, u_char *, int *));
 
 extern	char	alias_illegals[];
 extern	char	*command_line;

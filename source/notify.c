@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.10 2001-09-17 16:29:32 f Exp $
+ * $Id: notify.c,v 1.11 2002-01-21 21:37:36 f Exp $
  */
 
 /*
@@ -70,36 +70,45 @@ NotifyList	*notify_list = (NotifyList *) 0;
 /****************************************************************************/
 
 /* Rewritten, -lynx */
-void
-show_notify_list(all)
-	int	all;
+char *
+get_notify_list(which)
+	int which;
 {
-	NotifyList	*tmp;
 	char	*list = (char *) 0;
+	NotifyList	*tmp;
+	int first = 0;
 
 	malloc_strcpy(&list, empty_string);
 	for (tmp = notify_list; tmp; tmp = tmp->next)
 	{
-		if (tmp->flag)
+		if ((which & NOTIFY_LIST_ALL) == NOTIFY_LIST_ALL ||
+		   ((which & NOTIFY_LIST_HERE) && tmp->flag) ||
+		   ((which & NOTIFY_LIST_GONE) && !tmp->flag))
 		{
-			malloc_strcat(&list, " ");
+			if (first++)
+				malloc_strcat(&list, " ");
 			malloc_strcat(&list, tmp->nick);
 		}
 	}
+	return list;
+}
+
+/* Rewritten, -lynx */
+void
+show_notify_list(all)
+	int	all;
+{
+	char	*list;
+
+	list = get_notify_list(NOTIFY_LIST_HERE);
 	if (*list)
-		say("Currently present:%s", list);
+		say("Currently present: %s", list);
 	if (all)
 	{
-		malloc_strcpy(&list, empty_string);
-		for (tmp = notify_list; tmp; tmp = tmp->next)
-		{
-			if (!(tmp->flag))
-			{
-				malloc_strcat(&list, " ");
-				malloc_strcat(&list, tmp->nick);
-			}
-		}
-		if (*list) say("Currently absent:%s", list);
+		new_free(&list);
+		list = get_notify_list(NOTIFY_LIST_GONE);
+		if (*list)
+			say("Currently absent: %s", list);
 	}
 	new_free(&list);
 }

@@ -33,7 +33,7 @@
 /*
  * Generated from hook.h.proto automatically by the Makefile
  *
- * $Id: hook.h.proto,v 1.5 2000-09-24 17:10:33 f Exp $
+ * $Id: hook.h.proto,v 1.6 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __hook_h_
@@ -94,13 +94,13 @@ typedef struct numericlist_stru
 	Hook	*list;
 }	NumericList;
 
-#define	ACTION_LIST $
+#define ACTION_LIST $
 /**************************** PATCHED by Flier ******************************/
 #define CDCC_PLIST $
 #define CDCC_PLIST_FOOTER $
 #define CDCC_PLIST_HEADER $
 /****************************************************************************/
-#define	CHANNEL_NICK_LIST $
+#define CHANNEL_NICK_LIST $
 #define CHANNEL_SIGNOFF_LIST $
 /**************************** PATCHED by Flier ******************************/
 #define CHANNEL_SYNCH_LIST $
@@ -109,7 +109,7 @@ typedef struct numericlist_stru
 #define CONNECT_LIST $
 #define CTCP_LIST $
 #define CTCP_REPLY_LIST $
-#define	DCC_CHAT_LIST $
+#define DCC_CHAT_LIST $
 #define DCC_CONNECT_LIST $
 #define DCC_ERROR_LIST $
 /**************************** PATCHED by Flier ******************************/
@@ -118,7 +118,7 @@ typedef struct numericlist_stru
 #define DCC_LIST_HEADER $
 /****************************************************************************/
 #define DCC_LOST_LIST $
-#define	DCC_RAW_LIST $
+#define DCC_RAW_LIST $
 #define DCC_REQUEST_LIST $
 #define DISCONNECT_LIST $
 #define ENCRYPTED_NOTICE_LIST $
@@ -130,7 +130,7 @@ typedef struct numericlist_stru
 #define EXIT_LIST $
 #define FLOOD_LIST $
 #define HELP_LIST $
-#define	HOOK_LIST $
+#define HOOK_LIST $
 #define IDLE_LIST $
 #define INPUT_LIST $
 #define INVITE_LIST $
@@ -161,16 +161,17 @@ typedef struct numericlist_stru
 #define PUBLIC_MSG_LIST $
 #define PUBLIC_NOTICE_LIST $
 #define PUBLIC_OTHER_LIST $
-#define	RAW_IRC_LIST $
-#define	SEND_ACTION_LIST $
+#define RAW_IRC_LIST $
+#define RAW_SEND_LIST $
+#define SEND_ACTION_LIST $
 /**************************** PATCHED by Flier ******************************/
 #define SEND_CTCP_LIST $
 /****************************************************************************/
-#define	SEND_DCC_CHAT_LIST $
+#define SEND_DCC_CHAT_LIST $
 #define SEND_MSG_LIST $
 #define SEND_NOTICE_LIST $
 #define SEND_PUBLIC_LIST $
-#define	SERVER_NOTICE_LIST $
+#define SERVER_NOTICE_LIST $
 #define SIGNOFF_LIST $
 #define TIMER_LIST $
 #define TOPIC_LIST $

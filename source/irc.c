@@ -31,24 +31,13 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.75 2002-01-17 19:17:12 f Exp $
+ * $Id: irc.c,v 1.76 2002-01-21 21:37:35 f Exp $
  */
 
-#define IRCII_VERSION	"4.4Z"
 /**************************** PATCHED by Flier ******************************/
+/*#define IRCII_VERSION	"20011210"*/	/* YYYYMMDD */
+#define IRCII_VERSION "20020108"
 #define SCROLLZ_VERSION "1.9beta2"
-/****************************************************************************/
-
-/*
- * INTERNAL_VERSION is the number that the special alias $V returns.
- * Make sure you are prepared for floods, pestilence, hordes of locusts, 
- * and all sorts of HELL to break loose if you change this number.
- * Its format is actually YYYYMMDD, for the _release_ date of the
- * client..
- */
-/**************************** PATCHED by Flier ******************************/
-/*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"20020108"
 /****************************************************************************/
 
 #include "irc.h"
@@ -135,6 +124,7 @@ char	oper_command = 0;	/* true just after an oper() command is
 char	FAR MyHostName[80];	       	/* The local machine name. Used by
 					 * DCC TALK */
 	struct	in_addr	MyHostAddr;	/* The local machine address */
+	struct	in_addr forced_ip_addr;	/* The local machine address */
 extern	char	*last_away_nick;
 
 char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
@@ -166,6 +156,7 @@ u_char	*last_notify_nick = (u_char *) 0; /* last detected nickname */
 					 * message anywhere */
 	int	qflag;			/* set if we ignore .ircrc */
 	int	bflag;			/* set if we load .ircrc before connecting */
+	int	tflag;			/* don't use termcap ti/te sequences */
 	time_t	idle_time = 0;
 	time_t  start_time;
 
@@ -187,14 +178,7 @@ static	RETSIGTYPE	cntl_y _((void));
 static	RETSIGTYPE	coredump _((void)) ;
 #endif /* CORECATCH */
 static	void	process_hostname _((void));
-/**************************** PATCHED by Flier ******************************/
-/*static	time_t	TimerTimeout _((void));*/
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-static struct timeval TimerTimeout _((void));
-#else
-static time_t TimerTimeout _((void));
-#endif
-/****************************************************************************/
+static	void	TimerTimeout _((struct timeval *tv));
 static	void	quit_response _((char *, char *));
 static	void	show_version _((void));
 static	char	*get_arg _((char *, char *, int *));
@@ -209,26 +193,27 @@ static	int	cntl_c_hit = 0;
 ****************************************************************************/
 
 	char	irc_version[] = IRCII_VERSION;
-	char	internal_version[] = INTERNAL_VERSION;
 
 static	char	FAR switch_help[] =
 "Usage: irc [switches] [nickname] [server list] \n\
   The [nickname] can be at most 9 characters long on some server\n\
-  The [server list] is a whitespace separate list of server name\n\
-  The [switches] may be any or all of the following\n\
-   -c <channel>\tjoins <channel> o startup\n\
+  The [server list] is a whitespace separated list of server names\n\
+  The [switches] may be any or all of the following:\n\
+   -c <channel>\tjoins <channel> on startup\n\
    -p <port>\tdefault server connection port (usually 6667)\n\
-   -f\t\tyour terminal uses flow controls (^S/^Q), so IRCII shouldn't\n\
+   -f\t\tyour terminal uses flow control (^S/^Q), so IRCII shouldn't\n\
    -F\t\tyour terminal doesn't use flow control (default)\n\
    -h <host>\tuse the following host for virtual hosting\n\
-   -H <host>\tuse the following host for virtual hosting\n\
+   -H <host>\toriginating address for dcc requests (to work behind NATs etc)\n\
    -C <name>\tused to cloak process as name\n\
    -s\t\tdon't use separate server processes (ircio)\n\
    -S\t\tuse separate server processes (ircio)\n\
    -d\t\truns IRCII in \"dumb\" terminal mode\n\
-   -q\t\tdoes not load .scrollzrc and not .scrollzquick\n\
+   -q\t\tdoes not load .scrollzrc nor .scrollzquick\n\
    -a\t\tadds default servers and command line servers to server list\n\
    -b\t\tload .scrollzrc before connecting to a server\n\
+   -t\t\tdo not use termcap ti and te sequences at startup\n\
+   -T\t\tuse termcap ti and te sequences at startup (default)\n\
    -l <file>\tloads <file> in place of your .scrollzrc\n\
    -I <file>\tloads <file> in place of your .scrollzquick\n\
    -L <file>\tloads <file> in place of your .scrollzrc and expands $ expandos\n";
@@ -612,7 +597,7 @@ irc_exit(quit)
 /****************************************************************************/
 {
 	do_hook(EXIT_LIST, "Exiting");
-	close_server(-1, "Leaving");
+	close_server(-1, empty_string);
 	logger(0);
 	set_history_file((char *) 0);
 #ifndef _Windows
@@ -788,7 +773,7 @@ sig_refresh_screen()
 static	void
 show_version()
 {
-	printf("ircII version %s (%s)\n\r", irc_version, internal_version);
+	printf("ircII version %s\n\r", irc_version);
 	exit (0);
 }
 
@@ -907,10 +892,18 @@ parse_args(argv, argc)
 				case 'd':
 					dumb = 1;
 					break;
-				case 'h':
-/**************************** PATCHED by Flier ******************************/
 				case 'H':
-/****************************************************************************/
+				{
+					u_char *buf = (u_char *) 0;
+
+					struct hostent *hp;
+					malloc_strcpy(&buf, get_arg(arg, argv[ac], &ac));
+					if ((hp = gethostbyname(CP(buf))) != NULL)
+						bcopy(hp->h_addr, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
+					free(buf);
+					break;
+				}
+				case 'h':
 					malloc_strcpy(&source_host, get_arg(arg,
 							argv[ac], &ac));
 					break;
@@ -958,6 +951,12 @@ parse_args(argv, argc)
 					break;
 				case 'S':
 					using_server_process = 1;
+					break;
+				case 't':
+					tflag = 1;
+					break;
+				case 'T':
+					tflag = 0;
 					break;
 				case 'q':
 					if (bflag)
@@ -1188,84 +1187,79 @@ parse_args(argv, argc)
  * TimerTimeout:  Called from irc_io to help create the timeout
  * part of the call to select.
  */
-/**************************** PATCHED by Flier ******************************/
-/*static time_t*/
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-static struct timeval
-#else
-static time_t
-#endif
-/****************************************************************************/
-TimerTimeout()
+static void
+TimerTimeout(struct timeval *tv)
 {
+	struct timeval current;
 /**************************** PATCHED by Flier ******************************/
-	/*time_t	current;
-	time_t	timeout_in;*/
-        time_t  nickt=LastNick+OrigNickDelay;
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-        struct  timeval current,largest;
-#else
-        time_t	current,largest;
-        time_t  timeout_in;
-#endif
+        time_t nickt = LastNick + OrigNickDelay;
+	struct timeval largest;
+/****************************************************************************/
 
-	/*if (!PendingTimers)
-		return 70;*/ /* Just larger than the maximum of 60 */
-	/*time(&current);
-	timeout_in = PendingTimers->time - current;
-	return (timeout_in < 0) ? 0 : timeout_in;*/
-        DoOrigNick=0;
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-        gettimeofday(&current,NULL);
-        /* If ORIGNICK is off set nickt to current+75 to prevent
-           excessive CPU usage (meaning we actually ignore this
-           event, see below) */
-        if (!OrigNickChange) nickt=current.tv_sec+75;
-        if (!PendingTimers) {
-            if (nickt-current.tv_sec<70) DoOrigNick=1;
-            /* Just larger than the maximum of 60 */
-            current.tv_sec=
-                nickt-current.tv_sec>70?70:nickt-current.tv_sec;
-            current.tv_usec=0;
-            return(current);
-        }
-        if (PendingTimers->time.tv_sec>nickt) {
-            largest.tv_sec=nickt;
-            largest.tv_usec=0;
-            DoOrigNick=1;
+	tv->tv_usec = 0;
+	tv->tv_sec  = 0;
+
+/**************************** PATCHED by Flier ******************************/
+        DoOrigNick = 0;
+	/* If ORIGNICK is off set nickt to current + 75 to prevent excessive
+	   CPU usage (meaning we actually ignore this event, see below) */
+	gettimeofday(&current, NULL);
+        if (!OrigNickChange) nickt = current.tv_sec + 75;
+/****************************************************************************/
+
+	if (!PendingTimers)
+	{
+/**************************** PATCHED by Flier ******************************/
+		/*tv->tv_sec = 70;*/ /* Just larger than the maximum of 60 */
+                if (nickt - current.tv_sec < 70) DoOrigNick = 1;
+                tv->tv_sec = nickt - current.tv_sec > 70 ? 70 : nickt - current.tv_sec;
+/****************************************************************************/
+		return;
+	}
+/**************************** PATCHED by Flier ******************************/
+	/*gettimeofday(&current, NULL);*/
+        if (PendingTimers->time.tv_sec > nickt) {
+            largest.tv_sec = nickt;
+            largest.tv_usec = 0;
+            DoOrigNick = 1;
         }
         else {
-            largest.tv_sec=PendingTimers->time.tv_sec;
-            largest.tv_usec=PendingTimers->time.tv_usec;
+            largest.tv_sec = PendingTimers->time.tv_sec;
+            largest.tv_usec = PendingTimers->time.tv_usec;
         }
-        current.tv_sec=largest.tv_sec-current.tv_sec;
-        if (current.tv_usec<=largest.tv_usec)
-            current.tv_usec=largest.tv_usec-current.tv_usec;
-        else {
-            current.tv_usec=largest.tv_usec-current.tv_usec+1000000;
-            current.tv_sec--;
-        }
-        if (current.tv_sec<0 || current.tv_usec<0) {
-            current.tv_sec=0;
-            current.tv_usec=0;
-        }
-        return(current);
-#else
-        time(&current);
-        /* If ORIGNICK is off set nickt to current+75 to prevent
-           excessive CPU usage (meaning we actually ignore this
-           event, see below) */
-        if (!OrigNickChange) nickt=current+75;
-        if (!PendingTimers) {
-            /* Just larger than the maximum of 60 */
-            if (nickt-current<70) DoOrigNick=1;
-            return(nickt-current>70?70:nickt-current);
-        }
-        if (PendingTimers->time>nickt) DoOrigNick=1;
-        largest=PendingTimers->time>nickt?nickt:PendingTimers->time;
-        timeout_in=largest-current;
-	return((timeout_in<0)?0:timeout_in);
-#endif
+/****************************************************************************/
+
+/**************************** PATCHED by Flier ******************************/
+	/*if (PendingTimers->time < current.tv_sec ||
+	    (PendingTimers->time == current.tv_sec &&
+	    PendingTimers->microseconds < current.tv_usec))
+	{*/
+		/* No time to lose, the event is now or was */
+		/*return;
+	}
+
+	tv->tv_sec = PendingTimers->time - current.tv_sec;
+	if (PendingTimers->microseconds >= current.tv_usec)
+		tv->tv_usec = PendingTimers->microseconds - current.tv_usec;
+	else
+	{
+		tv->tv_usec = current.tv_usec - PendingTimers->microseconds;
+		tv->tv_sec -= 1;
+	}*/
+	if (largest.tv_sec < current.tv_sec ||
+	    (largest.tv_sec == current.tv_sec && largest.tv_usec < current.tv_usec))
+	{
+		/* No time to lose, the event is now or was */
+		return;
+	}
+	tv->tv_sec = largest.tv_sec - current.tv_sec;
+	if (largest.tv_usec >= current.tv_usec)
+		tv->tv_usec = largest.tv_usec - current.tv_usec;
+	else
+	{
+		tv->tv_usec = current.tv_usec - largest.tv_usec;
+		tv->tv_sec -= 1;
+	}
 /****************************************************************************/
 }
 
@@ -1320,8 +1314,6 @@ irc_io(prompt, func, my_use_input, loop)
 
 	right_away.tv_usec = 0L;
 	right_away.tv_sec = 0L;
-
-	timer.tv_usec = 0L;
 
 	old_loop = irc_io_loop;
 	irc_io_loop = loop;
@@ -1400,21 +1392,9 @@ irc_io(prompt, func, my_use_input, loop)
 			term_reset_flag = 0;
 		}
 #endif /* _Windows */
-/**************************** PATCHED by Flier ******************************/
-		/*timer.tv_sec = TimerTimeout();
-		if (timer.tv_sec <= timeptr->tv_sec)
-			timeptr = &timer;*/
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-                timer=TimerTimeout();
-                if ((float) (timer.tv_sec+timer.tv_usec/1000000.0)<=
-                    (float) (timeptr->tv_sec+timeptr->tv_usec/1000000.0))
-			timeptr = &timer;
-#else
-                timer.tv_sec = TimerTimeout();
+		TimerTimeout(&timer);
 		if (timer.tv_sec <= timeptr->tv_sec)
 			timeptr = &timer;
-#endif
-/****************************************************************************/
 		if ((hold_over = unhold_windows()) != 0)
 			timeptr = &right_away;
 		Debug((7, "irc_io: selecting with %l:%l timeout", timeptr->tv_sec,
@@ -1513,10 +1493,10 @@ irc_io(prompt, func, my_use_input, loop)
  					*(lbuf + strlen(lbuf) - 1) = '\0';
 					if (get_int_var(INPUT_ALIASES_VAR))	
  						parse_line(NULL, lbuf,
-						    empty_string, 1, 0);
+						    empty_string, 1, 0, 0);
 					else
  						parse_line(NULL, lbuf,
-						    NULL, 1, 0);
+						    NULL, 1, 0, 0);
 				}
 				else
 				{
@@ -1621,7 +1601,8 @@ irc_io(prompt, func, my_use_input, loop)
 		execute_timer();
 #ifndef _Windows
 		check_process_limits();
-		(void) check_wait_status(-1);
+		while (check_wait_status(-1) >= 0)
+			;
 #endif /* _Windows */
 		if ((primary_server == -1) && !never_connected)
 			do_hook(DISCONNECT_LIST, "%s", nickname);
@@ -1709,6 +1690,8 @@ main(argc, argv, envp)
 #endif /* _Windows */
 {
 	char	*channel;
+
+	srandom(time(NULL) ^ getpid());	/* something */
 
 #ifdef _Windows
 	reset_pointers();
@@ -1839,7 +1822,7 @@ main(argc, argv, envp)
 
 		malloc_strcpy(&motd, irc_lib);
 		malloc_strcat(&motd, MOTD_FILE);
-		if (stat_file(motd, &motd_stat) == 0)
+		if (stat(motd, &motd_stat) == 0)
 		{
 			u_char	*s = (u_char *) 0;
 
@@ -1849,7 +1832,7 @@ main(argc, argv, envp)
 #else
 			malloc_strcat(&s, "/.ircmotd");
 #endif /* __MSDOS__ */
-			if (stat_file(s, &my_stat))
+			if (stat(s, &my_stat))
 			{
 				my_stat.st_atime = 0L;
 				my_stat.st_mtime = 0L;
@@ -1878,7 +1861,16 @@ main(argc, argv, envp)
         Logo(NULL,NULL,NULL);
 /****************************************************************************/
 	if (bflag)
+	{
+		loading_global = 1;
+/**************************** Patched by Flier ******************************/
+		/*load(empty_string, "global", empty_string);*/
+		load(empty_string, "szglobal", empty_string);
+/****************************************************************************/
+		loading_global = 0;
 		load_ircrc();
+	}
+
 	get_connected(0, 0);
         if (channel)
 	{

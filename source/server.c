@@ -1,5 +1,5 @@
 /*
- * server.c: Things dealing with server connections, etc. 
+ * server.c: Things dealing with server connections, etc.
  *
  * Written By Michael Sandrof
  *
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.46 2002-01-07 19:18:16 f Exp $
+ * $Id: server.c,v 1.47 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -59,6 +59,7 @@ int	connect_to_unix _((int, char *));
 #include "list.h"
 #include "newio.h"
 #include "vars.h"
+#include "hook.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -120,7 +121,7 @@ extern	int	dgets_errno;
  * close_server: Given an index into the server list, this closes the
  * connection to the corresponding server.  It does no checking on the
  * validity of the index.  It also first sends a "QUIT" to the server being
- * closed 
+ * closed
  */
 void
 close_server(server_index, message)
@@ -148,6 +149,7 @@ close_server(server_index, message)
 
 		if (server_list[i].flags & CLOSE_PENDING)
 			continue;
+
 		if (waiting)
 			irc_io_loop = 0;
 		if (i == primary_server)
@@ -180,7 +182,7 @@ close_server(server_index, message)
 		{
 			if (message && *message)
 			{
-				sprintf(buffer, "QUIT :%s\n", message);
+				snprintf(buffer, sizeof buffer, "QUIT :%s\n", message);
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
                                 if (server_list[i].connected && server_list[i].enable_ssl) {
@@ -222,7 +224,7 @@ close_server(server_index, message)
 
 /*
  * set_server_bits: Sets the proper bits in the fd_set structure according to
- * which servers in the server list have currently active read descriptors.  
+ * which servers in the server list have currently active read descriptors.
  */
 
 void
@@ -263,8 +265,8 @@ int  buflen;
     for (i=0;i<buflen;i++) buffer[i]=enctablebnc[(unsigned char) buffer[i]];
 }
 #endif /* BNCCRYPT */
-
 /****************************************************************************/
+
 /*
  * do_server: check the given fd_set against the currently open servers in
  * the server list.  If one have information available to be read, it is read
@@ -272,19 +274,20 @@ int  buflen;
  * one of two things occurs. 1) If the server was the primary server,
  * get_connected() is called to maintain the connection status of the user.
  * 2) If the server wasn't a primary server, connect_to_server() is called to
- * try to keep that connection alive. 
+ * try to keep that connection alive.
  */
 void
 do_server(rd, wd)
 	fd_set	*rd, *wd;
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
-	int	des,
-		j;
+	int	des, j;
 	static	int	times = 0;
 	int	old_timeout;
+	Win_Trav stuff;
+	Window *tmp;
 /**************************** PATCHED by Flier ******************************/
-        char tmpbuf[mybufsize/4];
+        char tmpbuf[mybufsize / 4];
 /****************************************************************************/
 
 	for (j = 0; j < number_of_servers && !break_io_processing; j++)
@@ -357,22 +360,21 @@ do_server(rd, wd)
 /**************************** Patched by Flier ******************************/
                                 /* to force window activity */
                                 save_message_from();
-                                message_from((char *) 0,LOG_CRAP);
+                                message_from((char *) 0, LOG_CRAP);
                                 /* bug when server closed connection before
                                    we connected - in that case client reported
                                    non standard version which is wrong */
-                                if (attempting_to_connect>0)
+                                if (attempting_to_connect > 0)
                                     attempting_to_connect--;
 /****************************************************************************/
 				say("Connection closed from %s: %s", server_list[i].name,
 					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
 /**************************** Patched by Flier ******************************/
                                 restore_message_from();
-				sprintf(tmpbuf,"Connection closed from %s: %s",server_list[i].name,
-					dgets_errno == -1?"Remote end closed connection":strerror(dgets_errno));
-                                HandleClosedConn(i,tmpbuf);
+				sprintf(tmpbuf,"Connection closed from %s: %s", server_list[i].name,
+					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
+                                HandleClosedConn(i, tmpbuf);
 /****************************************************************************/
-				server_list[i].connected = 0;
 				server_list[i].read = server_list[i].write = -1;
 #ifdef NON_BLOCKING_CONNECTS
 				if (!logged_in)
@@ -386,27 +388,13 @@ do_server(rd, wd)
 						server_list[old_serv].flags &= ~(CLOSE_PENDING|CLEAR_PENDING);
 						server_list[old_serv].flags |= LOGGED_IN;
 						server_list[old_serv].connected = 1;
-#if 1
-						get_connected(old_serv, 1);
-#else
-						/* get_connected(old_serv, 0);
-						   should be used only for
-						   primary_server -Sol */
-						/* connect_to_server(server_list[old_serv].name, server_list[old_serv].port, server_list[server].nickname, -1);
-						   actually, do we have to
-						   reconnect at all ? -Sol */
-						{ /* Reassign windows ? -Sol */
-						Window	*tmp;
-						int	flag = 1;
-
-						while ((tmp = traverse_all_windows(&flag)) != (Window *) 0)
+						stuff.flag = 1;
+						while ((tmp = window_traverse(&stuff)))
 							if (tmp->server == i)
 							{
 								window_set_server(tmp->refnum, old_serv, WIN_ALL);
 								break;
 							}
-						}
-#endif /* 1 */
 					}
 					window_check_servers();
 					break;
@@ -419,7 +407,7 @@ a_hack:
 					{
 						say("Unable to connect to server %s",
 							server_list[i].name);
-						if (++i == number_of_servers)
+						if (i == number_of_servers - 1)
   						{
 							clean_whois_queue();
 							window_check_servers();
@@ -431,7 +419,7 @@ a_hack:
 /**************************** Patched by Flier ******************************/
                                                     if (get_int_var(AUTO_RECONNECT_VAR))
 /****************************************************************************/
-							get_connected(i, 0);
+							get_connected(++i, 0);
 					}
 					else
 					{
@@ -456,14 +444,16 @@ a_hack:
 					clean_whois_queue();
 					window_check_servers();
 				}
-/**************************** Patched by Flier ******************************/
-				/*else if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))*/
-				else if (get_int_var(AUTO_RECONNECT_VAR) && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
-/****************************************************************************/
+				else
 				{
-					say("Connection to server %s lost.", server_list[i].name);
-					clean_whois_queue();
-					window_check_servers();
+/**************************** Patched by Flier ******************************/
+					/*if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1)) {*/
+				        if (get_int_var(AUTO_RECONNECT_VAR) && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1)) {
+/****************************************************************************/
+						say("Connection to server %s lost.", server_list[i].name);
+						clean_whois_queue();
+						window_check_servers();
+					}
 				}
 				server_list[i].eof = 1;
 				break;
@@ -489,7 +479,7 @@ real_continue:
 /*
  * find_in_server_list: given a server name, this tries to match it against
  * names in the server list, returning the index into the list if found, or
- * -1 if not found 
+ * -1 if not found
  */
 extern	int
 find_in_server_list(server, port, nick)
@@ -528,7 +518,7 @@ find_in_server_list(server, port, nick)
 
 /*
  * parse_server_index:  given a string, this checks if it's a number, and if
- * so checks it validity as a server index.  Otherwise -1 is returned 
+ * so checks it validity as a server index.  Otherwise -1 is returned
  */
 int
 parse_server_index(str)
@@ -550,7 +540,7 @@ parse_server_index(str)
  * server is already in the server list it is not re-added... however, if the
  * overwrite flag is true, the port and passwords are updated to the values
  * passes.  If the server is not on the list, it is added to the end. In
- * either case, the server is made the current server. 
+ * either case, the server is made the current server.
  */
 void
 add_to_server_list(server, port, password, nick, overwrite)
@@ -893,15 +883,15 @@ parse_server_info(name, port, password, nick, extra)
  * builds a list of those servers using add_to_server_list().  Since
  * add_to_server_list() is used to added each server specification, this can
  * be called many many times to add more servers to the server list.  Each
- * element in the server list case have one of the following forms: 
+ * element in the server list case have one of the following forms:
  *
- * servername 
+ * servername
  *
- * servername:port 
+ * servername:port
  *
- * servername:port:password 
+ * servername:port:password
  *
- * servername::password 
+ * servername::password
  *
  * Note also that this routine mucks around with the server string passed to it,
  * so make sure this is ok .
@@ -964,9 +954,9 @@ build_server_list(servers)
  * the new server is added to the server list, and the user is registered on
  * the new server.  If connection to the server is not successful,  the
  * reason for failure is displayed and the previous server connection is
- * resumed uniterrupted. 
+ * resumed uniterrupted.
  *
- * This version of connect_to_server() connects directly to a server 
+ * This version of connect_to_server() connects directly to a server
  */
 static	int
 connect_to_server_direct(server_name, port, nick)
@@ -1021,7 +1011,7 @@ connect_to_server_direct(server_name, port, nick)
 			e = "connect";
 			break;
 		}
-			
+
 		say("Unable to connect to port %d of server %s: %s%s%s", port, server_name, e,
 		    errno ? ": " : "", errno ? strerror(errno) : "");
 		if (is_server_open(from_server))
@@ -1076,10 +1066,10 @@ connect_to_server_direct(server_name, port, nick)
  * the new server is added to the server list, and the user is registered on
  * the new server.  If connection to the server is not successful,  the
  * reason for failure is displayed and the previous server connection is
- * resumed uniterrupted. 
+ * resumed uniterrupted.
  *
  * This version of connect_to_server() uses the ircio process to talk to a
- * server 
+ * server
  */
 static	int
 connect_to_server_process(server_name, port, nick)
@@ -1134,7 +1124,7 @@ connect_to_server_process(server_name, port, nick)
 		new_close(read_des[1]);
 		new_close(write_des[0]);
 		new_close(write_des[1]);
-		sprintf(buffer, "%u", port);
+		snprintf(buffer, sizeof buffer, "%u", port);
 		setuid(getuid());
 		execl(path, name, server_name, buffer, (char *) 0);
 		printf("-5 0\n"); /* -1 - -4 returned by connect_by_number() */
@@ -1203,7 +1193,7 @@ connect_to_server_process(server_name, port, nick)
  * index will be closed upon successful connection here. Also, if connection
  * is successful, the attempting_to_connect variable is incremented.  This is
  * checked in the notice.c routines to make sure that connection was truely
- * successful (and not closed immediately by the server). 
+ * successful (and not closed immediately by the server).
  */
 int
 connect_to_server(server_name, port, nick, c_server)
@@ -1253,7 +1243,7 @@ connect_to_server(server_name, port, nick, c_server)
 	if (!is_server_connected(server_index))
 	{
 		if (is_server_open(server_index))
-			close_server(server_index, "retrying connect");
+			close_server(server_index, empty_string);
 		if (port == -1)
 		{
 			if (server_index != -1)
@@ -1263,7 +1253,8 @@ connect_to_server(server_name, port, nick, c_server)
 		}
 		say("Connecting to port %d of server %s", port, server_name);
 
-		load_ircquick();
+		if (!qflag)
+			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
                 /* transfer auto-reply and tabkey lists */
@@ -1328,10 +1319,6 @@ connect_to_server(server_name, port, nick, c_server)
 		if ((c_server != -1) && (c_server != from_server))
 		{
 #ifdef NON_BLOCKING_CONNECTS
-			/*
-			 * this sucks.. we can't keep our channels if the
-			 * new server connect() fails.
-			 */
 #if defined(GKM)
 			say("--- server %s will be closed when we connect", server_list[c_server].name);
 			if (server_list[c_server].flags & CLOSE_PENDING)
@@ -1346,7 +1333,7 @@ connect_to_server(server_name, port, nick, c_server)
 			server_list[c_server].flags |= CLOSE_PENDING;
 			server_list[c_server].connected = 0;
 #else
-			close_server(c_server, "changing servers");
+			close_server(c_server, empty_string);
 #endif /* NON_BLOCKING_CONNECTS */
 		}
 		else
@@ -1400,7 +1387,7 @@ connect_to_server(server_name, port, nick, c_server)
 		say("Connected to port %d of server %s", port, server_name);
 		from_server = server_index;
 		if ((c_server != -1) && (c_server != from_server))
-			close_server(c_server, "changing servers");
+			close_server(c_server, empty_string);
 	}
 	update_all_status();
  	restore_message_from();
@@ -1437,7 +1424,7 @@ login_to_server(server)
 			clear_channel_list(old_serv);   /* Channels were
 							   transfered -Sol */
 		server_list[old_serv].flags &= ~(CLOSE_PENDING|CLEAR_PENDING);
-		close_server(old_serv, "changing servers");
+		close_server(old_serv, empty_string);
 		server_list[server].close_serv = -1;
 		/* should we pause here to let the net catch up with us? */
 	}
@@ -1487,7 +1474,7 @@ irc2_login_to_server(server)
 /*
  * get_connected: This function connects the primary server for IRCII.  It
  * attempts to connect to the given server.  If this isn't possible, it
- * traverses the server list trying to keep the user connected at all cost.  
+ * traverses the server list trying to keep the user connected at all cost.
  * oldconn is set if this connection is really an old connection being
  * resurected (eg. connection to server failed).
  */
@@ -1554,7 +1541,7 @@ get_connected(server, oldconn)
 #ifdef SERVERS_FILE
 /*
  * read_server_file: reads hostname:portnum:password server information from
- * a file and adds this stuff to the server list.  See build_server_list()/ 
+ * a file and adds this stuff to the server list.  See build_server_list()/
  */
 int
 read_server_file()
@@ -1566,7 +1553,7 @@ read_server_file()
 
 	malloc_strcpy(&file_path, irc_lib);
 	malloc_strcat(&file_path, SERVERS_FILE);
-	sprintf(format, "%%%ds", BIG_BUFFER_SIZE);
+	snprintf(format, sizeof format, "%%%ds", BIG_BUFFER_SIZE);
 	fp = fopen(file_path, "r");
 	new_free(&file_path);
 	if ((FILE *) 0 != fp)
@@ -1678,10 +1665,19 @@ display_server_list()
 /****************************************************************************/
 			}
 #ifdef GKM
-/**************************** PATCHED by Flier ******************************/
-			say("\t\tflags: %s%s%s",
+/**************************** Patched by Flier ******************************/
+			/*say("\t\tflags: %s%s%s%s%s%s%s",
+				server_list[i].flags & SERVER_2_6_2 ? "SERVER_2_6_2 " : "",
+				server_list[i].flags & USER_MODE_I ? "USER_MODE_I " : "",
+				server_list[i].flags & USER_MODE_W ? "USER_MODE_W " : "",
+				server_list[i].flags & USER_MODE_S ? "USER_MODE_S " : "",
+				server_list[i].flags & CLOSE_PENDING ? "CLOSE_PENDING " : "",
+				server_list[i].flags & CLEAR_PENDING ? "CLEAR_PENDING " : "",
+				server_list[i].flags & LOGGED_IN ? "LOGGED_IN " : "" );*/
+			say("\t\tflags: %s%s%s%s",
 				server_list[i].flags & SERVER_2_6_2 ? "SERVER_2_6_2 " : "",
 				server_list[i].flags & CLOSE_PENDING ? "CLOSE_PENDING " : "",
+				server_list[i].flags & CLEAR_PENDING ? "CLEAR_PENDING " : "",
 				server_list[i].flags & LOGGED_IN ? "LOGGED_IN " : "" );
 /****************************************************************************/
 			say("\t\tclose_serv=%d, connected=%d, read=%d, eof=%d", server_list[i].close_serv, server_list[i].connected, server_list[i].read, server_list[i].eof);
@@ -1724,7 +1720,7 @@ MarkAllAway(command, message)
 
 /*
  * set_server_password: this sets the password for the server with the given
- * index.  If password is null, the password for the given server is returned 
+ * index.  If password is null, the password for the given server is returned
  */
 char	*
 set_server_password(server_index, password)
@@ -1743,7 +1739,7 @@ set_server_password(server_index, password)
 }
 
 /*
- * server: the /SERVER command. Read the SERVER help page about 
+ * server: the /SERVER command. Read the SERVER help page about
  */
 /*ARGSUSED*/
 void
@@ -1856,7 +1852,7 @@ servercmd(command, args, subargs)
 
 			extra = (char *) 0;
 		}
- 
+
 		if (nick && *nick)
 			malloc_strcpy(&connect_next_nick, nick);
 		if (password && *password)
@@ -1872,7 +1868,7 @@ servercmd(command, args, subargs)
 					server++;
 				/* Reconstitute whole server info so
 				  window_get_connected can parse it -Sol */
-				sprintf(servinfo, "%s:%d:%s:%s",
+				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s",
 					server, port_num,
 					password ? password : empty_string,
 					nick ? nick : empty_string);
@@ -1881,8 +1877,8 @@ servercmd(command, args, subargs)
 			else
 /**************************** PATCHED by Flier ******************************/
 				/*get_connected(primary_server + 1, 0);*/
-                                get_connected(primary_server+1+
-                                              (primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0),0);
+                                get_connected(primary_server + 1 +
+                                              (primary_server == -1 ? 1 + (rand() % (number_of_servers ? number_of_servers : 1)) : 0), 0);
 /****************************************************************************/
 			return;
 		}
@@ -1946,7 +1942,7 @@ servercmd(command, args, subargs)
 
 /*
  * flush_server: eats all output from server, until there is at least a
- * second delay between bits of servers crap... useful to abort a /links. 
+ * second delay between bits of servers crap... useful to abort a /links.
  */
 void
 flush_server()
@@ -1988,7 +1984,7 @@ flush_server()
 #endif
 /****************************************************************************/
 					flushing = 0;
-				
+
 			}
 			break;
 		}
@@ -2013,7 +2009,7 @@ flush_server()
  * whois value is 0, it assumes the server doesn't send End of WHOIS commands
  * and the whois.c routines use the old fashion way of getting whois info. If
  * the whois value is non-zero, then the server sends End of WHOIS and things
- * can be done more effienciently 
+ * can be done more effienciently
  */
 void
 set_server_whois(server_index, value)
@@ -2128,7 +2124,7 @@ set_server_version(server_index, version)
 
 /*
  * get_server_version: returns the server version value for the given server
- * index 
+ * index
  */
 int
 get_server_version(server_index)
@@ -2179,7 +2175,7 @@ set_server_itsname(server_index, name)
 
 /*
  * is_server_open: Returns true if the given server index represents a server
- * with a live connection, returns false otherwise 
+ * with a live connection, returns false otherwise
  */
 int
 is_server_open(server_index)
@@ -2193,7 +2189,7 @@ is_server_open(server_index)
 /*
  * is_server_connected: returns true if the given server is connected.  This
  * means that both the tcp connection is open and the user is properly
- * registered 
+ * registered
  */
 int
 is_server_connected(server_index)
@@ -2219,7 +2215,7 @@ get_server_port(server_index)
 
 /*
  * get_server_nickname: returns the current nickname for the given server
- * index 
+ * index
  */
 char	*
 get_server_nickname(server_index)
@@ -2295,7 +2291,7 @@ set_server_qtail(server_index, value)
 
 /*
  * get_server_operator: returns true if the user has op privs on the server,
- * false otherwise 
+ * false otherwise
  */
 int
 get_server_operator(server_index)
@@ -2306,7 +2302,7 @@ get_server_operator(server_index)
 
 /*
  * set_server_operator: If flag is non-zero, marks the user as having op
- * privs on the given server.  
+ * privs on the given server.
  */
 void
 set_server_operator(server_index, flag)
@@ -2319,7 +2315,7 @@ set_server_operator(server_index, flag)
 /*
  * set_server_nickname: sets the nickname for the given server to nickname.
  * This nickname is then used for all future connections to that server
- * (unless changed with NICK while connected to the server 
+ * (unless changed with NICK while connected to the server
  */
 void
 set_server_nickname(server_index, nick)
@@ -2408,11 +2404,11 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 	{
 		server_list[server].sent = 1;
 #ifdef HAVE_STDARG_H
-		vsprintf(buf, format, vlist);
+		vsnprintf(buf, sizeof lbuf, format, vlist);
 		va_end(vlist);
 #else
-			     
-		sprintf(buf, format, arg1, arg2, arg3, arg4, arg5,
+
+		snprintf(buf, sizeof lbuf, format, arg1, arg2, arg3, arg4, arg5,
 		    arg6, arg7, arg8, arg9, arg10);
 #endif
  		len = strlen(lbuf);
@@ -2420,25 +2416,30 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
 /**************************** PATCHED by Flier ******************************/
 #ifdef BNCCRYPT
-                EncryptBNC(lbuf,strlen(lbuf));
+                EncryptBNC(lbuf, strlen(lbuf));
 #endif
 /****************************************************************************/
+		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
+
+		if (do_hook(RAW_SEND_LIST, "%s", lbuf))
+		{
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (server_list[server].enable_ssl) {
-                    int err;
+                        if (server_list[server].enable_ssl) {
+                            int err;
 
-                    if (!server_list[server].ssl_fd) {
-                        say("SSL write error - ssl socket = 0");
-                        return;
-                    }
-                    err = SSL_write(server_list[server].ssl_fd, lbuf, strlen(lbuf));
-                }
-                else
+                            if (!server_list[server].ssl_fd) {
+                                say("SSL write error - ssl socket = 0");
+                                return;
+                            }
+                            err = SSL_write(server_list[server].ssl_fd, lbuf, len);
+                            }
+                        else
 #endif
 /****************************************************************************/
- 		send(des, lbuf, strlen(lbuf), 0);
+			send(des, lbuf, len, 0);
+		}
 	}
 	else if (!in_redirect && !connected_to_server)
 /**************************** PATCHED by Flier ******************************/
@@ -2446,10 +2447,10 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 /****************************************************************************/
 		say("You are not connected to a server, use /SERVER to connect.");
 /**************************** PATCHED by Flier ******************************/
-                inSZNotify=0;
-                inSZLinks=0;
-                inSZFKill=0;
-                inSZTrace=0;
+                inSZNotify = 0;
+                inSZLinks = 0;
+                inSZFKill = 0;
+                inSZTrace = 0;
         }
 /****************************************************************************/
 	in_send_to_server = 0;
@@ -2471,7 +2472,7 @@ connect_to_unix(port, path)
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	un.sun_family = AF_UNIX;
-	sprintf(un.sun_path, "%-.100s/%-.6d", path, port);
+	snprintf(un.sun_path, sizeof un.sun_path, "%-.100s/%-.6d", path, port);
 
  	if (connect(sock, (struct sockaddr *)&un, (int)strlen(path)+2) == -1)
 	{
@@ -2542,6 +2543,7 @@ disconnectcmd(command, args, subargs)
 	char	*server;
 	char	*message;
 	int	i;
+	int	old_serv;
 
 	if ((server = next_arg(args, &args)) != NULL && server[0] != '*' && server[1] != '\0')
 	{
@@ -2564,6 +2566,7 @@ disconnectcmd(command, args, subargs)
 		for (i = 0; i < number_of_servers; i++)
 		{
 			server_list[i].eof = -1;
+			server_list[i].connected = 0;
 			new_close(server_list[i].read);
 			new_close(server_list[i].write);
 		}
@@ -2581,8 +2584,27 @@ disconnectcmd(command, args, subargs)
 	server = server_list[i].itsname ? server_list[i].itsname :
 		server_list[i].name ? server_list[i].name : "unknown?";
 	say("Disconnecting from server %s", server);
+	old_serv = server_list[i].close_serv;
 	close_server(i, message);
 	server_list[i].eof = 1;
+	if (old_serv != -1 && old_serv != i)
+	{
+		Window *tmp;
+		Win_Trav stuff;
+
+		say("Connection to server %s resumed...", server_list[old_serv].name);
+		server_list[i].close_serv = -1;
+		server_list[old_serv].flags &= ~(CLOSE_PENDING|CLEAR_PENDING);
+		server_list[old_serv].flags |= LOGGED_IN;
+		server_list[old_serv].connected = 1;
+		stuff.flag = 1;
+		while ((tmp = window_traverse(&stuff)))
+			if (tmp->server == i)
+			{
+				window_set_server(tmp->refnum, old_serv, WIN_ALL);
+				break;
+			}
+	}
 done:
 	clean_whois_queue();
 	window_check_servers();

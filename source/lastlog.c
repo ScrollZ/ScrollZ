@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.8 2001-11-27 20:37:56 f Exp $
+ * $Id: lastlog.c,v 1.9 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -82,7 +82,7 @@ char	*
 bits_to_lastlog_level(level)
 	int	level;
 {
- 	static	char	lbuf[81]; /* this *should* be enough for this */
+	static	u_char	lbuf[128]; /* this *should* be enough for this */
 	int	i,
 		p;
 
@@ -97,8 +97,8 @@ bits_to_lastlog_level(level)
 		{
 			if (level & p)
 			{
- 				strmcat(lbuf, levels[i], 80);
- 				strmcat(lbuf, " ", 80);
+ 				strmcat(lbuf, levels[i], 127);
+ 				strmcat(lbuf, " ", 127);
 			}
 		}
 	}

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.20 2001-12-20 17:39:41 f Exp $
+ * $Id: screen.c,v 1.21 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -58,6 +58,7 @@
 #include "exec.h"
 #include "newio.h"
 #include "parse.h"
+#include "edit.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -94,6 +95,7 @@ static	void	scrollback_backwards_lines _((int));
 static	void	scrollback_forwards_lines _((int));
 static	char	display_highlight _((int));
 static	char	display_bold _((int));
+static	void	display_colours _((int, int));
 static	void	add_to_window _((Window *, char *));
 static	u_int	create_refnum _((void));
 /**************************** PATCHED by Flier ******************************/
@@ -216,6 +218,16 @@ create_new_screen()
 	new->tty_name = (char *) 0;
 	new->li = 24;
 	new->co = 79;
+	new->old_input_li = -1;
+	new->old_input_co = -1;
+	new->old_term_li = -1;
+	new->old_term_co = -1;
+	new->upper_mark = 0;
+	new->lower_mark = 0;
+	new->cursor = 0;
+	new->lower_mark = 0;
+	new->str_start = 0;
+	new->input_line = 0;
 	new->redirect_server = -1;
 	last_input_screen = new;
 	return new;
@@ -277,9 +289,9 @@ window_redirect(who, server)
 	char	buf[BIG_BUFFER_SIZE+1];
 
 	if (who)
-		sprintf(buf, "%04d%s", server, who);
+		snprintf(buf, sizeof buf, "%04d%s", server, who);
 	else
-		sprintf(buf, "%04d#LAME", server);
+		snprintf(buf, sizeof buf, "%04d#LAME", server);
 	malloc_strcpy(&current_screen->redirect_token, buf);
 	malloc_strcpy(&current_screen->redirect_name, who);
 	current_screen->redirect_server = server;
@@ -404,7 +416,7 @@ scroll_window(window)
 			 * really doesn't work very well at all anymore.
 			 */
 						tmp = current_screen->cursor_window;
-						term_move_cursor(0, LI - 2);
+						term_move_cursor(0, current_screen->li - 2);
 						if (term_clear_to_eol())
 							term_space_erase(0);
 						term_cr();
@@ -552,7 +564,7 @@ output_line(str, result, startpos)
 	char	*original;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-        int	ansi_count=0;
+        int	ansi_count = 0;
 #endif
 /****************************************************************************/
 
@@ -576,8 +588,8 @@ output_line(str, result, startpos)
 			written += len;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        ansi_count=CountAnsi(str,ptr-str);
-                        written-=ansi_count;
+                        ansi_count = CountAnsi(str, ptr - str);
+                        written -= ansi_count;
 #endif
 /****************************************************************************/
 			if (startpos)
@@ -589,18 +601,18 @@ output_line(str, result, startpos)
 					startpos = 0;
 				}
 			}
-			if (written > CO)
-				len = len - (written - CO);
+			if (written > current_screen->co)
+				len = len - (written - current_screen->co);
  			if (!startpos && len > 0)
 /**************************** PATCHED by Flier ******************************/
  				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
-                        	my_addstr(str,len);
+                        	my_addstr(str, len);
 #else
  				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
 #ifdef WANTANSI
-                        ansi_count=0;
+                        ansi_count = 0;
 #endif
 /****************************************************************************/
 			rev_tog = und_tog = bld_tog = all_off = 0;
@@ -664,6 +676,34 @@ output_line(str, result, startpos)
 /**************************** PATCHED by Flier ******************************/
                     }
 /****************************************************************************/
+		case FULL_OFF:
+			len = ptr - str;
+			written += len;
+			if (startpos)
+			{
+				if (ptr - original > startpos)
+				{
+					str += len - (ptr - original - startpos);
+					len = ptr - original - startpos;
+					startpos = 0;
+				}
+			}
+			if (written > current_screen->co)
+				len = len - (written - current_screen->co);
+			if (!startpos && len > 0)
+				fwrite(str, (size_t)len, 1, current_screen->fpout);
+			
+			if (!underline)
+			{
+				term_underline_off();
+				underline = 1;
+			}
+			display_highlight(OFF);
+			display_bold(OFF);
+			high = 0;
+			bold = 0;
+			str = ++ptr;
+			break;
 		case '\007':
 		/*
 		 * same as above, except after we display everything
@@ -675,8 +715,8 @@ output_line(str, result, startpos)
 			written += len;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        ansi_count=CountAnsi(str,-1);
-                        written-=ansi_count;
+                        ansi_count = CountAnsi(str, -1);
+                        written -= ansi_count;
 #endif
 /****************************************************************************/
 			if (startpos)
@@ -688,13 +728,13 @@ output_line(str, result, startpos)
 					startpos = 0;
 				}
 			}
-			if (written > CO)
-				len = len - (written - CO);
+			if (written > current_screen->co)
+				len = len - (written - current_screen->co);
 			if (!startpos)
 /**************************** PATCHED by Flier ******************************/
  				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
- 			  	my_addstr(str,len);
+ 			  	my_addstr(str, len);
 #else
  				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
@@ -704,7 +744,7 @@ output_line(str, result, startpos)
 			str = ++ptr;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        ansi_count=0;
+                        ansi_count = 0;
 #endif
 /****************************************************************************/
 			break;
@@ -748,7 +788,7 @@ rite(window, str, show, redraw, backscroll, logged)
 	Screen	*old_current_screen = current_screen;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-	int	ansi_count=0;
+	int	ansi_count = 0;
 #endif
 /****************************************************************************/
 
@@ -810,27 +850,27 @@ rite(window, str, show, redraw, backscroll, logged)
 			/*written = output_line(str, &str, 0);
  			len = (ssize_t)strlen(str);*/
 #ifdef SZNCURSES
-                        written = output_line(str,&newstr,0);
- 			len = (ssize_t)strlen(newstr);
+                        written = output_line(str, &newstr, 0);
+ 			len = (ssize_t) strlen(newstr);
 #else
                         written = output_line(str, &str, 0);
- 			len = (ssize_t)strlen(str);
+ 			len = (ssize_t) strlen(str);
 #endif /* SZNCURSES */
 /****************************************************************************/
 			written += len;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        ansi_count=CountAnsi(str,-1);
-                        written-=ansi_count;
+                        ansi_count = CountAnsi(str, -1);
+                        written -= ansi_count;
 #endif
 /****************************************************************************/
-			if (written > CO)
- 				len = len - (written - CO);
+			if (written > current_screen->co)
+				len = len - (written - current_screen->co);
 			if (len > 0)
 /**************************** PATCHED by Flier ******************************/
  				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
- 			  	my_addstr(newstr,len);
+ 			  	my_addstr(newstr, len);
 #else
  				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
@@ -1081,8 +1121,8 @@ recalculate_windows()
 	if (dumb || current_screen->visible_windows == 0)
 		return;
 
-	base_size = ((LI - 1) / current_screen->visible_windows) - 1;
-	extra = (LI - 1) - ((base_size + 1)*current_screen->visible_windows);
+	base_size = ((current_screen->li - 1) / current_screen->visible_windows) - 1;
+	extra = (current_screen->li - 1) - ((base_size + 1)*current_screen->visible_windows);
 	top = 0;
 	for (tmp = current_screen->window_list; tmp; tmp = tmp->next)
 	{
@@ -1315,7 +1355,7 @@ split_up_line(str)
 			*ptr = transToClient[*ptr];
 /**************************** PATCHED by Flier ******************************/
  		/*if (*ptr <= 32 || (*ptr > 127 && *ptr <= 160))*/
-		if (*ptr<=32 || *ptr == '|')
+		if (*ptr <= 32 || *ptr == '|')
 /****************************************************************************/
 		{	/* Isn't that if above a bit latin1-specific? */
 			switch (*ptr)
@@ -1372,7 +1412,7 @@ split_up_line(str)
 				break;
 /**************************** Patched by Flier ******************************/
 			case '|':	/* possible word break if time stamp is set to max */
-                                if (Stamp==2 && indent==0 && pos<30) indent=-1;
+                                if (Stamp == 2 && indent == 0 && pos < 30) indent = -1;
                                 lbuf[pos++] = *ptr;
                                 col++;
                                 break;
@@ -1392,10 +1432,10 @@ split_up_line(str)
                                     nd_cnt++;
                                 }
                                 else {
-                                    lbuf[pos++]=REV_TOG;
-                                    lbuf[pos++]=(*ptr&127)|64;
-                                    lbuf[pos++]=REV_TOG;
-                                    nd_cnt+=2;
+                                    lbuf[pos++] = REV_TOG;
+                                    lbuf[pos++] = (*ptr & 127) | 64;
+                                    lbuf[pos++] = REV_TOG;
+                                    nd_cnt += 2;
                                     col++;
                                 }
 #else
@@ -1416,15 +1456,15 @@ split_up_line(str)
 /**************************** PATCHED by Flier ******************************/
 			/*lbuf[pos++] = *ptr;
 			col++;*/
-                        if (*ptr==(u_char) '›' || *ptr==(u_char) '„' ||
-                            *ptr==(u_char) '…' || *ptr==(u_char) '') {
-                            lbuf[pos++]=REV_TOG;
-                            lbuf[pos++]=(*ptr&127)|64;
-                            lbuf[pos++]=REV_TOG;
-                            nd_cnt+=2;
+                        if (*ptr == (u_char) '›' || *ptr == (u_char) '„' ||
+                            *ptr == (u_char) '…' || *ptr == (u_char) '') {
+                            lbuf[pos++] = REV_TOG;
+                            lbuf[pos++] = (*ptr & 127) | 64;
+                            lbuf[pos++] = REV_TOG;
+                            nd_cnt += 2;
 
                         }
-                        else lbuf[pos++]=*ptr;
+                        else lbuf[pos++] = *ptr;
 #ifdef WANTANSI
                         if (vt100Decode(*ptr)) nd_cnt++;
                         else col++;
@@ -1498,7 +1538,7 @@ split_up_line(str)
 			col = strlen(cont) + (pos - start);
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        col-=CountAnsi(&lbuf[start],pos-start);
+                        col -= CountAnsi(&lbuf[start], pos - start);
 #endif
 /****************************************************************************/
 		}
@@ -1591,22 +1631,22 @@ add_to_screen(incoming)
 {
 	int	flag;
 	Window	*tmp;
-	char	buffer[BIG_BUFFER_SIZE+1];
+	char	buffer[BIG_BUFFER_SIZE + 1];
 /**************************** PATCHED by Flier ******************************/
-        char tmpbuf[BIG_BUFFER_SIZE+1];
+        char tmpbuf[BIG_BUFFER_SIZE + 1];
 #ifdef WANTANSI
-        char tmpbuf1[2*BIG_BUFFER_SIZE+1];
+        char tmpbuf1[2 * BIG_BUFFER_SIZE + 1];
 #endif
 
         if (!get_int_var(DISPLAY_ANSI_VAR)) {
-            StripAnsi(incoming,buffer,0);
-            strcpy(incoming,buffer);
+            StripAnsi(incoming, buffer, 0);
+            strcpy(incoming, buffer);
         }
 #ifdef WANTANSI
         else {
             if (DisplaymIRC) {
-                ConvertmIRC(incoming,tmpbuf1);
-                incoming=tmpbuf1;
+                ConvertmIRC(incoming, tmpbuf1);
+                incoming = tmpbuf1;
             }
             FixColorAnsi(incoming);
         }
@@ -1627,6 +1667,7 @@ add_to_screen(incoming)
 		int	i;
 
 		in_redirect = 1;
+#if 0
 		if (*current_screen->redirect_name == '%')
 		{	/* redirection to a process */
 			if (is_number(current_screen->redirect_name + 1))
@@ -1644,16 +1685,25 @@ add_to_screen(incoming)
 		 * shouldn't this be a NOTICE?  -lynx
 		 * agreed - phone, jan 1993
 		 */
-/**************************** PATCHED by Flier ******************************/
-                /*else
+                else
 			send_to_server("PRIVMSG %s :%s",
-				current_screen->redirect_name, incoming);*/
-                else {
-                    if (get_int_var(LASTLOG_ANSI_VAR)) StripAnsi(incoming,tmpbuf,0);
-                    else strcpy(tmpbuf,incoming);
-                    send_to_server("PRIVMSG %s :%s",current_screen->redirect_name,tmpbuf);
-                }
+				current_screen->redirect_name, incoming);
+#else
+		/* More general stuff by Bisqwit, allow
+		 * multiple target redirection (with different targets)
+		 */
+		i = in_on_who;
+		in_on_who = 0; /* To allow redirecting /who, /whois and /join */
+/**************************** PATCHED by Flier ******************************/
+		/*redirect_msg(current_screen->redirect_name, incoming);*/
+                if (get_int_var(LASTLOG_ANSI_VAR)) {
+                    StripAnsi(incoming, tmpbuf, 0);
+                    redirect_msg(current_screen->redirect_name, tmpbuf);
+		}
+		else redirect_msg(current_screen->redirect_name, incoming);
 /****************************************************************************/
+		in_on_who = i;
+#endif
 		in_redirect = 0;
 	}
 	if (dumb)
@@ -1694,7 +1744,7 @@ add_to_screen(incoming)
 
 			if ((chan = lookup_channel(who_from, from_server, CHAN_NOUNLINK)))
 			{
-				add_to_window(chan->window, incoming);
+				add_to_window(chan->window ? chan->window : curr_scr_win, incoming);
 				return;
 			}
 			if (who_level == LOG_DCC)
@@ -1703,7 +1753,7 @@ add_to_screen(incoming)
 				strmcat(buffer, who_from, BIG_BUFFER_SIZE);
 				if ((chan = lookup_channel(buffer, from_server, CHAN_NOUNLINK)))
 				{
-					add_to_window(chan->window, incoming);
+					add_to_window(chan->window ? chan->window : curr_scr_win, incoming);
 					return;
 				}
 			}
@@ -1856,7 +1906,6 @@ new_window()
 	static	int	no_screens = 1;
 
 	if (no_screens)
-
 	{
 		set_current_screen(create_new_screen());
 		main_screen = current_screen;
@@ -2063,7 +2112,7 @@ create_additional_screen()
 		screen_type == ST_XTERM ?  "window" :
 		screen_type == ST_SCREEN ? "screen" :
 					   "wound" );
-	sprintf(sock.sun_path, "/tmp/irc_%08d", (int) getpid());
+	snprintf(sock.sun_path, sizeof sock.sun_path, "/tmp/irc_%08d", (int) getpid());
 	sock.sun_family = AF_UNIX;
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
  	bind(s, (struct sockaddr *) &sock, (int)(2 + strlen(sock.sun_path)));
@@ -2111,10 +2160,7 @@ create_additional_screen()
 		else if (screen_type == ST_XTERM)
 		{
 			int	lines,
-/**************************** PATCHED by Flier ******************************/
-				/*columns,*/
 				columns;
-/****************************************************************************/
 			char	geom[20],
 				*args[64],
 				*ss,
@@ -2122,7 +2168,7 @@ create_additional_screen()
 				*opts = NULL;
 
 			copy_window_size(&lines, &columns);
-			sprintf(geom, "%dx%d", columns, lines);
+			snprintf(geom, sizeof geom, "%dx%d", columns, lines);
 			args[i++] = xterm;
 			if ((ss = get_string_var(XTERM_GEOMOPTSTR_VAR)) != NULL)
 				args[i++] = ss;

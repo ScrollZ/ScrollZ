@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.6 2001-07-13 17:22:26 f Exp $
+# @(#)$Id: Makefile.in,v 1.7 2002-01-21 21:37:35 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -22,7 +22,7 @@ OBJECTS = alias.o blowfish.o cdcc.o celerity.o crypt.o ctcp.o dcc.o debug.o\
 	mail.o menu.o names.o newio.o notice.o notify.o numbers.o operv.o\
 	output.o parse.o queue.o reg.o scandir.o screen.o server.o stack.o\
 	status.o term.o translat.o vars.o whois.o whowas.o window.o\
-	$(PP_OBJS)
+	rijndael-alg-ref.o rijndael-api-ref.o @EXTRA_OBJECTS@
 
 SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
 	edit.c edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c\
@@ -31,15 +31,18 @@ SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
 	mail.c menu.c names.c newio.c notice.c notify.c numbers.c operv.c\
 	output.c parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
 	status.c term.c translat.c vars.c whois.c whowas.o window.c\
-	$(PP_SRCS)
+	rijndael-alg-ref.c rijndael-api-ref.c @EXTRA_SOURCES@
 
-IRCIO_OBJECTS = ircio.o
+IRCIO_OBJECTS = ircio.o newio.o ircsig.o
 
 IRCIO_SOURCES = ircio.c
 
-WSERV_OBJECTS = wserv.o wterm.o
+WSERV_OBJECTS = wserv.o wterm.o ircsig.o
 
 WSERV_SOURCES = wserv.c wterm.c
+
+IRCFLUSH_SOURCES = ircflush.c
+IRCFLUSH_OBJECTS = ircflush.o ircsig.o
 
 INCLUDES = -I../include
 
@@ -84,18 +87,21 @@ screen.o: Makefile ../Makefile
 
 # auxiliary programs
 
-ircflush: ircflush.o ircsig.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(INCLUDES) -o ircflush ircflush.o ircsig.o $(LIBS)
+ircflush: $(IRCFLUSH_OBJECTS)
+	$(CC) $(INCLUDES) $(CFLAGS) $(LDFLAGS) $(DEFS) -o $@ $(IRCFLUSH_OBJECTS) $(LIBS)
+
+ircio: $(IRCIO_OBJECTS)
+	$(CC) $(INCLUDES) $(CFLAGS) $(LDFLAGS) $(DEFS) $(PPS_DEFS) -o $@ $(IRCIO_OBJECTS) $(LIBS)
+
+wserv: $(WSERV_OBJECTS)
+	$(CC) $(INCLUDES) $(CFLAGS) $(LDFLAGS) $(DEFS) -o $@ $(WSERV_OBJECTS) $(LIBS)
+
 clean::
 	$(RM) ircflush ircflush.o
 
-ircio: ircio.o newio.o ircsig.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(PPS_DEFS) $(INCLUDES) -o ircio ircio.o newio.o ircsig.o $(LIBS)
 clean::
 	$(RM) ircio ircio.o newio.o
 
-wserv: $(WSERV_OBJECTS) ircsig.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(INCLUDES) -o wserv $(WSERV_OBJECTS) ircsig.o $(LIBS)
 clean::
 	$(RM) wserv wserv.o wterm.o wterm.c
 

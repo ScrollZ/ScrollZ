@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.30 2002-01-17 18:55:28 f Exp $
+ * $Id: names.c,v 1.31 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -118,6 +118,7 @@ clear_channel(chan)
 		new_free(&tmp);
 	}
 	chan->nicks = (NickList *) 0;
+	chan->status &= ~CHAN_NAMES;
 /**************************** PATCHED by Flier ******************************/
         ClearBans(chan);
 /****************************************************************************/
@@ -595,7 +596,7 @@ recreate_mode(chan)
 		s += strlen(chan->key);
 	}
 	if (chan->limit)
-		sprintf(s, " %d", chan->limit);
+		snprintf(s, sizeof(buffer) - (s - buffer), " %d", chan->limit);
 	else
 		*s = '\0';
 
@@ -1734,21 +1735,22 @@ is_chanop(channel, nick)
 }
 
 int
-has_voice(channel, nick)
+has_voice(channel, nick, server)
 	char	*channel;
 	char	*nick;
+	int	server;
 {
 	ChannelList *chan;
 	NickList *Nick;
 
-	if ((chan = lookup_channel(channel, from_server, CHAN_NOUNLINK)) &&
+	if ((chan = lookup_channel(channel, server, CHAN_NOUNLINK)) &&
 		(chan->connected == CHAN_JOINED) &&
 		/* channel may be "surviving" from a disconnect/connect
 						   check here too -Sol */
 /**************************** PATCHED by Flier ******************************/
 			/*(Nick = (NickList *) list_lookup((List **) &(chan->nicks),
 		nick, !USE_WILDCARDS, !REMOVE_FROM_LIST)) && (Nick->chanop || Nick->hasvoice))*/
-                (Nick=find_in_hash(chan,nick)) && Nick->hasvoice)
+                (Nick = find_in_hash(chan, nick)) && Nick->hasvoice)
 /****************************************************************************/
 		return 1;
 	return 0;
@@ -2086,5 +2088,8 @@ mark_not_connected(server)
 	ChannelList	*tmp;
 
 	for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)
+	{
+		tmp->status = 0;
 		tmp->connected = CHAN_LIMBO;
+	}
 }

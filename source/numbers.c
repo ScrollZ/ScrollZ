@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.49 2002-01-08 17:55:45 f Exp $
+ * $Id: numbers.c,v 1.50 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -108,8 +108,8 @@ extern void userhost _((char *, char *, char *));
 /**********************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
-/*static	void	reset_nickname _((void));*/
-void	reset_nickname _((void));
+/*static	void	reset_nickname _((char *, char **));*/
+void	reset_nickname _((char *, char **));
 /****************************************************************************/
 static	void	nickname_in_use _((char *, char **));
 static	void	password_sendline _((char *, char *));
@@ -135,13 +135,13 @@ numeric_banner()
 {
 /**************************** PATCHED by Flier ******************************/
         /*static	char	thing[4];*/
-        static	char	thing[mybufsize/8];
+        static	char	thing[mybufsize / 8];
 /****************************************************************************/
 
 	if (get_int_var(SHOW_NUMERICS_VAR))
 /**************************** Patched by Flier ******************************/
-		/*sprintf(thing, "%3.3u", -current_numeric);*/
-		sprintf(thing, "%3.3u ",-current_numeric);
+		/*snprintf(thing, sizeof thing, "%3.3u", -current_numeric);*/
+		snprintf(thing, sizeof(thing), "%3.3u", -current_numeric);
 /****************************************************************************/
 	else
 /************************* PATCHED by Flier ***************************/
@@ -510,9 +510,9 @@ get_password()
 	say("password required for connection to server %s",
 		get_server_name(parsing_server_index));
 	close_server(parsing_server_index, empty_string);
-        if (!dumb)
+	if (!dumb)
 	{
-		sprintf(server_num, "%d", parsing_server_index);
+		snprintf(server_num, sizeof server_num, "%d", parsing_server_index);
 		add_wait_prompt("Server Password:", password_sendline,
 			server_num, WAIT_PROMPT_LINE);
 	}
@@ -540,10 +540,15 @@ nickname_sendline(data, nick)
 /****************************************************************************/
 		server = parsing_server_index;
 		from_server = new_server;
-		send_to_server("NICK %s", nick);
-		if (new_server == primary_server)
- 			malloc_strcpy(&nickname, nick);
-		set_server_nickname(new_server, nick);
+		if (nick && *nick)
+		{
+			send_to_server("NICK %s", nick);
+			if (new_server == primary_server)
+				malloc_strcpy(&nickname, nick);
+			set_server_nickname(new_server, nick);
+			if (new_server == primary_server)
+				malloc_strcpy(&nickname, nick);
+		}
 		from_server = server;
 		already_doing_reset_nickname = 0;
 		update_all_status();
@@ -571,18 +576,25 @@ nickname_sendline(data, nick)
 /*static	void*/
 void
 /****************************************************************************/
-reset_nickname()
+reset_nickname(from, ArgList)
+	char	*from,
+		**ArgList;
 {
 	char	server_num[10];
+	char	*s;
 
 	if (already_doing_reset_nickname)
 		return;
+	s = next_arg(*ArgList, ArgList);
+	if (my_stricmp(s, get_server_nickname(from_server)) == 0)
+		return;
+
 	say("You have specified an illegal nickname");
 	if (!dumb && !get_int_var(NO_ASK_NICKNAME_VAR))
 	{
 		already_doing_reset_nickname = 1;
 		say("Please enter your nickname");
-		sprintf(server_num, "%d", parsing_server_index);
+		snprintf(server_num, sizeof server_num, "%d", parsing_server_index);
 		add_wait_prompt("Nickname: ", nickname_sendline, server_num,
 			WAIT_PROMPT_LINE);
 	}
@@ -656,7 +668,8 @@ nickname_in_use(from, ArgList)
                     if (DisplayNickInfo())
 /****************************************************************************/
 			display_msg(from, ArgList);
- 	} else if (never_connected || parsing_server_index != primary_server ||
+	}
+	else if (never_connected || parsing_server_index != primary_server ||
 	    !attempting_to_connect)
 	{
 		if (do_hook(current_numeric, "%s", *ArgList))
@@ -664,9 +677,6 @@ nickname_in_use(from, ArgList)
                     if (DisplayNickInfo())
 /****************************************************************************/
 			display_msg(from, ArgList);
-/**************************** PATCHED by Flier ******************************/
-                /*reset_nickname();*/
-/****************************************************************************/
 	}
 	else
 	{
@@ -675,6 +685,7 @@ nickname_in_use(from, ArgList)
 			realname);
 		send_to_server("NICK %s", get_server_nickname(parsing_server_index));
 	}
+	reset_nickname(from, ArgList);
 }
 
 static	void
@@ -1013,7 +1024,7 @@ numbered_command(from, comm, ArgList)
 		break;
 	case 002:	/* #define RPL_YOURHOST         002 */
 		PasteArgs(ArgList, 0);
-		sprintf(blah, "*** %s", ArgList[0]);
+		snprintf(blah, sizeof blah, "*** %s", ArgList[0]);
 		got_initial_version(blah);
 		if (do_hook(current_numeric, "%s %s", from, *ArgList))
 			display_msg(from, ArgList);
@@ -1232,7 +1243,7 @@ numbered_command(from, comm, ArgList)
 		if (do_hook(current_numeric, "%s %s", from, *ArgList))
 			display_msg(from, ArgList);
 /**************************** Patched by Flier ******************************/
-		/*reset_nickname();*/
+		/*reset_nickname(from, ArgList);*/
                 AutoChangeNick(ArgList[0]);
 /****************************************************************************/
 		break;
@@ -1240,7 +1251,6 @@ numbered_command(from, comm, ArgList)
 	case 433:		/* #define ERR_NICKNAMEINUSE    433 */ 
                 nickname_in_use(from, ArgList);
 /**************************** Patched by Flier ******************************/
-		/*reset_nickname();*/
                 strmcpy(tmpbuf,ArgList[0],mybufsize/4);
                 if (server_list[parsing_server_index].connected) {
                     tmpnick=tmpbuf;
@@ -1256,13 +1266,12 @@ numbered_command(from, comm, ArgList)
 		{
 			nickname_in_use(from, ArgList);
 /**************************** PATCHED by Flier ******************************/
-                        /*reset_nickname();*/
                         if (!(server_list[parsing_server_index].connected))
                             AutoChangeNick(ArgList[0]);
 /****************************************************************************/
                 }
 /**************************** PATCHED by Flier ******************************/
-                else cannot_join_channel(from,ArgList);
+                else cannot_join_channel(from, ArgList);
 /****************************************************************************/
 		break;
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircio.c,v 1.4 2000-08-14 20:38:13 f Exp $
+ * $Id: ircio.c,v 1.5 2002-01-21 21:37:36 f Exp $
  */
 
 #include "defs.h"
@@ -301,7 +301,7 @@ main(argc, argv)
 						if ((ptr = (char *) 
 						    index(lbuf, ' ')) != NULL)
 						{
-							sprintf(pong, "PONG user@host %s\n", ptr + 1);
+							snprintf(pong, sizeof pong, "PONG user@host %s\n", ptr + 1);
 							write(des, pong, strlen(pong));
 						}
 					}

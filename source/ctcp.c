@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.37 2002-01-09 16:41:59 f Exp $
+ * $Id: ctcp.c,v 1.38 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -156,7 +156,14 @@ static CtcpEntry ctcp_cmd[] =
         { "ECHO", 	"returns the arguments it receives",
                 CTCP_VERBOSE, do_echo },
 #ifndef LITE
- 	CRYPTO_CTCP_ENTRIES
+	{ CAST_STRING, UP("contains CAST-128 strongly encrypted data, CBC mode"),
+		CTCP_SHUTUP | CTCP_NOREPLY, do_crypto },
+#if 0
+	{ RIJNDAEL_STRING, UP("contains rijndael (AES) strongly encrypted data, CBC mode"),
+		CTCP_SHUTUP | CTCP_NOREPLY, do_crypto },
+#endif
+	{ SED_STRING, UP("contains simple weekly encrypted data"),
+		CTCP_SHUTUP | CTCP_NOREPLY, do_crypto },
 #endif
 /**************************** PATCHED by Flier ******************************/
 #define CTCP_INVITE
@@ -1893,8 +1900,8 @@ do_new_notice_ctcp(from, to, str, cmd)
 						(time_t) atol(args);
 				else
 					timediff = (time_t) 0;
-				sprintf(buf, "%ld second%s", (long) timediff,
-					(timediff == 1) ? "" : "s");
+				snprintf(buf, sizeof buf, "%ld second%s",
+				   (long) timediff, (timediff == 1) ? "" : "s");
 				args = buf;*/
                                 char *tmpstr=(char *) 0;
 				char buf[mybufsize/16];
@@ -2042,16 +2049,16 @@ send_ctcp(type, to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 	{
 #ifdef HAVE_STDARG_H
 		va_start(vl, format);
-		vsprintf(putbuf, format, vl);
+		vsnprintf(putbuf, sizeof putbuf, format, vl);
 		va_end(vl);
 #else
-		sprintf(putbuf, format, arg0, arg1, arg2, arg3, arg4, arg5,
+		snprintf(putbuf, sizeof putbuf, format, arg0, arg1, arg2, arg3, arg4, arg5,
 			arg6, arg7, arg8, arg9);
 #endif /* HAVE_STDARG_H */
 
 		if (datatag)
 		{
-			sprintf(sendbuf, "%c%s %s%c",
+			snprintf(sendbuf, sizeof sendbuf, "%c%s %s%c",
 			    CTCP_DELIM_CHAR, datatag, putbuf, CTCP_DELIM_CHAR);
 			sendp = sendbuf;
 		}
@@ -2060,7 +2067,7 @@ send_ctcp(type, to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 	}
 	else
 	{
-		sprintf(sendbuf, "%c%s%c",
+		snprintf(sendbuf, sizeof sendbuf, "%c%s%c",
 		    CTCP_DELIM_CHAR, datatag, CTCP_DELIM_CHAR);
 		sendp = sendbuf;
 	}
@@ -2126,10 +2133,10 @@ send_ctcp_reply(to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 	{
 #ifdef HAVE_STDARG_H
 		va_start(vl, format);
-		vsprintf(putbuf, format, vl);
+		vsnprintf(putbuf, sizeof putbuf, format, vl);
 		va_end(vl);
 #else
-		sprintf(putbuf, format, arg0, arg1, arg2, arg3, arg4, arg5,
+		snprintf(putbuf, sizeof putbuf, format, arg0, arg1, arg2, arg3, arg4, arg5,
 			arg6, arg7, arg8, arg9);
 #endif /* HAVE_STDARG_H */
 		strmcat(CTCP_Reply_Buffer, putbuf, BIG_BUFFER_SIZE);

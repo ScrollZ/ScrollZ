@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.9 2001-12-30 09:28:48 f Exp $
+ * $Id: help.c,v 1.10 2002-01-21 21:37:35 f Exp $
  */
 
 /*
@@ -316,7 +316,7 @@ help_prompt(name, line)
 		{
 			char	tmp[BIG_BUFFER_SIZE + 1];
 
-			sprintf(tmp, "%s%sHelp? ", help_topic_list,
+			snprintf(tmp, sizeof tmp, "%s%sHelp? ", help_topic_list,
 				*help_topic_list ? " " : "");
 			if (!dumb)
 				add_wait_prompt(tmp, help_me, help_topic_list,
@@ -359,7 +359,7 @@ help_topic(path, name)
 	 * file if it is present, and ends with .Z ..
 	 */
 
-	sprintf(filename, "%s/%s", path, name);
+	snprintf(filename, sizeof filename, "%s/%s", path, name);
 
 #ifdef ZCAT
 
@@ -368,10 +368,10 @@ help_topic(path, name)
 		malloc_strcpy(&name_z, name);
 		malloc_strcat(&name_z, ZSUFFIX);
 	}
-	if (stat_file(filename, &stat_buf) == -1)
+	if (stat(filename, &stat_buf) == -1)
 	{
-		sprintf(filename, "%s/%s", path, name_z);
-		if (stat_file(filename, &stat_buf) == -1)
+		snprintf(filename, sizeof filename, "%s/%s", path, name_z);
+		if (stat(filename, &stat_buf) == -1)
 		{
 			help_put_it(name, "*** No help available on %s: Use \
 ? for list of topics", name);
@@ -383,7 +383,13 @@ help_topic(path, name)
 	else
 		new_free(&name_z);
 #else
-	stat_file(filename, &stat_buf);
+	if (stat(filename, &stat_buf) == -1)
+	{
+		help_put_it(name, "*** No help available on %s: Use \
+? for list of topics", name);
+		return;
+
+	}
 
 #endif /* ZCAT */
 
@@ -473,10 +479,10 @@ help_pause_add_line(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9
 
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
-	vsprintf(buf, format, vl);
+	vsnprintf(buf, sizeof buf, format, vl);
 	va_end(vl);
 #else
-	sprintf(buf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
+	snprintf(buf, sizeof buf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
 			arg8, arg9, arg10);
 #endif
 	malloc_strcpy(&help_paused_topic[help_paused_lines], buf);
@@ -505,7 +511,7 @@ help_show_paused_topic(name, unused)
 	{
 		char	buf[BIG_BUFFER_SIZE+1];
 
-		sprintf(buf, "%s%sHelp? ", name, (name && *name) ? " " : "");
+		snprintf(buf, sizeof buf, "%s%sHelp? ", name, (name && *name) ? " " : "");
 		if (!dumb)
 			add_wait_prompt(buf, help_me, name, WAIT_PROMPT_LINE);
 	}
@@ -555,14 +561,14 @@ help_me(topics, args)
 #endif
 		ptr = get_string_var(HELP_PATH_VAR);
 
-#if !defined(_Windows)
-	sprintf(path, "%s/%s", ptr, topics);
+#ifndef _Windows
+	snprintf(path, sizeof path, "%s/%s", ptr, topics);
 #else
-	sprintf(path, "%s\\%s", ptr, topics);
+	snprintf(path, sizeof path, "%s\\%s", ptr, topics);
 #endif /* _Windows */
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '/';
-#if defined(_Windows)
+#ifndef _Windows
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '\\';
 	for (ptr = path; (ptr = index(ptr, '/'));)
@@ -602,7 +608,7 @@ help_me(topics, args)
 			*temp = '\0';
 		else
 			*help_topic_list = '\0';
-		sprintf(tmp, "%s%sHelp? ", help_topic_list,
+		snprintf(tmp, sizeof tmp, "%s%sHelp? ", help_topic_list,
 			*help_topic_list ? " " : "");
 		if (!dumb)
 			add_wait_prompt(tmp, help_me, help_topic_list,
@@ -645,7 +651,7 @@ help_me(topics, args)
 		}
 /**************************** PATCHED by Flier ******************************/
                 /*free_cnt = entries = scandir(path, &namelist, selectent, (int (*) _((const void *, const void *))) compar);*/
-                free_cnt=entries=scandir(path, &namelist,
+                free_cnt = entries = scandir(path, &namelist,
                                          (const void *)(int (*) _((const struct dirent *))) selectent,
                                          (const void *)(int (*) _((const struct dirent *, const struct dirent *))) compar);
 /****************************************************************************/
@@ -696,7 +702,7 @@ help_me(topics, args)
 				set_help_screen((Screen *) 0);
 				break;
 			}
-			sprintf(tmp, "%s%sHelp? ", help_topic_list,
+			snprintf(tmp, sizeof tmp, "%s%sHelp? ", help_topic_list,
 				*help_topic_list ? " " : "");
 			if (!dumb)
 				add_wait_prompt(tmp, help_me, help_topic_list,
@@ -714,8 +720,15 @@ help_me(topics, args)
 			}
 			break;
 		case 1:
-			sprintf(tmp, "%s/%s", path, namelist[0]->d_name);
-			stat_file(tmp, &stat_buf);
+			snprintf(tmp, sizeof tmp, "%s/%s", path, namelist[0]->d_name);
+			if (stat(tmp, &stat_buf) == -1)
+			{
+				for (i = 0; i < free_cnt; i++)
+				{
+					new_free(&namelist[i]);
+				}
+				continue;
+			}
 			if (stat_buf.st_mode & S_IFDIR)
 			{
 				strcpy(path, tmp);
@@ -755,7 +768,7 @@ help_me(topics, args)
 			*buffer = (char) 0;
 			cnt = 0;
 			entry_size += 2;
-			cols = (CO - 10) / entry_size;
+			cols = (current_screen->co - 10) / entry_size;
 			for (i = 0; i < entries; i++)
 			{
 #ifdef ZCAT

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.35 2001-12-18 20:17:14 f Exp $
+ * $Id: window.c,v 1.36 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -372,8 +372,6 @@ void
 set_scroll(value)
 	int	value;
 {
-	int	old_value;
-
 	if (value && (get_int_var(SCROLL_LINES_VAR) == 0))
 	{
 		put_it("You must set SCROLL_LINES to a positive value first!");
@@ -384,9 +382,11 @@ set_scroll(value)
 	{
 		if (curr_scr_win)
 		{
+			int	old_value = curr_scr_win->scroll;
+
 			old_value = curr_scr_win->scroll;
 			curr_scr_win->scroll = value;
-			if (old_value && !value)
+			if (old_value != value)
 				scroll_window(curr_scr_win);
 		}
 	}
@@ -413,8 +413,8 @@ void
 set_continued_line(value)
 	char	*value;
 {
-	if (value && ((int) strlen(value) > (CO / 2)))
-		value[CO / 2] = '\0';
+	if (value && ((int) my_strlen(value) > (current_screen->co / 2)))
+		value[current_screen->co / 2] = '\0';
 }
 
 /*
@@ -1441,7 +1441,7 @@ window_check_servers()
 #ifdef NON_BLOCKING_CONNECTS
 			if (!(server_list[i].flags & CLOSE_PENDING))
 #endif /* NON_BLOCKING_CONNECTS */
-			close_server(i, "no windows left");
+			close_server(i, empty_string);
                 }
 		else
 			connected_to_server++;
@@ -1553,7 +1553,7 @@ delete_window(window)
 	if (window->name)
 		strmcpy(buffer, window->name, BIG_BUFFER_SIZE);
 	else
-		sprintf(buffer, "%u", window->refnum);
+		snprintf(buffer, sizeof buffer, "%u", window->refnum);
 	malloc_strcpy(&tmp, buffer);
 	realloc_channels(window);
 /**************************** PATCHED by Flier ******************************/
@@ -1898,6 +1898,7 @@ bind_channel(channel, window)
 	Win_Trav stuff;
 	Window *tmp;
 /**************************** PATCHED by Flier ******************************/
+        char tmpbuf[mybufsize / 2 + 1];
         struct channels *chan;
 /****************************************************************************/
 
@@ -1914,14 +1915,10 @@ bind_channel(channel, window)
 /****************************************************************************/
 		{
 /**************************** PATCHED by Flier ******************************/
-			/*say("Channel %s is already bound to window %s", channel, window->name);*/
-                        char tmpbuf[mybufsize/2+1];
-
-                        if (window->name)
-                            strmcpy(tmpbuf,window->name,mybufsize/2);
-                        else sprintf(tmpbuf,"%d",window->refnum);
-			say("Channel %s is already bound to window %s",
-                            channel,tmpbuf);
+			/*say("Channel %s is already bound to window %d", channel, window->refnum);*/
+                        if (window->name) strmcpy(tmpbuf, window->name, sizeof(tmpbuf) - 1);
+                        else snprintf(tmpbuf, sizeof(tmpbuf), "%d", window->refnum);
+			say("Channel %s is already bound to window %s", channel, tmpbuf);
 /****************************************************************************/
 			return;
 		}
@@ -1968,13 +1965,17 @@ bind_channel(channel, window)
 	}
 #endif
 /**************************** PATCHED by Flier ******************************/
-	/*malloc_strcpy(&window->bound_channel, channel);*/
-        chan=(struct channels *) new_malloc(sizeof(struct channels));
-        chan->channel=(char *) 0;
+	/*malloc_strcpy(&window->bound_channel, channel);
+	say("Channel %s bound to window %d", channel, window->refnum);*/
+        chan = (struct channels *) new_malloc(sizeof(struct channels));
+        chan->channel = NULL;
         malloc_strcpy(&(chan->channel),channel);
-        chan->next=NULL;
-        add_to_list_ext((List **) &(window->bound_chans),(List *) chan,
+        chan->next = NULL;
+        add_to_list_ext((List **) &(window->bound_chans), (List *) chan,
                         (int (*) _((List *, List *))) AddLast);
+        if (window->name) strmcpy(tmpbuf, window->name, sizeof(tmpbuf) - 1);
+        else snprintf(tmpbuf, sizeof(tmpbuf), "%d", window->refnum);
+        say("Channel %s bound to window %s", channel, tmpbuf);
 /****************************************************************************/
 }
 
@@ -2362,12 +2363,13 @@ hide_window(window)
 		add_to_invisible_list(window);
 #ifdef SCROLL_AFTER_DISPLAY
 /**************************** PATCHED by Flier ******************************/
-/*		window->display_size = LI - 3;
+/*#ifdef SCROLL_AFTER_DISPLAY
+		window->display_size = current_screen->li - 3;
 #else
-		window->display_size = LI - 2;*/
-		window->display_size=LI-3-window->double_status;
+		window->display_size = current_screen->li - 2;*/
+		window->display_size = current_screen->li - 3 - window->double_status;
 #else
-		window->display_size=LI-2-window->double_status;
+		window->display_size = current_screen->li - 2 - window->double_status;
 /****************************************************************************/
 #endif /* SCROLL_AFTER_DISPLAY */
 		set_current_window((Window *) 0);
@@ -2403,8 +2405,8 @@ list_a_window(window, len, clen)
 	char	tmp[10];
 	char	buffer[BIG_BUFFER_SIZE+1];
 
-	sprintf(tmp, "%-4u", window->refnum);
- 	sprintf(buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
+	snprintf(tmp, sizeof tmp, "%-4u", window->refnum);
+	snprintf(buffer, sizeof buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
 			len, clen, clen);
 /**************************** PATCHED by Flier ******************************/
 	/*say(buffer, tmp, get_server_nickname(window->server),
@@ -2420,7 +2422,7 @@ list_a_window(window, len, clen)
 			window->current_channel ?
 				window->current_channel : "None",
                         window->query_nick ? window->query_nick : "None",
-                        window->server!=-1?get_server_itsname(window->server) : "None",
+                        window->server != -1 ? get_server_itsname(window->server) : "None",
 			bits_to_lastlog_level(window->window_level),
 			(window->visible) ? "" : " Hidden");
 /****************************************************************************/
@@ -2449,7 +2451,7 @@ list_windows()
 		if (tmp->current_channel && ((int) strlen(tmp->current_channel) > clen))
 			clen = strlen(tmp->current_channel);
 	}
- 	sprintf(buffer, WIN_FORM, 9, 9, len, len,	/* XXX: 9 is old NICKNAME_LEN */
+	snprintf(buffer, sizeof buffer, WIN_FORM, 9, 9, len, len,	/* XXX: 9 is old NICKNAME_LEN */
 		clen, clen);
 	say(buffer, "Ref", "Nick", "Name", "Channel", "Query", "Server",
 		"Level", empty_string);
@@ -2647,7 +2649,7 @@ add_nicks_by_refnum(refnum, str, add)
 					new->nick = (char *) 0;
 					malloc_strcpy(&new->nick, str);
 /**************************** PATCHED by Flier ******************************/
-			                new->userhost=(char *) 0;
+			                new->userhost = NULL;
 /****************************************************************************/
 					add_to_list((List **) &(tmp->nicks), (List *) new);
 				}
@@ -2888,13 +2890,13 @@ windowcmd(command, args, subargs)
 				else if (!(logfile = get_string_var(LOGFILE_VAR)))
 					logfile = empty_string;
 				if (!add_ext)
-					sprintf(buffer, "%s", logfile);
+					snprintf(buffer, sizeof buffer, "%s", logfile);
 				else if (window->current_channel)
-					sprintf(buffer, "%s.%s", logfile, window->current_channel);
+					snprintf(buffer, sizeof buffer, "%s.%s", logfile, window->current_channel);
 				else if (window->query_nick)
-					sprintf(buffer, "%s.%s", logfile, window->query_nick);
+					snprintf(buffer, sizeof buffer, "%s.%s", logfile, window->query_nick);
 				else
-					sprintf(buffer, "%s.Window_%d", logfile, window->refnum);
+					snprintf(buffer, sizeof buffer, "%s.Window_%d", logfile, window->refnum);
 /**************************** PATCHED by Flier ******************************/
 				/*window->log_fp = do_log(window->log, buffer, window->log_fp);*/
 				do_log(window->log, buffer, &(window->log_fp));
@@ -2922,9 +2924,8 @@ windowcmd(command, args, subargs)
 			{
 /**************************** PATCHED by Flier ******************************/
 				/*window->window_level = parse_lastlog_level(arg);*/
-                                if (*arg=='+')
-                                    window->window_level+=parse_lastlog_level(arg);
-                                else window->window_level=parse_lastlog_level(arg);
+                                if (*arg == '+') window->window_level += parse_lastlog_level(arg);
+                                else window->window_level = parse_lastlog_level(arg);
 /****************************************************************************/
 				say("Window level is %s",
 				   bits_to_lastlog_level(window->window_level));
@@ -2961,7 +2962,7 @@ windowcmd(command, args, subargs)
 				}
 /**************************** PATCHED by Flier ******************************/
 #else
-                                fprintf(stderr,"]0;%s",arg);
+                                fprintf(stderr, "]0;%s", arg);
                                 fflush(stderr);
 #endif
 /****************************************************************************/
@@ -3120,7 +3121,7 @@ windowcmd(command, args, subargs)
 						}
 /**************************** PATCHED by Flier ******************************/
                                                 /* from_server can be -1 here */
-                                                if (from_server>=0)
+                                                if (from_server >= 0)
 /****************************************************************************/
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
  						from_server = server;
@@ -3204,13 +3205,12 @@ windowcmd(command, args, subargs)
 				else
 				{
 /**************************** PATCHED by Flier ******************************/
-                                    char *origarg=arg;
+                                    char *origarg = arg;
 
-                                    while ((arg=strtok(origarg,","))) {
-                                        origarg=(char *) 0;
+                                    while ((arg = strtok(origarg, ","))) {
+                                        origarg = (char *) 0;
 /****************************************************************************/
 					bind_channel(arg, window);
-					say("Channel %s bound to window %d", arg, window->refnum);
 /**************************** PATCHED by Flier ******************************/
                                     }
 /****************************************************************************/
@@ -3221,18 +3221,18 @@ windowcmd(command, args, subargs)
                         {
 				/*if (window->bound_channel)
 					say("Channel %s is bound to window %d", window->bound_channel, window->refnum);*/
-                            int count=0;
-                            char *tmpbuf=(char *) 0;
+                            int count = 0;
+                            char *tmpbuf = NULL;
                             struct channels *chan;
 
-                            for (chan=window->bound_chans;chan;chan=chan->next){
-                                malloc_strcat(&tmpbuf,chan->channel);
-                                if (chan->next) malloc_strcat(&tmpbuf,",");
+                            for (chan = window->bound_chans; chan; chan = chan->next){
+                                malloc_strcat(&tmpbuf, chan->channel);
+                                if (chan->next) malloc_strcat(&tmpbuf, ",");
                                 count++;
                             }
                             if (count) {
                                 say("Channel%s %s %s bound to window %d",
-                                    count==1?"":"s",tmpbuf,count==1?"is":"are",
+                                    count == 1 ? "" : "s", tmpbuf, count == 1 ? "is" : "are",
                                     window->refnum);
                                 new_free(&tmpbuf);
                             }
@@ -3280,37 +3280,37 @@ windowcmd(command, args, subargs)
 				update_all_windows();
 				build_status((char *) NULL);
 			}*/
-                        if ((arg=next_arg(args,&args))) {
-                            int error=-1;
-                            int current=window->double_status;
+                        if ((arg = next_arg(args, &args))) {
+                            int errcmd = -1;
+                            int current = window->double_status;
     
                             upper(arg);
-                            if (!strcmp(arg,"ON")) {
-                                error=0;
-                                window->double_status=1;
+                            if (!strcmp(arg, "ON")) {
+                                errcmd = 0;
+                                window->double_status = 1;
                             }
-                            else if (!strcmp(arg,"OFF")) {
-                                error=0;
-                                window->double_status=0;
+                            else if (!strcmp(arg, "OFF")) {
+                                errcmd = 0;
+                                window->double_status = 0;
                             }
-                            else if (!strcmp(arg,"TOGGLE")) {
-                                error=0;
-                                if (window->double_status==1) window->double_status=0;
-                                else if (window->double_status==0) window->double_status=1;
-                                else error=-1;
+                            else if (!strcmp(arg, "TOGGLE")) {
+                                errcmd = 0;
+                                if (window->double_status == 1) window->double_status = 0;
+                                else if (window->double_status == 0) window->double_status = 1;
+                                else errcmd = -1;
                             }
                             else {
                                 int i;
 
-                                i=atoi(arg);
-                                if (i>1 && i<4) {
-                                    error=0;
-                                    window->double_status=i-1;
+                                i = atoi(arg);
+                                if (i > 1 && i < 4) {
+                                    error = 0;
+                                    window->double_status = i - 1;
                                 }
                             }
-                            if (error==-1) say("Value for DOUBLE must be ON, OFF, TOGGLE, 2 or 3");
+                            if (errcmd == -1) say("Value for DOUBLE must be ON, OFF, TOGGLE, 2 or 3");
                             else {
-                                window->display_size+=current-window->double_status;
+                                window->display_size += current-window->double_status;
                                 recalculate_window_positions();
                                 update_all_windows();
                                 build_status(NULL);

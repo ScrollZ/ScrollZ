@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.14 2001-07-13 17:22:26 f Exp $
+# @(#)$Id: Makefile.in,v 1.15 2002-01-21 21:37:35 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -82,22 +82,6 @@ CFLAGS = @CFLAGS@
 
 # Set this to -s if you want the binary to be stripped.
 LDFLAGS = @LDFLAGS@
-
-# these are legacy things from ircii 2.2 that haven't yet been
-# handled with autoconf.
-
-# For Apollo systems (10.2 and upwards) use the following with BSD defaults:
-# DEFS = -Asys,bsd4.3
-
-# Use one of the following for mips systems:
-# Choice 1, if your system has the wait3() call
-# DEFS = -systype bsd43
-# Choice 2, if your system has the wait2() call
-# DEFS = -systype bsd43 -Duse_wait2
-#
-# Or, if you only have sysv installed, use one of the following:
-# DEFS = -DMIPS_SYSV
-# DEFS = -DMIPS_SYSV -Duse_wait2
 
 ## You probably don't need to change anything below this line
 

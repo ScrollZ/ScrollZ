@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.c,v 1.5 2000-09-24 17:10:34 f Exp $
+ * $Id: if.c,v 1.6 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -125,7 +125,7 @@ ifcmd(command, args, subargs)
 	}
 	if (!result && !(exp = next_expr(&args, '{')))
 		return;
-	parse_line((char *) 0, exp, subargs ? subargs : empty_string, 0, 0);
+	parse_line((char *) 0, exp, subargs ? subargs : empty_string, 0, 0, 0);
 		return;
 }
 
@@ -165,7 +165,7 @@ whilecmd(command, args, subargs)
 		{
 			new_free(&ptr);
 			parse_line((char *) 0, body, subargs ?
-				subargs : empty_string, 0, 0);
+				subargs : empty_string, 0, 0, 0);
 		}
 		else
 			break;
@@ -271,7 +271,7 @@ foreach(command, args, subargs)
 		add_alias(VAR_ALIAS, var, sublist[i]+slen);
 		window_display = old_display;
 		parse_line((char *) 0, body, subargs ?
-		    subargs : empty_string, 0, 0);
+		    subargs : empty_string, 0, 0, 0);
 		new_free(&sublist[i]);
 	}
 	new_free(&sublist);
@@ -378,7 +378,7 @@ fe(command, args, subargs)
 		window_display = old_display;
 		x += ind;
 		parse_line((char *) 0, todo, 
-		    subargs?subargs:empty_string, 0, 0);
+		    subargs ? subargs : empty_string, 0, 0, 0);
 	}
 	window_display = 0;
 	for (y=0;y<ind;y++)  {
@@ -467,7 +467,7 @@ forcmd(command, args, subargs)
 	malloc_strcpy(&commands, working);
 
 	sa = subargs?subargs:empty_string;
-	parse_line((char *) 0, commence, sa, 0, 0);
+	parse_line((char *) 0, commence, sa, 0, 0, 0);
 
 	while (1)
 	{
@@ -476,8 +476,8 @@ forcmd(command, args, subargs)
 		if (*blah && *blah != '0')
 		{
 			new_free(&blah);
-			parse_line((char *) 0, commands, sa, 0, 0);
-			parse_line((char *) 0, iteration, sa, 0, 0);
+			parse_line((char *) 0, commands, sa, 0, 0, 0);
+			parse_line((char *) 0, iteration, sa, 0, 0, 0);
 		}
 		else break;
 	}
@@ -532,7 +532,7 @@ fec(command, args, subargs)
 		add_alias(VAR_ALIAS, var, booya);
 		window_display = old_display;
 		parse_line((char *) 0, todo, 
-		    subargs?subargs:empty_string, 0, 0);
+		    subargs ? subargs : empty_string, 0, 0, 0);
 	}
 	window_display = 0;
 	delete_alias(VAR_ALIAS,var);

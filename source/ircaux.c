@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.14 2001-11-10 10:04:54 f Exp $
+ * $Id: ircaux.c,v 1.15 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -62,14 +62,12 @@ int DCCHighPort;
 
 #ifdef INET6
 extern	char	FAR MyHostName[];
+static int bind_local_addr _((u_char *, u_char *, int, int));
 #else
 extern	struct	in_addr	MyHostAddr;
 #endif
 extern  char *source_host;
 
-#ifdef INET6
-static int bind_local_addr _((char *, char *, int, int));
-#endif
 
 #ifdef	ALLOC_DEBUG
 # ifdef  _IBMR2
@@ -604,7 +602,7 @@ connect_by_number(service,host,nonblocking,dccget)
 
 	strncpy(strhost, host, sizeof(strhost) - 1);
 	strhost[sizeof(strhost) - 1] = 0;
-	sprintf(strservice, "%d", service);
+	snprintf(strservice, sizeof strservice, "%d", service);
 	strservice[sizeof(strservice) - 1] = 0;
 #endif
 
@@ -1038,7 +1036,7 @@ strmcpy(dest, src, maxlen)
  	size_t	maxlen;
 {
 	strncpy(dest, src, maxlen);
-	dest[maxlen] = '\0';
+	dest[maxlen - 1] = '\0';
 }
 
 /*

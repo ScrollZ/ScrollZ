@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.21 2002-01-07 19:18:16 f Exp $
+ * $Id: alias.c,v 1.22 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -52,6 +52,12 @@
 #include "output.h"
 #include "names.h"
 #include "parse.h"
+#include "notify.h"
+#include "ignore.h"
+#include "exec.h"
+#include "ircterm.h"
+
+#include "sys/stat.h"
 
 /*
  * define this to use the old way of managing allocations
@@ -61,7 +67,6 @@
 #undef USE_OLD_ALIAS_ALLOC
 
 /**************************** Patched by Flier ******************************/
-#include "sys/stat.h"
 #include "myvars.h"
 
 extern int  OpenFileRead _((char *));
@@ -100,7 +105,6 @@ static	void	insert_alias _((Alias **, Alias *));
 static	char	*alias_arg _((char **, u_int *));
 static	char	*find_inline _((char *));
 static	u_char	*built_in_alias _((int));
-static	u_char	*call_function _((char *, char *, char *, int *));
 #ifndef USE_OLD_ALIAS_ALLOC
 static	void	expander_addition _((char **, char *, int, char *));
 static	char	*alias_special_char _((char *, char **, char *, char *, char *, int *));
@@ -268,6 +272,13 @@ static	FAR BuiltIns built_in[] =
 #ifdef HAVE_STRFTIME
 	u_char	*function_strftime _((u_char *));
 #endif /* HAVE_STRFTIME */
+	u_char	*function_windows _((u_char *));
+	u_char	*function_screens _((u_char *));
+	u_char	*function_notify _((u_char *));
+	u_char	*function_ignored _((u_char *));
+	u_char	*function_urlencode _((u_char *));
+	u_char	*function_shellfix _((u_char *));
+	u_char	*function_filestat _((u_char *));
 /**************************** Patched by Flier ******************************/
         u_char  *function_open _((u_char *));
         u_char  *function_close _((u_char *));
@@ -406,6 +417,13 @@ static BuiltInFunctions	FAR built_in_functions[] =
 #endif
 	{ "IDLE",		function_idle },
  	{ "QUERYNICK",		function_querynick },
+	{ "WINDOWS",		function_windows },
+	{ "SCREENS",		function_screens },
+	{ "NOTIFY",		function_notify },
+	{ "IGNORED",		function_ignored },
+	{ "URLENCODE",		function_urlencode },
+	{ "SHELLFIX",		function_shellfix },
+	{ "FILESTAT",		function_filestat },
 /**************************** Patched by Flier ******************************/
 	/*{ "PATTERN",            function_pattern },
 	{ "CHOPS",              function_chops },
@@ -707,7 +725,7 @@ find_inline(str)
 	return (ret);
 }
 
-static	u_char	*
+u_char	*
 call_function(name, f_args, args, args_flag)
 	char	*name,
 		*f_args,
@@ -934,10 +952,10 @@ next_unit(str, args, arg_flag, stage)
                                         if (*ptr == '+')
                                                 r++;
                                         else    r--;
-                                        sprintf(tmp, "%d", r);
+                                        snprintf(tmp, sizeof tmp, "%d", r);
                                         display = window_display;
                                         window_display = 0;
-                                        add_alias(VAR_ALIAS,tptr,tmp);
+                                        add_alias(VAR_ALIAS, tptr, tmp);
                                         window_display = display;
                                 }
 		/* A kludge?  Cheating?  Maybe.... */
@@ -976,7 +994,7 @@ next_unit(str, args, arg_flag, stage)
 				value3 = value1 - value2;
 			else
 				value3 = value1 + value2;
-			sprintf(tmp, "%ld", value3);
+			snprintf(tmp, sizeof tmp, "%ld", value3);
 			malloc_strcpy(&result1, tmp);
 			return result1;
 		case '/':
@@ -1018,7 +1036,7 @@ next_unit(str, args, arg_flag, stage)
                                         say("Mod by zero");
                                 }
                         }
-			sprintf(tmp, "%ld", value3);
+			snprintf(tmp, sizeof tmp, "%ld", value3);
 			malloc_strcpy(&result1, tmp);
 			return result1;
 		case '#':
@@ -1082,7 +1100,7 @@ next_unit(str, args, arg_flag, stage)
 				new_free(&result1);
 				new_free(&result2);
 				value3 = value1 & value2;
-                                sprintf(tmp, "%ld",value3);
+				snprintf(tmp, sizeof tmp, "%ld", value3);
 				malloc_strcpy(&result1, tmp);
  				return result1;
 			}
@@ -1129,7 +1147,7 @@ next_unit(str, args, arg_flag, stage)
 				new_free(&result1);
 				new_free(&result2);
 				value3 = value1 | value2;
-                                sprintf(tmp, "%ld",value3);
+				snprintf(tmp, sizeof tmp, "%ld", value3);
 				malloc_strcpy(&result1, tmp);
  				return result1;
 			}
@@ -1173,7 +1191,7 @@ next_unit(str, args, arg_flag, stage)
 				new_free(&result1);
 				new_free(&result2);
 				value3 = value1 ^ value2;
-                                sprintf(tmp, "%ld",value3);
+				snprintf(tmp, sizeof tmp, "%ld", value3);
 				malloc_strcpy(&result1, tmp);
  				return result1;
 			}
@@ -1288,7 +1306,7 @@ next_unit(str, args, arg_flag, stage)
 			else
 				value2 = value3;
 			new_free(&result2);
-			sprintf(tmp, "%ld", value2);
+			snprintf(tmp, sizeof tmp, "%ld", value2);
 			malloc_strcpy(&result1, tmp);
 			return result1;
 		case '~':
@@ -1305,7 +1323,7 @@ next_unit(str, args, arg_flag, stage)
 				}
 				else
 					value2 = 0;
-				sprintf(tmp, "%ld", value2);
+				snprintf(tmp, sizeof tmp, "%ld", value2);
 				malloc_strcpy(&result1, tmp);
 				return result1;
 			}
@@ -1330,7 +1348,7 @@ next_unit(str, args, arg_flag, stage)
 				{
 					value2 = ((*result1)?0:1);
 				}
-				sprintf(tmp, "%ld", value2);
+				snprintf(tmp, sizeof tmp, "%ld", value2);
 				malloc_strcpy(&result1, tmp);
 				return result1;
 			}
@@ -1389,7 +1407,7 @@ next_unit(str, args, arg_flag, stage)
 				value1 = word_count(result1);
 			else if (op == '@')
 				value1 = strlen(result1);
-			sprintf(tmp, "%ld", value1);
+			snprintf(tmp, sizeof tmp, "%ld", value1);
 			malloc_strcpy(&result1, tmp);
 		}
 	}
@@ -1562,9 +1580,9 @@ expander_addition(buff, add, length, quote_em)
 
 	if (length)
 	{
-		sprintf(format, "%%%d.%ds", -length, (length < 0 ? -length :
+		snprintf(format, sizeof format, "%%%d.%ds", -length, (length < 0 ? -length :
 			length));
-		sprintf(buffer, format, add);
+		snprintf(buffer, sizeof buffer, format, add);
 		add = buffer;
 	}
 	if (quote_em)
@@ -1629,7 +1647,7 @@ MatchingBracket(string, left, right)
  */
 /*ARGSUSED*/
 static	char	*
-alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
+alias_special_char(name, lbuf, ptr, args, quote_em, args_flag)
 	char	*name;
 #ifndef USE_OLD_ALIAS_ALLOC
 	char	**lbuf;
@@ -1693,7 +1711,7 @@ alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 			*sub_buffer = (char) 0;
 			alias_special_char((char *) 0, sub_buffer, tmp,
 #endif /* USE_OLD_ALIAS_ALLOC */
-				args, quote_em,args_flag);
+				args, quote_em, args_flag);
  			expander_addition(lbuf, sub_buffer, length, quote_em);
 #ifndef USE_OLD_ALIAS_ALLOC
 			new_free(&sub_buffer);
@@ -2253,7 +2271,7 @@ execute_alias(alias_name, ealias, args)
 		say("Maximum recursion count exceeded in: %s", alias_name);
 	else
 	{
- 		parse_line(alias_name, ealias, args, 0,1);
+		parse_line(alias_name, ealias, args, 0, 1, 0);
 		mark_alias(alias_name, 0);
 	}
 }
@@ -2437,7 +2455,7 @@ alias_modes()
 static	u_char	*
 alias_version()
 {
-	return (u_char *) (internal_version);
+	return  (irc_version);
 }
 
 static	u_char	*
@@ -2445,7 +2463,7 @@ alias_currdir()
 {
 	static	u_char	dirbuf[1024];
 
-        getcwd((char *) dirbuf, 1024+1);
+	getcwd(CP(dirbuf), 1024);
 	return (dirbuf);
 }
 
@@ -2454,7 +2472,7 @@ alias_current_numeric()
 {
 	static	u_char	number[4];
 
-	sprintf((char *) number, "%03d", -current_numeric);
+	snprintf(CP(number), sizeof number, "%03d", -current_numeric);
 	return (number);
 }
 
@@ -2623,11 +2641,11 @@ function_mid(input)
 		cvalue = atoi(count);
 	else
 		cvalue = 0;
-	if ((int) strlen((char *) input) > ivalue)
+	if (ivalue >= 0 && (int) strlen(CP(input)) > ivalue)
 		input += ivalue;
 	else
 		*input = '\0';
-	if ((int) strlen((char *) input) > cvalue)
+	if (cvalue > 0 && (int) strlen(CP(input)) > cvalue)
 		input[cvalue] = '\0';
 	malloc_strcpy((char **) &result, (char *) input);
 	return (result);
@@ -2688,10 +2706,10 @@ function_rand(input)
 /****************************************************************************/
 
 #ifdef _Windows
-	sprintf(tmp, "%ld", random(atol(input)));
+	snprintf(tmp, sizeof tmp, "%ld", random(atol(CP(input))));
 #else
 /**************************** PATCHED by Flier ******************************/
-	/*sprintf(tmp, "%ld", (tempin = atol((char *) input)) ? randm(0L) % tempin : 0);*/
+	/*snprintf(CP(tmp), sizeof tmp, "%ld", (tempin = my_atol(input)) ? randm(0L) % tempin : 0);*/
         if (input && * input) value=atoi(input);
         if (!value) value=1;
         sprintf(tmp,"%d",(input && *input)?rand()%value:rand());
@@ -2729,7 +2747,7 @@ function_time(input)
 	char	tmp[40];
 
 	(void) time(&ltime);
-	sprintf(tmp, "%ld", (long)ltime);
+	snprintf(tmp, sizeof tmp, "%ld", (long)ltime);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -2771,22 +2789,22 @@ function_tdiff(input)
 	tstr = tmp;
 	if (days)
 	{
-		sprintf(tstr, "%ld day%s ", (long) days, (days==1)?"":"s");
+		snprintf(tstr, sizeof(tmp) - (tstr - tmp), "%ld day%s ", (long) days, (days==1)?"":"s");
 		tstr += strlen(tstr);
 	}
 	if (hours)
 	{
-		sprintf(tstr, "%ld hour%s ", (long) hours, (hours==1)?"":"s");
+		snprintf(tstr, sizeof(tmp) - (tstr - tmp), "%ld hour%s ", (long) hours, (hours==1)?"":"s");
 		tstr += strlen(tstr);
 	}
 	if (minutes)
 	{
-		sprintf(tstr, "%ld minute%s ", (long) minutes, (minutes==1)?"":"s");
+		snprintf(tstr, sizeof(tmp) - (tstr - tmp), "%ld minute%s ", (long) minutes, (minutes==1)?"":"s");
 		tstr += strlen(tstr);
 	}
 	if (seconds || (!days && !hours && !minutes))
 	{
-		sprintf(tstr, "%ld second%s", (long) seconds, (seconds==1)?"":"s");
+		snprintf(tstr, sizeof(tmp) - (tstr - tmp), "%ld second%s", (long) seconds, (seconds==1)?"":"s");
 		tstr += strlen(tstr);
 	}
 	malloc_strcpy((char **) &result, tmp);
@@ -2807,7 +2825,7 @@ function_index(input)
 	schars = next_arg((char *) input, (char **) &input);
 	iloc = (schars) ? sindex((char *) input, schars) : NULL;
 	ival = (iloc) ? iloc - (char *) input : -1;
-	sprintf(tmp, "%d", ival);
+	snprintf(tmp, sizeof tmp, "%d", ival);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -2825,7 +2843,7 @@ function_rindex(input)
 	schars = next_arg((char *) input, (char **) &input);
  	iloc = (schars) ? srindex((char *) input, schars) : NULL;
  	ival = (iloc) ? iloc - (char *) input : -1;
-	sprintf(tmp, "%d", ival);
+	snprintf(tmp, sizeof tmp, "%d", ival);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -2856,7 +2874,7 @@ function_match(input)
 			}
 		}
 	}
-	sprintf(tmp, "%d", match);
+	snprintf(tmp, sizeof tmp, "%d", match);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -2888,7 +2906,7 @@ function_rmatch(input)
 			}
 		}
 	}
-	sprintf(tmp, "%d", match);
+	snprintf(tmp, sizeof tmp, "%d", match);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -2961,7 +2979,7 @@ function_decode(input)
 {
 	u_char	*result;
 	u_char	*c;
-	u_char	d,e;
+	u_char	d, e;
 	int	i = 0;
 
 	c = input;
@@ -3003,9 +3021,6 @@ function_ischanop(input)
 
 #ifndef LITE
 #ifdef HAVE_CRYPT
-#if 0
-extern char *crypt(const char *key, const char *salt);
-#endif
 
 u_char *
 function_crypt(input)
@@ -3034,7 +3049,7 @@ function_hasvoice(input)
 	if (!(nick = next_arg((char *) input, &channel)))
 		malloc_strcpy((char **) &result, zero);
 	else
-		malloc_strcpy((char **) &result, has_voice(channel, nick) ? one : zero);
+		malloc_strcpy((char **) &result, has_voice(channel, nick, from_server) ? one : zero);
 	return (result);
 }
 
@@ -3065,7 +3080,8 @@ function_dcclist(Nick)
 			int b = Client->flags;
 			int a = (b & DCC_TYPES);
 			
-			result[i++] = (a == DCC_CHAT)			? 'C' /* CHAT */
+			result[i++] =
+					  (a == DCC_CHAT)		? 'C' /* CHAT */
 					: (a == DCC_FILEOFFER)		? 'S' /* SEND */
 					: (a == DCC_FILEREAD)		? 'G' /* GET */
 /**************************** PATCHED by Flier ******************************/
@@ -3075,13 +3091,14 @@ function_dcclist(Nick)
 					: (a == DCC_RAW_LISTEN)		? 'L' /* RAW_LISTEN */
 					: (a == DCC_RAW)      		? 'R' /* RAW */
 					:				  'x';
-						
-			result[i++] = (b & DCC_DELETE)			? 'C' /* CLOSED */
+
+			result[i++] =
+					  (b & DCC_OFFER)		? 'O' /* OFFERED */
+					: (b & DCC_DELETE)		? 'C' /* CLOSED */
 					: (b & DCC_ACTIVE)		? 'A' /* ACTIVE */
 					: (b & DCC_WAIT)		? 'W' /* WAITING */
-					: (b & DCC_OFFER)		? 'O' /* OFFERED */
-					:				  'x';
-						
+					:                         	  'x';
+
 			result[i++] = ' ';
 		}
 	
@@ -3163,6 +3180,112 @@ function_querynick(input)
 
 #ifndef LITE
 u_char	*
+function_windows(input)
+	u_char	*input;
+{
+	u_char	*result = (u_char *) 0;
+	Win_Trav stuff;
+	Window	*tmp;
+
+	malloc_strcat(&result, empty_string);
+	stuff.flag = 1;
+	while ((tmp = window_traverse(&stuff)))
+	{
+		if (tmp->name)
+		{
+			malloc_strcat(&result, tmp->name);
+			malloc_strcat(&result, " ");
+		}
+		else
+		{
+			char buf[32];
+
+			snprintf(buf, sizeof buf, "%u ", tmp->refnum);
+			malloc_strcat(&result, buf);
+		}
+	}
+
+	return (result);
+}
+
+u_char	*
+function_screens(input)
+	u_char	*input;
+{
+	Screen	*list;
+	u_char	*result = (u_char *) 0;
+	char buf[32];
+
+	malloc_strcat(&result, empty_string);
+	for (list = screen_list; list; list = list->next)
+	{
+		if (list->alive)
+		{
+			snprintf(buf, sizeof buf, "%u ", list->screennum);
+			malloc_strcat(&result, buf);
+		}
+	}
+
+	return (result);
+}
+
+u_char	*
+function_notify(input)
+	u_char	*input;
+{
+	u_char	*result;
+
+	if (input && my_stricmp(input, "gone") == 0)
+		result = get_notify_list(NOTIFY_LIST_GONE);
+	else if (input && my_stricmp(input, "all") == 0)
+		result = get_notify_list(NOTIFY_LIST_ALL);
+	else
+		result = get_notify_list(NOTIFY_LIST_HERE);
+
+	return result;
+}
+
+/*
+ * $ignored(nick!user@host type) with type from:
+ *	ALL MSGS PUBLIC WALLS WALLOPS INVITES NOTICES NOTES CTCP CRAP
+ */
+u_char	*
+function_ignored(input)
+	u_char	*input;
+{
+	u_char	*result = (u_char *) 0, *userhost, *nick;
+	int type;
+
+	if ((nick = next_arg(input, &input)) != NULL)
+	{
+		type = get_ignore_type(input);
+		if (type == 0 || type == -1 || type == IGNORE_ALL)
+			goto do_zero;
+
+		if ((userhost = index(nick, '!')))
+			*userhost++ = 0;
+		switch (double_ignore(nick, userhost, type))
+		{
+		case DONT_IGNORE:
+			malloc_strcpy(&result, "dont");
+			break;
+		case HIGHLIGHTED:
+			malloc_strcpy(&result, "highlighted");
+			break;
+		case IGNORED:
+			malloc_strcpy(&result, "ignored");
+			break;
+		default:
+			goto do_zero;
+		}
+	}
+	else
+do_zero:
+		malloc_strcpy(&result, zero);
+	return (result);
+}
+
+u_char	*
 function_winserver(input)
 	u_char	*input;
 {
@@ -3174,7 +3297,7 @@ function_winserver(input)
 		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
-	sprintf(tmp, "%d", win ? win->server : -1);
+	snprintf(tmp, sizeof tmp, "%d", win ? win->server : -1);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -3192,7 +3315,7 @@ function_winservergroup(input)
 		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
-	sprintf(tmp, "%d", win ? win->server_group : -1);
+	snprintf(tmp, sizeof tmp, "%d", win ? win->server_group : -1);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -3210,7 +3333,7 @@ function_winvisible(input)
 		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
-	sprintf(tmp, "%d", win ? win->visible : -1);
+	snprintf(tmp, sizeof tmp, "%d", win ? win->visible : -1);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -3222,7 +3345,7 @@ function_winnum(input)
 	u_char	*result = (u_char *) 0;
 	char	tmp[10];
 
-	sprintf(tmp, "%d", curr_scr_win ? (int)curr_scr_win->refnum : -1);
+	snprintf(tmp, sizeof tmp, "%d", curr_scr_win ? (int)curr_scr_win->refnum : -1);
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
@@ -3256,7 +3379,7 @@ function_winrows(input)
 	{
 		char	tmp[10];
 
-		sprintf(tmp, "%d", curr_scr_win->display_size);
+		snprintf(tmp, sizeof tmp, "%d", curr_scr_win->display_size);
 		malloc_strcpy((char **) &result, tmp);
 	}
 	else
@@ -3278,7 +3401,7 @@ function_wincols(input)
 	{
 		char	tmp[10];
 
-		sprintf(tmp, "%d", current_screen->co);
+		snprintf(tmp, sizeof tmp, "%d", current_screen->co);
 		malloc_strcpy((char **) &result, tmp);
 	}
 	else
@@ -3356,9 +3479,9 @@ function_curpos(input)
 	u_char	*input;
 {
 	u_char	*new = (u_char *) 0,
-		pos[4];
+		pos[8];
 
-	sprintf((char *) pos, "%d", current_screen->buffer_pos);
+	snprintf(CP(pos), sizeof pos, "%d", current_screen->buffer_pos);
 	malloc_strcpy((char **) &new, (char *) pos);
 	return new;
 }
@@ -3424,11 +3547,9 @@ function_servertype(input)
 		case Server2_11:
 			s = "IRC2.11";
 			break;
-/**************************** Patched by Flier ******************************/
-                default:
-                        s="Unknown";
-                        break;
-/****************************************************************************/
+		default:
+			s = "IRC unknown";
+			break;
 		}
 
 	malloc_strcpy((char **) &result, s);
@@ -3460,7 +3581,7 @@ function_pid(input)
 	u_char	*result = (u_char *) 0;
 	u_char	lbuf[32];	/* plenty big enough for %d */
 
-	sprintf(lbuf, "%d", (int) getpid());
+	snprintf(CP(lbuf), sizeof lbuf, "%d", (int) getpid());
 	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
@@ -3472,7 +3593,7 @@ function_ppid(input)
 	u_char	*result = (u_char *) 0;
 	u_char	lbuf[32];	/* plenty big enough for %d */
 
-	sprintf(lbuf, "%d", (int) getppid());
+	snprintf(CP(lbuf), sizeof lbuf, "%d", (int) getppid());
 	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
@@ -3598,10 +3719,110 @@ function_idle(input)
 	u_char	*result = (u_char *) 0;
 	char	lbuf[20];
 
-	sprintf(lbuf, "%ld", (long)(time(0) - idle_time));
+	snprintf(lbuf, sizeof lbuf, "%ld", (long)(time(0) - idle_time));
 	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
+
+#ifndef LITE
+u_char	*
+function_urlencode(input)
+	u_char *input;
+{
+	u_char	*result;
+	u_char	*c;
+	int	i = 0;
+	
+	for (c = input; *c; c++)
+		if(*c == '+' || *c == '%' || *c == '&')
+			i += 3;
+		else
+			++i;
+	
+	result = (u_char *) new_malloc(i + 1);
+
+	for (i = 0, c = input; *c; c++)
+	{
+		if (*c == ' ')
+			result[i++] = '+';
+		else if (*c == '+')
+		{
+			result[i++] = '%';
+			result[i++] = '2';
+			result[i++] = 'B';
+		}
+		else if (*c == '&')
+		{
+			result[i++] = '%';
+			result[i++] = '2';
+			result[i++] = '6';
+		}
+		else
+			result[i++] = *c;
+	}
+	result[i] = '\0';
+	return (result);
+}
+
+u_char	*
+function_shellfix(input)
+	u_char *input;
+{
+	u_char	*result;
+	u_char	*c;
+	int	i = 2;
+	
+	for (c = input; *c; c++)
+		if (*c == '\'')
+			i += 4;
+		else
+			++i;
+	
+	result = (u_char *) new_malloc(i + 1);
+	
+	i = 0;
+	result[i++] = '\'';
+	for (c = input; *c; c++)
+	{
+		if (*c == '\'')
+		{
+			result[i++] = '\'';
+			result[i++] = '\\';
+			result[i++] = '\'';
+			result[i++] = '\'';
+		}
+		else
+			result[i++] = *c;
+	}
+	result[i++] = '\'';
+	result[i] = '\0';
+	return (result);
+}
+
+u_char	*
+function_filestat(input)
+	u_char *input;
+{
+	struct	stat statbuf;
+	u_char	*result;
+	char	lbuf[40];   /* 40 should be enough */
+
+
+	if (stat(input, &statbuf) == -1)
+		malloc_strcpy(&result, empty_string);
+	else
+	{
+		snprintf(lbuf, sizeof lbuf, "%lu,%d,%d,%o,%s",
+		    (unsigned long)statbuf.st_size,
+		    (int)statbuf.st_uid,
+		    (int)statbuf.st_gid,
+		    statbuf.st_mode,
+		    input);
+		malloc_strcpy(&result, lbuf);
+	}
+	return (result);
+}
+#endif
 
 /**************************** Patched by Flier ******************************/
 #ifndef LITE

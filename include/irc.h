@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.12 2002-01-14 18:43:28 f Exp $
+ * $Id: irc.h,v 1.13 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __irc_h
@@ -169,6 +169,8 @@
 #define UND_TOG		'\037'		/* ^_ */
 #define BOLD_TOG	'\002'		/* ^B */
 #define ALL_OFF		'\017'		/* ^O */
+#define CHARSET_TAG	'\001'		/* internal, should be different than all others */
+#define FULL_OFF	'\004'		/* internal, should be different than all others */
 
 #define IRCD_BUFFER_SIZE	1024
 #define BIG_BUFFER_SIZE		(IRCD_BUFFER_SIZE * 4)
@@ -279,27 +281,6 @@
 #define WHO_SHOW_SERVER 0x8000
 /****************************************************************************/
 
-/*
- (* Some defines in case we're using IRCII setuid->root, so that we can bind
- * to privileged ports. This will allow future IRC nets to verify the true
- * identity of users much more reliably.
- */
-#ifdef PRIV_PORT
-# define	open		ruid_open
-# define	fopen		ruid_fopen
-# define	system		ruid_system
-# define	unlink		ruid_unlink
-# define	stat_file	ruid_stat
-#ifdef EOF	/* defined if stdio.h has been included */
-FILE *ruid_fopen _(());
-# endif /*EOF*/
-int	ruid_open _(());
-int	ruid_system _(());
-int	ruid_unlink _(());
-#else
-# define stat_file stat
-#endif /*PRIV_PORT*/
-
 /**************************** Patched by Flier ******************************/
 /*#ifndef _Windows
 # define FAR
@@ -323,7 +304,6 @@ extern	char	*zero;
 extern	char	*one;
 
 extern	char	irc_version[];
-extern	char	internal_version[];
 extern	char	*nickname;
 extern	char	*ircrc_file;
 extern	char	*ircquick_file;
@@ -358,6 +338,7 @@ extern	char	**environ;
 extern	int	current_numeric;
 extern	int	qflag;
 extern	int	bflag;
+extern	int	tflag;
 extern	struct	in_addr	local_ip_address;
 
 /*

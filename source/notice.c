@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.26 2002-01-09 16:34:00 f Exp $
+ * $Id: notice.c,v 1.27 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -521,12 +521,15 @@ maybe_load_ircrc()
 	if (never_connected)
 	{
 		never_connected = 0;
-		loading_global = 1;
+		if (!bflag)
+		{
+			loading_global = 1;
 /**************************** PATCHED by Flier ******************************/
-                /*load(empty_string, "global", empty_string);*/
-                load(empty_string, "szglobal", empty_string);
+			/*load(empty_string, "global", empty_string);*/
+			load(empty_string, "szglobal", empty_string);
 /****************************************************************************/
-		loading_global = 0;
+			loading_global = 0;
+		}
 		/* read the .ircrc file */
 		if (!qflag)
 			load_ircrc();

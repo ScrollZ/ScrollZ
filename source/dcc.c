@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.31 2002-01-17 19:17:12 f Exp $
+ * $Id: dcc.c,v 1.32 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -216,7 +216,7 @@ struct	deadlist
 
 extern	int	in_ctcp_flag;
 extern	char	FAR MyHostName[];
-extern	struct	in_addr	MyHostAddr;
+extern	struct	in_addr	MyHostAddr, forced_ip_addr;
 extern int dgets_errno;
 static	off_t	filesize = 0;
 
@@ -497,7 +497,9 @@ dcc_erase(Element)
 		if (*Client == Element)
 		{
 			*Client = Element->next;
-			new_close(Element->write);
+
+			if ((Element->flags & DCC_TYPES) != DCC_RAW_LISTEN)
+				new_close(Element->write);
 			new_close(Element->read);
 			if (Element->file != -1)
 				new_close(Element->file);
@@ -751,6 +753,8 @@ dcc_open(Client)
 	myip.s_addr = server_list[from_server].local_addr.s_addr;
 	if (myip.s_addr == 0 || myip.s_addr == htonl(0x7f000001))
 		myip.s_addr = MyHostAddr.s_addr;
+	if (forced_ip_addr.s_addr != 0)
+		myip.s_addr = forced_ip_addr.s_addr;
 /**************************** PATCHED by Flier ******************************/
         if (DCCHost.s_addr) myip.s_addr=DCCHost.s_addr;
 /****************************************************************************/
@@ -946,7 +950,7 @@ dcc_raw_listen(iport)
 		(void) set_lastlog_msg_level(lastlog_level);
 		return NULL;
 	}
-	sprintf(PortName, "%d", port);
+	snprintf(PortName, sizeof PortName, "%d", port);
 	Client = dcc_searchlist("raw_listen", PortName, DCC_RAW_LISTEN, 1, (char *) 0);
 	if (Client->flags & DCC_ACTIVE)
 	{
@@ -980,7 +984,7 @@ dcc_raw_listen(iport)
 	getsockname(Client->read, (struct sockaddr *) &locaddr, &size);
 	Client->write = ntohs(locaddr.sin_port);
 	Client->flags |= DCC_ACTIVE;
-	sprintf(PortName, "%d", Client->write);
+	snprintf(PortName, sizeof PortName, "%d", Client->write);
 	malloc_strcpy(&Client->user, PortName);
 	malloc_strcpy(&RetName, PortName);
 	(void) set_lastlog_msg_level(lastlog_level);
@@ -1012,7 +1016,7 @@ dcc_raw_connect(host, iport)
 		}
 		bcopy(hp->h_addr, &address, sizeof(address));
 	}
-	sprintf(PortName, "%d", port);
+	snprintf(PortName, sizeof PortName, "%d", port);
 	Client = dcc_searchlist(host, PortName, DCC_RAW, 1, (char *) 0);
 	if (Client->flags & DCC_ACTIVE)
 	{
@@ -1025,7 +1029,7 @@ dcc_raw_connect(host, iport)
 	Client->flags = DCC_OFFER | DCC_RAW;
 	if (!dcc_open(Client))
 		return RetName;
-	sprintf(PortName, "%d", Client->read);
+	snprintf(PortName, sizeof PortName, "%d", Client->read);
 	malloc_strcpy(&Client->user, PortName);
 	if (do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))
 		put_it("DCC RAW connection to %s on %s via %d established",
@@ -1365,7 +1369,7 @@ dcc_filesend(args)
 		yell("Cannot access %s", FileBuf);
 		return;
 	}
-	stat_file(FileBuf, &stat_buf);
+	stat(FileBuf, &stat_buf);
 /* some unix didn't have this ???? */
 #ifdef S_IFDIR
 	if (stat_buf.st_mode & S_IFDIR)
@@ -2210,7 +2214,7 @@ process_incoming_chat(Client)
 					time_t	t;
 
 					t = time(0);
-					sprintf(tmp, "%s <%.16s>", s, ctime(&t));
+					snprintf(tmp, sizeof tmp, "%s <%.16s>", s, ctime(&t));
 					s = tmp;
 				}
         	                put_it("=%s= %s", Client->user, s);*/
@@ -2255,11 +2259,8 @@ process_incoming_listen(Client)
 #if defined(ESIX) || defined(_Windows)
 	mark_socket(new_socket);
 #endif
-	sprintf(FdName, "%d", new_socket);
-/**************************** PATCHED by Flier ******************************/
-        /*NewClient = dcc_searchlist(Name, FdName, DCC_RAW, 1, (char *) 0);*/
-	NewClient = dcc_searchlist((char *) Name, FdName, DCC_RAW, 1, (char *) 0);
-/****************************************************************************/
+	snprintf(FdName, sizeof FdName, "%d", new_socket);
+        NewClient = dcc_searchlist(Name, FdName, DCC_RAW, 1, (char *) 0);
 	NewClient->starttime = time((time_t *) 0);
 	NewClient->read = NewClient->write = new_socket;
 	NewClient->remote = remaddr.sin_addr;
@@ -2587,7 +2588,7 @@ DCC_list *Client;
 		sent /= (double)1024.0;
 		if (xtime <= 0)
 			xtime = 1;
-		sprintf(lame_ultrix, "%2.4g", (sent / (double)xtime));
+		snprintf(lame_ultrix, sizeof lame_ultrix, "%2.4g", (sent / (double)xtime));
 		say("DCC SEND:%s to %s completed %s kb/sec",
 			Client->description, Client->user, lame_ultrix);*/
                 if ((Client->flags&DCC_TYPES)==DCC_RESENDOFFER)
@@ -2641,7 +2642,7 @@ process_incoming_file(Client)
 		sent /= (double)1024.0;
 		if (xtime <= 0)
 			xtime = 1;
-		sprintf(lame_ultrix, "%2.4g", (sent / (double)xtime));
+		snprintf(lame_ultrix, sizeof lame_ultrix, "%2.4g", (sent / (double)xtime));
 		say("DCC GET:%s from %s completed %s kb/sec",
 			Client->description, Client->user, lame_ultrix);*/
 #ifdef _Windows
@@ -2881,9 +2882,10 @@ dcc_time(the_time)
 
 	btime = localtime(&the_time);
 	buf = (char *) malloc(22);
-	if (sprintf(buf, "%-2.2d:%-2.2d:%-2.2d %s %-2.2d %d", btime->tm_hour,
-			btime->tm_min, btime->tm_sec, months[btime->tm_mon],
-			btime->tm_mday, btime->tm_year + 1900))
+	if (snprintf(buf, sizeof buf, "%-2.2d:%-2.2d:%-2.2d %s %-2.2d %d",
+			btime->tm_hour, btime->tm_min, btime->tm_sec,
+			months[btime->tm_mon], btime->tm_mday,
+			btime->tm_year + 1900))
 		return buf;
 	else
 		return empty_string;
@@ -2908,8 +2910,8 @@ dcc_list(args)
 			rd[9];
 		char	*timestr;
 
- 		sprintf(sent, "%ld", (long)Client->bytes_sent);
- 		sprintf(rd, "%ld", (long)Client->bytes_read);
+		snprintf(sent, sizeof sent, "%ld", (long)Client->bytes_sent);
+		snprintf(rd, sizeof rd, "%ld", (long)Client->bytes_read);
  		timestr = (Client->starttime) ? dcc_time(Client->starttime) : "";
 		flags = Client->flags;
 		put_it(format, dcc_types[flags & DCC_TYPES],

@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.10 2001-12-30 09:30:20 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.11 2002-01-21 21:37:35 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -66,13 +66,11 @@ static	int	crypt_dev_random_byte _((void));
 #define GET_RANDOM_BYTE	(random() & 255)
 #endif
 
-#ifdef USE_CAST
 #include "cast.c"
+#if 0
+#include "rijndael.c"
 #endif
-
-#ifdef USE_SED
 #include "sed.c"
-#endif
 
 #define CRYPT_BUFFER_SIZE (IRCD_BUFFER_SIZE - 50)	/* Make this less than
 							 * the trasmittable
@@ -111,6 +109,7 @@ add_to_crypt(nick, keystr, enc, dec, type)
 		new_free(&(new->nick));
 		bzero(new->key->key, strlen((char *) new->key->key));		/* wipe it out */
 		new_free(&(new->key->key));
+		new_free(&(new->key->cookie));
 		new_free(&(new->key));
 		new_free(&new);
 	}
@@ -123,6 +122,7 @@ add_to_crypt(nick, keystr, enc, dec, type)
 	malloc_strcpy((char **) &(new->key->key), keystr);
 	new->key->crypt = enc;
 	new->key->decrypt = dec;
+	new->key->cookie = NULL;
 	add_to_list((List **) &crypt_list, (List *) new);
 }
 
@@ -141,6 +141,7 @@ remove_crypt(nick)
 		new_free(&tmp->nick);
 		bzero(tmp->key->key, strlen((char *) tmp->key->key));		/* wipe it out */
 		new_free(&tmp->key->key);
+		new_free(&tmp->key->cookie);
 		new_free(&tmp->key);
 		new_free(&tmp);
 		return (0);
@@ -176,10 +177,10 @@ encrypt_cmd(command, args, subargs)
 		*args,
 		*subargs;
 {
+	/* XXX this is getting really, really gross */
 	CryptFunc enc = DEFAULT_CRYPTER, dec = DEFAULT_DECRYPTER;
 	u_char	*type = DEFAULT_CRYPTYPE;
-	u_char	*nick,
-		*keystr;
+	u_char	*nick;
 	int	showkeys = 0;
 
 restart:
@@ -192,7 +193,6 @@ restart:
  			showkeys = 1;
  			goto restart;
  		}
-#ifdef USE_CAST
  		else if (my_strnicmp((char *) nick, "-cast", len) == 0)
 		{
 			enc = cast_encrypt_str;
@@ -200,9 +200,15 @@ restart:
 			type = CAST_STRING;
 			goto restart;
 		}
+#if 0
+		else if (my_strnicmp(nick, UP("-rijndael"), len) == 0)
+		{
+			enc = rijndael_encrypt_str;
+			dec = rijndael_decrypt_str;
+			type = RIJNDAEL_STRING;
+			goto restart;
+		}
 #endif
-
-#ifdef USE_SED
 		else if (my_strnicmp((char *) nick, "-sed", len) == 0)
 		{
 			enc = sed_encrypt_str;
@@ -210,11 +216,10 @@ restart:
 			type = SED_STRING;
 			goto restart;
 		}
-#endif
 
-		if ((keystr = next_arg(args, (char **) &args)) != NULL)
+		if (args && *args)
 		{
-			add_to_crypt(nick, keystr, enc, dec, type);
+			add_to_crypt(nick, args, enc, dec, type);
 			say("%s added to the %s crypt", nick, type);
 		}
 		else
@@ -234,7 +239,7 @@ restart:
 			say("The crypt:");
 			for (tmp = crypt_list; tmp; tmp = tmp->next)
 				if (showkeys)
-					put_it("%s with key %s type %s", tmp->nick, tmp->key->key, tmp->key->type);
+					put_it("%s with key \"%s\" type %s", tmp->nick, tmp->key->key, tmp->key->type);
 				else
 					put_it("%s type %s", tmp->nick, tmp->key->type);
 		}
@@ -318,7 +323,10 @@ do_crypt(str, key, flag, type)
 			new_close(out[1]);
 			new_close(in[0]);
 			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR) == 0)
+			{
 				write(in[1], key->key, strlen((char *) key->key));
+				write(in[1], "\n", 1);
+			}
 			write(in[1], ptr, c);
 			new_close(in[1]);
 			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);
@@ -339,13 +347,21 @@ do_crypt(str, key, flag, type)
 		c = strlen((char *) str);
 		if (flag)
 		{
-			key->crypt(&str, (int *)&c, key);
+			if (key->crypt(key, &str, (int *)&c) != 0)
+			{
+				yell("--- do_crypt(): crypto encrypt failed");
+				return 0;
+			}
 			ptr = ctcp_quote_it(str, c);
 		}
 		else
 		{
 			ptr = ctcp_unquote_it(str, &c);
-			key->decrypt(&ptr, (int *)&c, key);
+			if (key->decrypt(key, &ptr, (int *)&c) != 0)
+			{
+				yell("--- do_crypt(): crypto decrypt failed");
+				return 0;
+			}
 		}
 	}
 	if (type)
@@ -379,7 +395,7 @@ crypt_msg(str, key, flag)
 			*(rest++) = (u_char) 0;
 			if (on && *str && (ptr = do_crypt(str, key, flag, &type)))
 			{
-				sprintf(lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
+				snprintf(CP(lbuf), sizeof lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
 				strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
 				strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 				new_free(&ptr);
@@ -391,7 +407,7 @@ crypt_msg(str, key, flag)
 		}
 		if (on && (ptr = do_crypt(str, key, flag, &type)))
 		{
-			sprintf(lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
+			snprintf(CP(lbuf), sizeof lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
 			strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
 			strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 			new_free(&ptr);

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.13 2002-01-15 19:45:41 f Exp $
+ * $Id: input.c,v 1.14 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -46,6 +46,7 @@
 #include "window.h"
 #include "screen.h"
 #include "exec.h"
+#include "output.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -61,26 +62,6 @@ extern NickList *tabnickcompl;
 
 /* input_prompt: contains the current, unexpanded input prompt */
 static	char	*input_prompt = (char *) 0;
-
-/* input_line: the actual screen line where the input goes */
-	int	input_line = 0;
-
-/* str_start: position in buffer of first visible character in the input line */
-	int	str_start = 0;
-
-/*
- * upper_mark and lower_mark: marks the upper and lower positions in the
- * input buffer which will cause the input display to switch to the next or
- * previous bunch of text 
- */
-static	int	lower_mark;
-static	int	upper_mark;
-
-/* zone: the amount of editable visible text on the screen */
-static	int	zone;
-
-/* cursor: position of the cursor in the input line on the screen */
-static	int	cursor = 0;
 
 /**************************** PATCHED by Flier ******************************/
 static void ResetNickCompletion() {
@@ -100,7 +81,7 @@ cursor_to_input()
 	{
 		if (current_screen->alive && is_cursor_in_display())
 		{
-			term_move_cursor(cursor, input_line);
+			term_move_cursor(current_screen->cursor, current_screen->input_line);
 			cursor_not_in_display();
 			term_flush();
 		}
@@ -130,8 +111,6 @@ update_input(update)
 	int	update;
 {
 	int	old_start;
-	static	int	co = 0,
-			li = 0;
 	char	*ptr;
  	int	free_it = 1,
 		cnt,
@@ -139,7 +118,7 @@ update_input(update)
 	char	*prompt;
  	size_t	len;
 /**************************** PATCHED by Flier ******************************/
-        int     ansi_count=0;
+        int     ansi_count = 0;
 /****************************************************************************/
 
 	if (dumb)
@@ -184,16 +163,16 @@ update_input(update)
 /**************************** Patched by Flier ******************************/
 				/*strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);*/
                                 if (get_int_var(DISPLAY_ANSI_VAR))
-                                    strmcpy(current_screen->input_buffer,ptr,INPUT_BUFFER_SIZE);
+                                    strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);
                                 else {
-                                    StripAnsi(ptr,current_screen->input_buffer,2);
-                                    len=strlen(current_screen->input_buffer);
+                                    StripAnsi(ptr, current_screen->input_buffer, 2);
+                                    len = strlen(current_screen->input_buffer);
                                 }
 /****************************************************************************/
 				current_screen->buffer_pos += (len - current_screen->buffer_min_pos);
 /**************************** Patched by Flier ******************************/
 				/*current_screen->buffer_min_pos = strlen(ptr);*/
-				current_screen->buffer_min_pos=len;
+				current_screen->buffer_min_pos = len;
 /****************************************************************************/
 				strmcat(current_screen->input_buffer, inp_ptr, INPUT_BUFFER_SIZE);
 				new_free(&inp_ptr);
@@ -205,95 +184,116 @@ update_input(update)
 	}
 	else
 		term_echo(1);
-	if ((li != LI) || (co != CO))
+	if ((current_screen->old_input_li != current_screen->li) || (current_screen->old_input_co != current_screen->co))
 	{
 		/* resized?  Keep it simple and reset everything */
-		input_line = LI - 1;
-		zone = CO - (WIDTH * 2);
-		lower_mark = WIDTH;
-		upper_mark = CO - WIDTH;
-		cursor = current_screen->buffer_min_pos;
+		current_screen->input_line = current_screen->li - 1;
+		current_screen->zone = current_screen->co - (WIDTH * 2);
+		current_screen->lower_mark = WIDTH;
+		current_screen->upper_mark = current_screen->co - WIDTH;
+		current_screen->cursor = current_screen->buffer_min_pos;
 		current_screen->buffer_pos = current_screen->buffer_min_pos;
-		str_start = 0;
-		li = LI;
-		co = CO;
+		current_screen->str_start = 0;
+		current_screen->old_input_li = current_screen->li;
+		current_screen->old_input_co = current_screen->co;
 	}
-	old_start = str_start;
+	old_start = current_screen->str_start;
 /**************************** PATCHED by Flier ******************************/
-	/*while ((current_screen->buffer_pos < lower_mark) && lower_mark > WIDTH)
+	/*while ((current_screen->buffer_pos < current_screen->lower_mark) && current_screen->lower_mark > WIDTH)
 	{
-		upper_mark = lower_mark;
-		lower_mark -= zone;
-		str_start -= zone;
+		current_screen->upper_mark = current_screen->lower_mark;
+		current_screen->lower_mark -= current_screen->zone;
+		current_screen->str_start -= current_screen->zone;
 	}
-	while (current_screen->buffer_pos >= upper_mark)
+	while (current_screen->buffer_pos >= current_screen->upper_mark)
 	{
-		lower_mark = upper_mark;
-		upper_mark += zone;
-		str_start += zone;
-	}
-	cursor = current_screen->buffer_pos - str_start;*/
+		current_screen->lower_mark = current_screen->upper_mark;
+		current_screen->upper_mark += current_screen->zone;
+		current_screen->str_start += current_screen->zone;
+	}*/
 #ifdef WANTANSI
-        ansi_count=CountAnsiInput(current_screen->input_buffer,
-                                  current_screen->buffer_pos);
+        ansi_count = CountAnsiInput(current_screen->input_buffer,
+                                    current_screen->buffer_pos);
 #endif
-	while ((current_screen->buffer_pos-ansi_count<lower_mark) && lower_mark>WIDTH)
+	while ((current_screen->buffer_pos - ansi_count < current_screen->lower_mark) &&
+	        current_screen->lower_mark > WIDTH)
 	{
-		upper_mark=lower_mark;
-                lower_mark-=zone;
-                str_start-=zone;
-                if (lower_mark<zone) str_start-=ansi_count;
+		current_screen->upper_mark = current_screen->lower_mark;
+                current_screen->lower_mark -= current_screen->zone;
+                current_screen->str_start -= current_screen->zone;
+                if (current_screen->lower_mark < current_screen->zone) current_screen->str_start -= ansi_count;
 	}
-	while (current_screen->buffer_pos-ansi_count>=upper_mark)
+	while (current_screen->buffer_pos - ansi_count >= current_screen->upper_mark)
         {
-                if (lower_mark<zone) str_start+=ansi_count;
-                lower_mark=upper_mark;
-                upper_mark+=zone;
-                str_start+=zone;
+                if (current_screen->lower_mark < current_screen->zone) current_screen->str_start += ansi_count;
+                current_screen->lower_mark = current_screen->upper_mark;
+                current_screen->upper_mark += current_screen->zone;
+                current_screen->str_start += current_screen->zone;
         }
-#ifdef WANTANSI
-        ansi_count=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
-#endif
-	cursor = current_screen->buffer_pos - str_start - ansi_count;
 /****************************************************************************/
-	if ((old_start != str_start) || (update == UPDATE_ALL))
+
+	/* sanity check */
+	if (current_screen->lower_mark < 0)
 	{
-		term_move_cursor(0, input_line);
-		if ((str_start == 0) && (current_screen->buffer_min_pos > 0))
+		yell("-- lower_mark = %d (less than zero)", current_screen->lower_mark);
+		current_screen->lower_mark = WIDTH;
+	}
+	if (current_screen->upper_mark < 0)
+	{
+		yell("-- upper_mark = %d (less than zero)", current_screen->upper_mark);
+		current_screen->upper_mark = current_screen->co - WIDTH;
+	}
+	if (current_screen->str_start < 0)
+	{
+		yell("-- str_start = %d (less than zero)", current_screen->str_start);
+		current_screen->str_start = 0;
+	}
+
+/**************************** PATCHED by Flier ******************************/
+	/*cursor = current_screen->buffer_pos - current_screen->str_start;*/
+#ifdef WANTANSI
+        ansi_count = CountAnsiInput(&(current_screen->input_buffer[str_start]), current_screen->zone);
+#endif
+	cursor = current_screen->buffer_pos - current_screen->str_start - ansi_count;
+/****************************************************************************/
+	if ((old_start != current_screen->str_start) || (update == UPDATE_ALL))
+	{
+		term_move_cursor(0, current_screen->input_line);
+		if ((current_screen->str_start == 0) && (current_screen->buffer_min_pos > 0))
 		{
  			int	isecho;
 
  			isecho = term_echo(1);
 /**************************** PATCHED by Flier ******************************/
-			/*if (current_screen->buffer_min_pos > (CO - WIDTH))*/
-			if (current_screen->buffer_min_pos-ansi_count>(CO-WIDTH))
+			/*if (current_screen->buffer_min_pos > (current_screen->co - WIDTH))*/
+			if (current_screen->buffer_min_pos - ansi_count > (current_screen->co - WIDTH))
 /****************************************************************************/
-				len = CO - WIDTH - 1;
+				len = current_screen->co - WIDTH - 1;
 			else
 				len = current_screen->buffer_min_pos;
 			cnt = term_puts(&(current_screen->input_buffer[
-				str_start]), len);
+				current_screen->str_start]), len);
  			term_echo(isecho);
 /**************************** PATCHED by Flier ******************************/
 			/*cnt += term_puts(&(current_screen->input_buffer[
-				str_start + len]), CO - len);*/
+				current_screen->str_start + len]), current_screen->co - len);*/
 			cnt += term_puts(&(current_screen->input_buffer[
-				str_start + len]), CO - len + ansi_count);
+				current_screen->str_start + len]), current_screen->co - len + ansi_count);
 /****************************************************************************/
 		}
 		else
- 			cnt = term_puts(&(current_screen->input_buffer[str_start]), (size_t)CO);
+			cnt = term_puts(&(current_screen->input_buffer[current_screen->str_start]), (size_t)current_screen->co);
 		if (term_clear_to_eol())
 			term_space_erase(cnt);
-		term_move_cursor(cursor, input_line);
+		term_move_cursor(current_screen->cursor, current_screen->input_line);
 	}
 	else if (update == UPDATE_FROM_CURSOR)
 	{
-		term_move_cursor(cursor, input_line);
-		cnt = cursor;
+		term_move_cursor(current_screen->cursor, current_screen->input_line);
+		cnt = current_screen->cursor;
 /**************************** PATCHED by Flier ******************************/
-		/*max = CO - (current_screen->buffer_pos - str_start);*/
-                max=CO-(current_screen->buffer_pos-str_start)+ansi_count;
+		/*max = current_screen->co - (current_screen->buffer_pos - current_screen->str_start);*/
+                max = current_screen->co - (current_screen->buffer_pos - current_screen->str_start) + ansi_count;
 /****************************************************************************/
 		if ((len = strlen(&(current_screen->input_buffer[
 				current_screen->buffer_pos]))) > max)
@@ -302,10 +302,10 @@ update_input(update)
 			current_screen->buffer_pos]), len);
 		if (term_clear_to_eol())
 			term_space_erase(cnt);
-		term_move_cursor(cursor, input_line);
+		term_move_cursor(current_screen->cursor, current_screen->input_line);
 	}
 	else if (update == UPDATE_JUST_CURSOR)
-		term_move_cursor(cursor, input_line);
+		term_move_cursor(current_screen->cursor, current_screen->input_line);
 	term_flush();
 }
 
@@ -362,7 +362,7 @@ input_move_cursor(dir)
 		{
 			current_screen->buffer_pos++;
 			if (term_cursor_right())
-				term_move_cursor(cursor + 1, input_line);
+				term_move_cursor(current_screen->cursor + 1, current_screen->input_line);
 		}
 	}
 	else
@@ -371,7 +371,7 @@ input_move_cursor(dir)
 		{
 			current_screen->buffer_pos--;
 			if (term_cursor_left())
-				term_move_cursor(cursor - 1, input_line);
+				term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
 		}
 	}
 	update_input(NO_UPDATE);
@@ -440,17 +440,18 @@ input_delete_character(key, ptr)
 			update_input(UPDATE_FROM_CURSOR);
 		else
 		{
-			pos = str_start + CO - 1;
+			pos = current_screen->str_start + current_screen->co - 1;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        pos+=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
+			pos += CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
+					      current_screen->zone);
 #endif
 /****************************************************************************/
 			if (pos < (int) strlen(current_screen->input_buffer))
 			{
-				term_move_cursor(CO - 1, input_line);
+				term_move_cursor(current_screen->co - 1, current_screen->input_line);
  				term_putchar((u_int)current_screen->input_buffer[pos]);
-				term_move_cursor(cursor, input_line);
+				term_move_cursor(current_screen->cursor, current_screen->input_line);
 			}
 			update_input(NO_UPDATE);
 		}
@@ -478,7 +479,7 @@ input_backspace(key, ptr)
  		new_free(&s);
 		current_screen->buffer_pos--;
 		if (term_cursor_left())
-			term_move_cursor(cursor - 1, input_line);
+			term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
 		if (current_screen->input_buffer[current_screen->buffer_pos])
 		{
 			if (term_delete())
@@ -488,15 +489,16 @@ input_backspace(key, ptr)
 			}
 			else
 			{
-				pos = str_start + CO - 1;
+				pos = current_screen->str_start + current_screen->co - 1;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                                pos+=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
+				pos += CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
+						      current_screen->zone);
 #endif
 /****************************************************************************/
 				if (pos < (int) strlen(current_screen->input_buffer))
 				{
-					term_move_cursor(CO - 1, input_line);
+					term_move_cursor(current_screen->co - 1, current_screen->input_line);
 	 				term_putchar((u_int)current_screen->input_buffer[pos]);
 				}
 				update_input(UPDATE_JUST_CURSOR);
@@ -506,7 +508,7 @@ input_backspace(key, ptr)
 		{
 			term_putchar(' ');
 			if (term_cursor_left())
-				term_move_cursor(cursor - 1, input_line);
+				term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
 			update_input(NO_UPDATE);
 		}
 	}
@@ -572,7 +574,7 @@ input_delete_previous_word(key, ptr)
 	strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), &(current_screen->input_buffer[old_pos]));
 	update_input(UPDATE_FROM_CURSOR);
 /**************************** PATCHED by Flier ******************************/
-        tabnickcompl=NULL;
+        tabnickcompl = NULL;
 /****************************************************************************/
 }
 
@@ -663,7 +665,7 @@ input_add_character(key, ptr)
 		update_input(display_flag);
 	}
 /**************************** PATCHED by Flier ******************************/
-        if (key==' ') ResetNickCompletion();
+        if (key == ' ') ResetNickCompletion();
 /****************************************************************************/
 }
 
@@ -705,8 +707,8 @@ input_clear_to_eol(key, ptr)
 	current_screen->input_buffer[current_screen->buffer_pos] = (char) 0;
 	if (term_clear_to_eol())
 	{
-		term_space_erase(cursor);
-		term_move_cursor(cursor, input_line);
+		term_space_erase(current_screen->cursor);
+		term_move_cursor(current_screen->cursor, current_screen->input_line);
 	}
 	update_input(NO_UPDATE);
 }
@@ -730,11 +732,11 @@ input_clear_to_bol(key, ptr)
 	strmcat(current_screen->input_buffer, str, INPUT_BUFFER_SIZE);
 	new_free(&str);
 	current_screen->buffer_pos = current_screen->buffer_min_pos;
-	term_move_cursor(current_screen->buffer_min_pos, input_line);
+	term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
 	if (term_clear_to_eol())
 	{
 		term_space_erase(current_screen->buffer_min_pos);
-		term_move_cursor(current_screen->buffer_min_pos, input_line);
+		term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
 	}
 	update_input(UPDATE_FROM_CURSOR);
 }
@@ -752,19 +754,19 @@ input_clear_line(key, ptr)
 	current_screen->input_buffer[current_screen->buffer_min_pos] = (char) 0;
 	current_screen->buffer_pos = current_screen->buffer_min_pos;
 /**************************** PATCHED by Flier ******************************/
-	/*term_move_cursor(current_screen->buffer_min_pos, input_line);*/
+	/*term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);*/
 #ifdef WANTANSI
         term_move_cursor(current_screen->buffer_min_pos -
-                         CountAnsiInput(current_screen->input_buffer,zone), input_line);
+                         CountAnsiInput(current_screen->input_buffer,zone), current_screen->input_line);
 #else
-        term_move_cursor(current_screen->buffer_min_pos, input_line);
+        term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
 #endif
-        tabnickcompl=NULL;
+        tabnickcompl = NULL;
 /****************************************************************************/
 	if (term_clear_to_eol())
 	{
 		term_space_erase(current_screen->buffer_min_pos);
-		term_move_cursor(current_screen->buffer_min_pos, input_line);
+		term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
 	}
 	update_input(NO_UPDATE);
 }
@@ -798,11 +800,11 @@ input_transpose_characters(key, ptr)
 		c2 = current_screen->input_buffer[pos] = current_screen->input_buffer[pos - 1];
 		current_screen->input_buffer[pos - 1] = c1;
 		if (term_cursor_left() || (end_of_line && term_cursor_left()))
-			term_move_cursor(cursor - end_of_line ? 2 : 1, input_line);
+			term_move_cursor(current_screen->cursor - end_of_line ? 2 : 1, current_screen->input_line);
 		term_putchar(c1);
 		term_putchar(c2);
 		if (!end_of_line && term_cursor_left())
-			term_move_cursor(cursor - 1, input_line);
+			term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
 		update_input(NO_UPDATE);
 	}
 }
@@ -859,10 +861,10 @@ set_input_prompt(prompt)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef CELE
-        char *ptr=(char *) 0;
-        char *color=(char *) 0;
-        char inpbuf[mybufsize+1];
-        static char crap[]="%% ";
+        char *ptr = NULL;
+        char *color = NULL;
+        char inpbuf[mybufsize + 1];
+        static char crap[] = "%% ";
 #endif
 /****************************************************************************/
 
@@ -875,67 +877,67 @@ set_input_prompt(prompt)
 #ifdef CELE
                 *inpbuf = (char) 0;
                 while (prompt) {
-                    if ((ptr=(char *) index(prompt,'%'))!=NULL) {
-                        *ptr=(char) 0;
-                        strmcat(inpbuf,prompt,mybufsize);
-                        *(ptr++)='%';
-                        if ((*ptr=='Y') || (*ptr=='y')) {
+                    if ((ptr = (char *) index(prompt, '%')) != NULL) {
+                        *ptr = '\0';
+                        strmcat(inpbuf, prompt, mybufsize);
+                        *(ptr++) = '%';
+                        if ((*ptr == 'Y') || (*ptr = ='y')) {
                             switch (*(++ptr)) {
                                 case '0':
-                                    color=Colors[COLOFF];
+                                    color = Colors[COLOFF];
                                     break;
                                 case '1':
-                                    color=CmdsColors[COLSBAR1].color1;
+                                    color = CmdsColors[COLSBAR1].color1;
                                     break;
                                 case '2':
-                                    color=CmdsColors[COLSBAR1].color2;
+                                    color = CmdsColors[COLSBAR1].color2;
                                     break;
                                 case '3':
-                                    color=CmdsColors[COLSBAR1].color3;
+                                    color = CmdsColors[COLSBAR1].color3;
                                     break;
                                 case '4':
-                                    color=CmdsColors[COLSBAR1].color4;
+                                    color = CmdsColors[COLSBAR1].color4;
                                     break;
                                 case '5':
-                                    color=CmdsColors[COLSBAR1].color5;
+                                    color = CmdsColors[COLSBAR1].color5;
                                     break;
                                 case '6':
-                                    color=CmdsColors[COLSBAR1].color6;
+                                    color = CmdsColors[COLSBAR1].color6;
                                     break;
                                 case '7':
-                                    color=CmdsColors[COLSBAR2].color1;
+                                    color = CmdsColors[COLSBAR2].color1;
                                     break;
                                 case '8':
-                                    color=CmdsColors[COLSBAR2].color2;
+                                    color = CmdsColors[COLSBAR2].color2;
                                     break;
                                 case '9':
-                                    color=CmdsColors[COLSBAR2].color3;
+                                    color = CmdsColors[COLSBAR2].color3;
                                     break;
                                 case 'a':
-                                    color=CmdsColors[COLSBAR2].color4;
+                                    color = CmdsColors[COLSBAR2].color4;
                                     break;
                                 case 'b':
-                                    color=CmdsColors[COLSBAR2].color5;
+                                    color = CmdsColors[COLSBAR2].color5;
                                     break;
                                 case 'c':
-                                    color=CmdsColors[COLSBAR2].color6;
+                                    color = CmdsColors[COLSBAR2].color6;
                                     break;
                                 default:
-                                    color=empty_string;
+                                    color = empty_string;
                                     break;
                             }
-                            strmcat(inpbuf,color,BIG_BUFFER_SIZE);
+                            strmcat(inpbuf, color, mybufsize);
                         }
                         else {
-                            crap[2]=*ptr;
-                            strmcat(inpbuf,crap,mybufsize);
+                            crap[2] = *ptr;
+                            strmcat(inpbuf, crap, mybufsize);
                         }
                         ptr++;
                     }
-                    else strmcat(inpbuf,prompt,mybufsize);
+                    else strmcat(inpbuf, prompt, mybufsize);
                     prompt=ptr;
                 }
-                malloc_strcpy(&input_prompt,inpbuf);
+                malloc_strcpy(&input_prompt, inpbuf);
 #else
                 malloc_strcpy(&input_prompt,prompt);
 #endif /* CELE */

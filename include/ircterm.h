@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.4 2000-08-14 20:38:13 f Exp $
+ * $Id: ircterm.h,v 1.5 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -107,20 +107,22 @@ extern	char	*CM,
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/
-extern	int	CO,
-		LI,
-		SG;
+extern	int	SG;
 
-#ifdef HPUX
+#ifdef NCURSES_VERSION
 # define TPUTSRETVAL int
-# define TPUTSARGVAL char
-#else /* HPUX */
-# ifdef __sgi
-#  include <sys/param.h>
+# define TPUTSARGVAL int
+#else
+# ifdef HPUX
 #  define TPUTSRETVAL int
 #  define TPUTSARGVAL char
-# endif
-# if (defined(__sgi) && defined(SEEKLIMIT32)) || defined(__osf__) || defined(__SVR4)
+# else /* HPUX */
+#  ifdef __sgi
+#   include <sys/param.h>
+#   define TPUTSRETVAL int
+#   define TPUTSARGVAL char
+#  endif
+#  if (defined(__sgi) && defined(SEEKLIMIT32)) || defined(__osf__) || defined(__SVR4)
 /*
  * XXX
  *
@@ -128,18 +130,19 @@ extern	int	CO,
  * please tell me (use the `ircbug' command).  thanks.
  */
 char *tgetstr(char *, char **);
-# endif
-# ifndef __sgi
-#  if defined(__linux__) || defined(_AIX) || defined(__GNU__) || defined(__FreeBSD__) || (defined(__NetBSD_Version__) && __NetBSD_Version__ >= 104100000)
-#   define TPUTSRETVAL int
-#   define TPUTSARGVAL int
-#  else
-#   define TPUTSVOIDRET 1
-#   define TPUTSRETVAL void
-#   define TPUTSARGVAL int
-#  endif /* __linux || _AIX */
-# endif /* __sgi */
-#endif /* HPUX */
+#  endif
+#  ifndef __sgi
+#   if defined(__linux__) || defined(_AIX) || defined(__GNU__) || defined(__FreeBSD__) || (defined(__NetBSD_Version__) && __NetBSD_Version__ >= 104100000)
+#    define TPUTSRETVAL int
+#    define TPUTSARGVAL int
+#   else
+#    define TPUTSVOIDRET 1
+#    define TPUTSRETVAL void
+#    define TPUTSARGVAL int
+#   endif /* __linux || _AIX */
+#  endif /* __sgi */
+# endif /* HPUX */
+#endif /* NCURSES_VERSION */
 
 	TPUTSRETVAL putchar_x _((TPUTSARGVAL));
 
@@ -272,9 +275,13 @@ struct tchars
 
 /* well, it works */
 #ifdef mips
-# define fputc(c,f) write(1,&(c),1)
-# define fwrite(buffer,len,cnt,f) write(1,buffer,len)
-#endif /*mips*/
+# ifndef HAVE_FPUTC
+#  define fputc(c,f) do { char x = (c); write(fileno(f),&x,1); } while (0)
+# endif /* HAVE_FPUTC */
+# ifndef HAVE_FWRITE
+#  define fwrite(buffer,len,cnt,f) write(fileno(f),(buffer),(len)*(cnt))
+# endif /* HAVE_FWRITE */
+#endif /* mips */
 
 /**************************** PATCHED by Flier ******************************/
 /****** Patched by Zakath ******/

@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.8 2001-12-19 18:01:00 f Exp $
+ * $Id: acconfig.h,v 1.9 2002-01-21 21:37:35 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -240,13 +240,6 @@
 #undef ZARGS
 
 /*
- * define USE_CAST if you want to use CAST-128 encryption rather than
- * the broken original ircII encryption.  note that cast.c is not
- * distributed with ircII and must be obtained separately.
- */
-#undef USE_CAST
-
-/*
  * define HAVE_DEV_RANDOM if you have /dev/random (*BSD/LINUX).
  * the CAST code uses this if present instead of random(3).
  */
@@ -270,6 +263,18 @@
 
 /* define this if you have crypt(3) */
 #undef HAVE_CRYPT
+
+/* define this if you have fputc(3) */
+#undef HAVE_FPUTC
+
+/* define this if you have fwrite(3) */
+#undef HAVE_FWRITE
+
+/* define this if you have sprintf(3) */
+#undef HAVE_SPRINTF
+
+/* define this if you have vsprintf(3) */
+#undef HAVE_VSPRINTF
 
 /* define this if your struct sockaddr has a sa_len member */
 #undef HAVE_SOCKADDR_SA_LEN

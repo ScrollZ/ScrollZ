@@ -1,5 +1,5 @@
 /*
- * ignore.c: handles the ingore command for irc 
+ * ignore.c: handles the ingore command for irc
  *
  * Written By Michael Sandrof
  *
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.10 2002-01-13 16:39:35 f Exp $
+ * $Id: ignore.c,v 1.11 2002-01-21 21:37:35 f Exp $
  */
 
 #include "irc.h"
@@ -73,7 +73,7 @@ static	void	ignore_nickname _((char *, int, int, char *));
 
 /*
  * Ignore: the ignore list structure,  consists of the nickname, and the type
- * of ignorance which is to take place 
+ * of ignorance which is to take place
  */
 typedef struct	IgnoreStru
 {
@@ -112,7 +112,7 @@ ignore_usernames_mask(mask, thing)
 
 /*
  * ignore_nickname: adds nick to the ignore list, using type as the type of
- * ignorance to take place.  
+ * ignorance to take place.
  */
 static	void
 /**************************** PATCHED by Flier *****************************/
@@ -266,7 +266,7 @@ ignore_nickname(nick, type, flag, timedignore)
 
 /*
  * remove_ignore: removes the given nick from the ignore list and returns 0.
- * If the nick wasn't in the ignore list to begin with, 1 is returned. 
+ * If the nick wasn't in the ignore list to begin with, 1 is returned.
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	int*/
@@ -315,7 +315,7 @@ remove_ignore(nick)
  * is_ignored: checks to see if nick is being ignored (poor nick).  Checks
  * against type to see if ignorance is to take place.  If nick is marked as
  * IGNORE_ALL or ignorace types match, 1 is returned, otherwise 0 is
- * returned.  
+ * returned.
  */
 int
 is_ignored(nick, type)
@@ -380,7 +380,7 @@ ignore_list(nick)
 				strmcat(buffer," ALL",BIG_BUFFER_SIZE);
 			else if (tmp->high == IGNORE_ALL)
 			{
-				sprintf(s, " %cALL%c", highlight_char, 
+				snprintf(s, sizeof s, " %cALL%c", highlight_char,
 					highlight_char);
 				strmcat(buffer, s, BIG_BUFFER_SIZE);
 			}
@@ -393,7 +393,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_PUBLIC)
 				{
-					sprintf(s, " %cPUBLIC%c",
+					snprintf(s, sizeof s, " %cPUBLIC%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -405,7 +405,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_MSGS)
 				{
-					sprintf(s, " %cMSGS%c",
+					snprintf(s, sizeof s, " %cMSGS%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -417,7 +417,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_WALLS)
 				{
-					sprintf(s, " %cWALLS%c",
+					snprintf(s, sizeof s, " %cWALLS%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -429,7 +429,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_WALLOPS)
 				{
-					sprintf(s, " %cWALLOPS%c",
+					snprintf(s, sizeof s, " %cWALLOPS%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -441,7 +441,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_INVITES)
 				{
-					sprintf(s, " %cINVITES%c",
+					snprintf(s, sizeof s, " %cINVITES%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -453,7 +453,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_NOTICES)
 				{
-					sprintf(s, " %cNOTICES%c",
+					snprintf(s, sizeof s, " %cNOTICES%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -465,7 +465,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_NOTES)
 				{
-					sprintf(s, " %cNOTES%c",
+					snprintf(s, sizeof s, " %cNOTES%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -477,7 +477,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_CTCPS)
 				{
-					sprintf(s, " %cCTCPS%c",
+					snprintf(s, sizeof s, " %cCTCPS%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -489,7 +489,7 @@ ignore_list(nick)
 							BIG_BUFFER_SIZE);
 				else if (tmp->high & IGNORE_CRAP)
 				{
-					sprintf(s, " %cCRAP%c",
+					snprintf(s, sizeof s, " %cCRAP%c",
 						highlight_char, highlight_char);
 					strmcat(buffer, s, BIG_BUFFER_SIZE);
 				}
@@ -509,7 +509,7 @@ ignore_list(nick)
 
 /*
  * ignore: does the /IGNORE command.  Figures out what type of ignoring the
- * user wants to do and calls the proper ignorance command to do it. 
+ * user wants to do and calls the proper ignorance command to do it.
  */
 /*ARGSUSED*/
 void
@@ -520,9 +520,7 @@ ignore(command, args, subargs)
 {
 	char	*nick,
 		*type;
- 	size_t	len;
-	int	flag,
-		no_flags;
+	int	flag, no_flags, ignore_type;
 
 	if ((nick = next_arg(args, &args)) != NULL)
 	{
@@ -549,56 +547,13 @@ ignore(command, args, subargs)
 				flag = 0;
 				break;
 			}
-			if ((len = strlen(type)) == 0)
-			{
-				say("You must specify one of the following:");
-				say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
-NOTICES NOTES NONE");
-				return;
-			}
+			ignore_type = get_ignore_type(type);
+			if (ignore_type != -1)
 /**************************** PATCHED by Flier ******************************/
-			/*if (strncmp(type, "ALL", len) == 0)
-				ignore_nickname(nick, IGNORE_ALL, flag);
-			else if (strncmp(type, "MSGS", len) == 0)
-				ignore_nickname(nick, IGNORE_MSGS, flag);
-			else if (strncmp(type, "PUBLIC", len) == 0)
-				ignore_nickname(nick, IGNORE_PUBLIC, flag);
-			else if (strncmp(type, "WALLS", len) == 0)
-				ignore_nickname(nick, IGNORE_WALLS, flag);
-			else if (strncmp(type, "WALLOPS", len) == 0)
-				ignore_nickname(nick, IGNORE_WALLOPS, flag);
-			else if (strncmp(type, "INVITES", len) == 0)
-				ignore_nickname(nick, IGNORE_INVITES, flag);
-			else if (strncmp(type, "NOTICES", len) == 0)
-				ignore_nickname(nick, IGNORE_NOTICES, flag);
-			else if (strncmp(type, "NOTES", len) == 0)
-				ignore_nickname(nick, IGNORE_NOTES, flag);
-			else if (strncmp(type, "CTCPS", len) == 0)
-				ignore_nickname(nick, IGNORE_CTCPS, flag);
-			else if (strncmp(type, "CRAP", len) == 0)
-				ignore_nickname(nick, IGNORE_CRAP, flag);*/
-                        if (strncmp(type, "ALL", len) == 0)
-				ignore_nickname(nick, IGNORE_ALL, flag, subargs);
-			else if (strncmp(type, "MSGS", len) == 0)
-				ignore_nickname(nick, IGNORE_MSGS, flag, subargs);
-			else if (strncmp(type, "PUBLIC", len) == 0)
-				ignore_nickname(nick, IGNORE_PUBLIC, flag, subargs);
-			else if (strncmp(type, "WALLS", len) == 0)
-				ignore_nickname(nick, IGNORE_WALLS, flag, subargs);
-			else if (strncmp(type, "WALLOPS", len) == 0)
-				ignore_nickname(nick, IGNORE_WALLOPS, flag, subargs);
-			else if (strncmp(type, "INVITES", len) == 0)
-				ignore_nickname(nick, IGNORE_INVITES, flag, subargs);
-			else if (strncmp(type, "NOTICES", len) == 0)
-				ignore_nickname(nick, IGNORE_NOTICES, flag, subargs);
-			else if (strncmp(type, "NOTES", len) == 0)
-				ignore_nickname(nick, IGNORE_NOTES, flag, subargs);
-			else if (strncmp(type, "CTCPS", len) == 0)
-				ignore_nickname(nick, IGNORE_CTCPS, flag, subargs);
-			else if (strncmp(type, "CRAP", len) == 0)
-				ignore_nickname(nick, IGNORE_CRAP, flag, subargs);
+				/*ignore_nickname(nick, ignore_type, flag);*/
+                                ignore_nickname(nick, ignore_type, flag, subargs);
 /****************************************************************************/
-			else if (strncmp(type, "NONE", len) == 0)
+			else if (ignore_type == -1)
 			{
 				char	*ptr;
 
@@ -706,6 +661,43 @@ double_ignore(nick, userhost, type)
 			is_ignored(userhost, type)));
 	else
 		return (is_ignored(nick, type));
+}
+
+int
+get_ignore_type(type)
+	char	*type;
+{
+	size_t len = strlen(type);
+	int rv;
+
+	if (len == 0)
+		rv = 0;
+	if (my_strnicmp(type, "ALL", len) == 0)
+		rv = IGNORE_ALL;
+	else if (my_strnicmp(type, "MSGS", len) == 0)
+		rv = IGNORE_MSGS;
+	else if (my_strnicmp(type, "PUBLIC", len) == 0)
+		rv = IGNORE_PUBLIC;
+	else if (my_strnicmp(type, "WALLS", len) == 0)
+		rv = IGNORE_WALLS;
+	else if (my_strnicmp(type, "WALLOPS", len) == 0)
+		rv = IGNORE_WALLOPS;
+	else if (my_strnicmp(type, "INVITES", len) == 0)
+		rv = IGNORE_INVITES;
+	else if (my_strnicmp(type, "NOTICES", len) == 0)
+		rv = IGNORE_NOTICES;
+	else if (my_strnicmp(type, "NOTES", len) == 0)
+		rv = IGNORE_NOTES;
+	else if (my_strnicmp(type, "CTCPS", len) == 0)
+		rv = IGNORE_CTCPS;
+	else if (my_strnicmp(type, "CRAP", len) == 0)
+		rv = IGNORE_CRAP;
+	else if (my_strnicmp(type, "NONE", len) == 0)
+		rv = -1;
+	else
+		rv = 0;
+
+	return (rv);
 }
 
 /**************************** PATCHED by Flier ******************************/

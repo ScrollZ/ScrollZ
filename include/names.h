@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.4 2001-08-25 18:25:15 f Exp $
+ * $Id: names.h,v 1.5 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __names_h_
@@ -74,7 +74,7 @@
 
 	int	is_channel_mode _((char *, int, int));
 	int	is_chanop _((char *, char *));
- 	int	has_voice _((char *, char *));
+	int	has_voice _((char *, char *, int));
 	ChannelList	*lookup_channel _((char *, int, int));
 	char	*get_channel_mode _((char *, int));
 #ifdef	INCLUDE_UNUSED_FUNCTIONS

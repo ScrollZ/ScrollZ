@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.18 2001-12-03 18:57:58 f Exp $
+ * $Id: vars.c,v 1.19 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -793,9 +793,7 @@ say("         could be used by others on IRC to control your IRC session");
 say("         or compromise security on your machine. If somebody has");
 say("         asked you to do this, and you do not know EXACTLY why, or if");
 say("         you are not ABSOLUTELY sure what you are doing, you should");
-say("         immediately /SET NOVICE ON and ask the IRC operators about");
-say("         the commands you have been asked to enter on channel");
-say("         #Twilight_Zone.");
+say("         immediately /SET NOVICE ON and find out more information.");
 	}
 #endif
 	irc_variable[var].integer = value;
@@ -867,14 +865,14 @@ make_string_var(var_name)
 		malloc_strcpy(&ret, irc_variable[var_index].string);
 		break;
 	case INT_TYPE_VAR:
- 		sprintf(lbuf, "%u", irc_variable[var_index].integer);
+		snprintf(lbuf, sizeof lbuf, "%u", irc_variable[var_index].integer);
  		malloc_strcpy(&ret, lbuf);
 		break;
 	case BOOL_TYPE_VAR:
 		malloc_strcpy(&ret, var_settings[irc_variable[var_index].integer]);
 		break;
 	case CHAR_TYPE_VAR:
- 		sprintf(lbuf, "%c", irc_variable[var_index].integer);
+		snprintf(lbuf, sizeof lbuf, "%c", irc_variable[var_index].integer);
  		malloc_strcpy(&ret, lbuf);
 		break;
 	}

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.14 2001-08-31 15:37:55 f Exp $
+ * $Id: output.c,v 1.15 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -52,59 +52,25 @@
 #include "hook.h"
 #include "ctcp.h"
 #include "log.h"
+#include "alias.h"
+
+#include "buffer.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "status.h"
 #include "myvars.h"
 /****************************************************************************/
 
+#ifdef NEED_PUTBUF_DECLARED
+/*
+ * put_it has to be reentrant - this works because the text is used before
+ * it's overwritten by the reentering, but it's not The Right Thing ...
+ */
+static	u_char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
+#endif
+
 	int	in_help = 0;
 	int	do_refresh_screen;
-
-/*
- * i'm *not* going to litter the code with #ifdef's in the code that
- * has no <stdarg.h> for the chance of finding vasprintf().
- */
-#if defined(HAVE_VASPRINTF) && defined(HAVE_STDARG_H)
-
-/* put_it() and friends need to be reentrant */
-#define PUTBUF_INIT	char *putbuf;
-
-# define PUTBUF_SPRINTF(f, v) 				\
-if (vasprintf(&putbuf, f, v) == -1)			\
-{	/* EEK */					\
-	write(1, "out of memory?\n\r\n\r", 19);		\
-	return;						\
-}
-
-# define PUTBUF_END	free(putbuf); putbuf = 0;
-
-#else
-/*
- * put_it has to be reentrant - this works because the text is used
- * before it's overwritten by the reentering, but it's not
- * The Right Thing ...
- */
-#define PUTBUF_INIT
-
-/* make this buffer *much* bigger than needed */
-/**************************** PATCHED by Flier ******************************/
-/*static	char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";*/
-static char *putbuf=(char *) 0;
-/****************************************************************************/
-
-# if defined(HAVE_VSNPRINTF)
-/**************************** Patched by Flier ******************************/
-/*#  define PUTBUF_SPRINTF(f, v) vsnprintf(putbuf, sizeof putbuf, f, v);*/
-#  define PUTBUF_SPRINTF(f,v) vsnprintf(putbuf,4*BIG_BUFFER_SIZE,f,v);
-/****************************************************************************/
-# else
-#  define PUTBUF_SPRINTF(f, v) vsprintf(putbuf, f, v);
-# endif /* HAVE_VSNPRINTF */
-
-# define PUTBUF_END
-
-#endif /* HAVE_VASPRINTF && HAVE_STDARG_H */
 
 /**************************** Patched by Flier ******************************/
 extern char *TimeStamp _((int));
@@ -133,16 +99,10 @@ refresh_screen(key, ptr)
 void
 init_screen()
 {
-#if !defined(HAVE_VASPRINTF) || !defined(HAVE_STDARG_H)
-        if (!putbuf) {
-            putbuf=(char *) malloc(4*BIG_BUFFER_SIZE+1);
-            *putbuf='\0';
-        }
-#endif
+	new_window();
 	term_init();
 	term_clear_screen();
 	term_resize();
-	new_window();
 	recalculate_windows();
 	update_all_windows();
 	init_input();
@@ -162,7 +122,7 @@ put_file(filename)
 	{
 		while (fgets(line, 1024, fp))
 		{
-			if (line)
+			if (line && *line)
 			{
  				if ((len = strlen(line)))
  				{
@@ -218,7 +178,7 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
 #else
-		sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
 		add_to_screen(putbuf);
@@ -274,7 +234,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
  		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
 #else
-  		sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
 		add_to_screen(putbuf);
@@ -311,7 +271,7 @@ yell(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	PUTBUF_SPRINTF(format, vl)
 	va_end(vl);
 #else
-	sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+	snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 	add_to_log(irclog_fp, putbuf);
 	add_to_screen(putbuf);
@@ -349,7 +309,7 @@ help_put_it(topic, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
 	PUTBUF_SPRINTF(format, vl)
 	va_end(vl);
 #else
-	sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+	snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 
         in_help = 1;

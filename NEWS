@@ -1,35 +1,66 @@
-@(#)$Id: NEWS,v 1.6 2001-01-22 18:19:01 f Exp $
+@(#)$eterna: NEWS,v 1.45 2001/12/18 14:23:47 mrg Exp $
+
+Changes since ircII 20011210:
+
+  o  /window create windows now have input buffers that do not interfere
+     with each other.
+  o  random bug fixes
+  o  new $filestat() function
+  o  /timer is now sub-second aware
+  o  raw DCC core dump bug fixes
+
+Changes since ircII 20010612:
+
+  o  new /on raw_send
+  o  new /exec -filter option
+  o  fixed mIRC colour code handling
+  o  enhanced redirection to multiple targets
+  o  bug fix for $mid()
+  o  bug fix for when resizing to a smaller window
+  o  other bug fixes
 
 Changes since ircII 4.4:
 
-  o  new /window nostatus for no status line at all.
-  o  new /set hide_channel_keys variable.
-  o  new /set {fore,back}ground_colour variables.
-  o  new /set xterm_geomoptstr variable.
-  o  no more (insecure) ``priviledge port'' support.
-  o  scrollback no longer goes beyond the end of the lastlog history.
-  o  new /cat command.
-  o  new $chatpeers() function.
-  o  new /set make_notice_msg variable.
-  o  /encrypt -showkeys option added.
-  o  lastlog level HELP added.
-  o  more bugs fixed.
+  o  dcc source address can be edited (usable with masquerade)
+  o  japanese support (ISO2022_SUPPORT)
+  o  new /set star_prefix to replace the standard "*** " prefix.
+  o  new $windows(), $screens(), $notify() and $ignored() functions.
+  o  fixes for /nick problems.
+  o  new /set status_voice variable associated with new status_format
+     modifier %v, and voice on the current channel.
+  o  many bugs fixes
+  o  /me support for ICB.
+  o  new AES/rijndael cipher (CBC mode) available
+  o  ircII is now version as YYYYMMDD only
+  o  new command line option -t to disable termcap ti/te sequences
+  o  new /window nostatus for no status line at all
+  o  new /set hide_channel_keys variable
+  o  new /set {fore,back}ground_colour variables
+  o  new /set xterm_geomoptstr variable
+  o  no more (insecure) ``priviledge port'' support
+  o  scrollback no longer goes beyond the end of the lastlog history
+  o  new /cat command
+  o  new $chatpeers() function
+  o  new /set make_notice_msg variable
+  o  /encrypt -showkeys option added
+  o  lastlog level HELP added
+  o  more bugs fixed
   o  additional /bind-able metakeys: meta5_character,
      meta6_character, meta7_character, meta8_character
   o  forward and backward scroll *really* works!
   o  scrolling directly to the start also works!
-  o  most /ignore requests are now honoured by the ICB mode.
-  o  new /set no_ask_password variable added.
-  o  new /set xterm_path variable added.
-  o  new /set irchost variable added.
-  o  IPv6 [se:ve:er]:port support added.
-  o  translation table support in dumb mode.
+  o  most /ignore requests are now honoured by the ICB mode
+  o  new /set no_ask_password variable added
+  o  new /set xterm_path variable added
+  o  new /set irchost variable added
+  o  IPv6 [se:ve:er]:port support added
+  o  translation table support in dumb mode
   o  new $wincols() and $winrows() functions which return the
-     number of columns and rows in this window.
+     number of columns and rows in this window
   o  /set auto_unmark_away fixed after many years
   o  bunches of bugs fixed
   o  if /dcc get fails due to local permissions, the offer is not
-     removed any longer, allowing the problem to be fixed.
+     removed any longer, allowing the problem to be fixed
   o  +c (colourless) and +R (registered users only) channel modes
   o  IRC 2.10 !channels supported
   o  vasprintf(3) support

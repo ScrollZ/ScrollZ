@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.5 2001-11-10 10:04:53 f Exp $
+ * $Id: irc_std.h,v 1.6 2002-01-21 21:37:35 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -46,6 +46,11 @@
 # endif /* cost */
 # define const
 #endif  /* __STDC__ */
+
+#define UP(s)			((u_char *)(s))
+#define UPP(s)			((u_char **)(s))
+#define CP(s)			((char *)(s))
+#define CPP(s)			((char **)(s))
 
 #if !defined(__GNUC__) || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 5)
 #define __attribute__(x)        /* delete __attribute__ if non-gcc or gcc1 */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.10 2001-08-31 15:37:56 f Exp $
+ * $Id: whois.c,v 1.11 2002-01-21 21:37:36 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -1062,11 +1062,11 @@ whois_ignore_msgs(stuff, nick, text)
 				{
 					time_t	t;
 					char	*msg = (char *) 0;
+					size_t len = my_strlen(text) + 20;
 
 					t = time(0);
-					msg = (char *) new_malloc(strlen(text)
-						+ 20);
-					sprintf(msg, "%s <%.16s>", text,
+					msg = (char *) new_malloc(len);
+					snprintf(msg, len, "%s <%.16s>", text,
 						ctime(&t));
 					put_it("*%s* %s", stuff->nick, msg);
 					new_free(&msg);
@@ -1492,10 +1492,10 @@ typed_add_to_whois_queue(type, nick, func, format,
 		if (format)
 		{
 #ifdef HAVE_STDARG_H
-			vsprintf(lbuf, format, vlist);
+			vsnprintf(lbuf, sizeof lbuf, format, vlist);
 #else
-			sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5,
-			    arg6, arg7, arg8, arg9, arg10);
+			snprintf(lbuf, sizeof lbuf, format, arg1, arg2,
+			    arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 			malloc_strcpy(&(new->text), lbuf);
 		}
@@ -1553,5 +1553,5 @@ userhost_cmd_returned(stuff, nick, text)
 	strcat(args, stuff->user ? stuff->user : empty_string);
 	strcat(args, " ");
 	strcat(args, stuff->host ? stuff->host : empty_string);
-	parse_line((char *) 0, text, args, 0, 0);
+	parse_line((char *) 0, text, args, 0, 0, 1);
 }

@@ -1,11 +1,9 @@
 /*
- * crypt.h: header for crypt.c 
+ * buffer.h: header buffer routines
  *
- * Written By Michael Sandrof
+ * Written by Matthew Green
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1999 Matthew R. Green.
+ * Copyright (c) 2001 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,49 +29,48 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#)$Id: crypt.h,v 1.6 2002-01-21 21:37:35 f Exp $
+ * $Id: buffer.h,v 1.1 2002-01-21 21:37:35 f Exp $
+ *
  */
 
-#ifndef __crypt_h_
-#define __crypt_h_
+#ifndef __buffer_h_
+#define __buffer_h_
 
-#define	CTCP_SHUTUP	0
-#define	CTCP_VERBOSE	1
-#define	CTCP_NOREPLY	2
+/* This file should only be included once by files that need buffer ops */
 
 /*
- * crypt interface
+ * i'm *not* going to litter the code with #ifdef's in the code that
+ * has no <stdarg.h> for the chance of finding vasprintf().
  */
+#if defined(HAVE_VASPRINTF) && defined(HAVE_STDARG_H)
 
-typedef struct crypt_key crypt_key;
+/* put_it() and friends need to be reentrant */
+#define PUTBUF_INIT	u_char *putbuf;
 
-typedef int (*CryptFunc) _((crypt_key *, u_char **, int *));
+# define PUTBUF_SPRINTF(f, v) 				\
+if (vasprintf((char **) &putbuf, f, v) == -1)		\
+{	/* EEK */					\
+	write(1, "out of memory?\n\r\n\r", 19);		\
+	_exit(1);						\
+}
 
-struct crypt_key
-{
-	u_char		*key;
-	char		*type;
-	CryptFunc	crypt;
-	CryptFunc	decrypt;
-	void		*cookie;	/* cipher dependant cookie, will be freed */
-};
+# define PUTBUF_END	free(putbuf); putbuf = 0;
+
+#else
 
 /*
- * function interfaces we have
+ * need the caller to define the `putbuf'. something like this, though
+ * it might need to be automatic for recursive purposes.
+ *	static	u_char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
  */
-u_char		*crypt_msg _((u_char *, crypt_key *, int));
-void		encrypt_cmd _((u_char *, u_char *, u_char *));
-crypt_key	*is_crypted _((u_char *));
+# define NEED_PUTBUF_DECLARED
 
-/*
- * the ciphers we support
- */
-#define CAST_STRING	UP("CAST128ED-CBC")
-#define SED_STRING	UP("SED")
-#define RIJNDAEL_STRING	UP("RIJNDAEL")
+# define PUTBUF_INIT
 
-#define DEFAULT_CRYPTER cast_encrypt_str
-#define DEFAULT_DECRYPTER cast_decrypt_str
-#define DEFAULT_CRYPTYPE CAST_STRING
+# define PUTBUF_SPRINTF(f, v) vsnprintf(CP(putbuf), sizeof putbuf, f, v);
 
-#endif /* _crypt_h_ */
+# define PUTBUF_END
+
+#endif /* HAVE_VASPRINTF && HAVE_STDARG_H */
+
+#endif /* __buffer_h_ */

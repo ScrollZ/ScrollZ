@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.8 2001-01-22 18:19:01 f Exp $
+ * $Id: mail.c,v 1.9 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -85,20 +85,25 @@
 #include "output.h"
 #include "window.h"
 
+#if defined(AMS_MAIL) || defined(UNIX_MAIL)
 static	char	*mail_path = (char *) 0;
 
 static	void	init_mail _((void));
+#endif
 
 /* init_mail: this initialized the path to the users mailbox */
 static	void
 init_mail()
 {
+#if defined(AMS_MAIL) || defined(UNIX_MAIL)
+# ifdef UNIX_MAIL
 	char	*tmp_mail_path;
+# endif
 
 	if (mail_path)
 		return; /* why do it 2000 times?  -lynx */
 
-#ifdef UNIX_MAIL
+# ifdef UNIX_MAIL
 	if ((tmp_mail_path = getenv("MAIL")) != NULL)
 		malloc_strcpy(&mail_path, tmp_mail_path);
 	else
@@ -107,13 +112,14 @@ init_mail()
 		malloc_strcat(&mail_path, "/");
 		malloc_strcat(&mail_path, username);
 	}
-#else
-# ifdef AMS_MAIL
+# else
+#  ifdef AMS_MAIL
 	malloc_strcpy(&mail_path, my_path);
 	malloc_strcat(&mail_path, "/");
 	malloc_strcat(&mail_path, AMS_MAIL);
-# endif /* AMS_MAIL */
-#endif /* UNIX_MAIL */
+#  endif /* AMS_MAIL */
+# endif /* UNIX_MAIL */
+#endif /* AMS_MAIL || UNIX_MAIL */
 }
 
 #ifdef AMS_MAIL
@@ -146,8 +152,9 @@ count_files(dir_name, lasttime)
 		if (*(dirbuf->d_name) != '.')
 		{
 			cnt++;
-			sprintf(LetterName, "%s/%s", dir_name, dirbuf->d_name);
-			stat_file(LetterName, &LetterInfo);
+			snprintf(LetterName, sizeof LetterName, "%s/%s", dir_name, dirbuf->d_name);
+			if (stat(LetterName, &LetterInfo) == -1)
+				continue;
 			if (get_int_var(MAIL_VAR) == 2 && LetterInfo.st_ctime>lasttime && !VirginProgram)
 			{
 				if ((fd = open(LetterName, O_RDONLY)) == -1)
@@ -202,7 +209,7 @@ check_mail_status()
 		return (0);
 	}
 	init_mail();
-	if (stat_file(mail_path, &stat_buf) == -1)
+	if (stat(mail_path, &stat_buf) == -1)
 		return (0);
 	if (stat_buf.st_ctime > old_stat)
 	{
@@ -246,7 +253,7 @@ check_mail()
 
 	init_mail();
 #ifdef UNIX_MAIL
-	if (stat_file(mail_path, &stat_buf) == -1)
+	if (stat(mail_path, &stat_buf) == -1)
 		return ((char *) 0);
 	lastlog_level = set_lastlog_msg_level(LOG_CRAP);
  	save_message_from();
@@ -292,7 +299,7 @@ check_mail()
 		}
 #else
 # ifdef AMS_MAIL
-		if (stat_file(mail_path, &stat_buf) == -1)
+		if (stat(mail_path, &stat_buf) == -1)
 		{
 			set_lastlog_msg_level(lastlog_level);
 			return ((char *) 0);
@@ -307,8 +314,8 @@ check_mail()
 		/* yeeeeack */
 		if (new_cnt > cnt)
 		{
-                        sprintf(tmp, "%d", new_cnt - cnt);
-                        sprintf(buffer, "%d", new_cnt);
+			snprintf(tmp, sizeof tmp, "%d", new_cnt - cnt);
+			snprintf(buffer, sizeof buffer, "%d", new_cnt);
 			if (do_hook(MAIL_LIST, "%s %s", tmp, buffer) && get_int_var(MAIL_VAR) == 1)
 /**************************** PATCHED by Flier *****************************/
 				/*say("You have new email.");*/
@@ -330,7 +337,7 @@ check_mail()
  	restore_message_from();
 	if (cnt && (cnt < 65536))
 	{
-		sprintf(ret_str, "%d", cnt);
+		snprintf(ret_str, sizeof ret_str, "%d", cnt);
 		return (ret_str);
 	}
 	else

@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: menu.c,v 1.6 2000-09-24 17:10:34 f Exp $
+ * $Id: menu.c,v 1.7 2002-01-21 21:37:36 f Exp $
  */
 
 #include "irc.h"
@@ -188,12 +188,12 @@ load_menu(FileName)
 			{
 				NewOptions = (MenuOption **)
 					new_malloc(sizeof(MenuOption *) *
-						(CurTotal+4));
+						(CurTotal + 4));
 				for (i = 0; i < NewMenu->TotalOptions; i++)
 					NewOptions[i] = NewMenu->Options[i];
 				new_free(&NewMenu->Options);
 				NewMenu->Options = NewOptions;
-				NewMenu->TotalOptions = CurTotal + 5;
+				NewMenu->TotalOptions = CurTotal + 4;
 			}
 			NewMenu->Options[CurTotal-1] = create_new_option();
 			malloc_strcpy(&NewMenu->Options[CurTotal-1]->Name,
@@ -231,7 +231,7 @@ ShowMenuByWindow(window, flags)
 	for (i = 0; i < ThisMenu->TotalOptions; i++)
 		if ((len = strlen(ThisMenu->Options[i]->Name))>largest)
 			largest = len;
-	NumPerLine = (CO - CO % (largest + 3)) / (largest + 3);
+	NumPerLine = (current_screen->co - current_screen->co % (largest + 3)) / (largest + 3);
 	menu_info->items_per_line = NumPerLine;
 	menu_info->lines = 0;
 	for (i = 0; i < ThisMenu->TotalOptions; i++)
@@ -444,7 +444,7 @@ void
 menu_command(args)
 	char	*args;
 {
-	parse_line((char *) 0, args, empty_string, 0, 0);
+	parse_line((char *) 0, args, empty_string, 0, 0, 0);
 }
 
 #endif /* LITE */
