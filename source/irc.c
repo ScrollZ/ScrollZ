@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.18 1999-03-26 17:01:07 f Exp $
+ * $Id: irc.c,v 1.19 1999-05-16 11:17:16 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -45,7 +45,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 /*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"19980305"
+#define INTERNAL_VERSION	"19980516"
 /****************************************************************************/
 
 #include "irc.h"
@@ -132,7 +132,7 @@ char	oper_command = 0;	/* true just after an oper() command is
 				 * an oper() command and one generated when
 				 * connecting to a new server */
 
-char    *ScrollZver="uH 6[G8595K:gy5yq+l.a3TB9lj#0f0$VrKnhjg/KV9?";
+char    *ScrollZver="uH 6[/9695K:gD6zq+l.a5UCRljUR5R6V)rzGYhYE*V8T";
 
 char	global_all_off[2];		/* lame kludge to get around lameness */
 char	FAR MyHostName[80];	       	/* The local machine name. Used by
@@ -276,7 +276,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZlame="ircII 4.4G+ScrollZ v1.8i4 (5.3.99)+Cdcc v1.8";
+char  *ScrollZlame="ircII 4.4G+ScrollZ v1.8i5 (16.5.99)+Cdcc v1.8";
 char  *ScrollZlame1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;

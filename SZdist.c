@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.13 1999-03-04 22:20:52 f Exp $
+ * $Id: SZdist.c,v 1.14 1999-05-16 11:17:02 f Exp $
  */
 
 #include <stdio.h>
@@ -60,8 +60,8 @@
 
 #define mybufsize 1024
 
-char *int_ver="19980305";
-char *ver="ircII 4.4G+ScrollZ v1.8i4 (5.3.99)+Cdcc v1.8";
+char *int_ver="19980516";
+char *ver="ircII 4.4G+ScrollZ v1.8i5 (16.5.99)+Cdcc v1.8";
 char *chars=".*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ABCDEFGHIJ";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";
@@ -373,7 +373,7 @@ char **argv;
     time_t timenow;
     struct stat statbuf;
 
-    strcpy(format,"pytQyLKyL-9{t8Qc)=QVPfAyXA(*Q*-");
+    strcpy(format,"pytQyLKyL-9{t8mc)=QVPfAyXA(*Q*-");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
