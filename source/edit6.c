@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.6 1998-10-24 09:44:22 f Exp $
+ * $Id: edit6.c,v 1.7 1998-10-25 18:27:08 f Exp $
  */
 
 #include "irc.h"
@@ -1125,6 +1125,7 @@ char *subargs;
         { "SHOWNICK"    , &ShowNick       , "Showing nick on public messages" },
         { "STATS"       , &CdccStats      , "Cdcc stats in plist" },
         { "STATUS"      , &ShowDCCStatus  , "Cdcc showing on status bar" },
+        { "VERBOSE"     , &CdccVerbose    , "Cdcc verbose mode" },
         { "WARNING"     , &DCCWarning     , "Check incoming DCCs" },
         { NULL          , NULL            , NULL }
     };
