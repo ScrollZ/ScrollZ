@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.64 2001-09-17 16:29:44 f Exp $
+ * $Id: irc.c,v 1.65 2001-09-18 21:04:01 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -238,6 +238,8 @@ static	char	FAR switch_help[] =
    -I <file>\tloads <file> in place of your .scrollzquick\n\
    -L <file>\tloads <file> in place of your .scrollzrc and expands $ expandos\n";
 /**************************** PATCHED by Flier ******************************/
+static int DoOrigNick=0;
+
 extern void Logo _((char *, char *, char *));
 extern void CheckTimeMinute _((void));
 extern void CheckCdccTimers _((void));
@@ -245,6 +247,7 @@ extern void InitVars _((void));
 extern void Reset _((char *, char *, char *));
 extern void SwitchNick _((void));
 extern void CleanUp _((void));
+extern int  CheckChannel2 _((char *, char *));
 
 #ifdef WANTANSI
 char *Colors[SZNUMCOLORS]={
@@ -1204,13 +1207,15 @@ TimerTimeout()
 	/*time(&current);
 	timeout_in = PendingTimers->time - current;
 	return (timeout_in < 0) ? 0 : timeout_in;*/
+        DoOrigNick=0;
 #if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
         gettimeofday(&current,NULL);
         /* If ORIGNICK is off set nickt to current+75 to prevent
            excessive CPU usage (meaning we actually ignore this
            event, see below) */
-        if (!(OrigNickChange && OrigNick)) nickt=current.tv_sec+75;
+        if (!OrigNickChange) nickt=current.tv_sec+75;
         if (!PendingTimers) {
+            if (nickt-current.tv_sec<70) DoOrigNick=1;
             /* Just larger than the maximum of 60 */
             current.tv_sec=
                 nickt-current.tv_sec>70?70:nickt-current.tv_sec;
@@ -1220,6 +1225,7 @@ TimerTimeout()
         if (PendingTimers->time.tv_sec>nickt) {
             largest.tv_sec=nickt;
             largest.tv_usec=0;
+            DoOrigNick=1;
         }
         else {
             largest.tv_sec=PendingTimers->time.tv_sec;
@@ -1242,10 +1248,13 @@ TimerTimeout()
         /* If ORIGNICK is off set nickt to current+75 to prevent
            excessive CPU usage (meaning we actually ignore this
            event, see below) */
-        if (!(OrigNickChange && OrigNick)) nickt=current+75;
-        if (!PendingTimers)
+        if (!OrigNickChange) nickt=current+75;
+        if (!PendingTimers) {
             /* Just larger than the maximum of 60 */
+            if (nickt-current<70) DoOrigNick=1;
             return(nickt-current>70?70:nickt-current);
+        }
+        if (PendingTimers->time>nickt) DoOrigNick=1;
         largest=PendingTimers->time>nickt?nickt:PendingTimers->time;
         timeout_in=largest-current;
 	return((timeout_in<0)?0:timeout_in);
@@ -1643,7 +1652,14 @@ irc_io(prompt, func, my_use_input, loop)
 /****************************************************************************/
 		}
 /**************************** PATCHED by Flier ******************************/
-                if (OrigNickChange && OrigNick) SwitchNick();
+                if (DoOrigNick) {
+                    if (OrigNickChange && OrigNick && DoOrigNick) {
+                        char *curnick=get_server_nickname(from_server);
+
+                        if (curnick && !CheckChannel2(OrigNick,curnick)) SwitchNick();
+                    }
+                    LastNick=time((time_t *) 0);
+                }
 /****************************************************************************/
 	}
 	while (irc_io_loop);
