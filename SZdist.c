@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.27 2001-04-11 20:47:00 f Exp $
+ * $Id: SZdist.c,v 1.28 2001-05-08 17:42:16 f Exp $
  */
 
 #include <stdio.h>
@@ -366,7 +366,7 @@ char **argv;
 {
     int  choice=0,oldchoice=0;
     int  end=0,gotit=0;
-    int  i,j,k,l,fd;
+    int  i,j,k,l;
     char c;
     char tmpbuf[2*mybufsize];
     char onoffbuf[32];
@@ -377,7 +377,6 @@ char **argv;
     FILE *fpin=NULL,*fpout;
     time_t timenow;
     struct stat statbuf;
-    struct termio orig,noecho,*tp;
 
     strcpy(format,"{hcwhrjhr!m#cl'*N?w4v0Sh6SMBwB!");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
@@ -386,15 +385,9 @@ char **argv;
         return(1);
     }
     locatelog(pathbuf,"SZdist");
-    printf("Enter password:");
-    fd=fileno(stdin);
-    if (ioctl(fd,TCGETA,&orig)<0) exit(0);
-    noecho=orig;
-    noecho.c_lflag&=~ECHO;
-    tp=&noecho;
-    ioctl(fd,TCSETA,tp);
-    fgets(password,mybufsize,stdin);
-    ioctl(fd,TCSETA,&orig);
+    tmp1=getpass("Enter password:");
+    if (tmp1) strcpy(password,tmp1);
+    else *password='\0';
     if (strlen(password) && password[strlen(password)-1]=='\n')
         password[strlen(password)-1]='\0';
     l=strlen(chars);
