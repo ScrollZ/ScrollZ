@@ -2,26 +2,22 @@
 /* C-OperVision, for ScrollZ. Coded by Zakath. */
 /* Thanks to Sheik and Flier for assistance.   */
 /*
- * Implemented caching for OVgetword, fixed for various ircd versions   -Flier
- *
+ * Comments by Flier:
+ * Implemented caching for OVgetword, fixed for various ircd versions.
  * There seems to be a problem when you have OperVision turned ON and
  * either server closes connection or you reconnect yourself.  Client
  * resets window levels and by doing that, messes things up (not just
  * OperVision, messages go to wrong window too). I have fixed that by
- * patching /SERVER. It checks whether OperVision was turned ON prior
- * to reconnect, and if it was it is turned OFF and immediately after
- * that it is turned back ON. This seems to fix the problem.            -Flier
- *
+ * patching calling OperVisionReinit() which reinstates window levels.
  * I also had to patch my functions that take care of joining channels
  * to deal with OperVision correctly. Channels were going to wrong wi-
  * ndow when OperVision was active. I just changed the way I send JOIN
  * command to server (I'm using ircII function now) and it seems to be
- * working as expected.                                                 -Flier
- *
+ * working as expected.
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
- * command, we disable OperVision since they probably wanted that.      -Flier
+ * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.28 2000-08-24 17:50:36 f Exp $
+ * $Id: operv.c,v 1.29 2000-08-27 10:04:39 f Exp $
  */
 
 #include "irc.h"
@@ -1142,14 +1138,14 @@ void OperVisionReinit(void) {
     char tmpbuf[mybufsize/4+1];
     Window *ovwin;
 
+    /* turn on additional user modes */
+    CreateMode(tmpbuf,mybufsize/4);
+    send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
     curwinref=curr_scr_win->refnum;
     ovwin=get_window_by_name("OV");
     /* if we can't locate OperV window silently ignore */
     if (!ovwin) return;
     ovwinref=ovwin->refnum;
-    /* turn on additional user modes */
-    CreateMode(tmpbuf,mybufsize/4);
-    send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
     sprintf(tmpbuf,"REFNUM %d LEVEL OPNOTE,SNOTE,WALLOP REFNUM %d",
             ovwinref,curwinref);
     display=window_display;
