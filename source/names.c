@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.16 2000-08-21 18:41:40 f Exp $
+ * $Id: names.c,v 1.17 2000-08-26 10:52:35 f Exp $
  */
 
 #include "irc.h"
@@ -204,7 +204,6 @@ add_channel(channel, server, connected, copy)
 	int	do_add = 0;
 /**************************** PATCHED by Flier ******************************/
         int     resetchan=0;
-        Window  *newwin;
         WhowasChanList *whowaschan;
 /****************************************************************************/
 
@@ -227,13 +226,9 @@ add_channel(channel, server, connected, copy)
                 new_free(&new);
             }
             new=whowaschan->channellist;
-            /* try to rejoin in correct window */
-            if (!(new->window=is_bound(channel,server))) {
-                if (!(newwin=FindWindowByPtr(new->window)) ||
-                    newwin->refnum!=whowaschan->refnum)
-                    new->window=(Window *) 0;
-            }
             new->next=(ChannelList *) 0;
+            if ((new->window=is_bound(channel,server))==(Window *) 0)
+                new->window=curr_scr_win;
             do_add=1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
             new_free(&whowaschan);
