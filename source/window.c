@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.32 2001-07-21 19:25:14 f Exp $
+ * $Id: window.c,v 1.33 2001-07-22 09:05:27 f Exp $
  */
 
 #include "irc.h"
@@ -794,59 +794,8 @@ static void size_window(window,newsize)
 Window *window;
 int newsize;
 {
-    int after;
-    int sizediff;
-    int othersize;
-    int windowsize;
-    Window *tmp;
-    Window *other;
-
     if (!window) window=curr_scr_win;
-    if (!window->visible) {
-        say("You cannot change the size of hidden windows!");
-        return;
-    }
-    if (window->next) {
-        other=window->next;
-        after=1;
-    }
-    else {
-        other=NULL;
-        for (tmp=current_screen->window_list;tmp;tmp=tmp->next) {
-            if (tmp==window) break;
-            other=tmp;
-        }
-        if (other==NULL) {
-            say("Can't change the size of this window!");
-            return;
-        }
-        after=0;
-    }
-    sizediff=newsize-window->display_size;
-    windowsize=window->display_size+sizediff;
-    othersize=other->display_size-sizediff;
-    if ((windowsize<4) || (othersize<4)) {
-        say("Not enough room to resize this window!");
-        return;
-    }
-    if (after) {
-        window->bottom+=sizediff;
-        other->top+=sizediff;
-    }
-    else {
-        window->top-=sizediff;
-        other->bottom-=sizediff;
-    }
-#ifdef SCROLL_AFTER_DISPLAY
-    window->display_size=windowsize-1;
-    other->display_size=othersize-1;
-#else
-    window->display_size=windowsize;
-    other->display_size=othersize;
-#endif /* SCROLL_AFTER_DISPLAY */
-    window->update|=REDRAW_DISPLAY_FULL|REDRAW_STATUS;
-    other->update|=REDRAW_DISPLAY_FULL|REDRAW_STATUS;
-    term_flush();
+    grow_window(window,newsize-window->display_size);
 }
 /****************************************************************************/
 
