@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.82 2003-04-29 18:05:49 f Exp $
+ * $Id: edit3.c,v 1.83 2003-05-11 18:24:44 f Exp $
  */
 
 #include "irc.h"
@@ -2409,13 +2409,7 @@ void InitVars() {
 #ifdef OPER
     malloc_strcpy(&DefaultKill,"Go play somewhere else...");
 #endif
-    malloc_strcpy(&NickWatchChannels,"*");
-    malloc_strcpy(&MDopWatchChannels,"*");
-    malloc_strcpy(&KickWatchChannels,"*");
     malloc_strcpy(&ShowFakesChannels,"*");
-    malloc_strcpy(&ShowAwayChannels,"*");
-    malloc_strcpy(&KickOnFloodChannels,"*");
-    malloc_strcpy(&KickOnBanChannels,"*");
     malloc_strcpy(&FriendListChannels,"*");
     malloc_strcpy(&BKChannels,"*");
     malloc_strcpy(&AutoReplyString,": ");
@@ -2439,9 +2433,9 @@ void InitVars() {
     KickSensor=4;
     NickSensor=4;
     AutoAwayTime=10;
-    NickWatch=1;
-    MDopWatch=1;
-    KickWatch=1;
+    NickWatch=0;
+    MDopWatch=0;
+    KickWatch=0;
     AutoRejoin=0;
     AutoJoinOnInv=0;
 #if defined(EXTRAS) || defined(FLIER)
@@ -2459,7 +2453,7 @@ void InitVars() {
     ServerNotice=0;
     CTCPCloaking=0;
     ShowFakes=1;
-    ShowAway=1;
+    ShowAway=0;
 #if defined(CELE)
     LagTimer.tv_sec=0;
     LagTimer.tv_usec=0;
@@ -2467,8 +2461,8 @@ void InitVars() {
     LagTimer=0;
 #endif
     KickOps=0;
-    KickOnFlood=1;
-    KickOnBan=1;
+    KickOnFlood=0;
+    KickOnBan=0;
 #ifdef SCKICKS
     NumberOfScatterKicks=0;
 #endif
