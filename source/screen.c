@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.24 2002-02-01 18:47:37 f Exp $
+ * $Id: screen.c,v 1.25 2002-02-01 18:56:49 f Exp $
  */
 
 #include "irc.h"
@@ -2648,6 +2648,7 @@ scrollback_start(key, ptr)
 	}
 }
 
+#ifdef WINDOW_CREATE
 void
 screen_wserv_message(screen)
 	Screen *screen;
@@ -2657,7 +2658,7 @@ screen_wserv_message(screen)
 	Screen *old_screen;
 
 	old_timeout = dgets_timeout(0);
-	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0) < 1)
+	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0, 0) < 1)
 	{
 		/* this should be impossible. */
 		if (!is_main_screen(screen))
@@ -2685,3 +2686,4 @@ screen_wserv_message(screen)
 	term_resize();
 	current_screen = old_screen;
 }
+#endif
