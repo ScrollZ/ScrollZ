@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.16 1999-03-09 20:35:50 f Exp $
+ * $Id: ctcp.c,v 1.17 1999-04-19 17:04:53 f Exp $
  */
 
 #include "irc.h"
@@ -1833,31 +1833,28 @@ do_new_notice_ctcp(from, to, str, cmd)
 				sprintf(buf, "%ld second%s", (long) timediff,
 					(timediff == 1) ? "" : "s");
 				args = buf;*/
-				char	buf[mybufsize/16];
+                                char *tmpstr=(char *) 0;
+				char buf[mybufsize/16];
 #ifndef HAVETIMEOFDAY
-				time_t	timediff,
-					currenttime;
+				time_t	timediff,currenttime;
 
-                                currenttime = time(NULL);
-                                if (args && *args)
-					timediff = currenttime -
-						(time_t) atoi(args);
-				else
-					timediff = (time_t) 0;
-				sprintf(buf, "%d second%s", timediff,
-                                        (timediff == 1) ? "" : "s");
+                                currenttime=time(NULL);
+                                tmpstr=next_arg(args,&args);
+                                if (tmpstr) timediff=currenttime-(time_t) atoi(tmpstr);
+				else timediff=(time_t) 0;
+				sprintf(buf,"%d second%s",timediff,(timediff==1)?"":"s");
 #else
-                                struct timeval  timeofday;
-                                char   *tmpstr=(char *) 0;
+                                struct timeval timeofday;
 
                                 gettimeofday(&timeofday,NULL);
-                                if (args && *args) {
-                                    tmpstr=next_arg(args,&args);
+                                if ((tmpstr=next_arg(args,&args))) {
                                     timeofday.tv_sec-=atol(tmpstr);
-                                    if (args && *args) {
-                                        if (timeofday.tv_usec>=atol(args)) timeofday.tv_usec-=atol(args);
+                                    if ((tmpstr=next_arg(args,&args))) {
+                                        if (timeofday.tv_usec>=atol(tmpstr))
+                                            timeofday.tv_usec-=atol(args);
                                         else {
-                                            timeofday.tv_usec=timeofday.tv_usec-atol(args)+1000000;
+                                            timeofday.tv_usec=timeofday.tv_usec-
+                                                              atol(tmpstr)+1000000;
                                             timeofday.tv_sec--;
                                         }
                                         sprintf(tmpbuf1,"%06ld",timeofday.tv_usec);
@@ -1868,7 +1865,8 @@ do_new_notice_ctcp(from, to, str, cmd)
                                         timenow=timeofday;
 #endif
                                     }
-                                    else sprintf(buf,"%ld second%s",timeofday.tv_sec,(timeofday.tv_sec==1)?"":"s");
+                                    else sprintf(buf,"%ld second%s",timeofday.tv_sec,
+                                                 (timeofday.tv_sec==1)?"":"s");
                                 }
                                 else sprintf(buf, "0 seconds");
 #endif
