@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.88 2002-08-12 18:29:51 f Exp $
+ * $Id: edit2.c,v 1.89 2002-10-01 22:16:12 f Exp $
  */
 
 #include "irc.h"
@@ -696,22 +696,22 @@ char *subargs;
 }
 
 /* Reconnects you to server, storing all current info */
-void ReconnectServer(command,args,subargs)
+void ReconnectServer(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
     int port;
-    int servernum=from_server;
-    char tmpbuf[mybufsize/2];
+    int servernum = from_server;
+    char tmpbuf[mybufsize / 2];
 
-    if (servernum!=-1) {
-        port=get_server_port(servernum);
-        say("Reconnecting to server %s port %d...",get_server_name(servernum),port);
-        snprintf(tmpbuf,sizeof(tmpbuf),"SERVER %s:%d",get_server_name(servernum),port);
-        close_server(servernum,"reconnecting to server");
+    if (servernum != -1) {
+        port = get_server_port(servernum);
+        say("Reconnecting to server %s port %d...", get_server_name(servernum), port);
+        snprintf(tmpbuf, sizeof(tmpbuf), "SERVER %d", servernum);
+        close_server(servernum, "reconnecting to server");
         clean_whois_queue();
-        windowcmd(NULL,tmpbuf,NULL);
+        windowcmd(NULL, tmpbuf, NULL);
     }
     else say("You are not connected to a server");
 }
