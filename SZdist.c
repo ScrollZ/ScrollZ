@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.6 1998-10-31 18:28:38 f Exp $
+ * $Id: SZdist.c,v 1.7 1998-11-02 21:18:54 f Exp $
  */
 
 #include <stdio.h>
@@ -82,7 +82,8 @@ char *MGSfiles="edit.o edit3.o edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
  window.o";
-char *CELEfiles="*.o";
+char *CELEfiles="alias.o cdcc.o celerity.o edit.o edit2.o edit3.o edit4.o edit5.o\
+ edit6.o input.o numbers.o operv.o parse.o server.o status.o vars.o whois.o";
 char *HYPERDCCfiles="cdcc.o dcc.o edit.o edit4.o edit6.o";
 char *VILASfiles="edit.o edit2.o edit3.o edit4.o edit5.o edit6.o names.o\
  numbers.o server.o";
@@ -90,8 +91,8 @@ char *JIMMIEfiles="edit2.o";
 char *CTCPPAGEfiles="ctcp.o";
 char *TDFfiles="cdcc.o dcc.o edit.o edit4.o edit5.o edit6.o status.o";
 char *COUNTRYfiles="alias.o";
-char *SZ32files="edit.o help.o irc.o ircaux.o scandir.o server.o term.o window.o";
-char *SZNCURSESfiles="edit.o edit4.o input.o irc.o menu.o output.o parse.o screen.o\
+char *SZ32files="edit.o help.o ircaux.o scandir.o server.o term.o window.o";
+char *SZNCURSESfiles="edit.o edit4.o input.o menu.o output.o parse.o screen.o\
  status.o term.o";
 char *IPCHECKINGfiles="edit2.o edit3.o edit6.o files.o parse.o";
 
@@ -485,13 +486,13 @@ char **argv;
             tmp1++;
         }
         else choice&=~OPERVISION;
-        /*if (*tmp1==' ' && *(tmp1+1)=='c' && *(tmp1+2)=='y') {
+        if (*tmp1==' ' && *(tmp1+1)=='c' && *(tmp1+2)=='y') {
             choice|=CELE;
             tmp1++;
             tmp1++;
             tmp1++;
         }
-        else choice&=~CELE;*/
+        else choice&=~CELE;
         if (*tmp1==' ') {
             tmp1++;
             for (;*tmp1 && *tmp1!=' ';tmp1++) {
