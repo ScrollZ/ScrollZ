@@ -57,6 +57,25 @@ fixed CHSIGNOFF always showing regardless of setting (reported by kali)
 fixed WALL ignoring SHOWWALLOP value from ScrollZ.save
 WALL now accepts optional target channel as first argument (requested
      by Zero)
+fixed status bar not showing usermode +z when set
+DCC ACTIONs now go to window with level DCC or to window whose query nick
+    matches DCC nick (reported by Myrdraal)
+orignick will not react on notify signoff if your userhost matches
+         userhost of person that signed off, but you have to be on
+         a channel for this to work (requetsed by arc)
+fixed wallops not displaying nick when OperVision was active (reported
+      by pier)
+fixed input prompt bugs shown with ANSI prompts (reported by [Una])
+Cdcc queue now ignores dupes and files already present in DCC list
+     (requested by art3mis)
+fixed $szvar() core dumping with NULL strings (thanks to whitefang
+      for figuring this one)
+DIRLM, DIRLN, DIRLSM and DIRLSN are now multiple servers compliant
+     (requested by several users)
+last join in status bar and LASTJOINER_KICK are now multiple server
+     compliant
+added CDCC VERBOSE, when set to off remote Cdcc messages are hidden
+      from user (requested by Zig)
 
 
 -------------------------------------------------------------------------------
