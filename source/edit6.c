@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.119 2002-01-07 19:18:16 f Exp $
+ * $Id: edit6.c,v 1.120 2002-01-08 17:34:44 f Exp $
  */
 
 #include "irc.h"
@@ -2373,6 +2373,10 @@ char *subargs;
     char *filter;
     char *server;
 
+    if (inSZTrace) {
+        say("Already doing filtered trace");
+        return;
+    }
     filter = new_next_arg(args, &args);
     if (!my_stricmp(filter,"-COUNT")) {
         countonly = 1;
