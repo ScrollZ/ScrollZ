@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.50 2002-12-05 20:17:29 f Exp $
+ * $Id: cdcc.c,v 1.51 2003-03-25 17:31:52 f Exp $
  */
 
 #include "irc.h"
@@ -582,9 +582,7 @@ int type;
             }
             else fills=0;
             if (completed && (Client->flags)&DCC_ACTIVE && timenow-Client->starttime>0) {
-                if (flags==DCC_FILEREGET || flags==DCC_RESENDOFFER)
-                    completed-=Client->resendoffset;
-                rate=(float) (completed)/(float)(timenow-Client->starttime);
+                rate = (float)(completed - Client->resendoffset) / (float)(timenow - Client->starttime);
                 if (rate>0.0 && completed<=Client->filesize)
                     etatime=(float) (((float) (Client->filesize)-(float) completed)/(float) rate);
                 else etatime=0;
@@ -642,9 +640,7 @@ int type;
                     flags=Client->flags;
                     if (flags&DCC_ACTIVE && timenow-Client->starttime>0) {
                         flags&=DCC_TYPES;
-                        if (flags==DCC_FILEREGET || flags==DCC_RESENDOFFER)
-                            completed-=Client->resendoffset;
-                        rate=(float) (completed)/(float)(timenow-Client->starttime);
+                        rate = (float)(completed - Client->resendoffset) / (float)(timenow - Client->starttime);
                         snprintf(tmpbuf2,sizeof(tmpbuf2),"%6.2f",rate/1024.0);
                         if (rate>0.0 && completed<=Client->filesize) {
                             etatime=(float) (((float) (Client->filesize)-(float) completed)/(float) rate);
