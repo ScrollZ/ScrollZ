@@ -1,5 +1,5 @@
 /*
- * $Id: scandir.c,v 1.4 2002-03-09 17:49:13 f Exp $
+ * $Id: scandir.c,v 1.5 2002-12-22 17:36:26 f Exp $
  */
 
 #include "irc.h"
@@ -123,6 +123,20 @@ scandir(Name, dirlist, Selector, Sorter)
 
     return(i);
 }
+
+/**************************** Patched by Flier ******************************/
+/*
+ * Alphabetic order comparison routine for those who want it. 
+ */
+#ifndef alphasort
+int alphasort(d1, d2)
+struct dirent **d1, **d2;
+{
+    return(strcmp((*d1)->d_name, (*d2)->d_name));
+}
+#endif
+/****************************************************************************/
+
 #else
 /* End of Mike Sandrof's change */
 #include "scandir.h"

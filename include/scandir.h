@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: scandir.h,v 1.3 2002-03-09 17:49:13 f Exp $
+ * $Id: scandir.h,v 1.4 2002-12-22 17:36:26 f Exp $
  */
 
 #ifndef __scandir_h__
@@ -85,6 +85,9 @@
 int scandir _((const char *, struct dirent ***, int (*)(), int (*)()));
 #else
 int scandir _((char *, struct dirent ***, int (*)(), int (*)()));
+#ifndef alphasort
+int alphasort _((struct dirent **, struct dirent **)); 
+#endif
 #endif /* __linux__ || __sgi */
 
 #else /* XD88 || __SVR4 || POSIX || __linux__ || SVR3 || __osf__ || ... */
@@ -114,6 +117,9 @@ int scandir _((char *, struct dirent ***, int (*)(), int (*)()));
 int scandir _((const char *, struct direct ***, int (*)(), int (*)()));
 #else
 int scandir _((char *, struct direct ***, int (*)(), int (*)()));
+#ifndef alphasort
+int alphasort _((struct direct **, struct direct **)); 
+#endif
 #endif /* NeXT */
 #endif /* (!ultrix && !__386BSD__ && !_HPUX_SOURCE) || HPUX7 */
 #endif	/* ultrix || __386BSD__ || BSD */
