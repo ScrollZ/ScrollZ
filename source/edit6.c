@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.13 1998-11-16 20:59:15 f Exp $
+ * $Id: edit6.c,v 1.14 1998-11-16 21:11:08 f Exp $
  */
 
 #include "irc.h"
@@ -2277,7 +2277,14 @@ char *subargs;
             say("DCC CHAT communication with %s will no longer be encrypted",user);
         }
     }
-    else PrintUsage("ENCRCHAT user [key]");
+    else {
+        if (!encrlist) {
+            say("No users in encryption list");
+            return;
+        }
+        for (tmp=encrlist;tmp;tmp=tmp->next)
+            say("User %s with key %s",tmp->user,tmp->key);
+    }
 }
 
 /* Encrypt DCC CHAT message */
