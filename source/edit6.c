@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.100 2001-09-17 16:35:03 f Exp $
+ * $Id: edit6.c,v 1.101 2001-09-18 21:02:57 f Exp $
  */
 
 #include "irc.h"
@@ -1164,7 +1164,11 @@ char *subargs;
     if (*args) {
         for (tmpstr=args;*tmpstr;tmpstr++) isnumber&=isdigit(*tmpstr)?1:0;
         number=atoi(args);
-        if (isnumber && number>-1) *(command_list[i].var)=number;
+        if (isnumber && number>-1) {
+            *(command_list[i].var)=number;
+            /* reset orignick timer */
+            if (!strcmp(command_list[i].command,"ORIGNTIME")) LastNick=time((time_t *) 0);
+        }
         else {
             sprintf(tmpbuf,"%s number",command_list[i].command);
             PrintUsage(tmpbuf);
@@ -1406,6 +1410,7 @@ char *subargs;
                 if (quietstr && *quietstr && !my_stricmp(quietstr,"QUIET")) OrigNickQuiet=1;
                 else OrigNickQuiet=0;
                 OrigNickNumber=0; /* start from scratch */
+                LastNick=time((time_t *) 0);
             }
             *(command_list[i].var)=1;
         }
