@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.79 2001-12-17 20:39:37 f Exp $
+ * $Id: edit4.c,v 1.80 2001-12-19 18:21:40 f Exp $
  */
 
 #include "irc.h"
@@ -2648,13 +2648,14 @@ char *args;
 char *subargs;
 {
     int  i;
-    char *server;
 
     say("List of servers on your server list");
-    for (i=0;i<number_of_servers;i++) {
-        server=server_list[i].name;
-        if (i!=from_server) say("#%-2d %s  %d",i,server,server_list[i].port);
-        else say("#%-2d %c%s%c  %d",i,bold,server,bold,server_list[i].port);
+    for (i = 0; i < number_of_servers; i++) {
+        if (i != from_server)
+            say("%c%-2d %s  %d", server_list[i].enable_ssl ? '!' : ' ',
+                i, server_list[i].name, server_list[i].port);
+        else say("%c%-2d %c%s%c  %d",server_list[i].enable_ssl ? '!' : ' ',
+                i, bold, server_list[i].name, bold, server_list[i].port);
     }
 }
 #endif /* LITE */

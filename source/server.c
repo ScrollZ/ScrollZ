@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.39 2001-12-19 18:16:03 f Exp $
+ * $Id: server.c,v 1.40 2001-12-19 18:21:40 f Exp $
  */
 
 #include "irc.h"
@@ -1613,7 +1613,9 @@ display_server_list()
 			{
 /**************************** Patched by Flier ******************************/
 				/*say("\t%d) %s %d%s", i,*/
-				say("\t%d) %s %d%s%s", i,
+				say("\t%c%d) %s %d%s%s",
+                                        server_list[i].enable_ssl ? '!' : ' ',
+                                        i,
 /****************************************************************************/
 					server_list[i].name,
 					server_list[i].port,
@@ -1626,14 +1628,21 @@ display_server_list()
 			else
 			{
 				if (server_list[i].read == -1)
-					say("\t%d) %s %d (was %s)", i,
+/**************************** Patched by Flier ******************************/
+					/*say("\t%d) %s %d (was %s)", i,*/
+					say("\t%c%d) %s %d (was %s)",
+                                                server_list[i].enable_ssl ? '!' : ' ',
+                                                i,
+/****************************************************************************/
 						server_list[i].name,
 						server_list[i].port,
 						server_list[i].nickname);
 				else
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (%s)", i,*/
-					say("\t%d) %s %d (%s)%s", i,
+					say("\t%c%d) %s %d (%s)%s",
+                                                server_list[i].enable_ssl ? '!' : ' ',
+                                                i,
 /****************************************************************************/
 						server_list[i].name,
 						server_list[i].port,
