@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.2 1998-09-10 17:45:26 f Exp $
+ * $Id: ircaux.c,v 1.3 1998-09-27 16:30:48 f Exp $
  */
 
 #include "irc.h"
@@ -604,8 +604,7 @@ struct sockaddr_in *localaddr;
     for (locport=DCCLowPort;locport<=DCCHighPort;locport++) {
         localaddr->sin_port=htons(locport);
         if (bind(s,(struct sockaddr *) localaddr,sal)==0) {
-            if (!slisten) break;
-            else if (listen(s,1)==0) break;
+            if (slisten && (listen(s,1)==0)) break;
         }
     }
     if (!(locport>=DCCLowPort && locport<=DCCHighPort)) {
@@ -643,17 +642,10 @@ struct sockaddr_in *localaddr;
  * -4 connect call failed 
  */
 int
-/**************************** PATCHED by Flier ******************************/
-/*connect_by_number(service, host, nonblocking)
+connect_by_number(service, host, nonblocking)
 	int	service;
 	char	*host;
-	int	nonblocking;*/
-connect_by_number(service,host,nonblocking,dcccon)
-int  service;
-char *host;
-int  nonblocking;
-int  dcccon;
-/****************************************************************************/
+	int	nonblocking;
 {
 	int	s = -1;
 	char	buf[100];
@@ -691,18 +683,8 @@ int  dcccon;
 	    ((service != -1) && ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)))
 		return (-3);
 /**************************** PATCHED by Flier ******************************/
-        if (DCCLowPort>1023 && DCCHighPort<65500 && dcccon && service>0) {
-            int newsock;
-            struct sockaddr_in localaddr;
-
-            bzero(&localaddr, sizeof(struct sockaddr_in));
-            localaddr.sin_addr=MyHostAddr;
-            localaddr.sin_family=AF_INET;
-            newsock=BindPort(s,0,&localaddr);
-            if (newsock<0) return(newsock);
-        }
 /* Virtual Hosting, Patched by Zakath */
-        if (!dcccon && service>0 && VirtualHost) {
+        if (service>0 && VirtualHost) {
             struct hostent *blah;
             struct sockaddr_in localaddr;
 
@@ -740,9 +722,8 @@ int  dcccon;
 			new_close(s);
 			return -4;
 		}*/
-                if (DCCLowPort>1023 && DCCHighPort<65500 && !service && dcccon) {
-                    newsock=BindPort(s,1,&localaddr);
-                    if (newsock<0) return(newsock);
+                if (DCCLowPort>1023 && DCCHighPort<65500 && !service) {
+                    if ((newsock=BindPort(s,1,&localaddr))<0) return(newsock);
                 }
                 else {
                     if (bind(s,(struct sockaddr *) &localaddr,sizeof(localaddr))==-1 ||
