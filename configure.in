@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.9 2000-08-18 17:50:51 f Exp $
+dnl @(#)$Id: configure.in,v 1.10 2000-08-18 18:22:57 f Exp $
 
-AC_REVISION($Revision: 1.9 $)dnl
+AC_REVISION($Revision: 1.10 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -61,7 +61,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.9 2000-08-18 17:50:51 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.10 2000-08-18 18:22:57 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -570,7 +570,7 @@ main()
 {
 	char b[12], x[32];
 	int f, l = sizeof(x);
-	f = 0;
+	f = socket(AF_INET, SOCK_DGRAM, 0);
 	if (f >= 0 && (fcntl(f, F_SETFL,'
 postcode=') != -1)) {
 		signal(SIGALRM, alarmed);
