@@ -1,0 +1,3214 @@
+#!/bin/sh
+# the next line restarts using wish \
+exec wish "$0" "$*"
+
+#
+# xSZsetup - (c) 1997 Goran Koruga (jm_ on IRC)
+#
+# The purpose of xSZsetup is to enable the users of ScrollZ IRC client to
+# set-up their own color scheme with help of a user interface.
+#
+# Thanks go to Frank Pilhofer for letting me use tk_SelectFiles and it's
+# counterparts (CompressSlashes, CanonPattern and MFSSelectShow). I have
+# trimmed down tk_SelectFiles later on since I don't need ability to
+# select directories and/or multiple files. I've also added some binds
+# to tk_SelectFiles so user can use keyboard too (i.e. Esc,...)
+# BTW, Frank is author of excellent uudecoder called uudeview (the stuff
+# he let me use in xSZsetup is from xdeview - X interface for uudeview)
+#
+# Requirements to run xSZsetup are:
+#    - Tcl 7.5 (or newer)
+#    - Tk  4.1 (or newer)
+# It might work on Tk older than 4.1 but you will have to edit it a bit
+# (i.e. remove all -anchor and -justify switches). Be warned that look
+# might suffer under Tk older than 4.1.
+#
+# $id$
+#
+
+# some global variables
+set Name "xSZsetup"
+set Version "v1.0pl04"
+# lists for ease of use
+set AttrNames [ list OFF BOLD UNDERLINE FLASH REVERSE ]
+set ColNames [ list BLACK RED GREEN YELLOW BLUE PURPLE CYAN WHITE ]
+set BgColNames [ list BLACKBG REDBG GREENBG YELLOWBG BLUEBG PURPLEBG CYANBG\
+                 WHITEBG ]
+set CmdsNames [ list WARNING JOIN MSG NOTICE NETSPLIT INVITE MODE SETTING\
+                HELP LEAVE NOTIFY CTCP KICK DCC WHO WHOIS PUBLIC CDCC LINKS\
+                DCCCHAT CSCAN NICK ME OV ]
+set ColorNames [ list Color1 Color2 Color3 Color4 Color5 Color6 ]
+# default load path
+set MFSLoadFilterPath "~/.ScrollZ"
+# default extension
+set MFSLoadFilterPattern "*.save"
+set ds "/"
+set parent ".."
+# current Cmd we are working on
+set CurrCmd WARNING
+set CurrCmdName Warning
+set CurrCmdNum 1
+set CurrColor Color1
+set CurrAttrs(OFF) 0
+set CurrAttrs(BOLD) 0
+set CurrAttrs(UNDERLINE) 0
+set CurrAttrs(FLASH) 0
+set CurrAttrs(REVERSE) 0
+# set up our own colors
+set Col(BLACK) Black
+set Col(BoldBLACK) \#545454
+set Col(RED) \#B20000
+set Col(BoldRED) \#FF5454
+set Col(GREEN) \#00B200
+set Col(BoldGREEN) \#54FF54
+set Col(YELLOW) \#B25400
+set Col(BoldYELLOW) \#FFFF54
+set Col(BLUE) \#0000B2
+set Col(BoldBLUE) \#5454FF
+set Col(PURPLE) \#B200B2
+set Col(BoldPURPLE) \#FF54FF
+set Col(CYAN) \#00B2B2
+set Col(BoldCYAN) \#54FFFF
+set Col(WHITE) \#B2B2B2
+set Col(BoldWHITE) White
+# set up our own background colors
+set Col(BLACKBG) $Col(BLACK)
+set Col(REDBG) $Col(RED)
+set Col(GREENBG) $Col(GREEN)
+set Col(YELLOWBG) $Col(YELLOW)
+set Col(BLUEBG) $Col(BLUE)
+set Col(PURPLEBG) $Col(PURPLE)
+set Col(CYANBG) $Col(CYAN)
+set Col(WHITEBG) $Col(WHITE)
+# get default background
+set DefaultBg \#AFB1C3
+
+proc UpdateStatus { Text } {
+    ._Status._Text config -text $Text
+    update
+}
+
+proc Quit {} {
+#  SZSetupCleanUp
+    destroy . 
+}
+
+proc Default {} {
+    InitVars
+    RefreshColors
+    RefreshText
+    UpdateStatus "Default colors from ScrollZ v1.8b selected"
+    after 5000 UpdateStatus "Ready"
+}
+
+# load selected file and parse each line in ScrollZ.save file
+# check for those that start with COLOR
+proc Load {} {
+    global CmdsNames ColorNames Name Version CmdsColors AttrNames
+    global CurrCmd CurrColor CurrAttrs FileCheck
+
+    UpdateStatus "Waiting for you to select filename..."
+    set FileCheck 1
+    set FileName [ tk_SelectFiles "Select File to load from" ]
+    if { $FileName == "" } {
+        UpdateStatus "Ready"
+        return
+    }
+    set LineNumber 0
+    if { ![ file exists $FileName] } {
+        tk_dialog ._Dialog "Oops" "File $FileName doesn't exist!\
+            Aborting..." error 0 OK
+        return
+    }
+    if { [ catch { open $FileName r } readID ] } {
+        tk_dialog ._Dialog "Oops" "Can't read from file $FileName!\
+            Aborting..." error 0 OK
+	return
+    }
+    UpdateStatus "Loading from $FileName"
+    while {![eof $readID]} {
+	gets $readID Buffer
+        incr LineNumber
+        if { [ string index $Buffer 0 ] == "#" } {
+            continue
+        }
+        if { [ string toupper [ lindex $Buffer 0 ] ] == "COLOR" } {
+            if { [ llength $Buffer ] != 8 } {
+                tk_dialog ._Dialog "Oops" "Error while reading $FileName!\
+                    Check line $LineNumber..." error 0 OK
+                close $readID
+                UpdateStatus "Error while loading $FileName"
+                # update status after 5s
+                after 5000 UpdateStatus "Ready"
+                return
+            }
+            set EventName [ string toupper [ lrange $Buffer 1 1 ] ]
+            set Colors(Color1) [ string toupper [ lrange $Buffer 2 2 ] ]
+            set Colors(Color2) [ string toupper [ lrange $Buffer 3 3 ] ]
+            set Colors(Color3) [ string toupper [ lrange $Buffer 4 4 ] ]
+            set Colors(Color4) [ string toupper [ lrange $Buffer 5 5 ] ]
+            set Colors(Color5) [ string toupper [ lrange $Buffer 6 6 ] ]
+            set Colors(Color6) [ string toupper [ lrange $Buffer 7 7 ] ]
+            foreach index $CmdsNames {
+                if { $index == $EventName } {
+                    foreach colindex $ColorNames {
+                        set CmdsColors($EventName,$colindex,Col) ""
+                        set CmdsColors($EventName,$colindex,Bg) ""
+                        foreach attrindex $AttrNames {
+                            set CmdsColors($EventName,$colindex,$attrindex) 0
+                        }
+                        if { ! [ ParseColor $index $colindex $Colors($colindex) ] } {
+                            tk_dialog ._Dialog "Oops" "Error while parsing\
+                                $FileName line $LineNumber! Check $colindex..."\
+                                error 0 OK
+                            UpdateStatus "Error while from $FileName"
+                            # update status after 5s
+                            after 5000 UpdateStatus "Ready"
+                            close $readID
+                            return
+                        }
+                    }
+                    break
+                }
+            }
+        }
+    }
+    UpdateStatus "Load from $FileName OK"
+    # update status after 5s
+    after 5000 UpdateStatus "Ready"
+    close $readID
+    RefreshColors
+    RefreshText
+    foreach index $AttrNames {
+        set CurrAttrs($index) $CmdsColors($CurrCmd,$CurrColor,$index)
+    }
+}
+
+# Parse each color string and set attribute, color and/or background color
+# Various parts are separated by ','
+proc ParseColor { Cmd Col ColorString } {
+    global AttrNames ColNames BgColNames CmdsColors CmdsNames ColorNames
+
+    set ColorList [ split $ColorString , ]
+    foreach colorstr $ColorList {
+        set Found 0
+        foreach blah $AttrNames {
+            if { [ string toupper $blah ] == $colorstr } {
+                set CmdsColors($Cmd,$Col,$blah) 1
+                set Found 1
+                break
+            }
+        }
+        if { ! $Found } {
+            foreach blah $ColNames {
+                if { $blah == $colorstr } {
+                    set CmdsColors($Cmd,$Col,Col) $blah
+                    set Found 1
+                    break
+                }
+            }
+            if { ! $Found } {
+                foreach blah $BgColNames {
+                    if { $blah == $colorstr } {
+                        set CmdsColors($Cmd,$Col,Bg) $blah
+                        set Found 1
+                        break
+                    }
+                }
+            }
+        }
+    }
+    return $Found
+}
+
+#
+# title:      Title of this dialog box. Printed in the title bar
+# startpath:  the path where we want the selection to start
+#
+# global variable FileCheck is used to determine if we should check if
+# file exists (useful for save dialog)
+#
+proc tk_SelectFiles { title { startpath "" } } {
+    global MFSLoadFilterPath MFSLoadFilterPattern MFSSelectFinish
+    global MFSCurPattern MFSCurSelection MFSlbf MFSlbd MFSlbi ds parent
+    global DefaultBg
+    
+    set MFSLoadFilterPath [ CompressSlashes $MFSLoadFilterPath ]
+    set OldFilterPath $MFSLoadFilterPath
+    set OldFilterPattern $MFSLoadFilterPattern
+    if { $startpath != "" } {
+        set MFSLoadFilterPath [ CompressSlashes $startpath ]
+    }
+    set MFSCurPattern [ file join $MFSLoadFilterPath $MFSLoadFilterPattern ]
+    set MFSSelectFinish {}
+    set MFSCurSelection ""
+
+    set MFSlbf ._Selector._Top._FileList.sub.box
+    set MFSlbd ._Selector._Top._DirList.sub.box
+    set MFSlbi ._Selector._SelList._FileList._List
+
+    toplevel ._Selector
+    wm title ._Selector $title
+    wm minsize ._Selector 300 200
+
+    frame ._Selector._Filter -relief raised -bd 1 -background $DefaultBg
+    label ._Selector._Filter._Label -text "Filter:" -background $DefaultBg \
+        -underline 0
+    entry ._Selector._Filter._Filter -relief sunken -textvariable MFSCurPattern \
+         -background $DefaultBg
+    pack ._Selector._Filter._Label -side left -padx 4 -pady 4
+    pack ._Selector._Filter._Filter -side right -padx 8 -pady 4 \
+        -fill x -expand true
+    pack ._Selector._Filter -side top -fill x
+
+    frame ._Selector._Top -relief groove -bd 1 -background $DefaultBg
+    frame ._Selector._Top._DirList -background $DefaultBg
+    frame ._Selector._Top._DirList.sub -background $DefaultBg
+
+    label ._Selector._Top._DirList.label -text "Directories" \
+         -background $DefaultBg
+    listbox ._Selector._Top._DirList.sub.box -relief sunken \
+        -xscrollcommand "._Selector._Top._DirList.sub.xsb set" \
+        -yscrollcommand "._Selector._Top._DirList.sub.ysb set" \
+        -selectmode normal -height 8 -background $DefaultBg
+    scrollbar ._Selector._Top._DirList.sub.xsb -orient horizontal \
+        -command "._Selector._Top._DirList.sub.box xview" \
+        -background $DefaultBg
+    scrollbar ._Selector._Top._DirList.sub.ysb \
+        -command "._Selector._Top._DirList.sub.box yview" \
+        -background $DefaultBg
+
+    pack ._Selector._Top._DirList.sub.xsb -side bottom -fill x
+    pack ._Selector._Top._DirList.sub.ysb -side right  -fill y
+    pack ._Selector._Top._DirList.sub.box -side left -expand true -fill both
+
+    pack ._Selector._Top._DirList.label -side top -anchor w -padx 4
+    pack ._Selector._Top._DirList.sub -side bottom -expand true -fill both
+
+
+    frame ._Selector._Top._FileList -background $DefaultBg
+    frame ._Selector._Top._FileList.sub -background $DefaultBg
+
+    label ._Selector._Top._FileList.label -text "Files" -background $DefaultBg
+
+    listbox ._Selector._Top._FileList.sub.box -relief sunken \
+        -xscrollcommand "._Selector._Top._FileList.sub.xsb set" \
+        -yscrollcommand "._Selector._Top._FileList.sub.ysb set" \
+        -selectmode normal -height 8 -background $DefaultBg
+    scrollbar ._Selector._Top._FileList.sub.xsb -orient horizontal \
+        -command "._Selector._Top._FileList.sub.box xview" \
+        -background $DefaultBg
+    scrollbar ._Selector._Top._FileList.sub.ysb \
+        -command "._Selector._Top._FileList.sub.box yview" \
+        -background $DefaultBg
+
+    pack ._Selector._Top._FileList.sub.xsb -side bottom -fill x
+    pack ._Selector._Top._FileList.sub.ysb -side right  -fill y
+    pack ._Selector._Top._FileList.sub.box -side left \
+        -expand true -fill both
+
+    pack ._Selector._Top._FileList.label -side top -anchor w -padx 4
+    pack ._Selector._Top._FileList.sub -side bottom \
+        -expand true -fill both
+
+    pack ._Selector._Top._DirList -side left -expand true -fill both -padx 4
+
+    pack ._Selector._Top._FileList -side right -expand true \
+        -fill both -padx 4
+
+    frame ._Selector._Selection -relief groove -bd 1 -background $DefaultBg
+    label ._Selector._Selection.lab -text "Selection" -background $DefaultBg \
+        -underline 0
+    entry ._Selector._Selection.ent -relief sunken \
+        -textvariable MFSCurSelection -background $DefaultBg
+    pack ._Selector._Selection.ent -side bottom -padx 4 -fill x
+    pack ._Selector._Selection.lab -side bottom -anchor w -padx 4
+
+    frame ._Selector._Buttons -relief raised -bd 1 -background $DefaultBg
+    frame ._Selector._Buttons.b -background $DefaultBg
+
+    button ._Selector._Buttons.b._Ok -text "Ok" -width 8 \
+        -background $DefaultBg -highlightthicknes 0 -underline 0 \
+        -command {
+            global FIleCheck
+
+            if { $FileCheck && ( ! [ file exists $MFSCurSelection ] || \
+                ! [ file readable $MFSCurSelection ] || \
+                [ file isdirectory $MFSCurSelection ] ) } {
+                tk_dialog ._Dialog { Invalid Choice } "$MFSCurSelection\
+                    does not exist, is not readable or is a\
+                    directory" {} 0 OK
+            } else {
+                set MFSSelectFinish ok
+            }
+        }
+    button ._Selector._Buttons.b._Filter -text "Filter" -width 8 \
+        -highlightthicknes 0 -background $DefaultBg -underline 0 \
+        -command {
+            set MFSCurPattern [ CanonPattern $MFSCurPattern ]
+            MFSSelectShow 1
+        }
+    button ._Selector._Buttons.b._Cancel -text "Cancel" -width 8 \
+        -highlightthicknes 0 -command { set MFSSelectFinish cancel } \
+        -background $DefaultBg -underline 0
+    
+    pack ._Selector._Buttons.b._Ok \
+        ._Selector._Buttons.b._Filter \
+        ._Selector._Buttons.b._Cancel \
+        -side left -ipadx 4 -ipady 4 -padx 15 -pady 4
+    pack ._Selector._Buttons.b
+
+    pack ._Selector._Top -side top -expand true -fill both -ipadx 8 -ipady 8
+
+    pack ._Selector._Selection -side top -fill both -ipadx 8 -ipady 4
+    pack ._Selector._Buttons -side bottom -fill x
+
+    #
+    # the items are up on screen. define bindings
+    # 
+
+    bind ._Selector._Filter._Filter <Return> {
+        set MFSCurPattern [ CanonPattern $MFSCurPattern ]
+        MFSSelectShow 1
+    }
+    bind $MFSlbd <Double-Button-1> {
+        set Selection [ lindex [ $MFSlbd curselection ] 0 ]
+
+        if { $Selection != "" } {
+            set TheFile [ $MFSlbd get $Selection ]
+            set MFSLoadFilterPath [ CompressSlashes \
+                    [ file join $MFSLoadFilterPath $TheFile ] ]
+            set MFSCurPattern [ \
+                    file join $MFSLoadFilterPath $MFSLoadFilterPattern]
+            MFSSelectShow 1
+        }
+    }
+    bind $MFSlbd <Button-2> {
+        set Selection [ $MFSlbd index  @%x,%y ]
+        set TheFile   [ $MFSlbd get $Selection ]
+
+        if { $Selection != "" } {
+            set MFSLoadFilterPath [ CompressSlashes \
+                    [ file join $MFSLoadFilterPath $TheFile ] ]
+            set MFSCurPattern [ \
+                    file join $MFSLoadFilterPath $MFSLoadFilterPattern]
+            MFSSelectShow 1
+        }
+    }
+    bind $MFSlbd <Button-1> {
+        set Selection [ $MFSlbd index  @%x,%y ]
+        set TheFile   [ $MFSlbd get $Selection ]
+
+        if { $TheFile != "" } {
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]$ds
+        }
+    }
+    bind $MFSlbf <Button-1> {
+        set Selection [ $MFSlbf index  @%x,%y ]
+        set TheFile   [ $MFSlbf get $Selection ]
+
+        if { $TheFile != "" } {
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]
+        }
+    }
+    bind $MFSlbf <Double-Button-1> {
+        set Selection [ lindex [ $MFSlbf curselection ] 0 ]
+
+        if { $Selection != "" } {
+            set TheFile [ $MFSlbf get $Selection ]
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]
+            set MFSSelectFinish ok
+        }
+    }
+    bind $MFSlbf <Button-2> {
+        set Selection [ $MFSlbf index  @%x,%y ]
+        set TheFile   [ $MFSlbf get $Selection ]
+
+        if { $Selection != "" } {
+            set TheFile [ $MFSlbf get $Selection ]
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]
+            set MFSSelectFinish ok
+        }
+    }
+    bind ._Selector._Selection.ent <Return> {
+        global FIleCheck
+
+        set MFSCurSelection [ CompressSlashes $MFSCurSelection ]
+        if { $FileCheck && ( ! [ file exists $MFSCurSelection ] || \
+            ! [ file readable $MFSCurSelection ] ) } {
+            tk_dialog ._Dialog { Invalid Choice } "$MFSCurSelection\
+                does not exist or is not readable" {} 0 OK
+        } else {
+            set MFSSelectFinish ok
+        }
+    }
+    bind ._Selector <Alt-o> {
+        set Selection [ lindex [ $MFSlbf curselection ] 0 ]
+
+        if { $Selection != "" } {
+            set TheFile [ $MFSlbf get $Selection ]
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]
+            set MFSSelectFinish ok
+        }
+    }
+    bind ._Selector <Return> {
+        set Selection [ lindex [ $MFSlbf curselection ] 0 ]
+
+        if { $Selection != "" } {
+            set TheFile [ $MFSlbf get $Selection ]
+            set MFSCurSelection [ file join $MFSLoadFilterPath $TheFile ]
+            set MFSSelectFinish ok
+        }
+    }
+    bind ._Selector <Alt-c> {
+        set MFSSelectFinish "cancel"
+    }
+    bind ._Selector <Escape> {
+        set MFSSelectFinish "cancel"
+    }
+    bind ._Selector <Alt-f> {
+        focus ._Selector._Filter._Filter
+    }
+    bind ._Selector <Alt-s> {
+        focus ._Selector._Selection.ent
+    }
+
+    MFSSelectShow 1
+    set oldFocus [ focus ]
+    tkwait visibility ._Selector
+    grab set ._Selector
+    focus ._Selector
+    tkwait variable MFSSelectFinish
+
+    set FileList {}
+
+    if { $MFSSelectFinish == "cancel" } {
+        set MFSLoadFilterPath $OldFilterPath
+        set MFSLoadFilterPattern $OldFilterPattern
+    } else {
+        set FileList $MFSCurSelection
+    }
+
+    destroy ._Selector
+    focus $oldFocus
+    return $FileList
+}
+
+#
+# Canonicalize a path: compress multiple slashes, remove slash at end,
+#                      expand double-dots and perform tilde expansion
+#
+proc CompressSlashes { Path } {
+    global ds parent
+
+    set thepath [ file split $Path ]
+    set lastel  [ expr [ llength $thepath ] - 1 ]
+    set newpat  {}
+    set ignore  0
+
+    set element "."
+    for { set index $lastel } { $index >= 0 } { incr index -1 } {
+        set element [ lindex $thepath $index ]
+        if { $element == {} } {
+        } elseif { $element == "." } {
+        } elseif { $element == $parent } {
+            incr ignore
+        } elseif { $index == 0 && [ string range $element 0 0 ] == "~" } {
+            set hopath [ file split [ glob -nocomplain $element ] ]
+    
+            if { $hopath == {} } {
+            tk_dialog ._Dialog { User does not exist } "This user does\
+                not exist." {} 0 OK
+            } elseif { $ignore } {
+            if { $ignore > [ llength $hopath ] } {
+                set newpat [ linsert $newpat 0 {} ]
+            } else {
+                set holen [ llength $hopath ]
+                set newpat [ concat [ lrange $hopath 0 \
+                    [ expr $holen - $ignore - 1 ] ] \
+                    $newpat ]
+            }
+            } else {
+            set newpat [ concat $hopath $newpat ]
+            }
+        } elseif { $ignore } {
+            incr ignore -1
+        } else {
+            set newpat [ linsert $newpat 0 $element ]
+        }
+    }
+    if { $element == {} } {
+    set newpat [ linsert $newpat 0 {} ]
+    } elseif { $element == $ds } {
+    } elseif { $element == "." || $element == $parent } {
+    if { $ignore } {
+        set curdir [ file split [ pwd ] ]
+        if { $ignore > [ llength $curdir ] } {
+        set newpat [ linsert $newpat 0 {} ]
+        } else {
+        set cdlen [ llength $curdir ]
+        set newpat [ concat [ lrange $curdir 0 \
+            [ expr $cdlen - $ignore - 1 ] ] \
+            $newpat ]
+        }
+    } else {
+        set newpat [ linsert $newpat 0 "." ]
+    }
+    } else {
+    set newpat [ linsert $newpat 0 "." ]
+    }
+    set ThePath [ eval file join $newpat ]
+
+    return $ThePath
+}
+
+#
+# Canonize our search pattern
+#
+proc CanonPattern { Pattern } {
+    global MFSLoadFilterPath MFSLoadFilterPattern ds parent
+
+    set ThePath [ CompressSlashes $Pattern ]
+    set TheDir  [ file dirname $ThePath ]
+    set TheFile [ file tail $ThePath ]
+
+    # split up by directory and pattern
+
+    if { $TheDir == {} } {
+        set MFSLoadFilterPath "."
+        set MFSLoadFilterPattern "*"
+    } elseif { [ file exists $ThePath ] && [ file isdirectory $ThePath ] } {
+        set MFSLoadFilterPath $ThePath
+        if { $MFSLoadFilterPattern == {} } {
+            set MFSLoadFilterPattern "*"
+        }
+        } else {
+            set MFSLoadFilterPath $TheDir
+            set MFSLoadFilterPattern $TheFile
+        }
+    set MFSCurPattern [ file join $MFSLoadFilterPath $MFSLoadFilterPattern ]
+
+    return $MFSCurPattern
+}
+
+#
+# Update elements in Listboxes after directory or filter change
+#
+proc MFSSelectShow { havefiles } {
+    global MFSLoadFilterPath MFSLoadFilterPattern ds parent
+
+    if { $havefiles } {
+        global MFSlbf
+    }
+    global MFSlbd
+
+    if { $havefiles } {
+        $MFSlbf delete 0 end
+    }
+    $MFSlbd delete 0 end
+
+    if { ! [ file readable $MFSLoadFilterPath ] } {
+        tk_dialog ._Dialog { File Error } "You do not have the proper\
+            permissions to browse this Directory: $MFSLoadFilterPath" \
+            {} 0 OK
+        if { [ file pathtype $MFSLoadFilterPath ] == "absolute" } {
+            if { [ llength [ file split $MFSLoadFilterPath ] ] > 1 } {
+                $MFSlbd insert 0 $parent$ds
+            }
+        }
+        return
+    }
+    #
+    # insert files into file list
+    #
+    if { $havefiles } {
+        set pat [ file join $MFSLoadFilterPath $MFSLoadFilterPattern ]
+        foreach file [ lsort [ glob -nocomplain -- $pat ] ] {
+            set basename [ file tail $file ]
+
+            if { ! [ file isdirectory $file ] } {
+                $MFSlbf insert end $basename
+            }
+        }
+    }
+    #
+    # insert directories into directory list
+    # also show '.*' dirs, but don't show '.' file
+    #
+    set pat [ file join $MFSLoadFilterPath .* ]
+    foreach file [ lsort [ glob -nocomplain -- $pat ] ] {
+        set basename [ file tail $file ]
+        
+        if { $basename != "." && [ file isdirectory $file ] } {
+            append basename /
+            $MFSlbd insert end $basename
+        }
+    }
+    set pat [ file join $MFSLoadFilterPath * ]
+    foreach file [ lsort [ glob -nocomplain -- $pat ] ] {
+        set basename [ file tail $file ]
+
+        if { $basename != "." && [ file isdirectory $file ] } {
+            append basename /
+            $MFSlbd insert end $basename
+        }
+    }
+}
+
+# Save to selected file
+proc Save {} {
+    global Name Version CmdsColors CmdsNames ColorNames AttrNames FileCheck
+
+    UpdateStatus "Waiting for you to select filename..."
+    set FileCheck 0
+    set tempname [ tk_SelectFiles "Select File to save to" ]
+    if { $tempname == "" } {
+        UpdateStatus "Ready"
+        return
+    }
+    set FileFlag w
+    if { [ file exists $tempname ] } {
+        set RetValue [ tk_dialog ._Dialog "Oops" "File $tempname already exists!\n\
+            What should I do?" error 0 " Append " " Overwrite " " Cancel " ]
+        if { $RetValue == 0 } {
+            set FileFlag a
+            UpdateStatus "Appending to file $tempname"
+        } elseif { $RetValue == 1 } then {
+            set FileFlag w
+            UpdateStatus "Overwriting file $tempname"
+        } else {
+            return
+        }
+    }
+    if { [ catch { open $tempname $FileFlag } writeID ] } {
+        tk_dialog ._Dialog "Oops" "Cannot write to file $tempname!\
+	    Colors not saved." error 0 OK
+	return
+    }
+    puts $writeID "# Generated by $Name $Version"
+    foreach index $CmdsNames {
+        puts -nonewline $writeID "COLOR  $index\t"
+        foreach colindex $ColorNames {
+            set comma 0
+            foreach attrindex $AttrNames {
+                if { $CmdsColors($index,$colindex,$attrindex) } {
+                    if { $comma } {
+                        puts -nonewline $writeID ","
+                    } 
+                    set comma 1
+                    puts -nonewline $writeID "$attrindex"
+                }
+            }
+            if { $CmdsColors($index,$colindex,Col) != "" } {
+                if { $comma } {
+                    puts -nonewline $writeID ","
+                } 
+                set comma 1
+                puts -nonewline $writeID "$CmdsColors($index,$colindex,Col)"
+            }
+            if { $CmdsColors($index,$colindex,Bg) != "" } {
+                if { $comma } {
+                    puts -nonewline $writeID ","
+                } 
+                puts -nonewline $writeID "$CmdsColors($index,$colindex,Bg)"
+            }
+            
+            # Color6 is last one in a row so don't add extra spaces
+            if { $colindex != "Color6" } {
+                puts -nonewline $writeID "  "
+            }
+        }
+        puts $writeID ""
+    }
+    close $writeID
+    UpdateStatus "Write to $tempname OK"
+    # update status after 5s
+    after 5000 UpdateStatus "Ready"
+}
+
+# display dialog box
+proc About {} {
+    global AboutFinish Name Version DefaultBg Col
+
+    set AboutFinish {}
+
+    toplevel ._About
+    wm title ._About "About $Name"
+
+    frame ._About._Right -relief raised -bd 2 -background $DefaultBg
+    label ._About._Right._Text1 -text "$Name $Version" \
+        -background $DefaultBg -foreground $Col(BoldBLUE)
+    label ._About._Right._Text2 -text "Written by Goran Koruga (jm_ on IRC)" \
+        -background $DefaultBg -foreground $Col(BoldCYAN)
+    label ._About._Right._Text3 -text "This is X version of SZSetup program\
+        for customizing ScrollZ colors. It was written in hope it\
+        might help users create more color schemes. Thanks to Frank\
+        Pilhofer for for letting me use his stuff." \
+        -wraplength 250 -background $DefaultBg -foreground Black
+    button ._About._Right._Button -text "Ok" -command { set AboutFinish ok } \
+        -highlightthicknes 0 -background $DefaultBg
+
+    pack ._About._Right._Button -fill both -padx 90 -pady 8 -side bottom
+
+    pack ._About._Right._Text1 ._About._Right._Text2 About._Right._Text3 \
+            -fill both -padx 10 -pady 5 -side top
+    pack ._About._Right -fill both
+
+    set oldFocus [ focus ]
+    tkwait visibility ._About
+    grab set ._About
+    focus ._About
+    tkwait variable AboutFinish
+    destroy ._About
+    focus $oldFocus
+}
+
+# initialize all colors to default
+proc InitVars { } {
+    global NumEvents CmdsColors CmdsNames ColorNames AttrNames
+    global CurrCmd CurrColor CurrAttrs
+
+    # they all default to plain white
+    foreach index $CmdsNames {
+        foreach colindex $ColorNames {
+           set CmdsColors($index,$colindex,Col) WHITE
+           set CmdsColors($index,$colindex,Bg) ""
+           foreach attrindex $AttrNames {
+               set CmdsColors($index,$colindex,$attrindex) 0
+           }
+        }
+    }
+    # set defaults from ScrollZ
+    # Warning
+    set CmdsColors(WARNING,Color1,BOLD) 1
+    set CmdsColors(WARNING,Color1,Col) RED
+    set CmdsColors(WARNING,Color2,BOLD) 1
+    set CmdsColors(WARNING,Color2,Col) WHITE
+    set CmdsColors(WARNING,Color3,BOLD) 1
+    set CmdsColors(WARNING,Color3,Col) YELLOW
+    set CmdsColors(WARNING,Color4,BOLD) 1
+    set CmdsColors(WARNING,Color4,Col) CYAN
+
+    # Join
+    set CmdsColors(JOIN,Color1,Col) CYAN
+    set CmdsColors(JOIN,Color2,Col) PURPLE
+    set CmdsColors(JOIN,Color3,BOLD) 1
+    set CmdsColors(JOIN,Color3,Col) CYAN
+    set CmdsColors(JOIN,Color5,BOLD) 1
+    set CmdsColors(JOIN,Color5,Col) CYAN
+    set CmdsColors(JOIN,Color6,BOLD) 1
+    set CmdsColors(JOIN,Color6,Col) RED
+
+    # Msg
+    set CmdsColors(MSG,Color1,BOLD) 1
+    set CmdsColors(MSG,Color1,Col) CYAN
+    set CmdsColors(MSG,Color2,Col) PURPLE
+    set CmdsColors(MSG,Color4,BOLD) 1
+    set CmdsColors(MSG,Color4,Col) BLACK
+    set CmdsColors(MSG,Color5,BOLD) 1
+    set CmdsColors(MSG,Color5,Col) CYAN
+    set CmdsColors(MSG,Color6,Col) CYAN
+
+    # Notice
+    set CmdsColors(NOTICE,Color1,BOLD) 1
+    set CmdsColors(NOTICE,Color1,Col) GREEN
+    set CmdsColors(NOTICE,Color2,Col) GREEN
+    set CmdsColors(NOTICE,Color4,BOLD) 1
+    set CmdsColors(NOTICE,Color4,Col) GREEN
+    set CmdsColors(NOTICE,Color5,BOLD) 1
+    set CmdsColors(NOTICE,Color5,Col) WHITE
+
+    # Netsplit
+    set CmdsColors(NETSPLIT,Color1,BOLD) 1
+    set CmdsColors(NETSPLIT,Color1,Col) WHITE
+    set CmdsColors(NETSPLIT,Color4,BOLD) 1
+    set CmdsColors(NETSPLIT,Color4,Col) CYAN
+    set CmdsColors(NETSPLIT,Color5,Col) CYAN
+    set CmdsColors(NETSPLIT,Color6,BOLD) 1
+    set CmdsColors(NETSPLIT,Color6,Col) YELLOW
+
+    # Invite
+    set CmdsColors(INVITE,Color1,Col) CYAN
+    set CmdsColors(INVITE,Color2,Col) PURPLE
+    set CmdsColors(INVITE,Color3,BOLD) 1
+    set CmdsColors(INVITE,Color3,Col) CYAN
+    set CmdsColors(INVITE,Color4,BOLD) 1
+    set CmdsColors(INVITE,Color4,Col) RED
+
+    # Mode
+    set CmdsColors(MODE,Color1,Col) CYAN
+    set CmdsColors(MODE,Color3,BOLD) 1
+    set CmdsColors(MODE,Color3,Col) CYAN
+    set CmdsColors(MODE,Color5,BOLD) 1
+    set CmdsColors(MODE,Color5,Col) WHITE
+    set CmdsColors(MODE,Color6,BOLD) 1
+    set CmdsColors(MODE,Color6,Col) RED
+
+    # Setting
+    set CmdsColors(SETTING,Color1,BOLD) 1
+    set CmdsColors(SETTING,Color1,Col) WHITE
+    set CmdsColors(SETTING,Color2,BOLD) 1
+    set CmdsColors(SETTING,Color2,Col) PURPLE
+    set CmdsColors(SETTING,Color3,BOLD) 1
+    set CmdsColors(SETTING,Color3,Col) YELLOW
+    set CmdsColors(SETTING,Color4,Col) PURPLE
+    set CmdsColors(SETTING,Color5,BOLD) 1
+    set CmdsColors(SETTING,Color5,Col) CYAN
+
+    # Help
+    set CmdsColors(HELP,Color1,BOLD) 1
+    set CmdsColors(HELP,Color1,Col) CYAN
+    set CmdsColors(HELP,Color2,BOLD) 1
+    set CmdsColors(HELP,Color2,Col) YELLOW
+    set CmdsColors(HELP,Color3,Col) CYAN
+    set CmdsColors(HELP,Color4,BOLD) 1
+    set CmdsColors(HELP,Color4,Col) GREEN
+    set CmdsColors(HELP,Color5,BOLD) 1
+    set CmdsColors(HELP,Color5,Col) CYAN
+
+    # Leave
+    set CmdsColors(LEAVE,Color1,Col) CYAN
+    set CmdsColors(LEAVE,Color2,BOLD) 1
+    set CmdsColors(LEAVE,Color2,Col) CYAN
+    set CmdsColors(LEAVE,Color4,BOLD) 1
+    set CmdsColors(LEAVE,Color4,Col) CYAN
+    set CmdsColors(LEAVE,Color5,BOLD) 1
+    set CmdsColors(LEAVE,Color5,Col) RED
+
+    # Notify
+    set CmdsColors(NOTIFY,Color1,Col) CYAN
+    set CmdsColors(NOTIFY,Color2,Col) PURPLE
+    set CmdsColors(NOTIFY,Color3,BOLD) 1
+    set CmdsColors(NOTIFY,Color3,Col) BLACK
+    set CmdsColors(NOTIFY,Color4,BOLD) 1
+    set CmdsColors(NOTIFY,Color4,Col) WHITE
+    set CmdsColors(NOTIFY,Color5,BOLD) 1
+    set CmdsColors(NOTIFY,Color5,Col) CYAN
+    set CmdsColors(NOTIFY,Color6,BOLD) 1
+    set CmdsColors(NOTIFY,Color6,Col) CYAN
+
+    # Ctcp
+    set CmdsColors(CTCP,Color1,Col) CYAN
+    set CmdsColors(CTCP,Color2,Col) PURPLE
+    set CmdsColors(CTCP,Color3,BOLD) 1
+    set CmdsColors(CTCP,Color3,Col) CYAN
+    set CmdsColors(CTCP,Color4,BOLD) 1
+    set CmdsColors(CTCP,Color4,Col) CYAN
+
+    # Kick
+    set CmdsColors(KICK,Color1,Col) CYAN
+    set CmdsColors(KICK,Color2,Col) CYAN
+    set CmdsColors(KICK,Color3,BOLD) 1
+    set CmdsColors(KICK,Color3,Col) CYAN
+    set CmdsColors(KICK,Color5,BOLD) 1
+    set CmdsColors(KICK,Color5,Col) WHITE
+    set CmdsColors(KICK,Color6,BOLD) 1
+    set CmdsColors(KICK,Color6,Col) CYAN
+
+    # Dcc
+    set CmdsColors(DCC,Color1,Col) CYAN
+    set CmdsColors(DCC,Color2,Col) PURPLE
+    set CmdsColors(DCC,Color3,BOLD) 1
+    set CmdsColors(DCC,Color3,Col) WHITE
+    set CmdsColors(DCC,Color4,Col) CYAN
+    set CmdsColors(DCC,Color5,BOLD) 1
+    set CmdsColors(DCC,Color5,Col) YELLOW
+    set CmdsColors(DCC,Color6,BOLD) 1
+    set CmdsColors(DCC,Color6,Col) RED
+
+    # Who
+    set CmdsColors(WHO,Color1,Col) CYAN
+    set CmdsColors(WHO,Color2,Col) PURPLE
+    set CmdsColors(WHO,Color3,BOLD) 1
+    set CmdsColors(WHO,Color3,Col) CYAN
+    set CmdsColors(WHO,Color5,BOLD) 1
+    set CmdsColors(WHO,Color5,Col) WHITE
+
+    # Whois
+    set CmdsColors(WHOIS,Color1,Col) CYAN
+    set CmdsColors(WHOIS,Color2,Col) PURPLE
+    set CmdsColors(WHOIS,Color3,BOLD) 1
+    set CmdsColors(WHOIS,Color3,Col) CYAN
+    set CmdsColors(WHOIS,Color5,BOLD) 1
+    set CmdsColors(WHOIS,Color5,Col) BLUE
+    set CmdsColors(WHOIS,Color6,BOLD) 1
+    set CmdsColors(WHOIS,Color6,Col) RED
+
+    # Public
+    set CmdsColors(PUBLIC,Color2,BOLD) 1
+    set CmdsColors(PUBLIC,Color2,Col) BLUE
+    set CmdsColors(PUBLIC,Color3,BOLD) 1
+    set CmdsColors(PUBLIC,Color3,Col) CYAN
+    set CmdsColors(PUBLIC,Color4,BOLD) 1
+    set CmdsColors(PUBLIC,Color4,Col) CYAN
+    set CmdsColors(PUBLIC,Color6,Col) CYAN
+
+    # Cdcc
+    set CmdsColors(CDCC,Color1,Col) CYAN
+    set CmdsColors(CDCC,Color2,Col) PURPLE
+    set CmdsColors(CDCC,Color3,BOLD) 1
+    set CmdsColors(CDCC,Color3,Col) WHITE
+    set CmdsColors(CDCC,Color4,BOLD) 1
+    set CmdsColors(CDCC,Color4,Col) YELLOW
+    set CmdsColors(CDCC,Color5,Col) CYAN
+    set CmdsColors(CDCC,Color6,BOLD) 1
+    set CmdsColors(CDCC,Color6,Col) CYAN
+
+    # Links
+    set CmdsColors(LINKS,Color1,Col) CYAN
+    set CmdsColors(LINKS,Color2,BOLD) 1
+    set CmdsColors(LINKS,Color2,Col) CYAN
+    set CmdsColors(LINKS,Color3,BOLD) 1
+    set CmdsColors(LINKS,Color3,Col) YELLOW
+    set CmdsColors(LINKS,Color4,BOLD) 1
+    set CmdsColors(LINKS,Color4,Col) WHITE
+    set CmdsColors(LINKS,Color5,Col) PURPLE
+
+    # Dccchat
+    set CmdsColors(DCCCHAT,Color1,BOLD) 1
+    set CmdsColors(DCCCHAT,Color1,Col) RED
+    set CmdsColors(DCCCHAT,Color2,BOLD) 1
+    set CmdsColors(DCCCHAT,Color2,Col) WHITE
+    set CmdsColors(DCCCHAT,Color4,BOLD) 1
+    set CmdsColors(DCCCHAT,Color4,Col) RED
+    set CmdsColors(DCCCHAT,Color5,Col) RED
+
+    # Cscan
+    set CmdsColors(CSCAN,Color1,BOLD) 1
+    set CmdsColors(CSCAN,Color1,Col) CYAN
+    set CmdsColors(CSCAN,Color2,BOLD) 1
+    set CmdsColors(CSCAN,Color2,Col) CYAN
+    set CmdsColors(CSCAN,Color3,Col) CYAN
+    set CmdsColors(CSCAN,Color4,Col) PURPLE
+    set CmdsColors(CSCAN,Color6,BOLD) 1
+    set CmdsColors(CSCAN,Color6,Col) RED
+
+    # Nick
+    set CmdsColors(NICK,Color1,Col) CYAN
+    set CmdsColors(NICK,Color3,Col) CYAN
+    set CmdsColors(NICK,Color4,BOLD) 1
+    set CmdsColors(NICK,Color4,Col) GREEN
+    set CmdsColors(NICK,Color5,BOLD) 1
+    set CmdsColors(NICK,Color5,Col) PURPLE
+
+    # Me
+    set CmdsColors(ME,Color1,BOLD) 1
+    set CmdsColors(ME,Color1,Col) WHITE
+    set CmdsColors(ME,Color2,BOLD) 1
+    set CmdsColors(ME,Color2,Col) CYAN
+    set CmdsColors(ME,Color3,Col) CYAN
+    set CmdsColors(ME,Color4,BOLD) 1
+    set CmdsColors(ME,Color4,Col) CYAN
+
+    # OV
+    set CmdsColors(OV,Color1,Col) CYAN
+    set CmdsColors(OV,Color2,Col) CYAN
+    set CmdsColors(OV,Color4,BOLD) 1
+    set CmdsColors(OV,Color4,Col) CYAN
+    set CmdsColors(OV,Color6,BOLD) 1
+    set CmdsColors(OV,Color6,Col) RED
+
+    # set CurrAttrs to the ones found in default CmdsColors
+    foreach index $AttrNames {
+        set CurrAttrs($index) $CmdsColors($CurrCmd,$CurrColor,$index)
+    }
+}
+
+proc ChoseColor { Color } {
+    global CmdsColors CurrCmd CurrColor
+
+    set CmdsColors($CurrCmd,$CurrColor,Col) $Color
+    RefreshColors
+    RefreshText
+}
+
+proc ChoseAttr { Attr } {
+    global CmdsColors CurrCmd CurrColor CurrAttrs
+
+    set CmdsColors($CurrCmd,$CurrColor,$Attr) $CurrAttrs($Attr)
+    RefreshColors
+    RefreshText
+}
+
+proc ChoseBgColor { BgColor } {
+    global CmdsColors CurrCmd CurrColor
+
+    set CmdsColors($CurrCmd,$CurrColor,Bg) $BgColor
+    RefreshColors
+    RefreshText
+}
+
+proc ChooseCmd { Cmd Num Name } {
+    global CurrCmd CurrCmdName CurrCmdNum CurrColor DefaultBg CurrAttrs
+    global CmdsColors AttrNames
+
+    ._MainFrame._Cmds$CurrCmdNum._$CurrCmdName config -background $DefaultBg
+    set CurrCmd $Cmd
+    set CurrCmdName $Name
+    set CurrCmdNum $Num
+    ._MainFrame._Cmds$CurrCmdNum._$CurrCmdName config -background navajowhite
+    foreach index $AttrNames {
+        set CurrAttrs($index) $CmdsColors($CurrCmd,$CurrColor,$index)
+    }
+    RefreshColors
+    RefreshText
+}
+
+proc ClearAllColors {} {
+    global CmdsColors AttrNames ColorNames CurrCmd CurrColor CurrAttrs
+
+    foreach colindex $ColorNames {
+        set CmdsColors($CurrCmd,$colindex,Col) WHITE
+        set CmdsColors($CurrCmd,$colindex,Bg) ""
+        foreach index $AttrNames {
+            set CmdsColors($CurrCmd,$colindex,$index) 0
+            set CurrAttrs($index) 0
+        }
+    }
+    RefreshColors
+    RefreshText
+}
+
+proc ClearColor {} {
+    global CmdsColors AttrNames CurrCmd CurrColor CurrAttrs
+
+    set CmdsColors($CurrCmd,$CurrColor,Col) WHITE
+    set CmdsColors($CurrCmd,$CurrColor,Bg) ""
+    foreach index $AttrNames {
+        set CmdsColors($CurrCmd,$CurrColor,$index) 0
+        set CurrAttrs($index) 0
+    }
+    RefreshColors
+    RefreshText
+}
+
+proc SelectColor { Color } {
+    global AttrNames CurrAttrs CmdsColors CurrCmd CurrColor
+
+    foreach index $AttrNames {
+        set CurrAttrs($index) $CmdsColors($CurrCmd,$Color,$index)
+    }
+}
+
+# redraw sample of all 6 colors
+proc RefreshColors {} {
+    global ColorNames
+
+    foreach index $ColorNames {
+        ._MainFrame._Sub._Screen._Colors._$index config \
+            -foreground [ FgColor $index ] -background [ BgColor $index ]
+    }
+}
+
+# redraw example for current cmd
+proc RefreshText {} {
+    global CurrCmd
+
+    # first erase all fields
+    foreach index [ list 1 2 3 4 5 6 7 8 9 10 11 12 ] {
+        foreach word [ list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ] {
+            ._MainFrame._Sub._Screen._Text._"L$index"._"W$word" config \
+                -text ""
+        }
+    }
+    Refresh$CurrCmd
+}
+
+# redraw example for Warning
+proc RefreshWARNING {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Error" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "can't open file ScrollZ.save" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Error" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "in ScrollZ.save," \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "unknown command" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "," \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "line 7" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+}
+
+# redraw example for Join
+proc RefreshJOIN {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "has joined channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Join to" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "is now" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "synched" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "(0.666 seconds)" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Color5" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "is for friends," \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "Color1" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "is for normal users" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "Color6" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "is for shitted users" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Msg
+proc RefreshMSG {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "\[" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "\]" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Toilets rule" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "*" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "*" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "Toilets rule" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text " (" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text "\[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "12:04" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W11" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W12" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+}
+
+# redraw example for Notice
+proc RefreshNOTICE {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "<" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text ">" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "I am the great Cornholio!" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "No way, I am the great Cornholio!" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+}
+
+# redraw example for Netsplit
+proc RefreshNETSPLIT {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Netsplit detected" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "at" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "11:03" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text ": \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "irc.dumb" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "<-" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Logged netsplit information" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Channel" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text ":" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "Nicks" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "     \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "irc.dumb" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "<-" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "\] : \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "23" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W10" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "#butt" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "  : " \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "Beavis Butt-head" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "End of netsplit information" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W1" config \
+        -text "Netjoined" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W2" config \
+        -text "at" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W3" config \
+        -text "11:05" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W4" config \
+        -text ": \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W5" config \
+        -text "irc.dumb" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W7" config \
+        -text "<-" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W8" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W9" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W10" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W1" config \
+        -text "Netsplit hack" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W2" config \
+        -text "\[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W3" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W4" config \
+        -text "\] on" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W5" config \
+        -text "#butt" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W4" config \
+        -text "by :" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W5" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for Invite
+proc RefreshINVITE {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Bat" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "bat" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "leet.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "invites you to channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "#te" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Bat" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "bat" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "leet.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "invites you to channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "#te" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text "-" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "fake" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+}
+
+# redraw example for Mode
+proc RefreshMODE {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Mode change" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "\"" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "+o Beavis" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "\" on channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "by" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Server modes" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "\"" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "+nst" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "\" on channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "by" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Fake" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "MODE" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "\"" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "-o Butt-head" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W10" config \
+        -text "\" from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W11" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+}
+
+# redraw example for Setting
+proc RefreshSETTING {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Found @Beavis" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "rock.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "with access" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "ICOAUD" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Found @Beavis" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "bites.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "with" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "no access" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "#1 " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "Beavis@rocks.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "    " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "ICOAUP" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "  N  " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "#butt*" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "#1 " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "BKI" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "   " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W4" config \
+        -text "BillG@Micro\$oft.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "    on channels " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text "*" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W3" config \
+        -text ":" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W4" config \
+        -text "Go away dork!" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W1" config \
+        -text "Added" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W2" config \
+        -text "Butt-head@rocks.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W3" config \
+        -text "to your friends list" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W1" config \
+        -text "with CTCP access of" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W2" config \
+        -text "INVITE CHOPS OP AUTOOP UNBAN PROT" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L8"._"W1" config \
+        -text "on channels" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L8"._"W2" config \
+        -text "#butt*" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L9"._"W1" config \
+        -text "jay@sucks.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L9"._"W2" config \
+        -text "removed from your friends list" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L10"._"W1" config \
+        -text "Fake modes display is" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L10"._"W2" config \
+        -text "ON" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L10"._"W3" config \
+        -text "for channels" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L10"._"W4" config \
+        -text "#butt*" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L11"._"W1" config \
+        -text "----------------=" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L11"._"W2" config \
+        -text "ScrollZ settings" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L11"._"W3" config \
+        -text "=----------------" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L12"._"W1" config \
+        -text "A-setaway time :" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L12"._"W2" config \
+        -text "10" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L12"._"W3" config \
+        -text "| A-join on invite :" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L12"._"W4" config \
+        -text "ON" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L12"._"W5" config \
+        -text "for" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L12"._"W6" config \
+        -text "#butt*" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for Help
+proc RefreshHELP {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Help for command" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "URL" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Usage" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "URL" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "\[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "http://" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "When you see highlighted URL, type" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "URL" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "to save it" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "Also look at" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "URLCATCH" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+}
+
+# redraw example for Leave
+proc RefreshLEAVE {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "has left channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "#butt" \
+        -foreground [ FgColor Color2 ] -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "I didn't do it" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text ")" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Signoff:" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "Shut up Butt-head" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text ")" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Color4" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "is for friends," \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "Color1" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "is for normal users" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "Color5" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "is for shitted users" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Notify
+proc RefreshNOTIFY {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Sign" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "On" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "detected:" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "\[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W11" config \
+        -text "11:39" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W12" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Sign" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Off" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "detected:" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "\[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W11" config \
+        -text "11:39" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W12" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "Present" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "     \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "          " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "  \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W4" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W5" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W6" config \
+        -text "bites.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W7" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text "Absent" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W3" config \
+        -text " )" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W4" config \
+        -text "Stewart Daria McVicker" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W1" config \
+        -text "Color6" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W2" config \
+        -text "is for friends, " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W3" config \
+        -text "Color1" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W4" config \
+        -text "is for normal users" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Ctcp
+proc RefreshCTCP {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "CTCP PING" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "reply from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text ": 0.078 seconds" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "CTCP VERSION" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text "to" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+}
+
+# redraw example for Kick
+proc RefreshKICK {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "You" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "have been" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "kicked" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "from channel" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "#te" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "by" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Yuk" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text "Bye" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text ")" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Color6" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "is for friends" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Dcc
+proc RefreshDCC {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "DCC" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "SEND" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "butt" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text ") request from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W11" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W12" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "     " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "rejected" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "\[Port=89\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "DCC" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "SEND" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "butt 743" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text ") request" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "received" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "     (" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W4" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W5" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "Warning" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text "fake DCC handshake detected" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Who
+proc RefreshWHO {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "   " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "H@" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "  " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W11" config \
+        -text "No pain no gain" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W12" config \
+        -text ")" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "H*@" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text " " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text "bites.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "(" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W11" config \
+        -text "Cool" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W12" config \
+        -text ")" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Whois
+proc RefreshWHOIS {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "  :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "(No pain no gain)" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Friend" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "  :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "\[Filt\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "Beav*@*.com" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "\[Acs\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "ICV" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "\[Chnl\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "#but*" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Channels" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text ":" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "#butt @#Beavis&Butt-head" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "Server" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "  :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W4" config \
+        -text " (Cool)" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "SetAway" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text " :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W3" config \
+        -text "irc.cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W4" config \
+        -text "(Beavis) Let's burn something" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W1" config \
+        -text "IrcOp" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W2" config \
+        -text "   :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W3" config \
+        -text "Beavis is an IRC Operator" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W1" config \
+        -text "SignOn" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W2" config \
+        -text "  :" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W3" config \
+        -text "Sep  8 18:52:49" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W4" config \
+        -text "   " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W5" config \
+        -text "Idle" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L7"._"W6" config \
+        -text ":" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L7"._"W7" config \
+        -text "163s (2 minutes)" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Public
+proc RefreshPUBLIC {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "<" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text ">" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "That was cool" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "<" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text ">" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "Hey Beavis check this out" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "<" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text ":" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "#butt" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text ">" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "Let's burn something" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for Cdcc
+proc RefreshCDCC {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Cdcc" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "created new pack" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text " : \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "17.69 kb/3 files" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Cdcc" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "sending" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text " : \[" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "17.69 kb/3 files" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "\]" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Cdcc" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "list" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "request received from" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text "(" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "@" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "rocks.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W10" config \
+        -text ")" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "      to" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "#butt" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "Cdcc" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W3" config \
+        -text "SEND" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W4" config \
+        -text "to" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W5" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W6" config \
+        -text "added to queue at position" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W7" config \
+        -text "5" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for Links
+proc RefreshLINKS {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "." \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "No" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text ". .---" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Server" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text "---. ." \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W11" config \
+        -text "Ds" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W12" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W13" config \
+        -text ".   .---" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W14" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W15" config \
+        -text "Uplink" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W16" config \
+        -text "-" \
+        -foreground $Col(BoldWHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W17" config \
+        -text "---." \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "   1 " \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W6" config \
+        -text "       irc.cool" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W7" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W8" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W9" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W10" config \
+        -text "   0 " \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W11" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W12" config \
+        -text "| >" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W13" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W14" config \
+        -text "       irc.dumb" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W16" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "   2 " \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W4" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W5" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W6" config \
+        -text " irc.global.net" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W7" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W8" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W9" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W10" config \
+        -text "   1 " \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W11" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W12" config \
+        -text "| >" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W13" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W14" config \
+        -text "    irc.bgx.com" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W16" config \
+        -text "|" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "`-------'" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "`-----------------'" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W4" config \
+        -text "`-------'" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W5" config \
+        -text " " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W6" config \
+        -text "`-----------------'" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for Dccchat
+proc RefreshDCCCHAT {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "\[" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "=" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "=" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "\]" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text "Settle down Beavis" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "=" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "=" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "No pain no gain" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+}
+
+# redraw example for Cscan
+proc RefreshCSCAN {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Users on" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "#butt" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "are : @" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text " @" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W7" config \
+        -text " +" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W8" config \
+        -text "Tod" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W9" config \
+        -text " " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W10" config \
+        -text "Stewart" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Found @" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "Butt-head@leet.com with access ICOAUP" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W1" config \
+        -text "Found @" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L3"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L3"._"W3" config \
+        -text "Beavis@rocks.com with no access" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W1" config \
+        -text "Found +" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L4"._"W2" config \
+        -text "Tod" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L4"._"W3" config \
+        -text "Tod@rocks.com with no access" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W1" config \
+        -text "Found " \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L5"._"W2" config \
+        -text "Stewart" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L5"._"W3" config \
+        -text "Stewart@sucks.com with no access" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L6"._"W1" config \
+        -text "Color6" \
+        -foreground [ FgColor Color6 ] -background [ BgColor Color6 ]
+    ._MainFrame._Sub._Screen._Text._"L6"._"W2" config \
+        -text "is for shitted people" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Nick
+proc RefreshNICK {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "is now" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "known" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W4" config \
+        -text "as" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L1"._"W5" config \
+        -text "Butt-cool" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "Users on #butt are :" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "@" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text "Butt-head" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "+" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "Beavis" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+}
+
+# redraw example for Me
+proc RefreshME {} {
+    global Col
+
+    ._MainFrame._Sub._Screen._Text._"L1"._"W1" config \
+        -text "*" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W2" config \
+        -text "Beavis" \
+        -foreground [ FgColor Color3 ] -background [ BgColor Color3 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W3" config \
+        -text "rulez the world" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W1" config \
+        -text "<" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W2" config \
+        -text "#butt" \
+        -foreground [ FgColor Color4 ] -background [ BgColor Color4 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W3" config \
+        -text ">" \
+        -foreground $Col(WHITE) -background $Col(BLACK)
+    ._MainFrame._Sub._Screen._Text._"L2"._"W4" config \
+        -text "*" \
+        -foreground [ FgColor Color1 ] -background [ BgColor Color1 ]
+    ._MainFrame._Sub._Screen._Text._"L2"._"W5" config \
+        -text "Butt-head" \
+        -foreground [ FgColor Color2 ] -background [ BgColor Color2 ]
+    ._MainFrame._Sub._Screen._Text._"L1"._"W6" config \
+        -text "has lots of chicks" \
+        -foreground [ FgColor Color5 ] -background [ BgColor Color5 ]
+}
+
+# redraw example for OV
+proc RefreshOV {} {
+    global Col
+}
+
+# return appropriate foreground according to colors found in variable
+proc FgColor { Color } {
+    global CmdsColors Col CurrCmd
+
+    if { $CmdsColors($CurrCmd,$Color,Col) != "" } {
+        if { $CmdsColors($CurrCmd,$Color,BOLD) } {
+            return $Col(Bold$CmdsColors($CurrCmd,$Color,Col))
+        } else {
+            return $Col($CmdsColors($CurrCmd,$Color,Col))
+        }
+    } else {
+         if { $CmdsColors($CurrCmd,$Color,BOLD) } {
+             return $Col(BoldWHITE)
+         } else {
+             return $Col(WHITE)
+         }
+    }
+}
+    
+# return appropriate background according to colors found in variable
+proc BgColor { Color} {
+    global CmdsColors Col CurrCmd
+
+    if { $CmdsColors($CurrCmd,$Color,Bg) != "" } {
+        return $Col($CmdsColors($CurrCmd,$Color,Bg))
+    } else {
+        return $Col(BLACKBG)
+    }
+}
+
+InitVars
+
+# draw main window
+
+wm positionfrom . user
+wm sizefrom . ""
+wm title . "$Name $Version"
+wm iconname . "$Name"
+
+# set up menu, just 4 entries
+frame ._MainMenu -relief raised -bd 4 -background $DefaultBg
+
+menubutton ._MainMenu._File -text "File    " -underline 0 \
+        -menu ._MainMenu._File._Menu -background $DefaultBg
+
+menu ._MainMenu._File._Menu -tearoff 0 -background $DefaultBg
+
+._MainMenu._File._Menu add command -label "Load         " -underline 0 \
+    -command "Load" -background $DefaultBg
+._MainMenu._File._Menu add command -label "Save         " -underline 0 \
+    -command "Save" -background $DefaultBg
+._MainMenu._File._Menu add separator -background $DefaultBg
+._MainMenu._File._Menu add command -label "Default      " -underline 0 \
+    -command "Default" -background $DefaultBg
+._MainMenu._File._Menu add command -label "About        " -underline 0 \
+    -command "About" -background $DefaultBg
+._MainMenu._File._Menu add separator -background $DefaultBg
+._MainMenu._File._Menu add command -label "Quit         " -underline 0 \
+    -command "Quit" -background $DefaultBg
+
+pack ._MainMenu._File -side left
+tk_menuBar ._MainMenu ._MainMenu._File -background $DefaultBg
+pack ._MainMenu -side top -fill x
+
+# set up main frame
+frame ._MainFrame -relief raised -bd 2 -background $DefaultBg
+
+#set up color bar
+frame ._MainFrame._ColorBar -background $DefaultBg
+
+# first foreground colors
+frame ._MainFrame._ColorBar._Fg -background $DefaultBg
+label ._MainFrame._ColorBar._Fg._Text -text "Foreground Colors" -justify left \
+    -background $DefaultBg
+pack ._MainFrame._ColorBar._Fg._Text -side top -pady 2
+foreach index $ColNames {
+    button ._MainFrame._ColorBar._Fg._$index -command "ChoseColor $index" \
+        -background $Col($index) -highlightthicknes 0
+    pack ._MainFrame._ColorBar._Fg._$index -side left -ipadx 2 -fill x \
+        -padx 1 -pady 3
+}
+pack ._MainFrame._ColorBar._Fg -side left -padx 10
+
+# then background colors
+frame ._MainFrame._ColorBar._Bg -background $DefaultBg
+label ._MainFrame._ColorBar._Bg._Text -text "Background Colors" -justify left \
+    -background $DefaultBg
+pack ._MainFrame._ColorBar._Bg._Text -side top -pady 2
+foreach index $ColNames {
+    button ._MainFrame._ColorBar._Bg._$index -command "ChoseBgColor $index" \
+    -background $Col($index) -highlightthicknes 0
+    pack ._MainFrame._ColorBar._Bg._$index -side left -ipadx 2 -fill x \
+        -padx 1 -pady 3
+}
+pack ._MainFrame._ColorBar._Bg -side left -padx 10
+
+# attributes are below foreground colors
+frame ._MainFrame._ColorBar._Attr -background $DefaultBg
+label ._MainFrame._ColorBar._Attr._Text -text "Attributes" \
+    -background $DefaultBg
+pack ._MainFrame._ColorBar._Attr._Text -padx 40 -anchor w \
+    -side top
+frame ._MainFrame._ColorBar._Attr1 -background $DefaultBg 
+foreach index [ list OFF BOLD UNDERLINE ] {
+    set blah [ string tolower [ string range $index 1 end ] ]
+    set name [ string toupper [ string index $index 0 ] ]$blah
+    checkbutton ._MainFrame._ColorBar._Attr1._$index -text "$name"                \
+        -command "ChoseAttr $index" -underline 0 -highlightthicknes 0 \
+        -variable CurrAttrs($index) -background $DefaultBg -width 8 \
+        -anchor w
+    pack ._MainFrame._ColorBar._Attr1._$index \
+        -side left -fill x -ipady 1
+}
+pack ._MainFrame._ColorBar._Attr1 -side bottom -anchor w
+frame ._MainFrame._ColorBar._Attr2 -background $DefaultBg 
+foreach index [ list FLASH REVERSE ] {
+    set blah [ string tolower [ string range $index 1 end ] ]
+    set name [ string toupper [ string index $index 0 ] ]$blah
+    checkbutton ._MainFrame._ColorBar._Attr2._$index -text "$name"                \
+        -command "ChoseAttr $index" -underline 0 -highlightthicknes 0 \
+        -variable CurrAttrs($index) -background $DefaultBg -width 8 \
+        -anchor w
+    pack ._MainFrame._ColorBar._Attr2._$index \
+        -side left -fill x -ipady 1
+}
+pack ._MainFrame._ColorBar._Attr2 -side bottom -anchor w
+pack ._MainFrame._ColorBar._Attr -side left
+
+# at left we have first part of Cmds
+frame ._MainFrame._Cmds1 -background $DefaultBg
+for { set index 0 } { $index < 11 } { incr index } {
+    set cmd [ lindex  $CmdsNames $index ]
+    set blah [ string tolower [ string range $cmd 1 end ] ]
+    set name [ string toupper [ string index $cmd 0 ] ]$blah
+    button ._MainFrame._Cmds1._$name -text "$name" -width 5 \
+        -command "ChooseCmd $cmd 1 $name" -highlightthicknes 0 \
+        -background $DefaultBg
+    pack ._MainFrame._Cmds1._$name -fill x -side left
+}
+
+# below them we have second part of Cmds
+frame ._MainFrame._Cmds2 -background $DefaultBg
+for { set index 11 } { $index < 22 } { incr index } {
+    set cmd [ lindex  $CmdsNames $index ]
+    set blah [ string tolower [ string range $cmd 1 end ] ]
+    set name [ string toupper [ string index $cmd 0 ] ]$blah
+    button ._MainFrame._Cmds2._$name -text "$name" -width 5 \
+        -command "ChooseCmd $cmd 2 $name" -highlightthicknes 0 \
+        -background $DefaultBg
+    pack ._MainFrame._Cmds2._$name -fill x -side left
+}
+
+# below them we have third part of Cmds
+frame ._MainFrame._Cmds3 -background $DefaultBg
+for { set index 22 } { $index < 24 } { incr index } {
+    set cmd [ lindex  $CmdsNames $index ]
+    set blah [ string tolower [ string range $cmd 1 end ] ]
+    set name [ string toupper [ string index $cmd 0 ] ]$blah
+    button ._MainFrame._Cmds3._$name -text "$name" -width 5 \
+        -command "ChooseCmd $cmd 3 $name" -highlightthicknes 0 \
+        -background $DefaultBg
+    pack ._MainFrame._Cmds3._$name -fill x -side left
+}
+
+# below them we have 6 Colors
+frame ._MainFrame._Colors -background $DefaultBg
+button ._MainFrame._Colors._ClearAll -text "Clear all 6" \
+    -command "ClearAllColors" -highlightthicknes 0 -background $DefaultBg \
+    -underline 0 -width 6
+pack ._MainFrame._Colors._ClearAll -fill x -side top -pady 2
+button ._MainFrame._Colors._Clear -text "Clear cur." -command "ClearColor" \
+    -highlightthicknes 0 -background $DefaultBg -underline 6 -width 6
+pack ._MainFrame._Colors._Clear -fill x -side top -pady 2
+foreach index $ColorNames {
+    radiobutton ._MainFrame._Colors._$index -text "$index"  \
+        -command "SelectColor $index" -variable CurrColor -value $index \
+        -highlightthicknes 0 -background $DefaultBg
+    pack ._MainFrame._Colors._$index -fill x -side top -pady 2
+}
+
+# Sub-MainFrame
+frame ._MainFrame._Sub -background $DefaultBg
+
+# in the middle we have frame for showing all 6 colors and for examples
+# taken from ScrollZ output of various events
+frame ._MainFrame._Sub._Screen -background black
+label ._MainFrame._Sub._Screen._Dummy \
+    -text "                                                                                                                            " \
+    -font 5x7 -background $DefaultBg
+pack ._MainFrame._Sub._Screen._Dummy
+frame ._MainFrame._Sub._Screen._Colors -background black
+foreach index $ColorNames {
+    label ._MainFrame._Sub._Screen._Colors._$index -text "$index" -width 2 \
+        -highlightthicknes 2 -highlightbackground $Col(WHITE)
+    pack ._MainFrame._Sub._Screen._Colors._$index -fill x -side top \
+        -padx 7 -pady 2
+}
+pack ._MainFrame._Sub._Screen._Colors -fill x -side left \
+    -ipadx 15 -pady 10
+
+# examples of how the output will look like
+frame ._MainFrame._Sub._Screen._Text -background black
+foreach index [ list 1 2 3 4 5 6 7 8 9 10 11 12 ] {
+    frame ._MainFrame._Sub._Screen._Text._"L$index" -background black
+    pack ._MainFrame._Sub._Screen._Text._"L$index" -side top -anchor w
+    foreach word [ list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ] {
+        label ._MainFrame._Sub._Screen._Text._"L$index"._"W$word" \
+            -background black -font "8x13bold"
+        pack ._MainFrame._Sub._Screen._Text._"L$index"._"W$word" -side left \
+            -padx 0
+    }
+}
+pack ._MainFrame._Sub._Screen._Text -fill x -side left -pady 10
+
+pack ._MainFrame._Sub._Screen -fill x -side left
+
+# at right there are buttons for quick access
+frame ._MainFrame._Sub._Buttons -background $DefaultBg
+foreach index [ list Load Save Default About Quit ] {
+    button ._MainFrame._Sub._Buttons._$index  -text "$index" \
+        -command "$index" -underline 0 -highlightthicknes 0 \
+        -background $DefaultBg
+    pack ._MainFrame._Sub._Buttons._$index -ipadx 4 -ipady 4 -fill x \
+        -padx 2 -pady 2
+}
+pack ._MainFrame._Sub._Buttons -side top -padx 8 -pady 8
+
+bind . <Alt-l> { Load }
+bind . <Alt-s> { Save }
+bind . <Alt-d> { Default }
+bind . <Alt-a> { About }
+bind . <Alt-q> { Quit }
+bind . <Alt-c> { ClearColor }
+bind . <Alt-C> { ClearAllColors }
+bind . <Alt-1> {
+    set CurrColor Color1
+    RefreshColors
+    SelectColor Color1
+}
+bind . <Alt-2> {
+    set CurrColor Color2
+    RefreshColors
+    SelectColor Color2
+}
+bind . <Alt-3> {
+    set CurrColor Color3
+    RefreshColors
+    SelectColor Color3
+}
+bind . <Alt-4> {
+    set CurrColor Color4
+    RefreshColors
+    SelectColor Color4
+}
+bind . <Alt-5> {
+    set CurrColor Color5
+    RefreshColors
+    SelectColor Color5
+}
+bind . <Alt-6> {
+    set CurrColor Color6
+    RefreshColors
+    SelectColor Color6
+}
+bind . <Alt-o> {
+    if { $CurrAttrs(OFF) } {
+        set CurrAttrs(OFF) 0
+    } else {
+        set CurrAttrs(OFF) 1
+    }
+    ChoseAttr OFF
+}
+bind . <Alt-b> {
+    if { $CurrAttrs(BOLD) } {
+        set CurrAttrs(BOLD) 0
+    } else {
+        set CurrAttrs(BOLD) 1
+    }
+    ChoseAttr BOLD
+}
+bind . <Alt-u> {
+    if { $CurrAttrs(UNDERLINE) } {
+        set CurrAttrs(UNDERLINE) 0
+    } else {
+        set CurrAttrs(UNDERLINE) 1
+    }
+    ChoseAttr UNDERLINE
+}
+# reconfigure checkbutton for flash to have underlined letter h
+._MainFrame._ColorBar._Attr2._FLASH config -underline 4
+bind . <Alt-h> {
+    if { $CurrAttrs(FLASH) } {
+        set CurrAttrs(FLASH) 0
+    } else {
+        set CurrAttrs(FLASH) 1
+    }
+    ChoseAttr FLASH
+}
+bind . <Alt-r> {
+    if { $CurrAttrs(REVERSE) } {
+        set CurrAttrs(REVERSE) 0
+    } else {
+        set CurrAttrs(REVERSE) 1
+    }
+    ChoseAttr REVERSE
+}
+
+# set up status line
+frame ._Status -relief sunken -bd 1 -background $DefaultBg
+label ._Status._Desc -text "Status: " -background $DefaultBg
+label ._Status._Text -text "Ready" -justify left -background $DefaultBg
+pack ._Status._Desc -side left -padx 2 -pady 2
+pack ._Status._Text -side left -pady 2 -fill x
+
+#pack MainFrame
+pack ._MainFrame._Cmds1 -padx 40 -ipady 2 -anchor w
+pack ._MainFrame._Cmds2 -padx 40 -ipady 2 -anchor w
+pack ._MainFrame._Cmds3 -padx 40 -anchor w
+pack ._MainFrame._ColorBar -side top -anchor w -padx 10
+pack ._MainFrame._Colors -padx 10 -side left
+pack ._MainFrame._Sub -side left -anchor n -pady 10
+
+# pack all together
+pack ._MainMenu -side top -fill x
+pack ._MainFrame -expand true -fill both
+pack ._Status -side bottom -fill x
+
+# start of main program
+ChooseCmd WARNING 1 Warning
