@@ -554,7 +554,7 @@ fi
 
 
 VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*SCROLLZ_VERSION[ 	]*"/s///p' -e '/#define SCROLLZ_VERSION/q' < ${srcdir}/source/irc.c`
-IRCIIVERSION=`sed -n -e 's/"[^"]*$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c` 
+IRCIIVERSION=`sed -n -e 's/"[^"]*$//' -e '/^#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/^#define IRCII_VERSION/q' < ${srcdir}/source/irc.c` 
 echo this is ScrollZ version $VERSION + ircII version $IRCIIVERSION
 echo
 
@@ -562,7 +562,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.23 2002-01-21 21:38:25 f Exp $' > /dev/null
+echo '$Id: configure,v 1.24 2002-01-21 21:39:30 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
