@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.19 1998-12-02 20:59:37 f Exp $
+ * $Id: edit6.c,v 1.20 1999-02-02 16:12:46 f Exp $
  */
 
 #include "irc.h"
@@ -1473,7 +1473,7 @@ char *line;
 }
 
 #ifdef WANTANSI
-/* Converts mIRC colors to ANSI, by Ananda */
+/* Converts mIRC colors to ANSI, by Ananda - fix by ddd */
 void ConvertmIRC(buffer,newbuf)
 char *buffer;
 char *newbuf;
@@ -1504,23 +1504,23 @@ char *newbuf;
 
     *dptr='\0';
     while (*sptr) {
-        if (*sptr=='' && isdigit(sptr[1])) {
+        if (*sptr=='' && isdigit(*(sptr+1))) {
             sptr++;
-            code=atoi(sptr);
+	    code=(*sptr++)-'0';
+	    if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
             if (code>15 || code<0) continue;
-            while (isdigit(*sptr)) sptr++;
             if (DisplaymIRC==1) {
                 strcpy(dptr,codes[code].fg);
                 while (*dptr) dptr++;
             }
             if (*sptr==',') {
                 sptr++;
-                code=atoi(sptr);
+	        code=(*sptr++)-'0';
+	        if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
                 if (code>0 && code<15 && DisplaymIRC==1) {
                     strcpy(dptr,codes[code].bg);
                     while (*dptr) dptr++;
                 }
-                while (isdigit(*sptr)) sptr++;
             }
         }
         else if (*sptr=='') {
