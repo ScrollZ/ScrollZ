@@ -6,9 +6,10 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
-    ! default compile time flags in defs.h.in
-    + man page (contributed by Debian's maintainer)
     - debian subdirectory because it is provided by Debian
+    ! default compile time flags in defs.h.in
+    + man page (contributed by Debian maintainer Mike Markley)
+    ~ distclean now removes auto generated header files
 
 ------------------------------------------------------------------------------
 
