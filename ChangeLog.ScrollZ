@@ -8,6 +8,8 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v1.9, 22.12.2002
+
     + shitlist is now checked upon nick change (requested by Toch)
     + CJOIN and KNOCK (code submitted by braneded)
     + CDCC AUTOGET ALWAYS to autoget DCCs regardless of warnings about
