@@ -1,17 +1,21 @@
-!	 $Id: addw,v 1.4 2003-01-08 20:00:53 f Exp $
+!	 $Id: addw,v 1.5 2003-12-24 12:20:06 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: ADDW channels word [comment]
+Usage: ADDW [options] channels word [comment]
   Adds word to your word kicks list
 
   Channels is a list of channels, separated with comma. You can use * and ?
   in channels. Note that this will kick unopped people only unless you turn
   on KICKOPS. This won't kick users with +F flag set (no flood checking).
   You can use * and ? in word, example: ADDW #blek *^C* mIRC sucks
+  irc are shown.  The following options are also recognized and used
+  to influence the operation of word kick:
+    -BAN            - ban the offender before kicking them
+    -TIME <time>    - specify for how long the offender should be banned
 
 See also:
   REMW
