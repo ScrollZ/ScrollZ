@@ -7,6 +7,55 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v1.8k
+
+    + multiple channels can now be bound to one window (requested by Ahnberg)
+    + WINDOW BIND #chan1,#chan2,... is now possible (requested by Ahnberg)
+    ! SERVER + bug
+    + exclusive REPWORD (see help for more info, requested by Ahnberg)
+    ! WHO and MODE #channel b bug on ircnet servers when joining &oper
+      channels (thanks to Tero for help)
+    ! bug in ENCRMSG encryption, passwords test and testtest were both
+      able to decrypt encrypted messages (read help for compatibility issues,
+      thanks Viha)
+    ~ better handling of server pings for splitted servers (requested by ogre)
+    ~ upon loading of ScrollZ.save CDCC PTIME and NTIME are set to two hours
+      (requested by many users)
+    + environment variable DCCHOST can be set to IP address for DCC offers
+      (this is useful in combination with SET DCC_PORTS if you are behind a
+      firewall)
+    ! FTRACE bugs with clients containing [ in nickname, also colorized and
+      formatted the display (reported by Ahnberg)
+    + WHO -SHOW_SERVER to show server in WHO (requested by Tero and others)
+    ! prevented excess floods upon CTCP CDCC LIST with huge offers (reported
+      by Myrlin)
+    ! whois queue handling with servers that in some cases return only
+      numeric 401 but not numeric 318 (thanks to markalso for helping me
+      with this one)
+    ~ STAMP to show time stamp for a lot more events, read help for more
+      information (rule of thumb: time stamp is displayed where SCROLLZ_STRING
+      would be displayed in older releases when STAMP is set to MAX)
+    + new argument NOMODES in OV to supress sending user modes to server when
+      OperVision is enabled/disabled (see help for more information, requested
+      by crystlize)
+    + SET AUTO_RECONNECT to enable/disable automatic reconnect, SET is used so
+      it can be set prior to connect in ~/.scrollzrc (aparently some servers
+      K: line you for doing this, requested by Jakes)
+    ~ LASTJOINER_KICK will only kick target user from channel they joined
+      (requested by ogre)
+    ~ BK, BKI and BKT now accept (optional) channel name
+    + parsing of SERVER to OperVision for IRCNet, also SQUIT now shows reason
+      (requested by Tero)
+    + encrypted communication is now indicated by [!] in publics and private
+      messages (requested by Ahnberg)
+    ! REMS failing when nicks were different
+    ! core dump when removing last server from the server list (ircII bug)
+    + merged ircII 4.4Z changes
+    + optional QUIET arg in ORIGNICK to supress messages during attempt to
+      gain nick (requested by kitten, read help for usage information)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.8j, 15.8.2000
 
 Note that the below log is in some cases inconsistent because it was
