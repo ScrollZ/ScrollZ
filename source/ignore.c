@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.6 2000-08-21 18:41:40 f Exp $
+ * $Id: ignore.c,v 1.7 2001-04-17 17:57:05 f Exp $
  */
 
 #include "irc.h"
@@ -43,6 +43,7 @@
 #include "output.h"
 
 /**************************** PATCHED by Flier *****************************/
+#include "parse.h"
 #include "myvars.h"
 
 extern int matchmcommand _((char *, int));
@@ -684,6 +685,16 @@ double_ignore(nick, userhost, type)
 		*userhost;
 	int	type;
 {
+/**************************** Patched by Flier ******************************/
+        if (userhost && is_channel(userhost)) {
+            char tmpbuf[mybufsize/4+1];
+
+            strmcpy(tmpbuf,nick,mybufsize/4);
+            strmcat(tmpbuf,"!",mybufsize/4);
+            strmcat(tmpbuf,userhost,mybufsize/4);
+            return(is_ignored(tmpbuf,type));
+        }
+/****************************************************************************/
 	if (userhost)
 		return (ignore_combo(is_ignored(nick, type),
 			is_ignored(userhost, type)));
