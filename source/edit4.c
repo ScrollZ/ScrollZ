@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.59 2001-03-22 21:29:13 f Exp $
+ * $Id: edit4.c,v 1.60 2001-03-24 09:16:20 f Exp $
  */
 
 #include "irc.h"
@@ -794,7 +794,7 @@ void HandleTabNext() {
             tmpstr--;
             len++;
         }
-        if (isspace(*tmpstr)) tmpstr++;
+        tmpstr++;
         if (len>mybufsize/8) len=mybufsize/8;
         /* Store string we will attempt to complete. */
         strmcpy(tmpbuf,tmpstr,len);
