@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.10 2000-10-12 18:16:12 f Exp $
+ * $Id: funny.c,v 1.11 2000-10-12 18:20:07 f Exp $
  */
 
 #include "irc.h"
@@ -400,6 +400,10 @@ funny_mode(from, ArgList)
                     IsIrcNetOperChannel(channel)) {
                     tmp->gotbans=1;
                     tmp->gotwho=1;
+                    if (server_list[from_server].SZUnban>2)
+                        server_list[from_server].SZUnban--;
+                    else server_list[from_server].SZUnban=0;
+                    server_list[from_server].SZWho--;
                     PrintSynch(tmp);
                 }
 /****************************************************************************/
