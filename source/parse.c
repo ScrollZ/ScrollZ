@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.2 1998-09-10 17:46:02 f Exp $
+ * $Id: parse.c,v 1.3 1998-09-14 16:25:18 f Exp $
  */
 
 #include "irc.h"
@@ -900,7 +900,7 @@ p_quit(from, ArgList)
                                     colnick=CmdsColors[COLLEAVE].color4;
                                 else colnick=CmdsColors[COLLEAVE].color1;
 #ifdef EXTRAS
-                                say("Signoff: %s%s%s (%s %s%s%s)",
+                                say("Signoff: %s%s%s ((%s) %s%s%s)",
 #else  /* EXTRAS */
                                 say("Signoff: %s%s%s (%s%s%s)",
 #endif /* EXTRAS */
@@ -911,9 +911,9 @@ p_quit(from, ArgList)
                                     CmdsColors[COLLEAVE].color3,Reason,Colors[COLOFF]);
 #else  /* WANTANSI */
 #ifdef EXTRAS
-                                say("Signoff: %s (%s)",from,Reason);
+                                say("Signoff: %s ((%s) %s)",from,chanbuf,Reason);
 #else  /* EXTRAS */
-                                say("Signoff: %s (%s %s)",from,chanbuf,Reason);
+                                say("Signoff: %s (%s)",from,Reason);
 #endif /* EXTRAS */
 #endif /* WANTANSI */
                             }
