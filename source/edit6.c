@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.127 2002-01-24 19:59:04 f Exp $
+ * $Id: edit6.c,v 1.128 2002-01-25 17:54:13 f Exp $
  */
 
 #include "irc.h"
@@ -1207,56 +1207,56 @@ int setting;
     ChannelList *chan;
     WhowasChanList *whowas;
 
-    for (i=0;i<number_of_servers;i++)
-        for (chan=server_list[i].chan_list;chan;chan=chan->next) {
+    for (i = 0; i < number_of_servers; i++) {
+        for (chan = server_list[i].chan_list; chan; chan = chan->next) {
             switch (setting) {
-                case 1: chan->AutoRejoin=
-                    AutoRejoin?CheckChannel(chan->channel,AutoRejoinChannels):0;
+                case 1: chan->AutoRejoin =
+                    AutoRejoin ? CheckChannel(chan->channel, AutoRejoinChannels) : 0;
                     break;
-                case 2: chan->Bitch=
-                    Bitch?CheckChannel(chan->channel,BitchChannels):0;
+                case 2: chan->Bitch =
+                    Bitch ? CheckChannel(chan->channel, BitchChannels) : 0;
                     break;
-                case 3: chan->MDopWatch=
-                    MDopWatch?CheckChannel(chan->channel,MDopWatchChannels):0;
+                case 3: chan->MDopWatch =
+                    MDopWatch ? CheckChannel(chan->channel, MDopWatchChannels) : 0;
                     break;
-                case 4: chan->ShowFakes=
-                    ShowFakes?CheckChannel(chan->channel,ShowFakesChannels):0;
+                case 4: chan->ShowFakes =
+                    ShowFakes ? CheckChannel(chan->channel, ShowFakesChannels) : 0;
                     break;
-                case 5: chan->FriendList=
-                    FriendList?CheckChannel(chan->channel,FriendListChannels):0;
+                case 5: chan->FriendList =
+                    FriendList ? CheckChannel(chan->channel, FriendListChannels) : 0;
                     break;
-                case 6: chan->KickOnBan=
-                    KickOnBan?CheckChannel(chan->channel,KickOnBanChannels):0;
+                case 6: chan->KickOnBan =
+                    KickOnBan ? CheckChannel(chan->channel, KickOnBanChannels) : 0;
                     break;
-                case 7: chan->KickOnFlood=
-                    KickOnFlood?CheckChannel(chan->channel,KickOnFloodChannels):0;
+                case 7: chan->KickOnFlood =
+                    KickOnFlood ? CheckChannel(chan->channel, KickOnFloodChannels) : 0;
                     break;
-                case 8: chan->KickOps=
-                    KickOps?CheckChannel(chan->channel,KickOpsChannels):0;
+                case 8: chan->KickOps =
+                    KickOps ? CheckChannel(chan->channel, KickOpsChannels) : 0;
                     break;
-                case 9: chan->KickWatch=
-                    KickWatch?CheckChannel(chan->channel,KickWatchChannels):0;
+                case 9: chan->KickWatch =
+                    KickWatch ? CheckChannel(chan->channel, KickWatchChannels) : 0;
                     break;
-                case 11: chan->NickWatch=
-                    NickWatch?CheckChannel(chan->channel,NickWatchChannels):0;
+                case 11: chan->NickWatch =
+                    NickWatch ? CheckChannel(chan->channel, NickWatchChannels) : 0;
                     break;
-                case 13: chan->ShowAway=
-                    ShowAway?CheckChannel(chan->channel,ShowAwayChannels):0;
+                case 13: chan->ShowAway =
+                    ShowAway ? CheckChannel(chan->channel, ShowAwayChannels) : 0;
                     break;
-                case 14: chan->CompressModes=
-                    CompressModes?CheckChannel(chan->channel,CompressModesChannels):0;
+                case 14: chan->CompressModes =
+                    CompressModes ? CheckChannel(chan->channel, CompressModesChannels) : 0;
                     break;
-                case 15: chan->BKList=
-                    BKList?CheckChannel(chan->channel,BKChannels):0;
+                case 15: chan->BKList =
+                    BKList ? CheckChannel(chan->channel, BKChannels) : 0;
                     break;
                 case 16:
-                    oldlog=chan->ChanLog;
-                    chan->ChanLog=ChanLog?CheckChannel(chan->channel,ChanLogChannels):0;
-                    if (!oldlog && chan->ChanLog) ChannelLogReport("started",chan);
+                    oldlog = chan->ChanLog;
+                    chan->ChanLog = ChanLog ? CheckChannel(chan->channel, ChanLogChannels) : 0;
+                    if (!oldlog && chan->ChanLog) ChannelLogReport("started", chan);
                     break;
 #ifdef EXTRAS
                 case 99: chan->IdleKick=
-                    IdleKick?CheckChannel(chan->channel,IdleKickChannels):0;
+                    IdleKick ? CheckChannel(chan->channel, IdleKickChannels) : 0;
                     break;
 #endif
                 case 100:
@@ -1264,56 +1264,57 @@ int setting;
                     break;
             }
 #ifdef EXTRAS
-            if (chan->IdleKick) chan->IdleKick=IdleKick;
+            if (chan->IdleKick) chan->IdleKick = IdleKick;
 #endif
         }
-    for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
+    }
+    for (whowas = whowas_chan_list; whowas; whowas = whowas->next) {
         switch (setting) {
-            case 1: whowas->channellist->AutoRejoin=
-                AutoRejoin?CheckChannel(whowas->channellist->channel,AutoRejoinChannels):0;
+            case 1: whowas->channellist->AutoRejoin =
+                AutoRejoin ? CheckChannel(whowas->channellist->channel, AutoRejoinChannels) : 0;
                 break;
-            case 2: whowas->channellist->Bitch=
-                Bitch?CheckChannel(whowas->channellist->channel,BitchChannels):0;
+            case 2: whowas->channellist->Bitch =
+                Bitch ? CheckChannel(whowas->channellist->channel, BitchChannels) : 0;
                 break;
-            case 3: whowas->channellist->MDopWatch=
-                MDopWatch?CheckChannel(whowas->channellist->channel,MDopWatchChannels):0;
+            case 3: whowas->channellist->MDopWatch =
+                MDopWatch ? CheckChannel(whowas->channellist->channel, MDopWatchChannels) : 0;
                 break;
-            case 4: whowas->channellist->ShowFakes=
-                ShowFakes?CheckChannel(whowas->channellist->channel,ShowFakesChannels):0;
+            case 4: whowas->channellist->ShowFakes =
+                ShowFakes ? CheckChannel(whowas->channellist->channel, ShowFakesChannels) : 0;
                 break;
-            case 5: whowas->channellist->FriendList=
-                FriendList?CheckChannel(whowas->channellist->channel,FriendListChannels):0;
+            case 5: whowas->channellist->FriendList =
+                FriendList ? CheckChannel(whowas->channellist->channel, FriendListChannels) : 0;
                 break;
-            case 6: whowas->channellist->KickOnBan=
-                KickOnBan?CheckChannel(whowas->channellist->channel,KickOnBanChannels):0;
+            case 6: whowas->channellist->KickOnBan =
+                KickOnBan ? CheckChannel(whowas->channellist->channel, KickOnBanChannels) : 0;
                 break;
-            case 7: whowas->channellist->KickOnFlood=
-                KickOnFlood?CheckChannel(whowas->channellist->channel,KickOnFloodChannels):0;
+            case 7: whowas->channellist->KickOnFlood =
+                KickOnFlood ? CheckChannel(whowas->channellist->channel, KickOnFloodChannels) : 0;
                 break;
-            case 8: whowas->channellist->KickOps=
-                KickOps?CheckChannel(whowas->channellist->channel,KickOpsChannels):0;
+            case 8: whowas->channellist->KickOps =
+                KickOps ? CheckChannel(whowas->channellist->channel, KickOpsChannels) : 0;
                 break;
-            case 9: whowas->channellist->KickWatch=
-                KickWatch?CheckChannel(whowas->channellist->channel,KickWatchChannels):0;
+            case 9: whowas->channellist->KickWatch =
+                KickWatch ? CheckChannel(whowas->channellist->channel, KickWatchChannels) : 0;
                 break;
-            case 11: whowas->channellist->NickWatch=
-                NickWatch?CheckChannel(whowas->channellist->channel,NickWatchChannels):0;
+            case 11: whowas->channellist->NickWatch =
+                NickWatch ? CheckChannel(whowas->channellist->channel, NickWatchChannels) : 0;
                 break;
-            case 13: whowas->channellist->ShowAway=
-                ShowAway?CheckChannel(whowas->channellist->channel,ShowAwayChannels):0;
+            case 13: whowas->channellist->ShowAway =
+                ShowAway ? CheckChannel(whowas->channellist->channel, ShowAwayChannels) : 0;
                 break;
-            case 14: whowas->channellist->CompressModes=
-                CompressModes?CheckChannel(whowas->channellist->channel,CompressModesChannels):0;
+            case 14: whowas->channellist->CompressModes =
+                CompressModes ? CheckChannel(whowas->channellist->channel, CompressModesChannels) : 0;
                 break;
-            case 15: whowas->channellist->BKList=
-                BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
+            case 15: whowas->channellist->BKList =
+                BKList ? CheckChannel(whowas->channellist->channel, BKChannels) : 0;
                 break;
-            case 16: chan->ChanLog=
-                ChanLog?CheckChannel(whowas->channellist->channel,ChanLogChannels):0;
+            case 16: whowas->channellist->ChanLog =
+                ChanLog ? CheckChannel(whowas->channellist->channel, ChanLogChannels) : 0;
                 break;
 #ifdef EXTRAS
-            case 99: whowas->channellist->IdleKick=
-                IdleKick?CheckChannel(whowas->channellist->channel,IdleKickChannels):0;
+            case 99: whowas->channellist->IdleKick =
+                IdleKick ? CheckChannel(whowas->channellist->channel, IdleKickChannels) : 0;
                 break;
 #endif
             case 100:
@@ -1321,7 +1322,7 @@ int setting;
                 break;
         }
 #ifdef EXTRAS
-        if (whowas->channellist->IdleKick) whowas->channellist->IdleKick=IdleKick;
+        if (whowas->channellist->IdleKick) whowas->channellist->IdleKick = IdleKick;
 #endif
     }
     update_all_status();

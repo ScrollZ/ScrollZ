@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.53 2002-01-24 19:59:04 f Exp $
+ * $Id: numbers.c,v 1.54 2002-01-25 17:54:13 f Exp $
  */
 
 #include "irc.h"
@@ -610,8 +610,9 @@ channel_topic(from, ArgList)
 	char	*topic, *channel;
 /**************************** Patched by Flier ******************************/
         ChannelList *chan;
-/****************************************************************************/
 
+        topic = channel = NULL;
+/****************************************************************************/
  	save_message_from();
 	if (ArgList[1] && is_channel(ArgList[0]))
 	{
@@ -634,7 +635,7 @@ channel_topic(from, ArgList)
 /****************************************************************************/
 	}
 /**************************** Patched by Flier ******************************/
-        if (ChanLog) {
+        if (ChanLog && topic && channel) {
             chan = lookup_channel(channel, parsing_server_index, 0);
             if (chan && chan->ChanLog) {
                 char tmpbuf[mybufsize];

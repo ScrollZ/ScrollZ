@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.8 2002-01-25 17:38:36 f Exp $
+ * $Id: flood.c,v 1.9 2002-01-25 17:56:17 f Exp $
  */
 
 #include "irc.h"
@@ -124,7 +124,7 @@ check_flooding(nick, type, line)
 	/*if (tmp->cnt > get_int_var(FLOOD_AFTER_VAR))*/
         after = (float) get_int_var(FLOOD_AFTER_VAR);
         rate = (float) get_int_var(FLOOD_RATE_VAR);
-        if (tmp->cnt>after)
+        if (tmp->cnt > after)
 /****************************************************************************/
 	{
 /**************************** PATCHED by Flier ******************************/

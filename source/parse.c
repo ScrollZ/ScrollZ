@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.58 2002-01-24 19:59:04 f Exp $
+ * $Id: parse.c,v 1.59 2002-01-25 17:54:14 f Exp $
  */
 
 #include "irc.h"
@@ -1170,10 +1170,10 @@ p_channel(from, ArgList)
  	char	*s, *ov = NULL;
 	int	chan_oper = 0, chan_voice = 0, chan_halfop = 0;
 /**************************** PATCHED by Flier ******************************/
-        int     donelj=0;
-        char    tmpbuf[mybufsize+1];
-        NickList *joiner=NULL;
-        ChannelList *chan;
+        int     donelj = 0;
+        char    tmpbuf[mybufsize + 1];
+        NickList *joiner = NULL;
+        ChannelList *chan = NULL;
 /****************************************************************************/
 
 	if (!from)
@@ -1216,17 +1216,17 @@ p_channel(from, ArgList)
 			add_channel(channel, parsing_server_index, CHAN_JOINED, (ChannelList *) 0);
 /***************************** PATCHED by Flier **************************/	
 			/*send_to_server("MODE %s", channel);*/
-                        if ((get_server_version(from_server)==Server2_9 || 
-                             get_server_version(from_server)==Server2_10) &&
+                        if ((get_server_version(from_server) == Server2_9 || 
+                             get_server_version(from_server) == Server2_10) &&
                             IsIrcNetOperChannel(channel)) {
-                            snprintf(tmpbuf,sizeof(tmpbuf),"MODE %s",channel);
+                            snprintf(tmpbuf,sizeof(tmpbuf), "MODE %s", channel);
                         }
                         else {
-                            snprintf(tmpbuf,sizeof(tmpbuf),"WHO %s",channel);
-                            if (*channel!='+') {
-                                snprintf(&tmpbuf[strlen(tmpbuf)],sizeof(tmpbuf),
+                            snprintf(tmpbuf,sizeof(tmpbuf), "WHO %s", channel);
+                            if (*channel != '+') {
+                                snprintf(&tmpbuf[strlen(tmpbuf)], sizeof(tmpbuf),
                                         "\r\nMODE %s\r\nMODE %s e\r\nMODE %s b",
-                                        channel,channel,channel);
+                                        channel, channel, channel);
                             }
                         }
                         send_to_server("%s", tmpbuf);
@@ -1234,12 +1234,12 @@ p_channel(from, ArgList)
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);
 /***************************** PATCHED by Flier **************************/	
-                        chan=add_to_channel(channel,from,parsing_server_index,chan_oper,
-                                            chan_halfop,chan_voice,FromUserHost,NULL);
-                        if (*channel=='+') chan->gotbans=1;
-                        joiner=ChannelJoin(from,channel,chan);
-                        donelj=1;
-                        gettimeofday(&(chan->time),NULL);
+                        chan = add_to_channel(channel, from, parsing_server_index, chan_oper,
+                                              chan_halfop, chan_voice, FromUserHost, NULL);
+                        if (*channel == '+') chan->gotbans = 1;
+                        joiner = ChannelJoin(from, channel, chan);
+                        donelj = 1;
+                        gettimeofday(&(chan->time), NULL);
 /*************************************************************************/	
                 }
                 else
@@ -1256,31 +1256,30 @@ p_channel(from, ArgList)
                 char tmpbuf2[mybufsize];
 
                 if (join) {
-                        chan=add_to_channel(channel,from,parsing_server_index,chan_oper,
-                                            chan_halfop,chan_voice,FromUserHost,NULL);
-                        joiner=CheckJoin(from,FromUserHost,channel,parsing_server_index,
-                                         chan);
-                        if (chan && (chan->status&CHAN_CHOP) && chan_oper && chan->NHProt) {
+                        chan = add_to_channel(channel, from, parsing_server_index, chan_oper,
+                                              chan_halfop, chan_voice, FromUserHost, NULL);
+                        joiner = CheckJoin(from, FromUserHost, channel, parsing_server_index, chan);
+                        if (chan && (chan->status & CHAN_CHOP) && chan_oper && chan->NHProt) {
                             if (!(joiner && joiner->frlist && joiner->frlist->privs))
-                                send_to_server("MODE %s -o %s",channel,from);
+                                send_to_server("MODE %s -o %s", channel, from);
                         }
-                        if (chan_oper && NHDisp==2) {
+                        if (chan_oper && NHDisp == 2) {
                             save_message_from();
                             message_from(channel, LOG_CRAP);
 #ifdef WANTANSI
-                            snprintf(tmpbuf1,sizeof(tmpbuf1),"[%s%s%s] on %s%s%s",
-                                    CmdsColors[COLNETSPLIT].color3,GetNetsplitServer(channel,from),Colors[COLOFF],
-                                    CmdsColors[COLNETSPLIT].color4,channel,Colors[COLOFF]);
-                            snprintf(tmpbuf2,sizeof(tmpbuf2),"%sNetsplit hack%s %s by : %s%s%s",
-                                    CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],tmpbuf1,
-                                    CmdsColors[COLNETSPLIT].color5,from,Colors[COLOFF]);
+                            snprintf(tmpbuf1, sizeof(tmpbuf1), "[%s%s%s] on %s%s%s",
+                                     CmdsColors[COLNETSPLIT].color3, GetNetsplitServer(channel, from),
+                                     Colors[COLOFF], CmdsColors[COLNETSPLIT].color4, channel, Colors[COLOFF]);
+                            snprintf(tmpbuf2, sizeof(tmpbuf2), "%sNetsplit hack%s %s by : %s%s%s",
+                                     CmdsColors[COLNETSPLIT].color1, Colors[COLOFF], tmpbuf1,
+                                     CmdsColors[COLNETSPLIT].color5, from, Colors[COLOFF]);
 #else
-                            snprintf(tmpbuf2,sizeof(tmpbuf2),"Netsplit hack [%s] on %s by : %s",
-                                    GetNetsplitServer(channel,from),channel,from);
+                            snprintf(tmpbuf2, sizeof(tmpbuf2), "Netsplit hack [%s] on %s by : %s",
+                                     GetNetsplitServer(channel, from), channel, from);
 #endif
                             say("%s",tmpbuf2);
-                            if (away_set || LogOn) AwaySave(tmpbuf2,SAVEHACK);
-                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf2,chan);
+                            if (away_set || LogOn) AwaySave(tmpbuf2, SAVEHACK);
+                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf2, chan);
                             restore_message_from();
                         }
                 }
@@ -1291,7 +1290,7 @@ p_channel(from, ArgList)
 	if (join)
 	{
 /**************************** PATCHED by Flier ******************************/
-                if ((double_ignore(channel,NULL,IGNORE_CRAP))==IGNORED) return;
+                if ((double_ignore(channel, NULL, IGNORE_CRAP)) == IGNORED) return;
 /****************************************************************************/
 		if (!get_channel_oper(channel, parsing_server_index))
 			in_on_who = 1;
@@ -1315,30 +1314,29 @@ p_channel(from, ArgList)
 				else
 					say("%s has joined channel %s", from, channel);*/
                         if (FromUserHost) {
-                            if (HandleJoin(joiner,from,FromUserHost,channel,chan) && !donelj) {
-                                strmcpy(tmpbuf,from,mybufsize/4);
-                                strmcat(tmpbuf,"/",mybufsize/4);
-                                if (ov && *ov) strmcat(tmpbuf,"+",mybufsize/4);
-                                strmcat(tmpbuf,channel,mybufsize/4);
-                                malloc_strcpy(&(server_list[parsing_server_index].LastJoin),
-                                              tmpbuf);
+                            if (HandleJoin(joiner, from, FromUserHost, channel, chan) && !donelj) {
+                                strmcpy(tmpbuf, from, sizeof(tmpbuf));
+                                strmcat(tmpbuf, "/", sizeof(tmpbuf));
+                                if (ov && *ov) strmcat(tmpbuf, "+", sizeof(tmpbuf));
+                                strmcat(tmpbuf, channel, sizeof(tmpbuf));
+                                malloc_strcpy(&(server_list[parsing_server_index].LastJoin), tmpbuf);
                                 update_all_status();
                             }
                         }
                         else
                             if (ov && *ov)
-                                say("%s has joined channel %s +%s",from,channel,ov);
+                                say("%s has joined channel %s +%s", from, channel, ov);
                             else
-                                say("%s has joined channel %s",from,channel);
+                                say("%s has joined channel %s", from, channel);
 /****************************************************************************/				
 		}
 /**************************** PATCHED by Flier ******************************/
-                else if (flag!=IGNORED) {
-                    strmcpy(tmpbuf,from,mybufsize/4);
-                    strmcat(tmpbuf,"/",mybufsize/4);
-                    if (ov && *ov) strmcat(tmpbuf,"+",mybufsize/4);
-                    strmcat(tmpbuf,channel,mybufsize/4);
-                    malloc_strcpy(&(server_list[parsing_server_index].LastJoin),tmpbuf);
+                else if (flag != IGNORED) {
+                    strmcpy(tmpbuf, from, sizeof(tmpbuf));
+                    strmcat(tmpbuf, "/", sizeof(tmpbuf));
+                    if (ov && *ov) strmcat(tmpbuf, "+", sizeof(tmpbuf));
+                    strmcat(tmpbuf, channel, sizeof(tmpbuf));
+                    malloc_strcpy(&(server_list[parsing_server_index].LastJoin), tmpbuf);
                     update_all_status();
                 }
 /****************************************************************************/
