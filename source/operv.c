@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.57 2003-05-06 16:15:32 f Exp $
+ * $Id: operv.c,v 1.58 2003-05-07 17:26:59 f Exp $
  */
 
 #include "irc.h"
@@ -87,10 +87,8 @@ char *subargs;
                 }
                 /* made one window command, made it jump back to current window when
                    it's done, all output from /WINDOW command is supressed   -Flier */
-                if (incurwin)
-                    strcpy(tmpbuf,"NAME OV DOUBLE OFF LEVEL +OPNOTE,SNOTE,WALLOP");
-                else
-                    snprintf(tmpbuf,sizeof(tmpbuf),"NEW NAME OV DOUBLE OFF LEVEL OPNOTE,SNOTE,WALLOP REFNUM %d GROW 6",curr_scr_win->refnum);
+                if (incurwin) strcpy(tmpbuf,"NAME OV LEVEL +OPNOTE,SNOTE,WALLOP");
+                else snprintf(tmpbuf,sizeof(tmpbuf),"NEW NAME OV DOUBLE OFF LEVEL OPNOTE,SNOTE,WALLOP REFNUM %d GROW 6",curr_scr_win->refnum);
                 display=window_display;
                 window_display=0;
                 windowcmd(NULL,tmpbuf,NULL);
