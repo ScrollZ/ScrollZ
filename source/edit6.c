@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.78 2001-03-21 20:32:32 f Exp $
+ * $Id: edit6.c,v 1.79 2001-04-11 20:52:54 f Exp $
  */
 
 #include "irc.h"
@@ -2368,17 +2368,22 @@ char *command;
 char *args;
 char *subargs;
 {
+    int haveserver=0;
     char *filter;
+    char *server;
 
     if ((filter=new_next_arg(args,&args))) {
+        server=new_next_arg(args,&args);
+        if (server && *server) haveserver=1;
         tottcount=0;
         mattcount=0;
         malloc_strcpy(&ftpattern,filter);
         inSZTrace=2;
-        send_to_server("TRACE");
-        say("Finding all users matching %s on local server",filter);
+        send_to_server("TRACE %s",haveserver?server:"");
+        say("Finding all users matching %s on %sserver%s%s",filter,
+            haveserver?"":"local ",haveserver?" ":"",haveserver?server:"");
     }
-    else PrintUsage("FTRACE filter");
+    else PrintUsage("FTRACE filter [server]");
 }
 
 /* Actual filtered trace */
