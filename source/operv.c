@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.61 2003-05-12 17:57:19 f Exp $
+ * $Id: operv.c,v 1.62 2003-05-13 19:06:57 f Exp $
  */
 
 #include "irc.h"
@@ -1205,6 +1205,71 @@ char *from;
                  word2,CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
 #endif
     }
+    else if (!strncmp(tmpbuf,"New Max Local Clients: ",23)) {
+        strcpy(word1,OVgetword(0,5,tmpline));  /* number */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[   %sclients%s] new max local %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"New max local clients %s%s%s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpbuf,"XLINE over-ruled for ",21)) {
+        strcpy(word1,OVgetword(0,4,tmpline));  /* who */
+        strcpy(word2,word1);
+        tmp=index(word1,'[');
+        if (tmp) *tmp='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sxline%s] overruled for %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"X-Line overruled for %s%s%s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpbuf,"XLINE active for ",17)) {
+        strcpy(word1,OVgetword(0,4,tmpline));  /* who */
+        strcpy(word2,word1);
+        tmp=index(word1,'[');
+        if (tmp) *tmp='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sxline%s] active for %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"X-Line active for %s%s%s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpbuf,"admin requested by ",19)) {
+        strcpy(word1,OVgetword(0,4,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
+        strcpy(word3,OVgetword(0,6,tmpline));  /* server */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sadmin%s] requested by %s%s%s %s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"Admin requested by %s%s%s %s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#endif
+    }
+    else if (!strncmp(tmpbuf,"motd requested by ",18)) {
+        strcpy(word1,OVgetword(0,4,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
+        strcpy(word3,OVgetword(0,6,tmpline));  /* server */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %smotd%s] requested by %s%s%s %s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"Motd requested by %s%s%s %s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#endif
+    }
     else if (strstr(tmpline,"whois on you")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
@@ -1512,6 +1577,42 @@ char *from;
 #else			   
         snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is rehashing the server config file",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (strstr(tmpline," is attempting to join locally juped channel ")) {
+	strcpy(word1,OVgetword(0,2,tmpline));  /* nick */
+	strcpy(word2,OVgetword(0,3,tmpline));  /* user@host */
+	strcpy(word3,OVgetword(0,11,tmpline)); /* user@host */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sclient%s] %s%s%s %s attempting to join locally juped channel %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color4,word3,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is attempting to join locally juped channel %s%s%s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color4,word3,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," added X-Line for ")) {
+    //strcpy(tmpbuf,"markisp!mark@fibonacci.sequence{markalso} added X-Line for [*RiShuBot*] [drones]");
+	strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
+	strcpy(word2,word1);
+        tmp=index(word1,'!');
+        if (tmp) *tmp++='\0';
+        tmp=index(word2,'{');
+        if (tmp) *tmp++='\0';
+	strcpy(word3,OVgetword(0,5,tmpline));  /* target */
+	strcpy(word4,OVgetword(0,6,tmpline));  /* reason */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %sxline%s] added by %s%s%s %s for %s%s%s: %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color4,word3,Colors[COLOFF],word4);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"X-Line added by %s%s%s %s for %s%s%s: %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color4,word3,Colors[COLOFF],word4);
 #endif
     }
     servername=server_list[from_server].itsname;
