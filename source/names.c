@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.35 2002-01-29 16:37:26 f Exp $
+ * $Id: names.c,v 1.36 2002-01-31 18:19:02 f Exp $
  */
 
 #include "irc.h"
@@ -668,6 +668,8 @@ char    *servmodes;
         char compline[mybufsize / 2];
         char tmpbufmode[mybufsize / 2];
         char tmporigmode[mybufsize / 2];
+        /* has to be the same as nethacks */
+        char nethackbuf[mybufsize / 2];
         char *origmode = mode_string;
         char *compmodeadd = compmode;
         char *servmodeadd = servmodes;
@@ -678,7 +680,7 @@ char    *servmodes;
 
         if (check) {
             if (isserver) userhost = NULL;
-            *nethacks = '\0';
+            *nethackbuf = '\0';
             *servmodeadd = '\0';
             *tmpbufmode = '\0';
             *servline = '\0';
@@ -913,8 +915,8 @@ char    *servmodes;
                                             strmcat(nhdeop, person, sizeof(nhdeop));
                                         }
                                     }
-                                    strmcat(nethacks, person, sizeof(nethacks));
-                                    strmcat(nethacks, " ", sizeof(nethacks));
+                                    strmcat(nethackbuf, person, sizeof(nethackbuf));
+                                    strmcat(nethackbuf, " ", sizeof(nethackbuf));
                                 }
                                 if (add) chan->servpluso++;
                                 else chan->servminuso++;
@@ -1293,6 +1295,7 @@ char    *servmodes;
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
+        if (*nethackbuf) strmcpy(nethacks, nethackbuf, sizeof(nethackbuf));
         if (tmpjoiner && tmpjoiner->frlist) privs = tmpjoiner->frlist->privs;
         else privs = 0;
         if (chan->FriendList && chan->MDopWatch && tmpjoiner && !isitme &&
@@ -1366,8 +1369,8 @@ char    *servmodes;
             *servmodeadd = '\0';
             if (*servmodes) {
                 if (*servline) {
-                    strmcat(servmodes, " ", sizeof(servmodes));
-                    strmcat(servmodes, servline, sizeof(servmodes));
+                    strmcat(servmodes, " ", sizeof(servline));
+                    strmcat(servmodes, servline, sizeof(servline));
                 }
                 if (servmodes[strlen(servmodes) - 1] == ' ')
                     servmodes[strlen(servmodes) - 1] = '\0';
