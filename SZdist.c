@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.14 1999-05-16 11:17:02 f Exp $
+ * $Id: SZdist.c,v 1.15 1999-06-14 17:47:47 f Exp $
  */
 
 #include <stdio.h>
@@ -56,7 +56,8 @@
 #define SZ32 65536
 #define SZNCURSES 131072
 #define IPCHECKING 262144
-#define NUMDEFS 262144
+#define OPER 524288
+#define NUMDEFS 524288
 
 #define mybufsize 1024
 
@@ -77,7 +78,7 @@ char *EXTRASfiles="alias.o cdcc.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o
 char *BETTERTIMERfiles="edit.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
-char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o";
+char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o";
 char *MGSfiles="edit.o edit3.o edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
@@ -94,6 +95,7 @@ char *SZ32files="edit.o help.o ircaux.o scandir.o server.o term.o window.o";
 char *SZNCURSESfiles="edit.o edit4.o input.o menu.o output.o parse.o screen.o\
  status.o term.o";
 char *IPCHECKINGfiles="edit2.o edit3.o edit6.o files.o parse.o";
+char *OPERfiles="edit.o edit5.o edit6.o numbers.o parse.o";
 
 char format[mybufsize];
 
@@ -454,6 +456,7 @@ char **argv;
 	    else if (strstr(buf,"SZ32")) choice|=SZ32;
 	    else if (strstr(buf,"SZNCURSES")) choice|=SZNCURSES;
 	    else if (strstr(buf,"IPCHECKING")) choice|=IPCHECKING;
+	    else if (strstr(buf,"OPER")) choice|=OPER;
         }
     fclose(fpin);
     oldchoice=choice;
@@ -507,6 +510,14 @@ char **argv;
                 else if (*tmp1=='x') choice&=~TDF;
             }
         }
+        if (*tmp1==' ' && *(tmp1+1)=='O' && *(tmp1+2)=='P' && *(tmp1+3)=='E' &&
+                          *(tmp1+4)=='R') {
+            choice|=OPER;
+            tmp1++;
+            tmp1++;
+            tmp1++;
+        }
+        else choice&=~OPER;
     }
     strcpy(tmpbuf,"rm source/irc.o source/ctcp.o");
     strcpy(regname,"None");
