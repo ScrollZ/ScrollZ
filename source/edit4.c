@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.82 2001-12-20 17:29:15 f Exp $
+ * $Id: edit4.c,v 1.83 2001-12-22 11:57:35 f Exp $
  */
 
 #include "irc.h"
@@ -797,10 +797,10 @@ void HandleTabNext(u_int key, char *ptr)
 {
     int i;
     int length;
-    int spaces;
+    int argc;
+    char argv[3][32] = { 0, 0, 0 };
     char *p;
     char *cur_pos, *min_pos;
-    static char buffer[mybufsize / 2 + 1];
     static char completing[mybufsize / 2 + 1];
     static char *last_completion = NULL;
     static void *next_p;        /* where to start */
@@ -819,32 +819,36 @@ void HandleTabNext(u_int key, char *ptr)
         return;
     }
     p = cur_pos - 1;    /* at string to complete */
-    length = spaces = 0;
+    length = argc = 0;
     while (!isspace(*p) && p >= min_pos) {   
         p--;            /* walk left until white-space or beginning of line */
         length++;
     }
     p++;                /* back to beginning */
-    length = length > mybufsize / 2 ? mybufsize / 2 : length;
+    length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
     if (!last_completion || my_stricmp(last_completion, p)) {
         strmcpy(completing, p, length);
         last_completion = NULL;
         next_p = 0;
     }
     p--;
+    i = 0;	/* in space? */
     while (p >= min_pos) {
-        if (*p-- == ' ') spaces++;
+        if (isspace(*p--)) {
+            if (!i) argc++;
+            i = 1;
+        }
+        else i = 0;
     }
-    if (!my_strnicmp(min_pos, "/dcc get ", 9) && spaces == 3) {
+    sscanf(min_pos, "%31s %31s %31s", &argv[0], &argv[1], &argv[2]);
+    if (!my_strnicmp(argv[0], "/dc", 3) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3)) && argc == 3) {
         DCC_list *dcc_p;
 
 get_begin:
-        strmcpy(buffer, min_pos, mybufsize / 2);
         if (next_p) dcc_p = next_p;
         else dcc_p = ClientList;
-        p = strtok(buffer + 9, " ");
         while (dcc_p) {
-            if (!my_stricmp(p, dcc_p->user) && (dcc_p->flags & DCC_TYPES) == DCC_FILEREAD && !my_strnicmp(dcc_p->description, completing, strlen(completing)))
+            if (!my_stricmp(argv[2], dcc_p->user) && (dcc_p->flags & DCC_TYPES) == DCC_FILEREAD && !my_strnicmp(dcc_p->description, completing, strlen(completing)))
                 break;
             dcc_p = dcc_p->next;
         }
@@ -862,8 +866,9 @@ get_begin:
         if (dcc_p->next) next_p = dcc_p->next;
         else next_p = 0;
     }
-    else if (!my_strnicmp(min_pos, "/dcc send ", 10) && spaces == 3) {
-        char dir[mybufsize / 2 + 1] = "", file[mybufsize / 2 + 1] = "";
+    else if (!my_strnicmp(argv[0], "/dc", 3) && !my_strnicmp(argv[1], "se", 2) && argc == 3) {
+        char dir[191] = "", file[63] = "";
+        static char buffer[256];
         int j, n;
         struct dirent **dir_list;
 
@@ -871,7 +876,7 @@ send_begin:
         if (*completing == '~') {
             p = expand_twiddle(completing);
             if (p) {
-                strmcpy(completing, p, mybufsize / 2);
+                strmcpy(completing, p, sizeof(completing) - 1);
                 new_free(&p);
             }
         }
@@ -879,14 +884,14 @@ send_begin:
         if (p) {
             if (p == completing) *dir = '/';
             else {
-                strmcpy(dir, completing, mybufsize / 2);
+                strmcpy(dir, completing, sizeof(dir) - 1);
                 if (p - completing < mybufsize / 2) dir[p - completing] = '\0';
             }
-            strmcpy(file, p + 1, mybufsize / 2);
+            strmcpy(file, p + 1, sizeof(file) - 1);
         }
-        else strmcpy(file, completing, mybufsize / 2);
+        else strmcpy(file, completing, sizeof(file) - 1);
         if (!(*dir)) {
-            if (CdccUlDir) strmcpy(dir, CdccUlDir, mybufsize / 2);
+            if (CdccUlDir) strmcpy(dir, CdccUlDir, sizeof(dir) - 1);
             else {
                 getcwd(dir, sizeof(dir));
                 if (!(*dir)) strcpy(dir, ".");
@@ -906,13 +911,13 @@ send_begin:
             if (!strncmp(dir_list[j]->d_name, file, strlen(file))) {
                 for (i = 0; i < length; i++) input_backspace(' ', NULL);
                 for (p = dir; *p; p++) input_add_character(*p, NULL);
-                strmcpy(buffer, dir, mybufsize / 2);
+                strmcpy(buffer, dir, sizeof(buffer) - 1);
                 if (*--p != '/') {
                     input_add_character('/', NULL);
-                    strmcat(buffer, "/", mybufsize / 2);
+                    strmcat(buffer, "/", sizeof(buffer) - 1);
                 }
                 for (p = dir_list[j]->d_name; *p; p++) input_add_character(*p, NULL);
-                strmcat(buffer, dir_list[j]->d_name, mybufsize / 2);
+                strmcat(buffer, dir_list[j]->d_name, sizeof(buffer) - 1);
                 last_completion = buffer;
                 break;
             }
