@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.109 2004-04-19 19:21:45 f Exp $
+ * $Id: edit5.c,v 1.110 2004-05-05 16:42:11 f Exp $
  */
 
 #include "irc.h"
@@ -835,7 +835,7 @@ char *setting2;
                2 ... same as 1, but don't strip BOLD, REVERSE and UNDERLINE
                      or characters >=128 (national characters)
                3 ... same as 2, but also strip BOLD, REVERSE and UNDERLINE
-               4 ... same as 1 but convert non-printable characters to revers */
+               4 ... same as 1 but convert non-printable characters to reverse */
 void StripAnsi(line, destline, printonly)
 char *line;
 char *destline;
@@ -851,7 +851,7 @@ int  printonly;
         else if (what && isalpha(*tmpstr)) what = 0;
         else if (!what) {
             if (printonly && (*tmpstr < ' ' || *tmpstr > '~')) {
-                if (printonly == 4) {
+                if (printonly == 4 && *tmpstr < ' ') {
                     *newstr ++= REV_TOG;
                     *newstr ++= (*tmpstr & 127) | 64;
                     *newstr ++= REV_TOG;
