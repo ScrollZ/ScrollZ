@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.13 2000-08-21 15:49:02 f Exp $
+ * $Id: notice.c,v 1.14 2000-08-21 15:59:55 f Exp $
  */
 
 #include "irc.h"
@@ -165,8 +165,8 @@ parse_server_notice(from, to, line)
 	{
 		if (do_hook(SERVER_NOTICE_LIST, "%s %s %s", from, to, line))
 /*************************** PATCHED by Flier ******************************/
-#if defined(OPERVISION) && defined(WANTANSI)
                 {
+#if defined(OPERVISION) && defined(WANTANSI)
                         if (OperV &&
                            (get_server_version(from_server)==Server2_9 || 
                             get_server_version(from_server)==Server2_10) &&
