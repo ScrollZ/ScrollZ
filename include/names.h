@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.8 2002-04-07 16:42:01 f Exp $
+ * $Id: names.h,v 1.9 2002-08-12 18:47:06 f Exp $
  */
 
 #ifndef __names_h_
@@ -49,7 +49,7 @@
  * MODE_STRING refers to the bits in the mode bitmask.  the letters
  * and numbers need to match up.
  */
-#define MODE_STRING	"aciklmnpqrstR"
+#define MODE_STRING	"aciklmnpqrstRS"
 #define MODE_ANONYMOUS	((u_long) 0x0001)
 #define MODE_COLOURLESS	((u_long) 0x0002)
 #define MODE_INVITE	((u_long) 0x0004)
@@ -63,6 +63,9 @@
 #define MODE_SECRET	((u_long) 0x0400)
 #define MODE_TOPIC	((u_long) 0x0800)
 #define MODE_REGONLY	((u_long) 0x1000)
+/**************************** Patched by Flier ******************************/
+#define MODE_SSLONLY	((u_long) 0x2000)
+/****************************************************************************/
 
 /**************************** Patched by Flier ******************************/
 #define HAS_OPS(channel) ((channel & CHAN_CHOP) || (channel & CHAN_HALFOP))

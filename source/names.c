@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.42 2002-08-08 20:52:24 f Exp $
+ * $Id: names.c,v 1.43 2002-08-12 18:47:06 f Exp $
  */
 
 #include "irc.h"
@@ -736,7 +736,7 @@ char    *servmodes;
                         *mode_string == 'l' || *mode_string == 'm' || *mode_string == 'n' ||
                         *mode_string == 'p' || *mode_string == 'q' || *mode_string == 's' ||
                         *mode_string == 't' || *mode_string == 'c' || *mode_string == 'R' ||
-                        *mode_string == 'I') {
+                        *mode_string == 'I' || *mode_string == 'S') {
                         if (compadd != add) {
                             if (add) *compmodeadd ++= '+';
                             else *compmodeadd ++= '-';
@@ -1291,6 +1291,11 @@ char    *servmodes;
 		case 'R':
 			value = MODE_REGONLY;
 			break;
+/**************************** Patched by Flier ******************************/
+                case 'S':
+                        value = MODE_SSLONLY;
+                        break;
+/****************************************************************************/
 		}
 		if (add)
 			*mode |= value;
