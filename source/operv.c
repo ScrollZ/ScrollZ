@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.46 2003-04-15 19:48:27 f Exp $
+ * $Id: operv.c,v 1.47 2003-04-20 18:46:26 f Exp $
  */
 
 #include "irc.h"
@@ -262,6 +262,17 @@ char *nuh;
     return(tmpbuf);
 }
 
+/* Remove [] from the string */
+void OVnobrackets(char *inbuf, char *outbuf, int outsize)
+{
+    char *start = inbuf;
+
+    if (*start == '[') start++;
+    strmcpy(outbuf, start, outsize);
+    if ((strlen(outbuf) > 0) && (outbuf[strlen(outbuf) - 1] == ']'))
+        outbuf[strlen(outbuf) - 1] = '\0';
+}
+
 void OVformat(line,from)
 char *line;
 char *from;
@@ -474,7 +485,8 @@ char *from;
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
-    else if (!strncmp(tmpline,"TRACE requested by",18)) {
+    else if (!strncmp(tmpline,"TRACE requested by",18) ||
+             !strncmp(tmpline,"trace requested by",18)) {
         strcpy(word1,OVgetword(0,4,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
 #ifdef CELECOSM
@@ -564,6 +576,22 @@ char *from;
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
 #endif
     }
+    else if (!strncmp(tmpline,"KLINE active for",16)) {
+	strcpy(word1,OVgetword(0,4,tmpline));  /* Banned client */
+	strcpy(word2,word1);
+        if ((tmp=index(word1,'['))) *tmp='\0';
+#ifdef CELECOSM
+        snprintf(tmpbuf,sizeof(tmpbuf),"k-line active: %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] active: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"Active K-Line for %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
     else if (!strncmp(tmpline,"I-line is full for",18)) {
 	strcpy(word1,OVgetword(0,5,tmpline));  /* nick[user@host] */
 	strcpy(word2,word1);
@@ -600,23 +628,6 @@ char *from;
 #else
         snprintf(tmpbuf,sizeof(tmpbuf),"Quarantined nick %s%s%s %s",
                 CmdsColors[COLOV].color1,tmp,Colors[COLOFF],OVuh(word2));
-#endif
-    }
-    else if (!strncmp(tmpline,"X-line Warning",14)) {
-	strcpy(word1,OVgetword(0,9,tmpline));  /* nick[user@host] */
-	strcpy(word2,word1);
-        /* strip [ from nick */
-        if ((tmp=index(word1,'['))) *tmp='\0';
-#ifdef CELECOSM
-        snprintf(tmpbuf,sizeof(tmpbuf),"spambot warning 1: %s%s%s %s",
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
-#elif defined(OGRE)
-        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sclient%s] spambot warning 1: %s%s%s %s",
-                CmdsColors[COLOV].color2,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
-#else
-        snprintf(tmpbuf,sizeof(tmpbuf),"Spambot warning 1 for %s%s%s %s",
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     else if (!my_strnicmp(tmpline,"stats ",6)) {
@@ -914,6 +925,36 @@ char *from;
     }
     else if (!strncmp(tmpline,"Added K-Line [",14)) {
     }
+    else if (!strncmp(tmpline,"Added temporary ",16) && strstr(tmpline," min. K-Line ")) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* time */
+        strcpy(word3,OVgetword(6,0,tmpline));  /* K-line */
+        OVnobrackets(word3,word2,sizeof(word2));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] added %s%s%s for %s%s%sm",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF]);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%sm K-Line added for %s%s%s",
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpline,"Added temporary ",16) && strstr(tmpline," min. D-Line for ")) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* time */
+        strcpy(word3,OVgetword(7,0,tmpline));  /* D-line */
+        OVnobrackets(word3,word2,sizeof(word2));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %sdline%s] added %s%s%s for %s%s%sm",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF]);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%sm D-Line added for %s%s%s",
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#endif
+    }
     else if (!strncmp(tmpline,"Bogus server name",17)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bogus name */
 	strcpy(word2,OVgetword(0,6,tmpline));  /* Nick */
@@ -1094,6 +1135,44 @@ char *from;
                 CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
 #endif
     }
+    else if (!strncmp(tmpline,"Too many user connections for ",30)) {
+	strcpy(word1,OVgetword(0,6,tmpline));  /* user */
+	strcpy(word2,word1);
+        if ((tmp=index(word1,'['))) *tmp='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[      %suser%s] too many connections for %s%s%s %s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"Too many user connections for %s%s%s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpline,"Too many global connections for ",32)) {
+	strcpy(word1,OVgetword(0,6,tmpline));  /* user */
+	strcpy(word2,word1);
+        if ((tmp=index(word1,'['))) *tmp='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sglobal%s] too many connections for %s%s%s %s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"Too many global connections for %s%s%s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpline,"Temporary K-line for ",21)) {
+	strcpy(word2,OVgetword(0,4,tmpline));  /* user */
+        OVnobrackets(word2,word1,sizeof(word1));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] expired %s%s%s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"Temporary K-Line for %s%s%s expired",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
+    }
     else if (strstr(tmpline,"whois on you")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
@@ -1122,7 +1201,13 @@ char *from;
     }
     else if (strstr(tmpline,"Flooder") && strstr(tmpline,"target")) {
         strcpy(word1,OVgetword(0,2,tmpline)); /* nick */
-        strcpy(word2,OVgetword(0,3,tmpline)); /* user@host */
+        if (!strcmp(word1,"Flooder")) {
+            strcpy(word3,OVgetword(0,3,tmpline));
+            strcpy(word1,word3);
+            if ((tmp=index(word1,'['))) *tmp='\0';
+            strcpy(word2,word3);
+        }
+        else strcpy(word2,OVgetword(0,3,tmpline)); /* user@host */
         strcpy(word3,OVgetword(0,5,tmpline)); /* Server */
         strcpy(word4,OVgetword(0,7,tmpline)); /* Channel */
 #ifdef CELECOSM
@@ -1290,6 +1375,48 @@ char *from;
 #else			   
         snprintf(tmpbuf,sizeof(tmpbuf),"K-Line added by %s%s%s - %s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#endif
+    }
+    else if (strstr(tmpline," added temporary ") && strstr(tmpline," min. K-Line for ")) {
+	strcpy(word2,OVgetword(0,1,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,4,tmpline));  /* time */
+        strcpy(word4,OVgetword(0,8,tmpline));  /* k-line */
+        OVnobrackets(word4,word3,sizeof(word3));
+        strcpy(word4,OVgetword(9,0,tmpline));  /* reason */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] %s%s%sm added by %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%sm K-Line added by %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color5,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," added temporary ") && strstr(tmpline," min. D-Line for ")) {
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,4,tmpline));  /* time */
+        strcpy(word4,OVgetword(0,8,tmpline));  /* d-line */
+        OVnobrackets(word4,word3,sizeof(word3));
+        strcpy(word4,OVgetword(9,0,tmpline));  /* reason */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %sdline%s] %s%s%sm added by %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%sm D-Line added by %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color5,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
 #endif
     }
     servername=server_list[from_server].itsname;
