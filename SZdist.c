@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.39 2002-01-21 22:12:15 f Exp $
+ * $Id: SZdist.c,v 1.40 2002-05-20 17:17:40 f Exp $
  */
 
 #include <stdio.h>
@@ -421,7 +421,12 @@ char **argv;
             return(1);
         }
         while (fgets(buf,1024,fpin)) {
-            if (buf[strlen(buf)-1]=='\n') buf[strlen(buf)-1]='\0';
+            int len=strlen(buf);
+
+            while (len>0 && (buf[len-1]=='\n' || buf[len-1]=='\r')) {
+                buf[len-1]='\0';
+                len--;
+            }
             if (!strcmp(buf,"/* Define this if you want client with ANSI (color) support */"))
                 break;
             fprintf(fpout,"%s\n",buf);
