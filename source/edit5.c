@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.22 1999-03-24 17:20:59 f Exp $
+ * $Id: edit5.c,v 1.23 1999-04-08 16:19:45 f Exp $
  */
 
 #include "irc.h"
@@ -2060,6 +2060,7 @@ out:
 void AutoChangeNick(nick)
 char *nick;
 {
+    int nicklen;
     char *tmpstr;
     char *newnick;
     char tmpbuf[mybufsize/8+1];
@@ -2090,19 +2091,27 @@ char *nick;
             fudge_index=strlen(nickbuf);
         }
     }
-    if (strlen(nickbuf)<9) strcat(nickbuf,"_");
+    if ((nicklen=strlen(nickbuf))<9) strcat(nickbuf,"_");
     else {
-        char tmp=nickbuf[8];
+        char tmp;
 
-        nickbuf[8]=nickbuf[7];
-        nickbuf[7]=nickbuf[6];
-        nickbuf[6]=nickbuf[5];
-        nickbuf[5]=nickbuf[4];
-        nickbuf[4]=nickbuf[3];
-        nickbuf[3]=nickbuf[2];
-        nickbuf[2]=nickbuf[1];
-        nickbuf[1]=nickbuf[0];
-        nickbuf[0]=tmp;
+        strmcpy(tmpbuf,nickbuf,mybufsize/8);
+        tmp=tmpbuf[8];
+        tmpbuf[8]=tmpbuf[7];
+        tmpbuf[7]=tmpbuf[6];
+        tmpbuf[6]=tmpbuf[5];
+        tmpbuf[5]=tmpbuf[4];
+        tmpbuf[4]=tmpbuf[3];
+        tmpbuf[3]=tmpbuf[2];
+        tmpbuf[2]=tmpbuf[1];
+        tmpbuf[1]=tmpbuf[0];
+        tmpbuf[0]=tmp;
+        /* be smart about this -> don't create illegal nick */
+        if (check_nickname(tmpbuf)) strcpy(nickbuf,tmpbuf);
+        else {
+            srand(time((time_t *) 0));
+            nickbuf[rand()%nicklen]='_';
+        }
     }
     sprintf(tmpbuf,"%d",parsing_server_index);
     strcpy(oldnick,nickbuf);
