@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.13 1999-06-14 20:14:17 f Exp $
+ * $Id: numbers.c,v 1.14 1999-08-07 12:59:33 f Exp $
  */
 
 #include "irc.h"
@@ -56,6 +56,9 @@
 /************************* PATCHED by Flier ***************************/
 #include "ignore.h"
 #include "myvars.h"
+#ifdef ACID
+#include "whowas.h"
+#endif
 
 extern void OnBans _((char **, int));
 extern void EndOfBans _((char *, int));
@@ -79,6 +82,9 @@ extern void PrintMap _((void));
 extern void ChannelCreateTime _((char *, char **));
 extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
+#ifdef ACID
+extern void TryChannelJoin _((void));
+#endif
 #ifdef OPER
 extern void DoFilterTrace _((char *));
 extern int  tottcount;
@@ -109,6 +115,11 @@ static	void	not_valid_channel _((char *, char **));
 static	void	cannot_join_channel _((char *, char **));
 static	void	version _((char *, char **));
 static	void	invite _((char *, char **));
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+extern  void    timercmd _((char *, char *, char *));
+#endif
+/****************************************************************************/
 
 static	int	already_doing_reset_nickname = 0;
 
@@ -610,6 +621,14 @@ cannot_join_channel(from, ArgList)
 		**ArgList;
 {
 	char	*chan;
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+        int     tryjoin=0;
+        char    *tmpchan;
+        char    tmpbuf[mybufsize/4+1];
+        void    (*func)()=(void(*)()) TryChannelJoin;
+#endif
+/****************************************************************************/
 
 	if (ArgList[0])
 		chan = ArgList[0];
@@ -635,6 +654,10 @@ cannot_join_channel(from, ArgList)
             PasteArgs(ArgList,0);
             strcpy(buffer,ArgList[0]);
         }
+#ifdef ACID
+        strmcpy(tmpbuf,buffer,mybufsize/4);
+        if ((tmpchan=index(tmpbuf,' '))) *tmpchan='\0';
+#endif
 /****************************************************************************/
  	if (do_hook(current_numeric, "%s %s", from, *ArgList)) {
 		switch(-current_numeric)
@@ -646,15 +669,35 @@ cannot_join_channel(from, ArgList)
 /****************************************************************************/
 		case 471:
 			strcat(buffer, " (Channel is full)");
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+                        tryjoin=1;
+#endif
+/****************************************************************************/
 			break;
 		case 473:
 			strcat(buffer, " (Invite only channel)");
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+                        tryjoin=1;
+#endif
+/****************************************************************************/
 			break;
 		case 474:
 			strcat(buffer, " (Banned from channel)");
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+                        tryjoin=1;
+#endif
+/****************************************************************************/
 			break;
 		case 475:
 			strcat(buffer, " (Bad channel key)");
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+                        tryjoin=1;
+#endif
+/****************************************************************************/
 			break;
 		case 476:
 			strcat(buffer, " (Bad channel mask)");
@@ -662,6 +705,22 @@ cannot_join_channel(from, ArgList)
 		}
         	put_it("%s %s", numeric_banner(), buffer);
 	}
+/**************************** PATCHED by Flier ******************************/
+#ifdef ACID
+        if (tryjoin) {
+            WhowasChanList *whowaschan=check_whowas_chan_buffer(tmpbuf,0);
+
+            if (whowaschan && whowaschan->channellist &&
+                whowaschan->channellist->TryRejoin==0) {
+                whowaschan->channellist->TryRejoin=1;
+                TryChannelJoin();
+                /* set 30s timer */
+                strcpy(tmpbuf,"-INV 30 rejoin");
+                timercmd("FTIMER",tmpbuf,(char *) func);
+            }
+        }
+#endif
+/****************************************************************************/
 }
 
 
