@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.3 1998-10-21 18:18:50 f Exp $
+ * $Id: irc.c,v 1.4 1998-10-21 19:38:07 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -310,7 +310,6 @@ char  *CompressModesChannels=(char *) 0;
 char  *StampChannels=(char *) 0;
 char  *EncryptPassword=(char *) 0;
 char  *StatsFilter=(char *) 0;
-char  *LastJoin=(char *) 0;
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
 /****** Coded by Zakath ******/
