@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.41 2000-10-09 17:37:23 f Exp $
+ * $Id: irc.c,v 1.42 2000-10-31 09:01:48 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -456,6 +456,7 @@ int   Stamp;
 int   CdccVerbose;
 int   ARinWindow;
 int   BKList;
+uint32_t DCCHost=0;
 #ifdef ACID
 int   ForceJoin;
 #endif
@@ -1103,6 +1104,11 @@ parse_args(argv, argc)
 		strmcpy(username, ptr, REALNAME_LEN);
 
 /**************************** PATCHED by Flier ******************************/
+        if ((ptr=getenv("DCCHOST"))) {
+            struct in_addr inaddr;
+
+            if (inet_aton(ptr,&inaddr)) DCCHost=inaddr.s_addr;
+        }
         /* for Da_P */
         if ((ptr=getenv("VIRTIP"))) malloc_strcpy(&source_host,ptr);
 /****************************************************************************/

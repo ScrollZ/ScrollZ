@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.26 2000-09-26 17:08:54 f Exp $
+ * $Id: dcc.c,v 1.27 2000-10-31 09:01:48 f Exp $
  */
 
 #include "irc.h"
@@ -137,6 +137,8 @@ extern void ColorUserHost _((char *, char *, char *, int));
 extern int  CheckServer _((int));
 extern int  DecryptMessage _((char *, char *));
 extern int  EncryptMessage _((char *, char *));
+
+extern uint32_t DCCHost;
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -740,6 +742,9 @@ dcc_open(Client)
 	myip.s_addr = server_list[from_server].local_addr.s_addr;
 	if (myip.s_addr == 0 || myip.s_addr == htonl(0x7f000001))
 		myip.s_addr = MyHostAddr.s_addr;
+/**************************** PATCHED by Flier ******************************/
+        if (DCCHost) myip.s_addr=DCCHost;
+/****************************************************************************/
 	Type = dcc_types[Client->flags & DCC_TYPES];
 	if (Client->flags & DCC_OFFER)
 	{
