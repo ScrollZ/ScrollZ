@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.3 1998-09-14 17:12:40 f Exp $
+ * $Id: edit.c,v 1.4 1998-09-16 20:09:01 f Exp $
  */
 
 #include "irc.h"
@@ -288,7 +288,7 @@ extern  void  AddNotify _((char *, char *, char *));
 extern  void  RemoveNotify _((char *, char *, char *));
 extern  void  ListNotify _((char *, char *, char *));
 extern  void  MyQuit _((char *));
-extern  void  AddNick2List _((char *));
+extern  void  AddNick2List _((char *, int));
 extern  void  HandleTabNext _((void));
 extern  void  AddServer _((char *, char *, char *));
 extern  void  RemoveServer _((char *, char *, char *));
@@ -2265,7 +2265,7 @@ e_privmsg(command, args, subargs)
 			if (!(nick = get_channel_by_refnum(0)))
 				nick = zero;
 /**************************** PATCHED by Flier ******************************/
-                if (my_stricmp(nick,"0")) AddNick2List(nick);
+                if (my_stricmp(nick,"0")) AddNick2List(nick,from_server);
 /****************************************************************************/
 		send_text(nick, args, command);
 	}

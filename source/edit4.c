@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.2 1998-09-10 17:44:51 f Exp $
+ * $Id: edit4.c,v 1.3 1998-09-16 20:10:52 f Exp $
  */
 
 #include "irc.h"
@@ -109,7 +109,7 @@ extern char *CelerityNtfy;
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct words *CheckLine _((char *, char *));
 extern void AwaySave _((char *, int));
-extern void AddNick2List _((char *));
+extern void AddNick2List _((char *, int));
 #ifndef WANTANSI
 extern void UserDomain _((char *));
 #endif
@@ -240,7 +240,7 @@ int  print;
        AwayMsgNum++;
        update_all_status();
     }
-    AddNick2List(nick);
+    AddNick2List(nick,from_server);
     if (URLCatch && URLCatch<3 && numurl)
         say("Added %d URL%s to NotePad (%c%s%c)",numurl,numurl==1?"":"s",
             bold,filepath,bold);

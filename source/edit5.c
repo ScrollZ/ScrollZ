@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.2 1998-09-10 17:44:53 f Exp $
+ * $Id: edit5.c,v 1.3 1998-09-16 20:11:25 f Exp $
  */
 
 #include "irc.h"
@@ -131,7 +131,7 @@ extern void UserDomainList _((char *));
 extern void MyQuit _((char *));
 #endif
 extern void HandleGotOps _((char *, ChannelList *));
-extern void AddNick2List _((char *));
+extern void AddNick2List _((char *, int));
 extern struct friends *CheckUsers _((char *, char *));
 extern void BanKick _((char *, char *, char *));
 extern void BuildPrivs _((struct friends *, char *));
@@ -2321,7 +2321,7 @@ char *subargs;
 #else
             put_it("[-%s-] %s",nick,LastMessageSent);
 #endif /* WANTANSI */
-            AddNick2List(nick);
+            AddNick2List(nick,from_server);
         }
     }
     else say("You haven't sent any %s so far",message?"message":"notice");
