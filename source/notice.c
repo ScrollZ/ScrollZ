@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.20 2001-02-26 19:17:50 f Exp $
+ * $Id: notice.c,v 1.21 2001-06-12 16:28:41 f Exp $
  */
 
 #include "irc.h"
@@ -53,6 +53,7 @@
 #include "notify.h"
 
 /************************* PATCHED by Flier **************************/
+#include "status.h"
 #include "myvars.h"
 
 extern void HandleFakes _((char *, char *, int));
@@ -251,7 +252,21 @@ parse_notice(from, Args)
 	char	*high,
 		not_from_server = 1;
 	char	*line;
+/**************************** Patched by Flier ******************************/
+        char stampbuf[mybufsize/16];
 
+        *stampbuf='\0';
+        if (Stamp==2) {
+#ifdef WANTANSI
+            sprintf(stampbuf,"%s(%s%s%s)%s ",
+                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                    update_clock(0,0,GET_TIME),
+                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+        }
+/****************************************************************************/
 	PasteArgs(Args, 1);
 	to = Args[0];
 	line = Args[1];
@@ -325,7 +340,11 @@ parse_notice(from, Args)
 						else
 						{
 							if (do_hook(type, "%s %s %s", from, to, line))
-								put_it("%s-%s:%s-%s %s", high, from, to, high, line);
+/**************************** Patched by Flier ******************************/
+								/*put_it("%s-%s:%s-%s %s", high, from, to, high, line);*/
+                                                            put_it("%s%s-%s:%s-%s %s",stampbuf,
+                                                                   high,from,to,high,line);
+/****************************************************************************/
 						}
 						if (beep_on_level & LOG_NOTICE)
 							beep_em(1);

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.59 2001-06-12 16:25:49 f Exp $
+ * $Id: edit.c,v 1.60 2001-06-12 16:31:02 f Exp $
  */
 
 #include "irc.h"
@@ -2918,11 +2918,11 @@ send_text(org_nick, line, command)
 					put_it("%c%s> %s", the_thing, nick,
 						line);*/
                                 if (current) {
-                                    if (!my_stricmp(command,"NOTICE")) put_it("-%s- %s",nick,line);
+                                    if (!my_stricmp(command,"NOTICE")) put_it("%s-%s- %s",stampbuf,nick,line);
                                     else PrintPublic(mynick,NULL,nick,line,1,iscrypted);
                                 }
                                 else {
-                                    if (!my_stricmp(command,"NOTICE")) put_it("-%s- %s",nick,line);
+                                    if (!my_stricmp(command,"NOTICE")) put_it("%s-%s- %s",stampbuf,nick,line);
                                     else PrintPublic(mynick,":",nick,line,1,iscrypted);
                                 }
                                 tabnickcompl=NULL;
