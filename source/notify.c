@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.9 2000-09-24 17:10:34 f Exp $
+ * $Id: notify.c,v 1.10 2001-09-17 16:29:32 f Exp $
  */
 
 /*
@@ -390,20 +390,6 @@ notify_mark(nick, flag, doit)
 #endif
                                 )
                             HandleNotifyOff(tmp->nick,timenow);
-                        if (OrigNickChange && OrigNick && !my_stricmp(OrigNick,nick)) {
-                            int changenick=1;
-                            char *mynick=get_server_nickname(from_server);
-                            NickList *joiner;
-
-                            if (tmp->userhost && (joiner=CheckJoiners(mynick,NULL,from_server,NULL))) {
-                                if (joiner->userhost && !my_stricmp(tmp->userhost,joiner->userhost))
-                                    changenick=0;
-                            }
-                            if (changenick) {
-                                e_nick(NULL,OrigNick,NULL);
-                                LastNick=timenow;
-                            }
-                        }
                         new_free(&tmp->userhost);
 /****************************************************************************/
 			tmp->flag = 0;
