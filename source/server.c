@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.29 2001-01-06 19:16:12 f Exp $
+ * $Id: server.c,v 1.30 2001-01-14 11:07:10 f Exp $
  */
 
 #include "irc.h"
@@ -390,7 +390,7 @@ a_hack:
 						}
 						else
 /**************************** Patched by Flier ******************************/
-                                                    if (AutoRecon)
+                                                    if (get_int_var(AUTO_RECONNECT_VAR))
 /****************************************************************************/
 							get_connected(i, 0);
 					}
@@ -406,7 +406,7 @@ a_hack:
   						}
 						else
 /**************************** Patched by Flier ******************************/
-                                                    if (AutoRecon)
+                                                    if (get_int_var(AUTO_RECONNECT_VAR))
 /****************************************************************************/
 							get_connected(i, 0);
 					}
@@ -419,7 +419,7 @@ a_hack:
 				}
 /**************************** Patched by Flier ******************************/
 				/*else if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))*/
-				else if (AutoRecon && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
+				else if (get_int_var(AUTO_RECONNECT_VAR) && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
 /****************************************************************************/
 				{
 					say("Connection to server %s lost.", server_list[i].name);
