@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.30 1999-08-14 21:24:12 f Exp $
+ * $Id: edit5.c,v 1.31 2000-02-11 16:33:29 f Exp $
  */
 
 #include "irc.h"
@@ -821,15 +821,15 @@ char *setting2;
                2 ... same as 1, but don't strip BOLD, REVERSE and UNDERLINE
                      or characters >=128 (national characters)
                3 ... same as 2, but also strip BOLD, REVERSE and UNDERLINE */
-void StripAnsi(line,newline,printonly)
+void StripAnsi(line,destline,printonly)
 char *line;
-char *newline;
+char *destline;
 int  printonly;
 {
     register int what=0;
     register int isattr;
     register unsigned char *tmpstr;
-    register unsigned char *newstr=newline;
+    register unsigned char *newstr=destline;
 
     for (tmpstr=line;*tmpstr;tmpstr++) {
         if (*tmpstr==0x1B) what=1;
