@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.27 1999-06-14 17:47:26 f Exp $
+ * $Id: edit4.c,v 1.28 1999-06-16 19:44:16 f Exp $
  */
 
 #include "irc.h"
@@ -729,6 +729,7 @@ void HandleTabNext() {
     Screen *curscr=current_screen;
     NickList *tmpnick;
     ChannelList *chan;
+    static ChannelList *origchan=NULL;
 
     tmpstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
     if (*tmpstr && (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
@@ -765,11 +766,14 @@ void HandleTabNext() {
                 }
                 return;
             }
-            else if (*tmpstr && (chan=server_list[from_server].chan_list)) {
+            else if (*tmpstr) {
                 int nicklen;
                 int sameloop=0;
 
-                for (;chan;chan=chan->next) {
+                if (origchan) chan=origchan;
+                else chan=server_list[from_server].chan_list;
+                if (!chan) return;
+                for (;chan;) {
                     if (!sameloop && tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
                         len=strlen(tabnick);
@@ -791,9 +795,13 @@ void HandleTabNext() {
                     for (;tmpnick;tmpnick=tmpnick->next)
                         if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
                     if (!tmpnick) {
+                        if (!sameloop && !(chan->next))
+                            chan=server_list[from_server].chan_list;
+                        else chan=chan->next;
                         sameloop=1;
                         continue;
                     }
+                    origchan=chan;
                     nicklen=strlen(tabnick);
                     if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
                         input_clear_line(0,(char *) 0);
@@ -807,6 +815,7 @@ void HandleTabNext() {
                         tabnickcompl=tmpnick;
                         return;
                     }
+                    chan=chan->next;
                 }
             }
         }
