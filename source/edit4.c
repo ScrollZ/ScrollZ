@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.51 2001-02-06 21:06:05 f Exp $
+ * $Id: edit4.c,v 1.52 2001-02-26 19:18:12 f Exp $
  */
 
 #include "irc.h"
@@ -889,17 +889,19 @@ int  server;
 }
 
 /* Handles received notice */
-int HandleNotice(nick,notice,userhost,print)
+int HandleNotice(nick,notice,userhost,print,to)
 char *nick;
 char *notice;
 char *userhost;
 int  print;
+char *to;
 {
+    int  isme;
     int  hooked=1;
     int  savemessage=0;
     char *tmp;
     char *wallop;
-    char *wallchan;
+    char *wallchan=NULL;
     char tmpbuf[mybufsize/2];
 #ifdef CELECOSM
     char tmpbuf1[mybufsize/2];
@@ -908,10 +910,16 @@ int  print;
     ChannelList *chan;
     ChannelList *foundchan=NULL;
 
+    isme=!my_stricmp(to,get_server_nickname(parsing_server_index));
     strmcpy(tmpbuf,notice,mybufsize/16);
     upper(tmpbuf);
-    if ((wallop=strstr(tmpbuf,"WALL")) && (wallchan=index(tmpbuf,'#')) &&
-        wallchan-wallop<32) {
+    wallop=strstr(tmpbuf,"WALL");
+    if (wallop) wallchan=index(tmpbuf,'#');
+    else if (!strncmp(to,"@#",2)) {
+        wallop=to;
+        wallchan=to+1;
+    }
+    if (wallop && wallchan && wallchan-wallop<32) {
         wallchan++;
         tmp=tmpbuf2;
         *tmp++='#';
@@ -939,32 +947,50 @@ int  print;
     if (!foundchan
 #ifndef LITE
         || (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,
-                                 nick,notice+(wallop-tmpbuf+1)))
+                                 nick,(wallchan==to+2)?notice:notice+(wallop-tmpbuf+1)))
 #endif
        ) {
         if (foundchan || (!foundchan && !print)) hooked=0;
         if (print) {
+            char stampbuf[mybufsize/16];
+
+            *stampbuf='\0';
+            if (Stamp==2) {
+#ifdef WANTANSI
+                sprintf(stampbuf,"%s(%s%s%s)%s ",
+                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                        update_clock(0,0,GET_TIME),
+                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+            }
 #ifdef WANTANSI
 #ifdef CELECOSM
             if (ExtMes && userhost)
                 ColorUserHost(userhost,CmdsColors[COLNOTICE].color6,tmpbuf2,1);
             else *tmpbuf2='\0';
             sprintf(tmpbuf,"%s-%s",CmdsColors[COLNOTICE].color5,Colors[COLOFF]);
-            sprintf(tmpbuf1,"%s%s%s%s%s%s",tmpbuf,
-                    CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF],tmpbuf2,tmpbuf);
-            put_it("%s %s%s%s",tmpbuf1,CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
+            sprintf(tmpbuf1,"%s%s%s%s%s%s%s%s",tmpbuf,
+                    CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF],
+                    isme?"":":",isme?"":to,tmpbuf2,tmpbuf);
+            put_it("%s%s %s%s%s",stampbuf,
+                    tmpbuf1,CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
 #else  /* CELECOSM */
             sprintf(tmpbuf,"%s-%s",CmdsColors[COLNOTICE].color5,Colors[COLOFF]);
-            put_it("%s%s%s%s%s %s%s%s",tmpbuf,
-                   CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF],tmpbuf,
+            sprintf(tmpbuf2,"%s%s%s%s",tmpbuf,
+                    CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF]);
+            put_it("%s%s%s%s%s %s%s%s",stampbuf,
+                   tmpbuf2,isme?"":":",isme?"":to,tmpbuf,
                    CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-            put_it("-%s- %s",nick,notice);
+            put_it("%s-%s%s%s- %s",stampbuf,
+                    nick,isme?"":":",isme?"":to,notice);
 #endif /* WANTANSI */
         }
     }
-    sprintf(tmpbuf,"-%s- %s",nick,notice);
+    sprintf(tmpbuf,"-%s%s%s- %s",nick,isme?"":":",isme?"":to,notice);
     malloc_strcpy(&(server_list[from_server].LastNotice),tmpbuf);
     if (!print && (away_set || LogOn))
         AwaySave(server_list[from_server].LastNotice,SAVENOTICE);
