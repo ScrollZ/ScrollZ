@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.28 1999-06-14 16:25:23 f Exp $
+ * $Id: edit2.c,v 1.29 1999-06-14 18:06:08 f Exp $
  */
 
 #include "irc.h"
@@ -1000,6 +1000,7 @@ char *subargs;
     char *tmpnick;
     char *tmpchannel=(char *) 0;
     char tmpbuf[mybufsize/4];
+    ChannelList *tmpchan;
 
     if (*args) {
         tmpnick=new_next_arg(args,&args);
@@ -1013,8 +1014,16 @@ char *subargs;
             NoWindowChannel();
             return;
         }
-        if (is_chanop(tmpchannel,get_server_nickname(from_server)))
+        if ((tmpchan=lookup_channel(tmpchannel,from_server,0))==NULL) return;
+        if (is_chanop(tmpchannel,get_server_nickname(from_server))) {
+#ifndef VILAS
+            if (tmpchan->key) send_to_server("NOTICE %s :You have been ctcp invited to %s (key is %s) -ScrollZ-",tmpnick,tmpchan->channel,tmpchan->key);
+#else
+            if (tmpchan->key) send_to_server("NOTICE %s :The channel %s key is %s",
+                                             tmpnick,tmpchan->channel,tmpchan->key);
+#endif
             send_to_server("INVITE %s %s",tmpnick,tmpchannel);
+        }
         else NotChanOp(tmpchannel);
     }
     else PrintUsage("INV nick [[#]channel]");
