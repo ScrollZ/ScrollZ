@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.58 2003-05-07 17:26:59 f Exp $
+ * $Id: operv.c,v 1.59 2003-05-11 17:16:38 f Exp $
  */
 
 #include "irc.h"
@@ -1493,6 +1493,22 @@ char *from;
                 CmdsColors[COLOV].color1,word2,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word3,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," is rehashing server config file")) {
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+	strcpy(word2,word1);
+        tmp=index(word1,'!');
+        if (tmp) *tmp++='\0';
+        tmp=index(word2,'{');
+        if (tmp) *tmp++='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %srehash%s] by %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is rehashing the server config file",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     servername=server_list[from_server].itsname;
