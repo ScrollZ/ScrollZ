@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.9 2001-07-26 15:31:09 f Exp $
+ * $Id: ignore.c,v 1.10 2002-01-13 16:39:35 f Exp $
  */
 
 #include "irc.h"
@@ -167,7 +167,7 @@ ignore_nickname(nick, type, flag, timedignore)
 					malloc_strcpy(&(new->nick), nick);
 /**************************** PATCHED by Flier ******************************/
                                         /*upper(new->nick);*/
-                                        new->perm=timedignore?0:1;
+                                        new->perm = timedignore ? 0 : 1;
 /****************************************************************************/
 					add_to_list((List **) &ignored_nicks, (List *) new);
 				}
@@ -221,8 +221,8 @@ ignore_nickname(nick, type, flag, timedignore)
 					new->nick);*/
                                     if (timedignore)
                                         say("Ignoring ALL messages from %s for %s seconds",
-                                            new->nick,timedignore);
-                                    else say("Ignoring ALL messages from %s",new->nick);
+                                            new->nick, timedignore);
+                                    else say("Ignoring ALL messages from %s", new->nick);
 /*****************************************************************************/
 					break;
 				}
@@ -251,10 +251,8 @@ ignore_nickname(nick, type, flag, timedignore)
 					strcat(buffer, " CRAP");
 /**************************** PATCHED by Flier ******************************/
 				/*say("%s from %s", buffer, new->nick);*/
-                                if (timedignore)
-                                    say("%s from %s for %s seconds",buffer,new->nick,
-                                        timedignore);
-                                else say("%s from %s",buffer,new->nick);
+                                if (timedignore) say("%s from %s for %s seconds", buffer, new->nick, timedignore);
+                                else say("%s from %s", buffer, new->nick);
 /****************************************************************************/
 			}
 			if ((new->type == 0) && (new->high == 0))
@@ -293,23 +291,23 @@ remove_ignore(nick)
 		return (0);
 	}
 	return (1);*/
-        for (i=1,tmp=ignored_nicks;tmp;i++) {
-            if ((*nick=='#' && matchmcommand(nick,i)) || wild_match(nick,tmp->nick)) {
-                remove=tmp;
-                if (last) last->next=tmp->next;
-                else ignored_nicks=tmp->next;
-                tmp=tmp->next;
-                say("%s removed from ignore list",remove->nick);
+        for (i = 1, tmp = ignored_nicks; tmp; i++) {
+            if ((*nick == '#' && matchmcommand(nick, i)) || wild_match(nick, tmp->nick)) {
+                remove = tmp;
+                if (last) last->next = tmp->next;
+                else ignored_nicks = tmp->next;
+                tmp = tmp->next;
+                say("%s removed from ignore list", remove->nick);
                 new_free(&(remove->nick));
                 new_free(&remove);
-                notfound=0;
+                notfound = 0;
             }
             else {
-                last=tmp;
-                tmp=tmp->next;
+                last = tmp;
+                tmp = tmp->next;
             }
         }
-        if (notfound) say("No match found for %s in ignore list",nick);
+        if (notfound) say("No match found for %s in ignore list", nick);
 /****************************************************************************/
 }
 
@@ -356,21 +354,25 @@ ignore_list(nick)
 	if (ignored_nicks)
 	{
 		say("Ignorance List:");
-		if (nick)
+/**************************** PATCHED by Flier ******************************/
+		/*if (nick)
 		{
 			len = strlen(nick);
 			upper(nick);
 		}
-/**************************** PATCHED by Flier ******************************/
-		/*for (tmp = ignored_nicks; tmp; tmp = tmp->next)*/
-		for (i=1,tmp=ignored_nicks;tmp;i++,tmp=tmp->next)
+		for (tmp = ignored_nicks; tmp; tmp = tmp->next)*/
+                len = strlen(nick);
+		for (i = 1, tmp = ignored_nicks; tmp; i++, tmp = tmp->next)
 /****************************************************************************/
 		{
 			char	s[BIG_BUFFER_SIZE+1];
 
 			if (nick)
 			{
-				if (strncmp(nick, tmp->nick, len))
+/**************************** Patched by Flier ******************************/
+				/*if (strncmp(nick, tmp->nick, len))*/
+				if (my_strnicmp(nick, tmp->nick, len))
+/****************************************************************************/
 					continue;
 			}
 			*buffer = (char) 0;
@@ -691,12 +693,12 @@ double_ignore(nick, userhost, type)
 {
 /**************************** Patched by Flier ******************************/
         if (userhost && is_channel(userhost)) {
-            char tmpbuf[mybufsize/4+1];
+            char tmpbuf[mybufsize / 4 + 1];
 
-            strmcpy(tmpbuf,nick,mybufsize/4);
-            strmcat(tmpbuf,"!",mybufsize/4);
-            strmcat(tmpbuf,userhost,mybufsize/4);
-            return(is_ignored(tmpbuf,type));
+            strmcpy(tmpbuf, nick, mybufsize / 4);
+            strmcat(tmpbuf, "!", mybufsize / 4);
+            strmcat(tmpbuf, userhost, mybufsize / 4);
+            return(is_ignored(tmpbuf, type));
         }
 /****************************************************************************/
 	if (userhost)
@@ -712,8 +714,8 @@ void CleanUpIgnore() {
     Ignore *tmpignore;
 
     while (ignored_nicks) {
-        tmpignore=ignored_nicks;
-        ignored_nicks=ignored_nicks->next;
+        tmpignore = ignored_nicks;
+        ignored_nicks = ignored_nicks->next;
         new_free(&(tmpignore->nick));
         new_free(&tmpignore);
     }
@@ -723,29 +725,29 @@ void CleanUpIgnore() {
 int IgnoreSave(fp)
 FILE *fp;
 {
-    int count=0;
+    int count = 0;
     char *tmpstr;
-    char tmpbuf[mybufsize/2+1];
+    char tmpbuf[mybufsize / 2 + 1];
     Ignore *tmp;
 
-    for (tmp=ignored_nicks;tmp;tmp=tmp->next) {
+    for (tmp = ignored_nicks; tmp; tmp = tmp->next) {
         if (!(tmp->perm)) continue;
-        *tmpbuf='\0';
-        if (tmp->type==IGNORE_ALL) strmcpy(tmpbuf,"ALL",mybufsize/2);
+        *tmpbuf = '\0';
+        if (tmp->type == IGNORE_ALL) strmcpy(tmpbuf, "ALL", mybufsize / 2);
         else {
-            if (tmp->type&IGNORE_PUBLIC) strmcat(tmpbuf,",PUBLIC",mybufsize/2);
-            if (tmp->type&IGNORE_MSGS) strmcat(tmpbuf,",MSGS",mybufsize/2);
-            if (tmp->type&IGNORE_WALLS) strmcat(tmpbuf,",WALLS",mybufsize/2);
-            if (tmp->type&IGNORE_WALLOPS) strmcat(tmpbuf,",WALLOPS",mybufsize/2);
-            if (tmp->type&IGNORE_INVITES) strmcat(tmpbuf,",INVITES",mybufsize/2);
-            if (tmp->type&IGNORE_NOTICES) strmcat(tmpbuf,",NOTICES",mybufsize/2);
-            if (tmp->type&IGNORE_NOTES) strmcat(tmpbuf,",NOTES",mybufsize/2);
-            if (tmp->type&IGNORE_CTCPS) strmcat(tmpbuf,",CTCPS",mybufsize/2);
-            if (tmp->type&IGNORE_CRAP) strmcat(tmpbuf,",CRAP",mybufsize/2);
+            if (tmp->type & IGNORE_PUBLIC) strmcat(tmpbuf, ",PUBLIC", mybufsize / 2);
+            if (tmp->type & IGNORE_MSGS) strmcat(tmpbuf, ",MSGS", mybufsize / 2);
+            if (tmp->type & IGNORE_WALLS) strmcat(tmpbuf, ",WALLS", mybufsize / 2);
+            if (tmp->type & IGNORE_WALLOPS) strmcat(tmpbuf, ",WALLOPS", mybufsize / 2);
+            if (tmp->type & IGNORE_INVITES) strmcat(tmpbuf, ",INVITES", mybufsize / 2);
+            if (tmp->type & IGNORE_NOTICES) strmcat(tmpbuf, ",NOTICES", mybufsize / 2);
+            if (tmp->type & IGNORE_NOTES) strmcat(tmpbuf, ",NOTES", mybufsize / 2);
+            if (tmp->type & IGNORE_CTCPS) strmcat(tmpbuf, ",CTCPS", mybufsize / 2);
+            if (tmp->type & IGNORE_CRAP) strmcat(tmpbuf, ",CRAP", mybufsize / 2);
         }
-        tmpstr=tmpbuf;
-        if (*tmpstr==',') tmpstr++;
-        fprintf(fp,"IGN   %s %s\n",tmp->nick,tmpstr);
+        tmpstr = tmpbuf;
+        if (*tmpstr == ',') tmpstr++;
+        fprintf(fp, "IGN   %s %s\n", tmp->nick, tmpstr);
         count++;
     }
     return(count);
