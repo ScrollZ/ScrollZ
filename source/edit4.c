@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.76 2001-09-10 21:24:53 f Exp $
+ * $Id: edit4.c,v 1.77 2001-10-27 19:46:32 f Exp $
  */
 
 #include "irc.h"
@@ -159,6 +159,7 @@ extern int  DecryptMessage _((char *, char *));
 extern void CheckTopic _((char *, int, ChannelList *));
 #endif
 extern char *TimeStamp _((int));
+extern struct autobankicks *FindShit _((char *, char *));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -192,7 +193,9 @@ int  iscrypted;
 #endif
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
+#ifndef TDF
     char *stampbuf=TimeStamp(2);
+#endif
 
     if (!(userhost && *userhost)) userhost=(char *) 0;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
@@ -223,10 +226,8 @@ int  iscrypted;
     if (ExtMes && userhost) {
         ColorUserHost(userhost,CmdsColors[COLMSG].color2,tmpbuf2,1);
 #ifdef TDF
-        if (Stamp<2)
-            sprintf(tmpbuf3,"  <[%s%s%s]%s>",
-                    CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
-        else sprintf(tmpbuf3,"  <%s>",tmpbuf2);
+        sprintf(tmpbuf3,"  <[%s%s%s]%s>",
+                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
 #else  /* TDF */
         if (Stamp<2)
             sprintf(tmpbuf3,"  %s [%s%s%s]",tmpbuf2,
@@ -242,7 +243,11 @@ int  iscrypted;
         else sprintf(tmpbuf3,"  (%s)",userhost);
     }
 #endif /* WANTANSI */
+#ifdef TDF
+    if (print) put_it("%s%s%s",iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
+#else
     if (print) put_it("%s%s%s%s",stampbuf,iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
+#endif
     StripAnsi(message,tmpbuf3,2);
     if (!(userhost && *userhost)) userhost=empty_string;
     sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(0,0,GET_TIME));
@@ -274,6 +279,42 @@ int  *netsplit;
     }
 }
 
+/* Do the shitlist action */
+void DoShitList(tmpjoiner,nick,channel,chan)
+NickList *tmpjoiner;
+char *nick;
+char *channel;
+ChannelList *chan;
+{
+    char *comment;
+    char *tmpignore;
+    char tmpbuf[mybufsize/4];
+    struct autobankicks *tmpabk=tmpjoiner->shitlist;
+
+    if ((tmpabk->shit)&SLBAN) {
+        if (!(tmpjoiner->chanop))
+            send_to_server("MODE %s +b %s",channel,tmpabk->userhost);
+        else
+            send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
+    }
+    if ((tmpabk->shit)&SLKICK) {
+        if (tmpabk->reason[0]) comment=tmpabk->reason;
+        else comment=DefaultABK;
+#ifdef CELE
+        send_to_server("KICK %s %s :%s %s>",channel,nick,comment,CelerityL);
+#else  /* CELE */
+        send_to_server("KICK %s %s :%s",channel,nick,comment);
+#endif /* CELE */
+    }
+    if ((tmpabk->shit)&SLIGNORE) {
+        tmpignore=index(tmpabk->userhost,'!');
+        if (tmpignore) tmpignore++;
+        else tmpignore=tmpabk->userhost;
+        sprintf(tmpbuf,"%s ALL",tmpignore);
+        Ignore(NULL,tmpbuf,tmpbuf);
+    }
+}
+
 /* Checks joined person */
 NickList *CheckJoin(nick,userhost,channel,server,tmpchan)
 char *nick;
@@ -285,12 +326,9 @@ ChannelList *tmpchan;
     int  privs;
     char flag=0;
     int  ischanop;
-    char *comment;
-    char *tmpignore;
     char tmpbuf[mybufsize/4];
     NickList *tmpjoiner;
     ChannelList *chan;
-    struct autobankicks *tmpabk;
 
     if (tmpchan) chan=tmpchan;
     else chan=lookup_channel(channel,server,0);
@@ -307,30 +345,8 @@ ChannelList *tmpchan;
 #else  /* CELE */
         send_to_server("KICK %s %s :Banned",channel,nick);
 #endif /* CELE */
-    else if (ischanop && (tmpabk=tmpjoiner->shitlist) && chan->BKList) {
-        if ((tmpabk->shit)&SLBAN) {
-	    if (!(chan->status&CHAN_CHOP))
-		send_to_server("MODE %s +b %s",channel,tmpabk->userhost);
-	    else
-		send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
-	}
-        if ((tmpabk->shit)&SLKICK) {
-            if (tmpabk->reason[0]) comment=tmpabk->reason;
-            else comment=DefaultABK;
-#ifdef CELE
-            send_to_server("KICK %s %s :%s %s>",channel,nick,comment,CelerityL);
-#else  /* CELE */
-            send_to_server("KICK %s %s :%s",channel,nick,comment);
-#endif /* CELE */
-        }
-        if ((tmpabk->shit)&SLIGNORE) {
-            tmpignore=index(tmpabk->userhost,'!');
-            if (tmpignore) tmpignore++;
-            else tmpignore=tmpabk->userhost;
-            sprintf(tmpbuf,"%s ALL",tmpignore);
-            Ignore(NULL,tmpbuf,tmpbuf);
-        }
-    }
+    else if (ischanop && tmpjoiner->shitlist && chan->BKList)
+        DoShitList(tmpjoiner,nick,channel,chan);
     if (ischanop && tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
 	if (chan->status&CHAN_CHOP) {
 	    if (privs&FLOP)
@@ -542,6 +558,10 @@ int  server;
                     if (tmp->frlist) privs=tmp->frlist->privs;
                     else privs=0;
                     if (!(privs&(FLPROT | FLGOD))) {
+                        sprintf(tmpbuf,"%s!%s",newnick,userhost);
+                        tmp->shitlist=(struct autobankicks *) FindShit(tmpbuf,chan->channel);
+                        if (tmp->shitlist && chan->BKList)
+                            DoShitList(tmp,newnick,chan->channel,chan);
                         if (timenow-tmp->nickt>=NickTimer) {
                             tmp->curn=1;
                             tmp->nickp=0;
