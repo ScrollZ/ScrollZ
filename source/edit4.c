@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.57 2001-03-21 20:35:33 f Exp $
+ * $Id: edit4.c,v 1.58 2001-03-22 21:21:22 f Exp $
  */
 
 #include "irc.h"
@@ -745,7 +745,8 @@ void HandleTabNext() {
     int  len;
     int  curserv=from_server;
     int  domsgtab=0;
-    char *minstr;
+    char *minpos;
+    char *curpos;
     char *tmpstr;
     char tmpbuf[mybufsize/8+1];
     static char *tabnick=NULL;
@@ -755,18 +756,41 @@ void HandleTabNext() {
     ChannelList *chan;
     static ChannelList *origchan=NULL;
 
-    minstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
-    tmpstr=minstr;
+    minpos=&(curscr->input_buffer[curscr->buffer_min_pos]);
+    curpos=&(curscr->input_buffer[curscr->buffer_pos]);
+    tmpstr=minpos;
     /* On empty line do msg tabkey. */
-    if (!(*tmpstr) || !my_strnicmp(tmpstr,"/msg ",5)) domsgtab=1;
-    else {
+    if (!(*tmpstr)) domsgtab=1;
+    /* On /msg nick do msg tabkey, on /msg nick text do not */
+    if (!my_strnicmp(tmpstr,"/msg ",5)) {
+        int state=0; /* 0=space 1=non-space */
+        int numwords=0;
+        tmpstr+=4;
+        /* count number of words spaces */
+        while (tmpstr<curpos) {
+            switch (state) {
+                case 0:
+                    if (!isspace(*tmpstr)) {
+                        state=1;
+                        numwords++;
+                    }
+                    break;
+                case 1:
+                    if (isspace(*tmpstr)) state=0;
+                    break;
+            }
+            tmpstr++;
+        }
+        if (numwords<2) domsgtab=1;
+    }
+    if (!domsgtab) {
         /* Locate what string to complete. */
-        tmpstr=&(curscr->input_buffer[curscr->buffer_pos]);
+        tmpstr=curpos;
         len=0;
         /* Start one position left from the cursor and walk left until
            we see separator or we reach beginning of input line. */
         tmpstr--;
-        while (!isspace(*tmpstr) && tmpstr>=minstr) {
+        while (!isspace(*tmpstr) && tmpstr>=minpos) {
             tmpstr--;
             len++;
         }
