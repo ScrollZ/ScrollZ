@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.9 1999-10-04 19:21:38 f Exp $
+ * $Id: window.c,v 1.10 1999-11-14 14:27:20 f Exp $
  */
 
 #include "irc.h"
@@ -2795,7 +2795,12 @@ windowcmd(command, args, subargs)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
 			{
-				window->window_level = parse_lastlog_level(arg);
+/**************************** PATCHED by Flier ******************************/
+				/*window->window_level = parse_lastlog_level(arg);*/
+                                if (*arg=='+')
+                                    window->window_level+=parse_lastlog_level(arg);
+                                else window->window_level=parse_lastlog_level(arg);
+/****************************************************************************/
 				say("Window level is %s",
 				   bits_to_lastlog_level(window->window_level));
 				revamp_window_levels(window);
