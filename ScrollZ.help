@@ -289,11 +289,11 @@ that will use pattern like *!user@*.domain.
 Channels is a list of channels separated by ',' where nick will have
 access to CTCP commands. You can use * and ? (example : #chat*,#tes?).
 Available access modes are $3I$0=INVITE, $3C$0=CHOPS, $3O$0=OP, $3A$0=AUTOOP $3U$0=UNBAN,
-$3P$0=PROT, $3G$0=GOD, $3V$0=VOTE, $3D$0=CDCC, $3J$0=JOIN and $3F$0=FLOOD or $3ALL$0.
-(example : ICOAU stands for INVITE CHOPS OP AUTOOP and UNBAN). Client
-will auto invite users from notify list if they have $3I$0, $3C$0, $3O$0 and $3U$0
-privileges and they don't have password set. They can access $3CTCP OPEN$0 if
-they have I, O and U flags set).
+$3X$0=INSTANT OP, $3P$0=PROT, $3G$0=GOD, $3V$0=VOTE, $3D$0=CDCC, $3J$0=JOIN,
+$3F$0=FLOOD or $3ALL$0 (example : ICOAU stands for INVITE CHOPS OP AUTOOP and
+UNBAN). Client will auto invite users from notify list if they have $3I$0,
+$3C$0, $3O$0 and $3U$0 privileges and they don't have password set. They can
+access $3CTCP OPEN$0 if they have I, O and U flags set).
 Also look at $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2REMFCHAN$0, $2LISTF$0,
 $2FRLIST$0, $2LEVELS$0 and $2AUTOINV$0.
 :ADDFFLAG      Adds flags for userlist entries
@@ -338,7 +338,9 @@ $3V$0   user can request voice through CTCP
 $3C$0   user can request list of channel operators through CTCP
 $3O$0   user can request channel operator status through CTCP
 $3A$0   user will automatically receive channel operator status on join
-    or voice status if they have V flag set
+    or voice status if they have V flag set (delayed)
+$3X$0   user will automatically receive channel operator status on join
+    or voice status if they have V flag set (instant)
 $3U$0   user can request unban through CTCP
 $3P$0   user is protected, client will reop/unban/invite him when
     he gets deopped/banned/kicked unless done by user with G flag
