@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.6 1998-09-24 18:26:20 f Exp $
+ * $Id: edit2.c,v 1.7 1998-09-27 17:30:07 f Exp $
  */
 
 #include "irc.h"
@@ -252,6 +252,9 @@ char *subargs;
     char *ptr;
     char *word;
     char *channel;
+    char *alllist=(char *) 0;
+    char *allinclist=(char *) 0;
+    char *allexclist=(char *) 0;
     char *fulllistptr;
     char tmpnick[100];
     char fulllist[mybufsize*2];
@@ -259,7 +262,7 @@ char *subargs;
     char includelist[mybufsize];
     char currentlist[mybufsize];
     NickList *tmp;
-    ChannelList *chan;
+    ChannelList *chan=NULL;
 
     /* set all strings to null */
     *fulllist='\0';
@@ -267,22 +270,27 @@ char *subargs;
     *includelist='\0';
     *currentlist='\0';
     if (!(args && *args)) {
-        PrintUsage("WALL [+nick] [-nick] message");
-        return;
-    }
-    if (!(channel=get_channel_by_refnum(0))) {
-        NoWindowChannel();
+        PrintUsage("WALL [#channel] [+nick] [-nick] message");
         return;
     }
     server=curr_scr_win->server;
-    if ((chan=lookup_channel(channel,server,0))==NULL) return;
+    while (*args && isspace(*args)) args++;
+    if (*args=='#') {
+        word=next_arg(args,&args);
+        if ((chan=lookup_channel(word,server,0))==NULL) return;
+    }
+    else if (!(channel=get_channel_by_refnum(0)) ||
+             (chan=lookup_channel(channel,server,0))==NULL) {
+        NoWindowChannel();
+        return;
+    }
     /* work along line till we find a word that doesn't start with - or +  */
     while (args) {
         /* peek at the first char, before detaching */
         if ((*args!='-') && (*args!='+')) break; /* no special flags to parse out */
         word=next_arg(args,&args);
         if (!word || !*(word+1)) {
-            say("Error: no message/nicks found");
+            say("Error: no message/channel/nicks found");
             return;
         }
         else if (*word=='-') {
@@ -292,6 +300,8 @@ char *subargs;
                 strcat(excludelist," ");
                 strcat(excludelist,tmp->nick);
                 strcat(excludelist," ");
+                if (allexclist) malloc_strcat(&allexclist," ");
+                malloc_strcat(&allexclist,tmp->nick);
             }
         }
         else if (*word=='+') {
@@ -299,7 +309,10 @@ char *subargs;
             if ((tmp=find_in_hash(chan,word))) {
                 strcat(includelist," ");
                 strcat(includelist,tmp->nick);
+                strcat(includelist," ");
                 includecount++;
+                if (allinclist) malloc_strcat(&allinclist," ");
+                malloc_strcat(&allinclist,tmp->nick);
             }
         }
     }
@@ -334,13 +347,21 @@ char *subargs;
             totalcount=0;
             *currentlist='\0';
         }
+        if (alllist) malloc_strcat(&alllist," ");
+        malloc_strcat(&alllist,ptr);
     }
     if (totalcount) {
         sprintf(buffer,"[S-WallOp/%s] %s",chan->channel,args);
         send_to_server("NOTICE %s :%s",currentlist,buffer);
     }
-    if (*excludelist) say("Excluding%sfrom wallmsg",excludelist);
-    if (includecount) say("Including%s to receive wallmsg",includelist);
+    if (ShowWallop) {
+        if (*excludelist) say("Excluding %s from wallmsg",allexclist);
+        if (includecount) say("Including %s to receive wallmsg",allinclist);
+        say("Sent wallmsg on %s to %s",chan->channel,alllist);
+    }
+    new_free(&alllist);
+    new_free(&allinclist);
+    new_free(&allexclist);
     if (!opscount) say("There are no channel operators in %s",chan->channel);
 }
 
