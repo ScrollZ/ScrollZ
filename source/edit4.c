@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.22 1999-05-21 16:56:45 f Exp $
+ * $Id: edit4.c,v 1.23 1999-05-23 08:53:14 f Exp $
  */
 
 #include "irc.h"
@@ -1272,8 +1272,7 @@ char *subargs;
     char tmpbuf[mybufsize/8];
     ChannelList *chan;
 
-    if (args && *args) {
-        channel=new_next_arg(args,&args);
+    if ((channel=new_next_arg(args,&args))) {
         if (is_channel(channel)) strcpy(tmpbuf,channel);
         else sprintf(tmpbuf,"#%s",channel);
         channel=tmpbuf;
