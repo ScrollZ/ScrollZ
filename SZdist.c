@@ -10,7 +10,7 @@
  * Once you qualify for requirements, you're ready to use it. Just run it and
  * you'll be present with current ScrollZ setup (read from include/defs.h).
  * Follow on-screen instructions and make your choices. Either use 'Q' to quit
- * or press 'S' to save. If you opted for latter, just type make irc and in a
+ * or press 'W' to save. If you opted for latter, just type make irc and in a
  * matter of minutes you will have binary of your choice.
  *
  * Now that ScrollZ has a lot of compile-time options, we needed this so one
@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.41 2003-05-04 18:06:06 f Exp $
+ * $Id: SZdist.c,v 1.42 2004-08-13 18:35:37 f Exp $
  */
 
 #include <stdio.h>
@@ -255,7 +255,7 @@ char **argv;
     strcpy(tmpbuf,"rm source/irc.o source/ctcp.o");
     do {
         printf("[2J[1;1H");
-        printf("Enter [1mletter[0m to toggle option on/off, '[1mQ[0m' to quit, '[1mS[0m' to save and quit\n");
+        printf("Enter [1mletter[0m to toggle option on/off, '[1mQ[0m' to quit, '[1mW[0m' to save and quit\n");
         printf("-------------------------------------------------------------------------------\n");
         printf(" [1mA[0m - WANTANSI      %s - color capable client\n",
                onoffstr(choice&WANTANSI,onoffbuf));
