@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.34 2001-11-19 19:01:16 f Exp $
+ * $Id: server.c,v 1.35 2001-11-20 21:24:17 f Exp $
  */
 
 #include "irc.h"
@@ -168,6 +168,7 @@ close_server(server_index, message)
                     timeminutes = (timediff / 60) % 60;
                     say("You have been connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
+                    server_list[i].ConnectTime = 0;
                 }
 /****************************************************************************/
 		if (-1 != server_list[i].write)
