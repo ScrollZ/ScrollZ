@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.4 1998-09-30 21:18:48 f Exp $
+ * $Id: edit3.c,v 1.5 1998-10-07 16:51:10 f Exp $
  */
 
 #include "irc.h"
@@ -1279,8 +1279,7 @@ char *subargs;
     char *tmpsecs;
     char tmpbuf[mybufsize/4];
 
-    tmparg=new_next_arg(args,&args);
-    if (tmparg) {
+    if ((tmparg=new_next_arg(args,&args))) {
         if (!my_stricmp("MAX",tmparg)) {
             tmpmsgs=new_next_arg(args,&args);
             tmpsecs=new_next_arg(args,&args);
@@ -1459,6 +1458,7 @@ char *command;
 char *args;
 char *subargs;
 {
+    int  servid;
     char *server=(char *) 0;
     char *port=(char *) 0;
     char *newnick=(char *) 0;
@@ -1466,22 +1466,26 @@ char *subargs;
     char *newreal=(char *) 0;
     char tmpbuf[mybufsize/4];
 
-    if (!(*args)) PrintUsage("NET server [port] [nick] [username] [realname]");
+    if (!(server=new_next_arg(args,&args))) PrintUsage("NET server [port] [nick] [username] [realname]");
     else {
-        server=new_next_arg(args,&args);
         if ((port=index(server,':'))) *port++='\0';
         else port=new_next_arg(args,&args);
+        if (!port) port="6667";
+        servid=find_in_server_list(server,atoi(port));
+        if (servid>-1 && is_server_connected(servid)) {
+            say("Already connected to server %s port %s",server,port);
+            return;
+        }
         newnick=new_next_arg(args,&args);
         newuser=new_next_arg(args,&args);
         newreal=new_next_arg(args,&args);
-        if (!port) port="6667";
         if (!newnick) newnick=get_server_nickname(from_server);
         if (newuser) strmcpy(username,newuser,NAME_LEN);
         if (newreal) strmcpy(realname,newreal,REALNAME_LEN);
         strcpy(tmpbuf,"NEW");
         window(NULL,tmpbuf,NULL);
         sprintf(tmpbuf,"SERVER %s:%s::%s",server,port,newnick);
-        say("Creating new window on server %s",server);
+        say("Creating new window on server %s port %s",server,port);
         say("Hit CONTROL-W then ? for help on window commands");
         window(NULL,tmpbuf,NULL);
     }
