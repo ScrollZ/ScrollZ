@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.32 2001-08-01 17:24:06 f Exp $
+ * $Id: SZdist.c,v 1.33 2001-08-22 19:30:36 f Exp $
  */
 
 #include <stdio.h>
@@ -56,7 +56,8 @@
 #define OGRE           (1<<17)
 #define SZ32           (1<<18)
 #define LITE           (1<<19)
-#define NUMDEFS        (LITE)
+#define ALTPUBLICS     (1<<20)
+#define NUMDEFS        (ALTPUBLICS)
 
 #define mybufsize 1024
 
@@ -90,6 +91,7 @@ char *SZ32files="*.o";
 char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
 char *OGREfiles="operv.o";
 char *LITEfiles="*.o";
+char *ALTPUBLICSfiles="edit5.o";
 
 char format[mybufsize];
 
@@ -174,7 +176,7 @@ char **argv;
             else if (strstr(buf,"GENX")) choice|=GENX;
             else if (strstr(buf,"NEWCSCAN")) choice|=NEWCSCAN;
             else if (strstr(buf,"ACID")) choice|=ACID;
-            else if (strstr(buf,"SORTEDNICKS")) choice|=SORTEDNICKS;
+            else if (strstr(buf,"SORTED_NICKS")) choice|=SORTEDNICKS;
             else if (strstr(buf,"SCKICKS")) choice|=SCKICKS;
             else if (strstr(buf,"OPERVISION")) choice|=OPERVISION;
 	    else if (strstr(buf,"CELE")) choice|=CELE;
@@ -188,6 +190,7 @@ char **argv;
 	    else if (strstr(buf,"OPER")) choice|=OPER;
 	    else if (strstr(buf,"OGRE")) choice|=OGRE;
 	    else if (strstr(buf,"LITE")) choice|=LITE;
+	    else if (strstr(buf,"ALTERNATIVE_PUBLICS")) choice|=ALTPUBLICS;
         }
     fclose(fpin);
     oldchoice=choice;
@@ -213,6 +216,8 @@ char **argv;
             else if (*tmp1=='l') choice&=~LITE;
             if (*tmp1=='N') choice|=SORTEDNICKS;
             else if (*tmp1=='n') choice&=~SORTEDNICKS;
+            if (*tmp1=='U') choice|=ALTPUBLICS;
+            else if (*tmp1=='u') choice&=~ALTPUBLICS;
         }
         if (*tmp1==' ' && *(tmp1+1)=='O' && *(tmp1+2)=='V') {
             choice|=OPERVISION;
@@ -291,6 +296,8 @@ char **argv;
 	       onoffstr(choice&TDF,onoffbuf));
 	printf(" [1mP[0m - COUNTRY       %s - compile with $country()\n",
 	       onoffstr(choice&COUNTRY,onoffbuf));
+	printf(" [1mR[0m - ALTPUBLICS    %s - () arround nick in public messages\n",
+	       onoffstr(choice&ALTPUBLICS,onoffbuf));
 	printf(" [1mT[0m - LITE          %s - compile without some functionality\n",
 	       onoffstr(choice&LITE,onoffbuf));
 	printf(" [1m3[0m - SZ32          %s - compile for Win32 (NT+95)\n",
@@ -358,6 +365,9 @@ char **argv;
 		case 'T': if ((choice&LITE)) choice&=~LITE;
 			  else choice|=LITE;
 			  break;
+		case 'R': if ((choice&ALTPUBLICS)) choice&=~ALTPUBLICS;
+			  else choice|=ALTPUBLICS;
+			  break;
 		case '3': if ((choice&SZ32)) choice&=~SZ32;
 			  else choice|=SZ32;
 			  break;
@@ -398,6 +408,7 @@ char **argv;
 	    else if (i==OPER) addtobuf(OPERfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==OGRE) addtobuf(OGREfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==LITE) addtobuf(LITEfiles,tmpbuf,choice,oldchoice,i);
+	    else if (i==ALTPUBLICS) addtobuf(ALTPUBLICSfiles,tmpbuf,choice,oldchoice,i);
         }
         if (rename(defsfile,defsoldfile)<0) {
             printf("Error, couldn't rename %s to %s\n",defsfile,defsoldfile);
@@ -418,7 +429,7 @@ char **argv;
                 break;
             fprintf(fpout,"%s\n",buf);
         }
-        fprintf(fpout,"\n/* Define this if you want client with ANSI (color) support */\n");
+        fprintf(fpout,"/* Define this if you want client with ANSI (color) support */\n");
         if (choice&WANTANSI) fprintf(fpout,"#define WANTANSI\n");
         else fprintf(fpout,"#undef WANTANSI\n");
         fprintf(fpout,"\n/* Define this if you want OperVision support in the client */\n");
@@ -443,6 +454,9 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want formatted /CSCAN */\n");
         if (choice&NEWCSCAN) fprintf(fpout,"#define NEWCSCAN\n");
         else fprintf(fpout,"#undef NEWCSCAN\n");
+        fprintf(fpout,"\n/* Define this if you want () arround nick in public messages */\n");
+        if (choice&ALTPUBLICS) fprintf(fpout,"#define ALTERNATIVE_PUBLICS\n");
+        else fprintf(fpout,"#undef ALTERNATIVE_PUBLICS\n");
         fprintf(fpout,"\n/* Define this if you feel users should be invited to non +i channels on\n");
         fprintf(fpout,"   notify signon and +z userflag */\n");
         if (choice&ACID) fprintf(fpout,"#define ACID\n");
