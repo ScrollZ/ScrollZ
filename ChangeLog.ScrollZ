@@ -99,7 +99,7 @@ Meaning of flags:
       time to do both the coding and the docs)
       WARNING: SHELP is gone, use HELP from now on!
     + REPWORD is now taken in consideration on actions, we use COLOR ME
-      color number 6 for this (requested by )
+      color number 6 for this (requested by skuum)
     + NICKCHAN to display nick change in all user's channels (only once per
       window though, much like SHOWSIGN for signoffs, requested by fox)
     + AWAYENCR to toggle encryption of ScrollZ.away on or off (the file is
@@ -111,6 +111,11 @@ Meaning of flags:
       believing it gained the nick (reported by dethnite and braneded)
     ! don't select G0 character set null mapping so Putty works with ISO
       8859-1 characters (reported by gamo)
+    ! OV now handles whois on opers on ircd 2.10.3 (reported by KOBAN)
+    + JOIN -NOWHO to enable joining large channels, however this disables
+      some functionality built into the client (requested by Dolphin)
+    ! topic in status bar bug where topic for current window's channel
+      was displayed in all visible windows (reported by tlund)
 
 ------------------------------------------------------------------------------
 
