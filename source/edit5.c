@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.62 2001-05-09 19:27:26 f Exp $
+ * $Id: edit5.c,v 1.63 2001-06-12 16:17:01 f Exp $
  */
 
 #include "irc.h"
@@ -2568,7 +2568,7 @@ char *subargs;
         else say("Malloc failed");
     }
     if (!channels) channels=get_channel_by_refnum(0);
-    say("%-3s %-12s    %-10s %-34s Friend","UL","Channel"," Nick","Userhost");
+    say("%-3s %-15s %-10s %-34s Friend","UL","Channel"," Nick","Userhost");
     for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next)
         if (chan->channel && CheckChannel(chan->channel,channels)) {
             for (joiner=chan->nicks;joiner;joiner=joiner->next) {
@@ -2602,7 +2602,7 @@ char *subargs;
                     strcat(tmpbuf2,CmdsColors[COLCSCAN].color2);
                     BuildPrivs(joiner->frlist,tmpbuf2);
                     strcat(tmpbuf2,Colors[COLOFF]);
-                    say("%-3d %s%-12s%s   %s %s",
+                    say("%-3d %s%-14s%s %s %s",
                         joiner->frlist?joiner->frlist->number:0,
                         CmdsColors[COLWHO].color3,chan->channel,Colors[COLOFF],
                         tmpbuf1,tmpbuf2);
@@ -2623,7 +2623,7 @@ char *subargs;
                     sprintf(tmpbuf1,"%s%-9s",tmpbuf2,joiner->nick);
                     *tmpbuf2='\0';
                     BuildPrivs(joiner->frlist,tmpbuf2);
-                    say("%-3d %-12s   %s %-34s %s",
+                    say("%-3d %-14s %s %-34s %s",
                         joiner->frlist?joiner->frlist->number:0,chan->channel,
                         tmpbuf1,joiner->userhost,tmpbuf2);
 #endif
