@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.91 2002-01-16 18:18:46 f Exp $
+ * $Id: edit4.c,v 1.92 2002-01-17 18:29:18 f Exp $
  */
 
 #include "irc.h"
@@ -960,29 +960,28 @@ send_begin:
         }
     }
     else if (*min_pos == '/' && argc == 0) {
-        int j;
+        IrcCommand *command_p;
 
 command_begin:
-        j = 1;	/* skip "" */
-        if (last_completion) {
-            while (irc_command[j].name && my_strnicmp(irc_command[j].name, last_completion, strlen(last_completion))) j++;
-            j++;
-        }
-        while (irc_command[j].name) {
-            if (!my_strnicmp(irc_command[j].name, completing, strlen(completing))) {
+        if (next_p) command_p = next_p;
+        else command_p = &irc_command[1];	/* skip "" */
+        while (command_p->name) {
+            if (!my_strnicmp(command_p->name, completing, strlen(completing))) {
                 for (i = 0; i < length; i++) input_backspace(' ', NULL);
-                for (p = irc_command[j].name; *p; p++) input_add_character(*p, NULL);
-                last_completion = irc_command[j].name;
+                for (p = command_p->name; *p; p++) input_add_character(*p, NULL);
+                last_completion = command_p->name;
                 break;
             }
-            j++;
+            command_p++;
         }
-        if (!irc_command[j].name) {
+        if (!command_p->name) {
             if (last_completion) {
                 last_completion = 0;
+	        next_p = 0;
                 goto command_begin;
             }
         }
+        else next_p = command_p + 1;
     }
     else if (is_channel(completing)) {
 channel_begin:
