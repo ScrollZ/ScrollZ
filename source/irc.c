@@ -31,12 +31,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.112 2004-05-02 16:03:59 f Exp $
+ * $Id: irc.c,v 1.113 2004-05-09 15:57:51 f Exp $
  */
 
-#define IRCII_VERSION	"20040501"	/* YYYYMMDD */
+#define IRCII_VERSION	"20040509"	/* YYYYMMDD */
 /**************************** PATCHED by Flier ******************************/
-#define SCROLLZ_VERSION "1.9.1"
+#define SCROLLZ_VERSION "1.9.2"
 /****************************************************************************/
 
 #include "irc.h"
@@ -265,7 +265,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (1.5.2004)+Cdcc v" CDCC_VERSION;
+char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (9.5.2004)+Cdcc v" CDCC_VERSION;
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
