@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.20 1999-03-01 19:01:19 f Exp $
+ * $Id: edit2.c,v 1.21 1999-03-02 17:38:32 f Exp $
  */
 
 #include "irc.h"
@@ -3797,7 +3797,8 @@ char *subargs;
         sprintf(putbuf,"eth%d",i);
         strcpy(ifr.ifr_name,putbuf);
         /* obtain destination address */
-        isvalid=ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
+        ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
+        isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
         if (i==0 && isvalid<0) {
             say("Error during ioctl for interface eth0, aborting");
             fclose(fp);
@@ -3811,7 +3812,8 @@ char *subargs;
             sprintf(putbuf,"eth%d:%d",i,count);
             strcpy(ifr.ifr_name,putbuf);
             /* obtain destination address */
-            if ((isvalid=ioctl(tmpsock,SIOCGIFDSTADDR,&ifr))<0) numinvalid++;
+            ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
+            if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
             else numinvalid=0;
             if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
             /* abort when we detect 10 failed ioctl()s in sequence */
