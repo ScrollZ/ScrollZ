@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.5 1999-10-31 11:01:53 f Exp $
+ * $Id: funny.c,v 1.6 2000-08-10 17:45:14 f Exp $
  */
 
 #include "irc.h"
@@ -54,7 +54,7 @@
 extern void PrintNames _((char *, char *));
 extern void PrintSynch _((ChannelList *));
 #if defined(OPERVISION) && defined(WANTANSI)
-extern void OperVision _((char *, char *, char *));
+extern void OperVisionReinit _((void));
 #endif
 /****************************************************************************/
 
@@ -468,10 +468,7 @@ void reinstate_user_modes()
     else if (c!=modes) send_to_server("MODE %s +%s",
                                       get_server_nickname(parsing_server_index),modes);
 #if defined(OPERVISION) && defined(WANTANSI)
-    if (OperV) {
-        OperVision(NULL,"OFF",NULL);
-        OperVision(NULL,"ON",NULL);
-    }
+    if (OperV) OperVisionReinit();
 #endif
 }
 /****************************************************************************/
