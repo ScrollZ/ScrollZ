@@ -1,0 +1,16 @@
+!	 $Id: status_channelcount,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_CHANNELCOUNT <status line text for channel count>
+  The contents of STATUS_CHANNELCOUNT are replaced in the
+  STATUS_FORMAT variable for any occurence of %U.
+  This variable may contain any text, plus it may contain
+  a %o, which is replaced by the number of the channel
+  operators. It may contain a %u, which is replaced by the
+  number of non channel operators. It may contain a %t
+  which is replaced by number of users on channel. In all
+  three cases the channel in question is your current channel.

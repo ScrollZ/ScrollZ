@@ -1,0 +1,16 @@
+!	 $Id: lastlog_ansi,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET LASTLOG_ANSI [ON|OFF|TOGGLE]
+  When ON, client will strip ANSI color sequences from
+  LASTLOG output. When OFF, ANSI color sequences will be
+  displayed in LASTLOG output. Note that some terminals may
+  have difficulties displaying the ANSI colors properly.
+
+See Also:
+  LASTLOG
+  SET DISPLAY_ANSI

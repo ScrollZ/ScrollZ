@@ -1,0 +1,17 @@
+!	 $Id: max_wallop_nicks,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET MAX_WALLOP_NICKS <number of nicks per message>
+  This will limit the number of nicks that one wallop
+  message will send to the IRC server. (default is 10).
+  Some IRC servers put a limit on number of nicks one can
+  specify per message/notice (for example on EFnet one
+  should set this variable to 3). The valid number is
+  between 1 and 70.
+
+See also:
+  WALL

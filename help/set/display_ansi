@@ -1,0 +1,15 @@
+!	 $Id: display_ansi,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET DISPLAY_ANSI [ON|OFF|TOGGLE]
+  When ON, client will display ANSI color sequences. When
+  OFF, ANSI color sequences are stripped from output. Note
+  that some terminals may have difficulties displaying the
+  ANSI colors properly.
+
+See Also:
+  SET LASTLOG_ANSI

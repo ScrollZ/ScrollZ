@@ -1,0 +1,13 @@
+!	 $Id: status_uptime,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_UPTIME <text of display for status line uptime>
+  The value of STATUS_UPTIME is replaced in the STATUS_FORMAT
+  variable for any occurrence of %1. The STATUS_UPTIME may
+  contant a %d which is replaced by number of days, %h which
+  is replaced by number of hours or %m which is replaced by
+  number of minutes your client has been running.

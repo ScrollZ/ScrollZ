@@ -1,0 +1,15 @@
+!	 $Id: status_reverse,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_REVERSE [ON|OFF|TOGGLE]
+  When ON, client will display the status bar in reverse
+  which is useful for black on white displays. This option
+  only makes sense if your status bar is black and white
+  only.
+
+See Also:
+  SET STATUS_FORMAT

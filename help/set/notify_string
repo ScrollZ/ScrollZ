@@ -1,0 +1,17 @@
+!	 $Id: notify_string,v 1.1 2002-02-24 10:15:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET NOTIFY_STRING <prefix>
+  Sets the prefix used for notify signon/signoff messages.
+  The default is "[S+Z] ". The value of NOTIFY_STRING
+  is saved to ScrollZ.save.
+
+See Also:
+  ADDN
+  LISTN
+  REMN
+  SVE
