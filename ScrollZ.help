@@ -482,9 +482,6 @@ they will be invited only to +i channels.
 :AUTOOPDELAY   Delay before automatically oping user
 Usage $3AUTOOPDELAY time_in_seconds$0
 Default auto-op time is 4. Setting this to 0 disables auto-op delay.
-:AUTORECON     Toggles automatic reconnect to a server on/off
-Usage $3AUTORECON on$0|$3off$0
-If on, client will automatically reconnect to a server upon disconnect.
 :AWAYSAVE      Defines what to save in ScrollZ.away
 Usage $3AWAYSAVE $0[$3-$0]$3type$0
 Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
