@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.5 1999-03-23 17:30:05 f Exp $
+ * $Id: ircaux.c,v 1.6 2000-07-23 07:39:37 f Exp $
  */
 
 #include "irc.h"
@@ -1288,9 +1288,7 @@ path_search(name, path)
 	path = free_path;
 	while (path)
 	{
-/**************************** PATCHED by Flier ******************************/
-#if defined(__MSDOS__) || defined(SZ32)
-/****************************************************************************/
+#if defined(__MSDOS__)
 		if ((ptr = index(path, ';')) != NULL)
 #else
 		if ((ptr = index(path, ':')) != NULL)
@@ -1305,8 +1303,19 @@ path_search(name, path)
  			strmcat(lbuf, my_path, BIG_BUFFER_SIZE);
 			path++;
 		}
+/**************************** PATCHED by Flier ******************************/
+#ifdef SZ32
+                /* do not use path if it is just . (current dir)
+                   because it breaks with CygWin */
+                if (strcmp(path,".") || *name!='/')
+#endif
+                {
+/****************************************************************************/
  		strmcat(lbuf, path, BIG_BUFFER_SIZE);
  		strmcat(lbuf, "/", BIG_BUFFER_SIZE);
+/**************************** PATCHED by Flier ******************************/
+                }
+/****************************************************************************/
  		strmcat(lbuf, name, BIG_BUFFER_SIZE);
  		if (access(lbuf, F_OK) == 0)
 			break;
