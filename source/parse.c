@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.16 1999-06-05 11:13:13 f Exp $
+ * $Id: parse.c,v 1.17 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -544,8 +544,12 @@ whoreply(from, ArgList)
 	{
 /**************************** PATCHED by Flier ******************************/
                 if (inFlierWho) {
+#ifdef OPER
                     if (inFlierFKill) DoKill(nick,user,host);
                     else OnWho(nick,user,host,channel,status);
+#else
+                    OnWho(nick,user,host,channel,status);
+#endif
                 }
                 else
 /****************************************************************************/				

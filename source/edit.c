@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.23 1999-05-07 17:52:36 f Exp $
+ * $Id: edit.c,v 1.24 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -301,15 +301,19 @@ extern  void  ShowKill _((char *, char *, char *));
 extern  void  TagNick _((char *, char *, char *));
 extern  void  WhereIs _((char *, char *, char *));
 extern  void  WhereList _((char *, char *, char *));
-extern  void  MassKill _((char *, char *, char *));
-extern  void  FilterTrace _((char *, char *, char *));
 #endif
 extern  void  UnFlash _((char *, char *, char *));
 extern  void  Password _((char *, char *, char *));
 extern  void  PrintPublic _((char *, char *, char *, char *, int));
 extern  void  PlayBack _((char *, char *, char *));
 extern  void  AwaySaveToggle _((char *, char *, char *));
+#ifdef OPER
+extern  void  MassKill _((char *, char *, char *));
+extern  void  FilterTrace _((char *, char *, char *));
 extern  void  StatsKFilter _((char *, char *, char *));
+extern	void  WhoKill _((char *, char *, char *));
+extern	void  TraceKill _((char *, char *, char *));
+#endif
 extern  void  CurrentChanMode _((char *, char *, char *));
 extern  void  Nslookup _((char *, char *, char *));
 extern  void  Dump _((char *, char *, char *));
@@ -326,8 +330,6 @@ extern  void  URLCatchToggle _((char *, char *, char *));
 extern	void  URLSave _((char *, char *, char *));
 extern	void  ReplyWord _((char *, char *, char *));
 extern	void  MultiKick _((char *, char *, char *));
-extern	void  WhoKill _((char *, char *, char *));
-extern	void  TraceKill _((char *, char *, char *));
 extern	void  Map _((char *, char *, char *));
 extern  void  AddFriendPrivs _((char *, char *, char *));
 extern  void  AddFriendChannel _((char *, char *, char *));
@@ -520,13 +522,15 @@ static	IrcCommand FAR irc_command[] =
 #endif
   { "FINGER", 		NULL, 		Finger, 		0 },
   { "FK", 		"FK", 		FilterKick, 		SERVERREQ },
+#ifdef OPER
   { "FKLINE", 		NULL, 		StatsKFilter, 		SERVERREQ },
+#endif
   { "FLOODP", 		NULL, 		FloodProtToggle, 	0 },
  	{ "FLUSH",	NULL,		flush,			SERVERREQ },
 	{ "FOR",	NULL,		foreach_handler,	0 },
 	{ "FOREACH",	NULL,		foreach_handler,	0 },
   { "FRLIST", 		"FRLIST", 	ChannelCommand, 	0 },
-#ifdef ACID
+#ifdef OPER
   { "FTRACE", 		NULL,		FilterTrace,		0 },
 #endif
  	{ "HASH",	"HASH",		send_comm,		SERVERREQ },
@@ -593,7 +597,7 @@ static	IrcCommand FAR irc_command[] =
   { "MIRC", 		"MIRC", 	OnOffCommand, 		0 },
 #endif
   { "MK", 		NULL, 		MassKick, 		SERVERREQ },
-#ifdef ACID
+#ifdef OPER
   { "MKILL",            NULL,           MassKill,               SERVERREQ },
 #endif
 	{ "MLIST",	NULL,		mlist,			0 },
@@ -737,7 +741,9 @@ static	IrcCommand FAR irc_command[] =
 #endif
  	{ "TIME",	"TIME",		send_comm,		SERVERREQ },
 	{ "TIMER",	"TIMER",	timercmd,		0 },
+#ifdef OPER
   { "TKILL", 		NULL, 		TraceKill, 		SERVERREQ },
+#endif
  	{ "TOPIC",	"TOPIC",	send_topic,		SERVERREQ },
 /**************************** PATCHED by Flier ******************************/
 	/*{ "TRACE",	"TRACE",	send_comm,		0 },*/
@@ -785,7 +791,9 @@ static	IrcCommand FAR irc_command[] =
   { "WI", 		"WHOIS", 	whois, 			SERVERREQ },
   { "WII",		"WII",		whois, 			SERVERREQ },
 	{ "WINDOW",	NULL,		windowcmd,     		0 },
+#ifdef OPER
   { "WKILL", 		NULL, 		WhoKill, 		SERVERREQ },
+#endif
   { "WW", 		"WHOWAS", 	whois, 			SERVERREQ },
 	{ "XECHO",	"XECHO",	my_echo,		0 },
  	{ "XTRA",	"XTRA",		e_privmsg,		SERVERREQ },
@@ -2412,8 +2420,10 @@ send_comm(command, args, subargs)
                 inFlierLinks=3;
             }
             else if (!my_stricmp(command,"STATS")) {
+#ifdef OPER
                 StatsKNumber=0;
                 new_free(&StatsFilter);
+#endif
             }
         }
 /****************************************************************************/

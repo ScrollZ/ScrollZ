@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.36 1999-06-14 16:25:23 f Exp $
+ * $Id: edit6.c,v 1.37 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -136,13 +136,12 @@ static int TraceClass=0;
 static int TraceUser=0;
 #endif
 /* ***************** */
+static struct mapstr *maplist=NULL;
 
+#ifdef OPER
 static int  FilterKillNum;
 static char *tkillreason=(char *) 0;
 static char *tkillpattern=(char *) 0;
-static struct mapstr *maplist=NULL;
-
-#ifdef ACID
 /* for filtered trace */
 static char *ftpattern=(char *) 0;
 int  tottcount=0;
@@ -212,7 +211,7 @@ int  server;
             if ((tmpchan->status)&CHAN_CHOP) {
 #else
             if (((tmpchan->status)&CHAN_CHOP) && ((tmpchan->mode)&MODE_INVITE)) {
-#endif
+#endif /* ACID || FLIER */
                 tmpnick=find_in_hash(tmpchan,nick);
                 if (!tmpnick && (tmpfriend=CheckUsers(tmpbuf,tmpchan->channel)) &&
                     !(tmpfriend->passwd) &&
@@ -221,18 +220,22 @@ int  server;
 #else
                     ((tmpfriend->privs)&(FLINVITE | FLCHOPS | FLOP | FLUNBAN))==
                      (FLINVITE | FLCHOPS | FLOP | FLUNBAN))
-#endif
+#endif /* ACID */
                      {
 #ifndef VILAS
                          if (tmpchan->key)
                              send_to_server("NOTICE %s :You have been ctcp invited to %s (key is %s) -ScrollZ-",nick,tmpchan->channel,tmpchan->key);
-#endif
+#else
+                         if (tmpchan->key)
+                             send_to_server("NOTICE %s :The channel %s key is %s",nick,
+                                            tmpchan->channel,tmpchan->key);
+#endif /* VILAS */
                          send_to_server("INVITE %s %s",nick,tmpchan->channel);
                      }
             }
     }
 }
-#endif
+#endif /* EXTRAS || FLIER */
 
 /* Returns privilege as flags */
 void BuildPrivs(user,buffer)
@@ -465,6 +468,7 @@ ChannelList *chan;
 }
 
 /* Does trace then kills users matching filter */
+#ifdef OPER
 void TraceKill(command,args,subargs)
 char *command;
 char *args;
@@ -525,6 +529,7 @@ void HandleEndOfTraceKill() {
         new_free(&tkillpattern);
     }
 }
+#endif /* OPER */
 
 /* Generates map of IRC servers */
 void Map(command,args,subargs)
@@ -1771,7 +1776,7 @@ char *subargs;
  	say("Mailing List: scrollz@listserv.sonn.com");
  	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");*/
         say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: bighead, arc, myc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke and synergy");
+        say("Distribution: acidflash, bighead, arc, myc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke and synergy");
 	/*say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");*/
     /* XXX - Remove this, Flier */
     }
@@ -2039,7 +2044,7 @@ void SwitchNick() {
     }
 }
 
-#ifdef ACID
+#ifdef OPER
 /* Kills multiple nicks at the same time by acidflash */
 void MassKill(command,args,subargs)
 char *command;
@@ -2062,7 +2067,7 @@ char *subargs;
     }
     else PrintUsage("MKILL nick1 nick2 nick3 ... [:reason]");
 }
-#endif /* ACID */
+#endif /* OPER */
 
 /* Check if given server is valid, ie. it still exists and it's connected */
 int CheckServer(server)
@@ -2125,7 +2130,7 @@ void CleanUpScrollZVars() {
     new_free(&DefaultLK);
     new_free(&DefaultABK);
     new_free(&DefaultSK);
-#ifdef ACID
+#ifdef OPER
     new_free(&DefaultKill);
 #endif
     new_free(&PermUserMode);
@@ -2357,7 +2362,7 @@ char *user;
     return(tmp?1:0);
 }
 
-#ifdef ACID
+#ifdef OPER
 /* Filtered trace */
 void FilterTrace(command,args,subargs)
 char *command;
@@ -2504,6 +2509,19 @@ char *notice;
                         else channel=(char *) 0;
                     }
                 }
+            }
+            break;
+        case 5: /* ScrollZ with -DVILAS */
+            channel=notice+12;
+            tmpstr=channel;
+            while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+            if (*tmpstr) {
+                *tmpstr++='\0';
+                if (!strncmp(tmpstr,"key is ",7)) {
+                    tmpstr+=7;
+                    key=tmpstr;
+                }
+                else channel=(char *) 0;
             }
             break;
         default:

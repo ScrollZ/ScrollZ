@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.6 1999-02-17 17:57:53 f Exp $
+ * $Id: config.h,v 1.7 1999-06-14 17:47:02 f Exp $
  */
 
 #ifndef __config_h_
@@ -260,7 +260,7 @@
 #undef DEFAULT_STATUS_UPTIME
 #undef DEFAULT_STATUS_WINDOW
 
-#endif
+#endif /* CELE || WANTANSI */
 
 #ifdef CELE
 
@@ -331,7 +331,27 @@
 #define DEFAULT_STATUS_UPTIME "[up %y8%dd %hh %mm%y6]"
 #define DEFAULT_STATUS_WINDOW "^^^^^"
 
-#endif
+#endif /* CELE */
+
+#ifdef ACID
+
+#undef DEFAULT_AUTO_WHOWAS
+#undef DEFAULT_CLOCK_24HOUR
+#undef DEFAULT_SEND_IGNORE_MSG
+#undef DEFAULT_SHOW_STATUS_ALL
+#undef DEFAULT_SUPPRESS_SERVER_MOTD
+#undef DEFAULT_STATUS_FORMAT1
+#undef DEFAULT_BEEP_ON_MSG
+
+#define DEFAULT_BEEP_ON_MSG "MSG"
+#define DEFAULT_AUTO_WHOWAS 1
+#define DEFAULT_CLOCK_24HOUR 0
+#define DEFAULT_SEND_IGNORE_MSG 1
+#define DEFAULT_SHOW_STATUS_ALL 1
+#define DEFAULT_SUPPRESS_SERVER_MOTD 1
+#define DEFAULT_STATUS_FORMAT1 "%y1[%y2%R%y6] %y2%*%y6%y3%@%y6%y7%N%y6%#%C%+%A%Q%S%I%O %y3%W%y6 %F%y9%H%y6 %> [%y4AcidMods v2.5%y6]%y0"
+
+#endif /* ACID */
 /****************************************************************************/
 
 /*

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.7 1999-02-28 20:14:13 f Exp $
+ * $Id: screen.c,v 1.8 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -1839,9 +1839,13 @@ new_window()
 	new->status_line[0] = NULL;
 	new->status_line[1] = NULL;
 /**************************** PATCHED by Flier ******************************/
-	new->status_line[2] = NULL;
         /*new->double_status = 0;*/
-        new->double_status = 1;
+#ifndef ACID
+        new->double_status=1;
+#else
+        new->double_status=2;
+#endif
+	new->status_line[2]=NULL;
 /****************************************************************************/
 	new->top_of_display = 0;
 	new->display_ip = 0;

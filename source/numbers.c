@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.11 1999-06-14 16:10:21 f Exp $
+ * $Id: numbers.c,v 1.12 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -79,7 +79,7 @@ extern void PrintMap _((void));
 extern void ChannelCreateTime _((char *, char **));
 extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
-#ifdef ACID
+#ifdef OPER
 extern void DoFilterTrace _((char *));
 extern int  tottcount;
 extern int  mattcount;
@@ -1184,8 +1184,12 @@ numbered_command(from, comm, ArgList)
                             (chan=lookup_channel(ArgList[0],from_server,0)))
                             malloc_strcpy(&(chan->topicstr),ArgList[1]);
                         if (comm==315 && inFlierWho) {
+#ifdef OPER
                             if (inFlierFKill) HandleEndOfKill();
                             else HandleEndOfWho(ArgList[0],from_server);
+#else
+                            HandleEndOfWho(ArgList[0],from_server);
+#endif
                             inFlierWho--;
                             skipit=1;
                         }
@@ -1247,10 +1251,12 @@ numbered_command(from, comm, ArgList)
 			break;
 
 /**************************** PATCHED by Flier ******************************/
+#ifdef OPER
                 case 216:
                         PasteArgs(ArgList,2);
                         HandleStatsK(ArgList[1],ArgList[2]);
                         break;
+#endif
                 case 329:
                         ChannelCreateTime(from,ArgList);
                         break;
@@ -1433,7 +1439,7 @@ numbered_command(from, comm, ArgList)
                         }
                 case 262:		/* #define RPL_ENDOFTRACE       262 */
                         if (comm==262 && inFlierTrace) {
-#ifdef ACID
+#ifdef OPER
                             if (inFlierTrace==2)
                                 say("Matched %d out of %d entries",mattcount,tottcount);
 #endif
@@ -1467,23 +1473,25 @@ numbered_command(from, comm, ArgList)
                         break;
 #endif
                 case 205:
+#ifdef OPER
                         if (comm==205 && inFlierTrace) {
-#ifdef ACID
                             if (inFlierTrace==2) DoFilterTrace(ArgList[2]);
                             else
-#endif
                                 DoTraceKill(ArgList[2]);
                             break;
                         }
+#endif
 #ifdef CELE
                         HandleTrace(comm,ArgList[0],ArgList[1],ArgList[2],ArgList[3],ArgList[4],ArgList[5]);
                         break;
 #endif
                 case 209:
+#ifdef OPER
                         if (comm==209 && inFlierTrace) {
                             if (inFlierTrace==1) HandleEndOfTraceKill();
                             break;
                         }
+#endif
 #ifdef CELE
                         HandleTrace(comm,ArgList[0],ArgList[1],ArgList[2],ArgList[3],ArgList[4],ArgList[5]);
                         break;

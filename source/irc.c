@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.20 1999-05-24 21:23:45 f Exp $
+ * $Id: irc.c,v 1.21 1999-06-14 17:47:26 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -315,8 +315,8 @@ char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
 /****** Coded by Zakath ******/
 /* patched by acidflash */
-#ifdef ACID
-char *AcidVersion="AcidMods v2.0";
+#ifdef OPER
+char *AcidVersion="OperMods v1.0 by acidflash";
 #endif
 char  *VirtualHost=(char *) 0;
 char  *HelpPathVar=(char *) 0;
@@ -346,7 +346,7 @@ char  *DefaultFK=(char *) 0;
 char  *DefaultLK=(char *) 0;
 char  *DefaultABK=(char *) 0;
 char  *DefaultSK=(char *) 0;
-#ifdef ACID
+#ifdef OPER
 char  *DefaultKill=(char *) 0;
 #endif
 char  *PermUserMode=(char *) 0;
@@ -536,6 +536,13 @@ char VersionInfo[] = {
     'X',
 #else
     'x',
+#endif
+#ifdef OPER
+    ' ',
+    'O',
+    'P',
+    'E',
+    'R',
 #endif
     '\0'};
 /*****************************/

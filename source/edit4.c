@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.26 1999-06-14 16:45:06 f Exp $
+ * $Id: edit4.c,v 1.27 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -905,6 +905,7 @@ int  print;
         else if (!strncmp(notice,"Use channel key ",16)) AddJoinKey(2,notice);
         else if (!strncmp(notice,"Channel key for ",17)) AddJoinKey(3,notice);
         else if (!strncmp(notice,"Ctcp-inviting you to ",22)) AddJoinKey(4,notice);
+        else if (!strncmp(notice,"The channel ",12)) AddJoinKey(5,notice);
     }
     if (!foundchan ||
         (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,nick,

@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.27 1999-05-24 21:09:31 f Exp $
+ * $Id: edit5.c,v 1.28 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -168,10 +168,12 @@ extern char *function_match _((char *));
 int URLnum=0;
 static char *urlbuf=(char *) 0;
 
+#ifdef OPER
 int StatsKNumber;
 static int  WhoKillNum;
 static char *wkillpattern=(char *) 0;
 static char *wkillreason=(char *) 0;
+#endif
 static char *playpattern=(char *) 0;
 static int  filesize;
 static int  DontHold;
@@ -1756,6 +1758,7 @@ char *subargs;
 }
 
 /* Does /STATS k with filter */
+#ifdef OPER
 void StatsKFilter(command,args,subargs)
 char *command;
 char *args;
@@ -1853,6 +1856,7 @@ char *rest;
         put_it("%s %-30s %s",numeric_banner(),tmpbuf1,comment);
     StatsKNumber++;
 }
+#endif /* OPER */
 
 /* Sets mode for your current channel */
 void CurrentChanMode(command,args,subargs)
@@ -3873,6 +3877,7 @@ char *subargs;
 }
 
 /* Kills users matching filter with WHO */
+#ifdef OPER
 void WhoKill(command,args,subargs)
 char *command;
 char *args;
@@ -3923,3 +3928,4 @@ void HandleEndOfKill() {
     new_free(&wkillpattern);
     new_free(&wkillreason);
 }
+#endif /* OPER */

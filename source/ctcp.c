@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.20 1999-05-29 13:27:15 f Exp $
+ * $Id: ctcp.c,v 1.21 1999-06-14 17:47:26 f Exp $
  */
 
 #include "irc.h"
@@ -463,11 +463,14 @@ char *args;
             return(NULL);
         }
         if (!CheckJoiners(from,channel,from_server,chan)) {
+#ifndef VILAS
             if (chan->key) sprintf(tmpbuf1," (key is %s)",chan->key);
             else *tmpbuf1='\0';
-#ifndef VILAS
             send_to_server("NOTICE %s :You have been ctcp invited to %s%s -ScrollZ-",
                            from,channel,tmpbuf1);
+#else
+            if (chan->key) send_to_server("NOTICE %s :The channel %s key is %s",
+                                          from,channel,chan->key);
 #endif
             send_to_server("INVITE %s %s",from,channel);
         }
@@ -1222,16 +1225,16 @@ do_version(ctcp, from, to, cmd)
                         get_string_var(CLIENTINFO_VAR));
             else sprintf(tmpbuf2,"%s+%s",tmpbuf1,CelerityVersion);
 #else  /* CELE */
-#ifdef ACID
+#ifdef OPER
 	    if (get_string_var(CLIENTINFO_VAR))
                 sprintf(tmpbuf2,"%s+%s - %s",tmpbuf1,AcidVersion,
                         get_string_var(CLIENTINFO_VAR));
             else sprintf(tmpbuf2,"%s+%s",tmpbuf1,AcidVersion);
-#else
+#else  /* OPER */
             if (get_string_var(CLIENTINFO_VAR))
                 sprintf(tmpbuf2,"%s - %s",tmpbuf1,get_string_var(CLIENTINFO_VAR));
             else strcpy(tmpbuf2,tmpbuf1);
-#endif /* ACID */
+#endif /* OPER */
 #endif /* CELE */
             send_ctcp_reply(from, ctcp->name, tmpbuf2);
         }
