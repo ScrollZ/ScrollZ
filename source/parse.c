@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.67 2003-01-08 20:00:54 f Exp $
+ * $Id: parse.c,v 1.68 2003-04-16 17:14:01 f Exp $
  */
 
 #include "irc.h"
@@ -1300,7 +1300,8 @@ p_channel(from, ArgList)
 	if (join)
 	{
 /**************************** PATCHED by Flier ******************************/
-                if ((double_ignore(channel, NULL, IGNORE_CRAP)) == IGNORED) return;
+                if ((double_ignore(channel, NULL, IGNORE_JOIN)) == IGNORED)
+                    return;
 /****************************************************************************/
 		if (!get_channel_oper(channel, parsing_server_index))
 			in_on_who = 1;
@@ -1773,7 +1774,7 @@ p_part(from, ArgList)
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 /**************************** PATCHED by Flier ******************************/
-        if (flag!=IGNORED) flag=double_ignore(ArgList[0],NULL,IGNORE_CRAP);
+        if (flag!=IGNORED) flag=double_ignore(ArgList[0],NULL,IGNORE_PART);
 /****************************************************************************/
 	channel = ArgList[0];
 	if (!is_on_channel(channel, parsing_server_index, from))
