@@ -54,10 +54,11 @@
  AddJoinKey          Store key for later join
  CheckJoinKey        Check key for join
  TryChannelJoin      Try to join a channel
+ ChangePassword      Change user's password
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.45 1999-08-17 19:54:42 f Exp $
+ * $Id: edit6.c,v 1.46 1999-08-18 20:22:13 f Exp $
  */
 
 #include "irc.h"
@@ -2642,3 +2643,40 @@ void TryChannelJoin() {
     }
 }
 #endif /* ACID */
+
+/* Change user's password */
+void ChangePassword(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    int count=0;
+    int isfilt=0;
+    int countall=0;
+    char *filter;
+    char *passwd;
+    char tmpbuf1[mybufsize/8+1];
+    struct friends *tmpfriend;
+
+    filter=new_next_arg(args,&args);
+    passwd=new_next_arg(args,&args);
+    if (!(filter && passwd)) {
+        PrintUsage("CHPASS filter password");
+        return;
+    }
+    if (*filter=='#') {
+        isfilt=1;
+        filter++;
+    }
+    for (tmpfriend=frlist;tmpfriend;tmpfriend=tmpfriend->next) {
+        countall++;
+        if ((isfilt && matchmcommand(filter,countall)) ||
+            wild_match(filter,tmpfriend->userhost) ||
+            wild_match(tmpfriend->userhost,filter)) {
+            count++;
+            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16);
+            malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
+        }
+    }
+    put_it("Changed %d out of %d entries",count,countall);
+}
