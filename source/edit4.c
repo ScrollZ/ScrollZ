@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.62 2001-03-27 20:26:08 f Exp $
+ * $Id: edit4.c,v 1.63 2001-05-03 18:32:25 f Exp $
  */
 
 #include "irc.h"
@@ -746,6 +746,7 @@ void HandleTabNext() {
     int  len;
     int  curserv=from_server;
     int  domsgtab=0;
+    int  numchannels=0;
     char *channel;
     char *minpos;
     char *curpos;
@@ -820,6 +821,8 @@ void HandleTabNext() {
                 int nicklen;
                 int sameloop=0;
 
+                chan=server_list[curr_scr_win->server].chan_list;
+                for (;chan;chan=chan->next) numchannels++;
                 /* Check if entry in input line is still valid. */
                 if (!tabnickcompl || (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick)))) {
                     new_free(&tabnick);
@@ -846,7 +849,7 @@ restart:
                 /* If chan is NULL there are no channels to examine.
                    If we passed more than once through the loop return because
                    we exhausted all the channels. */
-                if (!chan || sameloop>1) return;
+                if (!chan || sameloop>numchannels) return;
                 for (;chan;) {
                     /* Walk through all matching nicks for given channel.
                        If we exchausted current channel check next one. */
