@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.61 2001-03-27 19:40:24 f Exp $
+ * $Id: edit4.c,v 1.62 2001-03-27 20:26:08 f Exp $
  */
 
 #include "irc.h"
@@ -154,6 +154,7 @@ extern int  CheckServer _((int));
 extern void CdccQueueNickChange _((char *, char *));
 extern char *FormatTime _((int));
 extern void AddJoinKey _((int, char *));
+extern int  DecryptMessage _((char *, char *));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -953,6 +954,7 @@ char *to;
 {
     int  isme;
     int  hooked=1;
+    int  iscrypted=0;
     int  savemessage=0;
     char *tmp;
     char *wallop;
@@ -991,6 +993,7 @@ char *to;
             savemessage=1;
         }
     }
+    if (DecryptMessage(notice,nick)) iscrypted=1;
     /* Check for invite notices which might hold key */
     if (!print) {
         if (!strncmp(notice,"You have been ctcp invited to ",30)) AddJoinKey(1,notice);
@@ -1029,18 +1032,18 @@ char *to;
             sprintf(tmpbuf1,"%s%s%s%s%s%s%s%s",tmpbuf,
                     CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF],
                     isme?"":":",isme?"":to,tmpbuf2,tmpbuf);
-            put_it("%s%s %s%s%s",stampbuf,
+            put_it("%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,
                     tmpbuf1,CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
 #else  /* CELECOSM */
             sprintf(tmpbuf,"%s-%s",CmdsColors[COLNOTICE].color5,Colors[COLOFF]);
             sprintf(tmpbuf2,"%s%s%s%s",tmpbuf,
                     CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF]);
-            put_it("%s%s%s%s%s %s%s%s",stampbuf,
+            put_it("%s%s%s%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,
                    tmpbuf2,isme?"":":",isme?"":to,tmpbuf,
                    CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-            put_it("%s-%s%s%s- %s",stampbuf,
+            put_it("%s%s-%s%s%s- %s",iscrypted?"[!]":"",stampbuf,
                     nick,isme?"":":",isme?"":to,notice);
 #endif /* WANTANSI */
         }
