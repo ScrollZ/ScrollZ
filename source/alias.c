@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.37 2003-09-01 18:19:37 f Exp $
+ * $Id: alias.c,v 1.38 2003-12-03 18:12:25 f Exp $
  */
 
 #include "irc.h"
@@ -330,7 +330,9 @@ static BuiltInFunctions	FAR built_in_functions[] =
 {
 /**************************** Patched by Flier ******************************/
 	{ "UH",                 function_intuhost },
+#ifndef CELE
 	{ "STAMP",              function_stamp },
+#endif
 /****************************************************************************/
 	{ "LEFT",		function_left },
 	{ "RIGHT",		function_right },
