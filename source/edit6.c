@@ -53,10 +53,11 @@
  FormatTime          Format time in compressed format
  AddJoinKey          Store key for later join
  CheckJoinKey        Check key for join
+ TryChannelJoin      Try to join a channel
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.40 1999-07-24 12:44:07 f Exp $
+ * $Id: edit6.c,v 1.41 1999-08-07 13:00:33 f Exp $
  */
 
 #include "irc.h"
@@ -666,9 +667,6 @@ void CheckTimeMinute() {
 #ifdef EXTRAS
     NickList *tmpnick;
 #endif
-#ifdef ACID
-    WhowasList *whowas;
-#endif
     ChannelList *tmpchan;
 
     if (curr_scr_win->server!=-1) {
@@ -685,13 +683,7 @@ void CheckTimeMinute() {
 #ifdef CELE
         else if (away_set) CeleAway(1); /* Updates idle counter in away */
 #endif /* CELE */
-        if (away_set && AutoJoinOnInv==2 && AutoJoinChannels &&
-#ifdef ACID
-            timenow-LastCheck>55
-#else
-            timenow-LastCheck>500
-#endif /* ACID */
-           ) {
+        if (away_set && AutoJoinOnInv==2 && AutoJoinChannels && timenow-LastCheck>500) {
             strcpy(tmpbuf,AutoJoinChannels);
             tmpstr=tmpbuf;
             tmpstr1=tmpbuf;
@@ -704,26 +696,7 @@ void CheckTimeMinute() {
                         for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
                              tmpchan=tmpchan->next)
                             if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
-#ifdef ACID
-                        /* 
-                         * ask up to 5 users with +z flag set to open the channel for us
-                         */
-                        if (!tmpchan) {
-                            found=0;
-                            for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
-                                if (whowas->nicklist && whowas->nicklist->frlist &&
-                                    ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
-                                    !my_stricmp(whowas->channel,tmpstr1)) {
-                                    found++;
-                                    if (found>5) break;
-                                    send_to_server("PRIVMSG %s :OPEN %s",
-                                            whowas->nicklist->nick,tmpstr1);
-                                }
-                            }
-                        }
-#else
                         if (!tmpchan) e_channel("JOIN",tmpstr1,tmpstr1);
-#endif /* ACID */
                     }
                     tmpstr1=tmpstr+1;
                     wildcards=0;
@@ -734,26 +707,7 @@ void CheckTimeMinute() {
                 for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
                      tmpchan=tmpchan->next)
                     if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
-#ifdef ACID
-                /* 
-                 * ask up to 5 users with +z flag set to open the channel for us
-                 */
-                if (!tmpchan) {
-                    found=0;
-                    for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
-                        if (whowas->nicklist && whowas->nicklist->frlist &&
-                            ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
-                            !my_stricmp(whowas->channel,tmpstr1)) {
-                            found++;
-                            if (found>5) break;
-                            send_to_server("PRIVMSG %s :OPEN %s",
-                                    whowas->nicklist->nick,tmpstr1);
-                        }
-                    }
-                }
-#else
                 if (!tmpchan) e_channel("JOIN",tmpstr1,tmpstr1);
-#endif
             }
             LastCheck=timenow;
         }
@@ -2605,3 +2559,74 @@ char *channel;
     }
     return(key);
 }
+
+/* Try to join a channel */
+#ifdef ACID
+void TryChannelJoin() {
+    int  found;
+    int  wildcards;
+    char *tmpstr;
+    char *tmpstr1;
+    char tmpbuf[mybufsize/2];
+    WhowasList *whowas;
+    ChannelList *tmpchan;
+
+    if (curr_scr_win->server!=-1 && AutoJoinOnInv==2 && AutoJoinChannels) {
+        strcpy(tmpbuf,AutoJoinChannels);
+        tmpstr=tmpbuf;
+        tmpstr1=tmpbuf;
+        wildcards=0;
+        while (*tmpstr) {
+            if (*tmpstr=='?' || *tmpstr=='*') wildcards=1;
+            if (*tmpstr==',') {
+                *tmpstr='\0';
+                if (!wildcards) {
+                    for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
+                            tmpchan=tmpchan->next)
+                        if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
+                    /* 
+                     * ask up to 5 users with +z flag set to open the channel for us
+                     */
+                    if (!tmpchan) {
+                        found=0;
+                        for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
+                            if (whowas->nicklist && whowas->nicklist->frlist &&
+                                    ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
+                                    !my_stricmp(whowas->channel,tmpstr1)) {
+                                found++;
+                                if (found>5) break;
+                                send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
+                                        whowas->nicklist->nick,tmpstr1,tmpstr1);
+                            }
+                        }
+                    }
+                }
+                tmpstr1=tmpstr+1;
+                wildcards=0;
+            }
+            tmpstr++;
+        }
+        if (!wildcards) {
+            for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
+                    tmpchan=tmpchan->next)
+                if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
+            /* 
+             * ask up to 5 users with +z flag set to open the channel for us
+             */
+            if (!tmpchan) {
+                found=0;
+                for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
+                    if (whowas->nicklist && whowas->nicklist->frlist &&
+                            ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
+                            !my_stricmp(whowas->channel,tmpstr1)) {
+                        found++;
+                        if (found>5) break;
+                        send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
+                                whowas->nicklist->nick,tmpstr1,tmpstr1);
+                    }
+                }
+            }
+        }
+    }
+}
+#endif /* ACID */
