@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.44 2001-08-25 18:28:06 f Exp $
+ * $Id: parse.c,v 1.45 2001-08-27 16:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -76,6 +76,7 @@ extern void ReconnectOnKill _((int));
 extern void HandleNickChange _((char *, char *, char *, int));
 #ifdef EXTRAS
 extern void CheckLock _((char *, int, ChannelList *));
+extern void CheckTopic _((char *, int, ChannelList *));
 #endif
 extern void HandleMyKick _((char *, char *, char *, char *, char *));
 extern int  HandleKick _((char *, char *, char *, char *, char *, int *));
@@ -284,12 +285,13 @@ p_topic(from, ArgList)
         if (!from)
 		return;
 /**************************** PATCHED by Flier ******************************/
-        if (ArgList[0] && ArgList[1] && (chan=lookup_channel(ArgList[0],from_server,0))) {
+        if (ArgList[0] && ArgList[1] && (chan=lookup_channel(ArgList[0],parsing_server_index,0))) {
             chan->topic++;
             if (*ArgList[1]) malloc_strcpy(&(chan->topicstr),ArgList[1]);
             else new_free(&(chan->topicstr));
             malloc_strcpy(&(chan->topicwho),from);
             chan->topicwhen=timenow;
+            CheckTopic(chan->channel,parsing_server_index,chan);
         }
         if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) return;
 /****************************************************************************/				

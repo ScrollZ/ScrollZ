@@ -59,10 +59,11 @@
  IsIrcNetOperChannel Figure out if we're dealing with IrcNet's oper channel
  RedrawAll           Force redraw of status bars and input prompt
  CompareAddr         Compare two List pointers (for list.c)
+ TopicLocked         Topic locking
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.87 2001-08-25 18:25:15 f Exp $
+ * $Id: edit6.c,v 1.88 2001-08-27 16:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -97,6 +98,9 @@
 #include "whowas.h"
 
 void PrintUsage _((char *));
+#ifdef EXTRAS
+void CheckTopic _((char *, int, ChannelList *));
+#endif
 
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
@@ -2069,6 +2073,7 @@ void CleanUp() {
             new_free(&(tmpchfree->key));
             new_free(&(tmpchfree->s_mode));
             new_free(&(tmpchfree->modelock));
+            new_free(&(tmpchfree->topiclock));
             new_free(&(tmpchfree->topicstr));
             new_free(&(tmpchfree->topicwho));
             new_free(&(tmpchfree->channel));
@@ -2656,3 +2661,100 @@ int CompareAddr(element1,element2)
     if (winelem->window==(Window *) element2) return(0);
     return(1);
 }
+
+/* Topic locking */
+#ifdef EXTRAS
+void TopicLocked(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    int first=1;
+    int remove;
+    char *topic=(char *) 0;
+    char *tmpchan=(char *) 0;
+    char tmpbuf[mybufsize/4];
+    ChannelList *chan;
+    WhowasChanList *whowas;
+
+    remove=!strcmp(command,"TOPICUNLOCK");
+    tmpchan=new_next_arg(args,&args);
+    topic=args;
+    if (tmpchan && !is_channel(tmpchan)) {
+        sprintf(tmpbuf,"#%s",tmpchan);
+        tmpchan=tmpbuf;
+    }
+    switch (remove) {
+        case 0:
+            if (tmpchan && topic) {
+                char *tmpstr;
+
+                for (tmpstr=topic;*tmpstr;tmpstr++);
+                if (tmpstr==topic) {
+                    PrintUsage("TOPICLOCK [channel topic]");
+                    return;
+                }
+                for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
+                    if (CheckChannel(chan->channel,tmpchan)) {
+                        malloc_strcpy(&(chan->topiclock),topic);
+                        CheckTopic(chan->channel,curr_scr_win->server,chan);
+                        say("Topic %s is now locked for channel %s",topic,chan->channel);
+                    }
+                }
+            }
+            else {
+                for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
+                    if (chan->topiclock) {
+                        if (first) {
+                            say("%-25.25s %s","Channel","topic");
+                            first=0;
+                        }
+                        say("%-25.25s %s",chan->channel,chan->topiclock);
+                    }
+                }
+                for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
+                    if (whowas->channellist->topiclock) {
+                        if (first) {
+                            say("%-25.25s %s","Channel","topic");
+                            first=0;
+                        }
+                        say("%-25.25s %s",whowas->channellist->channel,whowas->channellist->topiclock);
+                    }
+                }
+                if (first) say("No channels are topic locked");
+            }
+            break;
+        case 1:
+            if (!tmpchan && (tmpchan=get_channel_by_refnum(0))==NULL) {
+                NoWindowChannel();
+                return;
+            }
+            for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
+                if (CheckChannel(chan->channel,tmpchan)) {
+                    if (chan->topiclock) {
+                        say("Topic lock has been removed for channel %s",chan->topiclock,tmpchan);
+                        new_free(&(chan->topiclock));
+                    }
+                }
+            }
+            if (first) say("No channels are topic locked");
+            break;
+    }
+}
+
+/* Check topic lock */
+void CheckTopic(channel,server,tmpchan)
+char *channel;
+int server;
+ChannelList *tmpchan;
+{
+    int changeit=0;
+    ChannelList *chan;
+
+    if (!tmpchan) chan=lookup_channel(channel,server,0);
+    else chan=tmpchan;
+    if (!chan->topicstr) changeit=1;
+    else if (chan->topiclock && strcmp(chan->topicstr,chan->topiclock)) changeit=1;
+    if (changeit && HAS_OPS(chan->status)) send_to_server("TOPIC %s :%s",channel,chan->topiclock);
+}
+#endif

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.72 2001-08-27 16:00:33 f Exp $
+ * $Id: edit4.c,v 1.73 2001-08-27 16:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -155,6 +155,9 @@ extern void CdccQueueNickChange _((char *, char *));
 extern char *FormatTime _((int));
 extern void AddJoinKey _((int, char *));
 extern int  DecryptMessage _((char *, char *));
+#ifdef EXTRAS
+extern void CheckTopic _((char *, int, ChannelList *));
+#endif
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -2363,6 +2366,7 @@ ChannelList *chan;
         }
 #ifdef EXTRAS
         CheckLock(chan->channel,from_server,chan);
+        CheckTopic(chan->channel,from_server,chan);
 #endif
         /* request topic when we get opped on anonymous channel
            to show correct topic info on hybrid7 ircd */

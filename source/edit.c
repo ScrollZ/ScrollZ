@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.66 2001-08-25 18:25:15 f Exp $
+ * $Id: edit.c,v 1.67 2001-08-27 16:45:27 f Exp $
  */
 
 #include "irc.h"
@@ -403,6 +403,7 @@ extern  void  MegaVoice _((char *, char *, char *));
 extern  void  MegaDeVoice _((char *, char *, char *));
 extern  void  SetIdleKick _((char *, char *, char *));
 extern  void  ShowIdle _((char *, char *, char *));
+extern  void  TopicLocked _((char *, char *, char *));
 #endif
 /****************************************************************************/
 
@@ -857,6 +858,10 @@ static	IrcCommand FAR irc_command[] =
   { "TKILL", 		NULL, 		TraceKill, 		SERVERREQ },
 #endif
  	{ "TOPIC",	"TOPIC",	send_topic,		SERVERREQ },
+#ifdef EXTRAS
+  { "TOPICLOCK", 	"TOPICLOCK", 	TopicLocked, 		0 },
+  { "TOPICUNLOCK", 	"TOPICUNLOCK", 	TopicLocked, 		0 },
+#endif
 /**************************** PATCHED by Flier ******************************/
 	/*{ "TRACE",	"TRACE",	send_comm,		0 },*/
 /* Patched by Zakath */

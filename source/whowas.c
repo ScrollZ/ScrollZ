@@ -11,7 +11,7 @@
  *
  * Modified by Flier
  *
- * $Id: whowas.c,v 1.7 2000-08-26 10:51:54 f Exp $
+ * $Id: whowas.c,v 1.8 2001-08-27 16:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -330,6 +330,7 @@ int count;
             new_free(&(tmp->channellist->key));
 #ifdef EXTRAS
             new_free(&(tmp->channellist->modelock));
+            new_free(&(tmp->channellist->topiclock));
 #endif
             new_free(&(tmp->channellist->topicstr));
             new_free(&(tmp->channellist->topicwho));
@@ -349,6 +350,7 @@ int count;
             new_free(&(tmp->channellist->key));
 #ifdef EXTRAS
             new_free(&(tmp->channellist->modelock));
+            new_free(&(tmp->channellist->topiclock));
 #endif
             new_free(&(tmp->channellist->topicstr));
             new_free(&(tmp->channellist->topicwho));

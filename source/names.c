@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.25 2001-08-25 18:25:15 f Exp $
+ * $Id: names.c,v 1.26 2001-08-27 16:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -222,6 +222,7 @@ add_channel(channel, server, connected, copy)
                 new_free(&(new->topicstr));
                 new_free(&(new->topicwho));
                 new_free(&(new->modelock));
+                new_free(&(new->topiclock));
                 ClearBans(new);
                 new_free(&new);
             }
@@ -284,6 +285,7 @@ add_channel(channel, server, connected, copy)
                     int i;
 
                     new->modelock=(char *) 0;
+                    new->topiclock=(char *) 0;
                     new->pluso=0;     new->minuso=0;     new->plusb=0;
                     new->minusb=0;    new->topic=0;      new->kick=0;
                     new->pub=0;       new->servpluso=0;  new->servminuso=0;
@@ -1526,6 +1528,7 @@ int  server;
         new_free(&(tmp->key));
         new_free(&(tmp->s_mode));
         new_free(&(tmp->modelock));
+        new_free(&(tmp->topiclock));
         new_free(&(tmp->topicstr));
         new_free(&(tmp->topicwho));
         new_free(&(tmp->channel));
