@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.28 2002-02-25 17:17:08 f Exp $
+ * $Id: alias.c,v 1.29 2002-02-25 17:27:09 f Exp $
  */
 
 #include "irc.h"
@@ -4756,7 +4756,6 @@ u_char *input;
     } command_list[]= {
         { "EXTMES"         , 1, &ExtMes          , NULL                   },
         { "NHPROT"         , 3, &NHProt          , &NHProtChannels        },
-        { "NHDISP"         , 1, &NHDisp          , NULL                   },
         /* defban is character that should be returned as string */
         { "BANTYPE"        , 2, NULL             , NULL                   },
         /* Cdcc limit should return CdccLimit and CdccQueueLimit */
@@ -4857,7 +4856,7 @@ u_char *input;
             case 2:
                 /* Bantype is special case */
                 if (!strcmp(command_list[i].command,"BANTYPE")) {
-                    *locbuf=defban;
+                    *locbuf=tolower(defban);
                     *(locbuf+1)='\0';
                 }
                 else if (*(command_list[i].svar)) strmcpy(locbuf,*(command_list[i].svar),sizeof(locbuf));
