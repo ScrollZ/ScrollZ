@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.7 2000-10-24 18:10:39 f Exp $
+ * $Id: blowfish.c,v 1.8 2000-10-24 18:53:20 f Exp $
  */
 
 #include "irc.h"
@@ -194,24 +194,30 @@ unsigned int *xr;
     *xr=Xr;
 }
 
-static void BlowfishInit(key,keybytes)
+static void BlowfishInit(key,keybytes,oldkey)
 char *key;
 int keybytes;
+int oldkey;
 {
-    int i,j,k;
+    int i,j,k,cnt;
     unsigned int data,datal,datar;
 
     memcpy(pbox,PBOX,sizeof(PBOX));
     memcpy(sbox,SBOX,sizeof(SBOX));
     j=0;
+    cnt=0;
     for (i=0;i<NUMPBOX+2;++i) {
         data=0;
         for (k=0;k<4;++k) {
             data=(data<<8)|key[j];
             j++;
-            if (j>=keybytes) j=0;
+            if (j>=keybytes) {
+                j=0;
+                cnt++;
+            }
         }
         pbox[i]=pbox[i]^data;
+        if (!oldkey) pbox[i]^=cnt;
     }
     datal=0;
     datar=0;
@@ -238,26 +244,17 @@ int  szenc;
 {
     int i;
     int oldk=0;
-    char *oldkey;
-    char buf[mybufsize/64];
-    char newkey[mybufsize/8+6];
     unsigned int l,r;
     unsigned char *s,*d;
 
     if (szenc) {
-        oldkey=key;
-        if (*oldkey==SZOLDCRYPT) {
+        if (*key==SZOLDCRYPT) {
             oldk=1;
-            oldkey++;
-        }
-        strmcpy(newkey,oldkey,mybufsize/8);
-        if (!oldk) {
-            sprintf(buf,"%d",strlen(oldkey));
-            strmcat(newkey,buf,mybufsize/8+5);
+            key++;
         }
     }
-    else strmcpy(newkey,key,mybufsize/8);
-    BlowfishInit(newkey,strlen(newkey));
+    else oldk=1;
+    BlowfishInit(key,strlen(key),oldk);
     strmcpy(encrbuf,src,bufsize);
     s=encrbuf+strlen(encrbuf);
     for (i=0;i<8;i++) *s++='\0';
@@ -302,8 +299,6 @@ int  szenc;
 {
     int i;
     int oldk=0;
-    char buf[mybufsize/64];
-    char newkey[mybufsize/8+6];
     unsigned int l,r;
     unsigned char *s,*d,*x=src;
 
@@ -314,14 +309,9 @@ int  szenc;
         }
         if (!strncmp(x,SZCRYPTSTROLD,4)) oldk=1;
         x+=strlen(SZCRYPTSTR);
-        strmcpy(newkey,key,mybufsize/8);
-        if (!oldk) {
-            sprintf(buf,"%d",strlen(key));
-            strmcat(newkey,buf,mybufsize/8+5);
-        }
     }
-    else strmcpy(newkey,key,mybufsize/8);
-    BlowfishInit(newkey,strlen(newkey));
+    else oldk=1;
+    BlowfishInit(key,strlen(key),oldk);
     strmcpy(encrbuf,x,bufsize);
     s=encrbuf+strlen(encrbuf);
     for (i=0;i<12;i++) *s++='\0';
