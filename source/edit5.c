@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.98 2003-01-08 20:11:18 f Exp $
+ * $Id: edit5.c,v 1.99 2003-01-08 20:22:56 f Exp $
  */
 
 #include "irc.h"
@@ -1063,7 +1063,7 @@ char *subargs;
 
     newpwd = new_next_arg(args, &args);
     if (newpwd) {
-        int pwlen = 2 * strlen(newpwd) + 9;
+        int pwlen = 2 * strlen(newpwd) + 16;
         char *newpass = (char *) new_malloc(pwlen + 1);
 
         /* a-la master password in Mozilla - store encrypted password */
@@ -1089,7 +1089,7 @@ char *subargs;
             int oldpwlen;
             char *oldpass = NULL;
 
-            oldpwd = new_next_arg(args,&args);
+            oldpwd = new_next_arg(args, &args);
             if (!oldpwd) return;
             if (oldpwd) {
                 oldpwlen = 2 * strlen(oldpwd) + 9;
