@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.5 1998-10-31 18:27:41 f Exp $
+ * $Id: status.c,v 1.6 1998-11-21 16:10:30 f Exp $
  */
 
 #include "irc.h"
@@ -128,6 +128,7 @@ static	char    *status_channelcount _((Window *));
 #ifdef CELE
 static	char	*status_loadavg _((Window *));
 #endif
+#ifdef WANTANSI
 static	char	*status_Cbarcolor0 _((Window *));
 static	char	*status_Cbarcolor1 _((Window *));
 static	char	*status_Cbarcolor2 _((Window *));
@@ -141,6 +142,7 @@ static	char	*status_Cbarcolor9 _((Window *));
 static	char	*status_Cbarcolora _((Window *));
 static	char	*status_Cbarcolorb _((Window *));
 static	char	*status_Cbarcolorc _((Window *));
+#endif
 /*****************************/
 /****************************************************************************/
 
@@ -441,6 +443,7 @@ reset_clock(unused)
 
 /**************************** PATCHED by Flier ******************************/
 /* Insert SBAR color into buffer - for status bar */
+#ifdef WANTANSI
 void InsertStatusColor(ccode,buffer,bufsize)
 char ccode;
 char *buffer;
@@ -494,6 +497,7 @@ int  bufsize;
     }
     strmcat(buffer,color,bufsize);
 }
+#endif
 /****************************************************************************/
 
 
@@ -541,8 +545,10 @@ convert_sub_format(format, c)
                          * sub-portions of the status bar variables, e.g.:
                          * /set status_clock %y6[%y4%T%y6]
                          */
+#ifdef WANTANSI
                         else if ((*ptr=='Y') || (*ptr=='y'))
                             InsertStatusColor(*(++ptr),buffer,sizeof(buffer));
+#endif
 /****************************************************************************/
 			else
 			{
@@ -844,6 +850,7 @@ convert_format(format, k)
                                                  status_loadavg;
                                         break;
 #endif
+#ifdef WANTANSI
                                 case 'Y':   /* Celerity StatusBar %Y? junt */
  				case 'y':
                                      switch (*(ptr++)) {
@@ -917,6 +924,7 @@ convert_format(format, k)
  					    break;
  				    }
  				    break;
+#endif
                                 case '!': /* %!## Status_user format by Zakath */
                                           /* Thx to Sheik & Flier for help */
                                     switch (*(ptr++)) {
@@ -2354,6 +2362,7 @@ Window *window;
     return(ptr);
 }
 
+#ifdef WANTANSI
 static char *status_Cbarcolor0(window)
 Window *window;
 {
@@ -2470,6 +2479,7 @@ Window *window;
     malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color6);
     return(ptr);
 }
+#endif
 
 #ifdef CELE
 static char *status_loadavg(window)
