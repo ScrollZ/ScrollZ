@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: acconfig.h,v 1.7 2000-08-15 16:55:32 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -277,4 +277,7 @@
 /**************************** PATCHED by Flier ******************************/
 /* define this if you have gettimeofday() */
 #undef HAVETIMEOFDAY
+
+/* define this if you have getloadavg() */
+#undef HAVEGETLOADAVG
 /****************************************************************************/

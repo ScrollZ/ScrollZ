@@ -338,6 +338,9 @@
 /* Define this if you have gettimeofday(), most systems do */
 #undef HAVETIMEOFDAY
 
+/* Define this if you have getloadavg(), BSD systems do */
+#undef HAVEGETLOADAVG
+
 /* Define this if you want IP checking */
 #undef IPCHECKING
 
