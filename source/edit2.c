@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.26 1999-06-05 12:06:37 f Exp $
+ * $Id: edit2.c,v 1.27 1999-06-14 15:52:43 f Exp $
  */
 
 #include "irc.h"
@@ -2574,6 +2574,7 @@ char *userhost;
     while (tmpfriend2) {
         count++;
         if ((filter && matchmcommand(&userhost[1],count)) ||
+            (filter && wild_match(tmpfriend2->channels,userhost)) ||
             wild_match(tmpfriend2->userhost,userhost) ||
             wild_match(userhost,tmpfriend2->userhost)) {
 #ifdef WANTANSI
