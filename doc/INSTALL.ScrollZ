@@ -1,11 +1,11 @@
-$Id: INSTALL.ScrollZ,v 1.1 2001-08-06 19:38:20 f Exp $
+$Id: INSTALL.ScrollZ,v 1.2 2001-10-15 15:43:10 f Exp $
 
 to compile ScrollZ
 
   o  using configure:
       - run the `configure' script in the top directory.  eg:
 
-	% cd /tmp/ScrollZ-VERSION.NUMBER (if you unpacked it in /tmp)
+	% cd ScrollZ-VERSION.NUMBER
 	% ./configure
 
 	if you are using an old version of system v, you might need
