@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.11 1999-10-12 19:44:36 f Exp $
+ * $Id: myvars.h,v 1.12 2000-01-27 16:03:24 f Exp $
  */
 
 #include "mystructs.h"
@@ -118,7 +118,6 @@ extern struct urlstr *urllist;
 extern char   *mydefaultserver;
 extern char   *ScrollZstr;
 extern char   *ScrollZver;
-extern char   *ScrollZlame;
 #ifdef EXTRA_STUFF
 extern char   *EString;
 #endif
