@@ -88,6 +88,8 @@ Meaning of flags:
       with level USERLOG4 (requested by fox)
     ! mention halfop status in SHELP EXTPUB
     - checks for "/etc/" or "passwd" in DCC SEND/RESEND
+    + BKT [-T unban time] to specify unban time (requested by poorboy)
+    + support for uppercase usermodes (requested by a few users)
 
 ------------------------------------------------------------------------------
 
