@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.65 2002-06-17 16:11:01 f Exp $
+ * $Id: numbers.c,v 1.66 2002-08-12 18:25:45 f Exp $
  */
 
 #include "irc.h"
@@ -1296,7 +1296,10 @@ numbered_command(from, comm, ArgList)
                     if (DisplayNickInfo())
                         userhost(NULL,next_arg(tmpnick,&tmpnick),NULL); /* uhost - Zakath */
                 }
-                else AutoChangeNick(tmpbuf);
+                else {
+                    if (dumb || get_int_var(NO_ASK_NICKNAME_VAR))
+                        AutoChangeNick(tmpbuf);
+                }
                 OrigNickSent=0;
 /****************************************************************************/
 		break;
