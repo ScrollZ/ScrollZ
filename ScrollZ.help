@@ -1,4 +1,4 @@
-!MAIN ScrollZ + Cdcc MAIN HELP v1.4 screen
+!MAIN ScrollZ + Cdcc MAIN HELP v1.5 screen
 :$5USER$0          User specific commands
 :$5OPS$0           Commands you can use if you have ops
 :$5MISC$0          Miscellaneous commands
@@ -105,8 +105,8 @@ Usage $3LOGON on$0|$3off$0
 If you set it to $3ON$0, client will log events to ScrollZ.away
 even if you are not set away. Note that this setting is NOT
 saved to ScrollZ.save
-:LS            Does ls -al (shows specified directory)
-Usage $3LS$0 [$3path$0]
+:LS            Does ls (shows specified directory)
+Usage $3LS$0 [$3options$0]
 :M             Sends message to nick/channel
 Usage $3M nick$0|$3#channel message$0
 You can use $2TAB$0 key to "scroll" through list of nicks.
@@ -831,6 +831,9 @@ Usage $3CDCC STATUS on$0|$3off$0
 :CDCC STATS    Toggles whether to show Cdcc stats on CDCC PLIST
 Usage $3CDCC STATS on$0|$3off$0
 Also look at $2CDCC PLIST$0
+:CDCC VERBOSE  Toggles verbose mode on/off
+Usage $3CDCC VERBOSE on$0|$3off$0
+When set to off remote Cdcc messages are hidden from user.
 :CDCC WARNING  Toggles whether to check incoming DCCs
 Usage $3CDCC WARNING on$0|$3off$0
 :CDCC CHAN     Sets valid channels for PLIST
