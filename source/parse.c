@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.8 1998-10-31 18:27:39 f Exp $
+ * $Id: parse.c,v 1.9 1998-12-13 17:44:45 f Exp $
  */
 
 #include "irc.h"
@@ -1139,7 +1139,6 @@ p_channel(from, ArgList)
 			/*send_to_server("MODE %s", channel);*/
                         if (*channel!='+') send_to_server("MODE %s",channel);
                         send_to_server("WHO %s",channel);
-                        if (*channel!='+') send_to_server("MODE %s b",channel);
 /*************************************************************************/
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);
