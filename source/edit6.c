@@ -55,10 +55,12 @@
  CheckJoinKey        Check key for join
  TryChannelJoin      Try to join a channel
  ChangePassword      Change user's password
+ StatsIFilter        Does /STATS i with filter
+ HandleStatsI        Handles STATS i reply from server
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.59 2000-06-05 18:00:23 f Exp $
+ * $Id: edit6.c,v 1.60 2000-07-09 09:32:00 f Exp $
  */
 
 #include "irc.h"
@@ -142,6 +144,7 @@ static int TraceUser=0;
 static struct mapstr *maplist=NULL;
 
 #ifdef OPER
+int StatsiNumber;
 static int  FilterKillNum;
 static char *tkillreason=(char *) 0;
 static char *tkillpattern=(char *) 0;
@@ -2106,7 +2109,10 @@ void CleanUpScrollZVars() {
     new_free(&CompressModesChannels);
     new_free(&StampChannels);
     new_free(&EncryptPassword);
+#ifdef OPER
     new_free(&StatsFilter);
+    new_free(&StatsiFilter);
+#endif
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
     new_free(&VirtualHost);
@@ -2659,3 +2665,44 @@ char *subargs;
     }
     say("Changed %d out of %d entries",count,countall);
 }
+
+/* Does /STATS i with filter */
+#ifdef OPER
+void StatsIFilter(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpstr;
+
+    if (args && *args) {
+        tmpstr=new_next_arg(args,&args);
+        malloc_strcpy(&StatsiFilter,tmpstr);
+        StatsiNumber=0;
+        send_to_server("STATS I %s",args);
+    }
+    else PrintUsage("FILINE filter [server]");
+}
+
+/* Parses STATS i reply from server */
+void HandleStatsI(ipiline,uhiline)
+char *ipiline;
+char *uhiline;
+{
+    char *tmpstr;
+    char tmpbuf1[mybufsize/2+1];
+
+    if (!StatsiNumber) say("I-Line");
+    strmcpy(tmpbuf1,uhiline,mybufsize/2);
+    if (StatsiFilter) {
+        tmpstr=new_next_arg(uhiline,&uhiline);
+        tmpstr=new_next_arg(uhiline,&uhiline);
+        if (!(tmpstr && *tmpstr))
+            tmpstr=empty_string;
+    }
+    if (!StatsiFilter || (StatsiFilter && 
+        (wild_match(StatsiFilter,tmpstr) || wild_match(StatsiFilter,ipiline))))
+        say("%s %s",ipiline,tmpbuf1);
+    StatsiNumber++;
+}
+#endif /* OPER */

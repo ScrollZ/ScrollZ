@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.18 2000-05-14 07:57:56 f Exp $
+ * $Id: numbers.c,v 1.19 2000-07-09 09:31:44 f Exp $
  */
 
 #include "irc.h"
@@ -71,6 +71,7 @@ extern void ListSplitedServers _((void));
 extern void TimeReply _((char *, char **));
 extern void PrintLinks _((char *, char *, char *));
 extern void HandleStatsK _((char *, char *));
+extern void HandleStatsI _((char *, char *));
 extern void AutoChangeNick _((char *));
 extern void ScrollZLoad _((void));
 extern void HandleEndOfKill _((void));
@@ -1310,6 +1311,10 @@ numbered_command(from, comm, ArgList)
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef OPER
+                case 215:
+                        PasteArgs(ArgList,2);
+                        HandleStatsI(ArgList[1],ArgList[2]);
+                        break;
                 case 216:
                         PasteArgs(ArgList,2);
                         HandleStatsK(ArgList[1],ArgList[2]);
