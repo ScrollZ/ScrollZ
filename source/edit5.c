@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.108 2003-12-24 14:59:00 f Exp $
+ * $Id: edit5.c,v 1.109 2004-04-19 19:21:45 f Exp $
  */
 
 #include "irc.h"
@@ -834,33 +834,40 @@ char *setting2;
                1 ... strip non-printable characters
                2 ... same as 1, but don't strip BOLD, REVERSE and UNDERLINE
                      or characters >=128 (national characters)
-               3 ... same as 2, but also strip BOLD, REVERSE and UNDERLINE */
-void StripAnsi(line,destline,printonly)
+               3 ... same as 2, but also strip BOLD, REVERSE and UNDERLINE
+               4 ... same as 1 but convert non-printable characters to revers */
+void StripAnsi(line, destline, printonly)
 char *line;
 char *destline;
 int  printonly;
 {
-    register int what=0;
-    register int isattr;
-    register unsigned char *tmpstr;
-    register unsigned char *newstr=destline;
+    int what = 0;
+    int isattr;
+    unsigned char *tmpstr;
+    unsigned char *newstr = destline;
 
-    for (tmpstr=line;*tmpstr;tmpstr++) {
-        if (*tmpstr==0x1B) what=1;
-        else if (what && isalpha(*tmpstr)) what=0;
+    for (tmpstr = line; *tmpstr; tmpstr++) {
+        if (*tmpstr == 0x1B) what = 1;
+        else if (what && isalpha(*tmpstr)) what = 0;
         else if (!what) {
-            if (printonly && (*tmpstr<' ' || *tmpstr>'~')) {
-                if (printonly==1) continue;
-                if (*tmpstr==0x9B || *tmpstr==0x84) continue;
-                isattr=(*tmpstr==BOLD_TOG || *tmpstr==REV_TOG ||
-                        *tmpstr==UND_TOG  || *tmpstr==ALL_OFF);
-                if (printonly==3 && isattr) continue;
-                if (!(*tmpstr>'~' || isattr)) continue;
+            if (printonly && (*tmpstr < ' ' || *tmpstr > '~')) {
+                if (printonly == 4) {
+                    *newstr ++= REV_TOG;
+                    *newstr ++= (*tmpstr & 127) | 64;
+                    *newstr ++= REV_TOG;
+                    continue;
+                }
+                if (printonly == 1) continue;
+                if (*tmpstr == 0x9B || *tmpstr == 0x84) continue;
+                isattr = (*tmpstr == BOLD_TOG || *tmpstr == REV_TOG ||
+                          *tmpstr == UND_TOG  || *tmpstr == ALL_OFF);
+                if (printonly == 3 && isattr) continue;
+                if (!(*tmpstr > '~' || isattr)) continue;
             }
-            *newstr++=*tmpstr;
+            *newstr ++= *tmpstr;
         }
     }
-    *newstr='\0';
+    *newstr = '\0';
 }
 
 /* Prints netsplit stuff */
@@ -1303,26 +1310,31 @@ char *channel;
 }
 
 /* Prints whois channels reply */
-void PrintWhoIsChannels(banner,channels)
+void PrintWhoIsChannels(banner, channels)
 char *banner;
 char *channels;
 {
+    char tmpbuf1[2 * mybufsize];
+    char tmpbuf2[2 * mybufsize];
+
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s", channels);
+    StripAnsi(tmpbuf1, tmpbuf2, 4);
 #ifdef WANTANSI
 #ifdef GENX
-    put_it("%s³ %schannels%s ³ %s%s%s",banner,
-           CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-           CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
+    put_it("%s³ %schannels%s ³ %s%s%s", banner,
+           CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+           CmdsColors[COLWHOIS].color3, tmpbuf2, Colors[COLOFF]);
 #elif defined(CELECOSM)
-    put_it("%s%schannels%s:   %s%s%s",banner,
-           CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-           CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
+    put_it("%s%schannels%s:   %s%s%s", banner,
+           CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+           CmdsColors[COLWHOIS].color3, tmpbuf2, Colors[COLOFF]);
 #else
-    put_it("%s%sChannels%s  : %s%s%s",banner,
-           CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-           CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
+    put_it("%s%sChannels%s  : %s%s%s", banner,
+           CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+           CmdsColors[COLWHOIS].color3, tmpbuf2, Colors[COLOFF]);
 #endif /* GENX */
 #else  /* WANTANSI */
-    put_it("%sChannels  : %s",banner,channels);
+    put_it("%sChannels  : %s", banner, tmpbuf2);
 #endif /* WANTANSI */
 }
 
