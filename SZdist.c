@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.9 1998-11-16 21:15:14 f Exp $
+ * $Id: SZdist.c,v 1.10 1998-11-19 20:44:48 f Exp $
  */
 
 #include <stdio.h>
@@ -374,12 +374,12 @@ char **argv;
     struct stat statbuf;
 
     strcpy(format,"KBdAAIFeHRY0COtvT5UM0|-PO=_^R$t");
-    locatelog(pathbuf,"SZdist");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
         return;
     }
+    locatelog(pathbuf,"SZdist");
     printf("Enter password:");
     fgets(password,mybufsize,stdin);
     if (strlen(password) && password[strlen(password)-1]=='\n')
