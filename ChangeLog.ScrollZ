@@ -39,7 +39,7 @@ Meaning of flags:
     + SHOWWALLOP to toggle whether to show included/excluded nicks with
       channel wallops
     ! don't core in completion routine if we're not on a server
-    + SSL support: to enable it call configure with --enable-ssl. to use it
+    + SSL support: to enable it call configure with --with-ssl. to use it
       SERVER -SSL HOST:PORT or WINDOW [-]SSL HOST:PORT or prefix server
       hostname with a ! as in scrollz nick !server:port. SSL connections are
       indicated with a ! in the server list (thanks to Sharky and Darkie for
@@ -86,7 +86,6 @@ Meaning of flags:
       bar as ScrollZ already uses %@ for that)
     + ARINWIN BOTH to display public both in current window and in window
       with level USERLOG4 (requested by fox)
-    ! mention halfop status in SHELP EXTPUB
     - checks for "/etc/" or "passwd" in DCC SEND/RESEND
     + BKT [-T unban time] to specify unban time (requested by poorboy)
     + support for uppercase usermodes (requested by a few users)
@@ -94,6 +93,13 @@ Meaning of flags:
       qoreQyaS)
     ~ we now use HELP like ircII - all ScrollZ.help text was moved into
       help directory which is now part of the distribution (thanks braneded)
+      plus I have also described all ScrollZ modifications such as
+      additional functions, status variables and all SETs (I really hope
+      someone is gonna take over the docs project as I simply don't have
+      time to do both the coding and the docs)
+      WARNING: SHELP is gone, use HELP from now on!
+    + REPWORD is now taken in consideration on actions, we use COLOR ME
+      color number 6 for this (requested by )
 
 ------------------------------------------------------------------------------
 
