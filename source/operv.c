@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.12 1999-10-08 18:04:05 f Exp $
+ * $Id: operv.c,v 1.13 1999-10-14 18:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -257,6 +257,7 @@ char *from;
     else if (strstr(line,"***")) tmpline=line+4; 
     else tmpline=line;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
+    strcpy(tmpbuf,"IP# Mismatch: 209.58.53.67 != Teleglobe.net[8230cac7]");
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
     if (from && index(from,'.')) from=(char *) 0;
@@ -617,8 +618,8 @@ char *from;
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
     }
     else if (!strncmp(tmpline,"IP# Mismatch",12)) {
-	strcpy(word1,OVgetword(0,5,tmpline));  /* Mismatched IP */
-	strcpy(word2,OVgetword(0,3,tmpline));  /* Real IP */
+	strcpy(word1,OVgetword(0,3,tmpline));  /* Real IP */
+	strcpy(word2,OVgetword(0,5,tmpline));  /* Mismatched IP */
 	sprintf(tmpbuf,"IP mismatch detected: %s%s%s != %s%s%s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
 		CmdsColors[COLOV].color2,word2,Colors[COLOFF]);
