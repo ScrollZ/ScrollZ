@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.24 2000-09-10 10:14:58 f Exp $
+ * $Id: window.c,v 1.25 2000-09-14 15:39:46 f Exp $
  */
 
 #include "irc.h"
@@ -3067,6 +3067,10 @@ windowcmd(command, args, subargs)
 						default:
 							send_to_server("JOIN %s%s%s", arg, key ? " " : empty_string, key);
 						}
+/**************************** PATCHED by Flier ******************************/
+                                                /* from_server can be -1 here */
+                                                if (from_server>=0)
+/****************************************************************************/
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
  						from_server = server;
  					}
