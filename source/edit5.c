@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.21 1999-03-08 18:25:16 f Exp $
+ * $Id: edit5.c,v 1.22 1999-03-24 17:20:59 f Exp $
  */
 
 #include "irc.h"
@@ -162,6 +162,7 @@ extern char *function_country _((char *));
 extern void dcc_chat _((char *));
 extern void reset_nickname _((void));
 extern void nickname_sendline _((char *, char *));
+extern char *function_match _((char *));
 
 /* Needed for URL, by Zakath */
 int URLnum=0;
@@ -1296,7 +1297,7 @@ int  print;
     char *filepath=NULL;
     char tmpbuf1[mybufsize/8];
     char tmpbuf2[mybufsize/2];
-    char tmpbuf3[mybufsize/2];
+    char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
@@ -1391,11 +1392,11 @@ int  print;
             strcpy(tmpbuf2,AutoReplyBuffer);
             currentar=tmpbuf2;
             do {
-                newar=strchr(currentar,',');
-                if (newar) *newar='\0';
-                sprintf(tmpbuf3,"*%s*",currentar);
-                foundar=wild_match(tmpbuf3,tmpbuf4);
-                if (newar) newar++;
+                if ((newar=strchr(currentar,','))) *newar++='\0';
+                sprintf(tmpbuf3,"%s %s",currentar,tmpbuf4);
+                currentar=function_match(tmpbuf3);
+                if (atoi(currentar)>0) foundar=1;
+                new_free(&currentar);
                 currentar=newar;
             }
             while (currentar && !foundar);
