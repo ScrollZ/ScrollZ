@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.18 2003-01-08 20:00:53 f Exp $
+# @(#)$Id: Makefile.in,v 1.19 2004-01-04 17:18:34 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -120,6 +120,11 @@ INSTALL_WSERV = $(bindir)/wserv
 # INSTALL_HELP_CMD = @echo The help files have not been installed.
 INSTALL_HELP_CMD = @INSTALL_HELP_CMD@
 
+# This command will be used to install the irc translation files.  If you don't
+# want to install them, replace with the following:
+# INSTALL_TRANSLATION_CMD = @echo The translation files have not been installed.
+INSTALL_TRANSLATION_CMD = @INSTALL_TRANSLATION_CMD@
+
 ## You shouldn't have to change anything below here
 
 srcdir = .
@@ -154,7 +159,7 @@ MFLAGS ='CC=$(CC)'					\
 
 all: scrollz scrollz.1
 
-install: all installbin installdirs installman installhelp
+install: all installbin installdirs installman installhelp installtranslation
 
 scrollz: source/Makefile Makefile
 	@cd include; $(MAKE)
@@ -164,7 +169,7 @@ scrollz.1: scrollz.1.in
 	sed -e "s,SHAREDIR,$(IRCSHARE)," < scrollz.1.in > scrollz.1
 
 installeverything:  install installman installflush installio \
-		    installwserv installhelp
+		    installwserv installhelp installtranslation
 
 everything: all ircflush ircio wserv
 
@@ -203,13 +208,18 @@ installwserv: wserv installdirs
 	$(INSTALL) source/wserv $(INSTALL_WSERV)
 
 installdirs:
-	umask 022; ./mkinstalldirs $(IRCSHARE) $(bindir) \
+	umask 022; ./mkinstalldirs $(IRCSHARE) $(bindir) $(mandir) \
 		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR) $(IRCDOC)
 
 installhelp:
 	$(INSTALL_HELP_CMD)
 	find $(HELP_DIR) -type d -print | xargs chmod a+rx
 	find $(HELP_DIR) -type f -print | xargs chmod a+r
+
+installtranslation: installdirs
+	$(INSTALL_TRANSLATION_CMD)
+	find $(TRANS_PATH) -type d -print | xargs chmod a+rx
+	find $(TRANS_PATH) -type f -print | xargs chmod a+r
 
 clena clean:
 	@-if test -f source/Makefile; then cd source; $(MAKE) clean; fi
