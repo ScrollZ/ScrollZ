@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.55 2001-03-21 20:32:32 f Exp $
+ * $Id: edit.c,v 1.56 2001-03-27 20:18:08 f Exp $
  */
 
 #include "irc.h"
@@ -3014,18 +3014,21 @@ send_text(org_nick, line, command)
 #endif /* WANTANSI */
                             }
                         }
-                        if (!my_stricmp(command,"NOTICE")) {
-                            sprintf(tmpbuf,"-> -%s- %s",nick,line);
-                            if (CheckServer(from_server))
-                                malloc_strcpy(&(server_list[from_server].LastNoticeSent),
-                                              tmpbuf);
-                        }
-                        else {
-                            sprintf(tmpbuf,"-> [-%s-] %s",nick,line);
-                            if (CheckServer(from_server))
-                                malloc_strcpy(&(server_list[from_server].LastMessageSent),
-                                              tmpbuf);
-                            if (away_set || LogOn) AwaySave(tmpbuf,SAVESENTMSG);
+                        if (line!=server_list[from_server].LastMessageSent &&
+                            line!=server_list[from_server].LastNoticeSent) {
+                            if (!my_stricmp(command,"NOTICE")) {
+                                sprintf(tmpbuf,"-> -%s- %s",nick,line);
+                                if (CheckServer(from_server))
+                                    malloc_strcpy(&(server_list[from_server].LastNoticeSent),
+                                            tmpbuf);
+                            }
+                            else {
+                                sprintf(tmpbuf,"-> [-%s-] %s",nick,line);
+                                if (CheckServer(from_server))
+                                    malloc_strcpy(&(server_list[from_server].LastMessageSent),
+                                            tmpbuf);
+                                if (away_set || LogOn) AwaySave(tmpbuf,SAVESENTMSG);
+                            }
                         }
 /****************************************************************************/
 #ifndef LITE
