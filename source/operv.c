@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.37 2001-01-17 17:33:13 f Exp $
+ * $Id: operv.c,v 1.38 2001-01-18 16:55:07 f Exp $
  */
 
 #include "irc.h"
@@ -281,7 +281,15 @@ char *from;
     /* SZNet support */
     else if (!strncmp(line,"*** Global -- ",14)) tmpline=line+14;
     else if (!strncmp(line,"***",4)) tmpline=line+4; 
-    else tmpline=line;
+    else {
+        tmpline=index(line,' ');
+        if (!tmpline) tmpline=line;
+        else {
+            tmpline++;
+            if (!strncmp(tmpline,"*** Notice -- ",14)) tmpline+=14;
+            else tmpline=line;
+        }
+    }
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
@@ -1002,6 +1010,21 @@ char *from;
         sprintf(tmpbuf,"Remote connect %s%s%s %s <- %s from %s%s%s",
                 CmdsColors[COLOV].color5,word1,Colors[COLOFF],word2,origfrom,
                 CmdsColors[COLOV].color2,word3,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpline,"TS for ",7)) {
+        strcpy(word1,OVgetword(0,3,tmpline)); /* channel */
+        strcpy(word2,OVgetword(0,6,tmpline)); /* TS1 */
+        strcpy(word3,OVgetword(0,8,tmpline)); /* TS2 */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %schannel%s] %sTS%s %s%s%s %s -> %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2,word3);
+#else
+        sprintf(tmpbuf,"%sTS%s for %s%s%s changed %s -> %s",
+                CmdsColors[COLOV].color1,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
 #endif
     }
     else if (strstr(tmpline,"whois on you") ||
