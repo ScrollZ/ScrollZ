@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.16 1999-01-10 20:20:04 f Exp $
+ * $Id: edit5.c,v 1.17 1999-01-17 12:37:43 f Exp $
  */
 
 #include "irc.h"
@@ -1795,7 +1795,7 @@ char *rest;
         blah=tmpbuf1;
         /* let's dig out username and comment */
         while ((tmpstr=new_next_arg(blah,&blah))) {
-            tmpnew=(struct nicks *) malloc(sizeof(struct nicks));
+            tmpnew=(struct nicks *) new_malloc(sizeof(struct nicks));
             tmpnew->nick=NULL;
             tmpnew->next=NULL;
             malloc_strcpy(&(tmpnew->nick),tmpstr);
@@ -2429,64 +2429,97 @@ char *buffer;
 }
 #endif
 
+#define SLSTALL      1
+#define SLSTFRND     2
+#define SLSTNFRND    4
+#define SLSTSHIT     8
+#define SLSTNSHIT   16
+#define SLSTOP      32
+#define SLSTNOP     64
+#define SLSTVOIC   128
+#define SLSTNVOIC  256
+
 /* Like internal WHO */
 void ShowUser(command,args,subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    int  all=1;
-    int  ops=0;
-    int  nonops=0;
-    int  voiced=0;
-    int  friends=0;
-    int  shitted=0;
 #ifdef WANTANSI
     int  len;
 #else
     int  count;
 #endif
-    char *filter=NULL;
+    int  listfl=SLSTALL;
     char *channels=NULL;
     char *tmpstr=NULL;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
     NickList *joiner;
     ChannelList *chan;
+    struct nicks *filtlist=NULL,*tmpfilt;
 
-    if (args && *args) {
-        while (args && *args) {
-            tmpstr=new_next_arg(args,&args);
-            if (tmpstr && *tmpstr!='-') {
-                if (!filter) filter=tmpstr;
-                else if (!channels) channels=tmpstr;
+    while ((tmpstr=new_next_arg(args,&args))) {
+        if (*tmpstr=='-') {
+            tmpstr++;
+            if (!(*tmpstr)) continue;
+            upper(tmpstr);
+            if (*tmpstr=='O') {
+                listfl&=(~SLSTALL);
+                listfl|=SLSTOP;
             }
-            else {
+            if (*tmpstr=='F') {
+                listfl&=(~SLSTALL);
+                listfl|=SLSTFRND;
+            }
+            if (*tmpstr=='S') {
+                listfl&=(~SLSTALL);
+                listfl|=SLSTSHIT;
+            }
+            if (*tmpstr=='V') {
+                listfl&=(~SLSTALL);
+                listfl|=SLSTVOIC;
+            }
+            if (*tmpstr=='N') {
                 tmpstr++;
-                if (*tmpstr=='o' || *tmpstr=='O') {
-                    ops=1;
-                    all=0;
+                if (!(*tmpstr)) continue;
+                if (*tmpstr=='O') {
+                    listfl&=(~SLSTALL);
+                    listfl|=SLSTNOP;
                 }
-                if (*tmpstr=='n' || *tmpstr=='N') {
-                    nonops=1;
-                    all=0;
+                if (*tmpstr=='F') {
+                    listfl&=(~SLSTALL);
+                    listfl|=SLSTNFRND;
                 }
-                if (*tmpstr=='f' || *tmpstr=='F') {
-                    friends=1;
-                    all=0;
+                if (*tmpstr=='S') {
+                    listfl&=(~SLSTALL);
+                    listfl|=SLSTNSHIT;
                 }
-                if (*tmpstr=='v' || *tmpstr=='V') {
-                    voiced=1;
-                    all=0;
-                }
-                if (*tmpstr=='s' || *tmpstr=='S') {
-                    shitted=1;
-                    all=0;
+                if (*tmpstr=='V') {
+                    listfl&=(~SLSTALL);
+                    listfl|=SLSTNVOIC;
                 }
             }
         }
+        else if (*tmpstr=='#') channels=tmpstr;
+        else {
+            if ((tmpfilt=(struct nicks *) new_malloc(sizeof(struct nicks)))) {
+                tmpfilt->nick=(char *) 0;
+                tmpfilt->next=filtlist;
+                malloc_strcpy(&(tmpfilt->nick),tmpstr);
+                filtlist=tmpfilt;
+            }
+            else say("Malloc failed");
+        }
     }
-    if (!filter) filter="*";
+    if (!filtlist) {
+        if ((filtlist=(struct nicks *) new_malloc(sizeof(struct nicks)))) {
+            filtlist->nick=(char *) 0;
+            filtlist->next=(struct nicks *) 0;
+            malloc_strcpy(&(filtlist->nick),"*");
+        }
+        else say("Malloc failed");
+    }
     if (!channels) channels=get_channel_by_refnum(0);
     say("%-3s %-12s    %-10s %-34s Friend","UL","Channel"," Nick","Userhost");
     for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next)
@@ -2494,11 +2527,20 @@ char *subargs;
             for (joiner=chan->nicks;joiner;joiner=joiner->next) {
                 if (joiner->userhost) sprintf(tmpbuf1,"%s!%s",joiner->nick,joiner->userhost);
                 else strcpy(tmpbuf1,joiner->nick);
-                if (wild_match(filter,tmpbuf1) &&
-                    ((ops && joiner->chanop) || (nonops && !(joiner->chanop)) ||
-                     (friends && joiner->frlist && joiner->frlist->privs) ||
-                     (voiced && joiner->voice) ||
-                     (shitted && joiner->shitlist && joiner->shitlist->shit) || all)) {
+                /* Check for u@h match */
+                for (tmpfilt=filtlist;tmpfilt;tmpfilt=tmpfilt->next)
+                    if (wild_match(tmpfilt->nick,tmpbuf1)) break;
+                if (!tmpfilt) continue;
+                /* Check if flags match */
+                if (((listfl&SLSTOP) && joiner->chanop) ||
+                    ((listfl&SLSTNOP) && !(joiner->chanop)) ||
+                    ((listfl&SLSTFRND) && joiner->frlist && joiner->frlist->privs) ||
+                    ((listfl&SLSTNFRND) && (!(joiner->frlist) || !(joiner->frlist->privs))) ||
+                    ((listfl&SLSTVOIC) && joiner->voice) ||
+                    ((listfl&SLSTNVOIC) && !(joiner->voice) && !(joiner->chanop)) ||
+                    ((listfl&SLSTSHIT) && joiner->shitlist && joiner->shitlist->shit) ||
+                    ((listfl&SLSTNSHIT) && (!(joiner->shitlist) || !(joiner->shitlist->shit))) ||
+                    ((listfl&SLSTALL))) {
 #ifdef WANTANSI
                     ColorizeJoiner(joiner,tmpbuf1);
                     if (joiner->userhost) {
@@ -2541,6 +2583,12 @@ char *subargs;
                 }
             }
         }
+    for (;filtlist;) {
+        tmpfilt=filtlist;
+        filtlist=filtlist->next;
+        new_free(&(tmpfilt->nick));
+        new_free(&tmpfilt);
+    }
 }
 
 #ifdef WANTANSI
