@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.37 2001-08-02 18:34:52 f Exp $
+ * $Id: numbers.c,v 1.38 2001-08-05 16:11:17 f Exp $
  */
 
 #include "irc.h"
@@ -691,6 +691,18 @@ cannot_join_channel(from, ArgList)
 	else
 		return;
 
+/**************************** Patched by Flier ******************************/
+        /* handle ircd 2.9/2.10 here because numeric 477 has totally
+           different meaning than on networks with NickServ */
+        if ((-current_numeric==477) &&
+            ((get_server_version(from_server)==Server2_9) ||
+            (get_server_version(from_server)==Server2_10))) {
+            PasteArgs(ArgList,0);
+            if (do_hook(current_numeric, "%s %s",from,*ArgList))
+                put_it("%s %s",numeric_banner(),ArgList[0]);
+            return;
+        }
+/****************************************************************************/
 	if (!is_on_channel(chan, parsing_server_index,
 			get_server_nickname(parsing_server_index)))
 		remove_channel(chan, parsing_server_index);
