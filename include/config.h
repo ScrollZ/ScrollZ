@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.4 1998-10-31 18:51:52 f Exp $
+ * $Id: config.h,v 1.5 1998-11-01 12:02:56 f Exp $
  */
 
 #ifndef __config_h_
@@ -246,6 +246,7 @@
 
 #undef DEFAULT_STATUS_AWAY
 #undef DEFAULT_STATUS_CHANNEL
+#undef DEFAULT_STATUS_CHANNELCOUNT
 #undef DEFAULT_STATUS_CLOCK
 #undef DEFAULT_STATUS_FORMAT
 #undef DEFAULT_STATUS_FORMAT1
@@ -266,7 +267,6 @@
 #undef DEFAULT_BEEP_ON_MSG
 #undef DEFAULT_INPUT_PROMPT
 #undef DEFAULT_SHOW_STATUS_ALL
-#undef DEFAULT_STATUS_CHANNELCOUNT
 #undef DEFAULT_STATUS_USER
 
 #elif defined(WANTANSI)
@@ -307,7 +307,8 @@
 
 #define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
 #define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
-#define DEFAULT_STATUS_CLOCK "time is %y7%T%y6"
+#define DEFAULT_STATUS_CHANNELCOUNT "(O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6)"
+#define DEFAULT_STATUS_CLOCK "[time %y7%T%y6]"
 
 #if defined(OPERVISION)
 #define DEFAULT_STATUS_FORMAT "%y1[%y2%R%y6] %* %B%H%A%S %W %F %> [%y2%!S%y6]"
