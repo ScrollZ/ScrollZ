@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.51 2001-01-15 17:01:17 f Exp $
+ * $Id: edit.c,v 1.52 2001-01-15 17:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -323,7 +323,7 @@ extern  void  WhereList _((char *, char *, char *));
 #endif
 extern  void  UnFlash _((char *, char *, char *));
 extern  void  Password _((char *, char *, char *));
-extern  void  PrintPublic _((char *, char *, char *, char *, int));
+extern  void  PrintPublic _((char *, char *, char *, char *, int, int));
 extern  void  PlayBack _((char *, char *, char *));
 extern  void  AwaySaveToggle _((char *, char *, char *));
 #ifdef OPER
@@ -2773,6 +2773,7 @@ send_text(org_nick, line, command)
 	char	nick_list[IRCD_BUFFER_SIZE+1];
 	int	do_final_send = 0;
 /**************************** PATCHED by Flier ******************************/
+        int     iscrypted;
         char    thing;
         char    *mynick=get_server_nickname(from_server);
         char    tmpbuf[mybufsize+1];
@@ -2864,7 +2865,11 @@ send_text(org_nick, line, command)
 			new_free(&free_nick);
 			goto out;
 		}
-		if (is_channel(nick))
+/**************************** PATCHED by Flier ******************************/
+                *tmpbuf='\0';
+                iscrypted=EncryptMessage(tmpbuf,nick);
+/****************************************************************************/
+                if (is_channel(nick))
 		{
 			int	current;
 
@@ -2895,11 +2900,11 @@ send_text(org_nick, line, command)
 						line);*/
                                 if (current) {
                                     if (!my_stricmp(command,"NOTICE")) put_it("-%s- %s",nick,line);
-                                    else PrintPublic(mynick,NULL,nick,line,1);
+                                    else PrintPublic(mynick,NULL,nick,line,1,iscrypted);
                                 }
                                 else {
                                     if (!my_stricmp(command,"NOTICE")) put_it("-%s- %s",nick,line);
-                                    else PrintPublic(mynick,":",nick,line,1);
+                                    else PrintPublic(mynick,":",nick,line,1,iscrypted);
                                 }
                                 new_free(&CurrentNick);
                                 tabnickcompl=NULL;
@@ -2907,7 +2912,7 @@ send_text(org_nick, line, command)
 			}
 /**************************** PATCHED by Flier ******************************/
                         else if (my_stricmp(command,"NOTICE")) 
-                            PrintPublic(mynick,NULL,nick,line,0);
+                            PrintPublic(mynick,NULL,nick,line,0,iscrypted);
                         if ((away_set || LogOn) && my_stricmp(command,"NOTICE")) {
                             sprintf(tmpbuf,"<%s:%s> %s",mynick,nick,line);
                             AwaySave(tmpbuf,SAVESENTMSG);
@@ -2979,10 +2984,10 @@ send_text(org_nick, line, command)
                                         CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s %s%s%s",tmpbuf,
+                                put_it("%s%s %s%s%s",iscrypted?"[!]":"",tmpbuf,
                                        CmdsColors[COLNOTICE].color3,line,Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("<-%s-> %s", nick, line);
+                                put_it("%s<-%s-> %s",iscrypted?"[!]":"",nick,line);
 #endif /* WANTANSI */
                             }
                             else {
@@ -2999,10 +3004,10 @@ send_text(org_nick, line, command)
 					CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
                                         thing,CmdsColors[COLMSG].color5,Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s %s%s%s",tmpbuf,
+                                put_it("%s%s %s%s%s",iscrypted?"[!]":"",tmpbuf,
 					CmdsColors[COLMSG].color3,line,Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("[%c%s%c] %s",thing,nick,thing,line);
+                                put_it("%s[%c%s%c] %s",iscrypted?"[!]":"",thing,nick,thing,line);
 #endif /* WANTANSI */
                             }
                         }

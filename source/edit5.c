@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.53 2001-01-06 19:17:51 f Exp $
+ * $Id: edit5.c,v 1.54 2001-01-15 17:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -1286,12 +1286,13 @@ char *line;
 }
 
 /* Prints public message */
-void PrintPublic(nick,col,channel,line,print)
+void PrintPublic(nick,col,channel,line,print,iscrypted)
 char *nick;
 char *col;
 char *channel;
 char *line;
 int  print;
+int  iscrypted;
 {
     int  foundar=0;
     int  isfriend=0;
@@ -1449,7 +1450,7 @@ int  print;
                         CmdsColors[COLPUBLIC].color3,channel,Colors[COLOFF],
 #endif
                         CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-                put_it("%s%s%s%s%s",stampbuf,tmpbuf2,
+                put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,
                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
                 to_window=oldwin; 
             }
@@ -1462,11 +1463,12 @@ int  print;
             sprintf(tmpbuf2,"%s%s%s%s%s%s%s",tmpbuf1,
                     nick,Colors[COLOFF],newcol,
 #ifdef CELE
-                    CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF]);
+                    CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF]
 #else
-                    CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF]);
+                    CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF]
 #endif
-            put_it("%s%s%s %s%s%s",stampbuf,tmpbuf2,tmpbuf5,
+                    );
+            put_it("%s%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,tmpbuf5,
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
 	/* AwaySave needs to go after the put_it(). Two if's doesn't hurt */
@@ -1477,22 +1479,24 @@ int  print;
     }
     else {
         if (!col && print)
+            put_it(
 #ifdef STEFY
-            put_it("%s%s)%s %s%s%s",stampbuf,CmdsColors[COLPUBLIC].color2,
+                   "%s%s%s)%s %s%s%s",iscrypted?"[!]":"",stampbuf,CmdsColors[COLPUBLIC].color2,
 #else
-            put_it("%s%s>%s %s%s%s",stampbuf,CmdsColors[COLPUBLIC].color2,
+                   "%s%s%s>%s %s%s%s",iscrypted?"[!]":"",stampbuf,CmdsColors[COLPUBLIC].color2,
 #endif
                    Colors[COLOFF],CmdsColors[COLPUBLIC].color5,tmpbuf4,
                    Colors[COLOFF]);
         else if (print) {
+            sprintf(tmpbuf1,
 #ifdef STEFY
-            sprintf(tmpbuf1,"%s>%s%s%s%s%s>%s ",CmdsColors[COLPUBLIC].color2,
+                    "%s>%s%s%s%s%s>%s ",CmdsColors[COLPUBLIC].color2,
 #else
-            sprintf(tmpbuf1,"%s)%s%s%s%s%s>%s ",CmdsColors[COLPUBLIC].color2,
+                    "%s)%s%s%s%s%s>%s ",CmdsColors[COLPUBLIC].color2,
 #endif
                     Colors[COLOFF],CmdsColors[COLPUBLIC].color3,newchan,
                     Colors[COLOFF],CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-            put_it("%s%s%s%s%s",stampbuf,tmpbuf1,
+            put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf1,
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
     }
@@ -1511,12 +1515,19 @@ int  print;
             }
             while (currentar && !foundar);
         }
-        if (print && (!foundar || isitme))
-            put_it("%s%s<%s%s%s%s%s>%s %s",stampbuf,
+        if (print && (!foundar || isitme)) {
+            char *tmpstr=(char *) 0;
+
+            if (iscrypted) malloc_strcpy(&tmpstr,"[!]");
+            malloc_strcat(&tmpstr,stampbuf);
+            put_it("%s%s<%s%s%s%s%s>%s %s",tmpstr,
                    (isitme && Ego)?"":"",(isitme && Ego)?"":"",nick,newcol,newchan,
                    (isitme && Ego)?"":"",(isitme && Ego)?"":"",tmpbuf4);
+            new_free(&tmpstr);
+        }
         else {
-            if (print) put_it("%s<%s%s%s> %s",stampbuf,nick,newcol,newchan,tmpbuf4);
+            if (print)
+                put_it("%s%s<%s%s%s> %s",iscrypted?"[!]":"",stampbuf,nick,newcol,newchan,tmpbuf4);
             if (away_set || LogOn) {
                 sprintf(tmpbuf2,"<%s:%s> %s",nick,channel,tmpbuf4);
                 AwaySave(tmpbuf2,SAVEAREPLY);
@@ -1524,8 +1535,8 @@ int  print;
         }
     }
     else {
-        if (!col && print) put_it("%s> %s",stampbuf,tmpbuf4);
-        else if (print) put_it("%s>%s> %s",stampbuf,newchan,tmpbuf4);
+        if (!col && print) put_it("%s%s> %s",iscrypted?"[!]":"",stampbuf,tmpbuf4);
+        else if (print) put_it("%s%s>%s> %s",iscrypted?"[!]":"",stampbuf,newchan,tmpbuf4);
     }
 #endif
     if (URLCatch && URLCatch<3 && numurl)
