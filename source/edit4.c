@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.65 2001-05-22 19:15:08 f Exp $
+ * $Id: edit4.c,v 1.66 2001-06-14 18:53:29 f Exp $
  */
 
 #include "irc.h"
@@ -188,7 +188,19 @@ int  iscrypted;
 #endif
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
+    char stampbuf[mybufsize/16];
 
+    *stampbuf='\0';
+    if (Stamp==2) {
+#ifdef WANTANSI
+        sprintf(stampbuf,"%s(%s%s%s)%s ",
+                CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                update_clock(0,0,GET_TIME),
+                CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+    }
     if (!(userhost && *userhost)) userhost=(char *) 0;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
     else thing='*';
@@ -198,6 +210,7 @@ int  iscrypted;
         message=tmpbuf4;
     }
     else message=msg;
+    *tmpbuf3='\0';
 #ifdef WANTANSI
 #ifdef CELECOSM
     if (ExtMes && userhost)
@@ -208,7 +221,8 @@ int  iscrypted;
             CmdsColors[COLMSG].color1,nick,Colors[COLOFF],tmpbuf2,
             CmdsColors[COLMSG].color5,Colors[COLOFF],
             CmdsColors[COLMSG].color3,message,Colors[COLOFF]);
-    sprintf(tmpbuf3,"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    if (Stamp<2)
+        sprintf(tmpbuf3,"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
     sprintf(tmpbuf1,"%c%s%s%s%c %s%s%s",
             thing,CmdsColors[COLMSG].color1,nick,Colors[COLOFF],thing,
@@ -216,21 +230,26 @@ int  iscrypted;
     if (ExtMes && userhost) {
         ColorUserHost(userhost,CmdsColors[COLMSG].color2,tmpbuf2,1);
 #ifdef TDF
-        sprintf(tmpbuf3,"  <[%s%s%s]%s>",
-                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
+        if (Stamp<2)
+            sprintf(tmpbuf3,"  <[%s%s%s]%s>",
+                    CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
+        else sprintf(tmpbuf3,"  <%s>",tmpbuf2);
 #else  /* TDF */
-        sprintf(tmpbuf3,"  %s [%s%s%s]",tmpbuf2,
-                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        if (Stamp<2)
+            sprintf(tmpbuf3,"  %s [%s%s%s]",tmpbuf2,
+                    CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        else sprintf(tmpbuf3,"  %s",tmpbuf2);
 #endif /* TDF */
     }
-    else *tmpbuf3='\0';
 #endif /* CELECOSM */
 #else  /* WANTANSI */
     sprintf(tmpbuf1,"%c%s%c %s",thing,nick,thing,message);
-    if (ExtMes && userhost) sprintf(tmpbuf3,"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
-    else *tmpbuf3='\0';
+    if (ExtMes && userhost) {
+        if (Stamp<2) sprintf(tmpbuf3,"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
+        else sprintf(tmpbuf3,"  (%s)",userhost);
+    }
 #endif /* WANTANSI */
-    if (print) put_it("%s%s%s",iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
+    if (print) put_it("%s%s%s%s",stampbuf,iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
     StripAnsi(message,tmpbuf3,2);
     if (!(userhost && *userhost)) userhost=empty_string;
     sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(0,0,GET_TIME));
