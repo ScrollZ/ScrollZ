@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.2 1998-09-10 17:45:21 f Exp $
+ * $Id: input.c,v 1.3 1998-10-06 21:41:30 f Exp $
  */
 
 #include "irc.h"
@@ -56,11 +56,6 @@ static void CheckNickCompletion _((void));
 extern int CountAnsiInput _((char *, int));
 #endif
 extern NickList *tabnickcompl;
-
-/* old_ansi: number of ansi characters in previous input_buffer */
-#ifdef WANTANSI
-static int old_ansi=0;
-#endif
 /****************************************************************************/
 
 #define WIDTH 10
@@ -230,42 +225,25 @@ update_input(update)
 	}
 	cursor = current_screen->buffer_pos - str_start;*/
 #ifdef WANTANSI
-        ansi_count=CountAnsiInput(current_screen->input_buffer,zone);
-        if (old_ansi!=ansi_count && current_screen->buffer_pos-ansi_count>zone) {
-            lower_mark=WIDTH;
-            upper_mark=CO - WIDTH;
-            str_start=0;
-        }
-        ansi_count=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
-#else
-        ansi_count=0;
+        ansi_count=CountAnsiInput(current_screen->input_buffer,
+                                  current_screen->buffer_pos);
 #endif
-	while ((current_screen->buffer_pos - ansi_count < lower_mark) && lower_mark > WIDTH)
+	while ((current_screen->buffer_pos-ansi_count<lower_mark) && lower_mark>WIDTH)
 	{
-		upper_mark = lower_mark - ansi_count;
-		lower_mark -= (zone + ansi_count);
-                str_start -= (zone + ansi_count);
-#ifdef WANTANSI
-                if (str_start<zone) {
-                    str_start=0;
-                    ansi_count=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
-                    lower_mark-=ansi_count;
-                    upper_mark-=ansi_count;
-                }
-#endif
+		upper_mark=lower_mark;
+                lower_mark-=zone;
+                str_start-=zone;
+                if (lower_mark<zone) str_start-=ansi_count;
 	}
-	while (current_screen->buffer_pos - ansi_count >= upper_mark)
+	while (current_screen->buffer_pos-ansi_count>=upper_mark)
         {
-		lower_mark = upper_mark + ansi_count;
-		upper_mark += zone + ansi_count;
-                str_start += zone + ansi_count;
-                if (ansi_count) ansi_count=0;
+                if (lower_mark<zone) str_start+=ansi_count;
+                lower_mark=upper_mark;
+                upper_mark+=zone;
+                str_start+=zone;
         }
 #ifdef WANTANSI
         ansi_count=CountAnsiInput(&(current_screen->input_buffer[str_start]),zone);
-        old_ansi=CountAnsiInput(current_screen->input_buffer,zone);
-#else
-        ansi_count=0;
 #endif
 	cursor = current_screen->buffer_pos - str_start - ansi_count;
 /****************************************************************************/
@@ -277,7 +255,10 @@ update_input(update)
 			int	echo;
 
 			echo = term_echo(1);
-			if (current_screen->buffer_min_pos > (CO - WIDTH))
+/**************************** PATCHED by Flier ******************************/
+			/*if (current_screen->buffer_min_pos > (CO - WIDTH))*/
+			if (current_screen->buffer_min_pos-ansi_count>(CO-WIDTH))
+/****************************************************************************/
 				len = CO - WIDTH - 1;
 			else
 				len = current_screen->buffer_min_pos;
@@ -304,7 +285,7 @@ update_input(update)
 		cnt = cursor;
 /**************************** PATCHED by Flier ******************************/
 		/*max = CO - (current_screen->buffer_pos - str_start);*/
-                max = CO - (current_screen->buffer_pos - str_start) + ansi_count;
+                max=CO-(current_screen->buffer_pos-str_start)+ansi_count;
 /****************************************************************************/
 		if ((len = strlen(&(current_screen->input_buffer[
 				current_screen->buffer_pos]))) > max)
@@ -534,7 +515,7 @@ input_backspace(key, ptr)
 				if (pos < (int) strlen(current_screen->input_buffer))
 				{
 					term_move_cursor(CO - 1, input_line);
-				term_putchar(current_screen->input_buffer[pos]);
+				        term_putchar(current_screen->input_buffer[pos]);
 				}
 				update_input(UPDATE_JUST_CURSOR);
 			}
