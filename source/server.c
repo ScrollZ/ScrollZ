@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.13 1999-03-25 20:22:51 f Exp $
+ * $Id: server.c,v 1.14 1999-09-04 20:55:40 f Exp $
  */
 
 #include "irc.h"
@@ -1834,6 +1834,9 @@ int
 is_server_connected(server_index)
 	int	server_index;
 {
+/**************************** PATCHED by Flier ******************************/
+        if (server_index<0 || server_index>=number_of_servers) return(0);
+/****************************************************************************/
 	return (server_list[server_index].connected);
 }
 
