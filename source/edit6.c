@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.104 2001-10-05 18:39:47 f Exp $
+ * $Id: edit6.c,v 1.105 2001-10-05 18:41:03 f Exp $
  */
 
 #include "irc.h"
@@ -2882,10 +2882,8 @@ int when;
     char *format=get_string_var(STAMP_FORMAT);
     static char *result=NULL;
 
-    if (Stamp>=when) {
-	new_free(&result);
-	result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
-    }
+    new_free(&result);
+    if (Stamp>=when) result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
     if (!result) malloc_strcpy(&result,empty_string);
     return(result);
 }
