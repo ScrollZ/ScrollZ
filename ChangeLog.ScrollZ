@@ -127,6 +127,11 @@ Meaning of flags:
     + we now finally have a homepage, the URL is www.scrollz.com,
       thanks to largo for the design and to tel for hosting it
     ~ cursor is now immediately moved to input line (requested by salan)
+    ! crash in SZINFO when not connected to a server (reported by Dolphin)
+    ! bug where client would think it grabbed illegal nick
+    ! client now keeps asking for a nickname if SET NO_ASK_NICKNAME
+      is set to OFF (reported by Matt Mills)
+    + support for numeric 320 (identifed user on OPN, coded by braneded)
 
 ------------------------------------------------------------------------------
 
