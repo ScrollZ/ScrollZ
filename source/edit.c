@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.58 2001-05-08 17:35:39 f Exp $
+ * $Id: edit.c,v 1.59 2001-06-12 16:25:49 f Exp $
  */
 
 #include "irc.h"
@@ -2784,7 +2784,19 @@ send_text(org_nick, line, command)
         char    thing;
         char    *mynick=get_server_nickname(from_server);
         char    tmpbuf[mybufsize+1];
+        char stampbuf[mybufsize/16];
 
+        *stampbuf='\0';
+        if (Stamp==2) {
+#ifdef WANTANSI
+            sprintf(stampbuf,"%s(%s%s%s)%s ",
+                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                    update_clock(0,0,GET_TIME),
+                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+        }
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
         else thing='-';
 /****************************************************************************/
@@ -2990,10 +3002,10 @@ send_text(org_nick, line, command)
                                         CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s %s%s%s",iscrypted?"[!]":"",tmpbuf,
+                                put_it("%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf,
                                        CmdsColors[COLNOTICE].color3,line,Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s<-%s-> %s",iscrypted?"[!]":"",nick,line);
+                                put_it("%s%s<-%s-> %s",iscrypted?"[!]":"",stampbuf,nick,line);
 #endif /* WANTANSI */
                             }
                             else {
@@ -3010,10 +3022,10 @@ send_text(org_nick, line, command)
 					CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
                                         thing,CmdsColors[COLMSG].color5,Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s %s%s%s",iscrypted?"[!]":"",tmpbuf,
+                                put_it("%s%s%s %s%s%s",stampbuf,iscrypted?"[!]":"",tmpbuf,
 					CmdsColors[COLMSG].color3,line,Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s[%c%s%c] %s",iscrypted?"[!]":"",thing,nick,thing,line);
+                                put_it("%s%s[%c%s%c] %s",stampbuf,iscrypted?"[!]":"",thing,nick,thing,line);
 #endif /* WANTANSI */
                             }
                         }
