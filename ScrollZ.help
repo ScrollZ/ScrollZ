@@ -69,7 +69,9 @@ list are listed. DCC CHAT sessions can be encrypted if nick starts
 with '='. Use '-' as first character in key if you want to communicate
 with users of ScrollZ v1.8j and older. Whenever encrypted communication
 is used publics and private messages are prepended with [!]. DCC CHAT
-messages are encrypted if nick is enclosed in *.
+messages are encrypted if nick is enclosed in *. Warning: messages are
+cut at 304 characters to avoid decryption problems when IRC server cuts
+the message.
 :FCLINE        Does STATS c with filter
 Usage $3FCLINE filter$0 [$3server$0]
 :FILINE        Does STATS I with filter
@@ -762,26 +764,31 @@ Usage $3LK$0 [$3-ALL$0]
 When $3-ALL$0 is specified all non opped users will be kicked.
 Also look at $2K$0, $2MK$0, $2MULTK$0 and $2RANLK$0
 :MASSDV        Mass devoices channel
-Usage $3MASSDV$0 [$3-F$0] [$3#channel$0]
+Usage $3MASSDV$0 [$3-F$0] [$3-A] [$3#channel$0]
 If passed $3-F$0 friends with the $3V$0 flag set will not be devoiced.
+$3-A$0 will devoice all users.
 Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSV$0
 :MASSV         Mass voices channel
-Usage $3MASSV$0 [$3-F$0] [$3#channel$0]
+Usage $3MASSV$0 [$3-F$0] [$3-A] [$3#channel$0]
 If passed $3-F$0 only friends with the $3V$0 flag set will be voiced.
+$3-A$0 will voice all users.
 Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSDV$0
 :MC            Clears all the modes on your current channel
 Also look at $2MODELOCK$0 and $2MODEUNLOCK$0
 :MDHOP         Mass dehalfops channel
-Usage $3MDHOP$0 [$3-F$0] [$3#channel$0]
+Usage $3MDHOP$0 [$3-F$0] [$3-A$0] [$3#channel$0]
 If passed $3-F$0 friends with the $3H$0 flag set will not be dehalfopped.
+$3-A$0 will dehalfop all users.
 Also look at $2MHOP$0
 :MDOP          Mass deops channel
-Usage $3MDOP$0 [$3-F$0] [$3#channel$0]
+Usage $3MDOP$0 [$3-F$0] [$3-A$0] [$3#channel$0]
 If passed $3-F$0 friends with the $3O$0 flag set will not be deopped.
+$3-A$0 will deop all users.
 Also look at $2MOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
 :MHOP          Mass halfops channel
-Usage $3MHOP$0 [$3-F$0] [$3#channel$0]
+Usage $3MHOP$0 [$3-F$0] [$3-A$0] [$3#channel$0]
 If passed $3-F$0 only friends with the $3H$0 flag set will be halfopped.
+$3-A$0 will halfop all users.
 Also look at $2MDHOP$0
 :MK            Kicks multiple nicks at the same time
 Usage $3MK$0 [$3#channel$0] $3nick1$0 [$3nick2$0] ... [:$3reason$0]
@@ -800,12 +807,14 @@ Also look at $2MC$0 and $2MODEUNLOCK$0
 Usage $3MODEUNLOCK$0 [[$3#$0]$3channel$0]
 Also look at $2MC$0 and $2MODELOCK$0
 :MOP           Mass ops channel
-Usage $3MOP$0 [$3-F$0] [$3#channel$0]
+Usage $3MOP$0 [$3-F$0] [$3-A$0] [$3#channel$0]
 If passed $3-F$0 only friends with the $3O$0 flag set will be opped.
+$3-A$0 will op all users.
 Also look at $2MDOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
 :MREOP         Mass re-ops channel
-Usage $3MREOP$0 [$3-F$0] [$3#channel$0]
+Usage $3MREOP$0 [$3-F$0] [$3-A$0] [$3#channel$0]
 If passed $3-F$0 only friends with the $3O$0 flag set will be reopped.
+$3-A$0 will re-op all users.
 Also look at $2MDOP$0, $2MOP$0, $2MASSV$0 and $2MASSDV$0
 :MULTK         Kicks nick from multiple channels
 Usage $3MULTK$0 [$3#channels$0] $3nick$0 [$3reason$0]
