@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.10 1998-11-18 20:03:43 f Exp $
+ * $Id: edit4.c,v 1.11 1998-12-09 20:54:40 f Exp $
  */
 
 #include "irc.h"
@@ -775,7 +775,8 @@ void HandleTabNext() {
                         len=strlen(tabnick);
                     }
                     else {
-                        for (nickstr=tmpbuf;*tmpstr;) *nickstr++=*tmpstr++;
+                        for (nickstr=tmpbuf;*tmpstr && !isspace(*tmpstr);)
+                            *nickstr++=*tmpstr++;
                         *nickstr=0;
                         len=strlen(tmpbuf);
                         tmpnick=chan->nicks;
