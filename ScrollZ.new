@@ -47,6 +47,14 @@ added if channel in CDCC CHANNELS starts with + it means client will use
 when DCC chat is established nick is added to tabkey list on current server
      (reported by ogre)
 JOIN 1,2,3 now joins #1, #2 and #3 (reported by Merlin)
+SET DCC_PORTS is only used for DCC CHAT and DCC SEND because of problems
+    with other types of connects
+fixed odd bug where channel would be suddenly binded to completely unrelated
+      window, it had to do with the way ircII maintains window list and
+      whowas buffer for channels
+fixed crash when user sent large ammounts of files (reported by arc)
+fixed shitlist bug with ident being 10 characters long
+fixed CHSIGNOFF always showing regardless of setting (reported by kali)
 
 
 -------------------------------------------------------------------------------
