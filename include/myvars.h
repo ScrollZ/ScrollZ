@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.12 2000-01-27 16:03:24 f Exp $
+ * $Id: myvars.h,v 1.13 2000-05-14 07:57:56 f Exp $
  */
 
 #include "mystructs.h"
@@ -178,13 +178,13 @@ extern char   *PermUserMode;
 extern char   *AutoReplyString;
 extern int    usersloaded;
 extern int    unban;
-extern int    inFlierWI;
-extern int    inFlierWho;
-extern int    inFlierNotify;
-extern int    inFlierLinks;
-extern int    inFlierFKill;
-extern int    inFlierNickCompl;
-extern int    inFlierTrace;
+extern int    inScrollZWI;
+extern int    inScrollZWho;
+extern int    inScrollZNotify;
+extern int    inScrollZLinks;
+extern int    inScrollZFKill;
+extern int    inScrollZNickCompl;
+extern int    inScrollZTrace;
 extern int    ExtMes;
 extern int    NHProt;
 extern int    NHDisp;
