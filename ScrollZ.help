@@ -1,11 +1,11 @@
-!MAIN ScrollZ + Cdcc MAIN HELP v1.5 screen
+!MAIN ScrollZ + Cdcc MAIN HELP v1.6 screen
 :$5USER$0          User specific commands
 :$5OPS$0           Commands you can use if you have ops
 :$5MISC$0          Miscellaneous commands
 :$5CDCC$0          Cdcc related commands
 :$5SETTINGS$0      Commands that let you customize ScrollZ
 :$5INDEX$0         Index of all ScrollZ commands
-!MISC ScrollZ + Cdcc MISC HELP v1.4 screen
+!MISC ScrollZ + Cdcc MISC HELP v1.6 screen
 :ABOUT         Thank you and stuff
 First of all, some ScrollZ background: I decided to write ScrollZ
 because I haven't been satisfied with any of the scripts I have
@@ -271,7 +271,7 @@ Usage $3WKILL who_filter kill_pattern$0 [$3reason$0]
 Also look at $2MKILL$0 and $2TKILL$0
 :WW            Tells you who was person using nick
 Usage $3WW nick$0
-!USER ScrollZ + Cdcc USER HELP v1.4 screen
+!USER ScrollZ + Cdcc USER HELP v1.6 screen
 :ADDBK         Adds user to your shit list
 Usage $3ADDBK nick$0|$3filter channels shit-level$0 [$3comment$0]
 Filter can include * and ?. When used with nick client will create entry
@@ -413,7 +413,7 @@ Also look at $2ADDN$0 and $2LISTN$0
 Usage $3REMW channels word$0
 Also look at $2ADDW$0, $2LISTW$0 and $2KICKOPS$0
 :SVE           Saves all ScrollZ stuff to ScrollZ.save file
-!SETTINGS ScrollZ + Cdcc SETTINGS HELP v1.4 screen
+!SETTINGS ScrollZ + Cdcc SETTINGS HELP v1.6 screen
 :ADDCHAN       Adds channels to ScrollZ settings
 Usage $3ADDCHAN $3setting$0 $3channel$0
 This is used to add channel for specified setting. Possible
@@ -638,7 +638,7 @@ use $4NOTEPAD$0 to save such entries. $3QUIET$0 works the same, the only
 difference is that no message will be printed about stored URLs. When set
 to $3ON$0, you can use $4URL$0 to save last grabbed URL.
 Also look at $2URL$0 and $2NOTEPAD$0
-!OPS ScrollZ + Cdcc OPS HELP v1.4 screen
+!OPS ScrollZ + Cdcc OPS HELP v1.6 screen
 :BAN           Deops and bans user on current channel
 Usage $3BAN$0 $3nick$0|$3filter$0 [$3nick$0|$3filter$0] ...
 Also look at $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
@@ -743,7 +743,7 @@ Also look at $2BAN$0, $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, 
 :UNBAN         Unbans user on your current channel
 Usage $3UNBAN nick$0
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2TBAN$0, $2CDBANS$0 and $2DOBANS$0
-!CDCC ScrollZ + Cdcc CDCC HELP v1.4 screen
+!CDCC ScrollZ + Cdcc CDCC HELP v1.6 screen
 :CDCC          First XDCC clone made in C by Sheik & FLiEr
 :CDCC GET      Prompts you for files to get
 Usage $3CDCC GET$0 [$3pattern$0]
