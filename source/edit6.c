@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.103 2001-10-01 18:41:28 f Exp $
+ * $Id: edit6.c,v 1.104 2001-10-05 18:39:47 f Exp $
  */
 
 #include "irc.h"
@@ -2878,27 +2878,14 @@ ChannelList *tmpchan;
 char *TimeStamp(when)
 int when;
 {
-#ifdef WANTANSI
-    char *coloroff=Colors[COLOFF];
-    char *pipecolor=CmdsColors[COLPUBLIC].color2;
-#endif
-    static char stampbuf[mybufsize/64];
+    int flag=0;
+    char *format=get_string_var(STAMP_FORMAT);
+    static char *result=NULL;
 
-    *stampbuf='\0';
     if (Stamp>=when) {
-#ifdef OLD_TS
-#ifdef WANTANSI
-        sprintf(stampbuf,"%s(%s%s%s)%s ",pipecolor,coloroff,update_clock(0,0,GET_TIME),pipecolor,coloroff);
-#else  /* WANTANSI */
-        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif /* WANTANSI */
-#else  /* OLD_TS */
-#ifdef WANTANSI
-        sprintf(stampbuf,"%s%s|%s",update_clock(0,0,GET_TIME),pipecolor,coloroff);
-#else  /* WANTANSI */
-        sprintf(stampbuf,"%s|",update_clock(0,0,GET_TIME));
-#endif /* WANTANSI */
-#endif /* OLD_TS */
+	new_free(&result);
+	result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
     }
-    return(stampbuf);
+    if (!result) malloc_strcpy(&result,empty_string);
+    return(result);
 }

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.14 2001-04-05 19:58:45 f Exp $
+ * $Id: config.h,v 1.15 2001-10-05 18:39:47 f Exp $
  */
 
 #ifndef __config_h_
@@ -188,6 +188,7 @@
 #define DEFAULT_SHOW_NUMERICS 0
 #define DEFAULT_SHOW_STATUS_ALL 0
 #define DEFAULT_SHOW_WHO_HOPCOUNT 0
+#define DEFAULT_STAMP_FORMAT "${Z}|"
 #define DEFAULT_STATUS_AWAY " (zZzZ: %A)"
 #define DEFAULT_STATUS_CHANNEL " on %C"
 #define DEFAULT_STATUS_CHANOP "@"
@@ -240,6 +241,7 @@
 
 #if defined(CELE) || defined(WANTANSI)
 
+#undef DEFAULT_STAMP_FORMAT
 #undef DEFAULT_STATUS_AWAY
 #undef DEFAULT_STATUS_CHANNEL
 #undef DEFAULT_STATUS_CHANNELCOUNT
@@ -283,6 +285,7 @@
 #define DEFAULT_SHOW_STATUS_ALL 1
 #define DEFAULT_BEEP_ON_MSG "MSG"
 #define DEFAULT_BEEP_ON_MAIL 1
+#define DEFAULT_STAMP_FORMAT "$Z$color(cyan)|$color(off)"
 #define DEFAULT_STATUS_AWAY "%y6(%y7zZz:%y4%A%y6)"
 #define DEFAULT_STATUS_CHANNELCOUNT "%y6|%y7O:%y5%o %y7N:%y5%n %y7T:%y5%t%y6| "
 #define DEFAULT_STATUS_CHANNEL "%y7Ch:%y3%C "
@@ -305,6 +308,7 @@
 
 #elif defined(WANTANSI)
 
+#define DEFAULT_STAMP_FORMAT "$Z$color(cyan)|$color(off)"
 #define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
 #define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
 #define DEFAULT_STATUS_CHANNELCOUNT "[O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6]"

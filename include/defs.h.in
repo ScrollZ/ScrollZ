@@ -409,7 +409,4 @@
 
 /* Define this if you want client w/o certain functionality */
 #undef LITE
-
-/* Define this if you want old time stamp format (HH:MM) instead of HH:MM| */
-#define OLD_TS
 /****************************************************************************/

@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.35 2001-09-20 15:30:23 f Exp $
+ * $Id: SZdist.c,v 1.36 2001-10-05 18:39:47 f Exp $
  */
 
 #include <stdio.h>
@@ -57,8 +57,7 @@
 #define SZ32           (1<<18)
 #define LITE           (1<<19)
 #define ALTPUBLICS     (1<<20)
-#define OLDTS          (1<<21)
-#define NUMDEFS        (OLDTS)
+#define NUMDEFS        (ALTPUBLICS)
 
 #define mybufsize 1024
 
@@ -93,7 +92,6 @@ char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
 char *OGREfiles="operv.o";
 char *LITEfiles="*.o";
 char *ALTPUBLICSfiles="edit5.o";
-char *OLDTSfiles="edit6.o";
 
 char format[mybufsize];
 
@@ -193,7 +191,6 @@ char **argv;
 	    else if (strstr(buf,"OGRE")) choice|=OGRE;
 	    else if (strstr(buf,"LITE")) choice|=LITE;
 	    else if (strstr(buf,"ALTERNATIVE_PUBLICS")) choice|=ALTPUBLICS;
-	    else if (strstr(buf,"OLD_TS")) choice|=OLDTS;
         }
     fclose(fpin);
     oldchoice=choice;
@@ -221,8 +218,6 @@ char **argv;
             else if (*tmp1=='n') choice&=~SORTEDNICKS;
             if (*tmp1=='U') choice|=ALTPUBLICS;
             else if (*tmp1=='u') choice&=~ALTPUBLICS;
-            if (*tmp1=='O') choice|=OLDTS;
-            else if (*tmp1=='o') choice&=~OLDTS;
         }
         if (*tmp1==' ' && *(tmp1+1)=='O' && *(tmp1+2)=='V') {
             choice|=OPERVISION;
@@ -305,8 +300,6 @@ char **argv;
 	       onoffstr(choice&ALTPUBLICS,onoffbuf));
 	printf(" [1mS[0m - LITE          %s - compile without some functionality\n",
 	       onoffstr(choice&LITE,onoffbuf));
-	printf(" [1mT[0m - OLDTS         %s - use (HH:MM) instead of HH:MM| for timestamp\n",
-	       onoffstr(choice&OLDTS,onoffbuf));
 	printf(" [1m3[0m - SZ32          %s - compile for Win32 (NT+95)\n",
 	       onoffstr(choice&SZ32,onoffbuf));
 	printf(" [1mY[0m - OPER          %s - compile with IRC oper stuff\n",
@@ -375,9 +368,6 @@ char **argv;
 		case 'R': if ((choice&ALTPUBLICS)) choice&=~ALTPUBLICS;
 			  else choice|=ALTPUBLICS;
 			  break;
-		case 'T': if ((choice&OLDTS)) choice&=~OLDTS;
-			  else choice|=OLDTS;
-			  break;
 		case '3': if ((choice&SZ32)) choice&=~SZ32;
 			  else choice|=SZ32;
 			  break;
@@ -419,7 +409,6 @@ char **argv;
 	    else if (i==OGRE) addtobuf(OGREfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==LITE) addtobuf(LITEfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==ALTPUBLICS) addtobuf(ALTPUBLICSfiles,tmpbuf,choice,oldchoice,i);
-	    else if (i==OLDTS) addtobuf(OLDTSfiles,tmpbuf,choice,oldchoice,i);
         }
         if (rename(defsfile,defsoldfile)<0) {
             printf("Error, couldn't rename %s to %s\n",defsfile,defsoldfile);
@@ -513,8 +502,6 @@ char **argv;
 	if (choice&LITE) fprintf(fpout,"#define LITE\n");
 	else fprintf(fpout,"#undef LITE\n");
         fprintf(fpout,"\n/* Define this if you want old time stamp format (HH:MM) instead of HH:MM| */\n");
-	if (choice&OLDTS) fprintf(fpout,"#define OLD_TS\n");
-	else fprintf(fpout,"#undef OLD_TS\n");
         fprintf(fpout,"/****************************************************************************/\n");
         fclose(fpin);
         fclose(fpout);

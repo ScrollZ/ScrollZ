@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.16 2001-09-08 16:53:23 f Exp $
+ * $Id: vars.c,v 1.17 2001-10-05 18:39:47 f Exp $
  */
 
 #include "irc.h"
@@ -250,6 +250,7 @@ static	IrcVariable irc_variable[] =
 	{ "SHOW_NUMERICS",		BOOL_TYPE_VAR,	DEFAULT_SHOW_NUMERICS, NULL, NULL, 0, 0 },
 	{ "SHOW_STATUS_ALL",		BOOL_TYPE_VAR,	DEFAULT_SHOW_STATUS_ALL, NULL, update_all_status, 0, 0 },
 	{ "SHOW_WHO_HOPCOUNT", 		BOOL_TYPE_VAR,	DEFAULT_SHOW_WHO_HOPCOUNT, NULL, NULL, 0, 0 },
+	{ "STAMP_FORMAT",		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "STATUS_AWAY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_CHANNEL",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
@@ -344,6 +345,7 @@ init_variables()
 	set_string_var(NOTIFY_HANDLER_VAR, DEFAULT_NOTIFY_HANDLER);
 	set_string_var(NOTIFY_LEVEL_VAR, DEFAULT_NOTIFY_LEVEL);
 	set_string_var(REALNAME_VAR, realname);
+	set_string_var(STAMP_FORMAT, DEFAULT_STAMP_FORMAT);
 	set_string_var(STATUS_FORMAT_VAR, DEFAULT_STATUS_FORMAT);
 	set_string_var(STATUS_FORMAT1_VAR, DEFAULT_STATUS_FORMAT1);
 	set_string_var(STATUS_FORMAT2_VAR, DEFAULT_STATUS_FORMAT2);
