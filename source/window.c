@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.42 2003-01-08 20:00:54 f Exp $
+ * $Id: window.c,v 1.43 2003-04-23 17:51:55 f Exp $
  */
 
 #include "irc.h"
@@ -604,6 +604,12 @@ swap_window(v_window, window)
 		say("You can only SWAP a hidden window with a visible window.");
 		return;
 	}
+
+/**************************** Patched by Flier ******************************/
+        /* fix terminal resize bug with hidden windows */
+        if (window->display_size != v_window->display_size)
+            window->display_size = v_window->display_size;
+/****************************************************************************/
 
 	swap_channels_win_ptr(v_window, window);
 
