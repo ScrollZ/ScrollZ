@@ -44,6 +44,9 @@ added STAMP, when enabled client will show time in front of publics
       (requested by acidflash)
 added if channel in CDCC CHANNELS starts with + it means client will use
       CDCC NOTICE instead of CDCC PLIST for that channel (requested by Zig)
+when DCC chat is established nick is added to tabkey list on current server
+     (reported by ogre)
+JOIN 1,2,3 now joins #1, #2 and #3 (reported by Merlin)
 
 
 -------------------------------------------------------------------------------
