@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.59 2002-01-25 17:54:14 f Exp $
+ * $Id: parse.c,v 1.60 2002-01-28 16:23:40 f Exp $
  */
 
 #include "irc.h"
@@ -91,7 +91,6 @@ extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OVformat _((char *, char *));
 #endif
-extern void AutoChangeNick _((char *));
 extern void AwaySave _((char *, int));
 extern char *GetNetsplitServer _((char *, char *));
 extern int  CheckChannel _((char *, char *));
