@@ -72,7 +72,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.151 2004-07-02 19:57:53 f Exp $
+ * $Id: edit6.c,v 1.152 2005-02-22 18:13:00 f Exp $
  */
 
 #include "irc.h"
@@ -1822,71 +1822,82 @@ char *stuff;
 
 #ifdef EXTRAS
 /* Show idle time for users */
-void ShowIdle(command,args,subargs)
+void ShowIdle(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
 #ifdef WANTANSI
-    int  len=0;
+    int  len = 0;
 #endif
     int  days;
     int  hours;
     int  mins;
     int  secs;
     int  origidle;
-    int  chanusers=0;
-    int  totalidle=0;
-    char *filter=(char *) 0;
-    char *channel=(char *) 0;
-    char tmpbuf1[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
-    time_t timenow=time((time_t *) 0);
+    int  showops = 0;
+    int  shownonops = 0;
+    int  chanusers = 0;
+    int  totalidle = 0;
+    char *filter = (char *) 0;
+    char *channel = (char *) 0;
+    char tmpbuf1[mybufsize / 4];
+    char tmpbuf2[mybufsize / 4];
+    time_t timenow = time((time_t *) 0);
     NickList *joiner;
     ChannelList *chan;
 
-    channel=new_next_arg(args,&args);
-    if (channel) {
-        if (is_channel(channel)) strmcpy(tmpbuf1,channel,sizeof(tmpbuf1));
-        else snprintf(tmpbuf1,sizeof(tmpbuf1),"#%s",channel);
-        channel=tmpbuf1;
+    channel = new_next_arg(args, &args);
+    if (channel && *channel == '-') {
+        upper(channel);
+        channel++;
+        if (*channel && *channel == 'O') showops = 1;
+        else if (*channel && *channel == 'N') shownonops = 1;
+        channel = new_next_arg(args, &args);
     }
-    if (!channel && (channel=get_channel_by_refnum(0))==NULL) {
+    if (channel) {
+        if (is_channel(channel)) strmcpy(tmpbuf1, channel, sizeof(tmpbuf1));
+        else snprintf(tmpbuf1, sizeof(tmpbuf1), "#%s", channel);
+        channel = tmpbuf1;
+    }
+    if (!channel && (channel = get_channel_by_refnum(0)) == NULL) {
         NoWindowChannel();
         return;
     }
-    if (!(chan=lookup_channel(channel,curr_scr_win->server,0))) return;
-    if (!(chan->IdleKick)) say("Idle kick is off for channel %s",chan->channel);
-    if (!(filter=new_next_arg(args,&args))) filter="*";
+    if (!(chan = lookup_channel(channel, curr_scr_win->server, 0))) return;
+    if (!(chan->IdleKick)) say("Idle kick is off for channel %s", chan->channel);
+    if (!(filter = new_next_arg(args, &args))) filter = "*";
     say("%-42s  Idle time","User");
-    for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",joiner->nick,
-                joiner->userhost?joiner->userhost:empty_string);
-        if (!wild_match(filter,tmpbuf2)) continue;
-        origidle=timenow-joiner->lastmsg;
-        days=(origidle/86400);
-        hours=((origidle-(days*86400))/3600);
-        mins=((origidle-(days*86400)-(hours*3600))/60);
-        secs=(origidle-(days*86400)-(hours*3600)-(mins*60));
+    for (joiner = chan->nicks; joiner; joiner = joiner->next) {
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "%s!%s", joiner->nick,
+                joiner->userhost ? joiner->userhost : empty_string);
+        if (!wild_match(filter, tmpbuf2)) continue;
+        if (showops && !(joiner->chanop)) continue;
+        if (shownonops && joiner->chanop) continue;
+        origidle = timenow-joiner->lastmsg;
+        days = origidle / 86400;
+        hours = (origidle - (days * 86400)) / 3600;
+        mins = (origidle - (days * 86400) - (hours * 3600)) / 60;
+        secs = origidle - (days * 86400) - (hours * 3600) - (mins * 60);
 #ifdef WANTANSI
-        len=1+strlen(joiner->nick);
+        len = strlen(joiner->nick) + 1;
         if (joiner->userhost) {
-            ColorUserHost(joiner->userhost,CmdsColors[COLWHO].color2,tmpbuf2,1);
-            len+=strlen(joiner->userhost);
+            ColorUserHost(joiner->userhost, CmdsColors[COLWHO].color2, tmpbuf2, 1);
+            len += strlen(joiner->userhost);
         }
-        else *tmpbuf2='\0';
-        for (;len<40;len++) strmcat(tmpbuf2," ",sizeof(tmpbuf2));
+        else *tmpbuf2 = '\0';
+        for ( ;len < 40; len++) strmcat(tmpbuf2, " ", sizeof(tmpbuf2));
         say("%s%s%s %s  %dd %dh %dm %ds",
-            CmdsColors[COLWHO].color1,joiner->nick,Colors[COLOFF],
-            tmpbuf2,days,hours,mins,secs);
+            CmdsColors[COLWHO].color1, joiner->nick, Colors[COLOFF],
+            tmpbuf2, days, hours, mins, secs);
 #else
-        say("%-42s  %dd %dh %dm %ds",tmpbuf2,days,hours,mins,secs);
+        say("%-42s  %dd %dh %dm %ds", tmpbuf2, days, hours, mins, secs);
 #endif
         chanusers++;
-        totalidle+=origidle;
+        totalidle += origidle;
     }
-    say("Average idle time in channel %s is %.2f seconds",chan->channel,
-        (float) totalidle/chanusers);
+    say("Average idle time in channel %s is %.2f seconds", chan->channel,
+        (float) totalidle / chanusers);
 }
 #endif
 
