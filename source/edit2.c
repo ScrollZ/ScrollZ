@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.80 2002-01-25 18:36:29 f Exp $
+ * $Id: edit2.c,v 1.81 2002-01-31 18:26:28 f Exp $
  */
 
 #include "irc.h"
@@ -1152,39 +1152,38 @@ char *subargs;
 }
 
 /* Leaves current or specified channel */
-void Leave(command,args,subargs)
+void Leave(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
     char *p;
-    char *comment=(char *) 0;
-    char *tmpchannel=(char *) 0;
-    char tmpbuf[mybufsize/4];
-    char output[mybufsize/4];
+    char *comment = NULL;
+    char *tmpchannel = NULL;
+    char tmpbuf[mybufsize / 4];
+    char output[mybufsize / 4];
 
-    if (args && *args=='*') {
-        tmpchannel=new_next_arg(args,&args);
-        tmpchannel=get_channel_by_refnum(0);
-    }
-    else if (args && *args) {
-	strmcpy(tmpbuf,new_next_arg(args,&args),sizeof(tmpbuf)-1);
-	p=strtok(tmpbuf,",");
+    tmpchannel = new_next_arg(args, &args);
+    if (tmpchannel && !strcmp(tmpchannel, "*")) tmpchannel = get_channel_by_refnum(0);
+    else if (tmpchannel) {
+        *output = '\0';
+	strmcpy(tmpbuf, tmpchannel, sizeof(tmpbuf));
+	p = strtok(tmpbuf, ",");
 	while (p) {
-	    if (*p != '#') strmcat(output,"#",sizeof(output)-1);
-	    strmcat(output,p,sizeof output-1);
-	    p=strtok(NULL,",");
-	    if (p) strmcat(output,",",sizeof(output)-1);
+	    if (!is_channel(p)) strmcat(output, "#", sizeof(output));
+	    strmcat(output, p, sizeof(output));
+	    p = strtok(NULL, ",");
+	    if (p) strmcat(output, ",", sizeof(output));
 	}
-	tmpchannel=output;
+	tmpchannel = output;
     }
-    comment=args;
-    if (!tmpchannel && (tmpchannel=get_channel_by_refnum(0))==NULL) {
+    if (!tmpchannel && (tmpchannel = get_channel_by_refnum(0)) == NULL) {
         NoWindowChannel();
         return;
     }
-    if (comment && *comment) send_to_server("PART %s :%s",tmpchannel,comment);
-    else send_to_server("PART %s",tmpchannel);
+    comment = new_next_arg(args, &args);
+    if (comment && *comment) send_to_server("PART %s :%s", tmpchannel, comment);
+    else send_to_server("PART %s", tmpchannel);
 }
 
 /* Does a -ntislmpak on your current channel */
