@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.2 1998-09-10 17:44:46 f Exp $
+ * $Id: edit2.c,v 1.3 1998-09-14 16:47:52 f Exp $
  */
 
 #include "irc.h"
@@ -3332,7 +3332,7 @@ void AddNick2List(nick)
 char *nick;
 {
     int count;
-    int curserv=from_server;
+    int curserv=curr_scr_win->server;
     struct nicks *nickstr;
     struct nicks *nicktmp;
 
