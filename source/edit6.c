@@ -63,7 +63,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.80 2001-05-08 17:19:35 f Exp $
+ * $Id: edit6.c,v 1.81 2001-05-08 17:36:00 f Exp $
  */
 
 #include "irc.h"
@@ -1220,6 +1220,9 @@ char *subargs;
         { "STATUS"      , &ShowDCCStatus  , "Cdcc showing on status bar" },
         { "VERBOSE"     , &CdccVerbose    , "Cdcc verbose mode" },
         { "WARNING"     , &DCCWarning     , "Check incoming DCCs" },
+#ifdef EXTRAS
+        { "SHOWSIGN"    , &ShowSignAllChan, "Show signoff message in all channels" },
+#endif
         { NULL          , NULL            , NULL }
     };
 
