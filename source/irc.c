@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.22 1999-07-18 12:50:08 f Exp $
+ * $Id: irc.c,v 1.23 1999-08-22 12:33:17 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -316,11 +316,11 @@ char  *EncryptPassword=(char *) 0;
 char  *StatsFilter=(char *) 0;
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
-/****** Coded by Zakath ******/
 /* patched by acidflash */
 #ifdef OPER
 char *AcidVersion="OperMods v1.0 by acidflash";
 #endif
+/****** Coded by Zakath ******/
 char  *VirtualHost=(char *) 0;
 char  *HelpPathVar=(char *) 0;
 char  *CelerityNtfy=(char *) 0;
@@ -354,6 +354,9 @@ char  *DefaultKill=(char *) 0;
 #endif
 char  *PermUserMode=(char *) 0;
 char  *AutoReplyString=(char *) 0;
+#ifdef ACID
+char  *ForceJoinChannels=(char *) 0;
+#endif
 int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;
@@ -451,6 +454,9 @@ int   CdccOverWrite;
 int   OrigNickDelay;
 int   Stamp;
 int   CdccVerbose;
+#ifdef ACID
+int   ForceJoin;
+#endif
 time_t LastCheck;
 time_t LastPlist;
 time_t LastNlist;
