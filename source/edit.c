@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.11 1998-12-13 17:44:10 f Exp $
+ * $Id: edit.c,v 1.12 1998-12-13 19:04:07 f Exp $
  */
 
 #include "irc.h"
@@ -3707,6 +3707,9 @@ send_line(key, ptr)
 		new_free(&tmp);
 	}
 	from_server = server;
+/**************************** PATCHED by Flier ******************************/
+        tabnickcompl=NULL;
+/****************************************************************************/
 }
 
 /* The SENDLINE command.. */
