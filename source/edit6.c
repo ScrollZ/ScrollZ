@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.82 2001-05-09 17:20:41 f Exp $
+ * $Id: edit6.c,v 1.83 2001-05-11 18:52:04 f Exp $
  */
 
 #include "irc.h"
@@ -1146,8 +1146,10 @@ char *subargs;
     };
 
     upper(command);
-    for (i=0;;i++)
+    for (i=0;;i++) {
+        if (!command_list[i].command) break;
         if (!strcmp(command_list[i].command,command)) break;
+    }
     if (!(command_list[i].command)) return;
     if (*args) {
         for (tmpstr=args;*tmpstr;tmpstr++) isnumber&=isdigit(*tmpstr)?1:0;
