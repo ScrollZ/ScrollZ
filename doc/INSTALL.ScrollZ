@@ -1,0 +1,126 @@
+$Id: INSTALL.ScrollZ,v 1.1 2001-08-06 19:38:20 f Exp $
+
+to compile ScrollZ
+
+  o  using configure:
+      - run the `configure' script in the top directory.  eg:
+
+	% cd /tmp/ScrollZ-VERSION.NUMBER (if you unpacked it in /tmp)
+	% ./configure
+
+	if you are using an old version of system v, you might need
+	`sh ./configure'.
+
+      - this script tries to guess various things about your system
+        that are important to it compiling.  it creates various files
+        in this process.  configure takes a couple of minutes to run.
+
+     WARNING: gnu sed vesrion 2.05 (and maybe 2.04 -- i don't know)
+     may not function properly with this configure script.  gnu
+     sed version 2.03 does.  please do not send me a bug report if
+     you are using gnu sed version 2.05 (such as linux systems), and
+     configure fails to run correctly.  also, please do not send me
+     a bug report about this notice if it does work correctly for you.
+     On fairly recent Linux systems the above warning does not apply.
+
+      - when this has finished, you might want to check the Makefile
+        for the places ScrollZ will be installed.  the defaults are
+        /usr/local/share, /usr/local/bin and /usr/local/man.  you can
+        either do `make prefix=/opt' or set it with configure, by
+        calling configure with the `--prefix=/opt' switch.
+
+      - you can set the compile-time paranoid switch (currently
+	turns of CTCP VERSION and FINGER commands returning host
+	system, and user details) with the `--with-paranoid' flag to
+	configure.
+
+      - you can set the various ScrollZ compile-time flags in the
+        include/defs.h file (after the PATCHED by Flier line)
+
+      - optionally you can do the above step (the ScrollZ compile
+        time flags) by compiling the SZdist.c program. it is a
+        rather simple program and thus simple
+        `gcc -o SZdist SZdist.c' should suffice. run the program with
+        `./SZdist' and you'll be presented with full screen menu which
+        hopefully you know how to use. optionally the SZdist program
+        can be given the flags on command line which comes very handy
+        if you want to build the ScrollZ program with the same flags
+        you used for older version. simply type `/eval echo $J' and
+        press enter in your old ScrollZ binary and client will print
+        something similar to: `1.8l [AEcTsdPYlN OV givJxZ OPER]'.
+        just copy&paste the string between brackets like this:
+        `./SZdist "AEcTsdPYlN OV givJxZ OPER"' and client will be
+        configured the same way that old version was. note that
+        quotes in the above command line ARE important.
+
+  o  to compile ScrollZ, type `make' in top directory.
+     this will compile the `scrollz' program that resides in the
+     source sub directory.
+
+  o  to compile ircII suplementary programs type `make everything'
+     in top directory. this will compile the `ircflush', `ircio',
+     and `wserv' programs that reside in the source sub directory.
+
+  o  once the programs are compiled, you can install them with
+     `make installeverything'.  this will install all the binaries
+     and the ScrollZ manual page. 
+
+  o  you can now delete the object files and binaries from your object
+     directory with `make clean'.  `make distclean' will also delete
+     any file that `configure' created.  this is useful for then
+     using the same sources to compile on a different architecture.
+
+
+
+notes on SOCKS support.
+
+  o  in order to compile in SOCKS support, you must use `configure'
+     and specify the `--with-socks' switch.  you can optionally specify
+     a path (e.g. `--with-socks=/usr/local/lib/libsocks.a').  otherwise,
+     configure will look for the SOCKS library only in the directory
+     specified by the `--prefix' option (`/usr/local/lib' by default).
+
+  o  an irc server getting a connection through a SOCKS proxy will
+     not be able to do RFC1413 identification properly.  if you have
+     an identd running on the SOCKS proxy host, the irc server will
+     incorrectly identify all users as `root'.
+
+  o  SOCKS support is incompatible with ScrollZ's support for non-blocking
+     connects.  if you don't know what this means, don't worry about it.
+
+
+notes on portability and bugs.
+
+  o  if you encounter a bug, send the bug report with as much details
+     as possible to the ScrollZ mailing list. if you know how to fix
+     the bug you are more than welcome to do so and send the patch
+     along with your bug report. note that when sending bugs usually
+     developers can't do much if you don't tell them how to reproduce
+     the bug.
+
+  o  there is a bug in the compiler shipped with bsdi's operating
+     sytem that causes ircii to fail to compile.  if you use the
+     `gcc2' compiler rather than `gcc' or `cc' this problem is
+     alleviated.  complain to bsdi about their broken compiler.
+
+  o  some exotic mips machines are not yet accounted for in the
+     configuration process, and must have certain things set
+     specially in the Makefile (these are noted in the Makefile
+     itself).
+
+  o  apparently you will get errors of "__inet_addr" or "__inet_ntoa"
+     as being undefined, if you have BIND version 8 installed into
+     /usr/local (the default) and you use gcc.  this is caused by the
+     annoyingly stupid defines in the BIND provided <arpa/inet.h> header
+     file, which gcc will happily pick up from /usr/local/include.
+     the solution to this is to add -lbind to the LIBS= line in the
+     Makefile, once configure has run.
+
+  o  on solaris systems with libresolv patches incorporated may see
+     instability (crashes) in the client.  (sunos 5.5.1 patches
+     103680-01, 103683-01, 103686-01, 103743-01, and 103663-01).
+
+  o  Under NEXTSTEP, after you have run configure, you can change the
+     CFLAGS and add "-arch m68k -arch i486 -arch hppa -arch sparc" (without
+     the quotes) to create a multiple architecture binary for all supported
+     hardware platforms.
