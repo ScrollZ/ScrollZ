@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.92 2001-08-31 15:52:10 f Exp $
+ * $Id: edit6.c,v 1.93 2001-09-03 17:25:39 f Exp $
  */
 
 #include "irc.h"
@@ -1670,7 +1670,9 @@ char *subargs;
     say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
             (timediff/60)%60);
     say("Support channel: #ScrollZ on Efnet");
+    say("Mailing list: scrollz@ahnberg.pp.se");
     say("Home page: http://www.scrollz.com/");
+    say("FTP: ftp://ftp.scrollz.com/");
 }
 
 /* Handles reply number 329 from server */
