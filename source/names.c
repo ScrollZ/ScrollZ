@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.24 2001-07-25 17:48:30 f Exp $
+ * $Id: names.c,v 1.25 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -288,6 +288,8 @@ add_channel(channel, server, connected, copy)
                     new->minusb=0;    new->topic=0;      new->kick=0;
                     new->pub=0;       new->servpluso=0;  new->servminuso=0;
                     new->servplusb=0; new->servminusb=0;
+		    new->servplush=0; new->servminush=0;
+		    new->plush=0;     new->minush=0;
                     new->AutoRejoin=AutoRejoin?CheckChannel(channel,AutoRejoinChannels):0;
                     new->MDopWatch=MDopWatch?CheckChannel(channel,MDopWatchChannels):0;
                     new->ShowFakes=ShowFakes?CheckChannel(channel,ShowFakesChannels):0;
@@ -397,11 +399,12 @@ add_to_channel(channel, nick, server, oper, voice)
 	int	server;
 	int	oper;
 	int	voice;*/
-ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
+ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost,tmpchan)
 	char	*channel;
 	char	*nick;
 	int	server;
 	int	oper;
+	int	halfop;
         int	voice;
         char    *userhost;
         ChannelList *tmpchan;
@@ -409,6 +412,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 {
 	NickList *new;
 	ChannelList *chan;
+	int	ishalfop = halfop;
 	int	ischop = oper;
 	int	hasvoice = voice;
 /**************************** PATCHED by Flier ******************************/
@@ -430,6 +434,14 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 			hasvoice = 1;
 			nick++;
 		}
+		if (*nick == '%')
+		{
+			nick++;
+			if (!my_stricmp(nick, get_server_nickname(server)))
+				chan->status |= CHAN_HALFOP;
+
+			ishalfop = 1;
+		}
 		if (*nick == '@')
 		{
 			nick++;
@@ -445,6 +457,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 					send_to_server("MODE %s %s", chan->channel, mode);
 					from_server = old_server;
 				}
+
 				chan->status |= CHAN_CHOP;
 			}
 			ischop = 1;
@@ -464,6 +477,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 		new = (NickList *) new_malloc(sizeof(NickList));
 		new->nick = (char *) 0;
 		new->chanop = ischop;
+		new->halfop = ishalfop;
 		new->hasvoice = hasvoice;
 		malloc_strcpy(&(new->nick), nick);
 		add_to_list((List **) &(chan->nicks), (List *) new);*/
@@ -507,6 +521,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
                 }
                 malloc_strcpy(&(new->nick), nick);
                 new->chanop=ischop;
+		new->halfop=ishalfop;
 		new->hasvoice=hasvoice;
                 new->curo=0;
                 new->curk=0;
@@ -624,7 +639,7 @@ char    *servmodes;
         int  servadd=-1;
         int  compadd=-1;
         int  minusban=0;
-        int  hadops=(!(*chop&CHAN_CHOP));
+	int  hadops=!HAS_OPS(*chop);
         int  privs;
         int  isprot=0;
         int  count=0;
@@ -770,16 +785,83 @@ char    *servmodes;
 		case 'm':
 			value = MODE_MODERATED;
 			break;
+		case 'h':
+			if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick)) {
+				if (add) {
+					/* we can only have one of ohv on a hybrid7 server.
+				   	+v, +h, -h != +v
+					*/
+					if (get_server_version(server)==Server2_11)
+						*chop &= ~CHAN_VOICE;
+
+					*chop |= CHAN_HALFOP;
+					if (check && hadops) gotops=1;
+				}
+				else
+					*chop &= ~CHAN_HALFOP;
+			}
+			ThisNick=find_in_hash(chan,person);
+			if (!person) person=empty_string;
+			if (check && chan->CompressModes && ThisNick) {
+				if ((add && !(ThisNick->halfop)) ||
+				    (!add && ThisNick->halfop)) {
+				    if (compadd!=add) {
+					if (add) *compmodeadd++='+';
+					else *compmodeadd++='-';
+					compadd=add;
+				    }
+				    *compmodeadd++=*mode_string;
+				    strcat(compline,person);
+				    strcat(compline," ");
+				}
+			}
+			if (isserver) {
+			    if (!add) {
+				if (servadd!=add) {
+				    if (add) *servmodeadd++='+';
+				    else *servmodeadd++='-';
+				    servadd=add;
+                            	}
+				*servmodeadd++=*mode_string;
+				strcat(servline,person);
+				strcat(servline," ");
+			    }
+                        }
+			if (ThisNick) {
+				ThisNick->halfop = add;
+				if (add && get_server_version(server)==Server2_11)
+					ThisNick->hasvoice = 0;
+			}
+			if (check && tmpjoiner) {
+				if (add) tmpjoiner->plush++;
+				else tmpjoiner->minush++;
+			}
+			if (isserver) {
+				if (add) {
+					chan->servplush++;
+					strcat(servline, person);
+					strcat(servline, " ");
+				} else chan->servminush++;
+			}
+			if (add) chan->plush++;
+			else chan->minush++;
+			break;
 		case 'o':
 /**************************** PATCHED by Flier ******************************/
  			/*if ((person = next_arg(rest, &rest)) && !my_stricmp(person, get_server_nickname(from_server))) {
-                                if (add)
+                                if (add) {
 					*chop |= CHAN_CHOP;
 				else
 					*chop &= ~CHAN_CHOP;
  			}*/
                         if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick)) {
                                 if (add) {
+					/* we can only have one of ohv on a hybrid7 server.
+					   +h, +o, -o != +h
+					*/
+					if (get_server_version(server)==Server2_11)
+						*chop &= ~(CHAN_HALFOP | CHAN_VOICE);
+
 					*chop |= CHAN_CHOP;
                                         if (check && hadops) gotops=1;
                                 }
@@ -907,7 +989,12 @@ char    *servmodes;
                         }
 /****************************************************************************/
 			if (ThisNick)
+			{
 				ThisNick->chanop = add;
+
+				if (add && get_server_version(server)==Server2_11)
+					ThisNick->halfop = ThisNick->hasvoice = 0;
+			}
 			break;
 		case 'n':
 			value = MODE_MSGS;
@@ -965,7 +1052,7 @@ char    *servmodes;
                             if (ThisNick->frlist) privs=ThisNick->frlist->privs;
                             else privs=0;
                             if (check && chan->FriendList && (privs&(FLPROT)) &&
-                                (privs&FLVOICE) && (*chop&CHAN_CHOP) && !isserver &&
+                                (privs&FLVOICE) && HAS_OPS(*chop) && !isserver &&
                                 !add && !isitme && my_stricmp(from,ThisNick->nick) &&
                                 !CheckChannel(lastvoice,ThisNick->nick)) {
                                 send_to_server("MODE %s +v %s",chan->channel,
@@ -1169,7 +1256,7 @@ char    *servmodes;
 			*mode &= ~value;
 /**************************** PATCHED by Flier ******************************/
                 if (check && count==max) {
-                    if (*chop&CHAN_CHOP) send_to_server("MODE %s %s %s",chan->channel,
+                    if (HAS_OPS(*chop)) send_to_server("MODE %s %s %s",chan->channel,
                                                         modebuf,tmpbufmode);
                     *tmpbufmode='\0';
                     *modebuf='\0';
@@ -1243,9 +1330,9 @@ char    *servmodes;
             }
         }
         if (check) {
-            if ((*chop&CHAN_CHOP) && count)
+            if (HAS_OPS(*chop) && count)
                 send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpbufmode);
-            if ((*chop&CHAN_CHOP) && chan && chan->NHProt && *nhdeop)
+            if ((chan->status&CHAN_CHOP) && chan->NHProt && *nhdeop)
                 send_to_server("MODE %s %s",chan->channel,nhdeop);
             *servmodeadd='\0';
             if (*servmodes) {
@@ -1257,7 +1344,7 @@ char    *servmodes;
                     servmodes[strlen(servmodes)-1]='\0';
             }
             if (!chan->gotbans || !chan->gotwho) gotops=0;
-            if (!isitme && minusban && (*chop&CHAN_CHOP) && chan->gotbans && chan->gotwho && !gotops && chan->BKList)
+            if (!isitme && minusban && HAS_OPS(*chop) && chan->gotbans && chan->gotwho && !gotops && chan->BKList)
                 CheckPermBans(chan);
             if (!isitme && gotops && (chan->FriendList || chan->BKList))
                 HandleGotOps(mynick,chan);
@@ -1609,7 +1696,7 @@ is_chanop(channel, nick)
 /**************************** PATCHED by Flier ******************************/
 			/*(Nick = (NickList *) list_lookup((List **) &(chan->nicks),
 		nick, !USE_WILDCARDS, !REMOVE_FROM_LIST)) && Nick->chanop)*/
-			(Nick=find_in_hash(chan,nick)) && Nick->chanop)
+			(Nick=find_in_hash(chan,nick)) && (Nick->chanop || Nick->halfop))
 /****************************************************************************/
 		return 1;
 	return 0;

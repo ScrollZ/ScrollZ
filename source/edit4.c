@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.70 2001-08-21 19:23:36 f Exp $
+ * $Id: edit4.c,v 1.71 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -95,7 +95,7 @@
 void   ListBansPage _((char *));
 void   ListBansPrompt _((char *, char *));
 void   MyQuitPrompt _((char *, char *));
-void   AddDelayOp _((char *, char *, int));
+void   AddDelayOp _((char *, char *, char));
 void   AddDelayNotify _((char *));
 int    IsBanned _((char *, char *, int, ChannelList *));
 char   *PickSignOff _((void));
@@ -281,7 +281,7 @@ int  server;
 ChannelList *tmpchan;
 {
     int  privs;
-    int  voice=-1;
+    char flag=0;
     int  ischanop;
     char *comment;
     char *tmpignore;
@@ -297,7 +297,7 @@ ChannelList *tmpchan;
     if (tmpjoiner && tmpjoiner->frlist && !(tmpjoiner->frlist->passwd))
         privs=tmpjoiner->frlist->privs;
     else privs=0;
-    ischanop=(chan->status)&CHAN_CHOP;
+    ischanop=HAS_OPS(chan->status);
     sprintf(tmpbuf,"%s!%s",nick,userhost);
     if (!privs && ischanop && chan->KickOnBan && IsBanned(tmpbuf,channel,server,chan))
 #ifdef CELE
@@ -306,8 +306,12 @@ ChannelList *tmpchan;
         send_to_server("KICK %s %s :Banned",channel,nick);
 #endif /* CELE */
     else if (ischanop && (tmpabk=tmpjoiner->shitlist) && chan->BKList) {
-        if ((tmpabk->shit)&SLBAN)
-            send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
+        if ((tmpabk->shit)&SLBAN) {
+	    if (!(chan->status&CHAN_CHOP))
+		send_to_server("MODE %s +b %s",channel,tmpabk->userhost);
+	    else
+		send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
+	}
         if ((tmpabk->shit)&SLKICK) {
             if (tmpabk->reason[0]) comment=tmpabk->reason;
             else comment=DefaultABK;
@@ -325,17 +329,24 @@ ChannelList *tmpchan;
             Ignore(NULL,tmpbuf,tmpbuf);
         }
     }
-    if (ischanop && tmpjoiner && chan->FriendList &&
-        ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
-        if (privs&FLOP) voice=0;
-        else if (privs&FLVOICE) voice=1;
-        if (voice>=0) {
-            if ((privs&FLINSTANT))
-                send_to_server("MODE %s +%c %s",channel,voice?'v':'o',nick);
-            if (AutoOpDelay) AddDelayOp(channel,nick,voice);
-            else if (ischanop)
-                send_to_server("MODE %s +%c %s",channel,voice?'v':'o',nick);
-        }
+    if (ischanop && tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
+	if (chan->status&CHAN_CHOP) {
+	    if (privs&FLOP)
+		flag='o';
+	    else if (privs&FLHOP)
+		flag='h';
+	    else if (privs&FLVOICE)
+		flag='v';
+	} else {
+	    if (privs&FLVOICE)
+		flag='v';
+	}
+	if (flag) {
+	    if ((privs&FLINSTANT) || !AutoOpDelay)
+		send_to_server("MODE %s +%c %s",channel,flag,nick);
+	    else
+		AddDelayOp(channel,nick,flag);
+	}
     }
     return(tmpjoiner);
 }
@@ -531,7 +542,7 @@ int  server;
                             tmp->nickt=timenow;
                         }
                         else tmp->curn++;
-                        if (!tmp->nickp && tmp->curn>=NickSensor && ((chan->status)&CHAN_CHOP)) {
+                        if (!tmp->nickp && tmp->curn>=NickSensor && HAS_OPS(chan->status)) {
 #ifdef CELE
                             send_to_server("KICK %s %s :Nick flood detected %s",
                                            chan->channel,oldnick,CelerityL);
@@ -650,7 +661,7 @@ int  *frkick;
                 if (!(privs&(FLPROT | FLGOD))) {
                     if (joiner->curk>=KickSensor && joiner->curk<KickSensor*2) {
                         if (!(joiner->kickp) && chan->KickWatch) {
-                            if ((chan->status)&CHAN_CHOP)
+                            if (HAS_OPS(chan->status))
                                 send_to_server("MODE %s -o %s",channel,nick);
 #ifdef WANTANSI
                             say("%sMass kick%s detected on %s%s%s by %s%s%s",
@@ -671,7 +682,7 @@ int  *frkick;
                     }
                     if (joiner->curk>=KickSensor*2) {
                         if (joiner->kickp<2 && chan->KickWatch && chan->KickOnFlood) {
-                            if ((chan->status)&CHAN_CHOP)
+                            if (HAS_OPS(chan->status))
 #ifdef CELE
                                 send_to_server("KICK %s %s :Kick flood detected %s",
                                                channel,nick,CelerityL);
@@ -699,7 +710,7 @@ int  *frkick;
                 }
             }
             if (chan && chan->FriendList && (tmplevel&(FLPROT | FLGOD))) {
-                if ((chan->status)&CHAN_CHOP) {
+                if (HAS_OPS(chan->status)) {
                     if ((tmplevel&FLGOD) && !(privs&FLGOD))
                         send_to_server("MODE %s -o %s",channel,nick);
                     if ((tmplevel&1) && ((tmplevel&(FLPROT | FLGOD)) ||
@@ -1229,7 +1240,7 @@ ChannelList *tmpchan;
             lockmode++;
             if (*lockmode==' ') break;
         }
-        if (chan && ((chan->status)&CHAN_CHOP) && tmpbuf1[0])
+        if (chan && HAS_OPS(chan->status) && tmpbuf1[0])
             send_to_server("MODE %s %s",channel,tmpbuf1);
     }
 }
@@ -1277,7 +1288,7 @@ ChannelList *chan;
     char *reason;
     struct words *tmpword;
 
-    if (chan && ((chan->status)&CHAN_CHOP) && !(privs&FLNOFLOOD) && joiner &&
+    if (chan && HAS_OPS(chan->status) && !(privs&FLNOFLOOD) && joiner &&
         (chan->KickOps || !(joiner->chanop)) && (tmpword=CheckLine(chan->channel,line))) {
         reason=tmpword->reason;
         if (joiner->userhost && *reason=='B') {
@@ -1426,7 +1437,7 @@ char *subargs;
         say("You are not on channel %s",channel);
         return;
     }
-    if (chan && ((chan->status)&CHAN_CHOP)) {
+    if (chan && HAS_OPS(chan->status)) {
         if (!(chan->banlist)) {
             say("There are no bans on channel %s",channel);
             return;
@@ -1598,7 +1609,7 @@ char *subargs;
     }
     chan=lookup_channel(channel,curr_scr_win->server,0);
     if (!chan) {
-        say("You're not on channel %s on this server",channel);
+        say("You're not on channel %s",channel);
         return;
     }
     if (chan->modelock) {
@@ -1802,7 +1813,7 @@ char *subargs;
         channel=get_channel_by_refnum(0);
         if (channel) {
             chan=lookup_channel(channel,curr_scr_win->server,0);
-            if (chan && ((chan->status)&CHAN_CHOP)) {
+            if (chan && HAS_OPS(chan->status)) {
                 tmpnick=new_next_arg(args,&args);
                 joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
                 if (joiner) {
@@ -2439,15 +2450,15 @@ char *line;
 }
 
 /* Adds nick to delay op list */
-void AddDelayOp(channel,nick,voice)
+void AddDelayOp(channel,nick,flag)
 char *channel;
 char *nick;
-int  voice;
+char flag;
 {
     char tmpbuf[mybufsize/4];
     void (*func)()=(void(*)()) HandleDelayOp;
 
-    sprintf(tmpbuf,"-INV %d %s %d %s",AutoOpDelay,channel,voice,nick);
+    sprintf(tmpbuf,"-INV %d %s %c %s",AutoOpDelay,channel,flag,nick);
     timercmd("FTIMER",tmpbuf,(char *) func);
 }
 

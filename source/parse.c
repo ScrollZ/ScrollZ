@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.42 2001-08-21 19:23:36 f Exp $
+ * $Id: parse.c,v 1.43 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -534,6 +534,8 @@ whoreply(from, ArgList)
 		if (who_mask & WHO_CHOPS)
 			ok = ok && ((*(status + 1) == '@') ||
 			(*(status + 2) == '@'));
+		if (who_mask & WHO_HOPS)
+			ok = ok && (*(status + 1) == '%');
 		if (who_mask & WHO_NAME)
 			ok = ok && wild_match(who_name, user);
 		if (who_mask & WHO_NICK)
@@ -1174,7 +1176,7 @@ p_channel(from, ArgList)
 	char	*channel;
 	int	flag;
  	char	*s, *ov = NULL;
-	int	chan_oper = 0, chan_voice = 0;
+	int	chan_oper = 0, chan_voice = 0, chan_halfop = 0;
 /**************************** PATCHED by Flier ******************************/
         int     donelj=0;
         char    tmpbuf[mybufsize+1];
@@ -1201,6 +1203,8 @@ p_channel(from, ArgList)
 			{
 				if (*s == 'o')
 					chan_oper = 1;
+				if (*s == 'h')
+					chan_halfop = 1;
 				if (*s == 'v')
 					chan_voice = 1;
 
@@ -1239,7 +1243,7 @@ p_channel(from, ArgList)
 				send_to_server("NAMES %s", channel);
 /***************************** PATCHED by Flier **************************/	
                         chan=add_to_channel(channel,from,parsing_server_index,chan_oper,
-                                            chan_voice,FromUserHost,NULL);
+                                            chan_halfop,chan_voice,FromUserHost,NULL);
                         if (*channel=='+') chan->gotbans=1;
                         joiner=ChannelJoin(from,channel,chan);
                         donelj=1;
@@ -1265,10 +1269,10 @@ p_channel(from, ArgList)
 
                 if (join) {
                         chan=add_to_channel(channel,from,parsing_server_index,chan_oper,
-                                            chan_voice,FromUserHost,NULL);
+                                            chan_halfop,chan_voice,FromUserHost,NULL);
                         joiner=CheckJoin(from,FromUserHost,channel,parsing_server_index,
                                          chan);
-                        if (chan && (chan->status)&CHAN_CHOP && chan_oper && chan->NHProt) {
+                        if (chan && (chan->status&CHAN_CHOP) && chan_oper && chan->NHProt) {
                             if (!(joiner && joiner->frlist && joiner->frlist->privs))
                                 send_to_server("MODE %s -o %s",channel,from);
                         }

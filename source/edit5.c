@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.69 2001-08-22 19:30:36 f Exp $
+ * $Id: edit5.c,v 1.70 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -1306,6 +1306,7 @@ int  iscrypted;
     int  isitme;
     int  numurl=0;
     int  isopped=0;
+    int  ishalfopped=0;
     int  isvoiced=0;
 #ifdef WANTANSI
     char *coln=CmdsColors[COLCSCAN].color2;
@@ -1354,6 +1355,7 @@ int  iscrypted;
         isshit=joiner->shitlist?joiner->shitlist->shit:0;
         isfriend=(!isshit && joiner->frlist)?joiner->frlist->privs:0;
         isopped=joiner->chanop;
+	ishalfopped=joiner->halfop;
         isvoiced=joiner->hasvoice;
     }
     if (!col) {
@@ -1385,6 +1387,7 @@ int  iscrypted;
         if (ExtPub) {
             strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
             if (isopped) strcat(tmpbuf3,"@");
+	    else if (ishalfopped) strcat(tmpbuf3,"%");
             else if (isvoiced) strcat(tmpbuf3,"+");
             strcat(tmpbuf3,Colors[COLOFF]);
             strcat(tmpbuf1,tmpbuf3);
@@ -1510,6 +1513,7 @@ int  iscrypted;
         if (ExtPub) {
             strcpy(tmpbuf2,"");
             if (isopped) strcat(tmpbuf2,"@");
+	    else if (ishalfopped) strcat(tmpbuf2,"%");
             else if (isvoiced) strcat(tmpbuf2,"+");
             strcat(tmpbuf2,"");
         }
@@ -1914,7 +1918,7 @@ char *subargs;
     if (channel) {
         if (*args) {
             if ((chan=lookup_channel(channel,from_server,0)) &&
-                ((chan->status)&CHAN_CHOP))
+                HAS_OPS(chan->status))
                 send_to_server("MODE %s %s",chan->channel,args);
             else NotChanOp(channel);
         }
@@ -2395,7 +2399,7 @@ ChannelList *chan;
         say("Join to %s is now %csynched%c",chan->channel,bold,bold);
 #endif /* WANTANSI */
 #endif /* HAVETIMEOFDAY */
-    if ((chan->status)&CHAN_CHOP && (chan->FriendList || chan->BKList))
+    if (HAS_OPS(chan->status) && (chan->FriendList || chan->BKList))
         HandleGotOps(get_server_nickname(from_server),chan);
 }
 
@@ -2443,15 +2447,15 @@ char *buffer;
 
     if (joiner->shitlist && joiner->shitlist->shit) colnick=CmdsColors[COLCSCAN].color6;
     else if (joiner->frlist && joiner->frlist->privs) colnick=CmdsColors[COLCSCAN].color2;
-    else if (joiner->chanop) colnick=CmdsColors[COLCSCAN].color3;
+    else if (joiner->chanop || joiner->halfop) colnick=CmdsColors[COLCSCAN].color3;
     else if (joiner->hasvoice) colnick=CmdsColors[COLCSCAN].color4;
     *thing='\0';
     if (joiner->hasvoice) {
         sprintf(thing,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
         count--;
     }
-    if (joiner->chanop) {
-        sprintf(&thing[strlen(thing)],"%s@%s",CmdsColors[COLNICK].color4,Colors[COLOFF]);
+    if (joiner->chanop || joiner->halfop) {
+        sprintf(&thing[strlen(thing)],"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
         count--;
     }
     while (count) {
@@ -2463,15 +2467,17 @@ char *buffer;
 }
 #endif
 
-#define SLSTALL      1
-#define SLSTFRND     2
-#define SLSTNFRND    4
-#define SLSTSHIT     8
-#define SLSTNSHIT   16
-#define SLSTOP      32
-#define SLSTNOP     64
-#define SLSTVOIC   128
-#define SLSTNVOIC  256
+#define SLSTALL		1
+#define SLSTFRND	2
+#define SLSTNFRND	3
+#define SLSTSHIT	8
+#define SLSTNSHIT	16
+#define SLSTOP		32
+#define SLSTNOP		64
+#define SLSTVOIC	128
+#define SLSTNVOIC	256
+#define SLSTHLFO	512
+#define SLSTNHLFO	1024
 
 /* Like internal WHO */
 void ShowUser(command,args,subargs)
@@ -2502,6 +2508,10 @@ char *subargs;
                 listfl&=(~SLSTALL);
                 listfl|=SLSTOP;
             }
+	    if (*tmpstr=='H') {
+		listfl&=(~SLSTALL);
+		listfl|=SLSTHLFO;
+	    }
             if (*tmpstr=='F') {
                 listfl&=(~SLSTALL);
                 listfl|=SLSTFRND;
@@ -2521,6 +2531,10 @@ char *subargs;
                     listfl&=(~SLSTALL);
                     listfl|=SLSTNOP;
                 }
+		if (*tmpstr=='H') {
+		    listfl&=(~SLSTALL);
+		    listfl|=SLSTNHLFO;
+		}
                 if (*tmpstr=='F') {
                     listfl&=(~SLSTALL);
                     listfl|=SLSTNFRND;
@@ -2568,6 +2582,8 @@ char *subargs;
                 /* Check if flags match */
                 if (((listfl&SLSTOP) && joiner->chanop) ||
                     ((listfl&SLSTNOP) && !(joiner->chanop)) ||
+		    ((listfl&SLSTHLFO) && joiner->halfop) ||
+		    ((listfl&SLSTNHLFO) && !(joiner->halfop)) ||
                     ((listfl&SLSTFRND) && joiner->frlist && joiner->frlist->privs) ||
                     ((listfl&SLSTNFRND) && (!(joiner->frlist) || !(joiner->frlist->privs))) ||
                     ((listfl&SLSTVOIC) && joiner->hasvoice) ||
@@ -2600,12 +2616,12 @@ char *subargs;
                         tmpbuf2[1]='+';
                         count++;
                     }
-                    if (joiner->chanop) {
+                    if (joiner->chanop || joiner->halfop) {
                         if (count) {
                             tmpbuf2[0]='+';
                             count=0;
                         }
-                        tmpbuf2[1-count]='@';
+			tmpbuf2[1-count]=joiner->chanop?'@':'%';
                     }
                     sprintf(tmpbuf1,"%s%-9s",tmpbuf2,joiner->nick);
                     *tmpbuf2='\0';
@@ -3224,6 +3240,13 @@ char *nicks;
             strcat(buffer,CmdsColors[COLCSCAN].color3);
             nick++;
         }
+	else if (*nick=='%') {
+	    strcat(buffer,CmdsColors[COLNICK].color4);
+	    strcat(buffer,"%");
+	    strcat(buffer,Colors[COLOFF]);
+	    strcat(buffer,CmdsColors[COLCSCAN].color3);
+	    nick++;
+	}
         else if (*nick=='+') {
             strcat(buffer,CmdsColors[COLNICK].color5);
             strcat(buffer,"+");
@@ -3876,7 +3899,7 @@ char *subargs;
         else comment=DefaultK;
         for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
              tmpchan=tmpchan->next)
-            if (((tmpchan->status)&CHAN_CHOP) && CheckChannel(tmpchan->channel,channels))
+            if (HAS_OPS(tmpchan->status) && CheckChannel(tmpchan->channel,channels))
             {
                 tmpnick=find_in_hash(tmpchan,nick);
                 if (tmpnick) send_to_server("KICK %s %s :%s",

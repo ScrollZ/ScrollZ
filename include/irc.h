@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.9 2001-07-22 09:10:52 f Exp $
+ * $Id: irc.h,v 1.10 2001-08-25 18:25:15 f Exp $
  */
 
 #ifndef __irc_h
@@ -270,6 +270,7 @@
 #define	WHO_LUSERS	0x0400
 #define	WHO_REAL	0x0800
 /**************************** PATCHED by Flier ******************************/
+#define WHO_HOPS        0x1000
 #define WHO_SHOW_SERVER 0x8000
 /****************************************************************************/
 

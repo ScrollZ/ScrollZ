@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.3 2000-08-09 19:31:20 f Exp $
+ * $Id: names.h,v 1.4 2001-08-25 18:25:15 f Exp $
  */
 
 #ifndef __names_h_
@@ -64,6 +64,10 @@
 #define MODE_TOPIC	((u_long) 0x0800)
 #define MODE_REGONLY	((u_long) 0x1000)
 
+/**************************** Patched by Flier ******************************/
+#define HAS_OPS(channel) ((channel & CHAN_CHOP) || (channel & CHAN_HALFOP))
+/****************************************************************************/
+
 /* for lookup_channel() */
 #define	CHAN_NOUNLINK	1
 #define CHAN_UNLINK	2
@@ -79,7 +83,7 @@
 	void	add_channel _((char *, int, int, ChannelList *));
 /**************************** PATCHED by Flier ******************************/
 	/*void	add_to_channel _((char *, char *, int, int, int));*/
-        ChannelList *add_to_channel _((char *, char *, int, int, int, char *, ChannelList *));
+        ChannelList *add_to_channel _((char *, char *, int, int, int, int, char *, ChannelList *));
 /****************************************************************************/
 	void	remove_channel _((char *, int));
 	void	remove_from_channel _((char *, char *, int));

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.18 2001-08-11 15:48:48 f Exp $
+ * $Id: alias.c,v 1.19 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -3482,6 +3482,7 @@ function_ppid(input)
 /* Modified so if you call it $chanusers(#blah 1) it will return
    @nick if nick is channel operator
    +nick if nick is voiced
+   %nick if nick is halfopped
    .nick otherwise */
 #ifndef CELESCRP
 /****************************************************************************/
@@ -3529,6 +3530,7 @@ function_chanusers(input)
 /**************************** PATCHED by Flier ******************************/
                 if (nickst) {
                     if (nicks->chanop) strcat((char *) result,"@");
+                    else if (nicks->halfop) strcat((char *) result,"%");
                     else if (nicks->hasvoice) strcat((char *) result,"+");
                     else strcat((char *) result,".");
                 }

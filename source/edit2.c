@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.64 2001-08-21 19:30:00 f Exp $
+ * $Id: edit2.c,v 1.65 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -217,13 +217,14 @@ char *subargs;
             new_next_arg(args,&args);
         }
         chan=lookup_channel(channel,curr_scr_win->server,0);
-        if (chan && ((chan->status)&CHAN_CHOP)) {
+        if (chan && HAS_OPS(chan->status)) {
             if (!chan) return;
             *tmpbuf1='\0';
             if (args && *args) comment=args;
             else comment=DefaultLK;
             for (tmp=chan->nicks;tmp;tmp=tmp->next) {
                 if (tmp->chanop) continue;
+                if (tmp->halfop) continue;
                 if (tmp->hasvoice && !all) continue;
 #ifdef CELE
                 sprintf(tmpbuf2,"KICK %s %s :%s %s\r\n",channel,tmp->nick,
@@ -333,7 +334,7 @@ char *subargs;
         return;
     }
     for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-        if (tmp->chanop) {
+        if (tmp->chanop || tmp->halfop) {
             /* create a string like  " sheik ", then strstr()
              * on the exclude list, does not allow wildcards
              * in the exclude list! EXPENSIVE!
@@ -375,81 +376,140 @@ char *subargs;
     if (!opscount) say("There are no channel operators in %s",chan->channel);
 }
 
-/* Mega ops/deops/voices/devoices channel */
 void MegaMode(args,type)
 char *args;
 int type;
 {
-    int  all=1;
-    int  isfriend;
-    char *chops=(char *) 0;
-    char *tmpstr;
-    char *mynick=get_server_nickname(from_server);
+    char *argument;
     char *channel;
-    NickList *tmp;
+    char *me = get_server_nickname(from_server);
+    char *users = NULL;
+    int limited = 0;
     ChannelList *chan;
+    NickList *nick;
 
-    tmpstr=new_next_arg(args,&args);
-    if (tmpstr && !my_stricmp(tmpstr,"-O")) {
-        all=0;
-        tmpstr=new_next_arg(args,&args);
+    argument = new_next_arg(args, &args);
+    if (argument && (!my_stricmp(argument, "-F") || !my_stricmp(argument, "-O"))) {
+        limited = 1;
+        argument = new_next_arg(args, &args);
     }
-    if (tmpstr && is_channel(tmpstr)) channel=tmpstr;
-    else if (!(channel=get_channel_by_refnum(0))) {
+    if (argument && is_channel(argument)) channel = argument;
+    else if (!(channel = get_channel_by_refnum(0))) {
         NoWindowChannel();
         return;
     }
-    chan=lookup_channel(channel,curr_scr_win->server,0);
-    if (!chan) return;
-    if ((chan->status)&CHAN_CHOP) {
-        for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-            if (type==1 || type==4) isfriend=tmp->frlist && ((tmp->frlist->privs)&FLOP);
-            else isfriend=tmp->frlist &&
-                    ((tmp->frlist->privs)&FLOP || (tmp->frlist->privs)&FLAUTOOP ||
-                     (tmp->frlist->privs)&FLINSTANT);
-            if (type<2 && !(tmp->chanop)) continue;
-            if (type==4 && tmp->chanop) continue;
-            if ((all || (!all && (type%2?!isfriend:isfriend))) &&
-                 my_stricmp(tmp->nick,mynick)) {
-                if (chops) malloc_strcat(&chops," ");
-                malloc_strcat(&chops,tmp->nick);
-            }
-        }
-        if (chops) {
-            /* type=0 -> reop */
-            /* type=1 -> deop */
-            /* type=2 -> voice      -DEXTRAS */
-            /* type=3 -> devoice    -DEXTRAS */
-            /* type=4 -> op */
-            if (!all) say("%susers on %s",
-                          type==0?"Mass reopping ":
-                          type==1?"Mass deopping l":
-#ifdef EXTRAS
-                          type==2?"Mass voicing ":
-                          type==3?"Mass devoicing l":
-#endif
-                          "Mass opping ",channel);
-            else say("Mass %s %s",
-                     type==0?"reopping":
-                     type==1?"deopping":
-#ifdef EXTRAS
-                     type==2?"voicing":
-                     type==3?"devoicing":
-#endif
-                     "opping",channel);
-            DoDops(chops,channel,type);
-            new_free(&chops);
-        }
-        else say ("No users to %s on %s",
-                  type==0?"reop":
-                  type==1?"deop":
-#ifdef EXTRAS
-                  type==2?"voice":
-                  type==3?"devoice":
-#endif
-                  "op",channel);
+    chan = lookup_channel(channel, curr_scr_win->server, 0);
+    if (!chan) {
+        say("You're not on channel %s", channel);
+        return;
     }
-    else NotChanOp(channel);
+    if (type > 1) {
+        if (!(chan->status&CHAN_CHOP)) {
+            NotChanOp(channel);
+            return;
+        }
+    }
+#ifdef EXTRAS
+    else {	/* devoice or voice */
+        if (!HAS_OPS(chan->status)) {
+            NotChanOp(channel);
+            return;
+        }
+    }
+#endif
+    switch (type)
+    {
+#ifdef EXTRAS
+        case 0:	/* devoice */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (nick->hasvoice) {
+                    if (limited && nick->frlist && nick->frlist->privs&FLVOICE) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass devoicing %s%s", limited ? "lusers on " : "", channel);
+            else say("No %susers to devoice on %s", limited ? "l" : "", channel);
+            break;
+        case 1:	/* voice */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (!nick->hasvoice && !nick->halfop && !nick->chanop) {
+                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLVOICE))) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass voicing %s%s", limited ? "friends on " : "", channel);
+            else say("No %s to voice on %s", limited ? "friends" : "users", channel);
+            break;
+#endif
+        case 2:	/* dehalfop */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (nick->halfop) {
+                    if (limited && nick->frlist && nick->frlist->privs&FLHOP) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass dehalfopping %s%s", limited ? "lusers on " : "", channel);
+            else say("No %susers to dehalfop on %s", limited ? "l" : "", channel);
+            break;
+        case 3:	/* halfop */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (!nick->halfop && !nick->chanop) {
+                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLHOP))) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass halfopping %s%s", limited ? "friends on " : "", channel);
+            else say("No %s to halfop on %s", limited ? "friends" : "users", channel);
+            break;
+        case 4:	/* deop */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (nick->chanop) {
+                    if (limited && nick->frlist && nick->frlist->privs&FLOP) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass deopping %s%s", limited ? "lusers on " : "", channel);
+            else say("No %susers to deop on %s", limited ? "l" : "", channel);
+            break;
+        case 5:	/* op */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (!nick->chanop) {
+                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass opping %s%s", limited ? "friends on " : "", channel);
+            else say("No %s to op on %s", limited ? "friends" : "users", channel);
+            break;
+        case 6:	/* reop */
+            for (nick = chan->nicks; nick; nick = nick->next) {
+                if (!my_stricmp(nick->nick, me)) continue;
+                if (nick->chanop) {
+                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
+                    if (users) malloc_strcat(&users, " ");
+                    malloc_strcat(&users, nick->nick);
+                }
+            }
+            if (users) say("Mass reopping %s%s", limited ? "friends on " : "", channel);
+            else say("No %s to reop on %s", limited ? "friends" : "users", channel);
+            break;
+    }
+    if (users) {
+        DoDops(users, channel, type);
+        new_free(&users);
+    }
 }
 
 /* MegaDeops channel */
@@ -458,7 +518,16 @@ char *command;
 char *args;
 char *subargs;
 {
-    MegaMode(args,1);
+    MegaMode(args,4);
+}
+
+/* MegaDehalfop channl */
+void MegaDehalfop(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    MegaMode(args,2);
 }
 
 /* MegaReops channel */
@@ -467,7 +536,7 @@ char *command;
 char *args;
 char *subargs;
 {
-    MegaMode(args,0);
+    MegaMode(args,6);
 }
 
 /* MassOp channel */
@@ -476,7 +545,16 @@ char *command;
 char *args;
 char *subargs;
 {
-    MegaMode(args,4);
+    MegaMode(args,5);
+}
+
+/* MassHalfop channl */
+void MassHalfop(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    MegaMode(args,3);
 }
 
 #ifdef EXTRAS
@@ -486,7 +564,7 @@ char *command;
 char *args;
 char *subargs;
 {
-    MegaMode(args,2);
+    MegaMode(args,1);
 }
 
 /* MegaDeVoice channel */
@@ -495,16 +573,10 @@ char *command;
 char *args;
 char *subargs;
 {
-    MegaMode(args,3);
+    MegaMode(args,0);
 }
 #endif
 
-/* Change modes for number of users */
-/* type=0 -> reop */
-/* type=1 -> deop */
-/* type=2 -> voice      -DEXTRAS */
-/* type=3 -> devoice    -DEXTRAS */
-/* type=4 -> op */
 void DoDops(chops,channel,type)
 char *chops;
 char *channel;
@@ -524,25 +596,36 @@ int type;
     *tmpbuf2='\0';
     *tmpbuf3='\0';
     switch (type) {
-        case 0:
-        case 4:
-            sign='+';
-            modetype="o";
-            break;
-        case 1:
-            sign='-';
-            modetype="o";
-            break;
 #ifdef EXTRAS
-        case 2:
-            sign='+';
-            modetype="v";
-            break;
-        case 3:
-            sign='-';
-            modetype="v";
-            break;
+	case 0: /* devoice */
+	    sign='-';
+	    modetype="v";
+	    break;
+	case 1:	/* voice */
+	    sign='+';
+	    modetype="v";
+	    break;
 #endif
+	case 2:	/* dehalfop */
+	    sign='-';
+	    modetype="h";
+	    break;
+	case 3:	/* halfop */
+	    sign='+';
+	    modetype="h";
+	    break;
+	case 4:	/* deop */
+	    sign='-';
+	    modetype="o";
+	    break;
+	case 5:	/* op */
+	    sign='+';
+	    modetype="o";
+	    break;
+	case 6:	/* reop */
+	    sign='+';
+	    modetype="o";
+	    break;
     }
     sprintf(tmpbuf2,"MODE %s %c",channel,sign);
     for (tmp=new_next_arg(chops,&chops);tmp;tmp=new_next_arg(chops,&chops)) {
@@ -664,17 +747,21 @@ char *subargs;
     if (channel) {
         if (args && *args) {
             chan=lookup_channel(channel,curr_scr_win->server,0);
-            if (chan && ((chan->status)&CHAN_CHOP)) {
+            if (chan && HAS_OPS(chan->status)) {
                 tmpnick=new_next_arg(args,&args);
                 if (args && *args) comment=args;
                 else comment=DefaultK;
                 joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
+		if (joiner) {
+			if (!joiner->chanop || chan->status&CHAN_CHOP) {
 #ifdef CELE
-                if (joiner) send_to_server("KICK %s %s :%s %s",channel,tmpnick,
+                		send_to_server("KICK %s %s :%s %s",channel,tmpnick,
                                            comment,CelerityL);
 #else  /* CELE */
-                if (joiner) send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
+                		send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
 #endif /* CELE */
+			} else NotChanOp(channel);
+		}
                 else say("Can't find %s on %s",tmpnick,channel);
             }
             else NotChanOp(channel);
@@ -756,7 +843,7 @@ ChannelList *chan;
     if (channel && chan) tmpchan=chan;
     else tmpchan=lookup_channel(channel,curr_scr_win->server,0);
     CreateBan(nick,userhost,tmpbuf);
-    if (tmpchan && ((tmpchan->status)&CHAN_CHOP)) {
+    if (tmpchan && HAS_OPS(tmpchan->status)) {
         if (deop) send_to_server("MODE %s -o+b %s %s",channel,nick,tmpbuf);
         else send_to_server("MODE %s +b %s",channel,tmpbuf);
     }
@@ -780,7 +867,7 @@ char *subargs;
         chan=lookup_channel(channel,curr_scr_win->server,0);
         if (!chan) return;
         if (*args) {
-            if ((chan->status)&CHAN_CHOP) {
+            if (HAS_OPS(chan->status)) {
                 while ((tmpnick=new_next_arg(args,&args))) {
                     if (strchr(tmpnick,'!') || strchr(tmpnick,'@') || strchr(tmpnick,'*') ||
                         strchr(tmpnick,'.') || strchr(tmpnick,'?')) {
@@ -853,7 +940,7 @@ char *subargs;
             }
         }
         chan=lookup_channel(channel,curr_scr_win->server,0);
-        if (chan && (chan->status)&CHAN_CHOP) {
+        if (chan && HAS_OPS(chan->status)) {
             if (args && *args) comment=args;
             else {
                 if (!my_stricmp(command,"BK")) comment=DefaultBK;
@@ -867,7 +954,7 @@ char *subargs;
                 BanIt(channel,joiner->nick,joiner->userhost,1,chan);
 #ifdef CELE
                 send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
-                        comment,CelerityL);
+                               comment,CelerityL);
 #else  /* CELE */
                 send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
 #endif /* CELE */
@@ -952,7 +1039,8 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  op=!my_stricmp(command,"OP")?1:0;
+    char flag=(!my_stricmp(command,"OP") || !my_stricmp(command, "HOP")) ? '+' : '-';
+    char type=(!my_stricmp(command,"OP") || !my_stricmp(command, "DOP")) ? 'o' : 'h';
     int  count=0;
     int  usage=0;
     int  max=get_int_var(MAX_MODES_VAR);
@@ -972,9 +1060,8 @@ char *subargs;
         chan=lookup_channel(channel,curr_scr_win->server,0);
         if (!chan) return;
         if (*args) {
-            if ((chan->status)&CHAN_CHOP) {
-                strcpy(modebuf,"+oooooooo");
-                if (!op) modebuf[0]='-';
+            if (chan->status&CHAN_CHOP) {
+		sprintf(modebuf,"%c%s",flag,type=='o'?"oooooooo":"hhhhhhhh");
                 *tmpbuf='\0';
                 while ((tmpnick=new_next_arg(args,&args))) {
                     if ((tmp=find_in_hash(chan,tmpnick))) {
@@ -1001,7 +1088,7 @@ char *subargs;
     }
     else usage=1;
     if (usage) {
-        sprintf(tmpbuf,"%s nicks",op?"OP":"DOP");
+        sprintf(tmpbuf,"%s nicks",command);
         PrintUsage(tmpbuf);
     }
 }
@@ -1073,7 +1160,7 @@ char *subargs;
     else send_to_server("PART %s",tmpchannel);
 }
 
-/* Does a -ntislmpk on your current channel */
+/* Does a -ntislmpak on your current channel */
 void ModeClear(command,args,subargs)
 char *command;
 char *args;
@@ -1085,8 +1172,10 @@ char *subargs;
 
     channel=get_channel_by_refnum(0);
     if (channel && (chan=lookup_channel(channel,from_server,0))) {
-        if ((chan->status)&CHAN_CHOP) {
+        if (HAS_OPS(chan->status)) {
             sprintf(tmpbuf,"MODE %s -ntislmp",channel);
+	    if (get_server_version(from_server)==Server2_11)
+		strcat(tmpbuf,"a");
             if ((chan->mode)&MODE_KEY && chan->key) {
                 strcat(tmpbuf,"k ");
                 strcat(tmpbuf,chan->key);
@@ -1225,7 +1314,7 @@ char *subargs;
                 }
                 break;
             case 2: /* normal */
-                if (!(tmp->hasvoice) && !(tmp->chanop) && !friendok && !shitted)
+                if (!(tmp->hasvoice) && !(tmp->chanop) && !(tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
                     colorstr=CmdsColors[COLCSCAN].color5;
 #else
@@ -1237,7 +1326,7 @@ char *subargs;
                 }
                 break;
             case 3: /* voiced */
-                if (tmp->hasvoice && !(tmp->chanop) && !friendok && !shitted)
+                if (tmp->hasvoice && !(tmp->chanop) && !(tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
                     colorstr=CmdsColors[COLCSCAN].color4;
 #else
@@ -1249,7 +1338,7 @@ char *subargs;
                 }
                 break;
             case 4: /* ops */
-                if (tmp->chanop && !friendok && !shitted)
+                if ((tmp->chanop || tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
                     colorstr=CmdsColors[COLCSCAN].color3;
 #else
@@ -1280,6 +1369,7 @@ char *subargs;
             if (shitted) colorstr=CmdsColors[COLCSCAN].color6;
             else if (friendok) colorstr=CmdsColors[COLCSCAN].color2;
             else if (tmp->chanop) colorstr=CmdsColors[COLCSCAN].color3;
+	    else if (tmp->halfop) colorstr=CmdsColors[COLCSCAN].color3;
             else if (tmp->hasvoice) colorstr=CmdsColors[COLCSCAN].color4;
             else colorstr=CmdsColors[COLCSCAN].color5;
         }
@@ -1299,6 +1389,13 @@ char *subargs;
             buflen+=strlen(tmpbuf4)+1;
 #endif /* NEWCSCAN */
         }
+	else if (tmp->halfop) {
+	    sprintf(tmpbuf4,"%s%%%s",CmdsColors[COLNICK].color4,Colors[COLOFF]);
+	    malloc_strcat(&users,tmpbuf4);
+#ifndef NEWCSCAN
+	    buflen+=strlen(tmpbuf4)+1;
+#endif /* NEWCSCAN */
+	}
         else if (tmp->hasvoice) {
             sprintf(tmpbuf4,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
             malloc_strcat(&users,tmpbuf4);
@@ -1308,6 +1405,7 @@ char *subargs;
         }
 #else  /* WANTANSI */
         if (tmp->chanop) malloc_strcat(&users,"@");
+	else if (tmp->halfop) malloc_strcat(&users,"%");
         else if (tmp->hasvoice) malloc_strcat(&users,"+");
 #ifndef NEWCSCAN
         buflen+=2;
@@ -1600,7 +1698,7 @@ char *subargs;
         if (!is_channel(args)) {
             if (channel) {
                 if ((chan=lookup_channel(channel,from_server,0))) {
-                    if (((chan->mode)&MODE_TOPIC) && ((chan->status)&CHAN_CHOP))
+                    if (((chan->mode)&MODE_TOPIC) && HAS_OPS(chan->status))
                         send_to_server("TOPIC %s :%s",channel,args);
                     else if ((chan->mode)&MODE_TOPIC) NotChanOp(channel);
                     else send_to_server("TOPIC %s :%s",channel,args);
@@ -1611,7 +1709,7 @@ char *subargs;
         else {
             tmparg=new_next_arg(args,&args);
             if ((chan=lookup_channel(tmparg,from_server,0))) {
-                if (((chan->mode)&MODE_TOPIC) && ((chan->status)&CHAN_CHOP))
+                if (((chan->mode)&MODE_TOPIC) && HAS_OPS(chan->status))
                     send_to_server("TOPIC %s :%s",chan->channel,args);
                 else if ((chan->mode)&MODE_TOPIC) NotChanOp(chan->channel);
                 else send_to_server("TOPIC %s :%s",chan->channel,args);
@@ -1703,7 +1801,7 @@ char *subargs;
     fprintf(usfile,"# Friends list\n");
     fprintf(usfile,"# ADDF   Nick!User@Host    Flags         Channels      [Password]\n");
     fprintf(usfile,"# where flags can be :\n");
-    fprintf(usfile,"#       I=INVITE   C=CHOPS   O=OP      A=AUTO   U=UNBAN   P=PROT\n");
+    fprintf(usfile,"#       I=INVITE   C=CHOPS   O=OP      H=HALFOP A=AUTO    U=UNBAN   P=PROT\n");
     fprintf(usfile,"#       D=CDCC     G=GOD     V=VOICE   J=JOIN   F=NOFLOOD X=INSTANT OP/VOICE\n");
     fprintf(usfile,"# channels is a list of channels separated by ','  like #sex*,#test,#chan\n");
     fprintf(usfile,"#\n");
@@ -2189,8 +2287,8 @@ char *buffer;
     if (buffer) *buffer='\0';
     tmpprivs=privs;
     if (tmpprivs && *tmpprivs && !my_stricmp(tmpprivs,"ALL")) {
-        i=FLINVITE | FLCHOPS | FLOP | FLAUTOOP | FLUNBAN | FLPROT | FLCDCC | FLNOFLOOD;
-        if (buffer) strcpy(buffer,"INVITE CHOPS OP UNBAN CDCC");
+        i=FLINVITE | FLCHOPS | FLOP | FLHOP | FLAUTOOP | FLUNBAN | FLPROT | FLCDCC | FLNOFLOOD;
+        if (buffer) strcpy(buffer,"INVITE CHOPS OP HOP UNBAN CDCC");
         return(i);
     }
     for (;tmpprivs && *tmpprivs;tmpprivs++) {
@@ -2213,6 +2311,12 @@ char *buffer;
                 i|=FLOP;
                 if (buffer) strcat(buffer,"OP ");
                 break;
+	    case 'h':
+	    case 'H':
+		if (i&FLHOP) break;
+		i|=FLHOP;
+		if (buffer) strcat(buffer,"HOP ");
+		break;
             case 'a':
             case 'A':
                 i|=FLAUTOOP;
@@ -2949,7 +3053,7 @@ char *subargs;
     }
     chan=lookup_channel(tmpchan,from_server,0);
     if (!chan) return;
-    if ((chan->status)&CHAN_CHOP) {
+    if (HAS_OPS(chan->status)) {
         *tmpbuf1='\0';
         *tmpbuf2='\0';
         sprintf(tmpbuf2,"MODE %s",chan->channel);
@@ -3329,6 +3433,8 @@ char *stat;
                 last->nickp=tmp->nickp;
                 last->minuso+=tmp->minuso;
                 last->pluso+=tmp->pluso;
+		last->minush+=tmp->minush;
+		last->plush+=tmp->plush;
                 last->minusb+=tmp->minusb;
                 last->plusb+=tmp->plusb;
                 last->kick+=tmp->kick;
@@ -3745,7 +3851,7 @@ char *subargs;
         mynick=get_server_nickname(from_server);
         if (channel) {
             chan=lookup_channel(channel,from_server,0);
-            if (chan && ((chan->status)&CHAN_CHOP)) {
+            if (chan && HAS_OPS(chan->status)) {
                 if (args && *args) comment=args;
                 else comment=DefaultFK;
                 if (!strcmp(command,"FBK"))

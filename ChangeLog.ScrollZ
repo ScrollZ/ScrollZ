@@ -40,8 +40,28 @@ Meaning of flags:
       by jaska)
     + CHPASS filter - now removes user's password (suggested by braneded)
     ~ removed parenthesis from time stamp to save space (requested by ogre)
-    ! WHOIS in -DGENX now honours value of STAMP (reported by k)
+    ! WHOIS in -DGENX now honours value of STAMP (reported by kore)
     + time stamping to CSCAN
+    + -DALTERNATE_PUBLICS to defs.h which uses () in publics instead of <>
+      (requested by several users)
+    + halfops handling for hybrid7 (% denotes halfop status in status bar,
+      EXTPUB, CSCAN, etc., coded by braneded)
+    + halfops in friends lists, flag is h (coded by braneded)
+    + WHO now accepts -HOPS for halfops (coded by braneded)
+    + -H and -NH for SHOWUSER (coded by braneded)
+    + $chanusers(#channel 1) returns %nick for halfops (coded by braneded)
+    + HOP, DHOP, MHOP, MDHOP (coded by braneded)
+    ~ mass commands take -F to mean affect/don't affect friends. we'll still
+      accept -O in case scripts use it. MHOP only sends +h for non opped
+      users. MASSV only sends +v for non halfopped / opped users. they're
+      also more specific when nobody's to be affected. i.e. MOP -O said
+      "no users to op on #channel". now says "no friends to op on #channel"
+      (coded by braneded)
+    + MC sends -a on hybrid7 servers (coded by braneded)
+    + halfops stuff in CHANST and improved look (coded by braneded)
+    ~ index is now a section in ScrollZ.help (idea by braneded)
+    + handle numeric 263 (load too high). it resets internal links flag so
+      we can do another /links et al. as soon as we like (coded by braneded)
 
 ------------------------------------------------------------------------------
 

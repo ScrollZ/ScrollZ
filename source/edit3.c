@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.67 2001-07-26 15:31:09 f Exp $
+ * $Id: edit3.c,v 1.68 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -419,6 +419,7 @@ char *subargs;
     int  bancount=0;
     int  users=0;
     int  ops=0;
+    int  halfops=0;
     int  voice=0;
     char *channel;
     char tmpbuf[mybufsize/4];
@@ -434,6 +435,7 @@ char *subargs;
         for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
             users++;
             if (tmpnick->chanop) ops++;
+	    if (tmpnick->halfop) halfops++;
             if (tmpnick->hasvoice) voice++;
         }
 #ifdef WANTANSI
@@ -441,49 +443,32 @@ char *subargs;
             CmdsColors[COLSETTING].color5,tmpchan->channel,Colors[COLOFF]);
         say("Channel created in memory at %s%.24s%s",
             CmdsColors[COLSETTING].color2,ctime(&(tmpchan->creationtime)),Colors[COLOFF]);
-        sprintf(tmpbuf,"Ops         : %s%-5d%sDeops      : %s%-5d%sServops    : ",
-                CmdsColors[COLSETTING].color2,tmpchan->pluso,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,tmpchan->minuso,Colors[COLOFF]);
-        say("%s%s%-5d%sServdeops  : %s%d%s",tmpbuf,
-            CmdsColors[COLSETTING].color2,tmpchan->servpluso,Colors[COLOFF],
-            CmdsColors[COLSETTING].color2,tmpchan->servminuso,Colors[COLOFF]);
-        sprintf(tmpbuf,"Bans        : %s%-5d%sUnbans     : %s%-5d%sServbans   : %s%-5d",
-                CmdsColors[COLSETTING].color2,tmpchan->plusb,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,tmpchan->minusb,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,tmpchan->servplusb);
-        say("%s%sServunbans : %s%d%s",tmpbuf,Colors[COLOFF],
-            CmdsColors[COLSETTING].color2,tmpchan->servminusb,Colors[COLOFF]);
-        sprintf(tmpbuf,"Topics      : %s%-5d%sKicks      : %s%-5d%sBans set   : %s%-5d",
-                CmdsColors[COLSETTING].color2,tmpchan->topic,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,tmpchan->kick,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,bancount);
-        say("%s%sPublics    : %s%-5d%s",tmpbuf,Colors[COLOFF],
-            CmdsColors[COLSETTING].color2,tmpchan->pub,Colors[COLOFF]);
-        sprintf(tmpbuf,"Total users : %s%-5d%sOpped      : %s%-5d%sUnopped    : %s%-5d",
-                CmdsColors[COLSETTING].color2,users,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,ops,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,users-ops);
-        say("%s%sVoiced     : %s%-5d%s",tmpbuf,Colors[COLOFF],
-            CmdsColors[COLSETTING].color2,voice,Colors[COLOFF]);
+	sprintf(tmpbuf, "Ops     : %s%-5d%s Deops    : %s%-5d%s Servops    : %s%-5d%s Servdeops    : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->pluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minuso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servpluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminuso, Colors[COLOFF]);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Halfops : %s%-5d%s Dehalfops: %s%-5d%s Servhalfops: %s%-5d%s Servdehalfops: %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminush, Colors[COLOFF]);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Bans    : %s%-5d%s Unbans   : %s%-5d%s Servbans   : %s%-5d%s Servunbans   : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminusb, Colors[COLOFF]);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Bans set: %s%-5d%s Kicks    : %s%-5d%s Topics     : %s%-5d%s Publics      : %s%-5d%s", CmdsColors[COLSETTING].color2, bancount, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->kick, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->topic, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->pub, Colors[COLOFF]);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Opped   : %s%-5d%s Halfopped: %s%-5d%s Unopped    : %s%-5d%s Voiced       : %s%-5d%s", CmdsColors[COLSETTING].color2, ops, Colors[COLOFF], CmdsColors[COLSETTING].color2, halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, users - ops - halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, voice, Colors[COLOFF]);
+	say("%s", tmpbuf);
+	say("Total   : %s%-5d%s", CmdsColors[COLSETTING].color2, users, Colors[COLOFF]);
 #else  /* WANTANSI */
         say("Statistics for channel %s :",tmpchan->channel);
         say("Channel created in memory at %c%.24s%c",
             bold,ctime(&(tmpchan->creationtime)),bold);
-        sprintf(tmpbuf,"Ops         : %c%-5d%cDeops      : %c%-5d%cServops    : ",
-                bold,tmpchan->pluso,bold,bold,tmpchan->minuso,bold);
-        say("%s%c%-5d%cServdeops  : %c%d%c",tmpbuf,
-            bold,tmpchan->servpluso,bold,bold,tmpchan->servminuso,bold);
-        sprintf(tmpbuf,"Bans        : %c%-5d%cUnbans     : %c%-5d%cServbans   : %c%-5d",
-                bold,tmpchan->plusb,bold,bold,tmpchan->minusb,bold,
-                bold,tmpchan->servplusb);
-        say("%s%cServunbans : %c%d%c",tmpbuf,bold,bold,tmpchan->servminusb,bold);
-        sprintf(tmpbuf,"Topics      : %c%-5d%cKicks      : %c%-5d%cBans set   : %c%-5d",
-                bold,tmpchan->topic,bold,bold,tmpchan->kick,bold,
-                bold,bancount);
-        say("%s%cPublics    : %c%-5d%c",tmpbuf,bold,bold,tmpchan->pub,bold);
-        sprintf(tmpbuf,"Total users : %c%-5d%cOpped      : %c%-5d%cUnopped    : %c%-5d",
-                bold,users,bold,bold,ops,bold,bold,users-ops);
-        say("%s%cVoiced     : %c%-5d%c",tmpbuf,bold,bold,voice,bold);
+	sprintf(tmpbuf, "Ops     : %c%-5d%c Deops    : %c%-5d%c Servops    : %c%-5d%c Servdeops    : %c%-5d%c", bold, tmpchan->pluso, bold, bold, tmpchan->minuso, bold, bold, tmpchan->servpluso, bold, bold, tmpchan->servminuso, bold);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Halfops : %c%-5d%c Dehalfops: %c%-5d%c Servhalfops: %c%-5d%c Servdehalfops: %c%-5d%c", bold, tmpchan->plush, bold, bold, tmpchan->minush, bold, bold, tmpchan->servplush, bold, bold, tmpchan->servminush, bold);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Bans    : %c%-5d%c Unbans   : %c%-5d%c Servbans   : %c%-5d%c Servunbans   : %c%-5d%c", bold, tmpchan->plusb, bold, bold, tmpchan->minusb, bold, bold, tmpchan->servplusb, bold, bold, tmpchan->servminusb, bold);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Bans set: %c%-5d%c Kicks    : %c%-5d%c Topics     : %c%-5d%c Publics      : %c%-5d%c", bold, bancount, bold, bold, tmpchan->kick, bold, bold, tmpchan->topic, bold, bold, tmpchan->pub, bold);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Opped   : %c%-5d%c Halfopped: %c%-5d%c Unopped    : %c%-5d%c Voiced       : %c%-5d%c", bold, ops, bold, bold, halfops, bold, bold, users - ops - halfops, bold, bold, voice, bold);
+	say("%s", tmpbuf);
+	sprintf(tmpbuf, "Total   : %c%-5d%c", bold, users, bold);
 #endif /* WANTANSI */
     }
     else NoWindowChannel();
@@ -532,6 +517,7 @@ char *subargs;
     if (!my_stricmp(args,"OPS")) strcpy(tmpbufhlp,"!OPS");
     if (!my_stricmp(args,"MISC")) strcpy(tmpbufhlp,"!MISC");
     if (!my_stricmp(args,"SETTINGS")) strcpy(tmpbufhlp,"!SETTINGS");
+    if (!my_stricmp(args,"INDEX")) strcpy(tmpbufhlp,"!INDEX");
     if (my_stricmp(tmpbufhlp,"####")) {
         *tmpbuf='\0';
         noteof=1;
@@ -2697,7 +2683,7 @@ char *subargs;
         channel=get_channel_by_refnum(0);
         if (channel) {
             chan=lookup_channel(channel,curr_scr_win->server,0);
-            if (chan && ((chan->status)&CHAN_CHOP)) {
+            if (chan && HAS_OPS(chan->status)) {
                 tmpnick=new_next_arg(args,&args);
                 tmp=find_in_hash(chan,tmpnick);
                 if (tmp) {
@@ -2735,16 +2721,16 @@ char *subargs;
     channel=get_channel_by_refnum(0);
     if (channel) {
         chan=lookup_channel(channel,curr_scr_win->server,0);
-        if (chan && ((chan->status)&CHAN_CHOP)) {
+        if (chan && HAS_OPS(chan->status)) {
             count=0;
             found=0;
             for (tmp=chan->nicks;tmp;tmp=tmp->next)
-                if (!(tmp->chanop || tmp->hasvoice)) count++;
+                if (!(tmp->chanop || tmp->halfop || tmp->hasvoice)) count++;
             if (count) {
                 srand(time(0));
                 random=rand()%count+1;
                 for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-                    if (!(tmp->chanop || tmp->hasvoice)) found++;
+                    if (!(tmp->chanop || tmp->halfop || tmp->hasvoice)) found++;
                     if (found==random) break;
                 }
                 if (tmp) {

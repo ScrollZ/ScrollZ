@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.40 2001-08-21 19:23:36 f Exp $
+ * $Id: numbers.c,v 1.41 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -1597,6 +1597,11 @@ numbered_command(from, comm, ArgList)
                             break;
                         }
 /****************************************************************************/
+		case 263:		/* #define RPL_LOAD2HI		263 */
+			say("%s",ArgList[0]);
+			/* allow us to do these commands again.. as soon as we like */
+			inSZLinks=0;
+			break;
 		case 368:		/* #define RPL_ENDOFBANLIST     368 */
 		case 369:		/* #define RPL_ENDOFWHOWAS      369 */
 		case 374:		/* #define RPL_ENDOFINFO        374 */

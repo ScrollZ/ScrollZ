@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.65 2001-08-21 19:23:36 f Exp $
+ * $Id: edit.c,v 1.66 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -231,6 +231,7 @@ extern  void  NewUser _((char *, char *, char *));
 extern  void  ReconnectServer _((char *, char *, char *));
 extern  void  MegaDeop _((char *, char *, char *));
 /***********************************************************************/
+extern  void  MegaDehalfop _((char *, char *, char *));
 
 #ifdef OPER
 extern  int   StatsKNumber;
@@ -301,6 +302,7 @@ extern  void  FloodProtToggle _((char *, char *, char *));
 extern  void  Net _((char *, char *, char *));
 extern  void  Reset _((char *, char *, char *));
 extern  void  CTCPCloakingToggle _((char *, char *, char *));
+extern  void  MassHalfop _((char *, char *, char *));
 extern  void  MassOp _((char *, char *, char *));
 extern  void  TBan _((char *, char *, char *));
 #ifdef SCKICKS
@@ -525,6 +527,7 @@ static	IrcCommand FAR irc_command[] =
   { "DEOPS", 		"DEOPS", 	NumberCommand, 		0 },
   { "DEOPT", 		"DEOPT", 	NumberCommand, 		0 },
  	{ "DESCRIBE",	NULL,		describe,		SERVERREQ },
+  { "DHOP",             "DHOP",         Op,                     SERVERREQ },
 #ifndef LITE
  	{ "DIE",	"DIE",		send_comm,		SERVERREQ },
 #endif
@@ -591,6 +594,7 @@ static	IrcCommand FAR irc_command[] =
 #endif
 	{ "HISTORY",	NULL,		history,		0 },
 	{ "HOOK",	NULL,		hook,			0 },
+  { "HOP",              "HOP",          Op,                     SERVERREQ },
 #ifndef LITE
  	{ "HOST",	"USERHOST",	userhost,		SERVERREQ },
 #endif
@@ -655,8 +659,10 @@ static	IrcCommand FAR irc_command[] =
   { "MASSV", 		"MASSV",	MegaVoice,		SERVERREQ },
 #endif
   { "MC", 		NULL, 		ModeClear, 		SERVERREQ },
+  { "MDHOP",            NULL,           MegaDehalfop,           SERVERREQ },
   { "MDOP", 		NULL, 		MegaDeop, 		SERVERREQ },
  	{ "ME",		NULL,		me,			SERVERREQ },
+  { "MHOP",		NULL,		MassHalfop,		SERVERREQ },
 #ifdef WANTANSI
   { "MIRC", 		"MIRC", 	OnOffCommand, 		0 },
 #endif
@@ -2070,6 +2076,10 @@ who(command, args, subargs)
 				who_mask |= WHO_LUSERS;
 			else if (strncmp(cmd, "chops", len) == 0)
 				who_mask |= WHO_CHOPS;
+/**************************** Patched by Flier ******************************/
+                        else if (strncmp(cmd, "hops", len) == 0)
+                                who_mask |= WHO_HOPS;
+/****************************************************************************/
 			else if (strncmp(cmd, "hosts", len) == 0)
 			{
 				if ((arg = next_arg(args, &args)) != NULL)

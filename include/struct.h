@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.8 2000-12-11 16:19:55 f Exp $
+ * $Id: struct.h,v 1.9 2001-08-25 18:25:15 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -146,10 +146,11 @@ typedef struct nick_stru
 	int	chanop;			/* True if the given nick has chanop */
  	int	hasvoice;		/* Has voice? (Notice this is a bit unreliable if chanop) */
 /**************************** PATCHED by Flier ******************************/
+	int	halfop;                 /* True if the given nick has halfop */
         char    *userhost;
         struct  friends *frlist;
         struct  autobankicks *shitlist;
-        int     pluso,minuso,plusb,minusb,kick,nickc,publics;
+        int     plush,minush,pluso,minuso,plusb,minusb,kick,nickc,publics;
         char    curo,curk,curn;
         char    deopp,kickp,nickp;
         time_t  deopt,kickt,nickt,lastmsg;
@@ -372,8 +373,9 @@ typedef	struct	channel_stru
 #define	CHAN_MODE	0x08
 /**************************** PATCHED by Flier ******************************/
 #define	CHAN_VOICE	0x10
-        int pluso,minuso,plusb,minusb,topic,kick,pub;
-        int servpluso,servminuso,servplusb,servminusb;
+#define CHAN_HALFOP	0x20
+        int plush,minush,pluso,minuso,plusb,minusb,topic,kick,pub;
+        int servplush,servminush,servpluso,servminuso,servplusb,servminusb;
         int AutoRejoin,MDopWatch,ShowFakes,KickOnFlood,KickWatch,IdleKick;
         int NHProt,NickWatch,ShowAway,KickOps,KickOnBan,Bitch,FriendList;
         int CompressModes,TryRejoin,BKList;

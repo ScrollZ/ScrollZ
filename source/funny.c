@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.11 2000-10-12 18:20:07 f Exp $
+ * $Id: funny.c,v 1.12 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -295,9 +295,9 @@ funny_namreply(from, Args)
 			/*say("Users on %s: %s", channel, line);
 		while ((nick = next_arg(line, &line)) != NULL)
 			add_to_channel(channel, nick, parsing_server_index, 0, 0);*/
-                        PrintNames(channel,line);
+			PrintNames(channel,line);
                 while ((nick=next_arg(line,&line))!=NULL)
-                    add_to_channel(channel,nick,parsing_server_index,0,0,NULL,tmp);
+                    add_to_channel(channel,nick,parsing_server_index,0,0,0,NULL,tmp);
 /****************************************************************************/
 		tmp->status |= CHAN_NAMES;
  		goto out;

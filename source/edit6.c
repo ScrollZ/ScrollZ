@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.86 2001-08-21 19:15:18 f Exp $
+ * $Id: edit6.c,v 1.87 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -222,9 +222,9 @@ int  server;
         for (tmpchan=server_list[server].chan_list;tmpchan;tmpchan=tmpchan->next) {
             if (!CheckChannel(tmpchan->channel,AutoInvChannels)) continue;
 #if defined(ACID) || defined(FLIER)
-            if ((tmpchan->status)&CHAN_CHOP)
+            if (HAS_OPS(tmpchan->status))
 #else
-            if (((tmpchan->status)&CHAN_CHOP) && ((tmpchan->mode)&MODE_INVITE))
+            if (HAS_OPS(tmpchan->status) && ((tmpchan->mode)&MODE_INVITE))
 #endif /* ACID || FLIER */
             {
                 tmpnick=find_in_hash(tmpchan,nick);
@@ -265,6 +265,7 @@ char *buffer;
         if ((user->privs)&FLCHOPS) strcat(buffer,"C");
         if ((user->privs)&FLVOICE) strcat(buffer,"V");
         if ((user->privs)&FLOP) strcat(buffer,"O");
+	if ((user->privs)&FLHOP) strcat(buffer,"H");
         if ((user->privs)&FLAUTOOP) strcat(buffer,"A");
         if ((user->privs)&FLUNBAN) strcat(buffer,"U");
         if ((user->privs)&FLPROT) strcat(buffer,"P");
@@ -635,7 +636,7 @@ void CheckTimeMinute() {
 #ifdef EXTRAS
         i=0;
         for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;tmpchan=tmpchan->next)
-            if (tmpchan->IdleKick && ((tmpchan->status)&CHAN_CHOP)) {
+            if (tmpchan->IdleKick && HAS_OPS(tmpchan->status)) {
                 if (i==max) break;
                 for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
                     if (i==max) break;
@@ -731,6 +732,7 @@ char *subargs;
             else if (*flags=='C' || *flags=='c') privs|=FLCHOPS;
             else if (*flags=='V' || *flags=='v') privs|=FLVOICE;
             else if (*flags=='O' || *flags=='o') privs|=FLOP;
+	    else if (*flags=='H' || *flags=='h') privs|=FLHOP;
             else if (*flags=='A' || *flags=='a') privs|=FLAUTOOP;
             else if (*flags=='U' || *flags=='u') privs|=FLUNBAN;
             else if (*flags=='P' || *flags=='p') privs|=FLPROT;
@@ -951,7 +953,7 @@ char *subargs;
         else *comment++='\0';
         if (args && *args) {
             chan=lookup_channel(channel,curr_scr_win->server,0);
-            if (chan && ((chan->status)&CHAN_CHOP)) {
+            if (chan && HAS_OPS(chan->status)) {
                 while ((tmpnick=new_next_arg(args,&args))) {
                     joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
                     if (joiner) send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
@@ -1775,7 +1777,7 @@ char *nick;
 void HandleDelayOp(stuff)
 char *stuff;
 {
-    int  voice;
+    char *flag;
     char mode=' ';
     char *nick;
     char *channel;
@@ -1783,19 +1785,26 @@ char *stuff;
     ChannelList *chan;
 
     channel=new_next_arg(stuff,&stuff);
-    nick=new_next_arg(stuff,&stuff);
-    voice=atoi(nick);
+    flag=new_next_arg(stuff,&stuff);
     nick=new_next_arg(stuff,&stuff);
     chan=lookup_channel(channel,from_server,0);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP) &&
-        chan->FriendList && (tmpnick=CheckJoiners(nick,channel,from_server,chan))) {
-        if (tmpnick->frlist && ((tmpnick->frlist->privs)&FLAUTOOP)) {
-            if (voice && ((tmpnick->frlist->privs)&FLVOICE)) {
-                if (!(tmpnick->chanop) && !(tmpnick->hasvoice)) mode='v';
-            }
-            else if (((tmpnick->frlist->privs)&FLOP) && !(tmpnick->chanop)) mode='o';
-            if (mode!=' ') send_to_server("MODE %s +%c %s",channel,mode,nick);
-        }
+    if ((chan=lookup_channel(channel,from_server,0)) && chan->FriendList && HAS_OPS(chan->status) &&
+        (tmpnick=CheckJoiners(nick,channel,from_server,chan)) && tmpnick->frlist) {
+	switch (*flag) {
+	    case 'v':
+		if ((tmpnick->frlist->privs&FLVOICE) && !tmpnick->chanop && !tmpnick->halfop)
+		    mode='v';
+		break;
+	    case 'h':
+		if ((chan->status&CHAN_CHOP) && (tmpnick->frlist->privs&FLHOP) && !tmpnick->chanop)
+		    mode='h';
+		break;
+	    case 'o':
+		if ((chan->status&CHAN_CHOP) && (tmpnick->frlist->privs&FLOP))
+		    mode='o';
+		break;
+	}
+	if (mode!=' ') send_to_server("MODE %s +%c %s",channel,mode,nick);
     }
 }
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.35 2001-05-09 17:20:41 f Exp $
+ * $Id: ctcp.c,v 1.36 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -112,6 +112,7 @@ static	char	*do_utc _((CtcpEntry *, char *, char *, char *));
 /**************************** Patched by Flier  *****************************/
 static  char    *do_invite _((CtcpEntry *, char *, char *, char *));
 static  char    *do_op _((CtcpEntry *, char *, char *, char *));
+static  char    *do_hop _((CtcpEntry *, char *, char *, char *));
 static  char    *do_unban _((CtcpEntry *, char *, char *, char *));
 static  char    *do_chops _((CtcpEntry *, char *, char *, char *));
 static  char    *do_voice _((CtcpEntry *, char *, char *, char *));
@@ -162,6 +163,8 @@ static CtcpEntry ctcp_cmd[] =
                 CTCP_SHUTUP , do_invite },
         { "OP",         "ops user on a channel",
                 CTCP_SHUTUP , do_op },
+        { "HOP",        "halfops user on a channel",
+                CTCP_SHUTUP , do_hop },
         { "UNBAN",      "unbans user on a channel",
                 CTCP_SHUTUP , do_unban },
         { "CHOPS",      "lists channel operators",
@@ -459,7 +462,7 @@ char *args;
     if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
     if (i==-1) return(NULL);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP)) {
+    if ((chan=lookup_channel(channel,from_server,0)) && HAS_OPS(chan->status)) {
         if (!(chan->FriendList)) {
             disabled(from);
             return(NULL);
@@ -528,7 +531,7 @@ char *args;
     if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
     if (i==-1) return(NULL);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP)) {
+    if ((chan=lookup_channel(channel,from_server,0)) && (chan->status&CHAN_CHOP)) {
         if (!(chan->FriendList)) {
             disabled(from);
             return(NULL);
@@ -536,6 +539,68 @@ char *args;
         send_to_server("MODE %s +o %s",channel,from);
 #ifndef VILAS
         send_to_server("NOTICE %s :You have been ctcp opped on %s -ScrollZ-",from,
+                       channel);
+#endif
+    }
+    else notchanop(from,channel);
+    return(NULL);
+}
+
+/* Halfops registered user under CTCP request on specified channel */
+static char *do_hop(ctcp,from,to,args)
+CtcpEntry *ctcp;
+char *from;
+char *to;
+char *args;
+{
+    int  i;
+    char *mynick;
+    char *userhost=FromUserHost;
+    char *channel=(char *) 0;
+    char *passwd=(char *) 0;
+    char tmpbuf1[mybufsize/2];
+    char tmpchan[mybufsize/2];
+    ChannelList *chan;
+    struct friends *tmpfriend=NULL;
+
+    if (to && is_channel(to)) return(NULL);
+    if (dropit(1)) return(NULL);
+    server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
+    mynick=get_server_nickname(from_server);
+    if (*args) {
+        channel=next_arg(args,&args);
+        passwd=next_arg(args,&args);
+        if (channel && *channel) {
+            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
+            else strcpy(tmpchan,channel);
+            channel=tmpchan;
+        }
+    }
+    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
+    else i=0;
+    i=request("HOP",mynick,from,userhost,channel,i,FLHOP);
+    if (!i || !(i&FLHOP)) {
+        if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
+        if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
+        return(NULL);
+    }
+    if (checkpassword(tmpfriend,passwd)) {
+        wrongpassword(from);
+        if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
+        return(NULL);
+    }
+    if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
+    if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
+    if (i==-1) return(NULL);
+    if ((chan=lookup_channel(channel,from_server,0)) && (chan->status&CHAN_CHOP)) {
+        if (!(chan->FriendList)) {
+            disabled(from);
+            return(NULL);
+        }
+        send_to_server("MODE %s +h %s",channel,from);
+#ifndef VILAS
+        send_to_server("NOTICE %s :You have been ctcp halfopped on %s -ScrollZ-",from,
                        channel);
 #endif
     }
@@ -590,7 +655,7 @@ char *args;
     if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
     if (i==-1) return(NULL);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP)) {
+    if ((chan=lookup_channel(channel,from_server,0)) && HAS_OPS(chan->status)) {
         if (!(chan->FriendList)) {
             disabled(from);
             return(NULL);
@@ -724,7 +789,7 @@ char *args;
     if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
     if (i==-1) return(NULL);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP)) {
+    if ((chan=lookup_channel(channel,from_server,0)) && HAS_OPS(chan->status)) {
         if (!(chan->FriendList)) {
             disabled(from);
             return(NULL);
@@ -789,6 +854,7 @@ char *args;
             if (i&FLINVITE) strcat(tmpbuf1,"INVITE ");
             if (i&FLCHOPS) strcat(tmpbuf1,"CHOPS ");
             if (i&FLOP) strcat(tmpbuf1,"OP ");
+            if (i&FLHOP) strcat(tmpbuf1,"HOP ");
             if (i&FLUNBAN) strcat(tmpbuf1,"UNBAN ");
             if (i&FLCDCC) strcat(tmpbuf1,"CDCC ");
             if (i&FLVOICE) strcat(tmpbuf1,"VOICE ");
@@ -842,6 +908,7 @@ char *args;
     if (i&FLINVITE) strcat(tmpbuf1,"INVITE ");
     if (i&FLCHOPS) strcat(tmpbuf1,"CHOPS ");
     if (i&FLOP) strcat(tmpbuf1,"OP ");
+    if (i&FLHOP) strcat(tmpbuf1,"HOP ");
     if (i&FLUNBAN) strcat(tmpbuf1,"UNBAN ");
     if ((i&FLOP) && (i&FLINVITE) && (i&FLUNBAN)) strcat(tmpbuf1,"OPEN ");
     if (i&FLCDCC) strcat(tmpbuf1,"CDCC ");
@@ -900,7 +967,7 @@ char *args;
     if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
     if (i==-1) return(NULL);
-    if ((chan=lookup_channel(channel,from_server,0)) && ((chan->status)&CHAN_CHOP)) {
+    if ((chan=lookup_channel(channel,from_server,0)) && HAS_OPS(chan->status)) {
         if (!(chan->FriendList)) {
             disabled(from);
             return(NULL);

@@ -258,14 +258,14 @@ channel is used. If filter is given, idle time for users matching filter
 is displayed.
 Also look at $2IDLEKICK$0 and $2IDLETIME$0
 :SHOWUSER      Shows all users that match filter and channel
-Usage $3SHOWUSER$0 [$3-O$0] [$3-F$0] [$3-V$0] [$3-S$0] $0[$3#channels$0] $3filter filter...$0
-$3-O$0 lists channel operators, $3-F$0 lists friends, $3-V$0 lists voiced
-(+v) users, and $3-S$0 lists shitlisted people. You can combine
-multiple flags together. If you prepend N before O, F, V or S people
-with that attribute NOT set will match. Filter can include * and ?.
-Channels is a list of channels separated with ',' (it must start
-with #), it can include * and ?. Default is to list all people
-on current channel.
+Usage $3SHOWUSER$0 [$3-O$0] [$3-H$0] [$3-V$0] [$3-F$0] [$3-S$0] $0[$3#channels$0] $3filter filter...$0
+$3-O$0 lists channel operators, $3-H$0 lists halfopped (+h) users, $3-V$0 lists
+voiced (+v) users, $3-F$0 lists friends, and $3-S$0 lists shitlisted people.
+You can combine multiple flags together. If you prepend N before O,
+H, V, F, or S people with that attribute NOT set will match. Filter can
+include * and ?. Channels is a list of channels separated with ','
+(it must start with #), it can include * and ?. Default is to list
+all people on current channel.
 :VER           Does CTCP target VERSION
 Usage $3VER nick$0|$3#channel$0
 If no arguments are given, current channel will be versioned.
@@ -308,11 +308,11 @@ Filter can include * and ?. When used with nick client will create entry
 that will use pattern like *!user@*.domain.
 Channels is a list of channels separated by ',' where nick will have
 access to CTCP commands. You can use * and ? (example : #chat*,#tes?).
-Available access modes are $3I$0=INVITE, $3C$0=CHOPS, $3O$0=OP, $3A$0=AUTOOP $3U$0=UNBAN,
-$3X$0=INSTANT OP, $3P$0=PROT, $3G$0=GOD, $3V$0=VOICE, $3D$0=CDCC, $3J$0=JOIN,
+Available access modes are $3I$0=INVITE, $3C$0=CHOPS, $3O$0=OP, $3H$0=HOP, $3A$0=AUTOOP,
+$3U$0=UNBAN, $3X$0=INSTANT OP, $3P$0=PROT, $3G$0=GOD, $3V$0=VOICE, $3D$0=CDCC, $3J$0=JOIN,
 $3F$0=FLOOD or $3ALL$0 (example : ICOAU stands for INVITE CHOPS OP AUTOOP and
 UNBAN). Client will auto invite users from notify list if they have $3I$0,
-$3C$0, $3O$0 and $3U$0 privileges and they don't have password set. They can
+$3C$0, $3O$0 and $3U$0 privileges and don't have a password set. They can
 access $3CTCP OPEN$0 if they have I, O and U flags set).
 Also look at $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2REMFCHAN$0, $2LISTF$0,
 $2FRLIST$0, $2LEVELS$0, $2AUTOINV$0 and $2CHPASS$0.
@@ -367,10 +367,13 @@ $3I$0   user can request invite through CTCP
 $3V$0   user can request voice through CTCP
 $3C$0   user can request list of channel operators through CTCP
 $3O$0   user can request channel operator status through CTCP
-$3A$0   user will automatically receive channel operator status on join
-    or voice status if they have V flag set (delayed)
-$3X$0   user will automatically receive channel operator status on join
-    or voice status if they have V flag set (instant)
+$3H$0   user can request halfop status through CTCP
+$3A$0   user automatically given, depending on access, voice, halfop, or
+    channel operator status on join (delayed). Users with passwords
+    are not affected.
+$3X$0   user automatically given, depending on access, voice, halfop, or
+    channel operator status on join (instant). Users with passwords
+    are not affected.
 $3U$0   user can request unban through CTCP
 $3P$0   user is protected, client will reop/unban/invite him when
     he gets deopped/banned/kicked unless done by user with G flag
@@ -711,6 +714,9 @@ Usage $3BKT nick$0 [$3#channel$0] [$3comment$0]
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :CDBAN         Clears bans on current channel
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2SB$0 and $2DOBANS$0
+:DHOP          Dehalfops line of nicks on your current channel
+Usage $3DHOP$0 [$3#channel$0] $3nick1 nick2 nick3 ...$0
+Also look at $2HOP$0
 :DIRLMK        Kicks nick with your last message as comment
 Usage $3DIRLMK nick$0
 Also look at $2DIRLNK$0
@@ -730,6 +736,9 @@ Also look at $2K$0, $2FK$0, $2LK$0, $2MULTK$0, $2MK$0, $2RANLK$0 and $2KICKOPS$0
 Usage $3FK filter$0 [$3reason$0]
 Filter may include * and ? (example : *.com or *.uni-??.*).
 Also look at $2K$0, $2LK$0, $2MULTK$0, $2MK$0, $2RANLK$0 and $2KICKOPS$0
+:HOP           Halfops line of nicks on your current channel
+Usage $3HOP$0 [$3#channel$0] $3nick1 nick2 nick3 ...$0
+Also look at $2DHOP$0
 :INV           Invites nick to channel
 Usage $3INV nick$0 [[$3#$0]$3channel$0]
 If no channel is given it will invite nick to current channel
@@ -741,20 +750,27 @@ Usage $3LK$0 [$3-ALL$0]
 When $3-ALL$0 is specified all non opped users will be kicked.
 Also look at $2K$0, $2MK$0, $2MULTK$0 and $2RANLK$0
 :MASSDV        Mass devoices channel
-Usage $3MASSDV$0 [$3-O$0|$3-A$0] [$3#channel$0]
-If you pass it $3-O$0, it will devoice people that are not on your userlist.
+Usage $3MASSDV$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 friends with the $3V$0 flag set will not be devoiced.
 Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSV$0
 :MASSV         Mass voices channel
-Usage $3MASSV$0 [$3-O$0|$3-A$0] [$3#channel$0]
-If you pass it $3-O$0, it will voice people that are on your userlist.
+Usage $3MASSV$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 only friends with the $3V$0 flag set will be voiced.
 Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSDV$0
 :MC            Clears all the modes on your current channel
 Also look at $2MODELOCK$0 and $2MODEUNLOCK$0
+:MDHOP         Mass dehalfops channel
+Usage $3MDHOP$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 friends with the $3H$0 flag set will not be dehalfopped.
+Also look at $2MHOP$0
 :MDOP          Mass deops channel
-Usage $3MDOP$0 [$3-O$0] [$3#channel$0]
-If you pass it $3-O$0, it will deop people that don't have flag O on your
-userlist.
+Usage $3MDOP$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 friends with the $3O$0 flag set will not be deopped.
 Also look at $2MOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
+:MHOP          Mass halfops channel
+Usage $3MHOP$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 only friends with the $3H$0 flag set will be halfopped.
+Also look at $2MDHOP$0
 :MK            Kicks multiple nicks at the same time
 Usage $3MK$0 [$3#channel$0] $3nick1$0 [$3nick2$0] ... [:$3reason$0]
 Also look at $2K$0, $2LK$0, $2MULTK$0 and $2RANLK$0
@@ -763,7 +779,7 @@ Usage $3MKILL$0 $3nick1$0 $3nick2$0 $3nick3$0 ... [:$3reason$0]
 Also look at $2WKILL$0 and $2TKILL$0
 :MODELOCK      Sets channel's lock mode
 Usage $3MODELOCK$0 [$3#channel mode$0]
-Acceptable modes are +ints, -intskl and +l number. Several channels
+Acceptable modes are +aints, -aintskl and +l number. Several channels
 can be specified at once, separate them with comma. Every channel's
 name must start with #. Stored modes for all channels are shown if
 no arguments are given.
@@ -772,12 +788,12 @@ Also look at $2MC$0 and $2MODEUNLOCK$0
 Usage $3MODEUNLOCK$0 [[$3#$0]$3channel$0]
 Also look at $2MC$0 and $2MODELOCK$0
 :MOP           Mass ops channel
-Usage $3MOP$0 [$3-O$0] [$3#channel$0]
-If you pass it $3-O$0, it will op people that have flag O on your userlist.
+Usage $3MOP$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 only friends with the $3O$0 flag set will be opped.
 Also look at $2MDOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
 :MREOP         Mass re-ops channel
-Usage $3MREOP$0 [$3-O$0] [$3#channel$0]
-If you pass it $3-O$0, it will re-op people that are on your userlist.
+Usage $3MREOP$0 [$3-F$0] [$3#channel$0]
+If passed $3-F$0 only friends with the $3O$0 flag set will be reopped.
 Also look at $2MDOP$0, $2MOP$0, $2MASSV$0 and $2MASSDV$0
 :MULTK         Kicks nick from multiple channels
 Usage $3MULTK$0 [$3#channels$0] $3nick$0 [$3reason$0]
@@ -980,40 +996,40 @@ Also look at $2CDCC ULDIR$0
 All the files that you send to people will be read from this dir if it
 is set. Current directory will be used otherwise.
 Also look at $2CDCC DLDIR$0
-!COMINDEX
-:INDEX         Index of all ScrollZ commands
-   ABOUT         ADDBK         ADDCHAN       ADDF          ADDFCHAN
-   ADDFFLAG      ADDN          ADDS          ADDW          AJOIN
-   AREJOIN       ARINWIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY
-   AWAYSAVE      AWAYT         BAN           BANTYPE       BITCH
-   BK            BKI           BKLIST        BKT           BYE
-   C             CDBAN         CDCC          CHANST        CHAT
-   CHPASS        CHSIGNOFF     CLEARTAB      COLOR         COMPRESS
-   CSCAN         CTCPCLOAK     CYCLE         DEOPS         DEOPT
-   DIRLM         DIRLMK        DIRLN         DIRLNK        DIRLSM
-   DIRLSN        DOBANS        DOP           DPROT         DUMP
-   EGO           ENCRMSG       EXTMES        EXTPUB        FAKE
-   FBK           FILINE        FINGER        FK            FKLINE
-   FLOODP        FRLIST        FTRACE        IDLEKICK      IDLETIME
-   IG            IGTIME        INV           J             K
-   KEYS          KICKONBAN     KICKONFLOOD   KICKOPS       KICKS
-   KICKT         KPROT         L             LEVELS        LISTBK
-   LISTF         LISTN         LISTS         LISTW         LK
-   LLOOK         LLOOKUP       LOGON         LS            M
-   MAP           MASSDV        MASSV         MC            MDOP
-   MIRC          MK            MKILL         MODELOCK      MODEUNLOCK
-   MOP           MREOP         MSAY          MULTK         N
-   NET           NEWHOST       NEWUSER       NHPROT        NICKS
-   NICKT         NOCHAT        NOIG          NOKEY         NOTEPAD
-   NPROT         NSLOOKUP      NTFYMODE      NWHOIS        OP
-   ORIGNICK      ORIGNTIME     OV            P             PASSWD
-   PLAYBACK      RANLK         RE            RECONNECT     RELOAD
-   REMBK         REMCHAN       REMF          REMFCHAN      REMFFLAG
-   REMLOG        REMN          REMS          REMW          REPWORD
-   S             SB            SERVNOTICE    SETAWAY       SETBACK
-   SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK
-   SHOWSIGN      SHOWUSER      SINFO         SPING         STAMP
-   SVE           T             TBAN          TERMINATE     TKILL
-   UMODE         UNBAN         UNFLASH       URL           URLCATCH
-   VER           W             WALL          WHOLEFT       WI
-   WII           WKILL         WW            
+!INDEX Index of all ScrollZ commands
+:   ABOUT         ADDBK         ADDCHAN       ADDF          ADDFCHAN
+:   ADDFFLAG      ADDN          ADDS          ADDW          AJOIN
+:   AREJOIN       ARINWIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY
+:   AWAYSAVE      AWAYT         BAN           BANTYPE       BITCH
+:   BK            BKI           BKLIST        BKT           BYE
+:   C             CDBAN         CDCC          CHANST        CHAT
+:   CHPASS        CHSIGNOFF     CLEARTAB      COLOR         COMPRESS
+:   CSCAN         CTCPCLOAK     CYCLE         DEOPS         DEOPT
+:   DHOP          DIRLM         DIRLMK        DIRLN         DIRLNK
+:   DIRLSM        DIRLSN        DOBANS        DOP           DPROT
+:   DUMP          EGO           ENCRMSG       EXTMES        EXTPUB
+:   FAKE          FBK           FILINE        FINGER        FK
+:   FKLINE        FLOODP        FRLIST        FTRACE        HOP
+:   IDLEKICK      IDLETIME      IG            IGTIME        INV
+:   J             K             KEYS          KICKONBAN     KICKONFLOOD
+:   KICKOPS       KICKS         KICKT         KPROT         L
+:   LEVELS        LISTBK        LISTF         LISTN         LISTS
+:   LISTW         LK            LLOOK         LLOOKUP       LOGON
+:   LS            M             MAP           MASSDV        MASSV
+:   MC            MDHOP         MDOP          MHOP          MIRC
+:   MK            MKILL         MODELOCK      MODEUNLOCK    MOP
+:   MREOP         MSAY          MULTK         N             NET
+:   NEWHOST       NEWUSER       NHPROT        NICKS         NICKT
+:   NOCHAT        NOIG          NOKEY         NOTEPAD       NPROT
+:   NSLOOKUP      NTFYMODE      NWHOIS        OP            ORIGNICK
+:   ORIGNTIME     OV            P             PASSWD        PLAYBACK
+:   RANLK         RE            RECONNECT     RELOAD        REMBK
+:   REMCHAN       REMF          REMFCHAN      REMFFLAG      REMLOG
+:   REMN          REMS          REMW          REPWORD       S
+:   SB            SERVNOTICE    SETAWAY       SETBACK       SETTINGS
+:   SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK      SHOWSIGN
+:   SHOWUSER      SINFO         SPING         STAMP         SVE
+:   T             TBAN          TERMINATE     TKILL         UMODE
+:   UNBAN         UNFLASH       URL           URLCATCH      VER
+:   W             WALL          WHOLEFT       WI            WII
+:   WKILL         WW            

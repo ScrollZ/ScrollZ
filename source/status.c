@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.19 2001-08-20 18:12:53 f Exp $
+ * $Id: status.c,v 1.20 2001-08-25 18:25:15 f Exp $
  */
 
 #include "irc.h"
@@ -1604,24 +1604,20 @@ status_chanop(window)
 /****************************************************************************/
 
 	if (window->current_channel &&
-	    chan_is_connected(window->current_channel, window->server) &&
-	    get_channel_oper(window->current_channel, window->server) &&
-	    (text = get_string_var(STATUS_CHANOP_VAR)))
-		malloc_strcpy(&ptr, text);
-	else
-		malloc_strcpy(&ptr, empty_string);
-/**************************** PATCHED by Flier ******************************/
-	if (window->current_channel &&
-            chan_is_connected(window->current_channel, window->server)) {
-            chan=lookup_channel(window->current_channel,window->server,0);
-            if (chan && ((chan->status)&CHAN_VOICE) && !((chan->status)&CHAN_CHOP)) {
-                text=get_string_var(STATUS_CHANOP_VAR);
-		malloc_strcpy(&ptr,text);
-                if ((text=index(ptr,'@'))) *text='+';
-                else malloc_strcpy(&ptr,empty_string);
-            }
-        }
-/****************************************************************************/
+		chan_is_connected(window->current_channel, window->server) &&
+		(chan=lookup_channel(window->current_channel, window->server, 0))) {
+		if (chan->status&CHAN_CHOP) {
+			text=get_string_var(STATUS_CHANOP_VAR);
+			malloc_strcpy(&ptr,text ? text : "@");
+		}
+		else if (chan->status&CHAN_HALFOP)
+			malloc_strcpy(&ptr,"%");
+		else if (chan->status&CHAN_VOICE)
+			malloc_strcpy(&ptr,"+");
+		else
+			malloc_strcpy(&ptr,empty_string);
+	} else
+		malloc_strcpy(&ptr,empty_string);
 	return (ptr);
 }
 
