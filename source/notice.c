@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.4 1999-02-15 21:19:58 f Exp $
+ * $Id: notice.c,v 1.5 1999-03-11 17:54:21 f Exp $
  */
 
 #include "irc.h"
@@ -397,7 +397,13 @@ got_initial_version(line)
  		strcpy(version, "2.9");
  		strcpy(server, server_list[parsing_server_index].name);
  	}
-	server[strlen(server) - 1] = '\0';
+/**************************** PATCHED by Flier ******************************/
+        /*server[strlen(server) - 1] = '\0';*/
+        /* fix for broken servers -> if server name does not end with ,
+           we strip last character off server name resulting in corrupted
+           server name in memory */
+        if (server[strlen(server)-1]==',') server[strlen(server)-1]='\0';
+/****************************************************************************/
 #endif /* BROKEN_SCANF */
 	attempting_to_connect--;
 	set_server_motd(parsing_server_index, 1);
