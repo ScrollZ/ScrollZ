@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.78 2004-08-31 14:24:26 f Exp $
+ * $Id: numbers.c,v 1.79 2004-12-13 21:21:19 f Exp $
  */
 
 #include "irc.h"
@@ -1459,26 +1459,36 @@ numbered_command(from, comm, ArgList)
 			if (do_message_from)
 				message_from(ArgList[0], LOG_CRAP);
 /**************************** PATCHED by Flier ******************************/
-                        if (comm==332 && ArgList[0] && ArgList[1] &&
-                            (chan=lookup_channel(ArgList[0],from_server,0)))
-                            malloc_strcpy(&(chan->topicstr),ArgList[1]);
-                        if (comm==315 && server_list[from_server].SZWho) {
+                        if (comm == 376 && !usersloaded) {
+                            int display = window_display;
+
+                            window_display = 1;
+                            ScrollZLoad();
+                            if (PlistTime < 7200 || NlistTime < 7200)
+                                CdccTimeWarning();
+                            display = window_display;
+                        }
+                        if (comm == 332 && ArgList[0] && ArgList[1] &&
+                            (chan = lookup_channel(ArgList[0], from_server, 0)))
+                            malloc_strcpy(&(chan->topicstr), ArgList[1]);
+                        if (comm == 315 && server_list[from_server].SZWho) {
 #ifdef OPER
                             if (inSZFKill) HandleEndOfKill();
-                            else HandleEndOfWho(ArgList[0],from_server);
+                            else HandleEndOfWho(ArgList[0], from_server);
 #else
-                            HandleEndOfWho(ArgList[0],from_server);
+                            HandleEndOfWho(ArgList[0], from_server);
 #endif
                             server_list[from_server].SZWho--;
-                            skipit=1;
+                            skipit = 1;
                         }
-                        else if (comm==368 && server_list[from_server].SZUnban) {
-                            EndOfBans(ArgList[0],from_server);
-                            skipit=1;
+                        else if (comm == 368 && server_list[from_server].SZUnban) {
+                            EndOfBans(ArgList[0], from_server);
+                            skipit = 1;
                         }
-                        else if ((comm==367 || comm==348) && server_list[from_server].SZUnban) {
-                            OnBans(ArgList,comm==348?1:0);
-                            skipit=1;
+                        else if ((comm == 367 || comm == 348) && 
+                                 server_list[from_server].SZUnban) {
+                            OnBans(ArgList,comm == 348 ? 1 : 0);
+                            skipit = 1;
                         }
                         else
 /****************************************************************************/
@@ -1664,13 +1674,6 @@ numbered_command(from, comm, ArgList)
 /****************************************************************************/
 			}
 			set_server_motd(parsing_server_index, 0);
-/**************************** PATCHED by Flier ******************************/
-                        if (!usersloaded) {
-                            ScrollZLoad();
-                            if (PlistTime<7200 || NlistTime<7200)
-                                CdccTimeWarning();
-                        }
-/****************************************************************************/
 			break;
 
 /**************************** PATCHED by Flier ******************************/
