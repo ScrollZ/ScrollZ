@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.101 2003-01-09 20:12:32 f Exp $
+ * $Id: edit5.c,v 1.102 2003-01-09 20:22:20 f Exp $
  */
 
 #include "irc.h"
@@ -1702,8 +1702,28 @@ char *distance;
 #endif
 }
 
+/* This checks given password against master password */
+void EncryptMasterPlayBack(stuff, line)
+char *stuff;
+char *line;
+{
+    int pwlen;
+    char *mastpass;
+
+    pwlen = 2 * strlen(line) + 16;
+    mastpass = (char *) new_malloc(pwlen + 1);
+    EncryptString(mastpass, line, line, pwlen, 0);
+    if (strcmp(EncryptPassword, mastpass)) {
+        say("Incorrect master password!");
+        new_free(&mastpass);
+        return;
+    }
+    new_free(&mastpass);
+    PlayBack2(stuff, empty_string);
+}
+
 /* Shows stored messages from ScrollZ.away w/o setting you back */
-void PlayBack(command,args,subargs)
+void PlayBack(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
@@ -1711,37 +1731,40 @@ char *subargs;
     char *pattern;
     char *filepath;
     char *filename;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
 
     new_free(&playpattern);
-    filename=get_string_var(AWAY_FILE_VAR);
-    filepath=OpenCreateFile(filename,1);
-    if (filepath && (awayfile=fopen(filepath,"r"))) {
-        if (!my_strnicmp(args,"-R",2)) {
-            pattern=new_next_arg(args,&args);
-            pattern=new_next_arg(args,&args);
-            PlayReverse=1;
+    filename = get_string_var(AWAY_FILE_VAR);
+    filepath = OpenCreateFile(filename, 1);
+    if (filepath && (awayfile = fopen(filepath, "r"))) {
+        if (!my_strnicmp(args, "-R", 2)) {
+            pattern = new_next_arg(args, &args);
+            pattern = new_next_arg(args, &args);
+            PlayReverse = 1;
         }
         else {
-            PlayReverse=0;
-            pattern=args;
+            PlayReverse = 0;
+            pattern = args;
         }
-        fseek(awayfile,0,2);
-        filesize=ftell(awayfile);
-        if (!PlayReverse) fseek(awayfile,0,0);
-        if (!filesize) filesize=1;
-        DontHold=0;
-        if (command) subargs=NULL;
+        fseek(awayfile, 0, 2);
+        filesize = ftell(awayfile);
+        if (!PlayReverse) fseek(awayfile, 0, 0);
+        if (!filesize) filesize = 1;
+        DontHold = 0;
+        if (command) subargs = NULL;
         if (pattern && *pattern) {
-            if (*pattern!='*') snprintf(tmpbuf,sizeof(tmpbuf),"*%s*",pattern);
-            else strmcpy(tmpbuf,pattern,sizeof(tmpbuf));
-            malloc_strcpy(&playpattern,tmpbuf);
+            if (*pattern != '*') snprintf(tmpbuf, sizeof(tmpbuf), "*%s*", pattern);
+            else strmcpy(tmpbuf, pattern, sizeof(tmpbuf));
+            malloc_strcpy(&playpattern, tmpbuf);
         }
-        PlayBack2(subargs,empty_string);
+        if (AwayEncrypt && EncryptPassword)
+            add_wait_prompt("Master password:", EncryptMasterPlayBack, subargs, WAIT_PROMPT_LINE);
+        else
+            PlayBack2(subargs, empty_string);
     }
     else {
-        say("Can't open file %s",filename);
-        PlayBack2(subargs,"q");
+        say("Can't open file %s", filename);
+        PlayBack2(subargs, "q");
     }
 }
 
