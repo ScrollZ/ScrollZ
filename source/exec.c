@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: exec.c,v 1.5 2000-07-10 15:52:56 f Exp $
  */
 
 #include "irc.h"
@@ -1078,6 +1078,10 @@ execcmd(command, args, subargs)
  	size_t	len;
 	Process	*proc;
 
+#ifdef SZ32
+        say("/EXEC not supported under Windows till I figure things out!");
+        return;
+#endif
 	if (get_int_var(EXEC_PROTECTION_VAR) && (send_text_flag != -1))
 	{
 		say("Attempt to use EXEC from within an ON function!");
