@@ -1,4 +1,4 @@
-!	 $Id: chanlog,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: chanlog,v 1.4 2002-04-08 15:43:55 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -7,6 +7,9 @@
 !
 Usage: CHANLOG on channels|off
   Toggles per channel logging on/off
+
+  Channel name is converted to lowercase because IRC inherently
+  is case insensitive.
 
 See also:
   CHANLOGDIR
