@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.8 2000-08-09 19:31:21 f Exp $
+ * $Id: vars.c,v 1.9 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -184,7 +184,7 @@ static	IrcVariable irc_variable[] =
 	{ "INPUT_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_INPUT_PROTECTION, NULL, input_warning, 0, 0 },
 	{ "INSERT_MODE",		BOOL_TYPE_VAR,	DEFAULT_INSERT_MODE, NULL, update_all_status, 0, 0 },
 	{ "INVERSE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_INVERSE_VIDEO, NULL, NULL, 0, 0 },
-	{ "IRCHOST",                    STR_TYPE_VAR,   0, NULL, set_irchost, 0, 0 },
+	{ "IRCHOST",			STR_TYPE_VAR,	0, NULL, set_irchost, 0, 0 },
 	{ "LASTLOG",			INT_TYPE_VAR,	DEFAULT_LASTLOG, NULL, set_lastlog_size, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "LASTLOG_ANSI",		BOOL_TYPE_VAR,	1, NULL, NULL, 0, 0 },
@@ -240,13 +240,13 @@ static	IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "STATUS_CHANOP",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_CLOCK",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
-	{ "STATUS_FORMAT",              STR_TYPE_VAR,   0, NULL, build_status, 0, 0 },
-	{ "STATUS_FORMAT1",             STR_TYPE_VAR,   0, NULL, build_status, 0, 0 },
-	{ "STATUS_FORMAT2",             STR_TYPE_VAR,   0, NULL, build_status, 0, 0 },
+	{ "STATUS_FORMAT",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+	{ "STATUS_FORMAT1",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+	{ "STATUS_FORMAT2",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
 	{ "STATUS_FORMAT3",             STR_TYPE_VAR,   0, NULL, build_status, 0, 0 },
 /****************************************************************************/
-	{ "STATUS_GROUP",               STR_TYPE_VAR,   0, NULL, build_status, 0, 0 },
+	{ "STATUS_GROUP",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_HOLD",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_HOLD_LINES",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_INSERT",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
@@ -297,6 +297,7 @@ static	IrcVariable irc_variable[] =
 	{ "USER_WALLOPS",		BOOL_TYPE_VAR,	DEFAULT_USER_WALLOPS, NULL, NULL, 0, 0 },
 	{ "VERBOSE_CTCP",		BOOL_TYPE_VAR,	DEFAULT_VERBOSE_CTCP, NULL, NULL, 0, 0 },
 	{ "WARN_OF_IGNORES",		BOOL_TYPE_VAR,	DEFAULT_WARN_OF_IGNORES, NULL, NULL, 0, 0 },
+	{ "XTERM_GEOMOPTSTR", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "XTERM_OPTIONS", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "XTERM_PATH", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ (char *) 0, 0, 0, 0, 0, 0, 0 }
@@ -358,6 +359,7 @@ init_variables()
 	set_string_var(STATUS_USER3_VAR, DEFAULT_STATUS_USER3);
 	set_string_var(STATUS_WINDOW_VAR, DEFAULT_STATUS_WINDOW);
 	set_string_var(USER_INFO_VAR, DEFAULT_USERINFO);
+	set_string_var(XTERM_GEOMOPTSTR_VAR, DEFAULT_XTERM_GEOMOPTSTR);
 	set_string_var(XTERM_OPTIONS_VAR, DEFAULT_XTERM_OPTIONS);
 	set_string_var(XTERM_PATH_VAR, DEFAULT_XTERM_PATH);
 	set_alarm(DEFAULT_CLOCK_ALARM);

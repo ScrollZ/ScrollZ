@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.24 2000-08-09 19:31:21 f Exp $
+ * $Id: parse.c,v 1.25 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -592,7 +592,7 @@ p_privmsg(from, Args)
 		list_type,
 		flood_type,
 		log_type;
-	unsigned char	ignore_type;
+	u_char	ignore_type;
 	char	*ptr,
 		*to;
 	char	*high;

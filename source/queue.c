@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.4 2000-08-09 19:31:21 f Exp $
+ * $Id: queue.c,v 1.5 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -59,7 +59,6 @@ typedef	struct	QueueT
         char     *name;
 } Queue;
 
-	void	queuecmd _((char *, char *, char *));
 static	Queue	*lookup_queue _((Queue *, char *));
 static	CmdList	*walk_commands _((Queue *));
 static	Queue	*make_new_queue _((Queue *, char *));

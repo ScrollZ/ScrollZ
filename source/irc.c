@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.32 2000-08-09 19:31:20 f Exp $
+ * $Id: irc.c,v 1.33 2000-08-14 20:38:13 f Exp $
  */
 
-#define IRCII_VERSION	"4.4S"
+#define IRCII_VERSION	"4.4X"
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.
@@ -45,7 +45,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 /*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"20000808"
+#define INTERNAL_VERSION	"20000815"
 /****************************************************************************/
 
 #include "irc.h"
@@ -93,6 +93,7 @@
 #include "debug.h"
 #include "newio.h"
 #include "ctcp.h"
+#include "parse.h"
 
 /************************ PATCHED by Flier **************************/
 #include "myvars.h"
@@ -138,7 +139,6 @@ char	FAR MyHostName[80];	       	/* The local machine name. Used by
 extern	char	*last_away_nick;
 
 char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
-	FAR buffer[BIG_BUFFER_SIZE + 1],/* multipurpose buffer */
 	*ircrc_file = (char *) 0,	/* full path .ircrc file */
 	*ircquick_file = (char *)0,	/* full path .ircquick file */
 	*my_path = (char *) 0,		/* path to users home dir */
@@ -171,7 +171,7 @@ char    *channel_join = (char *) 0;     /* channel we are joining */
 	int	qflag;			/* set if we ignore .ircrc */
 	int	bflag;			/* set if we load .ircrc before connecting */
 	time_t	idle_time = 0;
-        time_t  start_time;
+	time_t  start_time;
 
 static	RETSIGTYPE	cntl_c _((void));
 static	RETSIGTYPE	sig_user1 _((void));
@@ -203,6 +203,7 @@ static	void	quit_response _((char *, char *));
 static	void	show_version _((void));
 static	char	*get_arg _((char *, char *, int *));
 static	char	*parse_args _((char **, int));
+static	u_char	buffer[BIG_BUFFER_SIZE];	/* local to irc.c */
 
 static	int	cntl_c_hit = 0;
 
@@ -275,7 +276,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII 4.4S+ScrollZ v1.8j (8.8.2000)+Cdcc v1.8";
+char  *ScrollZver="ircII 4.4X+ScrollZ v1.8j (15.8.2000)+Cdcc v1.8";
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
@@ -815,11 +816,6 @@ parse_args(argv, argc)
         char    *CloakCommand=(char *) 0;
 /****************************************************************************/
 
-    /*
-     * Note that this uses the global buffer to build the args_str list,
-     * which is a whitespace separated list of the arguments used when
-     * loading the .ircrc and GLOBAL_IRCRC files.
-     */
 	*realname = '\0';
 	ac = 1;
 	strmcpy(buffer, argv[0], BIG_BUFFER_SIZE);
@@ -1679,22 +1675,22 @@ main(argc, argv, envp)
 	{
 #ifdef _Windows
 		switch(WSAGetLastError())
-        {
-          case WSAEFAULT:
+	{
+	case WSAEFAULT:
       		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-            break;
-          case WSANOTINITIALISED:
-      		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-            break;
-          case WSAENETDOWN:
-      		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-            break;
-          case WSAEINPROGRESS:
-      		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-            break;
-          default:
-            break;
-        }
+		break;
+	case WSANOTINITIALISED:
+		MessageBox(0, "Couldn't get host name", 0, MB_OK);
+		break;
+	case WSAENETDOWN:
+		MessageBox(0, "Couldn't get host name", 0, MB_OK);
+		break;
+	case WSAEINPROGRESS:
+		MessageBox(0, "Couldn't get host name", 0, MB_OK);
+		break;
+	default:
+		break;
+	}
 
 #else
 		fprintf(stderr, "irc: couldn't figure out the name of your machine!\n");

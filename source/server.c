@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.21 2000-08-10 20:38:04 f Exp $
+ * $Id: server.c,v 1.22 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -123,6 +123,7 @@ close_server(server_index, message)
 	int	server_index;
 	char	*message;
 {
+	char	buffer[BIG_BUFFER_SIZE];
 	int	i,
 		min,
 		max;
@@ -693,6 +694,8 @@ remove_from_server_list(i)
 	clean_whois_queue();
 	from_server = old_server;
 
+	close_server(i, (u_char *) 0);
+
 	if (server_list[i].name)
 		new_free(&server_list[i].name);
 	if (server_list[i].itsname)
@@ -972,7 +975,7 @@ connect_to_server_direct(server_name, port, nick)
 			
 		say("Unable to connect to port %d of server %s: %s%s%s", port, server_name, e,
 		    errno ? ": " : "", errno ? strerror(errno) : "");
-		if (from_server != -1 && server_list[from_server].read != -1)
+		if (is_server_open(from_server))
 			say("Connection to server %s resumed...", server_list[from_server].name);
 		return (-1);
 	}
@@ -1045,6 +1048,7 @@ connect_to_server_process(server_name, port, nick)
 	char	*path,
 		*name = (char *) 0,
 		*s;
+	char	buffer[BIG_BUFFER_SIZE];
 	int	old_timeout;
 
 	path = IRCIO_PATH;
@@ -1123,8 +1127,7 @@ connect_to_server_process(server_name, port, nick)
 			else
 		say("Unable to connect to port %d of server %s: Unknown host",
 							port, server_name);
-			if ((from_server != -1) &&
-					(server_list[from_server].read != -1))
+			if (is_server_open(from_server))
 				say("Connection to server %s resumed...",
 						server_list[from_server].name);
 			new_close(read_des[0]);
@@ -1180,8 +1183,10 @@ connect_to_server(server_name, port, nick, c_server)
 	 * check if the server doesn't exist, or that we're not already
 	 * connected to it.
          */
-        if (server_index == -1 || server_list[server_index].read == -1)
+	if (!is_server_connected(server_index))
 	{
+		if (is_server_open(server_index))
+			close_server(server_index, "retrying connect");
 		if (port == -1)
 		{
 			if (server_index != -1)
@@ -1295,7 +1300,7 @@ connect_to_server(server_name, port, nick, c_server)
 		 * whenever the connection is valid, it's possible for a connect to be
 		 * "immediate".
 		 */
-		if (server_list[from_server].read != -1 &&
+		if (is_server_open(from_server) &&
 			getpeername(server_list[from_server].read, (struct sockaddr *) &sa, &salen) != -1)
 			login_to_server(from_server);
 	}
@@ -1361,9 +1366,9 @@ irc2_login_to_server(server)
 	int	server;
 {
 
-	send_to_server("NICK %s", server_list[server].nickname);
 	if (server_list[server].password)
 		send_to_server("PASS %s", server_list[server].password);
+	send_to_server("NICK %s", server_list[server].nickname);
 	send_to_server("USER %s %s %s :%s", username,
 		(send_umode && *send_umode) ? send_umode : hostname,
 		server_list[server].name, realname);
@@ -1442,6 +1447,7 @@ read_server_file()
 	FILE *fp;
 	char format[11];
 	char *file_path = (char *) 0;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	malloc_strcpy(&file_path, irc_lib);
 	malloc_strcat(&file_path, SERVERS_FILE);
@@ -1509,7 +1515,7 @@ display_server_list()
 				server_list[i].flags & CLOSE_PENDING ? "CLOSE_PENDING " : "",
 				server_list[i].flags & LOGGED_IN ? "LOGGED_IN " : "" );
 /****************************************************************************/
-			say("\t\tclose_serv=%d, connected=%d", server_list[i].close_serv, server_list[i].connected );
+			say("\t\tclose_serv=%d, connected=%d, read=%d, eof=%d", server_list[i].close_serv, server_list[i].connected, server_list[i].read, server_list[i].eof);
 #endif
 		}
 	}
@@ -1528,18 +1534,19 @@ MarkAllAway(command, message)
 	for (from_server=0; from_server<number_of_servers; from_server++)
 	{
 /**************************** PATCHED by Flier ******************************/
-		/*if (server_list[from_server].connected)
+		/*if (is_server_connected(from_server))
 			send_to_server("%s :%s", command, message);*/
             	if (message && *message) {
                     malloc_strcpy(&(server_list[from_server].away),message);
-                    if (server_list[from_server].connected) {
+                    if (is_server_connected(from_server)) {
                         send_to_server("%s :%s", command, message);
 #ifdef CELE
                         SentAway++;
 #endif
                     }
                 }
-                else if (server_list[from_server].connected) send_to_server("%s", command);
+                else if (is_server_connected(from_server))
+                    send_to_server("%s", command);
 /****************************************************************************/
 	}
 	from_server = old_server;
@@ -1735,7 +1742,7 @@ servercmd(command, args, subargs)
 		}
 		else
 			i = find_in_server_list(server, port_num, nick);
-		if (i != -1 && is_server_connected(i))
+		if (is_server_connected(i))
 		{
 			/*
 			 * We reset the log level only if the "new" server
@@ -1766,21 +1773,22 @@ void
 flush_server()
 {
 	fd_set rd;
-	struct timeval timeout;
+	struct timeval time_out;
 	int	flushing = 1;
 	int	des;
 	int	old_timeout;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	if ((des = server_list[from_server].read) == -1)
 		return;
-	timeout.tv_usec = 0;
-	timeout.tv_sec = 1;
+	time_out.tv_usec = 0;
+	time_out.tv_sec = 1;
 	old_timeout = dgets_timeout(1);
 	while (flushing)
 	{
 		FD_ZERO(&rd);
 		FD_SET(des, &rd);
-		switch (new_select(&rd, (fd_set *) 0, &timeout))
+		switch (new_select(&rd, (fd_set *) 0, &time_out))
 		{
 		case -1:
 		case 0:
@@ -1809,7 +1817,7 @@ flush_server()
 	/* make sure we've read a full line from server */
 	FD_ZERO(&rd);
 	FD_SET(des, &rd);
-	if (new_select(&rd, (fd_set *) 0, &timeout) > 0)
+	if (new_select(&rd, (fd_set *) 0, &time_out) > 0)
 /**************************** PATCHED by Flier ******************************/
 		/*dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0);*/
 #ifdef BNCCRYPT
@@ -1998,8 +2006,9 @@ int
 is_server_open(server_index)
 	int	server_index;
 {
-	if (server_index < 0) return (0);
-		return (server_list[server_index].read != -1);
+	if (server_index < 0)
+		return (0);
+	return (server_list[server_index].read != -1);
 }
 
 /*
@@ -2012,9 +2021,11 @@ is_server_connected(server_index)
 	int	server_index;
 {
 /**************************** PATCHED by Flier ******************************/
+	/*if (server_index < 0)
+		return (0);*/
         if (server_index<0 || server_index>=number_of_servers) return(0);
 /****************************************************************************/
-	return (server_list[server_index].connected);
+	return (server_list[server_index].connected && (server_list[server_index].flags & LOGGED_IN));
 }
 
 /* get_server_port: Returns the connection port for the given server index */
@@ -2304,6 +2315,7 @@ create_server_list()
 {
 	int	i;
 	char	*value = (char *) 0;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	*buffer = '\0';
 	for (i = 0; i < number_of_servers; i++)
@@ -2341,7 +2353,7 @@ disconnectcmd(command, args, subargs)
 	char	*message;
 	int	i;
 
-	if ((server = next_arg(args, &args)) != NULL)
+	if ((server = next_arg(args, &args)) != NULL && server[0] != '*' && server[1] != '\0')
 	{
 		i = parse_server_index(server);
 		if (-1 == i)

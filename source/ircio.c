@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircio.c,v 1.3 1998-10-10 19:19:18 f Exp $
+ * $Id: ircio.c,v 1.4 2000-08-14 20:38:13 f Exp $
  */
 
 #include "defs.h"
@@ -82,12 +82,12 @@ static	int	connect_to_unix _((char *));
 #undef NON_BLOCKING
 
 	void	new_free _((char **));
-	char	*new_malloc _((int));
+	char	*new_malloc _((size_t));
 static	int	connect_by_number _((int, char *));
 
 char	*
 new_malloc(size)
-	int	size;
+	size_t	size;
 {
 	char	*ptr;
 
@@ -152,7 +152,7 @@ connect_by_number(service, host)
 		{
 			bzero((char *) &server, sizeof(server));
 			bcopy(hp->h_addr, (char *) &server.sin_addr,
-				hp->h_length);
+				(size_t)hp->h_length);
 			server.sin_family = hp->h_addrtype;
 		}
 		else
@@ -164,23 +164,6 @@ connect_by_number(service, host)
 	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return (-3);
 	set_socket_options(s);
-#ifdef PRIV_PORT
-	if (geteuid() == 0)
-	{
-		struct	sockaddr_in	localaddr;
-		int	portnum;
-
-		localaddr = server;
-		localaddr.sin_addr.s_addr = INADDR_ANY;
-		for (portnum = 1023; portnum > PRIV_PORT; portnum--)
-		{
-			localaddr.sin_port = htons(portnum);
-			if (bind(s, (struct sockaddr *) &localaddr,
-					sizeof(localaddr)) != -1)
-				break;
-		}
-	}
-#endif /*PRIV_PORT*/
 	if (connect(s, (struct sockaddr *) &server, sizeof(server)) < 0)
 	{
 		new_close(s);
@@ -211,7 +194,7 @@ main(argc, argv)
 	int	done = 0,
 		c;
 	char	*ptr,
-		buffer[BUFSIZ + 1],
+		lbuf[BUFSIZ + 1],
 		pong[BUFSIZ + 1];
 #ifdef NON_BLOCKING
 	char	block_buffer[BUFSIZ + 1];
@@ -295,28 +278,28 @@ main(argc, argv)
 		if (FD_ISSET(0, &rd))
 			{
 /**************************** PATCHED by Flier ******************************/
-				/*if (0 != (c = dgets(buffer, BUFSIZ, 0,
+				/*if (0 != (c = dgets(lbuf, BUFSIZ, 0,
 							(char *) 0)))*/
-				if (0 != (c = dgets(buffer, BUFSIZ, 0,
+				if (0 != (c = dgets(lbuf, BUFSIZ, 0,
 							(char *) 0, 0)))
 /***************************************************************************/
-					write(des, buffer, c);
+					write(des, lbuf, (size_t)c);
 				else
 					done = 1;
 			}
 			if (FD_ISSET(des, &rd))
 			{
 /**************************** PATCHED by Flier ******************************/
-				/*if (0 != (c = dgets(buffer, BUFSIZ, des,
+				/*if (0 != (c = dgets(lbuf, BUFSIZ, des,
 							(char *) 0)))*/
-				if (0 != (c = dgets(buffer, BUFSIZ, des,
+				if (0 != (c = dgets(lbuf, BUFSIZ, des,
 							(char *) 0, 0)))
 /***************************************************************************/
 				{
-					if (strncmp(buffer, "PING ", 5) == 0)
+					if (strncmp(lbuf, "PING ", 5) == 0)
 					{
 						if ((ptr = (char *) 
-						    index(buffer, ' ')) != NULL)
+						    index(lbuf, ' ')) != NULL)
 						{
 							sprintf(pong, "PONG user@host %s\n", ptr + 1);
 							write(des, pong, strlen(pong));
@@ -325,17 +308,17 @@ main(argc, argv)
 					else
 					{
 #ifdef NON_BLOCKING
-						if ((wrote = write(1, buffer,
-								c)) == -1)
+						if ((wrote = write(1, lbuf,
+								(size_t)c)) == -1)
 							wd_ptr = &wd;
 						else if (wrote < c)
 						{
 							strcpy(block_buffer,
-							    &(buffer[wrote]));
+							    &(lbuf[wrote]));
 							wd_ptr = &wd;
 						}
 #else
-						write(1, buffer, c);
+						write(1, lbuf, (size_t)c);
 #endif /* NON_BLOCKING */
 					}
 				}
@@ -364,7 +347,7 @@ connect_to_unix(path)
 
 	un.sun_family = AF_UNIX;
 	strcpy(un.sun_path, path);
-	if (connect(sock, (struct sockaddr *)&un, strlen(path)+2) == -1)
+	if (connect(sock, (struct sockaddr *)&un, (int)strlen(path)+2) == -1)
 	{
 		new_close(sock);
 		return -1;

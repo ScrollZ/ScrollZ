@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.4 1999-08-08 09:32:47 f Exp $
+ * $Id: history.c,v 1.5 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -47,7 +47,7 @@ static	void	add_to_history_list _((int, char *));
 static	char	*get_from_history_file _((int));
 static	char	*get_from_history_buffer _((int));
 
-static	FILE *hist_file = (FILE *)NULL;
+static	FILE *hist_file = (FILE *) 0;
 
 typedef struct	HistoryStru
 {
@@ -58,9 +58,9 @@ typedef struct	HistoryStru
 }	History;
 
 /* command_history: pointer to head of command_history list */
-static	History *command_history_head = (History *)NULL;
-static	History *command_history_tail = (History *)NULL;
-static	History *command_history_pos = (History *)NULL;
+static	History *command_history_head = (History *) 0;
+static	History *command_history_tail = (History *) 0;
+static	History *command_history_pos = (History *) 0;
 
 /* hist_size: the current size of the command_history array */
 static	int	hist_size = 0;
@@ -83,7 +83,7 @@ static	off_t	file_pos = 0;
 /*
  * history pointer
  */
-static	History	*history_tmp = (History *)NULL;
+static	History	*history_tmp = (History *) 0;
 
 /*
  * history_match: using wild_match(), this finds the latest match in the
@@ -97,6 +97,7 @@ history_match(match)
 {
 	char	*ptr;
 	char	*match_str = (char *)NULL;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	if (*(match + strlen(match) - 1) == '*')
 		malloc_strcpy(&match_str, match);
@@ -128,7 +129,7 @@ history_match(match)
 	}
 	if (!hist_file && get_int_var(HISTORY_VAR))
 	{
- 		if ((last_dir == -1) || (history_tmp == (History *)NULL))
+		if ((last_dir == -1) || (history_tmp == (History *) 0))
  			history_tmp = command_history_head;
 		else
  			history_tmp = history_tmp->next;
@@ -142,7 +143,7 @@ history_match(match)
 	}
 	last_dir = -1;
 	new_free(&match_str);
-	return (char *)NULL;
+	return (char *) 0;
 }
 
 /*
@@ -181,26 +182,26 @@ add_to_history_list(cnt, stuff)
 		}
 		new = command_history_tail;
 		command_history_tail = command_history_tail->prev;
-		command_history_tail->next = (History *)NULL;
+		command_history_tail->next = (History *) 0;
 		new_free(&new->stuff);
 		new_free(&new);
-		if (command_history_tail == (History *)NULL)
-			command_history_head = (History *)NULL;
+		if (command_history_tail == (History *) 0)
+			command_history_head = (History *) 0;
 	}
 	else
 		hist_size++;
 	new = (History *) new_malloc(sizeof(History));
-	new->stuff = (char *)NULL;
+	new->stuff = (char *) 0;
 	new->number = cnt;
 	new->next = command_history_head;
-	new->prev = (History *)NULL;
+	new->prev = (History *) 0;
 	malloc_strcpy(&(new->stuff), stuff);
 	if (command_history_head)
 		command_history_head->prev = new;
 	command_history_head = new;
-	if (command_history_tail == (History *)NULL)
+	if (command_history_tail == (History *) 0)
 		command_history_tail = new;
-	command_history_pos = (History *)NULL;
+	command_history_pos = (History *) 0;
 }
 
 /*
@@ -224,14 +225,14 @@ set_history_file(file)
 		if (getuid() == DAEMON_UID)
 		{
 			say("You are not permitted to use a HISTORY_FILE");
-			set_string_var(HISTORY_FILE_VAR, (char *)NULL);
+			set_string_var(HISTORY_FILE_VAR, (char *) 0);
 			return;
 		}
 #endif /* DAEMON_UID */
-		if ((ptr = expand_twiddle(file)) == (char *)NULL)
+		if ((ptr = expand_twiddle(file)) == (char *) 0)
 		{
 			say("Bad filename: %s",file);
-			set_string_var(HISTORY_FILE_VAR, (char *)NULL);
+			set_string_var(HISTORY_FILE_VAR, (char *) 0);
 			return;
 		}
 		set_string_var(HISTORY_FILE_VAR, ptr);
@@ -246,11 +247,11 @@ set_history_file(file)
  		fd=open(ptr,O_WRONLY|O_CREAT|O_APPEND,0600);
 #endif
 /********************************************************************/
- 		if (fd < 0 || ((hist_file = fdopen(fd, "w+")) == (FILE *)NULL))
+		if (fd < 0 || ((hist_file = fdopen(fd, "w+")) == (FILE *) 0))
 		{
 			say("Unable to open %s: %s", ptr, strerror(errno));
-			set_string_var(HISTORY_FILE_VAR, (char *)NULL);
-			hist_file = (FILE *)NULL;
+			set_string_var(HISTORY_FILE_VAR, (char *) 0);
+			hist_file = (FILE *) 0;
 		}
 		else if (hist_size)
 		{
@@ -264,7 +265,7 @@ set_history_file(file)
 	else if (hist_file)
 	{
 		fclose(hist_file);
-		hist_file = (FILE *)NULL;
+		hist_file = (FILE *) 0;
 	}
 }
 
@@ -292,10 +293,10 @@ set_history_size(size)
 			new_free(&(ptr->stuff));
 			new_free(&ptr);
 		}
-		if (command_history_tail == (History *)NULL)
-			command_history_head = (History *)NULL;
+		if (command_history_tail == (History *) 0)
+			command_history_head = (History *) 0;
 		else
-			command_history_tail->next = (History *)NULL;
+			command_history_tail->next = (History *) 0;
 		hist_size = size;
 	}
 }
@@ -318,7 +319,7 @@ parse_history(lbuf, ret)
 		*ret = ptr + 2;
 		return (entry);
 	}
-	*ret = (char *)NULL;
+	*ret = (char *) 0;
 	return -1;
 }
 
@@ -351,6 +352,7 @@ get_from_history_file(which)
 	int	which;
 {
 	char	*ptr;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	if (last_dir == -1)
 		last_dir = which;
@@ -367,7 +369,7 @@ get_from_history_file(which)
 			file_pos = 0L;
 			fseek(hist_file, 0L, 0);
 			if (!fgets(buffer, BIG_BUFFER_SIZE, hist_file))
-				return (char *)NULL;
+				return (char *) 0;
 		}
 	}
 	else if (!rfgets(buffer, BIG_BUFFER_SIZE, hist_file))
@@ -375,7 +377,7 @@ get_from_history_file(which)
 		fseek(hist_file, 0L, 2);
 		file_pos = ftell(hist_file);
 		if (!rfgets(buffer, BIG_BUFFER_SIZE, hist_file))
-			return (char *)NULL;
+			return (char *) 0;
 	}
 	file_pos = ftell(hist_file);
 	buffer[strlen(buffer) - 1] = '\0';
@@ -388,7 +390,7 @@ get_from_history_buffer(which)
 	int	which;
 {
 	if ((get_int_var(HISTORY_VAR) == 0) || (hist_size == 0))
-		return (char *)NULL;
+		return (u_char *) 0;
 	/*
 	 * if (last_dir != which) { last_dir = which; get_from_history(which); }
 	 */
@@ -450,6 +452,7 @@ history(command, args, subargs)
 	int	cnt,
 		max;
 	char	*value;
+	char	buffer[BIG_BUFFER_SIZE];
 	History *tmp;
 
 	say("Command History:");
@@ -503,7 +506,8 @@ do_history(com, rest)
 	int	hist_num;
 	char	*ptr,
 		*ret = (char *)NULL;
-	static	char	*last_com = (char *)NULL;
+	char	buffer[BIG_BUFFER_SIZE];
+	static	char	*last_com = (u_char *) 0;
 
 	if (!com || !*com)
 	{
@@ -582,5 +586,5 @@ do_history(com, rest)
 			}
 		say("No such history entry: %d", hist_num);
 	}
-	return (char *)NULL;
+	return (char *) 0;
 }

@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.22 2000-08-09 19:31:20 f Exp $
+ * $Id: dcc.c,v 1.23 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -542,7 +542,7 @@ dcc_check(rd, wd)
 		*wd;
 {
 	DCC_list	**Client;
-	struct	timeval	timeout;
+	struct	timeval	time_out;
 	int	previous_server;
 	int	lastlog_level;
 /**************************** PATCHED by Flier ******************************/
@@ -551,7 +551,7 @@ dcc_check(rd, wd)
 
 	previous_server = from_server;
 	from_server = (-1);
-	timeout.tv_sec = timeout.tv_usec = 0;
+	time_out.tv_sec = time_out.tv_usec = 0;
 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	for (Client = (&ClientList); *Client != NULL && !break_io_processing;)
 	{
@@ -2044,11 +2044,7 @@ process_incoming_listen(Client)
 	DCC_list	*NewClient;
 	int	new_socket;
 	struct	hostent	*hp;
-#if defined(__linux__) || defined(__sgi)
-	const char	*Name;
-#else
 	char	*Name;
-#endif
 
 	sra = sizeof(struct sockaddr_in);
 	new_socket = accept(Client->read, (struct sockaddr *) &remaddr,

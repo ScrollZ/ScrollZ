@@ -60,7 +60,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.63 2000-08-10 17:08:17 f Exp $
+ * $Id: edit6.c,v 1.64 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -90,6 +90,7 @@
 #include "server.h"
 #include "edit.h"
 #include "struct.h"
+#include "parse.h"
 #include "myvars.h" 
 #include "whowas.h"
 

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.42 2000-08-10 17:08:17 f Exp $
+ * $Id: edit3.c,v 1.43 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -64,6 +64,7 @@
 #include "edit.h"
 #include "exec.h"
 #include "struct.h"
+#include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
 

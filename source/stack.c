@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stack.c,v 1.3 1999-02-15 21:20:16 f Exp $
+ * $Id: stack.c,v 1.4 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -116,6 +116,7 @@ do_stack_on(type, args)
 	}
 	if (which < 0)
 	{
+		/* XXX: check cnt != 1 */
 		sprintf(foo, "%3.3u", -which);
 		if ((nhook = (NumericList *) find_in_list((List **) &numeric_list, foo, 0)) != NULL)
 			list = nhook->list;

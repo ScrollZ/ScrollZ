@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.13 2000-08-10 18:58:49 f Exp $
+ * $Id: names.c,v 1.14 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -245,14 +245,12 @@ add_channel(channel, server, connected, copy)
 		new = (ChannelList *) new_malloc(sizeof(ChannelList));
 		new->channel = (char *) 0;
  		new->status = 0;
-		new->s_mode = empty_string;
 		new->key = (char *) 0;
 		new->nicks = (NickList *) 0;
+		new->s_mode = empty_string;
 		malloc_strcpy(&new->channel, channel);
 		new->mode = 0;
 		new->limit = 0;
-		new->i_mode = 0;
-		new->i_limit = -1;
 		if ((new->window = is_bound(channel, server)) == (Window *) 0)
 			new->window = curr_scr_win;
 		do_add = 1;
@@ -272,10 +270,9 @@ add_channel(channel, server, connected, copy)
                 new->gotwho=0;
 		new->mode=0;
 		new->limit=0;
-		new->i_mode=0;
-		new->i_limit=-1;
 		new_free(&new->key);
-		malloc_strcpy(&new->s_mode,empty_string);
+                new_free(&new->s_mode);
+		new->s_mode=empty_string;
 #ifdef HAVETIMEOFDAY
                 gettimeofday(&(new->time),NULL);
 #else
@@ -443,7 +440,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 					int	old_server = from_server;
 
 					from_server = server;
-					send_to_server("MODE %s %s", chan->channel, chan->s_mode);
+					send_to_server("MODE %s %s", chan->channel, mode);
 					from_server = old_server;
 				}
 				chan->status |= CHAN_CHOP;
@@ -538,15 +535,6 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 /*
  * recreate_mode: converts the bitmap representation of a channels mode into
  * a string 
- *
- * This malloces what it returns, but nothing that calls this function
- * is expecting to have to free anything.  Therefore, this function
- * should not malloc what it returns.  (hop)
- *
- * but this leads to horrible race conditions, so we add a bit to
- * the channel structure, and cache the string value of mode, and
- * the u_long value of the cached string, so that each channel only
- * has one copy of the string.  -mrg, june '94.
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	char	**/
@@ -558,15 +546,9 @@ recreate_mode(chan)
 	int	mode_pos = 0,
 		mode;
 	static	char	*s;
+	char	buffer[BIG_BUFFER_SIZE];
 
-	/* first check if cached string value is ok */
-
-	if (chan->mode == chan->i_mode && chan->limit == chan->i_limit)
-		return (chan->s_mode);
-
-	chan->i_mode = chan->mode;
-	chan->i_limit = chan->limit;
-	buffer[0] = '\0';
+	buffer[0] = '\0';	 /* paranoia */
 	s = buffer;
 	mode = chan->mode;
 	while (mode)
@@ -1375,8 +1357,6 @@ free_channel(channel)
 
         (*channel)->mode=0;
         (*channel)->limit=0;
-        (*channel)->i_mode=-1;
-        (*channel)->i_limit=-1;
         new_free(&((*channel)->key));
         new_free(&((*channel)->s_mode));
         new_free(&((*channel)->modelock));
@@ -1414,13 +1394,17 @@ remove_channel(channel, server)
 
 	if (channel)
 	{
+		int refnum = -1;
+
 		if ((tmp = lookup_channel(channel, server, CHAN_NOUNLINK)))
 		{
 			tmp = lookup_channel(channel, server, CHAN_UNLINK);
+			if (tmp->window)
+				refnum = tmp->window->refnum;
 			free_channel(&tmp);
 		}
 
-		(void)is_current_channel(channel, server, -1);
+		(void)is_current_channel(channel, server, refnum);
 	}
 	else
 	{
@@ -1657,6 +1641,7 @@ show_channel(chan)
 		len;
 	char	*nicks = (char *) 0;
 	char	*s;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	s = recreate_mode(chan);
 	*buffer = (char) 0;
@@ -1933,6 +1918,7 @@ create_channel_list(window)
 {
 	ChannelList	*tmp;
 	char	*value = (char *) 0;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	*buffer = '\0';
 	for (tmp = server_list[window->server].chan_list; tmp; tmp = tmp->next)

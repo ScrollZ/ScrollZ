@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.17 2000-08-10 20:38:04 f Exp $
+ * $Id: window.c,v 1.18 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -53,6 +53,7 @@
 #include "hook.h"
 #include "dcc.h"
 #include "translat.h"
+#include "parse.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -71,11 +72,10 @@ int	underline = 1;
  */
 #define	MAXINT (-1&~(1<<(sizeof(int)*8-1)))
 
-Window	*invisible_list = (Window *) 0;
-						/* list of hidden windows */
-char	*who_from = (char *) 0;	/* nick of person who's message
-						 * is being displayed */
-int	who_level = LOG_CRAP;/* Log level of message being displayed */
+Window	*invisible_list = (Window *) 0; /* list of hidden windows */
+char	*who_from = (char *) 0;		/* nick of person who's message
+ 					 * is being displayed */
+int	who_level = LOG_CRAP;	/* Log level of message being displayed */
 
 int	in_window_command = 0;	/* set to true if we are in window().  This
 				 * is used if a put_it() is called within the
@@ -1492,6 +1492,7 @@ delete_window(window)
 	Window	*window;
 {
 	char	*tmp = (char *) 0;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	if (window == (Window *) 0)
 		window = curr_scr_win;
@@ -1643,15 +1644,15 @@ unhold_windows()
  * only some of the changed portions are redrawn 
  */
 void
-update_window_status(window, refresh)
+update_window_status(window, refreshit)
 	Window	*window;
-	int	refresh;
+	int	refreshit;
 {
 	if (dumb || (!window->visible) || !status_update_flag || never_connected)
 		return;
 	if (window == (Window *) 0)
 		window = curr_scr_win;
-	if (refresh)
+	if (refreshit)
 	{
 		new_free(&window->status_line[0]);
 		new_free(&window->status_line[1]);
@@ -1813,9 +1814,9 @@ is_current_channel(channel, server, delete)
 				return 1;
 			}
  			delete_channel = get_channel_by_refnum((u_int)delete);
-			if (delete_channel
-			&& !(is_bound(delete_channel, server) &&
-		     	found_window->refnum != delete))
+			if (delete_channel &&
+			   !(is_bound(delete_channel, server) &&
+		     	    found_window->refnum != delete))
 				set_channel_by_refnum(found_window->refnum,
  					get_channel_by_refnum((u_int)delete));
 		}
@@ -2325,6 +2326,7 @@ list_a_window(window, len, clen)
 	int	clen;
 {
 	char	tmp[10];
+	char	buffer[BIG_BUFFER_SIZE];
 
 	sprintf(tmp, "%-4u", window->refnum);
  	sprintf(buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
@@ -2357,6 +2359,7 @@ static	void
 list_windows()
 {
 	Window	*tmp;
+	char	buffer[BIG_BUFFER_SIZE];
 	int	flag = 1;
 	int	len = 4;
 	int	clen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
@@ -2723,6 +2726,7 @@ windowcmd(command, args, subargs)
  	size_t	len;
 	char	*arg,
 		*cmd = (char *) 0;
+	char	buffer[BIG_BUFFER_SIZE];
 	int	no_args = 1;
 	Window	*window,
 		*tmp;
@@ -3148,9 +3152,9 @@ windowcmd(command, args, subargs)
 			{
 				window->display_size += current -
 					window->double_status;
-				recalculate_window_positions ();
-				update_all_windows ();
-				build_status ((char *) NULL);
+				recalculate_window_positions();
+				update_all_windows();
+				build_status((char *) NULL);
 			}*/
                         if ((arg=next_arg(args,&args))) {
                             int error=-1;

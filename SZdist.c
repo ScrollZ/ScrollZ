@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.23 2000-08-09 19:31:20 f Exp $
+ * $Id: SZdist.c,v 1.24 2000-08-14 20:38:13 f Exp $
  */
 
 #include <stdio.h>
@@ -56,14 +56,14 @@
 #define IPCHECKING     (1<<16)
 #define OPER           (1<<17)
 #define OGRE           (1<<18)
-/*#define SZ32         (1<<19)
-#define SZNCURSES      (1<<20)*/
+#define SZ32         (1<<19)
+/*#define SZNCURSES      (1<<20)*/
 #define NUMDEFS        (OGRE)
 
 #define mybufsize 1024
 
-char *int_ver="20000808";
-char *ver="ircII 4.4S+ScrollZ v1.8j (8.8.2000)+Cdcc v1.8";
+char *int_ver="20000815";
+char *ver="ircII 4.4X+ScrollZ v1.8j (15.8.2000)+Cdcc v1.8";
 char *chars="ABCDEFGHIJ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";
@@ -92,8 +92,8 @@ char *JIMMIEfiles="edit2.o";
 char *CTCPPAGEfiles="ctcp.o";
 char *TDFfiles="cdcc.o dcc.o edit.o edit4.o edit5.o edit6.o status.o";
 char *COUNTRYfiles="alias.o";
-/*char *SZ32files="edit.o help.o ircaux.o scandir.o server.o term.o window.o";
-char *SZNCURSESfiles="edit.o edit4.o input.o menu.o output.o parse.o screen.o\
+char *SZ32files="*.o";
+/*char *SZNCURSESfiles="edit.o edit4.o input.o menu.o output.o parse.o screen.o\
  status.o term.o";*/
 char *IPCHECKINGfiles="edit2.o edit3.o edit6.o files.o parse.o";
 char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
@@ -455,8 +455,8 @@ char **argv;
 	    else if (strstr(buf,"CTCPPAGE")) choice|=CTCPPAGE;
 	    else if (strstr(buf,"TDF")) choice|=TDF;
 	    else if (strstr(buf,"COUNTRY")) choice|=COUNTRY;
-	    /*else if (strstr(buf,"SZ32")) choice|=SZ32;
-	    else if (strstr(buf,"SZNCURSES")) choice|=SZNCURSES;*/
+	    else if (strstr(buf,"SZ32")) choice|=SZ32;
+	    /*else if (strstr(buf,"SZNCURSES")) choice|=SZNCURSES;*/
 	    else if (strstr(buf,"IPCHECKING")) choice|=IPCHECKING;
 	    else if (strstr(buf,"OPER")) choice|=OPER;
 	    else if (strstr(buf,"OGRE")) choice|=OGRE;
@@ -564,9 +564,9 @@ char **argv;
 	       onoffstr(choice&TDF,onoffbuf));
 	printf(" [1mP[0m - COUNTRY       %s - compile with $country()\n",
 	       onoffstr(choice&COUNTRY,onoffbuf));
-/*	printf(" [1m3[0m - SZ32          %s - compile for Win32 (NT+95)\n",
+	printf(" [1m3[0m - SZ32          %s - compile for Win32 (NT+95)\n",
 	       onoffstr(choice&SZ32,onoffbuf));
-	printf(" [1mU[0m - SZNCURSES     %s - compile with ncurses colors (W95)\n",
+	/*printf(" [1mU[0m - SZNCURSES     %s - compile with ncurses colors (W95)\n",
 	       onoffstr(choice&SZNCURSES,onoffbuf));*/
 	printf(" [1mX[0m - IPCHECKING    %s - compile with IP checking\n",
 	       onoffstr(choice&IPCHECKING,onoffbuf));
@@ -631,10 +631,10 @@ char **argv;
 		case 'P': if ((choice&COUNTRY)) choice&=~COUNTRY;
 			  else choice|=COUNTRY;
 			  break;
-		/*case '3': if ((choice&SZ32)) choice&=~SZ32;
+		case '3': if ((choice&SZ32)) choice&=~SZ32;
 			  else choice|=SZ32;
 			  break;
-		case 'U': if ((choice&SZNCURSES)) choice&=~SZNCURSES;
+		/*case 'U': if ((choice&SZNCURSES)) choice&=~SZNCURSES;
 			  else choice|=SZNCURSES;
 			  break;*/
 		case 'X': if ((choice&IPCHECKING)) choice&=~IPCHECKING;
@@ -675,8 +675,8 @@ char **argv;
 	    else if (i==CTCPPAGE) addtobuf(CTCPPAGEfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==TDF) addtobuf(TDFfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==COUNTRY) addtobuf(COUNTRYfiles,tmpbuf,choice,oldchoice,i);
-	    /*else if (i==SZ32) addtobuf(SZ32files,tmpbuf,choice,oldchoice,i);
-	    else if (i==SZNCURSES) addtobuf(SZNCURSESfiles,tmpbuf,choice,oldchoice,i);*/
+	    else if (i==SZ32) addtobuf(SZ32files,tmpbuf,choice,oldchoice,i);
+	    /*else if (i==SZNCURSES) addtobuf(SZNCURSESfiles,tmpbuf,choice,oldchoice,i);*/
 	    else if (i==IPCHECKING) addtobuf(IPCHECKINGfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==OPER) addtobuf(OPERfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==OGRE) addtobuf(OGREfiles,tmpbuf,choice,oldchoice,i);
@@ -761,9 +761,9 @@ char **argv;
 	if (choice&COUNTRY) fprintf(fpout,"#define COUNTRY\n");
 	else fprintf(fpout,"#undef COUNTRY\n");
         fprintf(fpout,"\n/* Define this if you want client with Win32 support */\n");
-	/*if (choice&SZ32) fprintf(fpout,"#define SZ32\n");
+	if (choice&SZ32) fprintf(fpout,"#define SZ32\n");
 	else fprintf(fpout,"#undef SZ32\n");
-        fprintf(fpout,"\n/* Define this if you want client with ncurses support *//*\n");
+        /*fprintf(fpout,"\n/* Define this if you want client with ncurses support *//*\n");
 	if (choice&SZNCURSES) fprintf(fpout,"#define SZNCURSES\n");
 	else fprintf(fpout,"#undef SZNCURSES\n");*/
         fprintf(fpout,"\n/* Define this if you want irc oper stuff (not OperVision!) */\n");

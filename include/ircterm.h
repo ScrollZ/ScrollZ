@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.3 2000-08-09 19:31:20 f Exp $
+ * $Id: ircterm.h,v 1.4 2000-08-14 20:38:13 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -101,7 +101,9 @@ extern	char	*CM,
 		*UE,
 		*MD,
 		*ME,
-		*BL;
+		*BL,
+		*TI,
+		*TE;
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/
@@ -183,6 +185,9 @@ char *tgetstr(char *, char **);
 	int	term_resize _((void));
  	void	term_pause _((u_int, char *));
  	void	term_putchar _((u_int));
+#if 0
+	void    term_putkanji _((u_int, u_int));
+#endif
  	int	term_puts _((char *, size_t));
 	void	term_flush _((void));
 	void	term_space_erase _((int));
@@ -196,12 +201,15 @@ char *tgetstr(char *, char **);
 #endif /* SZNCURSES */
 /****************************************************************************/
 
-extern int	 (*term_scroll) _((int, int, int));
-extern int	 (*term_insert) _((u_int));
-extern int	 (*term_delete) _((void));
-extern int	 (*term_cursor_right) _((void));
-extern int	 (*term_cursor_left) _((void));
-extern int	 (*term_clear_to_eol) _((void));
+extern int	(*term_scroll) _((int, int, int));
+extern int	(*term_insert) _((u_int));
+#if 0
+extern int	(*term_insert_kanji) _((u_int, u_int));
+#endif
+extern int	(*term_delete) _((void));
+extern int	(*term_cursor_right) _((void));
+extern int	(*term_cursor_left) _((void));
+extern int	(*term_clear_to_eol) _((void));
 
 #if defined(ISC22) || defined(MUNIX)
 /* Structure for terminal special characters */

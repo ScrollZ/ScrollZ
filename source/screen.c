@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.11 2000-08-09 19:31:21 f Exp $
+ * $Id: screen.c,v 1.12 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -57,6 +57,7 @@
 #include "translat.h"
 #include "exec.h"
 #include "newio.h"
+#include "parse.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -100,6 +101,7 @@ static	u_int	create_refnum _((void));
 void redraw_window _((Window *, int, int));
 /****************************************************************************/
 static	char	*next_line_back _((Window *));
+static	int	lastlog_lines _((Window *));
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -540,7 +542,8 @@ output_line(str, result, startpos)
 	char	**result;
 	int	startpos;
 {
-	static	int	high = OFF, bold = OFF;
+	static	int	high = OFF,
+			bold = OFF;
 	int	rev_tog, und_tog, bld_tog, all_off;
 	char	*ptr;
  	ssize_t	len;
@@ -1276,6 +1279,7 @@ split_up_line(str)
 	char	*cont_ptr,
 		*cont = NULL,
 		*temp = NULL,
+		*mystr = NULL,
 		c;
 	int	pos = 0,
 		col = 0,
@@ -1288,19 +1292,17 @@ split_up_line(str)
 		beep_max,
 		tab_cnt = 0,
 		tab_max,
-		line = 0,
-		need_free = 0;
+		line = 0;
  	size_t	len;
 
 	bzero(lbuf, sizeof(lbuf));
 	for (i = 0; i < MAXIMUM_SPLITS; i++)
 		new_free(&output[i]);
-	if (!*str)
+	if (!str || !*str)
 	{
 		/* special case to make blank lines show up */
-		str = (char *) 0;	/* make sure we don't try to free someone else's data! */
-		malloc_strcpy(&str, " ");
-		need_free = 1;
+		malloc_strcpy(&mystr, " ");
+		str = mystr;
 	}
 
 	beep_max = get_int_var(BEEP_VAR) ? get_int_var(BEEP_MAX_VAR) : -1;
@@ -1495,8 +1497,8 @@ split_up_line(str)
 			malloc_strcpy(&temp, &(lbuf[start]));
 		malloc_strcpy(&output[line++], temp);
 	}
-	if (need_free)
-		new_free(&str);
+	if (mystr)
+		new_free(&mystr);
 	new_free(&cont);
 	new_free(&temp);
 	return output;
@@ -1571,10 +1573,11 @@ add_to_screen(incoming)
 {
 	int	flag;
 	Window	*tmp;
+	char	buffer[BIG_BUFFER_SIZE];
 /**************************** PATCHED by Flier ******************************/
         char tmpbuf[BIG_BUFFER_SIZE+1];
 #ifdef WANTANSI
-        char tmpbuf1[BIG_BUFFER_SIZE+1];
+        char tmpbuf1[2*BIG_BUFFER_SIZE+1];
 #endif
 
         if (!get_int_var(DISPLAY_ANSI_VAR)) {
@@ -1639,7 +1642,7 @@ add_to_screen(incoming)
 	{
 		if (translation)
 		{
-			unsigned char *ptr = (unsigned char *) incoming;
+			u_char	*ptr = (u_char *) incoming;
 
 			while (*ptr)
 			{
@@ -1938,14 +1941,16 @@ create_additional_screen()
 	int	NsZ;
 	int	s;
 	fd_set	fd_read;
-	struct	timeval	timeout;
+	struct	timeval	time_out;
 	pid_t	child;
 	int	old_timeout;
 #define IRCXTERM_MAX 10
 	char	*ircxterm[IRCXTERM_MAX];
 	char	*ircxterm_env;
-	char	*xterm = (char *) 0;
+	char	*xterm = (u_char *) 0;
 	char	*def_xterm = get_string_var(XTERM_PATH_VAR);
+	char	*p, *q;
+	char	buffer[BIG_BUFFER_SIZE];
 	int	ircxterm_num;
 	char	*p, *q;
 	int	i;
@@ -2099,7 +2104,10 @@ create_additional_screen()
 			copy_window_size(&lines, &columns);
 			sprintf(geom, "%dx%d", columns, lines);
 			args[i++] = xterm;
-			args[i++] = "-geom";
+			if ((ss = get_string_var(XTERM_GEOMOPTSTR_VAR)) != NULL)
+				args[i++] = ss;
+			else
+				args[i++] = "-geom";
 			args[i++] = geom;
 			if ((ss = get_string_var(XTERM_OPTIONS_VAR)) != NULL)
 			{
@@ -2122,13 +2130,13 @@ create_additional_screen()
 	NsZ = sizeof(NewSock);
 	FD_ZERO(&fd_read);
 	FD_SET(s, &fd_read);
-	timeout.tv_sec = (time_t) 5;
-	timeout.tv_usec = 0;
+	time_out.tv_sec = (time_t) 5;
+	time_out.tv_usec = 0;
 	sleep(1);
 
 	/* using say(), yell() can be bad in this next section of code. */
 
-	switch (select(NFDBITS , &fd_read, NULL, NULL, &timeout))
+	switch (select(NFDBITS , &fd_read, NULL, NULL, &time_out))
 	{
 	case -1:
 	case 0:
@@ -2251,6 +2259,33 @@ next_line_back(window)
 }
 
 /*
+ * how many lastlog lines in this window?
+ */
+static int
+lastlog_lines(window)
+	Window *window;
+{
+	Display	*Disp;
+	int num_lines = 0, i;
+
+	(void)next_line_back(window);
+
+	for (i = window->new_scrolled_lines; i--; num_lines++)
+		(void)next_line_back(NULL);
+
+	for (i = 0, Disp = window->top_of_display; i < window->display_size;
+			Disp = Disp->next, i++)
+		if (Disp->linetype)
+			(void)next_line_back(NULL);
+
+	while (next_line_back(NULL))
+		num_lines++;
+
+	Debug((3, "  num_lines ends up as %d", num_lines));
+	return (num_lines);
+}
+
+/*
  * in window "window", display the lastlog lines from "start" to "end".
  */
 static	void
@@ -2296,6 +2331,7 @@ scrollback_backwards_lines(ScrollDist)
 	int	ScrollDist;
 {
 	Window	*window;
+	int totallines;
 
 	Debug((3, "scrollback_backwards_lines(%d)", ScrollDist));
 	window = curr_scr_win;
@@ -2304,7 +2340,18 @@ scrollback_backwards_lines(ScrollDist)
 		term_beep();
 		return;
 	}
-	Debug((3, "scrolled_lines = %d", window->scrolled_lines));
+	totallines = lastlog_lines(window);
+	Debug((3, "totallines = %d, scrolled_lines = %d", totallines, window->scrolled_lines));
+	if (ScrollDist + window->scrolled_lines > totallines)
+	{
+		ScrollDist = totallines - window->scrolled_lines;
+		Debug((3, "  adjusting ScrollDist to %d", ScrollDist));
+	}
+	if (ScrollDist == 0)
+	{
+		term_beep();
+		return;
+	}
 	window->scrolled_lines += ScrollDist;
 
 	Debug((3, "going to term_scroll(%d, %d, %d)",
@@ -2457,7 +2504,7 @@ scrollback_start(key, ptr)
 {
 	Window	*window;
 	Display	*Disp;
-	int	num_lines = 0, i;
+	int	num_lines;
 
 	window = curr_scr_win;
 	if (!window->lastlog_size)
@@ -2467,23 +2514,8 @@ scrollback_start(key, ptr)
 	}
 
 	Debug((3, "scrollback_start: new_scrolled_lines=%d display_size=%d", window->new_scrolled_lines, window->display_size));
-	/*
-	 * work out how many lines there are in the lastlog.
-	 */
-	(void)next_line_back(window);
+	num_lines = lastlog_lines(window);
 
-	for (i = window->new_scrolled_lines; i--; num_lines++)
-		(void)next_line_back(NULL);
-
-	for (i = 0, Disp = window->top_of_display; i < window->display_size;
-			Disp = Disp->next, i++)
-		if (Disp->linetype)
-			(void)next_line_back(NULL);
-
-	while (next_line_back(NULL))
-		num_lines++;
-
-	Debug((3, "  num_lines ends up as %d", num_lines));
 	if (num_lines < window->display_size)
 		scrollback_backwards_lines(num_lines);
 	else

@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.7 2000-08-09 19:31:21 f Exp $
+ * $Id: term.c,v 1.8 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -227,7 +227,9 @@ char	*CM,
 	*SR,
 	*ND,
 	*LE,
-	*BL;
+	*BL,
+	*TI,
+	*TE;
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
@@ -295,8 +297,8 @@ void
 term_putchar(i)
  	u_int	i;
 {
-	unsigned char	c = (unsigned char)i & 0xff;
-	int		so = 0;
+	u_char	c = (u_char)i & 0xff;
+	int	so = 0;
 
 	if (term_echo_flag)
 	{
@@ -454,6 +456,8 @@ term_reset()
 
 	if (CS)
 		tputs_x(tgoto(CS, LI - 1, 0));
+	if (TE)
+		tputs_x(TE);
 	term_move_cursor(0, LI - 1);
 	term_reset_flag = 1;
 /**************************** PATCHED by Flier ******************************/
@@ -499,6 +503,9 @@ term_cont()
 	new_stty("raw -echo");
 # endif /* mips */
 #endif /* SIGSTOP && SIGTSTP */
+
+	if (TI)
+		tputs_x(TI);
 /**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
@@ -618,6 +625,11 @@ term_init()
 	else
 		term_clear_to_eol = term_null_function;
 
+	TE = tgetstr("te", &ptr);
+	if (TE && (TI = tgetstr("ti", &ptr)) != (char *) 0)
+		tputs_x(TI);
+	else
+		TI = (char *) 0;
 
 	/* if ((ND = tgetstr("nd", &ptr)) || (ND = tgetstr("kr", &ptr))) */
 	if ((ND = tgetstr("nd", &ptr)) != NULL)

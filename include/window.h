@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.5 2000-08-09 19:31:20 f Exp $
+ * $Id: window.h,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 #ifndef __window_h_
@@ -121,7 +121,7 @@ typedef struct window_traverse_stru
 	void	set_prompt_by_refnum _((u_int, char *));
 	int	number_of_windows _((void));
 	void	clear_window_by_refnum _((u_int));
-	unsigned int	current_refnum _((void));
+	u_int	current_refnum _((void));
 	Window	*get_window_by_refnum _((u_int));
 	char	*get_target_by_refnum _((u_int));
 	char	*get_prompt_by_refnum _((u_int));
@@ -149,7 +149,7 @@ extern	int	underline;
 extern	int	who_level;
 extern	char	*who_from;
 extern	int	in_window_command;
-extern	unsigned int	window_display;
+extern	u_int	window_display;
 
 #define WINDOW_NOTIFY	((unsigned) 0x0001)
 #define WINDOW_NOTIFIED	((unsigned) 0x0002)

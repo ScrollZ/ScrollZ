@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.5 2000-08-09 19:31:21 f Exp $
+ * $Id: output.c,v 1.6 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -66,18 +66,26 @@
  */
 #if defined(HAVE_VASPRINTF) && defined(HAVE_STDARG_H)
 
-static	char	*putbuf;
+/* put_it() and friends need to be reentrant */
+#define PUTBUF_INIT	char *putbuf;
 
 # define PUTBUF_SPRINTF(f, v) 				\
 if (vasprintf(&putbuf, f, v) == -1)			\
 {	/* EEK */					\
 	write(1, "out of memory?\n\r\n\r", 19);		\
 	return;						\
-}							\
+}
 
-# define PUTBUF_END	free(putbuf);
+# define PUTBUF_END	free(putbuf); putbuf = 0;
 
 #else
+/*
+ * put_it has to be reentrant - this works because the text is used
+ * before it's overwritten by the reentering, but it's not
+ * The Right Thing ...
+ */
+#define PUTBUF_INIT
+
 /* make this buffer *much* bigger than needed */
 static	char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
 
@@ -130,12 +138,12 @@ put_file(filename)
 	char	*filename;
 {
 	FILE	*fp;
-	char	line[256];		/* too big?  too small?  who cares? */
+	char	line[1024];		/* too big?  too small?  who cares? */
  	size_t	len;
 
 	if ((fp = fopen(filename, "r")) != (FILE *) 0)
 	{
-		while (fgets(line, 256, fp))
+		while (fgets(line, 1024, fp))
 		{
 			if (line)
 			{
@@ -188,6 +196,7 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	if (window_display)
 	{
 #ifdef HAVE_STDARG_H
+		PUTBUF_INIT
 		va_start(vl, format);
 		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
@@ -227,6 +236,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	if (window_display)
 	{
 		char *fmt = (char *) 0;
+		PUTBUF_INIT
 
 /**************************** PATCHED by Flier ******************************/
                 if (ScrollZstr && *ScrollZstr) {
@@ -272,6 +282,8 @@ yell(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		*arg10;
 {
 #endif
+	PUTBUF_INIT
+
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
 	PUTBUF_SPRINTF(format, vl)
@@ -307,6 +319,7 @@ help_put_it(topic, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
 		*arg10;
 {
 #endif
+	PUTBUF_INIT
 	int	lastlog_level;
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: parse.h,v 1.2 2000-08-14 20:38:13 f Exp $
  */
 
 #ifndef __parse_h_
@@ -38,6 +38,7 @@
 	char	*PasteArgs _((char **, int));
 	void	parse_server _((char *));
 	void	irc2_parse_server _((char *));
+	int	is_channel _((char *));
 
 extern	char	*FromUserHost;
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.5 2000-08-09 19:31:21 f Exp $
+ * $Id: lastlog.c,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -76,7 +76,7 @@ static	char	*levels[] =
 
 /*
  * bits_to_lastlog_level: converts the bitmap of lastlog levels into a nice
- * string format.  Note that this uses the global buffer, so watch out 
+ * string format.
  */
 char	*
 bits_to_lastlog_level(level)

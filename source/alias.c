@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.8 2000-08-09 19:31:20 f Exp $
+ * $Id: alias.c,v 1.9 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -51,6 +51,7 @@
 #include "server.h"
 #include "output.h"
 #include "names.h"
+#include "parse.h"
 
 /*
  * define this to use the old way of managing allocations
@@ -85,8 +86,6 @@ extern int  is_voiced _((char *, char *));
 extern char VersionInfo[];
 extern char *ScrollZver1;
 /****************************************************************************/
-
-extern	char	*FromUserHost;
 
 extern	int	parse_number _((char **));
 static	char	*next_unit _((char *, char *, int *, int));
@@ -1534,14 +1533,15 @@ expander_addition(buff, add, length, quote_em)
 	char	*quote_em;
 {
 	char	format[40],
+		buffer[BIG_BUFFER_SIZE],
 		*ptr;
 
 	if (length)
 	{
 		sprintf(format, "%%%d.%ds", -length, (length < 0 ? -length :
 			length));
-		sprintf(buffer, format, add);	/* XXX global buffer */
-		add = buffer;			/* XXX global buffer */
+		sprintf(buffer, format, add);
+		add = buffer;
 	}
 	if (quote_em)
 	{
@@ -2498,7 +2498,9 @@ alias(command, args, subargs)
 		{
 			if (*rest == LEFT_BRACE)
 			{
-				char	*ptr = MatchingBracket(++rest,
+				char	*ptr;
+
+				ptr = MatchingBracket(++rest,
  						(int)LEFT_BRACE, (int)RIGHT_BRACE);
 				if (!ptr)
 				    say("Unmatched brace in ALIAS or ASSIGN");
@@ -2885,7 +2887,7 @@ function_strip(input)
 	{
 		len = strlen((char *) input);
 		if (len > 127)
-			result = (char *) new_malloc(len);
+			result = (char *) new_malloc(len + 1);
 		else
 			result = tmpbuf;
 
@@ -3034,8 +3036,8 @@ function_dcclist(Nick)
 					: (a == DCC_FILEOFFER)		? 'S' /* SEND */
 					: (a == DCC_FILEREAD)		? 'G' /* GET */
 /**************************** PATCHED by Flier ******************************/
-					//: (a == DCC_TALK)		? 'T' /* TALK */
-					//: (a == DCC_SUMMON)		? 'U' /* SUMMON */
+					/*: (a == DCC_TALK)		? 'T' *//* TALK */
+					/*: (a == DCC_SUMMON)		? 'U' *//* SUMMON */
 /****************************************************************************/
 					: (a == DCC_RAW_LISTEN)		? 'L' /* RAW_LISTEN */
 					: (a == DCC_RAW)      		? 'R' /* RAW */
@@ -3408,9 +3410,10 @@ function_pid(input)
 	u_char	*input;
 {
 	u_char	*result = (u_char *) 0;
+	u_char	lbuf[32];	/* plenty big enough for %d */
 
-	sprintf(buffer, "%d", (int) getpid());		/* XXX global buffer */
-	malloc_strcpy((char **) &result, buffer);			/* XXX global buffer */
+	sprintf(lbuf, "%d", (int) getpid());
+	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
 
@@ -3419,9 +3422,10 @@ function_ppid(input)
 	u_char	*input;
 {
 	u_char	*result = (u_char *) 0;
+	u_char	lbuf[32];	/* plenty big enough for %d */
 
-	sprintf(buffer, "%d", (int) getppid());		/* XXX global buffer */
-	malloc_strcpy((char **) &result, buffer);			/* XXX global buffer */
+	sprintf(lbuf, "%d", (int) getppid());
+	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
 
@@ -3454,8 +3458,6 @@ function_chanusers(input)
 /****************************************************************************/
 	if ((ChannelList *) 0 == chan)
 		return (u_char *) 0;
-
-	*buffer = '\0';
 
 	for (nicks = chan->nicks; nicks; nicks = nicks->next)
 /**************************** PATCHED by Flier ******************************/

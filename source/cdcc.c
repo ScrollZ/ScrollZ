@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.27 2000-08-09 19:31:20 f Exp $
+ * $Id: cdcc.c,v 1.28 2000-08-14 20:38:13 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -30,6 +30,7 @@
 #include "output.h"
 #include "edit.h"
 #include "dcc.h"
+#include "parse.h"
 #ifndef CELEHOOK
 #include "hook.h"
 #endif

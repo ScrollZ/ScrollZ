@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.39 2000-08-10 17:08:36 f Exp $
+ * $Id: edit4.c,v 1.40 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -88,6 +88,7 @@
 #include "ircterm.h"
 #include "list.h"
 #include "struct.h"
+#include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
 

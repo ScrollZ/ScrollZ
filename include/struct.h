@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.4 2000-08-09 19:31:20 f Exp $
+ * $Id: struct.h,v 1.5 2000-08-14 20:38:13 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -354,10 +354,8 @@ typedef	struct	channel_stru
 	char	*channel;		/* channel name */
 	int	server;			/* server index for this channel */
 	u_long	mode;			/* Current mode settings for channel */
-	u_long	i_mode;			/* channel mode for cached string */
 	char	*s_mode;		/* cached string version of modes */
 	int	limit;			/* max users for the channel */
-	int	i_limit;		/* max users in cached string */
 	char	*key;			/* key for this channel */
 	int	connected;		/* connection status */
 #define	CHAN_LIMBO	-1

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.20 2000-08-09 19:31:21 f Exp $
+ * $Id: numbers.c,v 1.21 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -617,6 +617,7 @@ cannot_join_channel(from, ArgList)
 		**ArgList;
 {
 	char	*chan;
+	char	buffer[BIG_BUFFER_SIZE];
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
         int     tryjoin=0;

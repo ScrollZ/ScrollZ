@@ -8,8 +8,186 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.6 2000-08-09 19:31:20 f Exp $
+ * @(#)$Id: ChangeLog,v 1.7 2000-08-14 20:38:13 f Exp $
  */
+
+4.4X
+Fri Aug  4 12:18:10 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		use a local static "buffer", fixes lossage.
+
+4.4V
+Wed Aug  2 18:41:22 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/icb.c:
+		don't ignore empty fields, fill them in as normal.
+
+Wed Jul 19 03:12:37 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/irc.h, source/alias.c, source/ctcp.c, source/edit.c,
+	source/exec.c, source/help.c, source/history.c, source/ignore.c,
+	source/irc.c, source/lastlog.c, source/mail.c, source/menu.c,
+	source/names.c, source/notice.c, source/numbers.c, source/screen.c,
+	source/server.c, source/translat.c, source/window.c:
+		remove all uses of the global buffer, and delete it.
+
+Sun Jul 16 14:23:48 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		don't use the global "buffer".
+
+Thu Jul 13 13:15:08 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/on/icb_status, help/on/icb_error:
+		document the recently added icb_status and icb_error hooks.
+	source/edit.c:
+		fix `/join -' dumping core, PR#458.
+
+Sun Jun 11 17:39:05 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/icb.c:
+		fix my PR#444: moderator sign off message wrongly parsed.
+
+Sun Jun 11 17:17:21 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/config.h.dist, include/vars.h, include/vars.h.prot,
+	source/irc.c, source/screen.c, source/vars.c
+	help/set/foreground_colour, help/set/background_colour:
+		add two new /set variables: foreground_colour and
+		background_colour, and use these.  add new -r switch to
+		reverse the default values.  from forcer@mindless.com,
+		and is the best fix for his PR#446.
+	help/set/colour:
+		document this recent variable.
+
+Sun Jun 11 17:03:16 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/term.c, include/ircterm.h:
+		use termcap 'ti' and 'te' sequences when starting and leaving
+		(or when suspending).  should fix colour reset problems as
+		seen in PR#429.
+	include/config.h.lynx:
+		kill.
+
+Mon May 29 00:35:44 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/set/xterm_geomoptstr, help/set/xterm_options, help/set/xterm_path,
+	include/config.h.lynx, include/config.h.dist, include/vars.h.proto,
+	source/screen.c, source/vars.c, include/vars.h:
+		add new /set xterm_geomoptstr variable to change the "-geom"
+		option to the xterm program, necessary for, eg, rvxt. fixes
+		PR#449 from <jmf@digitalexp.com>.
+	include/struct.h, source/names.c:
+		remove the 'cached' mode string.  it was getting wrong with
+		channel keys and it seems useless now anyway.
+
+4.4U
+Thu May 11 13:04:07 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		make /disconnect * work.
+	source/dcc.c, source/newio.c, source/server.c, source/screen.c,
+	source/window.c:
+		rename refresh and timeout functions/variables as these
+		are defined in most <curses.h> files.
+	source/translat.c:
+		fopen() likes "r" not "R".
+	source/notify.c:
+		in do_notify(), don't change from_server and leave it
+		changed if we have an ICB server for primary.
+	source/edit.c:
+		don't send IRC PRIVMSG to ICB servers.
+	help/disconnect:
+		document this command.
+
+Sat Apr 15 04:57:21 PDT 2000 - matthew green <mrg@eterna.com.au>
+	help/lastlog:
+		document /lastlog <pattern> <count> <start> support.
+	source/edit.c:
+		fix ICB /topic.  apply patch from Roman Gollent
+		<roman@babe.pobox.com> to make /topic * work.
+
+Tue Apr 11 00:24:12 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		fix a problem found by forcer: in remove_channel(), if we can
+		work out the refnum of the window this channel is on, pass it
+		to is_current_channel(), rather than always passing -1.
+	source/output.c:
+		do not use a static buffer for vasprintf(). put_it() and
+		friends are sometimes re-entrant.  picked up by forcer and
+		electric fence.
+	configure.in, configure:
+		explicitly test for struct sockaddr's "sa_len" member.
+	source/alias.c:
+		fix off-by-one malloc error.
+
+4.4T
+Mon Apr  3 17:43:02 EST 2000 - matthew green <mrg@eterna.com.au>
+	Makefile.in, source/irc.c, source/ircaux.c, source/ircio.c,
+	source/file.c:
+		remove dated, unused and definately insecure PRIV_PORT code.
+	include/irc_std.h:
+		introduce my_str{len,cpy,ncpy}() macros that (char *)ifiy
+		the correct arguments, to avoid warnings from u_char *'s.
+	source/alias.c:
+		use my_str{len,cpy,ncpy}().
+	include/config.h.dist, include/config.h.lynx:
+		enable EIGHT_BIT_CHARACTERS by default.
+
+Sat Apr  1 18:10:33 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/count.l, include/hook.h, include/hook.h.proto, include/keys.h,
+	include/keys.h.proto, include/vars.h, include/vars.h.proto:
+		make count preserve $Id strings that are in .proto files, and
+		add additional $Id strings for the generated .h files.
+
+Sat Apr  1 17:31:35 EST 2000 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, include/alias.h, include/crypt.h,
+	include/ctcp.h, include/dcc.h, include/edit.h, include/exec.h,
+	include/flood.h, include/funny.h, include/help.h, include/history.h,
+	include/hold.h, include/hook.h, include/hook.h.proto, include/icb.h,
+	include/if.h, include/ignore.h, include/input.h, include/irc.h,
+	include/ircaux.h, include/ircterm.h, include/keys.h,
+	include/keys.h.proto, include/lastlog.h, include/list.h, include/mail.h,
+	include/menu.h, include/names.h, include/notify.h, include/numbers.h,
+	include/output.h, include/parse.h, include/queue.h, include/screen.h,
+	include/server.h, include/stack.h, include/status.h, include/struct.h,
+	include/translat.h, include/vars.h, include/vars.h.proto,
+	include/whois.h, include/window.h, source/alias.c, source/cast.c,
+	source/crypt.c, source/ctcp.c, source/dcc.c, source/edit.c,
+	source/empty_metakeys.inc, source/exec.c, source/flood.c,
+	source/funny.c, source/help.c, source/history.c, source/hold.c,
+	source/hook.c, source/icb.c, source/if.c, source/ignore.c,
+	source/input.c, source/irc.c, source/ircaux.c, source/keys.c,
+	source/lastlog.c, source/list.c, source/mail.c, source/menu.c,
+	source/names.c, source/notice.c, source/notify.c, source/numbers.c,
+	source/output.c, source/parse.c, source/queue.c, source/reg.c,
+	source/screen.c, source/sed.c, source/server.c, source/stack.c,
+	source/status.c, source/term.c, source/translat.c, source/vars.c,
+	source/whois.c, source/window.c:
+		convert from char to u_char for everything that can be.
+
+Fri Mar 31 23:49:42 EST 2000 - matthew green <mrg@eterna.com.au>
+	Makefile.in:
+		remove $DESTDIR from exec_prefix; it is already in the prefix.
+
+Tui Mar 28 10:31:13 EST 2000 - glen mccready <gkm@pobox.com>
+	source/server.c:
+		clean up server handling a bit.  fix false "Connected" message.
+		should consider removing server_list[].connected in favor of a
+		flag and add more status tracking flags.
+
+Sun Mar 26 02:37:03 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		when scrolling backwards, check how many lines in the
+		lastlog we have and then make sure we don't scroll
+		beyond that.  fixes PR#430.  rewrite a recent fix to
+		part of the split_up_window() function.
+	source/server.c:
+		in /server -delete, call close_server().
+
+Thu Mar 23 17:13:51 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/exec, help/set/exec_protection:
+		add a reference to /set exec_protection in /help exec, noted
+		by matthewa@materna.nl in PR#431.
+	script/columns, script/times:
+		add an evil hack to let these two be loaded together.  fixes
+		PR#425 from Hubert Feyrer <feyrer@rfhs8012.fh-regensburg.de>.
+
+Tue Mar 21 11:08:26 EST 2000 - matthew green <mrg@eterna.com.au>
+	configure.in, configure:
+		a fix IPv4-only nodes that have getaddrinfo(), from
+		Jun-ichiro itojun Hagino <itojun@iijlab.net>.
 
 4.4S
 Fri Mar 17 15:07:25 EST 2000 - matthew green <mrg@eterna.com.au>

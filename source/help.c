@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.5 2000-08-09 19:31:20 f Exp $
+ * $Id: help.c,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 /*
@@ -95,7 +95,7 @@ static	void	help_show_paused_topic _((char *, char *));
 static	void	create_help_window _((void));
 static	void	set_help_screen _((Screen *));
 static	int	compar _((const struct dirent **, const struct dirent **));
-static	int	selectent _((struct dirent *));
+static	int	selectent _((const struct dirent *));
 static	int	show_help _((Window *, char *));
 static	void	help_prompt _((char *, char *));
 static	void	help_topic _((char *, char *));
@@ -137,7 +137,7 @@ compar(e1, e2)
  */
 static	int
 selectent(entry)
-	struct	dirent	*entry;
+	const struct dirent	*entry;
 {
 	if (*(entry->d_name) == '.')
 		return (0);
@@ -147,7 +147,7 @@ selectent(entry)
 	{
 		int len = strlen(entry->d_name);
 #ifdef ZCAT
-		char *temp;
+		const char *temp;
 	/*
 	 * Handle major length of filename is case of suffix .Z:
 	 * stripping suffix length
@@ -538,6 +538,7 @@ help_me(topics, args)
 	char	*help_paused_name = (char *) 0;
 	char	*temp;
 	char	tmp[BIG_BUFFER_SIZE+1];
+	char	buffer[BIG_BUFFER_SIZE];
 
 #ifdef ZCAT
 	char	*arg_z = (char *) 0;

@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: newio.c,v 1.5 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -362,10 +362,10 @@ dgets(str, len, des, specials, decrypt)
  * parameters I didn't need.  
  */
 int
-new_select(rd, wd, timeout)
+new_select(rd, wd, time_out)
 	fd_set	*rd,
 		*wd;
-	struct	timeval	*timeout;
+	struct	timeval	*time_out;
 {
 	int	i,
 		set = 0;
@@ -374,10 +374,10 @@ new_select(rd, wd, timeout)
 			thetimeout;
 	int	max_fd = -1;
 
-	if (timeout)
+	if (time_out)
 	{
 		newtimeout = &thetimeout;
-		bcopy(timeout, newtimeout, sizeof(struct timeval));
+		bcopy(time_out, newtimeout, sizeof(struct timeval));
 	}
 	else
 		newtimeout = NULL;

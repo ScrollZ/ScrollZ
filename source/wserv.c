@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.3 1999-10-04 19:21:38 f Exp $
+ * $Id: wserv.c,v 1.4 2000-08-14 20:38:14 f Exp $
  */
 
 /*
@@ -124,6 +124,9 @@ main(argc, argv)
 	write(s, "\n", 1);
 	perror(tmp);
 
+	/*
+	 * Initialise with the minimal wterm.c
+	 */
 	term_init();
 
 	/*

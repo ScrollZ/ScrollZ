@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.45 2000-08-10 17:26:50 f Exp $
+ * $Id: edit2.c,v 1.46 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -96,6 +96,7 @@
 #include "edit.h"
 #include "list.h"
 #include "struct.h"
+#include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
 
@@ -267,6 +268,7 @@ char *subargs;
     char excludelist[mybufsize];
     char includelist[mybufsize];
     char currentlist[mybufsize];
+    char buffer[mybufsize];
     NickList *tmp;
     ChannelList *chan=NULL;
 

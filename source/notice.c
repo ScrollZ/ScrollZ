@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.11 2000-08-09 19:31:21 f Exp $
+ * $Id: notice.c,v 1.12 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -61,8 +61,6 @@ extern int HandleNotice _((char *, char *, char *, int));
 extern void OVformat _((char *, char *));
 #endif
 /*********************************************************************/
-
-extern	char	*FromUserHost;
 
 static	void	parse_note _((char *, char *));
 static	void	parse_server_notice _((char *, char *, char *));
@@ -394,8 +392,8 @@ got_initial_version(line)
 	char	*line;
 {
  	char	server[256],
-		version[21];
-	char	*c;
+		version[256];
+	char	*s, c;
 
 	/*
 	 * BROKEN_SCANF crap here provided by Aiken <adrum@u.washington.edu>
@@ -408,36 +406,31 @@ got_initial_version(line)
  	strncpy(server, &line[17], 256);
 
 	server[79] = 0;
-	if(c = index(server, ','))
-		*c = 0;
-	if(c = index(server, ' '))
-		*c = 0;
+	if (s = index(server, ','))
+		*s = 0;
+	if (s = index(server, ' '))
+		*s = 0;
 	version[0] = 0;
 
-	if(c = index(&line[17], ' ')) 
+	if (s = my_index(&line[17], ' '))
 	{
-		if(!strncmp(c, " running version ", 17))
+		if (!strncmp(c, " running version ", 17))
 		{
-			strncpy(version, &c[17], 20);
-			version[19] = 0;
+			strncpy(version, &s[17], 255);
+			version[255] = 0;
 		}
                 else return;
 	}
 	else return;
 #else
- 	if ((sscanf(line, "*** Your host is %256s running version %20s",
+ 	if ((sscanf(line, "*** Your host is %256s running version %255s",
  			server, version)) != 2) {
  		yell("This server has a non-standard connection message!");
  		strcpy(version, "2.9");
  		strcpy(server, server_list[parsing_server_index].name);
  	}
-/**************************** PATCHED by Flier ******************************/
-        /*server[strlen(server) - 1] = '\0';*/
-        /* fix for broken servers -> if server name does not end with ,
-           we strip last character off server name resulting in corrupted
-           server name in memory */
-        if (server[strlen(server)-1]==',') server[strlen(server)-1]='\0';
-/****************************************************************************/
+	else if ((c = server[strlen(server) - 1]) == ',' || c == '.')
+		server[strlen(server) - 1] = '\0';
 #endif /* BROKEN_SCANF */
 	attempting_to_connect--;
 /**************************** PATCHED by Flier ******************************/
@@ -451,8 +444,8 @@ got_initial_version(line)
 /****************************************************************************/
 	set_server_motd(parsing_server_index, 1);
 	server_is_connected(parsing_server_index, 1);
-	if ((c = (char *) index(server, '[')) != NULL)
-		*c = '\0';	/*
+	if ((s = (char *) index(server, '[')) != NULL)
+		*s = '\0';	/*
 				 * Handles the case where the server name is
 				 * different to the host name.
 				 */

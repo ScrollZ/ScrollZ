@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.3 1999-02-15 21:18:05 f Exp $
+# @(#)$Id: Makefile.in,v 1.4 2000-08-14 20:38:13 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -98,26 +98,6 @@ LDFLAGS = @LDFLAGS@
 
 ## You probably don't need to change anything below this line
 
-# Uncomment the following if you want a secure IRC which binds to a
-# privileged port. This feature is completely useless in the current
-# IRC environment, but in the future some servers may use privileged
-# port systems to verify users connecting to them. The value of
-# PRIV_PORT determines the minimum port number to use.
-# If you modify these (including uncommenting them) you will need to
-# touch config.h
-#
-# If you are on a system where test-suid works, you can simply define
-# PP_DEFS to be PRIV_PORT_ULC and irc will change effective UID back
-# to a normal user immediately, and change to root when binding a port.
-# This feature is undocumented, but is known to work on Sun, MIPS and
-# Apollo (Cos we've tested them already).  Note that it's almost 
-# _CERTAIN_ that ircII has security problems with buffer overflows
-# in it's code that having it setuid root is the wrong thing to do
-# and this is _STRONGLY_ advised against.
-# PP_DEFINES = -DPRIV_PORT=667
-# PP_OBJS = file.o
-# PP_DEFINES = -DPRIV_PORT_ULC
-
 # Full path of the directory for ircII help files.  
 HELP_DIR = $(IRCLIB)/help
 
@@ -182,9 +162,6 @@ MFLAGS ='CC=$(CC)'					\
 	'LEXLIB=$(LEXLIB)'				\
 	'LIBS=$(LIBS)'					\
 	'LN=$(LN)'					\
-	'PP_DEFS=$(PP_DEFS)'				\
-	'PP_OBJS=$(PP_OBJS)'				\
-	'PPS_DEFS=$(PPS_DEFS)'				\
 	'RM=$(RM)'					\
 	'TRANS_DIR=$(TRANS_PATH)'
 

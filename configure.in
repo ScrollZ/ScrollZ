@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.6 2000-08-09 19:31:20 f Exp $
+dnl @(#)$Id: configure.in,v 1.7 2000-08-14 20:38:13 f Exp $
 
-AC_REVISION($Revision: 1.6 $)dnl
+AC_REVISION($Revision: 1.7 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -61,7 +61,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.6 2000-08-09 19:31:20 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.7 2000-08-14 20:38:13 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -994,7 +994,7 @@ yes
                         ;;
                 linux-libinet6)
                         dnl http://www.v6.linux.or.jp/
-                        if test -d /usr/inet6 -o -f /usr/include/netinet/ip6.h; then
+                        if test -d /usr/inet6 -a -f /usr/include/netinet/ip6.h; then
                                 ipv6type=$i
                                 ipv6lib=inet6
                                 ipv6libdir=/usr/inet6/lib
@@ -1129,7 +1129,9 @@ main()
     }
   }
 
-  if (inet6 != 2 || inet4 != 2)
+  if (inet4 != 0 && inet4 != 2)
+    goto bad;
+  if (inet6 != 0 && inet6 != 2)
     goto bad;
 
   if (aitop)
@@ -1161,6 +1163,21 @@ if test "x$buggygetaddrinfo" = "xyes"; then
                 AC_MSG_ERROR([         of GNU C library (aka glibc).])
         fi
 fi
+
+AC_MSG_CHECKING(for struct sockaddr's sa_len)
+AC_TRY_LINK([
+#include <sys/types.h>
+#include <sys/socket.h>
+],[
+  struct sockaddr sa;
+  int i;
+
+  i = sa.sa_len;
+  exit(0);
+],
+  AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
+  AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no))
 
 if test -n "$hpux"
 then

@@ -193,6 +193,20 @@ fixed core dumping on hooks when compiling w/o support for stdarg
       (CDCC PLIST coredumps etc, reported by colrebel)
 changed NEWHOST to query all available devices on Linux (hello IBM Suomi)
 fixed encrypted DCC CHAT messages being saved to ScrollZ.away (reported by acidflash)
+fixed crash in DCC actions (reported by frash)
+fixed crash when joining channels with %s on some OSes (no it is not the same
+      as BitchX bug and it only happened if you actually joined such channel)
+added FILINE to filter I-lines (requested by ogre)
+small changes for CygWin build
+added ARINWIN which replaces -DSTEFY, read help for more information
+      (requested by Ahnberg)
+LLOOKUP now also reports new servers in links info (requested by Ahnberg)
+merged ircII 4.4X code (as a result of this certain things changed such
+       as $isvoiced() is now $hasvoice())
+fixed memory leak in DCC GET and REGET
+fixed bug in URL catcher where endless loop could be created and client
+      would use all available CPU (found out by about 30+ Alternet clients)
+fixed couple of OperVision bugs, mainly related to windows (hi doxx)
 
 
 -------------------------------------------------------------------------------

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.10 2000-08-09 19:31:21 f Exp $
+ * $Id: status.c,v 1.11 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -174,6 +174,8 @@ static  char    *uptime_format = (char *) 0;
 #ifdef CELE
 static	char	*loadavg_format = (char *) 0;
 #endif
+
+static  char    locbuf[mybufsize];
 /****************************************************************************/
 
 /*
@@ -1752,8 +1754,8 @@ status_away(window)
 			malloc_strcpy(&ptr, empty_string);*/
                 if (server_list[window->server].away && away_format) {
                     sprintf(buf,"%d",AwayMsgNum);
-                    sprintf(buffer,away_format,buf);
-                    malloc_strcpy(&ptr, buffer);
+                    sprintf(locbuf,away_format,buf);
+                    malloc_strcpy(&ptr, locbuf);
                 }
 		else malloc_strcpy(&ptr, empty_string);
 /****************************************************************************/
@@ -1927,10 +1929,10 @@ status_null_function(window)
  */
 static	void
 status_make_printable(str, n)
-	unsigned char	*str;
+	u_char	*str;
 	int n;
 {
-	unsigned char	*s;
+	u_char	*s;
 	int	pos;
 	char	lbuf[BIG_BUFFER_SIZE];
 
@@ -2134,11 +2136,11 @@ Window	*window;
 #if defined(HAVETIMEOFDAY) && defined(CELE)
         sprintf(lagbuf,"%06ld",LagTimer.tv_usec);
         lagbuf[3]='\0';
-        sprintf(buffer,"%ld.%s",LagTimer.tv_sec,lagbuf);
+        sprintf(locbuf,"%ld.%s",LagTimer.tv_sec,lagbuf);
 #else
-        sprintf(buffer,"%02d",LagTimer);
+        sprintf(locbuf,"%02d",LagTimer);
 #endif
-        malloc_strcpy(&ptr,buffer);
+        malloc_strcpy(&ptr,locbuf);
     }
     else malloc_strcpy(&ptr,empty_string);
     return(ptr);
@@ -2201,10 +2203,10 @@ Window	*window;
                 else if (*tmpstr1=='t' || *tmpstr1=='T') tmpvar=ops+nonops;
                 else tmpvar=-1;
                 if (tmpvar>=0) {
-                    sprintf(buffer,"%d",tmpvar);
+                    sprintf(locbuf,"%d",tmpvar);
                     *tmpstr2='\0';
-                    strcat(tmpstr2,buffer);
-                    tmpstr2+=strlen(buffer);
+                    strcat(tmpstr2,locbuf);
+                    tmpstr2+=strlen(locbuf);
                 }
                 else *tmpstr2++=*tmpstr1;
             }
@@ -2268,10 +2270,10 @@ Window	*window;
                 else if (*tmpstr1=='m' || *tmpstr1=='M') tmpvar=(timediff/60)%60;
                 else tmpvar=-1;
                 if (tmpvar>=0) {
-                    sprintf(buffer,"%02d",tmpvar);
+                    sprintf(locbuf,"%02d",tmpvar);
                     *tmpstr2='\0';
-                    strcat(tmpstr2,buffer);
-                    tmpstr2+=strlen(buffer);
+                    strcat(tmpstr2,locbuf);
+                    tmpstr2+=strlen(locbuf);
                 }
                 else *tmpstr2++=*tmpstr1;
             }
@@ -2353,8 +2355,8 @@ Window *window;
     if (!get_int_var(SHOW_STATUS_ALL_VAR) && current_screen->current_window!=window)
         malloc_strcpy(&ptr,empty_string);
     else {
-        sprintf(buffer,"%d",CdccPackNum);
-        malloc_strcpy(&ptr,buffer);
+        sprintf(locbuf,"%d",CdccPackNum);
+        malloc_strcpy(&ptr,locbuf);
     }
     return(ptr);
 }
@@ -2367,8 +2369,8 @@ Window *window;
     if (!get_int_var(SHOW_STATUS_ALL_VAR) && current_screen->current_window!=window)
         malloc_strcpy(&ptr,empty_string);
     else {
-        sprintf(buffer,"%d",CdccSendNum);
-        malloc_strcpy(&ptr,buffer);
+        sprintf(locbuf,"%d",CdccSendNum);
+        malloc_strcpy(&ptr,locbuf);
     }
     return(ptr);
 }
@@ -2381,8 +2383,8 @@ Window *window;
     if (!get_int_var(SHOW_STATUS_ALL_VAR) && current_screen->current_window!=window)
         malloc_strcpy(&ptr,empty_string);
     else {
-        sprintf(buffer,"%d",CdccRecvNum);
-        malloc_strcpy(&ptr,buffer);
+        sprintf(locbuf,"%d",CdccRecvNum);
+        malloc_strcpy(&ptr,locbuf);
     }
     return(ptr);
 }

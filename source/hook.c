@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.8 2000-08-09 19:31:20 f Exp $
+ * $Id: hook.c,v 1.9 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -912,7 +912,9 @@ on(command, args, subargs)
 				{
 					if (*args == LEFT_BRACE)
 					{
-						char	*ptr = MatchingBracket(++args,
+						char	*ptr;
+
+						ptr = MatchingBracket(++args,
 								LEFT_BRACE, RIGHT_BRACE);
 						if (!ptr)
 						{

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.h,v 1.4 2000-08-09 19:31:20 f Exp $
+ * $Id: ircaux.h,v 1.5 2000-08-14 20:38:13 f Exp $
  */
 
 #ifndef __ircaux_h_
@@ -64,10 +64,6 @@
 	int	connect_by_number _((int, char *, int));
 	int	my_stricmp _((char *, char *));
  	int	my_strnicmp _((char *, char *, size_t));
-#if 0
-	char    *my_stristr _((char *, char *));
- 	char    *my_rstristr _((char *, char *));
-#endif
 	int	set_non_blocking _((int));
 	int	set_blocking _((int));
 	int	scanstr _((char *, char *));

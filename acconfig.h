@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.5 2000-08-09 19:31:20 f Exp $
+ * $Id: acconfig.h,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -270,6 +270,9 @@
 
 /* define this if you have crypt(3) */
 #undef HAVE_CRYPT
+
+/* define this if your struct sockaddr has a sa_len member */
+#undef HAVE_SOCKADDR_SA_LEN
 
 /**************************** PATCHED by Flier ******************************/
 /* define this if you have gettimeofday() */

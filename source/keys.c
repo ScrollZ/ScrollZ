@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.5 2000-08-09 19:31:21 f Exp $
+ * $Id: keys.c,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -61,9 +61,9 @@ extern void HandleTabPrev _((u_int, char *));
 /****************************************************************************/
 
 static	int	lookup_function _((char *, int *));
-static	unsigned char	* display_key _((u_int));
+static	u_char	* display_key _((u_int));
 static	void	show_binding _((u_int, int));
-static	int	parse_key _((unsigned char *));
+static	int	parse_key _((u_char *));
 static	void	write_binding _((u_int, u_int, FILE *, int));
 static	void	bind_it _((char *, char *, u_int, int));
 
@@ -110,13 +110,13 @@ lookup_function(name, func_index)
  * display_key: converts the character c to a displayable form and returns
  * it.  Very simple indeed 
  */
-static	unsigned char	*
+static	u_char	*
 display_key(c)
 	u_int c;
 {
-	static	unsigned char key[3];
+	static	u_char key[3];
 
-	key[2] = (char) 0;
+	key[2] = (u_char) 0;
 	if (c < 32)
 	{
 		key[0] = '^';
@@ -130,7 +130,7 @@ display_key(c)
 	else
 	{
 		key[0] = c;
-		key[1] = (char) 0;
+		key[1] = (u_char) 0;
 	}
 	return (key);
 }
@@ -189,7 +189,7 @@ show_binding(c, meta)
 	}
 	say("%s%s is bound to %s %s", meta_str, display_key(c),
 		key_names[map[c].index].name, (map[c].stuff &&
-		(*(map[c].stuff))) ? map[c].stuff : "");
+		(*(map[c].stuff))) ? map[c].stuff : empty_string);
 }
 
 /*
@@ -205,10 +205,10 @@ show_binding(c, meta)
  */
 static int
 parse_key(key_str)
-	unsigned char	*key_str;
+	u_char	*key_str;
 {
-	unsigned char	*ptr1, *ptr2;
-	unsigned char	c;
+	u_char	*ptr1, *ptr2;
+	u_char	c;
 	int	meta = 0;
 
 	ptr2 = ptr1 = key_str;
@@ -3567,21 +3567,21 @@ save_bindings(fp, do_all)
 	int	charsize = charset_size();
 
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 0, fp, do_all);
+		write_binding((u_char) i, 0, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 1, fp, do_all);
+		write_binding((u_char) i, 1, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 2, fp, do_all);
+		write_binding((u_char) i, 2, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 3, fp, do_all);
+		write_binding((u_char) i, 3, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 4, fp, do_all);
+		write_binding((u_char) i, 4, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 5, fp, do_all);
+		write_binding((u_char) i, 5, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 6, fp, do_all);
+		write_binding((u_char) i, 6, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 7, fp, do_all);
+		write_binding((u_char) i, 7, fp, do_all);
 	for (i = 0; i < charsize; i++)
-		write_binding((unsigned char) i, 8, fp, do_all);
+		write_binding((u_char) i, 8, fp, do_all);
 }

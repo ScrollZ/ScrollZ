@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.7 2000-08-09 19:31:21 f Exp $
+ * $Id: ircaux.c,v 1.8 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -78,7 +78,7 @@ struct	HeapDesc
 };
 # endif
 #define	ALLOC_LIST 2048
-static	unsigned char	*MemList[ALLOC_LIST];
+static	u_char	*MemList[ALLOC_LIST];
 static	long	MemSize[ALLOC_LIST];
 static	int	Init = 0;
 
@@ -525,99 +525,6 @@ lower(s)
 	return t;
 }
 
-#if 0	/* no users right now */
-/* case insensitive string searching */
-char    *
-my_stristr(source, search)
-	char    *source,
-	        *search;
-{
-        char    *u,
-                *s = (char *) 0,
-                *t = (char *) 0,
-		*where;
-        int     x = 0,
-                len = strlen(search);
-
-        if (!source || !*source || !search || !*search)
-                return (char *) 0;
-
-        malloc_strcpy(&s, source);
-        malloc_strcpy(&t, search);
-        upper(s);
-        upper(t);
-
-        u = s;
-        while (u[x])
-        {
-                if (u[x] == t[x])
-                {
-			where = u;
-                        if (++x >= len)
-                        {
-                                new_free(&s);
-                                new_free(&t);
-                                return (where);
-                        }
-                }
-                else
-                {
-                        x = 0;
-                        u++;
-                }
-        }
-        new_free(&t);
-        new_free(&s);
-        return (char *) 0;
-}
-/* case insensitive string searching from the end */
-char    *
-my_rstristr(source,search)
-	char    *source,
-	        *search;
-{
-        char    *u,
-                *s = (char *) 0,
-                *t = (char *) 0,
-		*where;
-        int     x = 0,
-                len = strlen(search),
-                slen = strlen(source);
-
-        if (!source || !*source || !search || !*search)
-                return empty_string;
-
-        malloc_strcpy(&s, source);
-        malloc_strcpy(&t, search);
-        upper(s);
-        upper(t);
-
-        u = s + slen - len;
-        while (u >= s)
-        {
-                if (u[x] == t[x])
-                {
-                        where = u;
-                        x++;
-                        if (x >= len)
-                        {
-                                new_free(&t);
-                                new_free(&s);
-                                return (where);
-                        }
-                }
-                else
-                {
-                        x = 0;
-			u--;
-                }
-        }
-        new_free(&t);
-        new_free(&s);
-        return (char *) 0;
-}
-#endif
-
 /**************************** PATCHED by Flier ******************************/
 /* if dcc_ports is set try to find unused port in port range given in /set dcc_ports */
 int BindPort(s,slisten,localaddr)
@@ -691,12 +598,26 @@ connect_by_number(service, host, nonblocking)
 	strservice[sizeof(strservice) - 1] = 0;
 #endif
 
-#ifndef SA_LEN
-#define SA_LEN(x)	(x)->sa_len
-#endif
 	if (service == -2)
 	{
 #ifdef INET6
+
+#ifndef SA_LEN
+# ifdef HAVE_SOCKADDR_SA_LEN
+#  define SA_LEN(x)	(x)->sa_len
+# else
+#  ifdef SIN6_LEN
+#   define SA_LEN(x) SIN6_LEN(x)
+#  else
+#   ifdef SIN_LEN
+#    define SA_LEN(x) SIN_LEN(x)
+#   else
+#    define SA_LEN(x) sizeof(*x)
+#   endif
+#  endif
+# endif
+#endif
+
 		server = (*(struct sockaddr_storage *) host);
 		getnameinfo((struct sockaddr *)&server, SA_LEN((struct sockaddr *)&server),
 				strhost, sizeof(strhost), strservice, sizeof(strservice),
@@ -842,40 +763,6 @@ connect_by_number(service, host, nonblocking)
 			return -3;
 #endif
 	}
-#if defined(PRIV_PORT) || defined(PRIV_PORT_ULC)
-#ifdef PRIV_PORT_ULC
-	seteuid(0);
-#endif
-	/* attempt to bind to a privileged port */
-	if (geteuid() == 0)
-	{
-		int     portnum;
-#ifndef INET6
-		struct	sockaddr_in localaddr;
-
-		localaddr = server;
-		localaddr.sin_addr.s_addr=INADDR_ANY;
-#endif
-		for (portnum = 1023; portnum > 600; portnum--)
-		{
-#ifdef INET6
-			char portbuf[32];
-
-			sprintf(portbuf, "%d", portnum);
-			portbuf[sizeof(portbuf) - 1] = 0;
-			if (bind_local_addr(NULL, portbuf, s, res->ai_family) < 0)
-#else
-			localaddr.sin_port = htons(portnum);
-			if (bind(s, (struct sockaddr *) &localaddr,
-					sizeof(localaddr)) != -1)
-#endif
-				break;
-		}
-	}
-#ifdef PRIV_PORT_ULC
-	seteuid(getuid());
-#endif
-#endif /*PRIV_PORT*/
 #ifdef NON_BLOCKING_CONNECTS
 	if (nonblocking && set_non_blocking(s) < 0)
 	{

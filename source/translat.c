@@ -18,7 +18,7 @@
  * the far east.  8-)
  * Kare H. Pettersson.
  *
- * $Id: translat.c,v 1.3 1999-02-15 21:20:22 f Exp $
+ * $Id: translat.c,v 1.4 2000-08-14 20:38:14 f Exp $
  */
 
 #include "irc.h"
@@ -30,11 +30,11 @@
 #include "screen.h"
 #include "output.h"
 
-static	unsigned char	my_getarg _((char **));
+static	u_char	my_getarg _((char **));
 
 /* Globals */
-unsigned char	transToClient[256];    /* Server to client translation. */
-unsigned char	transFromClient[256];  /* Client to server translation. */
+u_char	transToClient[256];    /* Server to client translation. */
+u_char	transFromClient[256];  /* Client to server translation. */
 char	translation = 0;	/* 0 for transparent (no) translation. */
 char	digraph_changed = 0;
 char    *digraph_char="1";
@@ -61,7 +61,7 @@ char    *digraph_char="1";
  * The higher of the pair goes in DiHi, and the digraph itself in DiDi.
  */
 
-unsigned char	dig_table_lo[DIG_TABLE_SIZE] =
+u_char	dig_table_lo[DIG_TABLE_SIZE] =
 {
 #include "digraph.inc"
 	0
@@ -75,7 +75,7 @@ unsigned char	dig_table_lo[DIG_TABLE_SIZE] =
 #define	DiHi(x)	x,
 #define	DiDi(x)
 
-unsigned char	dig_table_hi[DIG_TABLE_SIZE] =
+u_char	dig_table_hi[DIG_TABLE_SIZE] =
 {
 #include "digraph.inc"
 	0
@@ -89,7 +89,7 @@ unsigned char	dig_table_hi[DIG_TABLE_SIZE] =
 #define	DiHi(x)
 #define	DiDi(x)	x,
 
-unsigned char	dig_table_di[DIG_TABLE_SIZE] =
+u_char	dig_table_di[DIG_TABLE_SIZE] =
 {
 #include "digraph.inc"
 	0
@@ -109,15 +109,15 @@ enter_digraph(key, str)
 
 /*
  * get_digraph:  Called by edit_char() when a digraph entry is activated.
- * Looks up a digraph given char c1 and the global char
+ * Looks up a digraph given u_char c1 and the global u_char
  * current_screen->digraph_hit.
  */
-unsigned char
+u_char
 get_digraph(ic1)
  	u_int	ic1;
 {
 	int	i = 0;
-	unsigned char	c,
+	u_char	c,
  		c2 = current_screen->digraph_first,
  		c1 = (u_char)ic1;
 
@@ -143,8 +143,9 @@ set_translation(tablename)
 	char	*tablename;
 {
 	FILE	*table;
-	unsigned char	temp_table[512];
+	u_char	temp_table[512];
 	char	*filename = (char *) 0, *s;
+	char	buffer[BIG_BUFFER_SIZE];
 	int	inputs[8];
 	int	j,
 		c = 0;
@@ -200,7 +201,7 @@ set_translation(tablename)
 		    inputs+0, inputs+1, inputs+2, inputs+3,
 		    inputs+4, inputs+5, inputs+6, inputs+7);
 		for (j = 0; j<8; j++)
-			temp_table[c++] = (unsigned char) inputs[j];
+			temp_table[c++] = (u_char) inputs[j];
 	}
 	fclose(table);
 	new_free(&filename);
@@ -279,7 +280,7 @@ digraph(command, args, subargs)
 						dig_table_lo[i] =
 							dig_table_hi[i] =
 					 		dig_table_di[i] =
-							(unsigned char) 0;
+							(u_char) 0;
 						digraph_changed = 1;
 						say("Digraph added to table.");
 					}
@@ -319,12 +320,9 @@ digraph(command, args, subargs)
 					 */
 	/* re-indent this block - phone, jan 1993. */
 				{
-					strcpy(((char *)dig_table_lo + i),
-					    (char *)(dig_table_lo + (i + 1)));
-					strcpy((char *)(dig_table_hi + i),
-					    (char *)(dig_table_hi + (i + 1)));
-					strcpy((char *)(dig_table_di + i),
-					    (char *)(dig_table_di + (i + 1)));
+					strcpy(dig_table_lo + i, dig_table_lo + i + 1);
+					strcpy(dig_table_hi + i, dig_table_hi + i + 1);
+					strcpy(dig_table_di + i, dig_table_di + i + 1);
 					digraph_changed = 1;
 					put_it("Digraph removed from table.");
 					return;
@@ -341,7 +339,7 @@ digraph(command, args, subargs)
 
 			/* Clear digraph table. */
 			dig_table_lo[0] = dig_table_hi[0] = dig_table_di[0] =
-				(unsigned char) 0;
+				(u_char) 0;
 			digraph_changed = 1;
 			say("Digraph table cleared.");
 
@@ -377,19 +375,19 @@ digraph(command, args, subargs)
 	}
 }
 
-static	unsigned char
+static	u_char
 my_getarg(args)
 	char	**args;
 {
-	unsigned char *arg;
+	u_char *arg;
 
-	arg = (unsigned char *)next_arg(*args, args);
+	arg = (u_char *)next_arg(*args, args);
 	if (!args || !*args || !arg)
 		return '\0';
 	/* Don't trust isdigit() with 8 bits. */
 	if ((*arg <= '9') && (*arg >= '0'))
 	{
-		unsigned char i = *arg & 0x0f;
+		u_char i = *arg & 0x0f;
 		while ( *(++arg) )
 			i = (i * 10) + (*arg & 0x0f);
 		return i;
@@ -410,7 +408,7 @@ save_digraphs(fp)
 		char	*command = "\nDIGRAPH -ADD ";
 
 		fprintf(fp, "DIGRAPH -CLEAR");
-		fprintf(fp, command);
+		fprintf(fp, "%s", command);
 		while(1)
 		{
 			fprintf(fp, "%d %d %d  ", dig_table_lo[i],
@@ -418,7 +416,7 @@ save_digraphs(fp)
 			if (!dig_table_lo[++i])
 				break;
 			if (!(i % 5))
-				fprintf(fp, command);
+				fprintf(fp, "%s", command);
 		}
 		fputc('\n', fp);
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.5 2000-08-09 19:31:20 f Exp $
+ * $Id: irc.h,v 1.6 2000-08-14 20:38:13 f Exp $
  */
 
 #ifndef __irc_h
@@ -309,7 +309,6 @@ extern	char	*one;
 
 extern	char	irc_version[];
 extern	char	internal_version[];
-extern	char	FAR buffer[];
 extern	char	*nickname;
 extern	char	*ircrc_file;
 extern	char	*ircquick_file;
@@ -351,9 +350,7 @@ extern	struct	in_addr	local_ip_address;
  */
  	int	irc_io _((char *, void (*)(u_int, char*), int, int));
  	void	set_irchost _((void));
-	void	new_stty _((char *));
 	int	wild_match _((char *, char *));
-	int	is_channel _((char *));
 /**************************** PATCHED by Flier ******************************/
         /*RETSIGTYPE	irc_exit _((void));*/
         RETSIGTYPE	irc_exit _((int));

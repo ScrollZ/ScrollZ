@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.c,v 1.3 1999-02-15 21:19:31 f Exp $
+ * $Id: if.c,v 1.4 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -262,14 +262,14 @@ foreach(command, args, subargs)
 		yell("FOREACH: missing statement");
 		return;
 	}
-	sublist=match_alias(struc, &total, VAR_ALIAS);
-	slen=strlen(struc);
-	old_display=window_display;
-	for (i=0;i<total;i++)
+	sublist = match_alias(struc, &total, VAR_ALIAS);
+	slen = strlen(struc);
+	old_display = window_display;
+	for (i = 0; i < total; i++)
 	{
-		window_display=0;
+		window_display = 0;
 		add_alias(VAR_ALIAS, var, sublist[i]+slen);
-		window_display=old_display;
+		window_display = old_display;
 		parse_line((char *) 0, body, subargs ?
 		    subargs : empty_string, 0, 0);
 		new_free(&sublist[i]);
@@ -305,8 +305,8 @@ fe(command, args, subargs)
 		*var[255],
 		*word = (char *) 0,
 		*todo = (char *) 0;
-	int     ind, x, y, blah,args_flag;
-	int     old_display;
+	int	ind, x, y, blah, args_flag;
+	int	old_display;
 
         for (x = 0; x < 254; var[x++] = (char *) 0)
 		;
@@ -409,15 +409,15 @@ forcmd(command, args, subargs)
 	char    *args;
 	char    *subargs;
 {
-	char        *working        = (char *) 0;
-	char        *commence       = (char *) 0;
-	char        *evaluation     = (char *) 0;
-	char        *lameeval       = (char *) 0;
-	char        *iteration      = (char *) 0;
-	char        *sa             = (char *) 0;
-	int         argsused        = 0;
-	char        *blah           = (char *) 0;
-	char        *commands       = (char *) 0;
+	char	*working = (char *) 0;
+	char	*commence = (char *) 0;
+	char	*evaluation = (char *) 0;
+	char	*lameeval = (char *) 0;
+	char	*iteration = (char *) 0;
+	char	*sa = (char *) 0;
+	int	argsused = 0;
+	char	*blah = (char *) 0;
+	char	*commands = (char *) 0;
 
 	/* Get the whole () thing */
 	if ((working = next_expr(&args, '(')) == (char *) 0)	/* ) */
@@ -499,8 +499,8 @@ fec(command, args, subargs)
 	char    *list = (char *) 0;
 	char    *var = (char *) 0;
 	char    booya[2];
-	int     args_flag = 0, old_display;
-	char    *sa,*todo;
+	int	args_flag = 0, old_display;
+	char	*sa, *todo;
 
 	list = next_expr(&args, '(');		/* ) */
 	if (list == (char *) 0)

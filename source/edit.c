@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.36 2000-08-09 19:31:20 f Exp $
+ * $Id: edit.c,v 1.37 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -389,7 +389,7 @@ extern  void  ShowIdle _((char *, char *, char *));
 /* IrcCommand: structure for each command in the command table */
 typedef	struct
 {
-	char	FAR *name;					/* what the user types */
+	char	FAR *name;				/* what the user types */
 	char	*server_func;				/* what gets sent to the server
 							 * (if anything) */
 	void	(*func) _((char *, char *, char *));	/* function that is the command */
@@ -1074,6 +1074,7 @@ waitcmd(command, args, subargs)
 	char	*procindex;
 	int	cmd = 0;
  	size_t	len;
+	u_char	buffer[BIG_BUFFER_SIZE];
 
 	while (args && *args == '-')
 	{
@@ -1110,10 +1111,10 @@ waitcmd(command, args, subargs)
 	{
 		WaitCmd	*new;
 
-		sprintf(buffer, "%s %s", procindex, args);			/* XXX uses global buffer */
+		sprintf(buffer, "%s %s", procindex, args);
 		new = (WaitCmd *) new_malloc(sizeof(WaitCmd));
 		new->stuff = NULL;
-		malloc_strcpy(&new->stuff, buffer);			/* XXX uses global buffer */
+		malloc_strcpy(&new->stuff, buffer);
 		new->next = NULL;
 		if (end_wait_list)
 			end_wait_list->next = new;
@@ -1342,7 +1343,8 @@ abortcmd(command, args, subargs)
 {
         char    *filename = next_arg(args, &args);
 
-        filename = filename ? filename : "irc.aborted";
+	if (!filename)
+		filename = "irc.aborted";
 	save_which = SFLAG_ALIAS | SFLAG_BIND | SFLAG_ON | SFLAG_SET |
 			     SFLAG_NOTIFY | SFLAG_DIGRAPH;
         really_save(filename, "y");
@@ -1400,6 +1402,7 @@ save_settings(command, args, subargs)
 		*args,
 		*subargs;
 {
+	char	buffer[BIG_BUFFER_SIZE];
 	char	*arg, *temp;
  	int	all = 1, save_force = 0;
 
@@ -1470,8 +1473,8 @@ save_settings(command, args, subargs)
 		really_save(ircrc_file, "y"); /* REAL dumb!  -lynx */
 	else
 	{
-		sprintf(buffer, "Really write %s? ", ircrc_file);			/* XXX uses global buffer */
-		add_wait_prompt(buffer, really_save, ircrc_file,			/* XXX uses global buffer */
+		sprintf(buffer, "Really write %s? ", ircrc_file);
+		add_wait_prompt(buffer, really_save, ircrc_file,
 				WAIT_PROMPT_LINE);
 	}
 }
@@ -1576,12 +1579,13 @@ e_channel(command, args, subargs)
 /****************************************************************************/
         if ((chan = next_arg(args, &args)) != NULL)
 	{
-		len = strlen(chan);
+		len = MAX(2, strlen(chan));
 		if (my_strnicmp(chan, "-force", len) == 0)
 		{
 			force = 1;
 			if ((chan = next_arg(args, &args)) == NULL)
-				list_channels();	/* XXX: allow /alias join join -force */
+				goto out;	/* XXX: allow /alias join join -force */
+			len = MAX(2, strlen(chan));
 		}
 		if (my_strnicmp(chan, "-invite", len) == 0)
 		{
@@ -1638,6 +1642,7 @@ e_channel(command, args, subargs)
 		}
 	}
 	else
+out:
 		list_channels();
 	restore_message_from();
 }
@@ -1748,7 +1753,7 @@ info(command, args, subargs)
 		say("       versions 2.1 to 2.2pre7 by Troy Rollo");
 		say("       development continued by matthew green");
 		say("       e-mail: mrg@eterna.com.au  irc: phone");
-		say("       copyright (c) 1990-1997");
+		say("       copyright (c) 1990-2000");
 		say("       do a /help ircii copyright for the full copyright");
 		say("       ircii includes software developed by the university");
 		say("       of california, berkeley and its contributors");
@@ -1768,7 +1773,7 @@ info(command, args, subargs)
 		say("       \tDarren Reed           Jeff Grills");
 		say("       \tJeremy Nelson         Philippe Levan");
 		say("       \tScott Reynolds        Glen McCready");
-		say("       \tChristopher Kalt");
+		say("       \tChristopher Kalt      Joel Yliluoma");
 	}
 	send_to_server("%s %s", command, args);
 }
@@ -1790,7 +1795,7 @@ static	void
 ison(command, args, subargs)
 	char	*command;
 	char	*args,
-	*subargs;
+		*subargs;
 {
 	if (!args[strspn(args, " ")])
 		args = get_server_nickname(from_server);
@@ -1815,6 +1820,7 @@ userhost(command, args, subargs)
 		total = 0,
 		userhost_cmd = 0;
 	char	*nick;
+	char	buffer[BIG_BUFFER_SIZE];
 
 	while ((nick = next_arg(args, &args)) != NULL)
 	{
@@ -1835,10 +1841,10 @@ userhost(command, args, subargs)
 		else
 		{
 			if (n++)
-				strmcat(buffer, " ", BIG_BUFFER_SIZE);	/* XXX uses global buffer */
+				strmcat(buffer, " ", BIG_BUFFER_SIZE);
 			else
-				*buffer = '\0';			/* XXX uses global buffer */
-			strmcat(buffer, nick, BIG_BUFFER_SIZE);	/* XXX uses global buffer */
+				*buffer = '\0';
+			strmcat(buffer, nick, BIG_BUFFER_SIZE);
 		}
 	}
 	if (n)
@@ -1858,13 +1864,13 @@ userhost(command, args, subargs)
 				*(s - 1) = '\0';
 			else
 				n--;
-			strcpy(buffer, t);			/* XXX uses global buffer */
+			strcpy(buffer, t);
 			t = s;
 
 			if (userhost_cmd)
-				add_to_whois_queue(buffer, userhost_cmd_returned, "%s", args);			/* XXX uses global buffer */
+				add_to_whois_queue(buffer, userhost_cmd_returned, "%s", args);
 			else
-				add_to_whois_queue(buffer, USERHOST_USERHOST, 0);			/* XXX uses global buffer */
+				add_to_whois_queue(buffer, USERHOST_USERHOST, 0);
 		}
 		new_free(&the_list);
 	}
@@ -2458,26 +2464,30 @@ send_topic(command, args, subargs)
 		*args,
 		*subargs;
 {
-	char	*arg;
-	char	*arg2;
+	u_char	*arg;
+	u_char	*arg2;
 
-	if ((arg = next_arg(args, &args)) != NULL)
+	if (!(arg = next_arg(args, &args)) || (strcmp(arg, "*") == 0))
+		arg = get_channel_by_refnum(0);
+
+	if (!arg)
 	{
-		if (strcmp(arg, "*") == 0)
-			arg = get_channel_by_refnum(0);
-		if (is_channel(arg))
-		{
-			if ((arg2 = next_arg(args, &args)) != NULL)
-				send_to_server("%s %s :%s %s", command, arg,
-						arg2, args);
-			else
-				send_to_server("%s %s", command, arg);
-		}
+		say("You aren't on a channel in this window");
+		return;
+	}
+	if (is_channel(arg))
+	{
+		if ((arg2 = next_arg(args, &args)) != NULL)
+			send_to_server("%s %s :%s %s", command, arg,
+					arg2, args);
 		else
-			send_to_server("%s :%s %s", command, arg, args);
+			send_to_server("%s %s", command, arg);
 	}
 	else
-		send_to_server("%s", command);
+	if (get_channel_by_refnum(0))
+		send_to_server("%s %s :%s", command, get_channel_by_refnum(0), subargs);
+	else
+		say("You aren't on a channel in this window");
 }
 
 static void
@@ -2657,7 +2667,7 @@ send_text(org_nick, line, command)
 		ptr = line;
 		while (*ptr)
 		{
-			*ptr = transFromClient[*(unsigned char*) ptr];
+			*ptr = transFromClient[*(u_char*) ptr];
 			ptr++;
 		}
 	}
@@ -2811,6 +2821,7 @@ send_text(org_nick, line, command)
 				else
 					strcpy(nick_list, nick);
 			}
+			do_final_send = 1;
 		}
 		else
 		{
@@ -2922,8 +2933,8 @@ send_text(org_nick, line, command)
 				say("Warning: You are ignoring private messages from %s", nick);
 
 			malloc_strcpy((char **) &sent_nick, nick);
+			do_final_send = 1;
 		}
-		do_final_send = 1;
 	}
 	if (check_away && server_list[curr_scr_win->server].away && get_int_var(AUTO_UNMARK_AWAY_VAR))
 		away("AWAY", empty_string, empty_string);
@@ -2983,6 +2994,7 @@ command_completion(key, ptr)
 		*cmdchars,
 		*rest,
 		firstcmdchar = '/';
+	char	buffer[BIG_BUFFER_SIZE];
 	IrcCommand	*command;
 
 	malloc_strcpy(&line, get_input());
@@ -3020,9 +3032,9 @@ command_completion(key, ptr)
 			}
 			if ((alias_cnt == 1) && (cmd_cnt == 0))
 			{
-				sprintf(buffer, "%c%s %s", firstcmdchar,		/* XXX uses global buffer */
+				sprintf(buffer, "%c%s %s", firstcmdchar,
 					aliases[0], rest);
-				set_input(buffer);					/* XXX uses global buffer */
+				set_input(buffer);
 				new_free(&(aliases[0]));
 				new_free(&aliases);
 				update_input(UPDATE_ALL);
@@ -3031,67 +3043,67 @@ command_completion(key, ptr)
 			    ((cmd_cnt == 1) && (alias_cnt == 1) &&
 			    (strcmp(aliases[0], command[0].name) == 0)))
 			{
-				sprintf(buffer, "%c%s%s %s", firstcmdchar,		/* XXX uses global buffer */
+				sprintf(buffer, "%c%s%s %s", firstcmdchar,
 					do_aliases ? "" : &firstcmdchar,
 					command[0].name, rest);
-				set_input(buffer);					/* XXX uses global buffer */
+				set_input(buffer);
 				update_input(UPDATE_ALL);
 			}
 			else
 			{
-				*buffer = (char) 0;			/* XXX uses global buffer */
+				*buffer = (u_char) 0;
 				if (command)
 				{
 					say("Commands:");
-					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);			/* XXX uses global buffer */
+					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);
 					c = 0;
 					for (i = 0; i < cmd_cnt; i++)
 					{
-						strmcat(buffer, command[i].name,			/* XXX uses global buffer */
+						strmcat(buffer, command[i].name,
 							BIG_BUFFER_SIZE);
 						for (len =
 						    strlen(command[i].name);
 						    len < 15; len++)
-							strmcat(buffer, " ",			/* XXX uses global buffer */
+							strmcat(buffer, " ",
 							    BIG_BUFFER_SIZE);
 						if (++c == 4)
 						{
-							say("%s", buffer);			/* XXX uses global buffer */
-							strmcpy(buffer, "\t",			/* XXX uses global buffer */
+							say("%s", buffer);
+							strmcpy(buffer, "\t",
 							    BIG_BUFFER_SIZE);
 							c = 0;
 						}
 					}
 					if (c)
-						say("%s", buffer);			/* XXX uses global buffer */
+						say("%s", buffer);
 				}
 				if (aliases)
 				{
 					say("Aliases:");
-					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);			/* XXX uses global buffer */
+					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);
 					c = 0;
 					for (i = 0; i < alias_cnt; i++)
 					{
-						strmcat(buffer, aliases[i],			/* XXX uses global buffer */
+						strmcat(buffer, aliases[i],
 							BIG_BUFFER_SIZE);
 						for (len = strlen(aliases[i]);
 								len < 15; len++)
-							strmcat(buffer, " ",			/* XXX uses global buffer */
+							strmcat(buffer, " ",
 							    BIG_BUFFER_SIZE);
 						if (++c == 4)
 						{
-							say("%s", buffer);			/* XXX uses global buffer */
-							strmcpy(buffer, "\t",			/* XXX uses global buffer */
+							say("%s", buffer);
+							strmcpy(buffer, "\t",
 							    BIG_BUFFER_SIZE);
 							c = 0;
 						}
 						new_free(&(aliases[i]));
 					}
-					if ((int) strlen(buffer) > 1)			/* XXX uses global buffer */
-						say("%s", buffer);			/* XXX uses global buffer */
+					if ((int) strlen(buffer) > 1)
+						say("%s", buffer);
 					new_free(&aliases);
 				}
-				if (!*buffer)			/* XXX uses global buffer */
+				if (!*buffer)
 					term_beep();
 			}
 		}
@@ -3992,14 +4004,26 @@ edit_char(ikey)
 		func = key_names[meta4_keys[key].index].func;
 		str = meta4_keys[key].stuff;
 	}
-/**************************** PATCHED by Flier ******************************/
 	else if (current_screen->meta5_hit)
 	{
 		func = key_names[meta5_keys[key].index].func;
 		str = meta5_keys[key].stuff;
-		current_screen->meta5_hit = 0;
 	}
-/****************************************************************************/
+	else if (current_screen->meta6_hit)
+	{
+		func = key_names[meta6_keys[key].index].func;
+		str = meta6_keys[key].stuff;
+	}
+	else if (current_screen->meta7_hit)
+	{
+		func = key_names[meta7_keys[key].index].func;
+		str = meta7_keys[key].stuff;
+	}
+	else if (current_screen->meta8_hit)
+	{
+		func = key_names[meta8_keys[key].index].func;
+		str = meta8_keys[key].stuff;
+	}
 	else
 	{
 		func = key_names[keys[key].index].func;
@@ -4098,6 +4122,7 @@ cd(command, args, subargs)
 		*args,
 		*subargs;
 {
+	char	lbuf[BIG_BUFFER_SIZE];
 	char	*arg,
 		*expand;
 
@@ -4119,8 +4144,8 @@ cd(command, args, subargs)
 		else
 			say("CD: No such user");
 	}
-	getcwd(buffer, BIG_BUFFER_SIZE+1);			/* XXX uses global buffer */
-	say("Current directory: %s", buffer);			/* XXX uses global buffer */
+	getcwd(lbuf, BIG_BUFFER_SIZE+1);
+	say("Current directory: %s", lbuf);
 }
 
 static	void
@@ -4802,9 +4827,10 @@ pingcmd(command, args, subargs)
 		*args,
 		*subargs;
 {
+	char	buffer[BIG_BUFFER_SIZE];
+
 /**************************** PATCHED by Flier ******************************/
 	/*sprintf(buffer, "%s PING %ld", args, (long)time(NULL));*/
-        /* XXX uses global buffer */
         char *target;
 #ifdef  HAVETIMEOFDAY
         struct timeval  timeofday;
@@ -4824,7 +4850,7 @@ pingcmd(command, args, subargs)
         sprintf(buffer, "%s PING %ld",target, (long) time(NULL));
 #endif
 /****************************************************************************/
-	ctcp(command, buffer, empty_string);			/* XXX uses global buffer */
+	ctcp(command, buffer, empty_string);
 }
 
 static	void

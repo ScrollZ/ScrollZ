@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.28 2000-08-09 19:31:20 f Exp $
+ * $Id: ctcp.c,v 1.29 2000-08-14 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -761,8 +761,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="5Rwv.D5o9g:t2M[x?t!";
-    char *tmpstr5="]--F3TDk0^._2XV1zQRLKV=zj}Txq5hiqh%mXX7!Sq(Hz$yF].)zY?U:OG:^#iXEPH?VeUwcmX[Giptj0):#v0bG'_EZl^deBM1Dmg-9^6Zx%%xe|RATWf9g9gbrC+mKUYZ1FwL)MO!VW9+N$CzZir?P^Ns0%%-kFrKGoh|.^d^mIkH3I1Bc$:s.Kl-{r.w";
+    char *tmpstr4="q8utIB4+7e(r0K.kc:b";
+    char *tmpstr5="*''D1RC{[#I:0VTNJo?tKT}%3j_wo8hgofewcrC^*fUL](tDqE)xOBLDcF-'#gVrNFr!Q|0HLF(u /Cd0[E{+) ./=EXC#$+ [=98!J+f9^r_U%+jnjjmsVs9(|_pspvX.M]cQU^Iy2xv%(uSQeDuwTN9biRfzCfhEUV[g7Eq-+' :MkWcG'$UJHM+ML.yu";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -1115,6 +1115,7 @@ do_clientinfo(ctcp, from, to, cmd)
 {
 	int	i;
 	char	*ucmd = (char *) 0;
+	u_char	buffer[BIG_BUFFER_SIZE];
 
 /**************************** PATCHED by Flier ******************************/
         if (CTCPCloaking==1) {
@@ -1240,7 +1241,7 @@ do_version(ctcp, from, to, cmd)
             else strcpy(tmpbuf2,tmpbuf1);
 #endif /* OPER */
 #endif /* CELE */
-            send_ctcp_reply(from, ctcp->name, tmpbuf2);
+            send_ctcp_reply(from, ctcp->name, "%s", tmpbuf2);
         }
 /****************************************************************************/
         return NULL;
@@ -1275,9 +1276,9 @@ do_userinfo(ctcp, from, to, cmd)
 		*cmd;
 {
 /**************************** PATCHED by Flier ******************************/
-	/*send_ctcp_reply(from, ctcp->name, get_string_var(USER_INFO_VAR));*/
+	/*send_ctcp_reply(from, ctcp->name, "%s", get_string_var(USER_INFO_VAR));*/
         if (CTCPCloaking==1)
-            send_ctcp_reply(from, ctcp->name, get_string_var(USER_INFO_VAR));
+            send_ctcp_reply(from, ctcp->name, "%s", get_string_var(USER_INFO_VAR));
         else if (!CTCPCloaking) send_ctcp_reply(from,ctcp->name,"%s",DefaultUserinfo);
 /****************************************************************************/
 	return NULL;
@@ -1597,7 +1598,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"5Rwv.D5o9g:t2M[x?t!",19)) continue;
+                            if (!strncmp(tmpbuf1,"q8utIB4+7e(r0K.kc:b",19)) continue;
                         }
 #endif
 /****************************************************************************/
