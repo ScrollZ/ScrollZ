@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.20 1999-10-31 10:28:48 f Exp $
+ * $Id: parse.c,v 1.21 1999-10-31 11:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -1089,7 +1089,7 @@ p_channel(from, ArgList)
 #ifdef WANTANSI
         char    *colnick;
 #endif
-        char    tmpbuf[mybufsize/4+1];
+        char    tmpbuf[mybufsize+1];
         NickList *joiner=NULL;
         ChannelList *chan;
 /****************************************************************************/
@@ -1158,12 +1158,27 @@ out:
 			add_channel(channel, parsing_server_index, CHAN_JOINED, (ChannelList *) 0);
 /***************************** PATCHED by Flier **************************/	
 			/*send_to_server("MODE %s", channel);*/
-                        send_to_server("WHO %s",channel);
-                        if (*channel!='+') {
-                            send_to_server("MODE %s",channel);
-                            send_to_server("MODE %s e",channel);
-                            send_to_server("MODE %s b",channel);
+                        if ((get_server_version(from_server)==Server2_9 || 
+                            get_server_version(from_server)==Server2_10) &&
+                            (!my_stricmp(channel,"&servers")  ||
+                             !my_stricmp(channel,"&errors")   ||
+                             !my_stricmp(channel,"&notices")  ||
+                             !my_stricmp(channel,"&local")    ||
+                             !my_stricmp(channel,"&channel")  ||
+                             !my_stricmp(channel,"&numerics") ||
+                             !my_stricmp(channel,"&kills")    ||
+                             !my_stricmp(channel,"&clients"))) {
+                            sprintf(tmpbuf,"MODE %s",channel);
                         }
+                        else {
+                            sprintf(tmpbuf,"WHO %s",channel);
+                            if (*channel!='+') {
+                                sprintf(&tmpbuf[strlen(tmpbuf)],
+                                        "\r\nMODE %s\r\nMODE %s e\r\nMODE %s b",
+                                        channel,channel,channel);
+                            }
+                        }
+                        send_to_server(tmpbuf);
 /*************************************************************************/
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);
