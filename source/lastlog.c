@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.3 1999-02-15 21:19:45 f Exp $
+ * $Id: lastlog.c,v 1.4 1999-11-14 14:27:49 f Exp $
  */
 
 #include "irc.h"
@@ -142,11 +142,21 @@ parse_lastlog_level(str)
 						str++;
 						s = cmd + 1;
 						neg = 1;
+/**************************** PATCHED by Flier ******************************/
+                                                len--;
+/****************************************************************************/
 					}
 					else {
 						neg = 0;
 						s = cmd;
 					}
+/**************************** PATCHED by Flier ******************************/
+					if (*str=='+') {
+                                            str++;
+                                            s=cmd+1;
+                                            len--;
+                                        }
+/****************************************************************************/
 					for (i = 0, p = 1; i < NUMBER_OF_LEVELS; i++, p <<= 1)
 					{
 						if (!strncmp(s, levels[i], len))
