@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.42 2001-12-22 18:05:17 f Exp $
+ * $Id: server.c,v 1.43 2001-12-22 18:13:43 f Exp $
  */
 
 #include "irc.h"
@@ -181,8 +181,10 @@ close_server(server_index, message)
 				sprintf(buffer, "QUIT :%s\n", message);
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                                if (server_list[i].connected && server_list[i].enable_ssl)
-                                    SSL_write(server_list[i].ssl_fd, buffer, strlen(buffer));
+                                if (server_list[i].connected && server_list[i].enable_ssl) {
+                                    if (server_list[i].ssl_fd)
+                                        SSL_write(server_list[i].ssl_fd, buffer, strlen(buffer));
+                                }
                                 else
 #endif
 /****************************************************************************/
@@ -988,10 +990,12 @@ connect_to_server_direct(server_name, port, nick)
 #endif /* HAVE_SYS_UN_H */
 /**************************** PATCHED by Flier ******************************/
 		/*new_des = connect_by_number(port, server_name, 1);*/
+        {
 #ifdef HAVE_SSL
                 if (*server_name == '!') server_name++;
 #endif
-		new_des=connect_by_number(port,server_name,1,0);
+		new_des = connect_by_number(port, server_name, 1, 0);
+        }
 /****************************************************************************/
 	if (new_des < 0)
 	{
@@ -2406,8 +2410,8 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
                 if (server_list[server].enable_ssl) {
                     int err;
 
-                    if (server_list[server].ssl_fd == 0 || server_list[server].connected == 0) {
-                        say("SSL write error - ssl socket = 0 or not connected");
+                    if (!server_list[server].ssl_fd) {
+                        say("SSL write error - ssl socket = 0");
                         return;
                     }
                     err = SSL_write(server_list[server].ssl_fd, lbuf, strlen(lbuf));
