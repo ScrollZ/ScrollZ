@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.39 2002-03-11 20:25:01 f Exp $
+ * $Id: dcc.c,v 1.40 2002-04-28 16:34:29 f Exp $
  */
 
 #include "irc.h"
@@ -1580,7 +1580,7 @@ dcc_getfile_resume(args)
 {
 	char		*user;
 	char		*filename;
-	char		*fullname;
+	char		*fullname = NULL;
 	DCC_list	*Client;
 	struct stat	sb;
 
