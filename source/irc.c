@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.104 2003-04-29 15:43:36 f Exp $
+ * $Id: irc.c,v 1.105 2003-04-29 17:16:07 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1447,10 +1447,6 @@ irc_io(prompt, func, my_use_input, loop)
 			if (errno == EBADF || errno == ESRCH)
 				irc_io_loop = 0;
 #endif
-/**************************** Patched by Flier ******************************/
-                        /* update time stamp if necessary */
-                        if (Stamp) SetStampFormat(NULL);
-/****************************************************************************/
 			if (cntl_c_hit)
 			{
 				if (one_key)
@@ -1483,10 +1479,6 @@ irc_io(prompt, func, my_use_input, loop)
 /****************************************************************************/
 			break;
 		default:
-/**************************** Patched by Flier ******************************/
-                        /* update time stamp if necessary */
-                        if (Stamp) SetStampFormat(NULL);
-/****************************************************************************/
 #ifndef _Windows
 			if (term_reset_flag)
 			{
@@ -1691,6 +1683,8 @@ irc_io(prompt, func, my_use_input, loop)
 /****************************************************************************/
 		}
 /**************************** PATCHED by Flier ******************************/
+                /* update time stamp if necessary */
+                if (Stamp) SetStampFormat(NULL);
                 if (DoOrigNick) {
                     if (OrigNickChange && OrigNick && DoOrigNick) {
                         char *curnick=get_server_nickname(from_server);
