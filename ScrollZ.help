@@ -71,7 +71,11 @@ messages are encrypted if nick is enclosed in *.
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
-Usage $3FKLINE filter$0 [$3server$0]
+Usage $3FKLINE$0 [$3-TEMP$0] $3filter$0 [$3server$0]
+When $3-TEMP$0 is specified $4STATS k$0 is sent instead of usual $4STATS K$0.
+On some servers STATS k returns only temporary K: lines.
+:FILINE        Does STATS I with filter
+Usage $3FILINE filter$0 [$3server$0]
 :IG            Ignores user
 Usage $3IG$0 [$3-T time$0] $3nick$0 [$3type$0]
 This will ignore by user@domain. If no type is given it will ignore $4ALL$0.
