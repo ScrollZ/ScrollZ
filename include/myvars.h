@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.20 2000-12-10 10:12:35 f Exp $
+ * $Id: myvars.h,v 1.21 2001-01-06 19:16:11 f Exp $
  */
 
 #include "mystructs.h"
@@ -266,6 +266,7 @@ extern int    Stamp;
 extern int    CdccVerbose;
 extern int    ARinWindow;
 extern int    BKList;
+extern int    AutoRecon;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

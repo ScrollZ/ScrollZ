@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.28 2000-11-07 17:46:10 f Exp $
+ * $Id: server.c,v 1.29 2001-01-06 19:16:12 f Exp $
  */
 
 #include "irc.h"
@@ -389,6 +389,9 @@ a_hack:
 							times = 0;
 						}
 						else
+/**************************** Patched by Flier ******************************/
+                                                    if (AutoRecon)
+/****************************************************************************/
 							get_connected(i, 0);
 					}
 					else
@@ -402,6 +405,9 @@ a_hack:
 							times = 0;
   						}
 						else
+/**************************** Patched by Flier ******************************/
+                                                    if (AutoRecon)
+/****************************************************************************/
 							get_connected(i, 0);
 					}
 				}
@@ -411,7 +417,10 @@ a_hack:
 					clean_whois_queue();
 					window_check_servers();
 				}
-				else if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
+/**************************** Patched by Flier ******************************/
+				/*else if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))*/
+				else if (AutoRecon && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
+/****************************************************************************/
 				{
 					say("Connection to server %s lost.", server_list[i].name);
 					clean_whois_queue();

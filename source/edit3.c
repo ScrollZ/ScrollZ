@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.53 2000-12-19 21:08:30 f Exp $
+ * $Id: edit3.c,v 1.54 2001-01-06 19:16:11 f Exp $
  */
 
 #include "irc.h"
@@ -949,6 +949,11 @@ char *subargs;
                 BitchChannels,Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
+    strcpy(tmpbuf1,"Auto reconnect   : ");
+    if (AutoRecon)
+        sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    say("%s%s",tmpbuf1,tmpbuf2);
     say("-------------------------= %sCdcc settings%s =------------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
@@ -1161,6 +1166,11 @@ char *subargs;
                 bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
+    strcpy(tmpbuf1,"Auto reconnect   : ");
+    if (AutoRecon)
+        sprintf(tmpbuf2,"%cON%c ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    say("%s%s",tmpbuf1,tmpbuf2);
     say("-------------------------= %cCdcc settings%c =------------------------",
         bold,bold);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
@@ -2221,6 +2231,8 @@ int ScrollZLoad()
                 loaderror=1;
             }
         }
+        else if (!strcmp("AUTORECONNECT",tmpbuf3))
+            OnOffSet(&pointer,&AutoRecon,&loaderror,lineno,"AUTORECONNECT");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2607,6 +2619,7 @@ void InitVars() {
     BKList=1;
     CdccVerbose=1;
     ARinWindow=0;
+    AutoRecon=1;
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
