@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.116 2001-12-19 18:41:13 f Exp $
+ * $Id: edit6.c,v 1.117 2001-12-30 09:34:57 f Exp $
  */
 
 #include "irc.h"
@@ -2334,22 +2334,30 @@ char *command;
 char *args;
 char *subargs;
 {
-    int haveserver=0;
+    int countonly = 0;
+    int haveserver = 0;
     char *filter;
     char *server;
 
-    if ((filter=new_next_arg(args,&args))) {
-        server=new_next_arg(args,&args);
-        if (server && *server) haveserver=1;
-        tottcount=0;
-        mattcount=0;
-        malloc_strcpy(&ftpattern,filter);
-        inSZTrace=2;
-        send_to_server("TRACE %s",haveserver?server:"");
-        say("Finding all users matching %s on %sserver%s%s",filter,
-            haveserver?"":"local ",haveserver?" ":"",haveserver?server:"");
+    filter = new_next_arg(args, &args);
+    if (!my_stricmp(filter,"-COUNT")) {
+        countonly = 1;
+        filter = new_next_arg(args, &args);
     }
-    else PrintUsage("FTRACE filter [server]");
+    if (filter) {
+        server = new_next_arg(args, &args);
+        if (server && *server) haveserver = 1;
+        tottcount = 0;
+        mattcount = 0;
+        new_free(&ftpattern);
+        if (countonly) malloc_strcpy(&ftpattern, ":");
+        malloc_strcat(&ftpattern, filter);
+        inSZTrace = 2;
+        send_to_server("TRACE %s", haveserver ? server : "");
+        say("Finding all users matching %s on %sserver%s%s", filter,
+            haveserver ? "" : "local ", haveserver ? " " : "", haveserver ? server : "");
+    }
+    else PrintUsage("FTRACE [-COUNT] filter [server]");
 }
 
 /* Actual filtered trace */
@@ -2358,27 +2366,29 @@ char *stuff;
 {
     char *nick;
     char *host;
-    char *prevhost=stuff;
+    char *prevhost = stuff;
     char *tmpstr;
-    char tmpbuf[mybufsize/4];
+    char *pattern = ftpattern;
+    char tmpbuf[mybufsize / 4];
 
-    nick=stuff;
-    while ((host=index(prevhost,'['))) prevhost=host+1;
+    nick = stuff;
+    while ((host = index(prevhost, '['))) prevhost = host + 1;
     if (prevhost && !host) {
         tottcount++;
-        host=prevhost-1;
-        *host++='\0';
-        if ((tmpstr=index(host,']'))) *tmpstr='\0';
-        else host=NULL;
-        sprintf(tmpbuf,"%s!%s",nick,host);
-        if (wild_match(ftpattern,tmpbuf)) {
+        host = prevhost - 1;
+        *host++ = '\0';
+        if ((tmpstr = index(host, ']'))) *tmpstr = '\0';
+        else host = (char *) 0;
+        sprintf(tmpbuf, "%s!%s", nick, host);
+        if (*pattern == ':') pattern++;
+        if (wild_match(pattern, tmpbuf)) {
             mattcount++;
+            if (*ftpattern == ':') return;
 #ifdef WANTANSI
-            ColorUserHost(host,CmdsColors[COLWHO].color2,tmpbuf,0);
-            say("%s%-9s%s %s",
-                CmdsColors[COLWHO].color1,nick,Colors[COLOFF],tmpbuf);
+            ColorUserHost(host, CmdsColors[COLWHO].color2, tmpbuf, 0);
+            say("%s%-9s%s %s", CmdsColors[COLWHO].color1, nick, Colors[COLOFF], tmpbuf);
 #else
-            say("%-9s %s",nick,tmpbuf);
+            say("%-9s %s", nick, tmpbuf);
 #endif
         }
     }
