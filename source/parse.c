@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.25 2000-08-14 20:38:14 f Exp $
+ * $Id: parse.c,v 1.26 2000-08-19 15:57:26 f Exp $
  */
 
 #include "irc.h"
@@ -300,10 +300,12 @@ p_topic(from, ArgList)
 		if (do_hook(TOPIC_LIST, "%s * %s", from, ArgList[0]))
 /**************************** PATCHED by Flier ******************************/
 			/*say("%s has changed the topic to %s", from, ArgList[0]);*/
+                {
                         if (*ArgList[0])
                             say("%s has set the topic to %s",from, ArgList[0]);
                         else
                             say("%s has unset the topic",from);
+                }
 /****************************************************************************/				
 	}
 	else
@@ -313,12 +315,14 @@ p_topic(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 			/*say("%s has changed the topic on channel %s to %s",
 				from, ArgList[0], ArgList[1]);*/
+                {
                         if (*ArgList[1])
                             say("%s has set the topic on channel %s to %s",
                                     from, ArgList[0], ArgList[1]);
                         else
                             say("%s has unset the topic on channel %s",
                                     from, ArgList[0]);
+                }
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/

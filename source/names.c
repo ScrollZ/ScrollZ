@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.14 2000-08-14 20:38:13 f Exp $
+ * $Id: names.c,v 1.15 2000-08-19 15:57:36 f Exp $
  */
 
 #include "irc.h"
@@ -933,10 +933,12 @@ char    *servmodes;
 				ThisNick->hasvoice = add;
 			break;*/
 			if ((person=next_arg(rest, &rest)) && !my_stricmp(person,mynick))
+                        {
 				if (add)
 					*chop |= CHAN_VOICE;
 				else
 					*chop &= ~CHAN_VOICE;
+                        }
                         ThisNick=find_in_hash(chan,person);
                         if (!person) person=empty_string;
                         if (check && isserver) {
