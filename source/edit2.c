@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.85 2002-03-07 16:53:11 f Exp $
+ * $Id: edit2.c,v 1.86 2002-05-05 09:06:01 f Exp $
  */
 
 #include "irc.h"
@@ -1803,7 +1803,7 @@ char *subargs;
     int  oldumask=umask(0177);
     char *filepath;
     char *filebak;
-    char tmpbuf1[mybufsize/4];
+    char tmpbuf1[mybufsize/2];
     FILE *usfile;
     NotifyList *notify;
     struct words *tmpword;
@@ -1868,6 +1868,10 @@ char *subargs;
         if (notify->mask) {
             strmcat(tmpbuf1,"!",sizeof(tmpbuf1));
             strmcat(tmpbuf1,notify->mask,sizeof(tmpbuf1));
+        }
+        if (notify->group) {
+            strmcat(tmpbuf1,":",sizeof(tmpbuf1));
+            strmcat(tmpbuf1,notify->group,sizeof(tmpbuf1));
         }
         nlistcount++;
         if ((nlistcount%3)==0) {
