@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.28 2001-05-08 17:42:16 f Exp $
+ * $Id: SZdist.c,v 1.29 2001-05-08 17:43:53 f Exp $
  */
 
 #include <stdio.h>
@@ -37,7 +37,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 
 #define WANTANSI       (1<<0)
 #define EXTRAS         (1<<1)
