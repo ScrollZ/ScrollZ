@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.4 1998-10-10 19:26:51 f Exp $
+ * $Id: edit5.c,v 1.5 1998-10-21 18:35:57 f Exp $
  */
 
 #include "irc.h"
@@ -2288,6 +2288,8 @@ char *subargs;
 {
     int  message=!my_stricmp(command,"DIRLSM");
     char *nick;
+    char *msgsent=server_list[from_server].LastMessageSent;
+    char *ntcsent=server_list[from_server].LastNoticeSent;
     char *channel=(char *) 0;
 #ifdef WANTANSI
     char tmpbuf[mybufsize/4];
@@ -2297,19 +2299,18 @@ char *subargs;
     else thing='-';
 #endif /* WANTANSI */
 
-    if ((message && LastMessageSent) || (!message && LastNoticeSent)) {
-        if (!(args && *args)) {
+    if ((message && msgsent) || (!message && ntcsent)) {
+        if (!(nick=new_next_arg(args,&args))) {
             channel=get_channel_by_refnum(0);
             if (channel) {
-                if (message) send_text(channel,LastMessageSent,"PRIVMSG");
-                else send_text(channel,LastNoticeSent,"PRIVMSG");
+                if (message) send_text(channel,msgsent,"PRIVMSG");
+                else send_text(channel,ntcsent,"PRIVMSG");
             }
             else NoWindowChannel();
         }
         else {
-            nick=new_next_arg(args,&args);
-            if (message) send_to_server("PRIVMSG %s :%s",nick,LastMessageSent);
-            else send_to_server("PRIVMSG %s :%s",nick,LastNoticeSent);
+            if (message) send_to_server("PRIVMSG %s :%s",nick,msgsent);
+            else send_to_server("PRIVMSG %s :%s",nick,ntcsent);
 #ifdef WANTANSI
             sprintf(tmpbuf,"%s[%s%c%s%s%s%c%s]%s",
                     CmdsColors[COLMSG].color5,Colors[COLOFF],thing,
@@ -2317,9 +2318,9 @@ char *subargs;
                     CmdsColors[COLMSG].color5,Colors[COLOFF]);
             put_it("%s %s%s%s",tmpbuf,
                    CmdsColors[COLMSG].color3,
-                   message?LastMessageSent:LastNoticeSent,Colors[COLOFF]);
+                   message?msgsent:ntcsent,Colors[COLOFF]);
 #else
-            put_it("[-%s-] %s",nick,LastMessageSent);
+            put_it("[-%s-] %s",nick,message?msgsent:ntcsent);
 #endif /* WANTANSI */
             AddNick2List(nick,from_server);
         }
