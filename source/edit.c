@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.81 2002-01-24 19:59:04 f Exp $
+ * $Id: edit.c,v 1.82 2002-01-29 16:27:39 f Exp $
  */
 
 #include "irc.h"
@@ -5040,7 +5040,7 @@ pingcmd(command, args, subargs)
             return;
         }
         gettimeofday(&timeofday,NULL);
-        snprintf(buffer, sizeof buffer, "%s PING %ld %ld", args,
+        snprintf(buffer, sizeof buffer, "%s PING %ld %ld", target,
                 (long) timeofday.tv_sec,(long) timeofday.tv_usec);
 /****************************************************************************/
 	ctcp(command, buffer, empty_string);
