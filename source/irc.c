@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.7 1998-11-02 21:20:54 f Exp $
+ * $Id: irc.c,v 1.8 1998-11-15 20:21:11 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -271,6 +271,7 @@ struct splitstr *splitlist,*splitlist1;
 struct list *nickwatchlist,*tmpnickwatch;
 #endif
 struct spingstr *spinglist;
+struct encrstr *encrlist;
 char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
