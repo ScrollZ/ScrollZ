@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.16 1999-06-14 17:55:41 f Exp $
+ * $Id: SZdist.c,v 1.17 1999-06-14 18:05:00 f Exp $
  */
 
 #include <stdio.h>
@@ -78,7 +78,7 @@ char *EXTRASfiles="alias.o cdcc.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o
 char *BETTERTIMERfiles="edit.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
-char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o";
+char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o vars.o window.o";
 char *MGSfiles="edit.o edit3.o edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
@@ -86,7 +86,7 @@ char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
 char *CELEfiles="alias.o cdcc.o celerity.o edit.o edit2.o edit3.o edit4.o edit5.o\
  edit6.o input.o numbers.o operv.o parse.o server.o status.o vars.o whois.o";
 char *HYPERDCCfiles="cdcc.o dcc.o edit.o edit4.o edit6.o";
-char *VILASfiles="ctcp.o";
+char *VILASfiles="edit2.o edit6.o";
 char *JIMMIEfiles="edit2.o";
 char *CTCPPAGEfiles="ctcp.o";
 char *TDFfiles="cdcc.o dcc.o edit.o edit4.o edit5.o edit6.o status.o";
