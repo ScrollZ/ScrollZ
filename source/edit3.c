@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.19 1999-01-17 12:42:40 f Exp $
+ * $Id: edit3.c,v 1.20 1999-01-31 12:45:21 f Exp $
  */
 
 #include "irc.h"
@@ -454,14 +454,8 @@ char *subargs;
 #ifdef WANTANSI
         say("Statistics for channel %s%s%s :",
             CmdsColors[COLSETTING].color5,tmpchan->channel,Colors[COLOFF]);
-#ifdef HAVETIMEOFDAY
         say("Channel created in memory at %s%.24s%s",
-            CmdsColors[COLSETTING].color2,ctime((time_t *) &(tmpchan->time.tv_sec)),
-            Colors[COLOFF]);
-#else  /* HAVETIMEOFDAY */
-        say("Channel created in memory at %s%.24s%s",
-            CmdsColors[COLSETTING].color2,ctime(&(tmpchan->time)),Colors[COLOFF]);
-#endif /* HAVETIMEOFDAY */
+            CmdsColors[COLSETTING].color2,ctime(&(tmpchan->creationtime)),Colors[COLOFF]);
         sprintf(tmpbuf,"Ops         : %s%-5d%sDeops      : %s%-5d%sServops    : ",
                 CmdsColors[COLSETTING].color2,tmpchan->pluso,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,tmpchan->minuso,Colors[COLOFF]);
@@ -488,13 +482,8 @@ char *subargs;
             CmdsColors[COLSETTING].color2,voice,Colors[COLOFF]);
 #else  /* WANTANSI */
         say("Statistics for channel %s :",tmpchan->channel);
-#ifdef HAVETIMEOFDAY
         say("Channel created in memory at %c%.24s%c",
-            bold,ctime((time_t *) &(tmpchan->time.tv_sec)),bold);
-#else  /* HAVETIMEOFDAY */
-        say("Channel created in memory at %c%.24s%c",
-            bold,ctime(&(tmpchan->time)),bold);
-#endif /* HAVETIMEOFDAY */
+            bold,ctime(&(tmpchan->creationtime)),bold);
         sprintf(tmpbuf,"Ops         : %c%-5d%cDeops      : %c%-5d%cServops    : ",
                 bold,tmpchan->pluso,bold,bold,tmpchan->minuso,bold);
         say("%s%c%-5d%cServdeops  : %c%d%c",tmpbuf,
