@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.18 1999-11-12 19:57:42 f Exp $
+ * $Id: operv.c,v 1.19 1999-11-14 13:36:34 f Exp $
  */
 
 #include "irc.h"
@@ -266,41 +266,73 @@ char *from;
     /* Now we got the message, use strstr() to match it up */
     if (!strncmp(tmpline,"Connecting to",12)) {
         strcpy(word1,OVgetword(0,3,tmpline));  /* Server */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] connecting to %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
         sprintf(tmpbuf,"Connecting to %s%s%s",CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Entering high-traffic mode: Forced by",36)) {
         strcpy(word2,OVgetword(0,6,tmpline));  /* Nick!User@Host */
         strcpy(word1,OVgetnick(word2));        /* Nick */
-        sprintf(tmpbuf,"Entering high traffic mode: forced by %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#ifdef OGRE
+	sprintf(tmpbuf,"[      %slink%s] high traffic mode: forced by %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else		  
+	sprintf(tmpbuf,"Entering high traffic mode: forced by %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Entering high-traffic mode",25)) {
         strcpy(word1,OVgetword(0,5,tmpline));  /* High speed */
         strcpy(word2,OVgetword(0,7,tmpline));  /* Low speed */
 #ifdef CELECOSM
         sprintf(tmpbuf,"high-traffic mode: %s%s%s ò %s%s%s",
-#else
-        sprintf(tmpbuf,"Entering high traffic mode: %s%s%s > %s%s%s",
-#endif
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                 CmdsColors[COLOV].color2,word2,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] high traffic mode %s%s%s > %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
+        sprintf(tmpbuf,"Entering high traffic mode: %s%s%s > %s%s%s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word2,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Resuming standard operation: Forced by",37)) {
         strcpy(word2,OVgetword(0,6,tmpline));  /* Nick!User@Host */
         strcpy(word1,OVgetnick(word2));        /* Nick */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] standard operation: forced by %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Resuming standard operation: forced by %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Resuming standard operation",26)) {
         strcpy(word1,OVgetword(0,4,tmpline));  /* Low speed */
         strcpy(word2,OVgetword(0,6,tmpline));  /* High speed */
 #ifdef CELECOSM
         sprintf(tmpbuf,"standard-traffic mode: %s%s%s %s%s%s",
-#else
-        sprintf(tmpbuf,"Entering standard traffic mode: %s%s%s  %s%s%s",
-#endif
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
 		CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] standard traffic mode: %s%s%s %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
+        sprintf(tmpbuf,"Entering standard traffic mode: %s%s%s  %s%s%s",
+		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+		CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Client exiting",14)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Nick */
@@ -319,6 +351,10 @@ char *from;
         sprintf(tmpbuf,"clnt/%sexit%s  %s%s%s %s",
                 CmdsColors[COLOV].color4,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %sexit%s] %s%s%s %s",
+                CmdsColors[COLOV].color3,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
 	sprintf(tmpbuf,"Client %sexiting%s: %s%s%s %s %s",
 		CmdsColors[COLOV].color4,Colors[COLOFF],
@@ -332,12 +368,20 @@ char *from;
 	strcpy(word3,OVgetword(0,7,tmpline));  /* user@host */
 #ifdef CELECOSM
         sprintf(tmpbuf,"clnt/%sconnect%s [p%s%s%s]  %s%s%s %s",
-#else
-        sprintf(tmpbuf,"Client %sconnecting%s on port %s%s%s: %s%s%s %s",
-#endif
-		CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color4,Colors[COLOFF],
                 CmdsColors[COLOV].color5,word1,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[   %sconnect%s] [p%s%s%s]  %s%s%s %s",
+                CmdsColors[COLOV].color3,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+#else
+        sprintf(tmpbuf,"Client %sconnecting%s on port %s%s%s: %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+#endif
     }
     else if (!strncmp(tmpline,"Client connecting",17)) {
         strcpy(word1,OVgetword(0,3,tmpline));  /* Nick */
@@ -350,11 +394,17 @@ char *from;
         else strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
 #ifdef CELECOSM
         sprintf(tmpbuf,"clnt/%sconnect%s  %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[   %sconnect%s] %s%s%s %s",
+                CmdsColors[COLOV].color3,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
         sprintf(tmpbuf,"Client %sconnecting%s: %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
-		CmdsColors[COLOV].color4,Colors[COLOFF],
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
     else if (!strncmp(tmpline,"LINKS requested by",18) ||
              !strncmp(tmpline,"LINKS '",7)) {
@@ -370,50 +420,86 @@ char *from;
         }
 #ifdef CELECOSM
         sprintf(tmpbuf,"%slinks%s%s from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],word3,
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %slinks%s]%s from %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],word3,
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
         sprintf(tmpbuf,"%sLinks%s%s request from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],word3,
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
-		CmdsColors[COLOV].color4,Colors[COLOFF],word3,
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
     else if (!strncmp(tmpline,"TRACE requested by",18)) {
         strcpy(word1,OVgetword(0,4,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
 #ifdef CELECOSM
         sprintf(tmpbuf,"%strace%s from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %strace%s] from %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
         sprintf(tmpbuf,"%sTrace%s request from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
-		CmdsColors[COLOV].color4,Colors[COLOFF],
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
     else if (!strncmp(tmpline,"Rejecting vlad",14)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bot nick */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sreject%s] vlad/joh/com bot: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Rejecting vlad/joh/com bot: %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Rejecting clonebot",17)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Bot nick */
 	strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
-	sprintf(tmpbuf,"Rejecting clonebot: %s%s%s %s",
+#ifdef OGRE
+	sprintf(tmpbuf,"[    %sreject%s] clonebot: %s%s%s %s",
+		CmdsColors[COLOV].color2,Colors[COLOFF],
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+	sprintf(tmpbuf,"Rejecting clonebot: %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Identd response differs",22)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* Attemtped IRCUSER */
-	sprintf(tmpbuf,"Fault identd response for %s%s%s %c%s%c",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-		bold,word2,bold);
+#ifdef OGRE
+        sprintf(tmpbuf,"[     %sfault%s] fake identd: %s%s%s %c%s%c",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                bold,word2,bold);
+#else
+        sprintf(tmpbuf,"Fault identd response for %s%s%s %c%s%c",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                bold,word2,bold);
+#endif
     }
     else if (!strncmp(tmpline,"Kill line active for",19)) {
 	strcpy(word1,OVgetword(0,5,tmpline));  /* Banned client */
 #ifdef CELECOSM
         sprintf(tmpbuf,"k-line active: %s%s%s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %skline%s] active: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"Active K-Line for %s%s%s",
-#endif
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"K-lined ",8)) {
 	strcpy(word1,OVgetword(0,2,tmpline));  /* Banned client */
@@ -426,10 +512,15 @@ char *from;
         else *word3='\0';
 #ifdef CELECOSM
         sprintf(tmpbuf,"k-line active: %s%s%s%s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %skline%s] active: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"Active K-line for %s%s%s%s",
-#endif
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
+#endif
     }
     else if (!my_strnicmp(tmpline,"stats ",6)) {
         strcpy(word1,OVgetword(0,2,tmpline));  /* Stat type */
@@ -448,12 +539,21 @@ char *from;
         }
 #ifdef CELECOSM
         sprintf(tmpbuf,"stats %s%s%s from %s%s%s %s %s%s%s",
-#else
-        sprintf(tmpbuf,"Stats %s%s%s request from %s%s%s %s %s%s%s",
-#endif
 		CmdsColors[COLOV].color4,word1,Colors[COLOFF],
 		CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3),
                 CmdsColors[COLOV].color3,word4,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %sstats%s] %s%s%s from %s%s%s %s %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3),
+                CmdsColors[COLOV].color1,word4,Colors[COLOFF]);
+#else
+        sprintf(tmpbuf,"Stats %s%s%s request from %s%s%s %s %s%s%s",
+		CmdsColors[COLOV].color4,word1,Colors[COLOFF],
+		CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3),
+                CmdsColors[COLOV].color3,word4,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Nick change collision",21)) {
 	strcpy(word1,OVgetword(0,5,tmpline));
@@ -461,19 +561,29 @@ char *from;
 	strcpy(word3,OVgetword(8,0,tmpline));
 #ifdef CELECOSM
         sprintf(tmpbuf,"nick collide: %s%s%s [%s] %s",
+		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[ %scollision%s] %s%s%s [%s] %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2,word3);
 #else
         sprintf(tmpbuf,"Nick change collision: [%s%s%s] [%s] %s",
-#endif
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
+#endif
     }
     else if (!strncmp(tmpline,"Nick collision on",17)) {
 	strcpy(word1,OVgetword(4,0,tmpline));
 #ifdef CELECOSM
         sprintf(tmpbuf,"nick collide: %s%s%s",
+		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[ %scollision%s] %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"Nick collision: %s%s%s",
-#endif
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Fake ",5)) {
 	strcpy(word1,OVgetword(0,2,tmpline));  /* Nick/Server */
@@ -483,6 +593,11 @@ char *from;
         sprintf(tmpbuf,"fake mode in %s%s%s: \"%s%s%s\" by %s",
                 CmdsColors[COLOV].color1,word2,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word3,Colors[COLOFF],word1);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %sfake%s] mode in %s%s%s: \"%s%s%s\" by %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],word1);
 #else
         sprintf(tmpbuf,"Fake mode: \"%s%s%s\" in %s%s%s by %s",
                 CmdsColors[COLOV].color4,word3,Colors[COLOFF],
@@ -493,8 +608,14 @@ char *from;
     else if (!strncmp(tmpline,"Possible bot",12)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Botnick */
 	strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sclient%s] possible bot: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Possible Bot: %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Link with",9)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Server */
@@ -503,23 +624,37 @@ char *from;
             *word2='\0';
         }
 #ifdef CELECOSM
-        sprintf(tmpbuf,"link/%sconnect%s  %s%s%s (%s)",
+        sprintf(tmpbuf,"link/%sconnect%s  %s%s%s%s%s%s",
                 CmdsColors[COLOV].color3,Colors[COLOFF],
-#else
-        sprintf(tmpbuf,"Link: connected to %s%s%s %s%s%s",
-#endif
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+                *word2?" (":"",*word2?word2:"",*word2?")":"");
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] %sconnect%s %s%s%s%s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                 *word2?"(":"",*word2?word2:"",*word2?")":"");
+#else
+        sprintf(tmpbuf,"Link: connected to %s%s%s%s%s%s",
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+                *word2?" (":"",*word2?word2:"",*word2?")":"");
+#endif
     }
     else if (!strncmp(tmpline,"Write error to",14)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Server */
 #ifdef CELECOSM
         sprintf(tmpbuf,"link/%sw.error%s  %s%s%s (closing)",
                 CmdsColors[COLOV].color3,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] %sw.error%s %s%s%s (closing)",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"Link: Write error to %s%s%s - closing.",
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
 #endif
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
     }
     else if (!strncmp(line,"Message",7)) strcpy(tmpbuf,line);
     else if (!strncmp(tmpline,"Received SQUIT",14)) {
@@ -530,6 +665,11 @@ char *from;
         sprintf(tmpbuf,"link/%ssquit%s  %s%s%s from %s %s",
                 CmdsColors[COLOV].color3,Colors[COLOFF],
                 CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] %ssquit%s %s%s%s from %s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2,word3);
 #else
 	sprintf(tmpbuf,"Link: %s%s%s recieved %sSQUIT%s from %s %s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
@@ -544,10 +684,19 @@ char *from;
         strcpy(word3,OVgetword(0,9,tmpline));  /* path  */
         strcpy(word4,OVgetword(10,0));         /* reason */
         /* check for server kill first */
-        if (index(word2,'.'))
+        if (index(word2,'.')) {
+#ifdef OGRE 
+            sprintf(tmpbuf,"[      %skill%s] %sserver%s: %s%s%s from %s%s%s (%s)",
+                    CmdsColors[COLOV].color2,Colors[COLOFF],
+                    CmdsColors[COLOV].color6,Colors[COLOFF],
+                    CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],word4);
+#else
             sprintf(tmpbuf,"Server kill received for %s%s%s from %s%s%s (%s)",
                     CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                     CmdsColors[COLOV].color2,word2,Colors[COLOFF],word4);
+#endif
+        }
         else {
             int foreign=0;
             char *tmp=word3;
@@ -561,17 +710,35 @@ char *from;
                 userhost=tmpuh;
                 tmpuh=tmp;
             }
-            if (foreign>1)
+            if (foreign>1) {
+#ifdef OGRE
+                sprintf(tmpbuf,"[      %skill%s] %sforeign%s: %s%s%s from %s%s%s %s",
+                        CmdsColors[COLOV].color2,Colors[COLOFF],
+                        CmdsColors[COLOV].color6,Colors[COLOFF],
+                        CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                        CmdsColors[COLOV].color1,word2,Colors[COLOFF],word4);
+#else
                 sprintf(tmpbuf,"Foreign kill received for %s%s%s from %s%s%s %s",
                         CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                         CmdsColors[COLOV].color1,word2,Colors[COLOFF],word4);
+#endif
+            }
             else {
                 int locop=strstr(tmpuh?tmpuh:"","(L")?1:0;
 
+#ifdef OGRE
+                sprintf(tmpbuf,"[      %skill%s] %slocal%s: %s%s%s from %s%s%s%s %s",
+                        CmdsColors[COLOV].color2,Colors[COLOFF],
+                        CmdsColors[COLOV].color6,Colors[COLOFF],
+                        CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                        locop?"local operator ":"",
+                        CmdsColors[COLOV].color1,word2,Colors[COLOFF],word4);
+#else
                 sprintf(tmpbuf,"Local kill received for %s%s%s from %s%s%s%s %s",
                         CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                         locop?"local operator ":"",
                         CmdsColors[COLOV].color1,word2,Colors[COLOFF],word4);
+#endif
             }
         }
     }
@@ -579,8 +746,14 @@ char *from;
 	strcpy(word1,OVgetword(0,3,tmpline));  /* BotNick */
 	strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
 	strcpy(word3,OVgetword(0,5,tmpline));  /* b-line notice */
+#ifdef OGRE
+        sprintf(tmpbuf,"[   %sclient%s] possible eggdrop: %s%s%s %s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#else
 	sprintf(tmpbuf,"Possible eggdrop: %s%s%s %s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#endif
     }
     else if (!strncmp(tmpline,"Nick change",11)) {
         if (strstr(tmpline+6," from ")) {
@@ -596,57 +769,119 @@ char *from;
 	    strcpy(word2,OVgetword(0,6,tmpline));  /* newnick */
             strcpy(word3,OVgetword(0,7,tmpline));  /* user@host */
         }
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %snick%s] %s%s%s to %s%s%s %s",
+                CmdsColors[COLOV].color1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+#else
 	sprintf(tmpbuf,"Nick change: %s%s%s to %s%s%s %s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
-		CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],OVuh(word3));
+#endif
     }
     else if (!strncmp(tmpline,"added K-Line",12)) {
 	strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
         strcpy(word2,OVgetword(5,0,tmpline));  /* K-line */
+#ifdef OGRE
+        sprintf(tmpbuf,"[     %skline%s] added by %s%s%s for %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
         sprintf(tmpbuf,"K-Line added by %s%s%s - %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#endif
     }
     else if (!strncmp(tmpline,"Added K-Line [",14)) return;
     else if (!strncmp(tmpline,"Bogus server name",17)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bogus name */
 	strcpy(word2,OVgetword(0,6,tmpline));  /* Nick */
+#ifdef OGRE	
+        sprintf(tmpbuf,"[      %slink%s] %sbogus%s:  %s%s%s from %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"Bogus server name %s%s%s from %s%s%s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
-		CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"No response from",16)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Server */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s]  %serror%s: %s%s%s is not responding",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"Link error: %s%s%s is not responding",
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"IP# Mismatch",12)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Real IP */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* Mismatched IP */
+#ifdef OGRE
+        sprintf(tmpbuf,"[  %smismatch%s] %s%s%s != %s%s%s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"IP mismatch detected: %s%s%s != %s%s%s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
-		CmdsColors[COLOV].color2,word2,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word2,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Unauthorized connection from",28)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Nick!user@host */
+#ifdef OGRE	
+        sprintf(tmpbuf,"[    %sclient%s] unauthorized: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"Unauthorized connect from %s%s%s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
     }
     else if (!strncmp(tmpline,"Invalid username",16)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,4,tmpline));  /* username */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sclient%s] invalid username: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Invalid username: %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Cannot accept connect",21)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Nick? */
 	strcpy(word2,OVgetword(5,0,tmpline));  /* Stuff? */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %sunlinkable%s: %s%s%s [%s]",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#else
 	sprintf(tmpbuf,"Unlinkable connection: %s%s%s [%s]",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#endif
     }
     else if (!strncmp(tmpline,"Lost connection to",18)) {
 	strcpy(word1,OVgetword(4,0,tmpline));  /* Server */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %slost connection%s: %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"Link: lost connection to %s%s%s",
                 CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (!my_strnicmp(tmpline,"failed oper",11)) {
         strcpy(word1,OVgetword(0,6,tmpline));  /* n!u@h for ircd 2.9/2.10 */
@@ -660,33 +895,63 @@ char *from;
             strcpy(word2,OVgetword(0,6,tmpline));  /* user@host */
             strcpy(word3,OVgetword(0,7,tmpline));  /* OPER nick */
         }
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %soper%s] FAILED: %s%s%s %s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word1,Colors[COLOFF],OVuh(word2),word3);
+#else
 	sprintf(tmpbuf,"Failed OPER attempt: %s%s%s %s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#endif
     }
     else if (!strncmp(tmpline,"Global -- Failed OPER attempt",29)) {
         strcpy(word1,OVgetword(0,7,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,8,tmpline));  /* user@host */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %soper%s] FAILED: %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Failed OPER attempt: %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (!strncmp(tmpline,"Sending SQUIT ",14) ||
              !strncmp(tmpline,"Sending SERVER ",15)) {
         strcpy(word1,OVgetword(0,2,tmpline));
         strcpy(word2,OVgetword(0,3,tmpline));
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] sending %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#else
         sprintf(tmpbuf,"Sending %s%s%s %s",
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+#endif
     }
     else if (!strncmp(tmpline,"Rejecting connection from ",26)) {
         strcpy(word1,OVgetword(0,4,tmpline));
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sreject%s] connection: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
         sprintf(tmpbuf,"Rejecting connection from %s%s%s",
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (strstr(tmpline,"whois on you")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
+#ifdef OGRE
+        sprintf(tmpbuf,"[     %swhois%s] on you by %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"%s%s%s %s is doing a %sWhois%s on you.",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
-		CmdsColors[COLOV].color4,Colors[COLOFF]);
+                CmdsColors[COLOV].color4,Colors[COLOFF]);
+#endif
     }
     else if (strstr(tmpline,"Flooder") && strstr(tmpline,"target")) {
         strcpy(word1,OVgetword(0,2,tmpline)); /* nick */
@@ -698,6 +963,11 @@ char *from;
                 CmdsColors[COLOV].color4,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                 CmdsColors[COLOV].color2,word4,Colors[COLOFF],word3);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[    %sclient%s] flooder: %s%s%s %s -> %s%s%s [%s]",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color1,word4,Colors[COLOFF],word3);
 #else
         sprintf(tmpbuf,"Flooder %s%s%s %s -> %s%s%s [%s]",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
@@ -719,6 +989,11 @@ char *from;
         sprintf(tmpbuf,"%s%s%s %s is an IRC warrior %s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 *tmp?(*tmp=='O'?"(global)":"(local)"):"");
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %soper%s] %s%s%s %s is now a %soper",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                *tmp?(*tmp=='O'?"global ":"local "):"");
 #else
 	sprintf(tmpbuf,"%s%s%s %s is now %sIRC Operator.",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
@@ -729,59 +1004,121 @@ char *from;
         strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
 #ifdef CELECOSM
         sprintf(tmpbuf,"config rehash by %s%s%s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[    %srehash%s] by %s%s%s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"%s%s%s is rehashing the server config file.",
-#endif
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
     }
     else if (strstr(tmpline,"tried to msg")) {
         strcpy(word1,OVgetword(0,2,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,3,tmpline));  /* user@host */
         strcpy(word3,OVgetword(0,7,tmpline));  /* number */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sclient%s] %s%s%s %s tried to message %s%s%s users",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF]);
+#else
         sprintf(tmpbuf,"User %s%s%s %s tried to message %s%s%s users",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 CmdsColors[COLOV].color2,word3,Colors[COLOFF]);
+#endif
     }
     else if ((strstr(tmpline,"Possible")) && (strstr(tmpline,"bot"))) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bot Nick */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* User@Host */
+#ifdef OGRE
+        sprintf(tmpbuf,"[    %sclient%s] possible bot: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
 	sprintf(tmpbuf,"Possible IrcBot: %s%s%s %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
     }
     else if (strstr(tmpline,"ERROR :from")) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Error Source */
 	strcpy(word2,OVgetword(0,7,tmpline));  /* ? */
 	strcpy(word3,OVgetword(8,0,tmpline));  /* Error */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %serror%s: %s%s%s - close link %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],word3);
+#else
 	sprintf(tmpbuf,"Error: %s%s%s - close link %s%s%s %s",
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-		CmdsColors[COLOV].color2,word2,Colors[COLOFF],word3);
+                CmdsColors[COLOV].color2,word2,Colors[COLOFF],word3);
+#endif
     }
     else if (strstr(tmpline,"closed the connection")) {
 	strcpy(word1,OVgetword(0,2,tmpline));  /* Server */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %slink error%s: %s%s%s closed the connection",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
 	sprintf(tmpbuf,"Link Error: %s%s%s closed the connection.",
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if ((strstr(tmpline,"Connection to")) && (strstr(tmpline,"activated"))) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Server */
-	sprintf(tmpbuf,"Link: Connecting to %s%s%s",CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %sconnecting%s to %s%s%s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#else
+        sprintf(tmpbuf,"Link: Connecting to %s%s%s",
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
     }
     else if (strstr(tmpline,"connect failure:")) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* Failed Server */
 	strcpy(word2,OVgetword(4,0,tmpline));  /* Reason */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %sfailed connect%s from %s%s%s [%s]",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word4);
+#else
 	sprintf(tmpbuf,"Failed connect from %s%s%s [%s]",
-		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+#endif
     }
     else if ((tmp=strstr(tmpline," added a ")) && strstr(tmp,"kline")) {
 	strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
         strcpy(word2,OVgetword(6,0,tmpline));  /* K-line */
+#ifdef OGRE
+        sprintf(tmpbuf,"[     %skline%s] added by %s%s%s for %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else
         sprintf(tmpbuf,"K-Line added by %s%s%s - %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#endif
     }
     else if (strstr(tmpline," added K-Line ")) {
 	strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
         strcpy(word2,OVgetword(5,0,tmpline));  /* K-line */
+#ifdef OGRE
+        sprintf(tmpbuf,"[     %skline%s] added by %s%s%s for %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF]);
+#else			   
         sprintf(tmpbuf,"K-Line added by %s%s%s - %s",
-		CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#endif
     }
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
