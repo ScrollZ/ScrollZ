@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.49 2000-10-06 16:12:13 f Exp $
+ * $Id: edit5.c,v 1.50 2000-10-30 17:09:03 f Exp $
  */
 
 #include "irc.h"
@@ -432,8 +432,7 @@ char *str;
     register char *tmpstr1=NULL;
 
     for (tmpstr=str;*tmpstr;tmpstr++) {
-        if (*tmpstr=='›' || *tmpstr=='„') *tmpstr='_';
-        else if ((*tmpstr>='0' && *tmpstr<='9')) {
+        if ((*tmpstr>='0' && *tmpstr<='9')) {
             numbers=1;
             val=val*10+(*tmpstr-'0');
         }
