@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.109 2005-01-14 20:13:30 f Exp $
+ * $Id: edit4.c,v 1.110 2005-02-22 18:25:49 f Exp $
  */
 
 #include "irc.h"
@@ -535,17 +535,19 @@ char *channel;
 }
 
 /* Handles operator kills */
-void HandleKills(server,nick,userhost,reason)
+void HandleKills(server, nick, userhost, reason)
 int server;
 char *nick;
 char *userhost;
 char *reason;
 {
-    char tmpbuf[mybufsize/2];
+    char tmpb[mybufsize / 2];
+    time_t now = time(NULL);
 
-    snprintf(tmpbuf,sizeof(tmpbuf),"You have been killed by operator %s (%s) %s",nick,userhost,reason);
-    malloc_strcpy(&WhoKilled,tmpbuf);
-    if (away_set || LogOn) AwaySave(tmpbuf,SAVEKILL);
+    snprintf(tmpb, sizeof(tmpb), "You have been killed at %.24s by operator %s (%s) %s",
+             ctime(&now), nick, userhost, reason);
+    malloc_strcpy(&WhoKilled, tmpb);
+    if (away_set || LogOn) AwaySave(tmpb, SAVEKILL);
 }
 
 /* Handles nick change */
@@ -3256,11 +3258,11 @@ void ListSplitedServers()
 #endif
 
 /* This will show the sucker that last killed you */
-void ShowKill(command,args,subargs)
+void ShowKill(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    if (WhoKilled) say("%s",WhoKilled);
+    if (WhoKilled) say("%s", WhoKilled);
     else say("You haven't been killed so far");
 }
