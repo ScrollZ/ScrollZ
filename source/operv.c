@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.63 2003-05-14 18:07:31 f Exp $
+ * $Id: operv.c,v 1.64 2003-05-22 18:47:40 f Exp $
  */
 
 #include "irc.h"
@@ -1275,6 +1275,29 @@ char *from;
 #else
         snprintf(tmpbuf,sizeof(tmpbuf),"Motd requested by %s%s%s %s %s",
                  CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),word3);
+#endif
+    }
+    else if (!strncmp(tmpline,"Unauthorised client connection from ",36)) {
+        strcpy(word1,OVgetword(0,5,tmpline));  /* nick[user@host] */
+        tmp=index(word1,'[');
+        if (tmp) {
+            strcpy(word2,tmp);
+            *tmp='\0';
+        }
+        else strcpy(word2,word1);
+        strcpy(word3,OVgetword(0,6,tmpline));  /* [ip] */
+        strcpy(word4,OVgetword(0,8,tmpline));  /* [server/port] */
+        if (strlen(word4)>0 && word4[strlen(word4)-1]=='.')
+            word4[strlen(word4)-1]='\0';
+#ifdef OGRE	
+        snprintf(tmpbuf,sizeof(tmpbuf),"[    %sclient%s] unauthorized: %s%s%s %s %s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                word3,word4);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"Unauthorized connect from %s%s%s %s %s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                word3,word4);
 #endif
     }
     else if (strstr(tmpline,"whois on you")) {
