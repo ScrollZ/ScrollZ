@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.17 1999-11-06 18:02:43 f Exp $
+ * $Id: operv.c,v 1.18 1999-11-12 19:57:42 f Exp $
  */
 
 #include "irc.h"
@@ -419,14 +419,17 @@ char *from;
 	strcpy(word1,OVgetword(0,2,tmpline));  /* Banned client */
         if (*word1) {
             tmp=word1+strlen(word1)-1;
-            *tmp='\0';
+            if (*tmp=='.') *tmp='\0';
         }
+	strcpy(word2,OVgetword(4,0,tmpline));  /* Banned client */
+        if (*word2) sprintf(word3," (%s)",word2);
+        else *word3='\0';
 #ifdef CELECOSM
-        sprintf(tmpbuf,"k-line active: %s%s%s",
+        sprintf(tmpbuf,"k-line active: %s%s%s%s",
 #else
-        sprintf(tmpbuf,"Active K-line for %s%s%s",
+        sprintf(tmpbuf,"Active K-line for %s%s%s%s",
 #endif
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
     }
     else if (!my_strnicmp(tmpline,"stats ",6)) {
         strcpy(word1,OVgetword(0,2,tmpline));  /* Stat type */
@@ -563,7 +566,7 @@ char *from;
                         CmdsColors[COLOV].color1,word1,Colors[COLOFF],
                         CmdsColors[COLOV].color1,word2,Colors[COLOFF],word4);
             else {
-                int locop=strstr(tmpuh,"(L")?1:0;
+                int locop=strstr(tmpuh?tmpuh:"","(L")?1:0;
 
                 sprintf(tmpbuf,"Local kill received for %s%s%s from %s%s%s%s %s",
                         CmdsColors[COLOV].color1,word1,Colors[COLOFF],
