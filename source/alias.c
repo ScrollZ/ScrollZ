@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.29 2002-02-25 17:27:09 f Exp $
+ * $Id: alias.c,v 1.30 2002-02-25 17:47:08 f Exp $
  */
 
 #include "irc.h"
@@ -4795,7 +4795,7 @@ u_char *input;
         /* Floodp should return FloodProt, FloodMessages and FloodSeconds */
         { "FLOODP"         , 1, &FloodProt       , NULL                   },
         { "SERVNOTICE"     , 1, &ServerNotice    , NULL                   },
-        { "CTCPCLOAKING"   , 1, &CTCPCloaking    , NULL                   },
+        { "CTCPCLOAK"      , 1, &CTCPCloaking    , NULL                   },
         { "FAKE"           , 3, &ShowFakes       , &ShowFakesChannels     },
         { "SHOWAWAY"       , 3, &ShowAway        , &ShowAwayChannels      },
         { "KICKOPS"        , 3, &KickOps         , &KickOpsChannels       },
@@ -4862,8 +4862,12 @@ u_char *input;
                 else if (*(command_list[i].svar)) strmcpy(locbuf,*(command_list[i].svar),sizeof(locbuf));
                 break;
             case 3:
-                if (*(command_list[i].ivar) && *(command_list[i].svar))
+                if (*(command_list[i].ivar) && *(command_list[i].svar)) {
                     snprintf(locbuf,sizeof(locbuf),"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
+                    /* Orignick is special case */
+                    if (OrigNickQuiet && !strcmp(command_list[i].command,"ORIGNICK"))
+                        *locbuf='2';
+                }
                 else strcpy(locbuf,"0");
                 /* Nhprot is special case */
                 if (!strcmp(command_list[i].command,"NHPROT"))
