@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.6 1998-12-29 16:37:26 f Exp $
+ * $Id: ctcp.c,v 1.11 1999-01-17 10:16:21 f Exp $
  */
 
 #include "irc.h"
@@ -128,8 +128,10 @@ static  char    *do_voice _((CtcpEntry *, char *, char *, char *));
 static  char    *do_whoami _((CtcpEntry *, char *, char *, char *));
 static  char    *do_help _((CtcpEntry *, char *, char *, char *));
 char            *do_cdcc _((CtcpEntry *, char *, char *, char *));
+#ifndef CELE
 /* Patched by BiGhEaD */
 static  char    *do_open _((CtcpEntry *, char *, char *, char *));
+#endif
 #ifdef CTCPPAGE
 static  char    *do_page _((CtcpEntry *, char *, char*, char *)); 
 #endif
@@ -184,9 +186,11 @@ static CtcpEntry ctcp_cmd[] =
                 CTCP_SHUTUP , do_cdcc },
         { "XDCC",       "xdcc clone",
                 CTCP_SHUTUP , do_cdcc },
+#ifndef CELE
 /* Patched by BiGhEaD */
         { "OPEN",       "opens channel (-lk)",
                 CTCP_SHUTUP , do_open },
+#endif
 #ifdef CTCPPAGE
         { "PAGE",       "pages user",
                 CTCP_SHUTUP, do_page }
@@ -753,8 +757,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="u._3*1w.!4oCoc1*qf/";
-    char *tmpstr5="]((wGiVW-- go Av72^Nk#d}N1$ V-RlI[K|MB L?pJ4wg5ytQ/+-IV8ZNKC{BB!dZzbEp0z?=%F]}XbDpjg(gYc+tIgen-rBVq|B{2)9sAZ5Vm9png:dB2A533I%X5MG(#WMzhdyQfa%mJQluVM4uc%P'v5s+vl|DOUA$-|lqf=zi^ZUn]}}us9 /G]tG:p1M#qOPwJ/4k[zOL'P*8U2U7muy'zM):Oe2aq=5 1Z^RuVy4w*JMOkJ=iu2nyL.Az[m/";
+    char *tmpstr4="o}31?j4#6dF:'-hdI{%";
+    char *tmpstr5="(((j12POeBXa'.XS:5i$^i%-B4J!niydW6xt2*sieNzX2PDS4b^o-xx=AS28#dm%NkN{B6q-Li2hpF$+haX8abGC'=Qod5QyL |'jk^z/DR7K743X%k?Cj|Kv6#5ij]geF%Q3:Cv Rl'6lvH#.?p^4//{0HD{I[4|E{r0Fl 1?}#w$%JS__(Ldc/'UVU]^e{P96rQqJK|}Wq%V)|laiOpXfYFCl2mthAuvmnlmK9s:gGrZ-}5cJMHeElYDb.63e%'QM_J nPm-";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -867,6 +871,7 @@ char *args;
     return(NULL);
 }
 
+#ifndef CELE
 /* Patched by BiGhEaD */
 /* Open channel (-lk) under CTCP request on specified channel (for OP users) */
 static char *do_open(ctcp,from,to,args)
@@ -939,6 +944,7 @@ char *args;
     else notchanop(from,channel);
     return(NULL);
 }
+#endif /* CELE */
 
 #ifdef CTCPPAGE
 /* PAGE (BEEP) user from a friend */
@@ -1037,7 +1043,7 @@ char *args;
         if (!CTCPCloaking) send_to_server("NOTICE %s :Try  /CTCP %s CDCC HELP",from,mynick);
         if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
         return(NULL);
-    };
+    }
     strcpy(tmpbuf1,args);
     flag=in_ctcp_flag;
     in_ctcp_flag=0;
@@ -1068,7 +1074,7 @@ do_sed(ctcp, from, to, args)
 		crypt_who = to;
 	else
 		crypt_who = from;
-	if ((key = is_crypted(crypt_who)) && !(msg = crypt_msg(args, key, 0)))
+	if ((key = is_crypted(crypt_who)) && (msg = crypt_msg(args, key, 0)))
 	{
 		malloc_strcpy(&ret, msg);
 		sed = 1;
@@ -1505,7 +1511,9 @@ do_ctcp(from, to, str)
 	time_t	curtime = time(NULL);
 /************************ PATCHED by Flier ***************************/
         char    *mynick=get_server_nickname(from_server);
+#if defined(WANTANSI) || defined(IPCHECKING)
         char    tmpbuf1[mybufsize/2];
+#endif
 /*********************************************************************/
 
 	flag = double_ignore(from, FromUserHost, IGNORE_CTCPS);
@@ -1566,7 +1574,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"u._3*1w.!4oCoc1*qf/",19)) continue;
+                            if (!strncmp(tmpbuf1,"o}31?j4#6dF:'-hdI{%",19)) continue;
                         }
 #endif
 /****************************************************************************/
@@ -1992,8 +2000,10 @@ send_ctcp(type, to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 /****************************************************************************/
 		send_to_server("%s %s :%s", type, to, sendp);
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
                 if (datatag && strcmp(datatag,"ACTION"))
                     do_hook(SEND_CTCP_LIST, "%s %s %s %s",type,to,datatag,sendp);
+#endif
         }
 /****************************************************************************/
 }

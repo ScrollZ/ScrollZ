@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.9 1998-11-20 20:59:44 f Exp $
+ * $Id: dcc.c,v 1.10 1999-01-17 10:16:20 f Exp $
  */
 
 #include "irc.h"
@@ -1868,7 +1868,7 @@ register_dcc_offer(user, type, description, address, port, size)
                         dcc_chat(user);
                     malloc_strcpy(&LastChat,user);
                 }
-        };
+        }
 /****************************************************************************/
 out:
 	new_free(&cmd);
