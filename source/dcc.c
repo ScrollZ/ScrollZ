@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.5 1998-10-22 16:59:27 f Exp $
+ * $Id: dcc.c,v 1.6 1998-11-15 20:19:26 f Exp $
  */
 
 #include "irc.h"
@@ -122,6 +122,8 @@ extern void CheckDCCSpeed _((DCC_list *, time_t));
 extern void RemoveFromQueue _((int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern int  CheckServer _((int));
+extern void DecryptChatMessage _((char *, char *));
+extern void EncryptChatMessage _((char *, char *));
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -1972,6 +1974,7 @@ process_incoming_chat(Client)
 					s = tmp;
 				}
         	                put_it("=%s= %s", Client->user, s);*/
+                                DecryptChatMessage(s,Client->user);
                 	        PrintChatMsg(Client,s,bytesread);
 /****************************************************************************/
                         }
@@ -2498,6 +2501,9 @@ dcc_message_transmit(user, text, type, flag)
 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	message_from(Client->user, LOG_DCC);
 	strmcpy(tmp, text, BIG_BUFFER_SIZE);
+/**************************** PATCHED by Flier ******************************/
+        EncryptChatMessage(tmp,Client->user);
+/****************************************************************************/
 	strmcat(tmp, "\n", BIG_BUFFER_SIZE); 
 	len = strlen(tmp);
 	send(Client->write, tmp, len, 0);
