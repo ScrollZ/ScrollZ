@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: ircaux.h,v 1.2 1998-09-27 16:27:15 f Exp $
  */
 
 #ifndef __ircaux_h_
@@ -61,10 +61,7 @@
 	void	wait_new_free _((char **));
 	FILE	*zcat _((char *));
 	int	is_number _((char *));
-/**************************** PATCHED by Flier ******************************/
-	/*int	connect_by_number _((int, char *, int));*/
-	int	connect_by_number _((int, char *, int, int));
-/****************************************************************************/
+	int	connect_by_number _((int, char *, int));
 	int	my_stricmp _((char *, char *));
 	int	my_strnicmp _((char *, char *, int));
 	int	set_non_blocking _((int));
