@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.48 2000-09-24 17:10:34 f Exp $
+ * $Id: edit5.c,v 1.49 2000-10-06 16:12:13 f Exp $
  */
 
 #include "irc.h"
@@ -1395,17 +1395,27 @@ int  print;
 #endif
 	}
         if (!isitme && AutoReplyBuffer) {
+            int invmatch;
+
             strcpy(tmpbuf2,AutoReplyBuffer);
             currentar=tmpbuf2;
             do {
+                invmatch=0;
                 if ((newar=strchr(currentar,','))) *newar++='\0';
+                if (*currentar=='-') {
+                    currentar++;
+                    invmatch=1;
+                }
                 sprintf(tmpbuf3,"%s %s",currentar,tmpbuf4);
                 currentar=function_match(tmpbuf3);
-                if (atoi(currentar)>0) foundar=1;
+                if (atoi(currentar)>0) {
+                    if (!invmatch) foundar=1;
+                    else foundar=0;
+                }
                 new_free(&currentar);
                 currentar=newar;
             }
-            while (currentar && !foundar);
+            while (currentar);
         }
         if (!foundar || isitme) {
             if (Ego && isitme) strcat(tmpbuf1,CmdsColors[COLPUBLIC].color6);
