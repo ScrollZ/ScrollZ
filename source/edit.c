@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.101 2004-07-02 19:57:53 f Exp $
+ * $Id: edit.c,v 1.102 2004-11-08 21:19:47 f Exp $
  */
 
 #include "irc.h"
@@ -1813,6 +1813,7 @@ e_channel(command, args, subargs)
                             if (RateLimitJoin(from_server)) {
                                 ChannelList *newchan, *tmpchan;
 
+                                chankey = CheckJoinKey(ptr);
                                 newchan = (ChannelList *) new_malloc(sizeof(ChannelList));
                                 newchan->channel = (char *) 0;
                                 newchan->key = (char *) 0;
