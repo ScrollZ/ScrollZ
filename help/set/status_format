@@ -1,4 +1,4 @@
-!	 $Id: status_format,v 1.5 2002-02-24 09:37:37 f Exp $
+!	 $Id: status_format,v 1.6 2002-02-24 10:14:30 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -24,15 +24,34 @@ Usage: SET STATUS_FORMAT <format description for status line>
        O          Value of STATUS_OVERWRITE variables. *
        A          Value of STATUS_AWAY variable. *
        T          Value of STATUS_CLOCK variable. *
-       U          Value of STATUS_USER variable. *
-       X Y Z      Value of STATUS_USER1,2,3 variables. *
+       !00 - !09  Value of STATUS_USER,
+                  STATUS_USER1 to STATUS_USER9 variable. *
        H          Value of STATUS_HOLD variable. *
        *          Value of STATUS_OPER variable. *
        @          Value of STATUS_CHANOP variable. *
        M          Value of STATUS_MAIL variable. *
        #	  Value of STATUS_UMODE variable.
        B	  Value of STATUS_HOLD_LINES variable. *
-       V          Current ScrollZ version
+       1	  Value of STATUS_UPTIME variable. *
+       Z	  Value of STATUS_LOADAVG variable (only in Cele). *
+       U	  Value of STATUS_CHANNELCOUNT variable. *
+       V          Current ircII version
+       2          Current lag. *
+       3          Last person to join the current channel. *
+       4          Number of Cdcc packs offered. *
+       5          Number of active DCC send connections. *
+       6          Number of active DCC get connections. *
+       7          Current status of Cdcc autoget (A=on, a=off). *
+       8          Current status of Cdcc security (S=on, s=off). *
+       9          Current channel's topic. *
+       D          Current status of user list (F=on, f=off). *
+       E          Current status of nethack protection: (N=on, n=off). *
+                          (q=quiet, m=medium, f=full)
+       L          Current status of CTCP cloak (H=hide, K=on, k=off). *
+       P          Current status of flood protection (M=max, P=on, p=off). *
+       J          Current DCC status: G=DCC get,  g=DCC reget
+                                      S=DCC send, s=DCC resend
+                                      and the completion status. *
        >          Makes anything beyond it right justified.
        %          Replaced by %
 
@@ -43,17 +62,18 @@ Usage: SET STATUS_FORMAT <format description for status line>
   For example, the standard default ScrollZ status line format
   looks like this:
 
-  %T[%R] %*%@%N %S%H%Q%A%C%+%I%O%M%U %W
+  %y1[%y2%R%y6] %y2%*%y6%y3%@%y6%y7%N%y6%#%C%+%A%Q%S%I%O %y3%W%y6
+  %F%y9%H%y6 %> [lj %y5%3%y6]%y0
   which when expanded for the nickname Dae on the channel #blue
-  [1] @Dae on #blue (+tn) * type /help for help 
+  [1] @Dae on #blue (+tn)                        [lj Dae/#blue]
 
   The window number %R is 1
   The nickname %N is Dae   and Dae is a channel op %@  @
   Dae is on channel %C #blue
   The mode %+ calls up the contents of the STATUS_MODE variable
       and displays the channel modes, (+ps)
-  The end of the status_format $U expands to the contents of
-      STATUS_USER which contains.. "* type /help for help"
+  The end of the status_format %3 expands to the contents of
+      person that last joined #blue "Dae/#blue"
   
   Everything else is ignored unless it's needed.
  
@@ -61,7 +81,10 @@ Usage: SET STATUS_FORMAT <format description for status line>
   (^B, ^V, ^_ and ^O) in STATUS_FORMAT. If you change
   the format at the start of STATUS_FORMAT, you will
   have to do it again after any %C or %U, as these
-  both reset it to reverse video.
+  both reset it to reverse video. Additionaly %y1
+  to %y6 expand to values of COLOR SBAR and %y7 to
+  %y9, %ya, %yb and %yc expand to values of COLOR SBAR2.
+  You can turn all colors off with %y0.
 
 See Also:  
   SET STATUS_AWAY
