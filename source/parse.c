@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.4 1998-09-20 09:25:45 f Exp $
+ * $Id: parse.c,v 1.5 1998-09-30 18:09:26 f Exp $
  */
 
 #include "irc.h"
@@ -415,14 +415,17 @@ wallops(from, ArgList)
 			if ((flag != DONT_IGNORE) && (check_flooding(from, WALLOP_FLOOD, line)))
 			add_to_whois_queue(from, whois_new_wallops, "%s", line);
 		}
-		else if (strcmp(from, get_server_nickname(get_window_server(0))) != 0)
 /**************************** PATCHED by Flier ******************************/
-			/*put_it("!%s! %s", from, line);*/
+                /* Why not show user their own wallops ? I will ignore this */
+		/*else if (strcmp(from, get_server_nickname(get_window_server(0))) != 0)
+			put_it("!%s! %s", from, line);*/
+                else {
 #if defined(OPERVISION) && defined(WANTANSI)
-                        if (OperV) OVformat(line);
-                        else
+                    if (OperV) OVformat(line);
+                    else
 #endif
-			put_it("!%s! %s", from, line);
+                    put_it("!%s! %s", from, line);
+                }
 /****************************************************************************/
 	}
 	set_lastlog_msg_level(level);
