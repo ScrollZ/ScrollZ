@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.5 1998-10-21 18:35:57 f Exp $
+ * $Id: edit5.c,v 1.6 1998-10-21 19:40:52 f Exp $
  */
 
 #include "irc.h"
@@ -2980,10 +2980,16 @@ List *elmt2;
 /* BanKicks the last joined person */
 void LastJoinerKick() {
     char *channel;
-    char tmpbuf[mybufsize/4];
+    char *lastjoin;
+    char tmpbuf[mybufsize/4+1];
 
-    if (LastJoin && strcmp(LastJoin,"none yet")) {
-        strcpy(tmpbuf,LastJoin);
+    if (!CheckServer(from_server)) {
+        say("You are not connected to a server. Use /SERVER to connect.");
+        return;
+    }
+    lastjoin=server_list[from_server].LastJoin;
+    if (lastjoin && strcmp(lastjoin,"none yet")) {
+        strmcpy(tmpbuf,lastjoin,mybufsize/4);
         channel=index(tmpbuf,'/');
         if (channel) {
             *channel=0;
