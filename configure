@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.12 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.13 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -549,15 +549,15 @@ else
 fi
 
 
-VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c` 
-echo this is ircii version $VERSION
+VERSION=`sed -n -e 's/char.*ScrollZver.*ScrollZ v\(.\...\) .*/\1/p' < ${srcdir}/source/irc.c` 
+echo this is ScrollZ version $VERSION
 echo
 
 
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.14 2001-02-26 18:30:40 f Exp $' > /dev/null
+echo '$Id: configure,v 1.15 2001-05-09 18:06:41 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -4885,7 +4885,7 @@ EOF
 fi
 
 if test "x$ipv6" = "xno" -o "x$ipv6" = "x" ; then
-       echo "$ac_t""NO" 1>&6
+       echo "$ac_t""no" 1>&6
        ipv6=no
 fi
 

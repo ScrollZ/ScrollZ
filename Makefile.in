@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.5 2000-08-17 19:56:20 f Exp $
+# @(#)$Id: Makefile.in,v 1.6 2001-05-09 18:06:41 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -57,12 +57,12 @@ mandir = ${prefix}/man/man1
 
 # Where the ircII binary will be installed.
 # 'make install' will compile and install the program
-INSTALL_IRC = ${bindir}/irc
+INSTALL_IRC = ${bindir}/scrollz
 
 # Where the ircII library will be.  Generally this is the place that
 # you put the scripts, help pages and translation tables.  It is
 # very important that you set this correctly.
-IRCLIB = ${libdir}/irc
+IRCLIB = ${libdir}/scrollz
 
 # Set this to the lex you want to use, and if they lex uses a library.
 
@@ -165,15 +165,14 @@ MFLAGS ='CC=$(CC)'					\
 	'RM=$(RM)'					\
 	'TRANS_DIR=$(TRANS_PATH)'
 
-all: irc ircio ircflush wserv
+all: scrollz
 
-install: all installbin installscript installtranslation installman installhelp
+install: all installbin
 
-irc: source/Makefile Makefile
+scrollz: source/Makefile Makefile
 	@cd source; $(MAKE) all
 
-installeverything: install installflush installio installwserv \
-	installscript installtranslation installhelp
+installeverything: install installflush installio installwserv
 
 everything: all ircflush ircio wserv
 
@@ -188,30 +187,14 @@ ircflush: source/ircflush.c source/Makefile
 wserv: source/wserv.c source/term.c source/Makefile
 	@cd source; $(MAKE) wserv
 
-installbin: installirc installio installflush installwserv
+installbin: installirc
 
-installirc: irc installdirs
-	$(INSTALL) source/irc $(INSTALL_IRC)-$(VERSION)
-	$(INSTALL) ircbug $(bindir)/ircbug
+installirc: scrollz installdirs
 	@if test -f $(INSTALL_IRC).old; then $(RM) $(INSTALL_IRC).old; fi
 	@if test -f $(INSTALL_IRC); then $(MV) $(INSTALL_IRC) $(INSTALL_IRC).old; fi
 	$(RM) $(INSTALL_IRC)
+	$(INSTALL) source/scrollz $(INSTALL_IRC)-$(VERSION)
 	$(LN) $(INSTALL_IRC)-$(VERSION) $(INSTALL_IRC)
-
-installscript: installdirs
-	-chmod -x script/*
-	-@(								\
-		if test -f $(INSTALL_SCRIPT)/local; then		\
-			if test -f script/local; then 			\
-				$(MV) script/local script/local.orig;	\
-			fi;						\
-		fi							\
-	)
-	cd script; for i in *; do $(INSTALL_DATA) $$i $(INSTALL_SCRIPT); done
-
-installtranslation: installdirs
-	-chmod -x translation/*
-	cd translation; for i in *; do $(INSTALL_DATA) $$i $(TRANS_PATH); done
 
 installserv: installio
 installio: ircio installdirs
@@ -223,17 +206,8 @@ installflush: ircflush installdirs
 installwserv: wserv installdirs
 	$(INSTALL) source/wserv $(INSTALL_WSERV)
 
-installhelp:
-	$(INSTALL_HELP_CMD)
-
-installman:
-	cd doc; for i in ircII.1 ircbug.1; do $(INSTALL_DATA) $$i $(mandir); done
-
-# not sure about installing this one yet.
-#	$(INSTALL_DATA) doc/query-pr.1 $(mandir)
-
 installdirs:
-	umask 022; ./mkinstalldirs $(IRCLIB) $(bindir) $(mandir) \
+	umask 022; ./mkinstalldirs $(IRCLIB) $(bindir) \
 		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR)
 
 clena clean:
@@ -266,13 +240,3 @@ config_h:
 	cp include/config.h.dist include/config.h
 
 export: headers distclean autoconf autoheader
-
-#		tar --exclude .CVS -z -c -f ircii-$(VERSION).tar.gz ircii-$(VERSION); \
-
-dist:
-	( \
-		cd ..; \
-		mv ircii ircii-$(VERSION); \
-		pax -wz -s '/.*\.CVS.*//' -f ircii-$(VERSION).tar.gz ircii-$(VERSION); \
-		mv ircii-$(VERSION) ircii; \
-	)
