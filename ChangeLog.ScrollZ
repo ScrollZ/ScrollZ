@@ -133,6 +133,8 @@ Meaning of flags:
       is set to OFF (reported by Matt Mills)
     + support for numerics 320/330 (identifed user on OPN/QuakeNet, coded
       by braneded)
+    ! don't report nicks multiple times in WALL when included with +nick
+      (reported by Matt Mills)
 
 ------------------------------------------------------------------------------
 
