@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.5 1999-02-15 21:19:35 f Exp $
+ * $Id: input.c,v 1.6 1999-02-17 17:31:16 f Exp $
  */
 
 #include "irc.h"
@@ -84,7 +84,7 @@ static	int	zone;
 static	int	cursor = 0;
 
 /**************************** PATCHED by Flier ******************************/
-void CheckNickCompletion() {
+static void CheckNickCompletion() {
     if ((current_screen->buffer_min_pos==current_screen->buffer_pos) ||
         (current_screen->buffer_pos>current_screen->buffer_min_pos &&
          current_screen->input_buffer[current_screen->buffer_pos-1]==' ')) {
