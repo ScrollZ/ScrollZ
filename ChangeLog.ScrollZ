@@ -38,8 +38,11 @@ Meaning of flags:
     + SHOWWALLOP to toggle whether to show included/excluded nicks with
       channel wallops
     ! don't core in completion routine if we're not on a server
-    + SSL support (thanks to Sharky and Didgy for permission to use their
-      code from BitchX SSL port)
+    + SSL support: to enable it call configure with --enable-ssl. to use it
+      SERVER -SSL HOST:PORT or WINDOW [-]SSL HOST:PORT or prefix server
+      hostname with a ! as in scrollz nick !server:port. SSL connections are
+      indicated with a ! in the server list (thanks to Sharky and Darkie for
+      permission to use their code from BitchX SSL port)
     ~ changed ENCRMSG, see help for new usage (requested by ogre)
 
 ------------------------------------------------------------------------------
