@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.96 2002-07-23 18:39:17 f Exp $
+ * $Id: edit5.c,v 1.97 2002-10-01 22:27:49 f Exp $
  */
 
 #include "irc.h"
@@ -2351,67 +2351,68 @@ char *subargs;
 #endif
 
 /* Creates ban according to ban type */
-void CreateBan(nick,userhost,banstr)
+void CreateBan(nick, userhost, banstr)
 char *nick;
 char *userhost;
 char *banstr;
 {
-    int  found=0;
+    int  found = 0;
     int  rate1;
     int  rate2;
     char *tmpstr;
     char *tmpstr2;
-    char tmpbuf[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
+    char tmpbuf[mybufsize / 4 + 1];
+    char tmpbuf2[mybufsize / 4 + 1];
 
-    if (!userhost) snprintf(tmpbuf2,sizeof(tmpbuf2),"*%s*!*@*",nick);
-    else if (defban=='N') snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",nick,userhost);
+    if (!userhost) snprintf(tmpbuf2, sizeof(tmpbuf2), "*%s*!*@*", nick);
+    else if (defban=='N') snprintf(tmpbuf2, sizeof(tmpbuf2), "%s!%s", nick, userhost);
     else {
         userhost++;
-        if (*userhost=='@') userhost--;
-        if (defban=='B') {
-            strmcpy(tmpbuf,userhost,sizeof(tmpbuf));
+        if (*userhost == '@') userhost--;
+        if (defban == 'B') {
+            strmcpy(tmpbuf, userhost, sizeof(tmpbuf));
             UserDomainList(tmpbuf);
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "*!%s", tmpbuf);
         }
-        else if (defban=='E') {
+        else if (defban == 'E') {
             srand(time((time_t *) 0));
-            strmcpy(tmpbuf,userhost,sizeof(tmpbuf));
+            strmcpy(tmpbuf, userhost, sizeof(tmpbuf));
             UserDomainList(tmpbuf);
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
-            rate1=350;
-            rate2=1;
-            for (tmpstr=tmpbuf2;*tmpstr;tmpstr++) {
-                if (*tmpstr=='@') {
-                    found=1;
-                    rate1=500;
-                    rate2=2;
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "*!%s", tmpbuf);
+            rate1 = 350;
+            rate2 = 1;
+            for (tmpstr = tmpbuf2; *tmpstr; tmpstr++) {
+                if (*tmpstr == '@') {
+                    found = 1;
+                    rate1 = 500;
+                    rate2 = 2;
                 }
-                if (*tmpstr!='.' && *tmpstr!='@' && *tmpstr!='*' && *tmpstr!='!' &&
-                    ((rand()%1000)<650)) {
-                    if (((rand()%1000)<rate1) || (*(tmpstr-(1+rand()%rate2))!='?')) *tmpstr='?';
+                if (*tmpstr != '.' && *tmpstr != '@' && *tmpstr != '*' &&
+                    *tmpstr != '!' && *tmpstr != ':' && ((rand() % 1000) < 650)) {
+                    if (((rand() % 1000) < rate1) || (*(tmpstr - (1 + rand() % rate2)) != '?'))
+                        *tmpstr = '?';
                 }
             }
         }
-        else if (defban=='H') snprintf(tmpbuf2,sizeof(tmpbuf2),"*!*%s",index(userhost,'@'));
-        else if (defban=='S') {
-            tmpstr2=userhost;
-            while ((tmpstr=index(tmpstr2,'.'))) {
-                tmpstr2=tmpstr+1;
+        else if (defban == 'H') snprintf(tmpbuf2, sizeof(tmpbuf2), "*!*%s", index(userhost,'@'));
+        else if (defban == 'S') {
+            tmpstr2 = userhost;
+            while ((tmpstr = index(tmpstr2, '.'))) {
+                tmpstr2 = tmpstr + 1;
                 found++;
             }
-            if (found>1) {
-                tmpstr2=userhost;
-                while (found-->1) {
-                    tmpstr=index(tmpstr2,'.');
-                    tmpstr2=tmpstr+1;
+            if (found > 1) {
+                tmpstr2 = userhost;
+                while (found-- > 1) {
+                    tmpstr = index(tmpstr2, '.');
+                    tmpstr2 = tmpstr + 1;
                 }
             }
-            else tmpstr=index(userhost,'@')+1;
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!*@*%s",tmpstr);
+            else tmpstr = index(userhost, '@') + 1;
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "*!*@*%s", tmpstr);
         }
     }
-    strcpy(banstr,tmpbuf2);
+    strcpy(banstr, tmpbuf2);
 }
 
 #ifdef MGS_
