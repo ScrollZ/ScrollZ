@@ -6,7 +6,7 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
-ScrollZ v1.9.1
+ScrollZ v1.9.1, 1.5.2004
 
     ! wserv now builds again (reported by aflux)
     + COLOR MISC color4 is now used to color <>s in publics for people
@@ -82,6 +82,24 @@ ScrollZ v1.9.1
     ! character translation screw up when scrolling back (ircII bug,
       reported by KOBAN)
     + translation tables to the tarball
+    ! crash on numeric 351 on irc.winbeta.org (looks like weird
+      ircd to me, reported by unstable)
+    + ARINWIN support for actions (requested by taliz)
+    ~ non-printable characters in channel names returned by
+      WHOIS are now printed in reverse (requested by taliz)
+    + FTRACE -E|-G (both use ETRACE from ircd-ratbox, -G does matching
+      on gecos field, requested by taliz)
+    ! don't parse operwalls as server notices (reported by taliz)
+    ~ ignore level WALLOPS now also ignores operwalls
+      (suggested by taliz)
+    + channel based host ignore, example of usage:
+      IGNORE *.no!#blah public (requested by several users)
+    ! compilation with -DLITE
+    ! NEWHOST problem with dummy net devices on Linux
+      (reported by emux)
+    ! translation screw up in input prompt (reported by KOBAN)
+    ! it is now possible to send files from dirs with commas
+      in dirname (reported by arc)
 
 ------------------------------------------------------------------------------
 

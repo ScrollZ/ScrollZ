@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.15 2003-01-08 20:35:02 f Exp $
+ * $Id: irc.h,v 1.16 2004-05-02 16:03:12 f Exp $
  */
 
 #ifndef __irc_h
@@ -160,7 +160,7 @@
 #ifdef CELE
 #define IRCII_COMMENT   "Need for Speed!"
 #else
-#define IRCII_COMMENT   "Power of freedom"
+#define IRCII_COMMENT   "Almost there"
 #endif
 /****************************************************************************/
 
