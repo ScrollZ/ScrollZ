@@ -48,10 +48,12 @@
  EncryptChat         Support for encrypted DCC CHAT sessions
  EncryptChatMessage  Encrypt DCC CHAT message
  DecryptChatMessage  Decrypt DCC CHAT message
+ FilterTrace         Filtered trace
+ DoFilterTrace       Actual filtered trace
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.12 1998-11-15 20:24:01 f Exp $
+ * $Id: edit6.c,v 1.13 1998-11-16 20:59:15 f Exp $
  */
 
 #include "irc.h"
@@ -136,6 +138,11 @@ static int  FilterKillNum;
 static char *tkillreason=(char *) 0;
 static char *tkillpattern=(char *) 0;
 static struct mapstr *maplist=NULL;
+
+#ifdef ACID
+/* for filtered trace */
+static char *ftpattern=(char *) 0;
+#endif
 
 static struct commands {
     char *command;
@@ -464,15 +471,14 @@ char *subargs;
 void DoTraceKill(user)
 char *user;
 {
-    char *nick=(char *) 0;
+    char *nick;
     char *host=(char *) 0;
     char *tmpstr;
     char tmpbuf[mybufsize/4];
 
     nick=user;
     if ((host=index(user,'['))) {
-        *host='\0';
-        host++;
+        *host++='\0';
         if ((tmpstr=index(host,']'))) *tmpstr='\0';
         else host=NULL;
     }
@@ -2299,3 +2305,43 @@ char *user;
         DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
     }
 }
+
+#ifdef ACID
+/* Filtered trace */
+void FilterTrace(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *filter;
+
+    if ((filter=new_next_arg(args,&args))) {
+        malloc_strcpy(&ftpattern,filter);
+        inFlierTrace=2;
+        send_to_server("TRACE");
+        say("Finding all users matching %s on local server",filter);
+    }
+    else PrintUsage("FTRACE filter");
+}
+
+/* Actual filtered trace */
+void DoFilterTrace(stuff)
+char *stuff;
+{
+    char *nick;
+    char *host=(char *) 0;
+    char *tmpstr;
+    char tmpbuf[mybufsize/4];
+
+    nick=stuff;
+    if ((host=index(stuff,'['))) {
+        *host++='\0';
+        if ((tmpstr=index(host,']'))) *tmpstr='\0';
+        else host=NULL;
+        if (!my_stricmp(nick,get_server_nickname(from_server))) return;
+        sprintf(tmpbuf,"%s!%s",nick,host);
+        if (wild_match(ftpattern,tmpbuf))
+            say("%s[%s]",nick,host);
+    }
+}
+#endif /* ACID */
