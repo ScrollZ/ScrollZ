@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.7 1998-11-02 21:18:54 f Exp $
+ * $Id: SZdist.c,v 1.8 1998-11-02 21:22:43 f Exp $
  */
 
 #include <stdio.h>
@@ -85,8 +85,7 @@ char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
 char *CELEfiles="alias.o cdcc.o celerity.o edit.o edit2.o edit3.o edit4.o edit5.o\
  edit6.o input.o numbers.o operv.o parse.o server.o status.o vars.o whois.o";
 char *HYPERDCCfiles="cdcc.o dcc.o edit.o edit4.o edit6.o";
-char *VILASfiles="edit.o edit2.o edit3.o edit4.o edit5.o edit6.o names.o\
- numbers.o server.o";
+char *VILASfiles="ctcp.o";
 char *JIMMIEfiles="edit2.o";
 char *CTCPPAGEfiles="ctcp.o";
 char *TDFfiles="cdcc.o dcc.o edit.o edit4.o edit5.o edit6.o status.o";
