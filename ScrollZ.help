@@ -368,8 +368,12 @@ Usage $3LISTBK$0 [$3filter$0]
 If no filter is given, * is used
 Also look at $2ADDBK$0 and $2REMBK$0
 :LISTF         Lists all the users on your friends list
-Usage $3LISTF$0 [$3filter$0|$3channel$0]
-If no filter is given, * is used. Can also have $3#s*$0 as an argument to show
+Usage $3LISTF$0 [$3filter$0]
+If no filter is given, * is used. If filter starts with # and
+a number follows it, entries matching given filter will be
+shown. Otherwise only entries where channel matches filter
+will be shown.
+Can also have $3#s*$0 as an argument to show
 users with access in all channels that begin with 's'
 Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0,
 $2REMFCHAN$0 and $2FRLIST$0
