@@ -1,4 +1,4 @@
-!	 $Id: szvar,v 1.1 2002-02-25 17:59:13 f Exp $
+!	 $Id: szvar,v 1.2 2002-03-05 18:39:47 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -75,6 +75,8 @@ SZVAR Variables
   MIRC           The setting of displaying mIRC colors
   NHPROT         The setting of nethack protection
                  (f = full, m = medium, q = quiet)
+  NICKCHAN       The setting of displaying nick change
+                 in all channels
   NICKS          The value of nick flood sensor
   NICKT          The value of nick flood timer
                  set away if idle
