@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.105 2002-11-11 18:16:31 f Exp $
+ * $Id: edit4.c,v 1.106 2003-01-15 18:41:51 f Exp $
  */
 
 #include "irc.h"
@@ -808,6 +808,19 @@ ChannelList *chan;
     return(0);
 }
 
+/* Check if given string is a command, matches given command against
+   string taking in account first command character defined by user */
+int IsCmdLine(char *str, char *cmd, int len)
+{
+    char *cmdchars;
+    char cmdbuf[mybufsize / 16 + 1];
+
+    if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
+    snprintf(cmdbuf, sizeof(cmdbuf), "%c%s", *cmdchars, cmd);
+    if (len && !my_strnicmp(str, cmdbuf, len + 1)) return(1);
+    else return (!my_stricmp(str, cmdbuf));
+}
+
 /* Insert next relevant nick/file when tab is pressed */
 void HandleTabNext(u_int key, char *ptr)
 {
@@ -816,16 +829,17 @@ void HandleTabNext(u_int key, char *ptr)
     int argc;
     char argv[3][32] = { { 0 }, { 0 }, { 0 } };
     char *p;
-    char *cur_pos, *min_pos;
+    char *cur_pos, *min_pos, *cmdchars;
     static char completing[mybufsize / 2 + 1];
     static char *last_completion = NULL;
     static void *next_p;        /* where to start */
     static NickList *nick_p;
     static ChannelList *channel_p;
 
+    if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
     cur_pos = &current_screen->input_buffer[current_screen->buffer_pos];
     min_pos = &current_screen->input_buffer[current_screen->buffer_min_pos];
-    if (!(*min_pos) || (!my_strnicmp(min_pos, "/msg ", 5) && key != 20)) {
+    if (!(*min_pos) || (IsCmdLine(min_pos, "msg ", 4) && key != 20)) {
         if (CheckServer(from_server)) {
             if (!server_list[from_server].nickcur)
                 server_list[from_server].nickcur = server_list[from_server].nicklist;
@@ -836,7 +850,8 @@ void HandleTabNext(u_int key, char *ptr)
     }
     p = cur_pos - 1;    /* at string to complete */
     length = argc = 0;
-    while (!isspace(*p) && *p != ',' && *p != '=' && (*min_pos == '/' ? p >= min_pos + 1 : p >= min_pos)) {   
+    while (!isspace(*p) && *p != ',' && *p != '=' &&
+           (strchr(cmdchars, *min_pos) ? p >= min_pos + 1 : p >= min_pos)) {   
         p--;            /* walk left until white-space, beginning of line, */
         length++;	/* comma, or / if it's the first character */
     }
@@ -857,7 +872,7 @@ void HandleTabNext(u_int key, char *ptr)
         else i = 0;
     }
     sscanf(min_pos, "%31s %31s %31s", argv[0], argv[1], argv[2]);
-    if (!my_strnicmp(argv[0], "/m", 2) && *argv[1] == '=') {
+    if (IsCmdLine(argv[0], "m", 1) && *argv[1] == '=') {
         DCC_list *dcc_p;
 
 chat_begin:
@@ -882,7 +897,7 @@ chat_begin:
         if (dcc_p->next) next_p = dcc_p->next;
         else next_p = 0;
     }
-    else if (!my_strnicmp(argv[0], "/dc", 3) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) || !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)) && argc == 3) {
+    else if (IsCmdLine(argv[0], "dc", 2) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) || !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)) && argc == 3) {
         DCC_list *dcc_p;
 
 get_begin:
@@ -907,10 +922,10 @@ get_begin:
         if (dcc_p->next) next_p = dcc_p->next;
         else next_p = 0;
     }
-    else if ((!my_strnicmp(argv[0], "/dc", 3) && !my_strnicmp(argv[1], "se", 2) && argc == 3) ||
-            (!my_strnicmp(argv[0], "/cdc", 3) && !my_strnicmp(argv[1], "sen", 3) && argc >= 2 &&
+    else if ((IsCmdLine(argv[0], "dc", 2) && !my_strnicmp(argv[1], "se", 2) && argc == 3) ||
+            (IsCmdLine(argv[0], "cdc", 3) && !my_strnicmp(argv[1], "sen", 3) && argc >= 2 &&
              !strchr(min_pos, ',')) ||
-            (!my_strnicmp(argv[0], "/loa", 3) && argc >= 1)) {
+            (IsCmdLine(argv[0], "loa", 3) && argc >= 1)) {
         char dir[191] = "", file[63] = "", root[191] = "";
         static char buffer[256];
         int j, n;
@@ -985,7 +1000,7 @@ send_begin:
             }
         }
     }
-    else if ((*min_pos == '/' && argc == 0) || !my_strnicmp(argv[0], "/he", 3)) {
+    else if ((*min_pos == *cmdchars && argc == 0) || IsCmdLine(argv[0], "he", 2)) {
         IrcCommand *command_p;
 
 command_begin:
