@@ -30,10 +30,17 @@ Meaning of flags:
     ! crash in CHANUSERS() without channel as argument (fix by braneded,
       now returns info for current channel if none is given)
     + L now accepts list of channels separated by comma (coded by braneded)
-    + tabkey completion now cycles through channels as well (coded by
-      braneded, many thanks)
+    + improved tabkey completion now cycles through channels as well,
+      /DCC GET nick <tab> cycles through the files offered by nick
+      /DCC SEND nick <tab> cycles through files on disk (if you use a
+      relative path it looks in your CDCC ULDIR or . if that isn't set,
+      coded by braneded, many thanks)
     + SHOWWALLOP to toggle whether to show included/excluded nicks with
       channel wallops
+    ! don't core in completion routine if we're not on a server
+    + SSL support (thanks to Sharky and Didgy for permission to use their
+      code from BitchX SSL port)
+    ~ changed ENCRMSG, see help for new usage (requested by ogre)
 
 ------------------------------------------------------------------------------
 

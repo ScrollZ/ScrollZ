@@ -60,18 +60,19 @@ Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
 :DUMP          Dumps aliases, ons, vars or all of them
 Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
 :ENCRMSG       Maintains encrypted communication sessions
-Usage $3ENCRMSG$0 [$3nick$0|$3#channel$0 [$3key$0]]
+Usage $3ENCRMSG$0 [$3-CLEAR$0] [$3-SHOW$0] [$3nick$0|$3#channel$0 [$3key$0]]
 Communication with nick/channel will be encrypted using key. Both
 parties have to use the same key for encryption/decryption to work.
-If no key is given encrypted communication with nick/channel is
-ended. If neither user nor key are given all users in encryption
+If only nick is specified encrypted communication with nick/channel
+is ended. If neither user nor key are given all users in encryption
 list are listed. DCC CHAT sessions can be encrypted if nick starts
 with '='. Use '-' as first character in key if you want to communicate
 with users of ScrollZ v1.8j and older. Whenever encrypted communication
 is used publics and private messages are prepended with [!]. DCC CHAT
 messages are encrypted if nick is enclosed in *. Warning: messages are
 cut at 304 characters to avoid decryption problems when IRC server cuts
-the message.
+the message. To see the passwords used for encryption specify $3-SHOW$0.
+To clear the encryption list specify $3-CLEAR$0.
 :FCLINE        Does STATS c with filter
 Usage $3FCLINE filter$0 [$3server$0]
 :FILINE        Does STATS I with filter
