@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.29 2001-01-22 18:19:01 f Exp $
+ * $Id: window.c,v 1.30 2001-01-22 18:20:57 f Exp $
  */
 
 #include "irc.h"
@@ -2911,7 +2911,7 @@ windowcmd(command, args, subargs)
 /*#if defined(_Windows)*/
 /****************************************************************************/
 #ifndef LITE
-		else if (my_strnicmp("TITLE", arg, len) == 0)
+		else if (strncmp("TITLE", arg, len) == 0)
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*if ((arg = next_arg(args, &args)) != NULL)*/
@@ -3290,7 +3290,7 @@ windowcmd(command, args, subargs)
                         }
 /****************************************************************************/
 		}
-		else if (my_strncmp("NOSTATUS", cmd, len) == 0)
+		else if (strncmp("NOSTATUS", cmd, len) == 0)
 		{
 			int current = window->double_status;
 
