@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.65 2002-04-07 16:42:01 f Exp $
+ * $Id: parse.c,v 1.66 2002-05-28 15:23:28 f Exp $
  */
 
 #include "irc.h"
@@ -117,6 +117,9 @@ struct winlist_str {
     Window *window;
 };
 #endif
+
+extern int SentNick;
+extern char *OldNick;
 
 static int    NumberMessages=0;
 static time_t LastMsgTime=0;
@@ -1454,7 +1457,11 @@ p_nick(from, ArgList)
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 	line = ArgList[0];
-	if (my_stricmp(from, get_server_nickname(parsing_server_index)) == 0){
+/**************************** Patched by Flier ******************************/
+	/*if (my_stricmp(from, get_server_nickname(parsing_server_index)) == 0) {*/
+	if ((SentNick && !my_stricmp(from, OldNick)) ||
+            !my_stricmp(from, get_server_nickname(parsing_server_index))) {
+/****************************************************************************/
 		if (parsing_server_index == primary_server)
  			malloc_strcpy(&nickname, line);
 		set_server_nickname(parsing_server_index, line);
