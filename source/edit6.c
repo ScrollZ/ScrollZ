@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.101 2001-09-18 21:02:57 f Exp $
+ * $Id: edit6.c,v 1.102 2001-09-28 16:25:36 f Exp $
  */
 
 #include "irc.h"
@@ -1912,7 +1912,7 @@ char *subargs;
 void SwitchNick() {
     int i=0;
     char savechar='\0';
-    char *curnick;
+    char *curnick=(char *) 0;
     char *realnick=OrigNick;
     time_t timenow=time((time_t *) 0);
 
@@ -1938,7 +1938,7 @@ void SwitchNick() {
                 e_nick(NULL,realnick,NULL);
             LastNick=timenow+1;
             OrigNickSent=1;
-            if (savechar) *curnick=savechar;
+            if (savechar && curnick) *curnick=savechar;
         }
     }
 }
