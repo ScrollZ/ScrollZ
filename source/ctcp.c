@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.25 1999-10-04 19:21:37 f Exp $
+ * $Id: ctcp.c,v 1.26 1999-10-12 19:45:08 f Exp $
  */
 
 #include "irc.h"
@@ -78,7 +78,7 @@ extern char *CelerityVersion;
 /* ***************** */
 
 /* patched by acidflash */
-#ifdef ACID
+#ifdef OPER
 extern char *AcidVersion;
 #endif
 
