@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.10 2000-10-31 08:56:08 f Exp $
+ * $Id: ircaux.c,v 1.11 2000-11-07 17:46:10 f Exp $
  */
 
 #include "irc.h"
@@ -541,6 +541,7 @@ struct sockaddr_in *localaddr;
         localaddr->sin_port=htons(locport);
         if (bind(s,(struct sockaddr *) localaddr,sal)==0) {
             if (slisten && (listen(s,1)==0)) break;
+            else if (!slisten) break;
         }
     }
     if (!(locport>=DCCLowPort && locport<=DCCHighPort)) {
@@ -579,10 +580,16 @@ struct sockaddr_in *localaddr;
  * -4 connect call failed 
  */
 int
-connect_by_number(service, host, nonblocking)
+/**************************** PATCHED by Flier ******************************/
+/*connect_by_number(service, host, nonblocking)*/
+connect_by_number(service,host,nonblocking,dccget)
+/****************************************************************************/
 	int	service;
 	char	*host;
 	int	nonblocking;
+/**************************** PATCHED by Flier ******************************/
+        int     dccget;
+/****************************************************************************/
 {
 	int	s = -1;
 	char	buf[100];
@@ -742,6 +749,17 @@ connect_by_number(service, host, nonblocking)
 #endif
 		return (s);
 	}
+/**************************** PATCHED by Flier ******************************/
+        if (DCCLowPort>1023 && DCCHighPort<65500 && dccget) {
+            int newsock;
+            struct sockaddr_in localaddr;
+
+            bzero(&localaddr,sizeof(struct sockaddr_in));
+            localaddr.sin_family=AF_INET;
+            localaddr.sin_addr = MyHostAddr;
+            if ((newsock=BindPort(s,0,&localaddr))<0) return(newsock);
+        }
+/****************************************************************************/
 	if (source_host)
 	{
 #ifdef INET6

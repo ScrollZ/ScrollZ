@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.27 2000-09-24 17:32:45 f Exp $
+ * $Id: server.c,v 1.28 2000-11-07 17:46:10 f Exp $
  */
 
 #include "irc.h"
@@ -925,7 +925,10 @@ connect_to_server_direct(server_name, port, nick)
 		new_des = connect_to_unix(port, server_name);
 	else
 #endif /* HAVE_SYS_UN_H */
-		new_des = connect_by_number(port, server_name, 1);
+/**************************** PATCHED by Flier ******************************/
+		/*new_des = connect_by_number(port, server_name, 1);*/
+		new_des=connect_by_number(port,server_name,1,0);
+/****************************************************************************/
 	if (new_des < 0)
 	{
 		char *e = NULL;

@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.27 2000-10-31 09:01:48 f Exp $
+ * $Id: dcc.c,v 1.28 2000-11-07 17:46:10 f Exp $
  */
 
 #include "irc.h"
@@ -752,7 +752,10 @@ dcc_open(Client)
 		Client->flags |= DCC_CNCT_PEND;
 #endif
 		if ((Client->write = connect_by_number(Client->remport,
-			      inet_ntoa(Client->remote), 1)) < 0)
+/**************************** PATCHED by Flier ******************************/
+			      /*inet_ntoa(Client->remote), 1)) < 0)*/
+			      inet_ntoa(Client->remote),1,1)) < 0)
+/****************************************************************************/
 		{
  			save_message_from();
 			message_from(user, LOG_DCC);
@@ -811,7 +814,10 @@ dcc_open(Client)
 #else
 		Client->flags |= DCC_WAIT;
 #endif
-		if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)
+/**************************** PATCHED by Flier ******************************/
+		/*if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)*/
+		if ((Client->read=connect_by_number(0,empty_string,1,0))<0)
+/****************************************************************************/
 		{
  			save_message_from();
  			message_from(user, LOG_DCC);
