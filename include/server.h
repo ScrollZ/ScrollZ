@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: server.h,v 1.2 1998-10-21 18:17:57 f Exp $
  */
 
 #ifndef __server_h_
@@ -69,9 +69,6 @@ typedef	struct
         int	flags;			/* Various flags */
 /**************************** PATCHED by Flier ******************************/
         int     umodeflags;             /* holds usermode */
-        struct  nicks *arlist,*arcur;   /* auto-reply list */
-        struct  nicks *nicklist,        /* tabkey list */
-                      *nickcur;
 /****************************************************************************/
 	int	connected;		/* true if connection is assured */
 	int	write;			/* write descriptor */
@@ -93,6 +90,15 @@ typedef	struct
 	struct in_addr local_addr;	/* ip address of this connection */
 	ChannelList	*chan_list;	/* list of channels for this server */
 	void	(*parse_server) _((char *));	/* pointer to parser for this server */
+/**************************** PATCHED by Flier ******************************/
+        char    *LastMessage;           /* last received message */
+        char    *LastNotice;            /* last received notice */
+        char    *LastMessageSent;       /* last sent message */
+        char    *LastNoticeSent;        /* last sent notice */
+        struct  nicks *arlist,*arcur;   /* auto-reply list */
+        struct  nicks *nicklist,        /* tabkey list */
+                      *nickcur;
+/****************************************************************************/
 }	Server;
 
 typedef struct ser_group_list
