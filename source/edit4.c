@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.64 2001-05-09 17:20:41 f Exp $
+ * $Id: edit4.c,v 1.65 2001-05-22 19:15:08 f Exp $
  */
 
 #include "irc.h"
@@ -1441,6 +1441,10 @@ char *subargs;
         return;
     }
     if (chan && ((chan->status)&CHAN_CHOP)) {
+        if (!(chan->banlist)) {
+            say("There are no bans on channel %s",channel);
+            return;
+        }
         tmpbanlist=chan->banlist;
         tmpbn=tmpbanlist;
         listcount=0;
