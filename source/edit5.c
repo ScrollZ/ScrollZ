@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.65 2001-07-25 17:48:30 f Exp $
+ * $Id: edit5.c,v 1.66 2001-08-02 18:43:18 f Exp $
  */
 
 #include "irc.h"
@@ -150,10 +150,10 @@ extern int  CheckServer _((int));
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
 extern int  Cstatusnum;*/
+#endif /* CELE */
 #ifdef CELECOSM
 struct friends *whoisfriend;
 #endif
-#endif /* CELE */
 
 #ifdef COUNTRY
 extern char *function_country _((char *));

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.62 2001-08-01 17:15:03 f Exp $
+ * $Id: edit.c,v 1.63 2001-08-02 18:43:18 f Exp $
  */
 
 #include "irc.h"
@@ -241,6 +241,9 @@ extern  NickList *tabnickcompl;
 /* Patched by Zakath */
 extern  char  VersionInfo[];
 extern  char  *ScrollZver1;
+#ifdef CELECOSM
+extern  struct friends *whoisfriend;
+#endif
 /* End patch */
 
 extern  void  AutoNickComplete _((char *, char *, ChannelList *));
