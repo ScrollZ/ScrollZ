@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.12 1998-11-26 19:32:49 f Exp $
+ * $Id: edit5.c,v 1.13 1998-11-26 20:07:08 f Exp $
  */
 
 #include "irc.h"
@@ -1981,6 +1981,7 @@ void AddNick2AutoReply(nick)
 char *nick;
 {
     int found=0;
+    int numentr=0;
     int curserv=from_server;
     struct nicks *artmp;
     struct nicks *arstr;
@@ -1988,12 +1989,13 @@ char *nick;
     if (CheckServer(curserv)) {
         arstr=server_list[curserv].arlist;
         artmp=server_list[curserv].arlist;
-        while (arstr && !found) {
-            if (!my_stricmp(nick,arstr->nick)) found=1;
+        while (arstr) {
             if (!found) {
-                artmp=arstr;
-                arstr=arstr->next;
+                if (!my_stricmp(nick,arstr->nick)) found=1;
+                else artmp=arstr;
             }
+            arstr=arstr->next;
+            numentr++;
         }
         if (found) {
             if (arstr==server_list[curserv].arlist)
@@ -2001,9 +2003,9 @@ char *nick;
             else artmp->next=arstr->next;
             new_free(&(arstr->nick));
             new_free(&arstr);
-            if (AutoReplyEntries) AutoReplyEntries--;
+            if (numentr) numentr--;
         }
-        else if (AutoReplyEntries==AUTOREPLYSIZE) {
+        else if (numentr==AUTOREPLYSIZE) {
             artmp=server_list[curserv].arlist;
             while (artmp && artmp->next && artmp->next->next) artmp=artmp->next;
             if (artmp && artmp->next) {
@@ -2012,13 +2014,11 @@ char *nick;
                 artmp->next=NULL;
             }
         }
-        arstr=(struct nicks *) new_malloc(sizeof(struct nicks));
-        if (arstr) {
+        if ((arstr=(struct nicks *) new_malloc(sizeof(struct nicks)))) {
             arstr->nick=(char *) 0;
             malloc_strcpy(&(arstr->nick),nick);
             arstr->next=server_list[curserv].arlist;
             server_list[curserv].arlist=arstr;
-            if (AutoReplyEntries<AUTOREPLYSIZE) AutoReplyEntries++;
         }
         server_list[curserv].arcur=server_list[curserv].arlist;
     }
