@@ -628,9 +628,10 @@ Also look at $2NICKS$0 and $2NICKT$0
 :NTFYMODE      Toggles notify mode brief/verbose
 Usage $3NTFYMODE brief$0|$3verbose$0
 :ORIGNICK      Toggles whether to try to revert to original nick
-Usage $3ORIGNICK on nick$0|$3off$0
+Usage $3ORIGNICK on nick $0[$3QUIET$0]|$3off$0
 Client will try to switch to nick specified after $3ON$0. Use $4ORIGNTIME$0
-to define how often it does that.
+to define how often it does that. If $3QUIET$0 is specified messages
+indicating who has your wanted nick will be supressed.
 Also look at $2ORIGNTIME$0
 :ORIGNTIME     Define how often to attempt to switch to wanted nick
 Usage $3ORIGNTIME number_of_seconds$0
