@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.2 1998-09-10 17:45:04 f Exp $
+ * $Id: flood.c,v 1.3 1998-10-21 19:34:39 f Exp $
  */
 
 #include "irc.h"
@@ -157,7 +157,7 @@ check_flooding(nick, type, line)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all allocated memory */
-void CleanUpFlood(void) {
+void CleanUpFlood() {
     new_free(&flood);
 }
 /****************************************************************************/

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.3 1998-09-25 20:29:43 f Exp $
+ * $Id: window.c,v 1.4 1998-10-21 19:34:42 f Exp $
  */
 
 #include "irc.h"
@@ -3277,7 +3277,7 @@ Window *wind;
 }
 
 /* Clean up all memory related to window */
-void CleanUpWindows(void) {
+void CleanUpWindows() {
     Screen *tmpscreen;
     Screen *tmpscreenfree;
     Window *tmpwindow;

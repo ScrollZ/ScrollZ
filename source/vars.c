@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.2 1998-09-10 17:46:24 f Exp $
+ * $Id: vars.c,v 1.3 1998-10-21 19:34:41 f Exp $
  */
 
 #include "irc.h"
@@ -943,7 +943,7 @@ char *value;
     }
 }
 
-void CleanUpVars(void) {
+void CleanUpVars() {
     int i;
 
     for (i=0;irc_variable[i].name;i++)

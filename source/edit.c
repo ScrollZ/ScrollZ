@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.5 1998-10-21 18:20:20 f Exp $
+ * $Id: edit.c,v 1.6 1998-10-21 19:34:44 f Exp $
  */
 
 #include "irc.h"
@@ -4589,7 +4589,7 @@ create_timer_ref(want)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all memory used by timers */
-void CleanUpTimer(void) {
+void CleanUpTimer() {
     TimerList *tmptimer;
 
     while (PendingTimers) {

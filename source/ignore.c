@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.2 1998-09-10 17:45:19 f Exp $
+ * $Id: ignore.c,v 1.3 1998-10-21 19:34:40 f Exp $
  */
 
 #include "irc.h"
@@ -691,7 +691,7 @@ double_ignore(nick, userhost, type)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up allocated memory */
-void CleanUpIgnore(void) {
+void CleanUpIgnore() {
     Ignore *tmpignore;
 
     while (ignored_nicks) {

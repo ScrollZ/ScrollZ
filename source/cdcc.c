@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.6 1998-10-11 14:19:27 f Exp $
+ * $Id: cdcc.c,v 1.7 1998-10-21 19:34:38 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2796,7 +2796,7 @@ int removed;
 /**********************************************************************
 * CleanUpCdcc:           Free all allocated memory                    *
 ***********************************************************************/
-void CleanUpCdcc(void) {
+void CleanUpCdcc() {
     Files *tmpfile;
     Files *tmpfilefree;
     Packs *tmppack;
