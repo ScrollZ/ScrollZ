@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.92 2002-02-25 18:22:19 f Exp $
+ * $Id: edit5.c,v 1.93 2002-02-25 18:27:19 f Exp $
  */
 
 #include "irc.h"
@@ -3795,6 +3795,9 @@ void InitKeysColors() {
     malloc_strcat(&CmdsColors[COLME].color4,Colors[COLCYAN]);
     /* Line */
     malloc_strcpy(&CmdsColors[COLME].color5,Colors[COLWHITE]);
+    /* Auto reply */
+    malloc_strcpy(&CmdsColors[COLME].color6,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLME].color6,Colors[COLCYAN]);
 
     /* Misc Colors */
     /* Color of @ in user@host */
