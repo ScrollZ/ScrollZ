@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.50 2000-10-30 17:18:20 f Exp $
+ * $Id: edit3.c,v 1.51 2000-11-01 10:10:39 f Exp $
  */
 
 #include "irc.h"
@@ -1469,6 +1469,7 @@ char *args;
 char *subargs;
 {
     int  servid;
+    static int firsttime=1;
     char *server=(char *) 0;
     char *port=(char *) 0;
     char *newnick=(char *) 0;
@@ -1493,7 +1494,10 @@ char *subargs;
         if (newuser) strmcpy(username,newuser,NAME_LEN);
         if (newreal) strmcpy(realname,newreal,REALNAME_LEN);
         say("Creating new window on server %s port %s",server,port);
-        say("Hit CONTROL-W then ? for help on window commands");
+        if (firsttime) {
+            say("Hit CONTROL-W then ? for help on window commands");
+            firsttime=0;
+        }
         sprintf(tmpbuf,"NEW SERVER %s:%s::%s HIDE",server,port,newnick);
         windowcmd(NULL,tmpbuf,NULL);
     }
