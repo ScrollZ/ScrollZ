@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.51 1999-09-19 17:02:28 f Exp $
+ * $Id: edit6.c,v 1.52 1999-09-19 17:21:25 f Exp $
  */
 
 #include "irc.h"
@@ -779,7 +779,7 @@ void CheckTimeMinute() {
         }
     }
     if (lastqueuechk+300<timenow) {
-        strcpy(tmpbuf,"queue flush");
+        strcpy(tmpbuf,"flush");
         queuemcommand(tmpbuf);
         lastqueuechk=timenow;
     }
