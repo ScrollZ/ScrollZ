@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.141 2003-04-20 19:05:21 f Exp $
+ * $Id: edit6.c,v 1.142 2003-04-28 16:13:37 f Exp $
  */
 
 #include "irc.h"
@@ -673,7 +673,7 @@ void CheckTimeMinute() {
                     if (i==max) break;
                     if (tmpnick->frlist || tmpnick->chanop) continue;
                     if (tmpnick->hasvoice && tmpchan->IdleKick==1) continue;
-                    if (timenow-tmpnick->lastmsg>IdleKick*60) {
+                    if (timenow-tmpnick->lastmsg>IdleTime*60) {
                         i++;
                         CreateBan(tmpnick->nick,tmpnick->userhost,tmpbuf);
                         send_to_server("MODE %s -o+b %s %s",tmpchan->channel,tmpnick->nick,
