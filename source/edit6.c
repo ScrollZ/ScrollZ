@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.140 2003-01-15 18:11:03 f Exp $
+ * $Id: edit6.c,v 1.141 2003-04-20 19:05:21 f Exp $
  */
 
 #include "irc.h"
@@ -175,6 +175,7 @@ static struct mapstr *maplist=NULL;
 int StatsiNumber;
 int StatscNumber;
 int StatslNumber;
+int StatsdNumber;
 static int  FilterKillNum;
 static char *tkillreason=(char *) 0;
 static char *tkillpattern=(char *) 0;
@@ -1994,6 +1995,7 @@ void CleanUpScrollZVars() {
     new_free(&StatsiFilter);
     new_free(&StatslFilter);
     new_free(&StatscFilter);
+    new_free(&StatsdFilter);
 #endif
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
@@ -3201,3 +3203,54 @@ ChannelList *chan;
     }
     umask(oldumask);
 }
+
+#ifdef OPER
+/* Does /STATS D with filter */
+void StatsDFilter(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    int doall=1;
+    char *tmpstr;
+    char *server=NULL;
+
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr && *tmpstr) {
+        if (!my_strnicmp(tmpstr,"-TEMP",5)) {
+            doall=0;
+            tmpstr=new_next_arg(args,&args);
+        }
+        if (tmpstr && *tmpstr) {
+            malloc_strcpy(&StatsdFilter,tmpstr);
+            StatsdNumber=0;
+            server=new_next_arg(args,&args);
+            send_to_server("STATS %c %s",doall?'D':'d',server?server:"");
+            return;
+        }
+    }
+    PrintUsage("FDLINE [-TEMP] filter [server]");
+}
+
+/* Parses STATS d reply from server */
+void HandleStatsD(statschar,str1,str2)
+char *statschar;
+char *str1;
+char *str2;
+{
+    char *tmpstr;
+    char tmpbuf1[mybufsize/2+1];
+
+    if (!StatsdNumber) say("D-Line");
+    strmcpy(tmpbuf1,str2,mybufsize/2);
+    if (StatsdFilter) {
+        tmpstr=new_next_arg(str2,&str2);
+        tmpstr=new_next_arg(str2,&str2);
+        if (!(tmpstr && *tmpstr)) tmpstr=empty_string;
+    }
+    if (!StatsdFilter || (StatsdFilter && 
+        (wild_match(StatsdFilter,str1) || wild_match(StatsdFilter,tmpstr))))
+        say("%s %s %s",statschar,str1,tmpbuf1);
+    StatsdNumber++;
+}
+#endif /* OPER */

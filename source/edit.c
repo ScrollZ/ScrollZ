@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.95 2003-01-08 20:00:54 f Exp $
+ * $Id: edit.c,v 1.96 2003-04-20 19:05:21 f Exp $
  */
 
 #include "irc.h"
@@ -344,6 +344,7 @@ extern  void  StatsKFilter _((char *, char *, char *));
 extern  void  StatsIFilter _((char *, char *, char *));
 extern  void  StatsLFilter _((char *, char *, char *));
 extern  void  StatsCFilter _((char *, char *, char *));
+extern  void  StatsDFilter _((char *, char *, char *));
 extern	void  WhoKill _((char *, char *, char *));
 extern	void  TraceKill _((char *, char *, char *));
 #endif
@@ -588,6 +589,7 @@ IrcCommand FAR irc_command[] =
   { "FBK", 		"FBK", 		FilterKick, 		SERVERREQ },
 #ifdef OPER
   { "FCLINE", 		NULL, 		StatsCFilter, 		SERVERREQ },
+  { "FDLINE", 		NULL, 		StatsDFilter, 		SERVERREQ },
 #endif
 	{ "FE",		NULL,		foreach_handler,	0 },
 	{ "FEC",	NULL,		fec,			0 },
@@ -2661,6 +2663,7 @@ send_comm(command, args, subargs)
                 new_free(&StatsiFilter);
                 new_free(&StatscFilter);
                 new_free(&StatslFilter);
+                new_free(&StatsdFilter);
 #endif
             }
         }

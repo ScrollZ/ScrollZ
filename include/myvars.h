@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.34 2002-03-07 16:53:11 f Exp $
+ * $Id: myvars.h,v 1.35 2003-04-20 19:05:21 f Exp $
  */
 
 #include "mystructs.h"
@@ -158,6 +158,7 @@ extern char   *StatskFilter;
 extern char   *StatsiFilter;
 extern char   *StatscFilter;
 extern char   *StatslFilter;
+extern char   *StatsdFilter;
 #endif
 extern char   *AutoReplyBuffer;
 extern char   *OrigNick;

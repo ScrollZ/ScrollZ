@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.69 2003-03-25 17:12:24 f Exp $
+ * $Id: numbers.c,v 1.70 2003-04-20 19:05:21 f Exp $
  */
 
 #include "irc.h"
@@ -97,6 +97,7 @@ extern void HandleStatsK _((char *, char *));
 extern void HandleStatsI _((char *, char *, char *));
 extern void HandleStatsC _((char *, char *, char *));
 extern void HandleStatsL _((char *, char *, char *));
+extern void HandleStatsD _((char *, char *, char *));
 #endif
 /* Patched by Zakath */
 #ifdef CELE
@@ -1525,6 +1526,10 @@ numbered_command(from, comm, ArgList)
                 case 216:
                         PasteArgs(ArgList,2);
                         HandleStatsK(ArgList[1],ArgList[2]);
+                        break;
+                case 225:
+                        PasteArgs(ArgList,2);
+                        HandleStatsD(ArgList[0],ArgList[1],ArgList[2]);
                         break;
 #endif
                 case 329:

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.101 2003-04-17 20:11:36 f Exp $
+ * $Id: irc.c,v 1.102 2003-04-20 19:05:21 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -307,6 +307,7 @@ char  *StatskFilter=(char *) 0;
 char  *StatsiFilter=(char *) 0;
 char  *StatscFilter=(char *) 0;
 char  *StatslFilter=(char *) 0;
+char  *StatsdFilter=(char *) 0;
 #endif
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
