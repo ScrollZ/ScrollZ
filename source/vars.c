@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.20 2002-02-01 18:47:37 f Exp $
+ * $Id: vars.c,v 1.21 2002-03-21 17:04:14 f Exp $
  */
 
 #include "irc.h"
@@ -440,9 +440,6 @@ init_variables()
 #endif /* WANTANSI && HIGHASCII */
 #endif /* _Windows */
         window_display=old_disp;
-#if defined(WANTANSI)
-        if (get_int_var(HIGH_ASCII_VAR)) put_it("(U");
-#endif
         if (HelpPathVar) {
             set_string_var(HELP_PATH_VAR,HelpPathVar);
             new_free(&HelpPathVar);
