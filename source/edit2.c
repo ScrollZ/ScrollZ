@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.50 2000-08-28 20:25:47 f Exp $
+ * $Id: edit2.c,v 1.51 2000-08-29 19:05:05 f Exp $
  */
 
 #include "irc.h"
@@ -179,6 +179,7 @@ extern void timercmd _((char *, char *, char *));
 extern void away _((char *, char *, char *));
 extern void describe _((char *, char *, char *));
 extern void swap_window _((Window *, Window *));
+extern void irc_goto_window _((int));
 
 static char *tmpbuflist=(char *) 0;
 static int  listcount;
@@ -627,14 +628,20 @@ int servernum;
     oldwindow=curr_scr_win;
     if (curr_scr_win->server!=servernum) {
         change=1;
-        while ((tmp=traverse_all_windows(&flag)))
+        while ((tmp=traverse_all_windows(&flag))) {
+            if (tmp->name && !strcmp(tmp->name,"OV")) continue;
             if (tmp->server==servernum) break;
+        }
     }
-    if (change && tmp) swap_window(oldwindow,tmp);
+    if (change && tmp) {
+        if (tmp->visible) irc_goto_window(tmp->refnum);
+        else swap_window(oldwindow,tmp);
+    }
     sprintf(tmpbuf,"SERVER %d",servernum);
     windowcmd(NULL,tmpbuf,NULL);
     if (change && tmp) {
-        swap_window(oldwindow,tmp);
+        if (tmp->visible) irc_goto_window(oldwindow->refnum);
+        else swap_window(oldwindow,tmp);
         redraw_window(oldwindow,1,0);
     }
 }
