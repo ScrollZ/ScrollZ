@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.69 2001-08-31 15:37:55 f Exp $
+ * $Id: edit.c,v 1.70 2001-11-01 20:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -380,6 +380,7 @@ extern  void  ChangePassword _((char *, char *, char *));
 extern  void  Terminate _((char *, char *, char *));
 #endif
 extern  void  ARinWindowToggle _((char *, char *, char *));
+extern  void  CJoin _((char *, char *, char *));
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -512,6 +513,7 @@ static	IrcCommand FAR irc_command[] =
 #ifdef EXTRAS
   { "CHSIGNOFF",	"CHSIGNOFF", 	ChannelCommand, 	0 },
 #endif
+  { "CJOIN",		"CJOIN", 	CJoin,		 	SERVERREQ },
 	{ "CLEAR",	NULL,		my_clear,		0 },
   { "CLEARTAB", 	NULL, 		ClearTab, 		0 },
 #ifdef WANTANSI
@@ -636,6 +638,7 @@ static	IrcCommand FAR irc_command[] =
   { "KICKS", 		"KICKS", 	NumberCommand, 		0 },
   { "KICKT", 		"KICKT", 	NumberCommand, 		0 },
  	{ "KILL",	"KILL",		send_2comm,		SERVERREQ },
+  { "KNOCK",		"KNOCK", 	CJoin,		 	SERVERREQ },
   { "KPROT", 		"KPROT", 	ChannelCommand, 	0 },
   { "L", 		NULL, 		Leave, 			SERVERREQ },
 	{ "LASTLOG",	NULL,		lastlog,		0 },

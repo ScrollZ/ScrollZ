@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.108 2001-10-18 20:20:34 f Exp $
+ * $Id: edit6.c,v 1.109 2001-11-01 20:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -2888,4 +2888,26 @@ int when;
 	new_free(&result);
     }
     return(stampbuf);
+}
+
+/* CJOIN and KNOCK by braneded */
+void CJoin(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpchan=(char *) 0;
+    char tmpbuf[mybufsize/4];
+
+    tmpchan=new_next_arg(args,&args);
+    if (tmpchan && !is_channel(tmpchan)) {
+        sprintf(tmpbuf,"#%s",tmpchan);
+        tmpchan=tmpbuf;
+    }
+    if (!tmpchan) {
+        sprintf(tmpbuf,"%s [#]channel",command);
+        PrintUsage(tmpbuf);
+        return;
+    }
+    send_to_server("%s %s %s",command,tmpchan,args);
 }

@@ -28,6 +28,8 @@ Usage $3CHAT$0 [$3nick$0]
 If no nick is given, client will attempt to establish chat connection
 with last user that requested it.
 :CLEARTAB      Clears tabkey list
+:CJOIN         Creates and joins virtual channel
+Usage $3CJOIN$0 [$3#$0]$3channel$0
 :CSCAN         Show channel users
 Usage $3CSCAN$0 [$3-H$0|$3-R$0] [[$3#$0]$3channel$0]
 Without arguments it will show users for current channel. If $3-H$0 is
@@ -111,6 +113,8 @@ $3Control-X$0 switches channels
 $3Control-_$0 toggles underline on/off
 $3F1$0 this help
 $3F2$0 will join last channel you have been invited to
+:KNOCK         Asks for an invite to channel
+Usage $3KNOCK$0 [$3#$0]$3channel$0
 :L             Leaves channel
 Usage $3L$0 [$3#channel$0] [reason] 
 If no channel is given it will leave current channel. Note that
