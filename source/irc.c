@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.93 2002-07-13 14:36:48 f Exp $
+ * $Id: irc.c,v 1.94 2002-08-13 19:48:34 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1727,6 +1727,10 @@ main(argc, argv, envp)
 
 	srandom(time(NULL) ^ getpid());	/* something */
 
+/**************************** Patched by Flier ******************************/
+        memset(&forced_ip_addr, 0, sizeof(struct in_addr));
+        memset(&MyHostAddr, 0, sizeof(struct in_addr));
+/****************************************************************************/
 #ifdef _Windows
 	reset_pointers();
 #endif /* _Windows */
