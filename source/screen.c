@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.3 1998-10-07 20:01:30 f Exp $
+ * $Id: screen.c,v 1.4 1999-01-08 17:25:42 f Exp $
  */
 
 #include "irc.h"
@@ -68,6 +68,8 @@ extern  void FixColorAnsi _((char *));
 extern  void ConvertmIRC _((char *, char *));
 #endif
 extern  void StripAnsi _((char *, char *, int));
+
+extern  int  InLogo;
 /****************************************************************************/
 
 #ifdef lines
@@ -1297,6 +1299,9 @@ split_up_line(str)
 
 	beep_max = get_int_var(BEEP_VAR) ? get_int_var(BEEP_MAX_VAR) : -1;
 	tab_max = get_int_var(TAB_VAR) ? get_int_var(TAB_MAX_VAR) : -1;
+/**************************** PATCHED by Flier ******************************/
+        if (InLogo) CO++;
+/****************************************************************************/
 	for (ptr = (u_char *) str; *ptr && (pos < BIG_BUFFER_SIZE - 8); ptr++)
 	{
 		if (translation)
@@ -1406,6 +1411,12 @@ split_up_line(str)
 			*ptr = '\0';
 		if (col >= CO)
 		{
+/**************************** PATCHED by Flier ******************************/
+                        while (*ptr && vt100Decode(*ptr)) {
+                            buffer[pos++] = *ptr++;
+                            nd_cnt++;
+                        }
+/****************************************************************************/
 			/* one big long line, no word breaks */
 			if (word_break == 0)
 				word_break = pos - (col - CO);
@@ -1464,6 +1475,9 @@ split_up_line(str)
 /****************************************************************************/
 		}
 	}
+/**************************** PATCHED by Flier ******************************/
+        if (InLogo) CO--;
+/****************************************************************************/
 	buffer[pos] = '\0';
 	if (buffer[start])
 	{
