@@ -228,6 +228,7 @@ web page.
     ! fixed ircII bug where client would think it is connected to two
       servers when connect to new server was issued while the connect to
       previous server was still in progress (reported by enkil)
+    + BKLIST to enable shit list only for certain channels (requested by Zig)
 
 Here's Zakath's list for Celerity:
     + STATUS_LOADAVG (%Z) for system load (works on Linux & BSD, Solaris
