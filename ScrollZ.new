@@ -94,6 +94,8 @@ added ability to complete first matching channel name on ^T and
 Cdcc hooks now also work on CTCP your_nick CDCC LIST
 added ENCRCHAT to allow for encrypted DCC CHAT (requested by Doxx)
 added FTRACE to -DACID
+NWHOIS now accepts filter (requested by TrN)
+merged ircII 4.4B code
 
 
 -------------------------------------------------------------------------------
