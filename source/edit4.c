@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.104 2002-10-01 17:22:02 f Exp $
+ * $Id: edit4.c,v 1.105 2002-11-11 18:16:31 f Exp $
  */
 
 #include "irc.h"
@@ -1122,102 +1122,102 @@ int  server;
 }
 
 /* Handles received notice */
-int HandleNotice(nick,notice,userhost,print,to)
+int HandleNotice(nick, notice, userhost, print, to, iscrypted)
 char *nick;
 char *notice;
 char *userhost;
 int  print;
 char *to;
+int *iscrypted;
 {
     int  isme;
-    int  hooked=1;
-    int  iscrypted=0;
-    int  savemessage=0;
+    int  hooked = 1;
+    int  savemessage = 0;
     char *tmp;
     char *wallop;
-    char *wallchan=NULL;
-    char tmpbuf[mybufsize/2];
+    char *wallchan = NULL;
+    char tmpbuf[mybufsize / 2];
 #ifdef CELECOSM
-    char tmpbuf1[mybufsize/2];
+    char tmpbuf1[mybufsize / 2];
 #endif
-    char tmpbuf2[mybufsize/8];
+    char tmpbuf2[mybufsize / 8];
     ChannelList *chan;
-    ChannelList *foundchan=NULL;
+    ChannelList *foundchan = NULL;
 
-    isme=!my_stricmp(to,get_server_nickname(parsing_server_index));
-    strmcpy(tmpbuf,notice,mybufsize/16);
+    isme=!my_stricmp(to, get_server_nickname(parsing_server_index));
+    strmcpy(tmpbuf, notice, mybufsize/16);
     upper(tmpbuf);
-    wallop=strstr(tmpbuf,"WALL");
-    if (wallop) wallchan=index(tmpbuf,'#');
-    else if (!strncmp(to,"@#",2)) {
-        wallop=to;
-        wallchan=to+1;
+    wallop = strstr(tmpbuf,"WALL");
+    if (wallop) wallchan = index(tmpbuf, '#');
+    else if (!strncmp(to, "@#", 2)) {
+        wallop = to;
+        wallchan = to + 1;
     }
-    if (wallop && wallchan && wallchan-wallop<32) {
+    if (wallop && wallchan && wallchan - wallop < 32) {
         wallchan++;
-        tmp=tmpbuf2;
-        *tmp++='#';
-        for (wallop=wallchan;*wallop && *wallop!=' ' &&
-             wallop-wallchan<32;wallop++) {
-            *tmp++=*wallop;
-            *tmp='\0';
-            if ((chan=lookup_channel(tmpbuf2,parsing_server_index,CHAN_NOUNLINK)))
-                foundchan=chan;
+        tmp = tmpbuf2;
+        *tmp ++= '#';
+        for (wallop = wallchan; *wallop && *wallop != ' ' &&
+             wallop - wallchan < 32; wallop++) {
+            *tmp ++= *wallop;
+            *tmp = '\0';
+            if ((chan = lookup_channel(tmpbuf2, parsing_server_index, CHAN_NOUNLINK)))
+                foundchan = chan;
         }
         if (foundchan) {
             save_message_from();
-            message_from(foundchan->channel,LOG_NOTICE);
-            savemessage=1;
+            message_from(foundchan->channel, LOG_NOTICE);
+            savemessage = 1;
         }
     }
-    if (DecryptMessage(notice,nick)) iscrypted=1;
+    if ((*iscrypted == 0) && DecryptMessage(notice,nick)) *iscrypted = 1;
     /* Check for invite notices which might hold key */
     if (!print) {
-        if (!strncmp(notice,"You have been ctcp invited to ",30)) AddJoinKey(1,notice);
-        else if (!strncmp(notice,"Use channel key ",16)) AddJoinKey(2,notice);
-        else if (!strncmp(notice,"Channel key for ",17)) AddJoinKey(3,notice);
-        else if (!strncmp(notice,"Ctcp-inviting you to ",22)) AddJoinKey(4,notice);
-        else if (!strncmp(notice,"The channel ",12)) AddJoinKey(5,notice);
+        if (!strncmp(notice, "You have been ctcp invited to ",30)) AddJoinKey(1, notice);
+        else if (!strncmp(notice, "Use channel key ",16)) AddJoinKey(2, notice);
+        else if (!strncmp(notice, "Channel key for ",17)) AddJoinKey(3, notice);
+        else if (!strncmp(notice, "Ctcp-inviting you to ",22)) AddJoinKey(4, notice);
+        else if (!strncmp(notice, "The channel ",12)) AddJoinKey(5, notice);
     }
     if (!foundchan
 #ifndef LITE
-        || (foundchan && do_hook(CHANNEL_WALLOP_LIST,"%s %s %s",foundchan->channel,
-                                 nick,(wallchan==to+2)?notice:notice+(wallop-tmpbuf+1)))
+        || (foundchan && do_hook(CHANNEL_WALLOP_LIST, "%s %s %s", foundchan->channel,
+                                 nick, (wallchan == to + 2) ? notice : notice + (wallop - tmpbuf + 1)))
 #endif
        ) {
-        if (foundchan || (!foundchan && !print)) hooked=0;
+        if (foundchan || (!foundchan && !print)) hooked = 0;
         if (print) {
-            char *stampbuf=TimeStamp(2);
+            char *stampbuf = TimeStamp(2);
 
 #ifdef WANTANSI
 #ifdef CELECOSM
             if (ExtMes && userhost)
-                ColorUserHost(userhost,CmdsColors[COLNOTICE].color6,tmpbuf2,1);
-            else *tmpbuf2='\0';
-            snprintf(tmpbuf,sizeof(tmpbuf),"%s-%s",CmdsColors[COLNOTICE].color5,Colors[COLOFF]);
-            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s%s%s%s%s%s",tmpbuf,
-                    CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF],
-                    isme?"":":",isme?"":to,tmpbuf2,tmpbuf);
-            put_it("%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,
-                    tmpbuf1,CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
+                ColorUserHost(userhost, CmdsColors[COLNOTICE].color6, tmpbuf2, 1);
+            else *tmpbuf2 = '\0';
+            snprintf(tmpbuf, sizeof(tmpbuf), "%s-%s", CmdsColors[COLNOTICE].color5, Colors[COLOFF]);
+            snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s%s%s%s%s%s", tmpbuf,
+                    CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF],
+                    isme ? "" : ":", isme ? "" : to, tmpbuf2, tmpbuf);
+            put_it("%s%s%s %s%s%s", *iscrypted ? "[!]" : "", stampbuf,
+                    tmpbuf1, CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
 #else  /* CELECOSM */
-            snprintf(tmpbuf,sizeof(tmpbuf),"%s-%s",CmdsColors[COLNOTICE].color5,Colors[COLOFF]);
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s",tmpbuf,
-                    CmdsColors[COLNOTICE].color1,nick,Colors[COLOFF]);
-            put_it("%s%s%s%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,
-                   tmpbuf2,isme?"":":",isme?"":to,tmpbuf,
-                   CmdsColors[COLNOTICE].color3,notice,Colors[COLOFF]);
+            snprintf(tmpbuf, sizeof(tmpbuf), "%s-%s", CmdsColors[COLNOTICE].color5, Colors[COLOFF]);
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "%s%s%s%s", tmpbuf,
+                    CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF]);
+            put_it("%s%s%s%s%s%s %s%s%s", *iscrypted ? "[!]" : "", stampbuf,
+                   tmpbuf2, isme ? "" : ":", isme ? "" : to, tmpbuf,
+                   CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-            put_it("%s%s-%s%s%s- %s",iscrypted?"[!]":"",stampbuf,
-                    nick,isme?"":":",isme?"":to,notice);
+            put_it("%s%s-%s%s%s- %s", *iscrypted ? "[!]" : "", stampbuf,
+                    nick, isme ? "" : ":", isme ? "" : to, notice);
 #endif /* WANTANSI */
         }
     }
-    snprintf(tmpbuf,sizeof(tmpbuf),"-%s%s%s- %s",nick,isme?"":":",isme?"":to,notice);
-    malloc_strcpy(&(server_list[from_server].LastNotice),tmpbuf);
+    snprintf(tmpbuf, sizeof(tmpbuf), "-%s%s%s- %s", nick, isme ? "" : ":", isme ? "" : to, notice);
+    malloc_strcpy(&(server_list[from_server].LastNotice), tmpbuf);
     if (!print && (away_set || LogOn))
-        AwaySave(server_list[from_server].LastNotice,SAVENOTICE);
+        AwaySave(server_list[from_server].LastNotice, SAVENOTICE);
     if (savemessage) restore_message_from();
     return(!hooked);
 }

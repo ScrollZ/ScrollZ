@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.30 2002-03-11 20:25:01 f Exp $
+ * $Id: notice.c,v 1.31 2002-11-11 18:16:31 f Exp $
  */
 
 #include "irc.h"
@@ -57,7 +57,7 @@
 #include "myvars.h"
 
 extern void HandleFakes _((char *, char *, int));
-extern int  HandleNotice _((char *, char *, char *, int, char *));
+extern int  HandleNotice _((char *, char *, char *, int, char *, int *));
 extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OVformat _((char *, char *));
@@ -317,26 +317,37 @@ parse_notice(from, Args)
 
  					if (sed == 0 || do_hook(ENCRYPTED_NOTICE_LIST, "%s %s %s", from, to, line))
 					{
+/**************************** Patched by Flier ******************************/
+                                                int iscrypted = 0;
+/****************************************************************************/
+
 						if (type == NOTICE_LIST)
 						{
 /**************************** PATCHED by Flier ******************************/
-                                                        if (HandleNotice(from, line, FromUserHost, 0, to))
+                                                        if (HandleNotice(from, line, FromUserHost, 0, to,
+                                                                         &iscrypted))
 /****************************************************************************/
 							if (no_flooding &&
 							    do_hook(type, "%s %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 								/*put_it("%s-%s-%s %s", high, from, high, line);*/
-                                                                HandleNotice(from, line, FromUserHost, 1, to);
+                                                                HandleNotice(from, line, FromUserHost, 1, to,
+                                                                             &iscrypted);
 /****************************************************************************/
 						}
 						else
 						{
+/**************************** PATCHED by Flier ******************************/
+                                                        if (HandleNotice(from, line, FromUserHost, 0, to,
+                                                                         &iscrypted))
+/****************************************************************************/
 							if (no_flooding &&
 							    do_hook(type, "%s %s %s", from, to, line))
 /**************************** Patched by Flier ******************************/
 								/*put_it("%s-%s:%s-%s %s", high, from, to, high, line);*/
-                                                            put_it("%s%s-%s:%s-%s %s", stampbuf,
-                                                                   high, from, to, high, line);
+                                                            put_it("%s%s%s-%s:%s-%s %s",
+                                                                   iscrypted ? "[!]" : "",
+                                                                   stampbuf, high, from, to, high, line);
                                                         if (ChanLog) {
                                                             ChannelList *chan;
 
