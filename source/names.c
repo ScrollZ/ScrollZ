@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.36 2002-01-31 18:19:02 f Exp $
+ * $Id: names.c,v 1.37 2002-02-02 10:32:46 f Exp $
  */
 
 #include "irc.h"
@@ -1295,7 +1295,7 @@ char    *servmodes;
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
-        if (*nethackbuf) strmcpy(nethacks, nethackbuf, sizeof(nethackbuf));
+        if (*nethackbuf && nethacks) strmcpy(nethacks, nethackbuf, sizeof(nethackbuf));
         if (tmpjoiner && tmpjoiner->frlist) privs = tmpjoiner->frlist->privs;
         else privs = 0;
         if (chan->FriendList && chan->MDopWatch && tmpjoiner && !isitme &&
