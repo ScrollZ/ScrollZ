@@ -6,6 +6,28 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+ScrollZ v1.9.4
+
+    + DESTDIR support in Makefile, patch submitted by MadHack-
+    ! support for ! channels on IRCNet (reported by jups)
+    ! ETA display on DCC REGET at connection startup
+    ! DCC completed prematurely message when DCC REGET completes
+    ! LIST -WIDE crashing/freezing the client (reported by
+      Clemens Fischer)
+    ! excess flood problems on newer Efnet servers should now
+      be fixed (client queues channel joins, this results in
+      slower joins though)
+    ! don't use $color() in STAMP_FORMAT when LITE is defined
+      (reported by Damm)
+    ! FTRACE * irc.non-existing-server.com bug where FTRACE would
+      no longer work (reported by taliz)
+    + support for numeric 515 on freenode (need to be identified to
+      join +r channels, requested by TrN)
+    + partial support for ~ (channel owner) and & (channel admin)
+      in unreal ircd (requested by Ahnberg)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.3, 11.5.2004
 
     ! when ARINWIN was trigered by an action and current window
