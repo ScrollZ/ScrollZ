@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.5 1998-11-16 21:14:32 f Exp $
+ * $Id: numbers.c,v 1.6 1998-11-20 20:44:49 f Exp $
  */
 
 #include "irc.h"
@@ -81,6 +81,8 @@ extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
 #ifdef ACID
 extern void DoFilterTrace _((char *));
+extern int  tottcount;
+extern int  mattcount;
 #endif
 /* Patched by Zakath */
 #ifdef CELE
@@ -1378,6 +1380,10 @@ numbered_command(from, comm, ArgList)
                         }
                 case 262:		/* #define RPL_ENDOFTRACE       262 */
                         if (comm==262 && inFlierTrace) {
+#ifdef ACID
+                            if (inFlierTrace==2)
+                                say("Matched %d out of %d entries",mattcount,tottcount);
+#endif
                             inFlierTrace=0;
                             break;
                         }
