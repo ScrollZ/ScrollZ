@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.56 2003-01-08 20:00:54 f Exp $
+ * $Id: server.c,v 1.57 2003-10-03 19:00:56 f Exp $
  */
 
 #include "irc.h"
@@ -2133,6 +2133,19 @@ is_server_open(server_index)
 		return (0);
 	return (server_list[server_index].read != -1);
 }
+
+/**************************** PATCHED by Flier ******************************/
+/*
+ * is_server_valid: Returns true if the given server index is valid
+ */
+int is_server_valid(server_index)
+int server_index;
+{
+    if (server_index < 0 || server_index >= number_of_servers)
+        return(0);
+    return(1);
+}
+/****************************************************************************/
 
 /*
  * is_server_connected: returns true if the given server is connected.  This

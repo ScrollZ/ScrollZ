@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.13 2003-01-08 20:00:54 f Exp $
+ * $Id: server.h,v 1.14 2003-10-03 19:00:56 f Exp $
  */
 
 #ifndef __server_h_
@@ -196,6 +196,9 @@ extern	SGroup	*server_group_list;
 	void	set_server_itsname _((int, char *));
 	void	set_server_version _((int, int));
 	int	is_server_open _((int));
+/**************************** PATCHED by Flier ******************************/
+        int     is_server_valid _((int));
+/****************************************************************************/
 	int	get_server_port _((int));
 	char	*set_server_password _((int, char *));
 	void	set_server_nickname _((int, char *));
