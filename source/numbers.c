@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.24 2000-08-21 18:41:40 f Exp $
+ * $Id: numbers.c,v 1.25 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -814,7 +814,7 @@ char **ArgList;
             SPingTime=0;
 #endif
 	}
-        else if (inScrollZLinks==3) inScrollZLinks=0;
+        else if (inSZLinks==3) inSZLinks=0;
         else if (do_hook(current_numeric,"%s %s",from,ArgList[0]))
             display_msg(from,ArgList);
     }
@@ -1072,8 +1072,9 @@ numbered_command(from, comm, ArgList)
 /************************** PATCHED by Flier *****************************/
 		/*no_such_nickname(from, ArgList);*/
                 RemoveFromDCCList(ArgList[0]);
-                if (!inScrollZWI) no_such_nickname(from, ArgList);
-                else inScrollZWI--;
+                if (!server_list[parsing_server_index].SZWI)
+                    no_such_nickname(from, ArgList);
+                else server_list[parsing_server_index].SZWI--;
                 break;
 /*************************************************************************/		
 
@@ -1246,21 +1247,21 @@ numbered_command(from, comm, ArgList)
                         if (comm==332 && ArgList[0] && ArgList[1] &&
                             (chan=lookup_channel(ArgList[0],from_server,0)))
                             malloc_strcpy(&(chan->topicstr),ArgList[1]);
-                        if (comm==315 && inScrollZWho) {
+                        if (comm==315 && server_list[from_server].SZWho) {
 #ifdef OPER
-                            if (inScrollZFKill) HandleEndOfKill();
+                            if (inSZFKill) HandleEndOfKill();
                             else HandleEndOfWho(ArgList[0],from_server);
 #else
                             HandleEndOfWho(ArgList[0],from_server);
 #endif
-                            inScrollZWho--;
+                            server_list[from_server].SZWho--;
                             skipit=1;
                         }
-                        else if (comm==368 && unban) {
+                        else if (comm==368 && server_list[from_server].SZUnban) {
                             EndOfBans(ArgList[0],from_server);
                             skipit=1;
                         }
-                        else if ((comm==367 || comm==348) && unban) {
+                        else if ((comm==367 || comm==348) && server_list[from_server].SZUnban) {
                             OnBans(ArgList,comm==348?1:0);
                             skipit=1;
                         }
@@ -1346,10 +1347,10 @@ numbered_command(from, comm, ArgList)
 				/*PasteArgs(ArgList, 2);
 				put_it("%s %-20s %-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1], ArgList[2]);*/
-                                if (inScrollZLinks==3) PrintLinks(ArgList[0],ArgList[1],ArgList[2]);
-                                else if (inScrollZLinks==4) AddToMap(ArgList[0],ArgList[2]);
+                                if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],ArgList[2]);
+                                else if (inSZLinks==4) AddToMap(ArgList[0],ArgList[2]);
 #ifdef EXTRAS
-                                else if (inScrollZLinks) {
+                                else if (inSZLinks) {
                                     sprintf(tmpbuf,"%-20s %-20s",ArgList[0],ArgList[1]);
                                     HandleLinks(tmpbuf);
                                 }
@@ -1364,10 +1365,10 @@ numbered_command(from, comm, ArgList)
 				/*PasteArgs(ArgList, 1);
 				put_it("%s %-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1]);*/
-                                if (inScrollZLinks==3) PrintLinks(ArgList[0],ArgList[1],"");
-                                else if (inScrollZLinks==4) AddToMap(ArgList[0],"");
+                                if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],"");
+                                else if (inSZLinks==4) AddToMap(ArgList[0],"");
 #ifdef EXTRAS
-                                else if (inScrollZLinks) {
+                                else if (inSZLinks) {
                                     sprintf(tmpbuf,"%-20s",ArgList[0]);
                                     HandleLinks(tmpbuf);
                                 }
@@ -1479,13 +1480,13 @@ numbered_command(from, comm, ArgList)
 		case 232:		/* #define RPL_ENDOFSERVICES    232 */
 		case 365:		/* #define RPL_ENDOFLINKS       365 */
 /**************************** PATCHED by Flier ******************************/
-                        if (comm==365 && inScrollZLinks) {
+                        if (comm==365 && inSZLinks) {
 #ifdef EXTRAS
-                            if (inScrollZLinks==1) say("LLook is now complete");
-                            else if (inScrollZLinks==2) ListSplitedServers();
+                            if (inSZLinks==1) say("LLook is now complete");
+                            else if (inSZLinks==2) ListSplitedServers();
                             else
 #endif
-                            if (inScrollZLinks==4) PrintMap();
+                            if (inSZLinks==4) PrintMap();
                             else if (LinksNumber) {
 
 /****** Coded by Zakath ******/
@@ -1499,17 +1500,17 @@ numbered_command(from, comm, ArgList)
 #endif
 /*****************************/
                             }
-                            inScrollZLinks=0;
+                            inSZLinks=0;
                             LinksNumber=0;
                             break;
                         }
                 case 262:		/* #define RPL_ENDOFTRACE       262 */
-                        if (comm==262 && inScrollZTrace) {
+                        if (comm==262 && inSZTrace) {
 #ifdef OPER
-                            if (inScrollZTrace==2)
+                            if (inSZTrace==2)
                                 say("Matched %d out of %d entries",mattcount,tottcount);
 #endif
-                            inScrollZTrace=0;
+                            inSZTrace=0;
                             break;
                         }
 /****************************************************************************/
@@ -1531,8 +1532,8 @@ numbered_command(from, comm, ArgList)
                 case 204:
                 case 206:
                         if (comm==203 || comm==204 || comm==206) {
-                            if (inScrollZTrace!=2 && !inScrollZFKill) inScrollZTrace=0;
-                            if (inScrollZTrace) break;
+                            if (inSZTrace!=2 && !inSZFKill) inSZTrace=0;
+                            if (inSZTrace) break;
                         }
 #ifdef CELE
                         HandleTrace(comm,ArgList[0],ArgList[1],ArgList[2],ArgList[3],ArgList[4],ArgList[5]);
@@ -1540,8 +1541,8 @@ numbered_command(from, comm, ArgList)
 #endif
                 case 205:
 #ifdef OPER
-                        if (comm==205 && inScrollZTrace) {
-                            if (inScrollZTrace==2) DoFilterTrace(ArgList[2]);
+                        if (comm==205 && inSZTrace) {
+                            if (inSZTrace==2) DoFilterTrace(ArgList[2]);
                             else
                                 DoTraceKill(ArgList[2]);
                             break;
@@ -1553,8 +1554,8 @@ numbered_command(from, comm, ArgList)
 #endif
                 case 209:
 #ifdef OPER
-                        if (comm==209 && inScrollZTrace) {
-                            if (inScrollZTrace==1) HandleEndOfTraceKill();
+                        if (comm==209 && inSZTrace) {
+                            if (inSZTrace==1) HandleEndOfTraceKill();
                             break;
                         }
 #endif

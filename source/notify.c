@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.7 2000-08-09 19:31:21 f Exp $
+ * $Id: notify.c,v 1.8 2000-08-27 18:01:56 f Exp $
  */
 
 /*
@@ -144,7 +144,7 @@ notify(command, args, subargs)
 						/*say("%s removed from notification list", nick);*/
                                                 new_free(&(new->userhost));
                                                 new_free(&(new->mask));
-                                                if (inScrollZNotify!=1)
+                                                if (inSZNotify!=1)
                                                     say("%s removed from notification list",nick);
 /****************************************************************************/
 						new_free(&new);
@@ -166,7 +166,8 @@ notify(command, args, subargs)
 					}
 /**************************** PATCHED by Flier ******************************/
 					/*say("Notify list cleared");*/
-					if (inScrollZNotify!=1) say("Notify list cleared");
+					if (inSZNotify!=1)
+                                            say("Notify list cleared");
 /****************************************************************************/
 				}
 			}
@@ -217,7 +218,7 @@ notify(command, args, subargs)
  							add_to_whois_queue(new->nick, whois_notify, (char *) 0);
 /**************************** PATCHED by Flier ******************************/
 						/*say("%s added to the notification list", nick);*/
-                                                if (inScrollZNotify!=1)
+                                                if (inSZNotify!=1)
                                                     say("%s added to the notification list",nick);
                                                 else new->flag=2;
                                                 if (*tmpbuf) strcat(tmpbuf," ");
@@ -238,7 +239,7 @@ notify(command, args, subargs)
   		add_ison_to_whois(list, ison_notify);
  		from_server = old_server;
  	}*/
-        if (do_ison && inScrollZNotify==1 && *tmpbuf)
+        if (do_ison && inSZNotify==1 && *tmpbuf)
             AddDelayNotify(tmpbuf);
         else if (do_ison) {
  		from_server = primary_server;

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.42 2000-08-15 16:03:07 f Exp $
+ * $Id: edit4.c,v 1.43 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -395,9 +395,10 @@ ChannelList *chan;
     char tmpbuf[mybufsize/4+1];
     NickList *tmpjoiner;
 
-    if (unban<2) unban=2;
-    else unban++;
-    inScrollZWho++;
+    if (server_list[from_server].SZUnban<2)
+        server_list[from_server].SZUnban=2;
+    else server_list[from_server].SZUnban++;
+    server_list[from_server].SZWho++;
     tmpjoiner=CheckJoiners(nick,channel,from_server,chan);
     strmcpy(tmpbuf,nick,mybufsize/4);
     strmcat(tmpbuf,"/",mybufsize/4);
@@ -866,8 +867,8 @@ int  server;
 {
     ChannelList *chan;
 
-    if (unban>2) unban--;
-    else unban=0;
+    if (server_list[server].SZUnban>2) server_list[server].SZUnban--;
+    else server_list[server].SZUnban=0;
     chan=lookup_channel(channel,server,0);
     if (!chan) return;
     if (!chan->gotbans) chan->gotbans=1;
@@ -1785,8 +1786,8 @@ char *text;
 
     timenow=time((time_t *) 0);
 #endif
-    inScrollZNotify--;
-    if (inScrollZNotify==1) inScrollZNotify=0;
+    inSZNotify--;
+    if (inSZNotify==1) inSZNotify=0;
     if (!wistuff->nick) return;
     notify_mark(wistuff->nick,2+wistuff->not_on,0);
     if (wistuff->not_on) return;
@@ -2547,7 +2548,7 @@ char *subargs;
     struct splitstr *tmpsplit;
     time_t timenow=time((time_t *) 0);
 
-    if (timenow-LastLinks>=120 || !inScrollZLinks) {
+    if (timenow-LastLinks>=120 || !inSZLinks) {
         LastLinks=timenow;
         while (splitlist) {
             tmpsplit=splitlist;
@@ -2555,7 +2556,7 @@ char *subargs;
             new_free(&(tmpsplit->servers));
             new_free(&tmpsplit);
         }
-        inScrollZLinks=1;
+        inSZLinks=1;
         send_to_server("LINKS");
         say("Gathering links info from server");
     }
@@ -2572,7 +2573,7 @@ char *subargs;
     struct splitstr *tmpsplit;
 
     if (splitlist) {
-        if (timenow-LastLinks>=120 || !inScrollZLinks) {
+        if (timenow-LastLinks>=120 || !inSZLinks) {
             LastLinks=timenow;
             while (splitlist1) {
                 tmpsplit=splitlist1;
@@ -2580,7 +2581,7 @@ char *subargs;
                 new_free(&(tmpsplit->servers));
                 new_free(&tmpsplit);
             }
-            inScrollZLinks=2;
+            inSZLinks=2;
             send_to_server("LINKS");
             say("Gathering links info from server");
         }
@@ -2598,7 +2599,7 @@ char *servers;
     char tmpbuf[mybufsize/4];
     struct splitstr *tmp1,*tmp2,*tmpsplit;
 
-    if (inScrollZLinks) {
+    if (inSZLinks) {
         tmp1=(struct splitstr *) new_malloc(sizeof(struct splitstr));
         tmp2=(struct splitstr *) new_malloc(sizeof(struct splitstr));
         if (tmp1 && tmp2) {
@@ -2611,7 +2612,7 @@ char *servers;
             malloc_strcpy(&(tmp1->servers),tmpbuf);
             NextArg(tmpstr,&tmpstr,tmpbuf);
             malloc_strcat(&(tmp2->servers),tmpbuf);
-            if (inScrollZLinks==1) {
+            if (inSZLinks==1) {
                 found1=0;
                 found2=0;
                 tmpsplit=splitlist;

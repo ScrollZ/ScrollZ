@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.48 2000-08-20 18:40:52 f Exp $
+ * $Id: edit2.c,v 1.49 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -785,7 +785,7 @@ char *subargs;
                         if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
                         else {
                             func=(void(*)())BanNew;
-                            inScrollZWI++;
+                            server_list[from_server].SZWI++;
                             add_to_whois_queue(tmpnick,func,"%s",channel);
                         }
                     }
@@ -806,7 +806,7 @@ char *text;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -863,7 +863,7 @@ char *subargs;
                     if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
                     else {
                         func=(void(*)())BanKickNew;
-                        inScrollZWI++;
+                        server_list[from_server].SZWI++;
                         add_to_whois_queue(tmpnick,func,"%s %s",command,channel);
                     }
                 }
@@ -908,7 +908,7 @@ char *text;
     char tmpbuf2[mybufsize/4];
 #endif
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2119,7 +2119,7 @@ char *subargs;
         }
         else {
             func=(void(*)())AddFriendNew;
-            inScrollZWI++;
+            server_list[from_server].SZWI++;
             add_to_whois_queue(tmpnick,func,"%s",tmpbuf1);
         }
     }
@@ -2134,7 +2134,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2383,7 +2383,7 @@ char *subargs;
         }
         else {
             func=(void(*)())AddBKNew;
-            inScrollZWI++;
+            server_list[from_server].SZWI++;
             sprintf(tmpbuf1,"%s %s %s",tmpshit,tmpchan,args);
             add_to_whois_queue(tmpnick,func,"%s",tmpbuf1);
         }
@@ -2401,7 +2401,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2546,7 +2546,7 @@ char *subargs;
         if (!count) say("There are no bans on channel %s",channel);
     }
     else {
-        unban=1;
+        server_list[from_server].SZUnban=1;
         send_to_server("MODE %s b",channel);
     }
 }
@@ -2576,7 +2576,7 @@ char *subargs;
                 return;
             }
             func=(void(*)())RemoveFriendNew;
-            inScrollZWI++;
+            server_list[from_server].SZWI++;
             add_userhost_to_whois(tmpnick,func);
         }
     }
@@ -2589,7 +2589,7 @@ char *tmpnick;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2698,7 +2698,7 @@ char *subargs;
                 return;
             }
             func=(void(*)())RemoveAutoBanKickNew;
-            inScrollZWI++;
+            server_list[from_server].SZWI++;
             add_userhost_to_whois(tmpnick,func);
         }
     }
@@ -2711,7 +2711,7 @@ char *tmpnick;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2821,7 +2821,7 @@ char *subargs;
                     return;
                 }
                 func=(void(*)())UnbanNew;
-                inScrollZWI++;
+                server_list[from_server].SZWI++;
                 add_to_whois_queue(tmpnick,func,"%s",channel);
             }
             else NotChanOp(channel);
@@ -2839,7 +2839,7 @@ char *channel;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2859,7 +2859,7 @@ int exception;
     char *who;
     time_t when;
 
-    if (unban>=2) {
+    if (server_list[parsing_server_index].SZUnban>=2) {
         chan=*args;
         args++;
         daban=*args;
@@ -2873,7 +2873,7 @@ int exception;
         }
         else AddBan(daban,chan,server,NULL,exception,time((time_t *) 0),NULL);
     }
-    else if (unban==1) {  /* show bans */
+    else if (server_list[parsing_server_index].SZUnban==1) {  /* show bans */
         chan=*args;
         args++;
         daban=*args;
@@ -3015,7 +3015,7 @@ char *subargs;
             return;
         }
         func=(void(*)())IgnoreNew;
-        inScrollZWI++;
+        server_list[from_server].SZWI++;
         add_to_whois_queue(tmpnick,func,"%d %s",igtime,args);
     }
     else PrintUsage("IG [-t time] nick [type]  default type is ALL");
@@ -3031,7 +3031,7 @@ char *igtype;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;

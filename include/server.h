@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.6 2000-08-09 19:31:20 f Exp $
+ * $Id: server.h,v 1.7 2000-08-27 18:01:56 f Exp $
  */
 
 #ifndef __server_h_
@@ -91,6 +91,9 @@ typedef	struct
 	ChannelList	*chan_list;	/* list of channels for this server */
 	void	(*parse_server) _((char *));	/* pointer to parser for this server */
 /**************************** PATCHED by Flier ******************************/
+        int     SZWI;                   /* when doing whois */
+        int     SZWho;                  /* when doing who */
+        int     SZUnban;                /* when doing unban */
         char    *LastMessage;           /* last received message */
         char    *LastNotice;            /* last received notice */
         char    *LastMessageSent;       /* last sent message */

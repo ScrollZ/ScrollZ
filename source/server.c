@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.24 2000-08-27 10:58:41 f Exp $
+ * $Id: server.c,v 1.25 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -127,9 +127,6 @@ close_server(server_index, message)
 	int	i,
 		min,
 		max;
-/**************************** PATCHED by Flier ******************************/
-        ChannelList *chan;
-/****************************************************************************/
 
 	if (server_index == -1)
 	{
@@ -174,18 +171,6 @@ close_server(server_index, message)
 			if (server_list[i].write == server_list[i].read)
 				server_list[i].read = -1;
 			server_list[i].write = -1;
-/**************************** PATCHED by Flier ******************************/
-                        if (inScrollZWho || unban) {
-                            for (chan=server_list[i].chan_list;chan;chan=chan->next) {
-                                if (!(chan->gotwho))
-                                    inScrollZWho--;
-                                if (!(chan->gotbans)) {
-                                    if (unban>2) unban--;
-                                    else unban=0;
-                                }
-                            }
-                        }
-/****************************************************************************/
 		}
 		if (-1 != server_list[i].read)
 		{
@@ -1351,6 +1336,11 @@ login_to_server(server)
 	int	old_serv = server_list[server].close_serv;
 #endif
 
+/**************************** PATCHED by Flier ******************************/
+	server_list[server].SZWI=0;
+	server_list[server].SZWho=0;
+	server_list[server].SZUnban=0;
+/****************************************************************************/
 	server_list[server].flags |= LOGGED_IN;
 #ifdef NON_BLOCKING_CONNECTS
 	set_blocking(server_list[server].read);
@@ -2267,19 +2257,17 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
  		send(des, lbuf, strlen(lbuf), 0);
 	}
+	else if (!in_redirect && !connected_to_server)
 /**************************** PATCHED by Flier ******************************/
-	/*else if (!in_redirect && !connected_to_server)
-		say("You are not connected to a server, use /SERVER to connect.");*/
-        else if (!in_redirect && !connected_to_server) {
-            say("You are not connected to a server, use /SERVER to connect.");
-            inScrollZWI=0;
-            inScrollZWho=0;
-            inScrollZNotify=0;
-            inScrollZLinks=0;
-            inScrollZFKill=0;
-            inScrollZTrace=0;
-            inScrollZNickCompl=0;
-            unban=0;
+        {
+/****************************************************************************/
+		say("You are not connected to a server, use /SERVER to connect.");
+/**************************** PATCHED by Flier ******************************/
+                inSZNotify=0;
+                inSZLinks=0;
+                inSZFKill=0;
+                inSZTrace=0;
+                inSZNickCompl=0;
         }
 /****************************************************************************/
 	in_send_to_server = 0;

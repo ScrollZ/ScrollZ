@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.45 2000-08-18 20:09:12 f Exp $
+ * $Id: edit3.c,v 1.46 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -728,7 +728,7 @@ char *subargs;
             }
             else {
                 func=(void(*)())FingerNew;
-                inScrollZWI++;
+                server_list[from_server].SZWI++;
                 add_userhost_to_whois(tmpnick,func);
             }
         }
@@ -744,7 +744,7 @@ char *tmpnick;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inScrollZWI) inScrollZWI--;
+    if (server_list[from_server].SZWI) server_list[from_server].SZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -1791,10 +1791,10 @@ int ScrollZLoad()
         else if (!strcmp("ADDN",tmpbuf3)) {
             while (pointer && *pointer && isspace(*pointer)) pointer++;
             if (pointer && *pointer) {
-                inScrollZNotify=1;
+                inSZNotify=1;
                 strcpy(tmpbuf2,pointer);
                 notify(NULL,tmpbuf2,NULL);
-                inScrollZNotify=0;
+                inSZNotify=0;
             }
             else {
                 PrintError("missing NICK(s)","in ADDN",lineno);
@@ -2315,10 +2315,10 @@ char *subargs;
     struct friends *tmpfriend;
     struct autobankicks *tmpabk;
 
-    inScrollZNotify=1;
+    inSZNotify=1;
     strcpy(tmpbuf,"-");
     notify(NULL,tmpbuf,NULL);
-    inScrollZNotify=0;
+    inSZNotify=0;
     CleanUpLists();
     ScrollZLoad();
     for (i=0;i<number_of_servers;i++)
@@ -2465,13 +2465,11 @@ void InitVars() {
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
     defban='B';
-    inScrollZWI=0;
-    inScrollZWho=0;
-    inScrollZNotify=0;
-    inScrollZLinks=0;
-    inScrollZFKill=0;
-    inScrollZNickCompl=0;
-    inScrollZTrace=0;
+    inSZNotify=0;
+    inSZLinks=0;
+    inSZFKill=0;
+    inSZNickCompl=0;
+    inSZTrace=0;
     ExtMes=1;
     NHProt=0;
     NHDisp=2;
@@ -2564,7 +2562,6 @@ void InitVars() {
     CdccVerbose=1;
     ARinWindow=0;
     usersloaded=0;
-    unban=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
     for (i=0,tmpstr2=tmpstr1;i<1;tmpstr2++) if (*tmpstr2==' ') i++;

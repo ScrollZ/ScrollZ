@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.36 2000-08-21 18:41:40 f Exp $
+ * $Id: irc.c,v 1.37 2000-08-27 18:01:56 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -363,14 +363,11 @@ int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;
 int   usersloaded;
-int   unban;
-int   inScrollZWI;
-int   inScrollZWho;
-int   inScrollZNotify;
-int   inScrollZLinks;
-int   inScrollZFKill;
-int   inScrollZNickCompl;
-int   inScrollZTrace;
+int   inSZNotify;
+int   inSZLinks;
+int   inSZFKill;
+int   inSZNickCompl;
+int   inSZTrace;
 int   ExtMes;
 int   NHProt;
 int   NHDisp;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.43 2000-08-22 17:19:17 f Exp $
+ * $Id: edit.c,v 1.44 2000-08-27 18:01:56 f Exp $
  */
 
 #include "irc.h"
@@ -2437,13 +2437,13 @@ send_comm(command, args, subargs)
             if (!my_stricmp(command,"LINKS")) {
                 time_t timenow=time((time_t *) 0);
 
-                if (timenow-LastLinks<120 && inScrollZLinks) {
+                if (timenow-LastLinks<120 && inSZLinks) {
                     say("Wait till previous LINKS, LLOOK, LLOOKUP or MAP completes");
                     return;
                 }
                 LastLinks=timenow;
                 LinksNumber=0;
-                inScrollZLinks=3;
+                inSZLinks=3;
             }
             else if (!my_stricmp(command,"STATS")) {
 #ifdef OPER

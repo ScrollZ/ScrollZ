@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.17 2000-08-09 19:31:20 f Exp $
+ * $Id: myvars.h,v 1.18 2000-08-27 18:01:56 f Exp $
  */
 
 #include "mystructs.h"
@@ -180,14 +180,11 @@ extern char   *ForceJoinChannels;
 extern char   *PermUserMode;
 extern char   *AutoReplyString;
 extern int    usersloaded;
-extern int    unban;
-extern int    inScrollZWI;
-extern int    inScrollZWho;
-extern int    inScrollZNotify;
-extern int    inScrollZLinks;
-extern int    inScrollZFKill;
-extern int    inScrollZNickCompl;
-extern int    inScrollZTrace;
+extern int    inSZNotify;
+extern int    inSZLinks;
+extern int    inSZFKill;
+extern int    inSZNickCompl;
+extern int    inSZTrace;
 extern int    ExtMes;
 extern int    NHProt;
 extern int    NHDisp;
