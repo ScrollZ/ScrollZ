@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.34 2002-01-24 19:59:04 f Exp $
+ * $Id: names.c,v 1.35 2002-01-29 16:37:26 f Exp $
  */
 
 #include "irc.h"
@@ -588,7 +588,7 @@ recreate_mode(chan)
 		*s++ = ' ';
 /**************************** Patched by Flier ******************************/
 		/*strcpy(s, chan->key);*/
-		strmcpy(s, chan->key, sizeof(buffer));
+		strmcpy(s, chan->key, sizeof(buffer) - (s - buffer));
 /****************************************************************************/
 		s += strlen(chan->key);
 	}
