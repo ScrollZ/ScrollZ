@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.12 2001-03-02 18:57:25 f Exp $
+ * $Id: output.c,v 1.13 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -247,7 +247,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	va_list vl;
 #endif /* HAVE_STDARG_H */
 /**************************** PATCHED by Flier ******************************/
-        char stampbuf[mybufsize/16];
+        char stampbuf[mybufsize/64];
 /****************************************************************************/
 
 	if (window_display)
@@ -257,14 +257,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 
 /**************************** PATCHED by Flier ******************************/
                 if (Stamp==2) {
-#ifdef WANTANSI
-                    sprintf(stampbuf,"%s(%s%s%s)%s",
-                            CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                            update_clock(0,0,GET_TIME),
-                            CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                    sprintf(stampbuf,"(%s)",update_clock(0,0,GET_TIME));
-#endif
+                    sprintf(stampbuf,"%s",update_clock(0,0,GET_TIME));
                     malloc_strcpy(&fmt,stampbuf);
                     malloc_strcat(&fmt," ");
                 }

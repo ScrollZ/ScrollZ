@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.64 2001-08-14 18:00:37 f Exp $
+ * $Id: edit.c,v 1.65 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -2793,19 +2793,10 @@ send_text(org_nick, line, command)
         char    thing;
         char    *mynick=get_server_nickname(from_server);
         char    tmpbuf[mybufsize+1];
-        char stampbuf[mybufsize/16];
+        char    stampbuf[mybufsize/64];
 
         *stampbuf='\0';
-        if (Stamp==2) {
-#ifdef WANTANSI
-            sprintf(stampbuf,"%s(%s%s%s)%s ",
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                    update_clock(0,0,GET_TIME),
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-        }
+        if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
         else thing='-';
 /****************************************************************************/
@@ -4397,19 +4388,10 @@ describe(command, args, subargs)
 			/*put_it("* -> %s: %s %s", target,
 				get_server_nickname(from_server), message);*/
                 {
-                    char stampbuf[mybufsize/16];
+                    char stampbuf[mybufsize/64];
 
                     *stampbuf='\0';
-                    if (Stamp==2) {
-#ifdef WANTANSI
-                        sprintf(stampbuf,"%s(%s%s%s)%s ",
-                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                                update_clock(0,0,GET_TIME),
-                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-                    }
+                    if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
                     if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target)) {
 #ifdef WANTANSI
                         char *tmpstr=(char *) 0;
@@ -4511,19 +4493,10 @@ me(command, args, subargs)
 #ifdef WANTANSI
                             char *tmpstr=(char *) 0;
 #endif
-                            char stampbuf[mybufsize/16];
+                            char stampbuf[mybufsize/64];
 
                             *stampbuf='\0';
-                            if (Stamp==2) {
-#ifdef WANTANSI
-                                sprintf(stampbuf,"%s(%s%s%s)%s ",
-                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                                        update_clock(0,0,GET_TIME),
-                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-                            }
+                            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 #ifdef WANTANSI
                             malloc_strcpy(&tmpstr,stampbuf);
                             malloc_strcat(&tmpstr,CmdsColors[COLME].color1);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.21 2001-06-12 16:28:41 f Exp $
+ * $Id: notice.c,v 1.22 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -253,19 +253,10 @@ parse_notice(from, Args)
 		not_from_server = 1;
 	char	*line;
 /**************************** Patched by Flier ******************************/
-        char stampbuf[mybufsize/16];
+        char stampbuf[mybufsize/64];
 
         *stampbuf='\0';
-        if (Stamp==2) {
-#ifdef WANTANSI
-            sprintf(stampbuf,"%s(%s%s%s)%s ",
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                    update_clock(0,0,GET_TIME),
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-        }
+        if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 /****************************************************************************/
 	PasteArgs(Args, 1);
 	to = Args[0];

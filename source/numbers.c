@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.39 2001-08-06 19:18:33 f Exp $
+ * $Id: numbers.c,v 1.40 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -139,18 +139,8 @@ numeric_banner()
 /************************* PATCHED by Flier ***************************/
 		/*strcpy(thing, "***");*/
         {
-            if (Stamp==2) {
-#ifdef WANTANSI
-                sprintf(thing,"%s(%s%s%s)%s",
-                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                        update_clock(0,0,GET_TIME),
-                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                sprintf(thing,"(%s)",update_clock(0,0,GET_TIME));
-#endif
-            }
-            else if (ScrollZstr && *ScrollZstr)
-                strcpy(thing,ScrollZstr);
+            if (Stamp==2) sprintf(thing,"%s",update_clock(0,0,GET_TIME));
+            else if (ScrollZstr && *ScrollZstr) strcpy(thing,ScrollZstr);
             else *thing='\0';
         }
 /**********************************************************************/

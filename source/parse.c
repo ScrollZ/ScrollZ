@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.41 2001-07-21 18:58:45 f Exp $
+ * $Id: parse.c,v 1.42 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -756,19 +756,10 @@ p_privmsg(from, Args)
 /**************************** Patched by Flier ******************************/
                         {
 			    /*put_it("%s-%s:%s-%s %s", high, from, to, high, ptr);*/
-                            char stampbuf[mybufsize/16];
+                            char stampbuf[mybufsize/64];
 
                             *stampbuf='\0';
-                            if (Stamp==2) {
-#ifdef WANTANSI
-                                sprintf(stampbuf,"%s(%s%s%s)%s ",
-                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                                        update_clock(0,0,GET_TIME),
-                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-                            }
+                            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 			    put_it("%s-%s:%s- %s",stampbuf,from,to,ptr);
                         }
 /****************************************************************************/

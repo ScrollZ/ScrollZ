@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.69 2001-08-16 16:46:47 f Exp $
+ * $Id: edit4.c,v 1.70 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -188,19 +188,10 @@ int  iscrypted;
 #endif
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
-    char stampbuf[mybufsize/16];
+    char stampbuf[mybufsize/64];
 
     *stampbuf='\0';
-    if (Stamp==2) {
-#ifdef WANTANSI
-        sprintf(stampbuf,"%s(%s%s%s)%s ",
-                CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                update_clock(0,0,GET_TIME),
-                CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-    }
+    if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
     if (!(userhost && *userhost)) userhost=(char *) 0;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
     else thing='*';
@@ -1016,19 +1007,10 @@ char *to;
        ) {
         if (foundchan || (!foundchan && !print)) hooked=0;
         if (print) {
-            char stampbuf[mybufsize/16];
+            char stampbuf[mybufsize/64];
 
             *stampbuf='\0';
-            if (Stamp==2) {
-#ifdef WANTANSI
-                sprintf(stampbuf,"%s(%s%s%s)%s ",
-                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                        update_clock(0,0,GET_TIME),
-                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-            }
+            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 #ifdef WANTANSI
 #ifdef CELECOSM
             if (ExtMes && userhost)

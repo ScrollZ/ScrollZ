@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.66 2001-08-02 18:43:18 f Exp $
+ * $Id: edit5.c,v 1.67 2001-08-21 19:23:36 f Exp $
  */
 
 #include "irc.h"
@@ -1321,7 +1321,7 @@ int  iscrypted;
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
 #endif
-    char stampbuf[mybufsize/16];
+    char stampbuf[mybufsize/64];
 #ifdef WANTANSI
     Window *oldwin;
 #endif
@@ -1337,15 +1337,7 @@ int  iscrypted;
     *stampbuf='\0';
     if (chan) {
         chan->pub++;
-        if (Stamp) {
-#ifdef WANTANSI
-            sprintf(stampbuf,"%s(%s%s%s)%s ",
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],update_clock(0,0,GET_TIME),
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-#else
-            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
-#endif
-        }
+        if (Stamp) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
     }
     joiner=CheckJoiners(nick,channel,from_server,chan);
     if (joiner) {
