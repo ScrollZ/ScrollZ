@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.48 2001-09-25 16:40:47 f Exp $
+ * $Id: parse.c,v 1.49 2001-10-01 18:37:14 f Exp $
  */
 
 #include "irc.h"
@@ -745,7 +745,14 @@ p_privmsg(from, Args)
 		{
 		case PUBLIC_MSG_LIST:
 			if (no_flood && do_hook(list_type, "%s %s %s", from, to, ptr))
-			    put_it("%s(%s/%s)%s %s", high, from, to, high, ptr);
+/**************************** Patched by Flier ******************************/
+                        {
+			    /*put_it("%s(%s/%s)%s %s", high, from, to, high, ptr);*/
+                            char *stampbuf=TimeStamp(2);
+
+			    put_it("%s%s(%s/%s)%s %s",stampbuf,high,from,to,high,ptr);
+                        }
+/****************************************************************************/
 			break;
 		case MSG_GROUP_LIST:
 /**************************** Patched by Flier ******************************/
