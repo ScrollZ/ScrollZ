@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.2 1998-09-10 17:44:33 f Exp $
+ * $Id: cdcc.c,v 1.3 1998-09-21 17:38:22 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1959,7 +1959,8 @@ char *line;
         sprintf(tmpbuf,"%sCdcc%s %sadded%s %s%d%s file%s (",
                 CmdsColors[COLCDCC].color4,Colors[COLOFF],
                 CmdsColors[COLCDCC].color3,Colors[COLOFF],
-                CmdsColors[COLCDCC].color5,count,Colors[COLOFF],count==1?empty_string:"s");
+                CmdsColors[COLCDCC].color5,count,Colors[COLOFF],
+                count==1?empty_string:"s");
 #else
         sprintf(tmpbuf,"Added %d file%s (",count,count==1?empty_string:"s");
 #endif
@@ -1975,8 +1976,12 @@ char *line;
 #endif
                 strcat(tmpbuf,")");
             }
+            if (strlen(tmpbuf)>mybufsize*2-mybufsize/4) {
+                say("%s",tmpbuf);
+                *tmpbuf='\0';
+            }
         }
-        say("%s",tmpbuf);
+        if (*tmpbuf) say("%s",tmpbuf);
     }
     else {
         say("No files found, aborting...");
