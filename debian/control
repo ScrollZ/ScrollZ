@@ -1,0 +1,17 @@
+Source: scrollz
+Section: net
+Priority: optional
+Maintainer: Flier <flier@scrollz.com>
+Standards-Version: 3.1.0
+Build-Depends: libncurses5-dev
+
+Package: scrollz
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: IRC client based on ircII. 
+ It adds numerous additions to already powerfull
+ client (userlist, shitlist, colors, enhanced scripting
+ and more). It also features Cdcc which is built
+ on top of DCC but with more features. ScrollZ can be
+ used without scripts but there are some very good
+ scripts available for it.

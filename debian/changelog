@@ -1,0 +1,11 @@
+scrollz (1.8k-1) stable; urgency=low
+
+  * Initial Release:
+    first ScrollZ Debian package
+
+ -- Flier <flier@scrollz.com>  Wed, 9 May 2001 20:36:32 +0200
+
+Local variables:
+mode: debian-changelog
+add-log-mailing-address: "flier@scrollz.org"
+End:
