@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.61 2002-05-28 15:16:17 f Exp $
+ * $Id: numbers.c,v 1.62 2002-05-28 15:26:32 f Exp $
  */
 
 #include "irc.h"
@@ -126,8 +126,8 @@ static	void	invite _((char *, char **));
 
 static	int	already_doing_reset_nickname = 0;
 /**************************** Patched by Flier ******************************/
-static  int     SentNick = 0;
-static  char    *OldNick = NULL;
+int SentNick = 0;
+char *OldNick = NULL;
 /****************************************************************************/
 
 /*
@@ -594,6 +594,7 @@ reset_nickname(from, ArgList)
 	if (already_doing_reset_nickname)
 		return;
 	s = next_arg(*ArgList, ArgList);
+        put_it("[%s] [%s] %d",s,get_server_nickname(from_server),SentNick);
 	if (my_stricmp(s, get_server_nickname(from_server)) == 0)
         {
 /**************************** Patched by Flier ******************************/
@@ -605,8 +606,8 @@ reset_nickname(from, ArgList)
                     set_server_nickname(parsing_server_index, OldNick);
                     SentNick = 0;
                 }
+		/*return;*/
 /****************************************************************************/
-		return;
         }
 
 /**************************** Patched by Flier ******************************/
