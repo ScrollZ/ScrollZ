@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.68 2001-08-05 16:00:22 f Exp $
+ * $Id: edit4.c,v 1.69 2001-08-16 16:46:47 f Exp $
  */
 
 #include "irc.h"
@@ -759,7 +759,10 @@ ChannelList *chan;
 }
 
 /* Handles tab key */
-void HandleTabNext() {
+void HandleTabNext(key,ptr)
+u_int key;
+char *ptr;
+{
     int  i;
     int  len;
     int  curserv=from_server;
@@ -780,36 +783,20 @@ void HandleTabNext() {
     minpos=&(curscr->input_buffer[curscr->buffer_min_pos]);
     curpos=&(curscr->input_buffer[curscr->buffer_pos]);
     tmpstr=minpos;
-    /* On empty line do msg tabkey. */
+    /* on empty line do msg tabkey. */
     if (!(*tmpstr)) domsgtab=1;
-    /* On /msg nick do msg tabkey, on /msg nick text do not */
+    /* on /msg nick do msg tabkey */
     if (!my_strnicmp(tmpstr,"/msg ",5)) {
-        int state=0; /* 0=space 1=non-space */
-        int numwords=0;
-        tmpstr+=4;
-        /* count number of words spaces */
-        while (tmpstr<curpos) {
-            switch (state) {
-                case 0:
-                    if (!isspace(*tmpstr)) {
-                        state=1;
-                        numwords++;
-                    }
-                    break;
-                case 1:
-                    if (isspace(*tmpstr)) state=0;
-                    break;
-            }
-            tmpstr++;
-        }
-        if (numwords<2) domsgtab=1;
+        /* if this is not tab (key=9 as in ctrl-i) handle it in the
+           new tabkey fashion (complete nick before cursor) */
+        if (key==9) domsgtab=1;
     }
     if (!domsgtab) {
-        /* Locate what string to complete. */
+        /* locate what string to complete. */
         tmpstr=curpos;
         len=0;
-        /* Start one position left from the cursor and walk left until
-           we see separator or we reach beginning of input line. */
+        /* start one position left from the cursor and walk left until
+           we see separator or we reach beginning of input line */
         tmpstr--;
         while (!isspace(*tmpstr) && tmpstr>=minpos) {
             tmpstr--;
@@ -817,18 +804,16 @@ void HandleTabNext() {
         }
         tmpstr++;
         if (len>mybufsize/8) len=mybufsize/8;
-        /* Store string we will attempt to complete. */
+        /* store string we will attempt to complete */
         strmcpy(tmpbuf,tmpstr,len);
         tmpstr=tmpbuf;
-    }
-    if (!domsgtab) {
         if (*tmpstr) {
-            /* Complete channel name. */
+            /* complete channel name */
             if (is_channel(tmpstr)) {
                 chan=server_list[curr_scr_win->server].chan_list;
                 while (chan && my_strnicmp(tmpbuf,chan->channel,len)) chan=chan->next;
                 if (chan && !my_strnicmp(tmpbuf,chan->channel,len)) {
-                    /* Insert channel name. */
+                    /* insert channel name */
                     for (i=0;i<len;i++) input_backspace(' ',NULL);
                     for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
                         input_add_character(*tmpstr,NULL);
@@ -841,36 +826,36 @@ void HandleTabNext() {
 
                 chan=server_list[curr_scr_win->server].chan_list;
                 for (;chan;chan=chan->next) numchannels++;
-                /* Check if entry in input line is still valid. */
+                /* check if entry in input line is still valid */
                 if (!tabnickcompl || (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick)))) {
                     new_free(&tabnick);
                     new_free(&oldtabnick);
                     tabnickcompl=NULL;
                     origchan=NULL;
                 }
-                /* Walk through all channels but first verify the stored
+                /* walk through all channels but first verify the stored
                    channel exists so we don't get core dumps when accessing
-                   already freed memory. */
+                   already freed memory */
 restart:
                 if (origchan && !ChannelExists(origchan)) origchan=NULL;
                 if (origchan) chan=origchan;
                 else {
-                    /* If we have current channel start there (only on the
+                    /* if we have current channel start there (only on the
                        first run through the loop) else start with first
-                       channel on this server. */
+                       channel on this server */
                     if (!sameloop && (channel=get_channel_by_refnum(0))) {
                         chan=lookup_channel(channel,from_server,0);
                         if (!chan) chan=server_list[from_server].chan_list;
                     }
                     else chan=server_list[from_server].chan_list;
                 }
-                /* If chan is NULL there are no channels to examine.
+                /* if chan is NULL there are no channels to examine.
                    If we passed more than once through the loop return because
-                   we exhausted all the channels. */
+                   we exhausted all the channels */
                 if (!chan || sameloop>numchannels) return;
                 for (;chan;) {
-                    /* Walk through all matching nicks for given channel.
-                       If we exchausted current channel check next one. */
+                    /* walk through all matching nicks for given channel.
+                       If we exchausted current channel check next one */
                     if (!sameloop && tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
                         len=strlen(tabnick);
@@ -892,7 +877,7 @@ restart:
                             chan=server_list[from_server].chan_list;
                         else {
                             chan=chan->next;
-                            /* If we exhausted all channels start from beginning. */
+                            /* if we exhausted all channels start from beginning */
                             if (!chan) {
                                 origchan=NULL;
                                 goto restart;
@@ -904,7 +889,7 @@ restart:
                     nicklen=strlen(tabnick);
                     if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
                         /* oldtabnick holds old nick we used in previous attempt
-                           else it is first attempt at completion. */
+                           else it is first attempt at completion */
                         if (oldtabnick) len=strlen(oldtabnick);
                         else len=nicklen;
                         for (i=0;i<len;i++) input_backspace(' ',NULL);
