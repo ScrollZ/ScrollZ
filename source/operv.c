@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.54 2003-05-02 16:07:12 f Exp $
+ * $Id: operv.c,v 1.55 2003-05-02 16:20:10 f Exp $
  */
 
 #include "irc.h"
@@ -1059,7 +1059,7 @@ char *from;
         }
 #ifdef OGRE
         snprintf(tmpbuf,sizeof(tmpbuf),"[      %soper%s] FAILED: %s%s%s %s %s",
-                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word1,Colors[COLOFF],OVuh(word2),word3);
 #else
 	snprintf(tmpbuf,sizeof(tmpbuf),"Failed OPER attempt: %s%s%s %s %s",
@@ -1071,7 +1071,7 @@ char *from;
 	strcpy(word2,OVgetword(0,8,tmpline));  /* user@host */
 #ifdef OGRE
         snprintf(tmpbuf,sizeof(tmpbuf),"[      %soper%s] FAILED: %s%s%s %s",
-                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word1,Colors[COLOFF],OVuh(word2));
 #else
 	snprintf(tmpbuf,sizeof(tmpbuf),"Failed OPER attempt: %s%s%s %s",
@@ -1282,7 +1282,7 @@ char *from;
                 *operstr?"(":"",operstr,operstr?")":"");
 #elif defined(OGRE)
         snprintf(tmpbuf,sizeof(tmpbuf),"[      %soper%s] %s%s%s %s is now a %s oper",
-                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 operstr);
 #else
