@@ -63,7 +63,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.88 2001-08-27 16:45:28 f Exp $
+ * $Id: edit6.c,v 1.89 2001-08-27 17:05:04 f Exp $
  */
 
 #include "irc.h"
@@ -2737,7 +2737,6 @@ char *subargs;
                     }
                 }
             }
-            if (first) say("No channels are topic locked");
             break;
     }
 }
@@ -2753,8 +2752,10 @@ ChannelList *tmpchan;
 
     if (!tmpchan) chan=lookup_channel(channel,server,0);
     else chan=tmpchan;
-    if (!chan->topicstr) changeit=1;
-    else if (chan->topiclock && strcmp(chan->topicstr,chan->topiclock)) changeit=1;
-    if (changeit && HAS_OPS(chan->status)) send_to_server("TOPIC %s :%s",channel,chan->topiclock);
+    if (chan->topiclock) {
+        if (!chan->topicstr) changeit=1;
+        else if (strcmp(chan->topicstr,chan->topiclock)) changeit=1;
+        if (changeit && HAS_OPS(chan->status)) send_to_server("TOPIC %s :%s",channel,chan->topiclock);
+    }
 }
 #endif
