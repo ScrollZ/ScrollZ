@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.29 1999-09-05 08:45:22 f Exp $
+ * $Id: edit.c,v 1.30 1999-09-30 19:33:51 f Exp $
  */
 
 #include "irc.h"
@@ -4102,6 +4102,7 @@ describe(command, args, subargs)
 	char	*target;
 /**************************** PATCHED by Flier ******************************/
         char    thing;
+        char    *curchan;
 #ifdef WANTANSI
         char    tmpbuf[mybufsize/2];
 #endif
@@ -4133,8 +4134,7 @@ describe(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 			/*put_it("* -> %s: %s %s", target,
 				get_server_nickname(from_server), message);*/
-                    if (get_channel_by_refnum(0) &&
-                        !my_stricmp(get_channel_by_refnum(0),target))
+                    if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target))
 #ifdef WANTANSI
                         put_it("%s%c%s %s%s%s %s%s%s",
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
