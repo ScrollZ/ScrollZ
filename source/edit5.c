@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.3 1998-09-16 20:11:25 f Exp $
+ * $Id: edit5.c,v 1.4 1998-10-10 19:26:51 f Exp $
  */
 
 #include "irc.h"
@@ -1268,7 +1268,7 @@ int  print;
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
 #endif
-    char stampbuf[mybufsize/32];
+    char stampbuf[mybufsize/16];
 #undef STEFY
 #ifdef STEFY
     Window *old;
