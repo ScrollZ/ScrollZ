@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.87 2002-01-25 17:34:48 f Exp $
+ * $Id: edit5.c,v 1.88 2002-01-28 16:23:59 f Exp $
  */
 
 #include "irc.h"
@@ -165,7 +165,7 @@ extern char *function_country _((char *));
 #endif
 
 extern void dcc_chat _((char *));
-extern void reset_nickname _((void));
+extern void reset_nickname _((char *, char **));
 extern void nickname_sendline _((char *, char *));
 extern char *function_match _((char *));
 
@@ -2207,59 +2207,61 @@ char *nick;
     int nicklen;
     char *tmpstr;
     char *newnick;
-    char tmpbuf[mybufsize/8+1];
-    char nickbuf[mybufsize/8+1];
-    static int  fudge_index=0;
-    static char oldnick[mybufsize/8+1]={0};
+    char tmpbuf[mybufsize / 8 + 1];
+    char nickbuf[mybufsize / 8 + 1];
+    static int  fudge_index = 0;
+    static char oldnick[mybufsize / 8 + 1] = {0};
 
-    strmcpy(tmpbuf,nick,mybufsize/8);
-    tmpstr=tmpbuf;
-    newnick=new_next_arg(tmpstr,&tmpstr);
-    strmcpy(nickbuf,newnick,sizeof(nickbuf));
+    strmcpy(tmpbuf, nick, sizeof(tmpbuf));
+    tmpstr = tmpbuf;
+    newnick = new_next_arg(tmpstr, &tmpstr);
+    strmcpy(nickbuf, newnick, sizeof(nickbuf));
     if (!(*oldnick)) {
-        strmcpy(oldnick,nickbuf,mybufsize/8);
-        fudge_index=strlen(nickbuf);
+        strmcpy(oldnick, nickbuf, sizeof(oldnick));
+        fudge_index = strlen(nickbuf);
     }
     else {
         /* Same nick as the last one we convoluted? */
-        if (!my_stricmp(oldnick,nickbuf)) {
+        if (!my_stricmp(oldnick, nickbuf)) {
             fudge_index++;
-            if (fudge_index==17) {
-                reset_nickname();
-                fudge_index=0;
+            if (fudge_index == 17) {
+                char *arglist = NULL;
+
+                reset_nickname(NULL, &arglist);
+                fudge_index = 0;
                 return;
             }
         }
         else {
-            strmcpy(oldnick,nickbuf,sizeof(oldnick));
-            fudge_index=strlen(nickbuf);
+            strmcpy(oldnick, nickbuf, sizeof(oldnick));
+            fudge_index = strlen(nickbuf);
         }
     }
-    if ((nicklen=strlen(nickbuf))<9) strmcat(nickbuf,"_",sizeof(nickbuf));
+    if ((nicklen = strlen(nickbuf)) < 9) strmcat(nickbuf, "_", sizeof(nickbuf));
     else {
         char tmp;
 
-        strmcpy(tmpbuf,nickbuf,mybufsize/8);
-        tmp=tmpbuf[8];
-        tmpbuf[8]=tmpbuf[7];
-        tmpbuf[7]=tmpbuf[6];
-        tmpbuf[6]=tmpbuf[5];
-        tmpbuf[5]=tmpbuf[4];
-        tmpbuf[4]=tmpbuf[3];
-        tmpbuf[3]=tmpbuf[2];
-        tmpbuf[2]=tmpbuf[1];
-        tmpbuf[1]=tmpbuf[0];
-        tmpbuf[0]=tmp;
+        strmcpy(tmpbuf, nickbuf, sizeof(tmpbuf));
+        tmp = tmpbuf[8];
+        tmpbuf[8] = tmpbuf[7];
+        tmpbuf[7] = tmpbuf[6];
+        tmpbuf[6] = tmpbuf[5];
+        tmpbuf[5] = tmpbuf[4];
+        tmpbuf[4] = tmpbuf[3];
+        tmpbuf[3] = tmpbuf[2];
+        tmpbuf[2] = tmpbuf[1];
+        tmpbuf[1] = tmpbuf[0];
+        tmpbuf[0] = tmp;
         /* be smart about this -> don't create illegal nick */
-        if (check_nickname(tmpbuf)) strmcpy(nickbuf,tmpbuf,sizeof(nickbuf));
+        if (check_nickname(tmpbuf)) strmcpy(nickbuf, tmpbuf, sizeof(nickbuf));
         else {
-            srand(time((time_t *) 0));
-            nickbuf[rand()%nicklen]='_';
+            srand(time(NULL));
+            nickbuf[rand() % nicklen] = '_';
         }
     }
-    snprintf(tmpbuf,sizeof(tmpbuf),"%d",parsing_server_index);
-    strmcpy(oldnick,nickbuf,sizeof(nickbuf));
-    nickname_sendline(tmpbuf,nickbuf);
+    snprintf(tmpbuf, sizeof(tmpbuf), "%d", parsing_server_index);
+    strmcpy(oldnick, nickbuf, sizeof(nickbuf));
+    nickname_sendline(tmpbuf, nickbuf);
 }
 
 /* Colored chat */
