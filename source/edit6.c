@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.33 1999-05-12 18:09:17 f Exp $
+ * $Id: edit6.c,v 1.34 1999-05-23 08:43:10 f Exp $
  */
 
 #include "irc.h"
@@ -1964,6 +1964,8 @@ char *subargs;
     int  mins;
     int  secs;
     int  origidle;
+    int  chanusers=0;
+    int  totalidle=0;
     char *filter=(char *) 0;
     char *channel=(char *) 0;
     char tmpbuf1[mybufsize/4];
@@ -1983,10 +1985,7 @@ char *subargs;
         return;
     }
     if (!(chan=lookup_channel(channel,curr_scr_win->server,0))) return;
-    if (!(chan->IdleKick)) {
-        say("Idle kick is off for channel %s",chan->channel);
-        return;
-    }
+    if (!(chan->IdleKick)) say("Idle kick is off for channel %s",chan->channel);
     if (!(filter=new_next_arg(args,&args))) filter="*";
     say("%-42s  Idle time","User");
     for (joiner=chan->nicks;joiner;joiner=joiner->next) {
@@ -2012,7 +2011,11 @@ char *subargs;
 #else
         say("%-42s  %dd %dh %dm %ds",tmpbuf2,days,hours,mins,secs);
 #endif
+        chanusers++;
+        totalidle+=origidle;
     }
+    say("Average idle time in channel %s is %.2f seconds",chan->channel,
+        (float) totalidle/chanusers);
 }
 #endif
 
