@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.42 2000-08-21 18:41:40 f Exp $
+ * $Id: edit.c,v 1.43 2000-08-22 17:19:17 f Exp $
  */
 
 #include "irc.h"
@@ -4151,7 +4151,7 @@ cd(command, args, subargs)
 		else
 			say("CD: No such user");
 	}
-	getcwd(lbuf, BIG_BUFFER_SIZE+1);
+	getcwd(lbuf, BIG_BUFFER_SIZE);
 	say("Current directory: %s", lbuf);
 }
 
