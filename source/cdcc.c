@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.11 1998-11-16 17:45:10 f Exp $
+ * $Id: cdcc.c,v 1.12 1999-01-11 18:50:49 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2835,6 +2835,21 @@ int removed;
         new_free(&(tmp->file));
         new_free(&tmp);
         tmp=queuelist;
+    }
+}
+
+/**********************************************************************
+* CdccQueueNickChange:   Handle nick change                           *
+***********************************************************************/
+void CdccQueueNickChange(oldnick,newnick)
+char *oldnick;
+char *newnick;
+{
+    FileQueue *tmp=queuelist;
+
+    for (tmp=queuelist;tmp;tmp=tmp->next) {
+        if (tmp->server!=from_server) continue;
+        if (!my_stricmp(tmp->nick,oldnick)) malloc_strcpy(&(tmp->nick),newnick);
     }
 }
 
