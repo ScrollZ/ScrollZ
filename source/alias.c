@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.30 2002-02-25 17:47:08 f Exp $
+ * $Id: alias.c,v 1.31 2002-03-05 18:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -4829,6 +4829,9 @@ u_char *input;
         { "CHANLOGDEST"    , 2, NULL             , &ChanLogDir            },
         { "CHANLOGPREFIX"  , 2, NULL             , &ChanLogPrefix         },
         { "CHANLOGPOST"    , 2, NULL             , &ChanLogPostfix        },
+#ifdef EXTRAS
+        { "NICKCHAN"       , 1, &ShowNickAllChan , NULL                   },
+#endif
         { NULL             , 0, NULL             , NULL                   }
     };
 

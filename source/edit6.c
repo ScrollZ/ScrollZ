@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.133 2002-03-03 11:03:23 f Exp $
+ * $Id: edit6.c,v 1.134 2002-03-05 18:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -991,32 +991,35 @@ char *subargs;
         int  *var;
         char *setting;
     } command_list[]= {
-        { "AUTOGET"     , &AutoGet        , "Cdcc auto-get" },
-        { "EGO"         , &Ego            , "Ego" },
-        { "EXTMES"      , &ExtMes         , "Extended messages display" },
-        { "EXTPUB"      , &ExtPub         , "Extended public messages display" },
-        { "LOGON"       , &LogOn          , "Logging if not away" },
-        { "LONGSTATUS"  , &LongStatus     , "Cdcc long status" },
+        { "AUTOGET"     , &AutoGet         , "Cdcc auto-get" },
+        { "EGO"         , &Ego             , "Ego" },
+        { "EXTMES"      , &ExtMes          , "Extended messages display" },
+        { "EXTPUB"      , &ExtPub          , "Extended public messages display" },
+        { "LOGON"       , &LogOn           , "Logging if not away" },
+        { "LONGSTATUS"  , &LongStatus      , "Cdcc long status" },
 #ifdef EXTRA_STUFF
-        { "M"           , &RenameFiles    , "Cdcc M" },
+        { "M"           , &RenameFiles     , "Cdcc M" },
 #endif
 #ifdef WANTANSI
-        { "MIRC"        , &DisplaymIRC    , "Convert mIRC colors to ANSI" },
+        { "MIRC"        , &DisplaymIRC     , "Convert mIRC colors to ANSI" },
 #endif
-        { "OVERWRITE"   , &CdccOverWrite  , "Cdcc overwrite" },
-        { "SECURE"      , &Security       , "Cdcc security" },
-        { "SERVNOTICE"  , &ServerNotice   , "Server notices display" },
-        { "SHOWNICK"    , &ShowNick       , "Showing nick on public messages" },
-        { "STAMP"       , &Stamp          , "Time stamp events" },
-        { "STATS"       , &CdccStats      , "Cdcc stats in plist" },
-        { "STATUS"      , &ShowDCCStatus  , "Cdcc showing on status bar" },
-        { "VERBOSE"     , &CdccVerbose    , "Cdcc verbose mode" },
-        { "WARNING"     , &DCCWarning     , "Check incoming DCCs" },
 #ifdef EXTRAS
-        { "SHOWSIGN"    , &ShowSignAllChan, "Show signoff message in all channels" },
+        { "NICKCHAN"    , &ShowNickAllChan , "Show nick change in all channels" },
 #endif
-        { "SHOWWALLOP"  , &ShowWallop,      "Show included/excluded nicks with wallops" },
-        { NULL          , NULL            , NULL }
+        { "OVERWRITE"   , &CdccOverWrite   , "Cdcc overwrite" },
+        { "SECURE"      , &Security        , "Cdcc security" },
+        { "SERVNOTICE"  , &ServerNotice    , "Server notices display" },
+        { "SHOWNICK"    , &ShowNick        , "Showing nick on public messages" },
+        { "STAMP"       , &Stamp           , "Time stamp events" },
+        { "STATS"       , &CdccStats       , "Cdcc stats in plist" },
+        { "STATUS"      , &ShowDCCStatus   , "Cdcc showing on status bar" },
+        { "VERBOSE"     , &CdccVerbose     , "Cdcc verbose mode" },
+        { "WARNING"     , &DCCWarning      , "Check incoming DCCs" },
+#ifdef EXTRAS
+        { "SHOWSIGN"    , &ShowSignAllChan , "Show signoff message in all channels" },
+#endif
+        { "SHOWWALLOP"  , &ShowWallop      , "Show included/excluded nicks with wallops" },
+        { NULL          , NULL             , NULL }
     };
 
     upper(command);

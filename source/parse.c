@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.62 2002-03-04 18:01:41 f Exp $
+ * $Id: parse.c,v 1.63 2002-03-05 18:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -108,6 +108,14 @@ extern void e_channel _((char *, char *, char *));
 extern struct timeval PingSent;
 #else
 extern time_t PingSent;
+#endif
+
+#ifdef EXTRAS
+typedef struct winlist_str Winlist;
+struct winlist_str {
+    Winlist *next;
+    Window *window;
+};
 #endif
 
 static int    NumberMessages=0;
@@ -928,11 +936,6 @@ p_quit(from, ArgList)
 #endif
         NickList *joiner;
 #ifdef EXTRAS
-        typedef struct winlist_str Winlist;
-        struct winlist_str {
-            Winlist *next;
-            Window *window;
-        };
         Winlist *winlist=NULL,*winelem;
 #endif
 /****************************************************************************/
@@ -1453,7 +1456,7 @@ p_nick(from, ArgList)
 		set_server_nickname(parsing_server_index, line);
 		its_me = 1;
 /**************************** Patched by Flier ******************************/
-                OrigNickSent=0;
+                OrigNickSent = 0;
 /****************************************************************************/
 	}
  	save_message_from();
@@ -1473,19 +1476,69 @@ p_nick(from, ArgList)
 			else
 				message_from(what_channel(from, parsing_server_index), LOG_CRAP);
 /**************************** PATCHED by Flier *****************************/
-                        HandleNickChange(from,line,FromUserHost,from_server);
+                        HandleNickChange(from, line, FromUserHost, parsing_server_index);
 /***************************************************************************/
 			if (do_hook(NICKNAME_LIST, "%s %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 				/*say("%s is now known as %s", from, line);*/
+                        {
+#ifdef EXTRAS
+                            int showed = 0;
+                            char chanbuf[mybufsize / 4 + 1];
+                            Window *oldto_window;
+                            Winlist *winlist = NULL, *winelem;
+                            NickList *joiner;
+                            ChannelList *chan;
+
+                            *chanbuf = '\0';
+                            oldto_window = to_window;
+                            chan = server_list[parsing_server_index].chan_list;
+                            for (;chan; chan=chan->next) {
+                                joiner = CheckJoiners(from, chan->channel, parsing_server_index, chan);
+                                /* only if user was on a channel */
+                                if (ShowNickAllChan && joiner) {
+                                    /* major pain in the ass: if we have several channels in
+                                     * one window we have to display nick change only once in
+                                     * that window so we have to know which windows have
+                                     * already displayed signoff - we use window pointer */
+                                    if (!list_lookup_ext((List **) &winlist,(char *) chan->window,
+                                                !USE_WILDCARDS, !REMOVE_FROM_LIST, CompareAddr)) {
+                                        winelem = (Winlist *) malloc(sizeof(Winlist));
+                                        winelem->window = chan->window;
+                                        winelem->next = NULL;
+                                        add_to_list_ext((List **) &winlist, (List *) winelem,
+                                                (int (*) _((List *, List *))) AddLast);
+                                    }
+                                }
+                            }
+                            for (winelem = winlist; ;) {
+                                if (winelem) to_window = winelem->window;
+                                else if (showed) break;
+                                showed = 1;
+#endif /* EXTRAS */
 #ifdef WANTANSI
-                            say("%s%s%s is now %sknown%s as %s%s%s",
-                                CmdsColors[COLNICK].color1,from,Colors[COLOFF],
-                                CmdsColors[COLNICK].color2,Colors[COLOFF],
-                                CmdsColors[COLNICK].color3,line,Colors[COLOFF]);
-#else
-                            say("%s is now known as %s", from, line);
-#endif
+                                say("%s%s%s is now %sknown%s as %s%s%s",
+                                        CmdsColors[COLNICK].color1, from, Colors[COLOFF],
+                                        CmdsColors[COLNICK].color2, Colors[COLOFF],
+                                        CmdsColors[COLNICK].color3, line, Colors[COLOFF]);
+#else  /* WANTANSI */
+                                say("%s is now known as %s", from, line);
+#endif /* WANTANSI */
+#ifdef EXTRAS
+                                if (!winelem) break;
+                                else winelem = winelem->next;
+                            }
+                            to_window = oldto_window;
+                            if (ShowNickAllChan && winlist) {
+                                /* free stored info about windows */
+                                while (winlist) {
+                                    winelem = winlist;
+                                    winlist = winlist->next;
+                                    new_free(&winelem);
+                                }
+                            }
+#endif /* EXTRAS */
+                        }
 /****************************************************************************/
 		}
 	}

@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.79 2002-03-03 10:52:38 f Exp $
+ * $Id: edit3.c,v 1.80 2002-03-05 18:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -2125,6 +2125,8 @@ void ScrollZLoad()
 #ifdef EXTRAS
         else if (!strcmp("SIGNOFFALLCHAN",tmpbuf3))
             OnOffSet(&pointer,&ShowSignAllChan,&loaderror,lineno,"SIGNOFFALLCHAN");
+        else if (!strcmp("NICKCHGALLCHAN",tmpbuf3))
+            OnOffSet(&pointer,&ShowNickAllChan,&loaderror,lineno,"NICKCHGALLCHAN");
 #endif
         else if (!strcmp("EXTPUB",tmpbuf3))
             OnOffSet(&pointer,&ExtPub,&loaderror,lineno,"EXTPUB");
@@ -2523,6 +2525,7 @@ void InitVars() {
     OrigNickNumber=0;
 #ifdef EXTRAS
     ShowSignAllChan=0;
+    ShowNickAllChan=0;
 #endif
     ExtPub=1;
     ChanLog=0;

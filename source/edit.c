@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.86 2002-02-21 17:25:04 f Exp $
+ * $Id: edit.c,v 1.87 2002-03-05 18:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -723,6 +723,9 @@ IrcCommand FAR irc_command[] =
   { "NEWUSER", 		NULL, 		NewUser, 		SERVERREQ },
   { "NHPROT", 		NULL, 		NHProtToggle, 		0 },
  	{ "NICK",	"NICK",		e_nick,			SERVERREQ },
+#ifdef EXTRAS
+  { "NICKCHAN", 	"NICKCHAN",	OnOffCommand, 		0 },
+#endif
   { "NICKS", 		"NICKS", 	NumberCommand, 		0 },
   { "NICKT", 		"NICKT", 	NumberCommand, 		0 },
   { "NOCHAT", 		NULL, 		NoChat, 		0 },

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.86 2002-03-04 18:02:48 f Exp $
+ * $Id: irc.c,v 1.87 2002-03-05 18:33:08 f Exp $
  */
 
 #define IRCII_VERSION	"20011210"	/* YYYYMMDD */
@@ -448,6 +448,7 @@ int   OrigNickSent;
 int   OrigNickNumber;
 #ifdef EXTRAS
 int   ShowSignAllChan;
+int   ShowNickAllChan;
 #endif
 int   ExtPub;
 int   ChanLog;
