@@ -135,6 +135,10 @@ Meaning of flags:
       by braneded)
     ! don't report nicks multiple times in WALL when included with +nick
       (reported by Matt Mills)
+    ! crash in RECONNECT/SERVER when IRCHOST was set to an invalid IP
+      address (reported by kurd)
+    ! don't allow unbindable IP address for virtual hostname, use
+      hostname in that case to allow client to connect (reported by kurd)
 
 ------------------------------------------------------------------------------
 
