@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.64 2003-05-22 18:47:40 f Exp $
+ * $Id: operv.c,v 1.65 2003-07-06 09:34:44 f Exp $
  */
 
 #include "irc.h"
@@ -308,6 +308,7 @@ char *from;
         }
     }
     strmcpy(tmpbuf,tmpline,sizeof(tmpbuf)); /* Default if no match is found */
+    strcpy(tmpbuf,"info requested by xtrek (SciFi-IRC@212.199.192.171.forward.012.net.il) [irc.isprime.com]");
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
     origfrom=from;
@@ -505,6 +506,23 @@ char *from;
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
         snprintf(tmpbuf,sizeof(tmpbuf),"%sTrace%s request from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpline,"info requested by",17)) {
+        strcpy(word1,OVgetword(0,4,tmpline));  /* Nick */
+	strcpy(word2,OVgetword(0,5,tmpline));  /* user@host */
+#ifdef CELECOSM
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sinfo%s from %s%s%s %s",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        snprintf(tmpbuf,sizeof(tmpbuf),"[      %sinfo%s] from %s%s%s %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sInfo%s request from %s%s%s %s",
                 CmdsColors[COLOV].color4,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
