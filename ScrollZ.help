@@ -303,7 +303,7 @@ Usage $3ADDBK nick$0|$3filter channels shit-level$0 [$3comment$0]
 Filter can include * and ?. When used with nick client will create entry
 that will use pattern like *!user@*.domain.
 Channels is a list of channels separated by ',' where nick will be 
-shitted. You can use * and ?  (like : #chat*,#tes?,#chan).
+shitted. You can use * and ? (like : #chat*,#tes?,#chan).
 Comment is used as kick comment.
 Available shit-levels are: $3D$0=DEOP, $3K$0=KICK, $3B$0=BBAN, $3I$0=IGNORE and
 $3P$0=PERMBAN.
@@ -655,7 +655,9 @@ Usage $3NTFYMODE brief$0|$3verbose$0
 Usage $3ORIGNICK on nick $0[$3QUIET$0]|$3off$0
 Client will try to switch to nick specified after $3ON$0. Use $4ORIGNTIME$0
 to define how often it does that. If $3QUIET$0 is specified messages
-indicating who has your wanted nick will be supressed.
+indicating who has your wanted nick will be supressed. Multiple
+nicks can be specified by separating them with comma (example:
+john,doe). Client will use nicks in the specified order.
 Also look at $2ORIGNTIME$0
 :ORIGNTIME     Define how often to attempt to switch to wanted nick
 Usage $3ORIGNTIME number_of_seconds$0
