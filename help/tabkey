@@ -1,0 +1,38 @@
+!	 $Id: tabkey,v 1.1 2002-10-01 17:24:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+NORMAL
+
+	in any circumstance other than ones listed in SPECIAL, n<tab> completes
+based on nicks in the current channel, then other channels. #c<tab> completes
+based on channels the client is on.
+
+	also note n<tab> and f<tab> can be shortened to <tab>, the client will
+know what to complete based on position. channels must be started with #,
+however.
+
+SPECIAL
+
+<tab>                   cycles through your recent /msg nick list
+/msg<tab>
+
+n<tab>                  cycles through nicks starting with n
+/m n<tab>
+
+/m =<tab>               cycles through your dcc chat nick list
+
+/dc g n<tab>            cycles through your dcc get nick lust
+/dc ren n<tab>          cycles through your dcc get nick lust
+/dc resu n<tab>         cycles through your dcc resume nick lust
+/dc reg n<tab>          cycles through your dcc reget nick lust
+
+/dcc send nick f<tab>   cycles through filenames on disk
+/cdcc send f<tab> [f<tab> ...] ,
+/load f<tab>
+
+/<tab>                  cycles through command names
+/he <tab>
