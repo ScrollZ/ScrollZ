@@ -908,14 +908,15 @@ offered files from you. You can get arround this by using $4DCC SEND$0.
 Queue number is used to set limit for queue. Setting it to zero allows
 for unlimited queue size.
 Also look at $2CDCC QUEUE$0
-:CDCC QUEUE    Tells you some info on queued files
+:CDCC QUEUE    Cdcc queue management system
 Without arguments it will list number of files in queue. If you pass it
 LIST it will show you detailed list with filename and who is it sending
 file to. If filter is passed after LIST, only files that go to nicks
 matching filter will be listed. Filter can include * and ?. You can
-remove files from queue by specifying filter after REMOVE. Filter is
-the same as in $4CDCC GET$0.
-Usage $3CDCC QUEUE$0 [$3LIST$0 [$3filter$0]]|[$3REMOVE filter$0]
+remove files from queue by specifying filter after $3REMOVE$0. Filter is
+the same as in $4CDCC GET$0. $3FLUSH$0 will force the queue to be flushed
+in case it is stuck for some reason.
+Usage $3CDCC QUEUE$0 [$3LIST$0 [$3filter$0]]|[$3REMOVE filter$0]|[$3FLUSH$0]
 Also look at $2CDCC LIMIT$0 and $2CDCC GET$0
 :CDCC IDLE     Sets number of seconds when to auto-close idle dccs
 Usage $3CDCC IDLE number_of_seconds$0
