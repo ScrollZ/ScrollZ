@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.13 2000-08-15 20:20:11 f Exp $
+ * $Id: status.c,v 1.14 2000-08-19 16:36:05 f Exp $
  */
 
 #include "irc.h"
@@ -2565,8 +2565,8 @@ Window *window;
                              (window==window->screen->current_window))) {
         getloadavg(loadbuf,1);
         snprintf(loadbuf2,5,"%g",loadbuf[0]);
-        sprintf(buffer,loadavg_format,loadbuf2);
-        malloc_strcpy(&ptr,buffer);
+        sprintf(locbuf,loadavg_format,loadbuf2);
+        malloc_strcpy(&ptr,locbuf);
     }
     else malloc_strcpy(&ptr,empty_string);
     /*  kvm needs seteuid(0).. nice idea...
@@ -2584,8 +2584,8 @@ Window *window;
          davg=(double)temp[2]/(1<<8);
          numps=0;
          snprintf(loadbuf,5,"%g",avg);
-         sprintf(buffer, loadavg_format, loadbuf);
-         malloc_strcpy(&ptr,buffer);
+         sprintf(locbuf, loadavg_format, loadbuf);
+         malloc_strcpy(&ptr,locbuf);
      }
      else malloc_strcpy(&ptr,empty_string);
      */
