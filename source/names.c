@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.8 1999-03-09 20:38:13 f Exp $
+ * $Id: names.c,v 1.9 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -63,8 +63,8 @@ extern struct friends *FindMatch _((char *, char *));
 extern struct autobankicks *FindShit _((char *, char *));
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern void AwaySave _((char *, int));
-extern int  AddBan _((char *, char *, int, char *, time_t, ChannelList *));
-extern int  RemoveBan _((char *, ChannelList *));
+extern int  AddBan _((char *, char *, int, char *, int, time_t, ChannelList *));
+extern int  RemoveBan _((char *, int, ChannelList *));
 extern void CheckPermBans _((ChannelList *));
 extern void HandleGotOps _((char *, ChannelList *));
 #ifdef MGS
@@ -593,6 +593,7 @@ char    *servmodes;
         int  count=0;
         int  whowasdone=0;
         int  server=parsing_server_index;
+        int  exception;
         char tmpbuf[mybufsize/2];
         char nhdeop[mybufsize/4];
         char modebuf[mybufsize/32];
@@ -929,25 +930,30 @@ char    *servmodes;
 			break;
 /****************************************************************************/
 		case 'b':
+		case 'e':
 /**************************** PATCHED by Flier ******************************/
 			/*(void) next_arg(rest, &rest);*/
                         if (!(person=next_arg(rest,&rest))) person=empty_string;
                         if (check) {
-                            if (tmpjoiner) {
+                            if (*mode_string=='e') exception=1;
+                            else exception=0;
+                            if (tmpjoiner && !exception) {
                                 if (add) tmpjoiner->plusb++;
                                 else tmpjoiner->minusb++;
                             }
                             if (isserver) {
                                 strcat(servline,person);
                                 strcat(servline," ");
-                                if (add) chan->servplusb++;
-                                else chan->servminusb++;
+                                if (!exception) {
+                                    if (add) chan->servplusb++;
+                                    else chan->servminusb++;
+                                }
                             }
                             if (add) {
-                                chan->plusb++;
+                                if (!exception) chan->plusb++;
                                 if (userhost) sprintf(tmpbuf,"%s!%s",from,userhost);
                                 else strcpy(tmpbuf,from);
-                                if (AddBan(person,chan->channel,server,tmpbuf,timenow,chan)) {
+                                if (AddBan(person,chan->channel,server,tmpbuf,exception,timenow,chan)) {
                                     if (chan->CompressModes) {
                                         if (compadd!=add) {
                                             *compmodeadd++='+';
@@ -958,7 +964,7 @@ char    *servmodes;
                                         strcat(compline," ");
                                     }
                                 }
-                                if (!isitme && chan->FriendList) {
+                                if (!exception && !isitme && chan->FriendList) {
                                     for (joiner=chan->nicks;joiner;joiner=joiner->next) {
                                         if (joiner->frlist) privs=joiner->frlist->privs;
                                         else privs=0;
@@ -1081,9 +1087,9 @@ char    *servmodes;
                                 }
                             }
                             else {
-                                chan->minusb++;
+                                if (!exception) chan->minusb++;
                                 minusban=1;
-                                if (RemoveBan(person,chan)) {
+                                if (RemoveBan(person,exception,chan)) {
                                     if (chan->CompressModes) {
                                         if (compadd!=add) {
                                             *compmodeadd++='-';
@@ -1098,7 +1104,10 @@ char    *servmodes;
                         }
 /****************************************************************************/
 			break;
- 		case 'e':
+/**************************** PATCHED by Flier ******************************/
+ 		/*case 'e':*/
+                /* we handle e properly together with b above */
+/****************************************************************************/
  		case 'I':
  		case 'O': /* this is a weird special case */
   			(void) next_arg(rest, &rest);

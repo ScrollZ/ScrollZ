@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.25 1999-05-29 10:04:44 f Exp $
+ * $Id: edit3.c,v 1.26 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -454,7 +454,8 @@ char *subargs;
     channel=get_channel_by_refnum(0);
     if (channel) {
         if (!(tmpchan=lookup_channel(channel,curr_scr_win->server,0))) return;
-        for (tmpban=tmpchan->banlist;tmpban;tmpban=tmpban->next) bancount++;
+        for (tmpban=tmpchan->banlist;tmpban;tmpban=tmpban->next)
+            if (!(tmpban->exception)) bancount++;
         for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
             users++;
             if (tmpnick->chanop) ops++;

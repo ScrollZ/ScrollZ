@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.34 1999-05-23 08:43:10 f Exp $
+ * $Id: edit6.c,v 1.35 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -437,10 +437,12 @@ ChannelList *chan;
         for (tmpabk=abklist;tmpabk;tmpabk=tmpabk->next) {
             if ((tmpabk->shit)&8) {
                 if (!CheckChannel(chan->channel,tmpabk->channels)) continue;
-                for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next)
+                for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+                    if (tmpban->exception) continue;
                     if (wild_match(tmpban->ban,tmpabk->userhost) ||
                         wild_match(tmpabk->userhost,tmpban->ban))
                         break;
+                }
                 if (!tmpban) {
                     sprintf(tmpbuf," %s",tmpabk->userhost);
                     malloc_strcat(&modes,tmpbuf);

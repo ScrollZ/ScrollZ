@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.25 1999-05-29 10:04:44 f Exp $
+ * $Id: edit2.c,v 1.26 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -146,7 +146,7 @@ extern void ClearKey _((char *, char *, char *));
 extern int  CheckChannel _((char *, char *));
 extern int  CheckChannel2 _((char *, char *));
 extern void UnbanIt _((char *, char *, int));
-extern int  AddBan _((char *, char *, int, char *, time_t, ChannelList *));
+extern int  AddBan _((char *, char *, int, char *, int, time_t, ChannelList *));
 extern void AwaySave _((char *, int));
 extern void UserDomainList _((char *));
 #ifdef WANTANSI
@@ -2491,10 +2491,12 @@ char *subargs;
     if (chan) {
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
             if (tmpban->who && tmpban->when) {
-                say("%s %-30s %s %s",chan->channel,tmpban->ban,tmpban->who,
-                    FormatTime(time((time_t *) 0)-tmpban->when));
+                say("%s %-30s %s %s%s",chan->channel,tmpban->ban,tmpban->who,
+                    FormatTime(time((time_t *) 0)-tmpban->when),
+                    tmpban->exception?" (exception)":"");
             }
-            else say("%s %s",chan->channel,tmpban->ban);
+            else say("%s %s%s",chan->channel,tmpban->ban,
+                     tmpban->exception?" (exception)":"");
             count++;
         }
         if (!count) say("There are no bans on channel %s",channel);
@@ -2787,8 +2789,9 @@ char *channel;
 }
 
 /* Handles bans */
-void OnBans(args)
+void OnBans(args,exception)
 char **args;
+int exception;
 {
     int  server;
     char *chan;
@@ -2806,9 +2809,9 @@ char **args;
             who=*args;
             args++;
             when=atoi(*args);
-            AddBan(daban,chan,server,who,when,NULL);
+            AddBan(daban,chan,server,who,exception,when,NULL);
         }
-        else AddBan(daban,chan,server,NULL,time((time_t *) 0),NULL);
+        else AddBan(daban,chan,server,NULL,exception,time((time_t *) 0),NULL);
     }
     else if (unban==1) {  /* show bans */
         chan=*args;
@@ -2858,6 +2861,7 @@ char *subargs;
         *tmpbuf2='\0';
         sprintf(tmpbuf2,"MODE %s",chan->channel);
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+            if (tmpban->exception) continue;
             strcat(tmpbuf2," -b ");
             strcat(tmpbuf2,tmpban->ban);
             count++;

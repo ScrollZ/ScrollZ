@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.9 1999-04-08 17:25:42 f Exp $
+ * $Id: numbers.c,v 1.10 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -57,7 +57,7 @@
 /************************* PATCHED by Flier ***************************/
 #include "myvars.h"
 
-extern void OnBans _((char **));
+extern void OnBans _((char **, int));
 extern void EndOfBans _((char *, int));
 extern void HandleEndOfWho _((char *, int));
 extern void HandleNickCollision _((void));
@@ -1129,6 +1129,19 @@ numbered_command(from, comm, ArgList)
  		cannot_join_channel(from, ArgList);
  		break;
 
+/**************************** PATCHED by Flier ******************************/
+	case 472:
+                /* 
+                 * Don't display if we'er joining a channel since it
+                 * mose likely means it came from MODE #channel e
+                 */
+                for (chan=server_list[from_server].chan_list;chan;chan=chan->next)
+                    if (!(chan->gotbans) || !(chan->gotwho)) break;
+		if (!chan && do_hook(current_numeric, "%s %s", from, *ArgList))
+                    display_msg(from, ArgList);
+                break;
+/****************************************************************************/
+
 	case 484:		/* #define ERR_RESTRICTED       484 */
 		if (do_hook(current_numeric, "%s %s", from, *ArgList))
 			display_msg(from, ArgList);
@@ -1180,8 +1193,8 @@ numbered_command(from, comm, ArgList)
                             EndOfBans(ArgList[0],from_server);
                             skipit=1;
                         }
-                        else if (comm==367 && unban) {
-                            OnBans(ArgList);
+                        else if ((comm==367 || comm==348) && unban) {
+                            OnBans(ArgList,comm==348?1:0);
                             skipit=1;
                         }
                         else
@@ -1420,6 +1433,9 @@ numbered_command(from, comm, ArgList)
 		case 376:		/* #define RPL_ENDOFMOTD        376 */
 #endif
 		case 394:		/* #define RPL_ENDOFUSERS       394 */
+/**************************** PATCHED by Flier ******************************/
+		case 349:               /* end of exception list */
+/****************************************************************************/
 			if (!get_int_var(SHOW_END_OF_MSGS_VAR))
 				break;
 /**************************** PATCHED by Flier ******************************/

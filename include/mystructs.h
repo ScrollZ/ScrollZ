@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.4 1999-03-09 20:35:18 f Exp $
+ * $Id: mystructs.h,v 1.5 1999-06-05 12:06:22 f Exp $
  */
 
 /* don't change!! */
@@ -121,6 +121,7 @@ struct mapstr {
 
 struct bans {
     struct bans *next;
+    int  exception;
     char *ban;
     char *who;
     time_t when;

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.24 1999-05-24 21:27:12 f Exp $
+ * $Id: edit4.c,v 1.25 1999-06-05 12:06:37 f Exp $
  */
 
 #include "irc.h"
@@ -165,7 +165,7 @@ extern char *recreate_mode _((ChannelList *));
 
 static struct bans *tmpbn;
 static struct bans *tmpbanlist;
-static int  listcount;
+static int listcount;
 
 extern NotifyList *notify_list;
 extern DCC_list *ClientList;
@@ -1113,7 +1113,10 @@ int  server;
     if (!(chan=lookup_channel(channel,server,0))) return;
     if (!chan->gotwho) {
         chan->gotwho=1;
-        if (*channel!='+') send_to_server("MODE %s b",channel);
+        if (*channel!='+') {
+            send_to_server("MODE %s e",channel);
+            send_to_server("MODE %s b",channel);
+        }
         else PrintSynch(chan);
     }
 }
@@ -1172,11 +1175,12 @@ List *toadd;
 }
 
 /* This adds ban to ban list */
-int AddBan(ban,channel,server,nick,when,tmpchan)
+int AddBan(ban,channel,server,nick,exception,when,tmpchan)
 char *ban;
 char *channel;
 int  server;
 char *nick;
+int  exception;
 time_t when;
 ChannelList *tmpchan;
 {
@@ -1186,14 +1190,16 @@ ChannelList *tmpchan;
     if (channel && tmpchan) chan=tmpchan;
     else chan=lookup_channel(channel,server,0);
     if (chan) {
-        tmpban=(struct bans *) list_lookup((List **) &(chan->banlist),ban,
-                                           !USE_WILDCARDS,!REMOVE_FROM_LIST);
+        for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next)
+            if (tmpban->exception==exception && !strcmp(ban,tmpban->ban))
+                break;
         if (tmpban) return(0);
         tmpban=(struct bans *) new_malloc(sizeof(struct bans));
         tmpban->ban=(char *) 0;
         tmpban->who=(char *) 0;
         malloc_strcpy(&(tmpban->ban),ban);
         if (nick) malloc_strcpy(&(tmpban->who),nick);
+        tmpban->exception=exception;
         tmpban->when=when;
         tmpban->next=NULL;
         add_to_list_ext((List **) &(chan->banlist),(List *) tmpban,
@@ -1203,15 +1209,26 @@ ChannelList *tmpchan;
 }
 
 /* This removes ban from ban list */
-int RemoveBan(ban,chan)
+int RemoveBan(ban,exception,chan)
 char *ban;
+int exception;
 ChannelList *chan;
 {
-    struct bans *tmpban;
+    struct bans *tmpban=NULL;
+    struct bans *tmpbanprev=NULL;
 
     if (!chan) return(1);
-    tmpban=(struct bans *) list_lookup((List **) &chan->banlist,ban,!USE_WILDCARDS,
-                                       REMOVE_FROM_LIST);
+    if (chan) {
+        for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+            if (tmpban->exception==exception && !strcmp(ban,tmpban->ban))
+                break;
+            tmpbanprev=tmpban;
+        }
+        if (tmpban) {
+            if (tmpbanprev) tmpbanprev->next=tmpban->next;
+            else chan->banlist=tmpban->next;
+        }
+    }
     if (tmpbn==tmpban) tmpbn=NULL;
     if (tmpban) {
         new_free(&(tmpban->ban));
@@ -1240,6 +1257,7 @@ int  server;
     if (!chan) return;
     strcpy(modebuf,"-bbbbbbbb");
     for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+        if (tmpban->exception) continue;
         if (wild_match(pattern,tmpban->ban) || wild_match(tmpban->ban,pattern)) {
             sprintf(tmpbuf," %s",tmpban->ban);
             malloc_strcat(&banmodes,tmpbuf);
@@ -1298,13 +1316,15 @@ char *line;
     int count=1;
 
     while (count<curr_scr_win->display_size && tmpbanlist) {
-        count++;
-        if (!listcount) say("Listing all bans on channel %s",line);
-        listcount++;
-        if (tmpbanlist->who && tmpbanlist->when)
-            say("#%-2d %s by %s %s",listcount,tmpbanlist->ban,tmpbanlist->who,
-                FormatTime(time((time_t *) 0)-tmpbanlist->when));
-        else say("#%-2d %s",listcount,tmpbanlist->ban);
+        if (!(tmpbanlist->exception)) {
+            count++;
+            if (!listcount) say("Listing all bans on channel %s",line);
+            listcount++;
+            if (tmpbanlist->who && tmpbanlist->when)
+                say("#%-2d %s by %s %s",listcount,tmpbanlist->ban,tmpbanlist->who,
+                        FormatTime(time((time_t *) 0)-tmpbanlist->when));
+            else say("#%-2d %s",listcount,tmpbanlist->ban);
+        }
         tmpbanlist=tmpbanlist->next;
     }
     if (!tmpbanlist) {
@@ -1332,6 +1352,7 @@ char *line;
     if (line && *line) {
         strcpy(modebuf,"-bbbbbbbb");
         for (tmpbanlist=tmpbn;tmpbanlist;tmpbanlist=tmpbanlist->next) {
+            if (tmpbanlist->exception) continue;
             count++;
             if (matchmcommand(line,count)) {
                 sprintf(tmpbuf," %s",tmpbanlist->ban);
@@ -2025,6 +2046,7 @@ ChannelList *chan;
         *modebuf='\0';
         *modebufv='\0';
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+            if (tmpban->exception) continue;
             for (tmp=chan->nicks;tmp;tmp=tmp->next) {
                 if (tmp->frlist && ((tmp->frlist->privs)&(FLPROT | FLGOD)) &&
                     ((tmp->frlist->privs)&FLUNBAN)) {
@@ -2373,6 +2395,7 @@ char *channel;
 int  server;
 ChannelList *tmpchan;
 {
+    int isbanned=0;
     ChannelList *chan;
     struct bans *tmpban;
 
@@ -2380,10 +2403,12 @@ ChannelList *tmpchan;
     else chan=lookup_channel(channel,server,0);
     if (chan) {
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next)
-            if (wild_match(userhost,tmpban->ban) || wild_match(tmpban->ban,userhost))
-                return(1);
+            if (wild_match(userhost,tmpban->ban) || wild_match(tmpban->ban,userhost)) {
+                if (tmpban->exception) return(0);
+                isbanned=1;
+            }
     }
-    return(0);
+    return(isbanned);
 }
 
 #ifdef CELE
