@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.16 2000-01-27 15:29:31 f Exp $
+ * $Id: server.c,v 1.17 2000-04-12 19:14:47 f Exp $
  */
 
 #include "irc.h"
@@ -126,6 +126,9 @@ close_server(server_index, message)
 	int	i,
 		min,
 		max;
+/**************************** PATCHED by Flier ******************************/
+        ChannelList *chan;
+/****************************************************************************/
 
 	if (server_index == -1)
 	{
@@ -170,6 +173,17 @@ close_server(server_index, message)
 			if (server_list[i].write == server_list[i].read)
 				server_list[i].read = -1;
 			server_list[i].write = -1;
+/**************************** PATCHED by Flier ******************************/
+                        if (inFlierWho) {
+                            for (chan=server_list[i].chan_list;chan;chan=chan->next) {
+                                if (!(chan->gotwho) || !(chan->gotbans))
+                                {
+                                    inFlierWho--;
+                                    if (!inFlierWho) break;
+                                }
+                            }
+                        }
+/****************************************************************************/
 		}
 		if (-1 != server_list[i].read)
 		{
