@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.30 1999-09-30 19:33:51 f Exp $
+ * $Id: edit.c,v 1.31 2000-01-27 16:04:42 f Exp $
  */
 
 #include "irc.h"
@@ -222,7 +222,7 @@ extern  char  *chars;
 extern  NickList *tabnickcompl;
 /* Patched by Zakath */
 extern  char  VersionInfo[];
-extern  char  *ScrollZlame1;
+extern  char  *ScrollZver1;
 /* End patch */
 
 extern  void  AutoNickComplete _((char *, char *, ChannelList *));
@@ -1718,7 +1718,7 @@ version(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 		/*say("Client: ircII %s (internal version %s)", irc_version, internal_version);*/
                 say("Client: ircII %s + ScrollZ %s [%s] (int. %s)",irc_version,
-                    ScrollZlame1,VersionInfo,internal_version);
+                    ScrollZver1,VersionInfo,internal_version);
 /****************************************************************************/
 		send_to_server("%s", command);
 	}

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.6 1999-10-04 19:21:37 f Exp $
+ * $Id: alias.c,v 1.7 2000-01-27 16:04:06 f Exp $
  */
 
 #include "irc.h"
@@ -75,8 +75,8 @@ extern int  TotalQueue _((void));
 extern int  is_voiced _((char *, char *));
 #endif
 
-extern char *ScrollZlame1;
 extern char VersionInfo[];
+extern char *ScrollZver1;
 /****************************************************************************/
 
 extern	char	*FromUserHost;
@@ -2338,7 +2338,7 @@ alias_server_version()
 static char *alias_ScrollZ_version() {
     static char tmpbuf[mybufsize/16];
 
-    sprintf(tmpbuf,"%s [%s]",ScrollZlame1,VersionInfo);
+    sprintf(tmpbuf,"%s [%s]",ScrollZver1,VersionInfo);
     return(tmpbuf);
 }
 
