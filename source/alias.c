@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.38 2003-12-03 18:12:25 f Exp $
+ * $Id: alias.c,v 1.39 2004-04-25 09:38:59 f Exp $
  */
 
 #include "irc.h"
@@ -273,6 +273,8 @@ static	FAR BuiltIns built_in[] =
 #ifdef HAVE_STRFTIME
 	u_char	*function_strftime _((u_char *));
 #endif /* HAVE_STRFTIME */
+/**************************** PATCHED by Flier ******************************/
+#ifndef LITE
 	u_char	*function_windows _((u_char *));
 	u_char	*function_screens _((u_char *));
 	u_char	*function_notify _((u_char *));
@@ -280,7 +282,7 @@ static	FAR BuiltIns built_in[] =
 	u_char	*function_urlencode _((u_char *));
 	u_char	*function_shellfix _((u_char *));
 	u_char	*function_filestat _((u_char *));
-/**************************** Patched by Flier ******************************/
+#endif
         u_char  *function_open _((u_char *));
         u_char  *function_close _((u_char *));
         u_char  *function_write _((u_char *));
@@ -422,6 +424,8 @@ static BuiltInFunctions	FAR built_in_functions[] =
 #endif
 	{ "IDLE",		function_idle },
  	{ "QUERYNICK",		function_querynick },
+/**************************** PATCHED by Flier ******************************/
+#ifndef LITE
 	{ "WINDOWS",		function_windows },
 	{ "SCREENS",		function_screens },
 	{ "NOTIFY",		function_notify },
@@ -429,7 +433,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "URLENCODE",		function_urlencode },
 	{ "SHELLFIX",		function_shellfix },
 	{ "FILESTAT",		function_filestat },
-/**************************** Patched by Flier ******************************/
+#endif
 	/*{ "PATTERN",            function_pattern },
 	{ "CHOPS",              function_chops },
 	{ "CHNOPS",             function_chnops },*/
