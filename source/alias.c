@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.27 2002-02-24 11:38:30 f Exp $
+ * $Id: alias.c,v 1.28 2002-02-25 17:17:08 f Exp $
  */
 
 #include "irc.h"
@@ -4866,6 +4866,10 @@ u_char *input;
                 if (*(command_list[i].ivar) && *(command_list[i].svar))
                     snprintf(locbuf,sizeof(locbuf),"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
                 else strcpy(locbuf,"0");
+                /* Nhprot is special case */
+                if (!strcmp(command_list[i].command,"NHPROT"))
+                    snprintf(locbuf+strlen(locbuf),sizeof(locbuf)-strlen(locbuf)," %s",
+                            NHDisp == 0 ? "q" : (NHDisp == 1 ? "m" : "f"));
                 break;
         }
         if (*locbuf) {
