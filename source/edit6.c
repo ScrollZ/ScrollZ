@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.85 2001-08-01 17:14:24 f Exp $
+ * $Id: edit6.c,v 1.86 2001-08-21 19:15:18 f Exp $
  */
 
 #include "irc.h"
@@ -2525,8 +2525,12 @@ char *subargs;
             wild_match(filter,tmpfriend->userhost) ||
             wild_match(tmpfriend->userhost,filter)) {
             count++;
-            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
-            malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
+            /* if password is set to minus remove it */
+            if (!strcmp(passwd,"-")) new_free(&(tmpfriend->passwd));
+            else {
+                EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
+                malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
+            }
         }
     }
     say("Changed %d out of %d entries",count,countall);
