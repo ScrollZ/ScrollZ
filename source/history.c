@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.3 1999-02-15 21:19:25 f Exp $
+ * $Id: history.c,v 1.4 1999-08-08 09:32:47 f Exp $
  */
 
 #include "irc.h"
@@ -237,7 +237,15 @@ set_history_file(file)
 		set_string_var(HISTORY_FILE_VAR, ptr);
 		if (hist_file)
 			fclose(hist_file);
- 		fd = open(ptr, O_WRONLY|O_CREAT|O_APPEND, 0600);
+/************************* PATCHED by Flier *************************/
+ 		/*fd = open(ptr, O_WRONLY|O_CREAT|O_APPEND, 0600);*/
+                /* open() and fdopen() modes must be compatible on Linux */
+#ifdef __linux__
+ 		fd=open(ptr,O_RDWR|O_CREAT|O_APPEND,0600);
+#else
+ 		fd=open(ptr,O_WRONLY|O_CREAT|O_APPEND,0600);
+#endif
+/********************************************************************/
  		if (fd < 0 || ((hist_file = fdopen(fd, "w+")) == (FILE *)NULL))
 		{
 			say("Unable to open %s: %s", ptr, strerror(errno));
