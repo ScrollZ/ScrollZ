@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.55 2003-05-02 16:20:10 f Exp $
+ * $Id: operv.c,v 1.56 2003-05-02 18:36:09 f Exp $
  */
 
 #include "irc.h"
@@ -1212,7 +1212,7 @@ char *from;
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
 #ifdef OGRE
         snprintf(tmpbuf,sizeof(tmpbuf),"[     %swhois%s] on you by %s%s%s %s",
-                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
 	snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is doing a %sWhois%s on you.",
@@ -1225,7 +1225,7 @@ char *from;
         strcpy(word2,OVgetword(0,7,tmpline));  /* user@host */
 #ifdef OGRE
         snprintf(tmpbuf,sizeof(tmpbuf),"[     %swhois%s] on you by %s%s%s %s",
-                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #else
 	snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is doing a %sWhois%s on you.",
