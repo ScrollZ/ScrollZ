@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.16 2002-02-19 20:32:37 f Exp $
+# @(#)$Id: Makefile.in,v 1.17 2002-03-11 18:56:05 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -187,7 +187,6 @@ installirc: scrollz installdirs
 	$(RM) $(INSTALL_IRC)
 	$(INSTALL) source/scrollz $(INSTALL_IRC)-$(VERSION)
 	@(cd $(bindir) ; $(LN) scrollz-$(VERSION) scrollz)
-	@cp ScrollZ.help $(HELP_DIR)
 	@cp doc/ScrollZ.doc $(IRCDOC)
 
 installman: scrollz.1
