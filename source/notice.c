@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.19 2000-10-12 18:16:12 f Exp $
+ * $Id: notice.c,v 1.20 2001-02-26 19:17:50 f Exp $
  */
 
 #include "irc.h"
@@ -56,7 +56,7 @@
 #include "myvars.h"
 
 extern void HandleFakes _((char *, char *, int));
-extern int  HandleNotice _((char *, char *, char *, int));
+extern int  HandleNotice _((char *, char *, char *, int, char *));
 extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OVformat _((char *, char *));
@@ -314,12 +314,12 @@ parse_notice(from, Args)
 						if (type == NOTICE_LIST && no_flooding)
 						{
 /**************************** PATCHED by Flier ******************************/
-                                                        if (HandleNotice(from,line,FromUserHost,0))
+                                                        if (HandleNotice(from,line,FromUserHost,0,to))
 /****************************************************************************/
 							if (do_hook(type, "%s %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 								/*put_it("%s-%s-%s %s", high, from, high, line);*/
-                                                                HandleNotice(from,line,FromUserHost,1);
+                                                                HandleNotice(from,line,FromUserHost,1,to);
 /****************************************************************************/
 						}
 						else
