@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.33 2000-12-05 20:30:56 f Exp $
+ * $Id: numbers.c,v 1.34 2000-12-08 17:55:33 f Exp $
  */
 
 #include "irc.h"
@@ -55,6 +55,7 @@
 #include "parse.h"
 /************************* PATCHED by Flier ***************************/
 #include "ignore.h"
+#include "status.h"
 #include "myvars.h"
 #ifdef ACID
 #include "whowas.h"
@@ -129,7 +130,7 @@ numeric_banner()
 {
 /**************************** PATCHED by Flier ******************************/
         /*static	char	thing[4];*/
-        static	char	thing[64];
+        static	char	thing[mybufsize/8];
 /****************************************************************************/
 
 	if (get_int_var(SHOW_NUMERICS_VAR))
@@ -137,7 +138,19 @@ numeric_banner()
 	else
 /************************* PATCHED by Flier ***************************/
 		/*strcpy(thing, "***");*/
-		strcpy(thing,ScrollZstr);
+        {
+            if (Stamp && !strcmp(StampChannels,"*")) {
+#ifdef WANTANSI
+                sprintf(thing,"%s(%s%s%s)%s",
+                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                        update_clock(0,0,GET_TIME),
+                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+                sprintf(thing,"(%s)",update_clock(0,0,GET_TIME));
+#endif
+            }
+            else strcpy(thing,ScrollZstr);
+        }
 /**********************************************************************/
 	return (thing);
 }
