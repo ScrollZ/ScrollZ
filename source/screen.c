@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.2 1998-09-10 17:46:11 f Exp $
+ * $Id: screen.c,v 1.3 1998-10-07 20:01:30 f Exp $
  */
 
 #include "irc.h"
@@ -2102,7 +2102,7 @@ create_additional_screen()
 		 * error conditions in this case, so we bail out here.
 		 */
 /**************************** PATCHED by Flier ******************************/
-		if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0) < 1)
+		/*if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0) < 1)*/
 		if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0, 0) < 1)
 /****************************************************************************/
 		{
@@ -2299,7 +2299,7 @@ scrollback_forwards(key, ptr)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*scrollback_forwards_lines(curr_scr_win->display_size/2);*/
-	scrollback_forwards_lines(curr_scr_win->display_size-1);
+	scrollback_forwards_lines(curr_scr_win->display_size);
 /****************************************************************************/
 }
 
@@ -2314,7 +2314,7 @@ scrollback_backwards(key, ptr)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*scrollback_backwards_lines(curr_scr_win->display_size/2);*/
-	scrollback_backwards_lines(curr_scr_win->display_size-1);
+	scrollback_backwards_lines(curr_scr_win->display_size);
 /****************************************************************************/
 }
 
