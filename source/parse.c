@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.47 2001-08-31 15:37:55 f Exp $
+ * $Id: parse.c,v 1.48 2001-09-25 16:40:47 f Exp $
  */
 
 #include "irc.h"
@@ -292,7 +292,9 @@ p_topic(from, ArgList)
             else new_free(&(chan->topicstr));
             malloc_strcpy(&(chan->topicwho),from);
             chan->topicwhen=timenow;
+#ifdef EXTRAS
             CheckTopic(chan->channel,parsing_server_index,chan);
+#endif
         }
         if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) return;
 /****************************************************************************/				
