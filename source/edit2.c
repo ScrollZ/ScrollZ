@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.18 1999-02-24 20:03:55 f Exp $
+ * $Id: edit2.c,v 1.19 1999-03-01 18:40:34 f Exp $
  */
 
 #include "irc.h"
@@ -101,7 +101,12 @@
 
 #ifdef JIMMIE
 #include <sys/utsname.h>
-#endif
+/* linux needs more includes because of ioctl() calls */
+#ifdef __linux__
+#include <net/if.h>
+#include <sys/ioctl.h>
+#endif /* __linux__ */
+#endif /* JIMMIE */
 
 extern NotifyList *notify_list;
 extern int CO;
@@ -3721,21 +3726,26 @@ char *subargs;
 #ifdef JIMMIE
     int  i;
     int  type=1; /* default to Linux */
-    int  count=0;
+    int  count;
     char *hname;
     char *tmpstr;
     char *chosenname=(char *) 0;
-    char putbuf[mybufsize/4];
-    char tmpbuf[mybufsize/4];
-    char filename[mybufsize/4];
+    char putbuf[mybufsize/4+1];
+    char tmpbuf[mybufsize/4+1];
+    char filename[mybufsize/16];
     FILE *fp;
     struct hostent *hostaddr;
     /* for uname */
     struct utsname unamebuf;
+    /* for ioctl -> linux only */
+#ifdef __linux__
+    int tmpsock;
+    struct ifreq ifr;
+#endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
     struct splitstr *tmplist=NULL,*listnew;
     unsigned long ipnum;
-#endif
+#endif /* JIMMIE */
 
     newhname=new_next_arg(args,&args);
 #ifndef JIMMIE
@@ -3753,21 +3763,67 @@ char *subargs;
         else if (wild_match("*bsd*",unamebuf.sysname)) type=2;
     }
     /* create temporary file */
-    sprintf(filename,"/tmp/sztmp%ld",time((time_t *) 0)%100);
+    sprintf(filename,"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
+    /* for linux we use ioctl() to obtain configured ips */
+#ifdef __linux__
+    if ((fp=fopen(filename,"w"))==NULL) {
+        say("Error, can't open temporary file for writing");
+        unlink(filename);
+        return;
+    }
+    /* we need open socket for ioctl() to work */
+    if ((tmpsock=socket(AF_INET,SOCK_DGRAM,0))<0) {
+        say("Error obtaining socket, aborting");
+        fclose(fp);
+        unlink(filename);
+        return;
+    }
+    /* probe eth0 through eth3 */
+    for (i=0;i<4;i++) {
+        int isvalid;
+        int numinvalid=0;
+
+        sprintf(putbuf,"eth%d",i);
+        strcpy(ifr.ifr_name,putbuf);
+        /* obtain destination address */
+        isvalid=ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
+        if (i==0 && isvalid<0) {
+            say("Error during ioctl for interface eth0, aborting");
+            fclose(fp);
+            unlink(filename);
+            close(tmpsock);
+            return;
+        }
+        if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
+        for (count=0;count<1023;count++) {
+            sprintf(putbuf,"eth%d:%d",i,count);
+            strcpy(ifr.ifr_name,putbuf);
+            /* obtain destination address */
+            if ((isvalid=ioctl(tmpsock,SIOCGIFDSTADDR,&ifr))<0) numinvalid++;
+            else numinvalid=0;
+            if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
+            /* abort when we detect 10 failed ioctl()s in sequence */
+            if (numinvalid>9) break;
+        }
+    }
+    close(tmpsock);
+    fclose(fp);
+#else
     /* run /sbin/ifconfig
        we use -m -a on BSD */
     sprintf(tmpbuf,"/sbin/ifconfig %s >%s",
             type==2?"-m -a":empty_string,filename);
     system(tmpbuf);
+#endif /* __linux__ */
     if ((fp=fopen(filename,"r"))==NULL) {
-        say("Error, something went wrong");
+        say("Error, can't open temporary file for reading");
         unlink(filename);
         return;
     }
+    count=0;
     while (fgets(tmpbuf,mybufsize/4,fp)) {
         hname=(char *) 0;
-        if (type==1 && (tmpstr=strstr(tmpbuf,"inet addr"))) tmpstr+=10;
-        else if (type==2 && (tmpstr=strstr(tmpbuf,"inet "))) tmpstr+=5;
+        if ((tmpstr=strstr(tmpbuf,"inet "))) tmpstr+=5;
         hname=new_next_arg(tmpstr,&tmpstr);
         if (!hname || !strcmp(hname,"127.0.0.1")) continue;
         /* find hostname for this IP */
@@ -3818,5 +3874,5 @@ char *subargs;
         new_free(&chosenname);
     }
     unlink(filename);
-#endif
+#endif /* !JIMMIE */
 }
