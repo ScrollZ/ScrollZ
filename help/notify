@@ -1,4 +1,4 @@
-!	 $Id: notify,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: notify,v 1.4 2002-02-24 10:51:49 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -29,3 +29,9 @@ Usage: NOTIFY [[-]<nickname> [[-]<nickname> ...]]
   you will be shown a list of only those people on your
   notification list who are currently on irc.  If you specify
   a - with no additional parameters, all nicks will be removed.
+
+See also:
+  ADDN
+  LISTN
+  REMN
+  SET NOTIFY_STRING
