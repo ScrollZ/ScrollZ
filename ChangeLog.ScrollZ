@@ -142,6 +142,13 @@ Meaning of flags:
     ! URL catcher was saving wrong URL to ScrollZ.notepad (reported by jaska)
     ! WINDOW NEW followed by WINDOW KILL crash when not connected to a server
       (reported by brain)
+    ! ask user for new nick when NO_ASK_NICKNAME is OFF (reported by
+      braneded)
+    ! don't op/halfop user with MOP/MHOP if they're shitlisted with D flag
+      (reported by Cnf--)
+    + support for channel mode S for LinkNET (requested by ba8ak)
+    ~ use SSLv3_client_method() in SSL connections to support greater
+      number of ciphers (suggested by Cnf--)
 
 ------------------------------------------------------------------------------
 
