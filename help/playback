@@ -1,4 +1,4 @@
-!	 $Id: playback,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: playback,v 1.4 2002-03-07 16:42:33 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -12,3 +12,11 @@ Usage: PLAYBACK [-R] [pattern]
   If -R is passed as an argument, messages will be played in
   reverse order. Optional pattern may include * and ?. If used,
   only entries matching pattern will be shown.
+
+See also:
+  AWAYENCR
+  AWAYT
+  REMLOG
+  SETAWAY
+  SETBACK
+  SHOWAWAY

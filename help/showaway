@@ -1,4 +1,4 @@
-!	 $Id: showaway,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: showaway,v 1.4 2002-03-07 16:42:33 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -13,6 +13,7 @@ Usage: SHOWAWAY on channels|off
   It applies to auto set away too.
 
 See also:
+  AWAYENCR
   AWAYT
   PLAYBACK
   REMLOG

@@ -1,4 +1,4 @@
-!	 $Id: szvar,v 1.2 2002-03-05 18:39:47 f Exp $
+!	 $Id: szvar,v 1.3 2002-03-07 16:42:33 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -23,6 +23,7 @@ SZVAR Variables
                  current/special window
   AUTOCOMPL      The setting of auto nick completion
   AUTOINV        The setting of auto invite on notify
+  AWAYENCR       The setting of ScrollZ.away encryption
   AWAYT          The time before you are automatically
   BANTYPE        The setting of bantype
                  (n = normal, b = better, e = elite,

@@ -1,0 +1,21 @@
+!	 $Id: awayencr,v 1.1 2002-03-07 16:42:33 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: AWAYENCR on|off
+  Toggles encryption of ScrollZ.away on/off
+
+  If ON, the ScrollZ.away log file will be encrypted using
+  master password as a crypt key.  When OFF, the ScrollZ.away
+  log file will not be encrypted.
+
+See also:
+  AWAYT
+  PLAYBACK
+  REMLOG
+  SETAWAY
+  SETBACK
+  SHOWAWAY
