@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.2 1998-09-10 17:44:37 f Exp $
+ * $Id: ctcp.c,v 1.3 1998-09-27 16:28:04 f Exp $
  */
 
 #include "irc.h"
@@ -929,7 +929,7 @@ char *args;
         if (*tmpbuf1) {
             send_to_server("MODE %s -%s",channel,tmpbuf1);
 #ifdef ACID
-            send_to_server("INVITE %s %s",channel,from);
+            send_to_server("INVITE %s %s",from,channel);
 #endif
         }
 #ifndef VILAS
