@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.5 1998-10-24 10:30:04 f Exp $
+ * $Id: SZdist.c,v 1.6 1998-10-31 18:28:38 f Exp $
  */
 
 #include <stdio.h>
@@ -82,8 +82,7 @@ char *MGSfiles="edit.o edit3.o edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
  window.o";
-char *CELEfiles="alias.o celerity.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o\
- numbers.o parse.o server.o vars.o whois.o";
+char *CELEfiles="*.o";
 char *HYPERDCCfiles="cdcc.o dcc.o edit.o edit4.o edit6.o";
 char *VILASfiles="edit.o edit2.o edit3.o edit4.o edit5.o edit6.o names.o\
  numbers.o server.o";
@@ -591,9 +590,9 @@ char **argv;
                 case 'I': if ((choice&OPERVISION)) choice&=~OPERVISION;
                           else choice|=OPERVISION;
                           break;
-		/*case 'J': if ((choice&CELE)) choice&=~CELE;
+		case 'J': if ((choice&CELE)) choice&=~CELE;
 			  else choice|=CELE;
-			  break;*/
+			  break;
 		case 'K': if ((choice&HYPERDCC)) choice&=~HYPERDCC;
 			  else choice|=HYPERDCC;
 			  break;
@@ -713,6 +712,7 @@ char **argv;
 	fprintf(fpout,"\n/* Define this if you want to compile with Celerity C-Script */\n");
 	if (choice&CELE) fprintf(fpout,"#define CELE\n");
 	else fprintf(fpout,"#undef CELE\n");
+        fprintf(fpout,"#include \"celerity.h\"\n");
 	fprintf(fpout,"\n/* Define this if you want HyperDCC by Annatar in the client */\n");
 	if (choice&HYPERDCC) fprintf(fpout,"#define HYPERDCC\n");
 	else fprintf(fpout,"#undef HYPERDCC\n");
