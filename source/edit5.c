@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.105 2003-05-08 15:35:31 f Exp $
+ * $Id: edit5.c,v 1.106 2003-05-08 18:07:51 f Exp $
  */
 
 #include "irc.h"
@@ -3252,6 +3252,7 @@ char *filepath;
             store=*tmpstr3;
             *tmpstr3='\0';
             if ((!my_strnicmp(tmpstr1,"http://",7) || !my_strnicmp(tmpstr1,"ftp://",6) ||
+                 !my_strnicmp(tmpstr1,"https://",8) ||
                  !my_strnicmp(tmpstr1,"www.",4) || !my_strnicmp(tmpstr1,"ftp.",4)) &&
                 index(tmpstr1,'.')) {
                 saveit=1;
