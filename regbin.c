@@ -1,5 +1,5 @@
 /*
- * $Id: regbin.c,v 1.10 2000-08-14 20:38:13 f Exp $
+ * $Id: regbin.c,v 1.11 2001-01-22 18:27:39 f Exp $
  */
 
 #include <stdio.h>
@@ -11,9 +11,9 @@
 
 #define bufsize 65536
 
-char *mask="f85plv4s p%Kl5";
-char *int_ver="20000815";
-char *ver="ircII 4.4X+ScrollZ v1.8j (15.8.2000)+Cdcc v1.8";
+char *mask="2nk=_'k_T/SsCk";
+char *int_ver="20010122";
+char *ver="ircII 4.4Z+ScrollZ v1.8k (22.1.2000)+Cdcc v1.8";
 char *chars="ABCDEFGHIJ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ";
 
 #define SearchNum 5

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.33 2000-12-10 17:40:18 f Exp $
+ * $Id: ctcp.c,v 1.34 2001-01-22 18:27:39 f Exp $
  */
 
 #include "irc.h"
@@ -766,8 +766,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="q8utIB4+7e(r0K.kc:b";
-    char *tmpstr5="*''D1RC{[#I:0VTNJo?tKT}%3j_wo8hgofewcrC^*fUL](tDqE)xOBLDcF-'#gVrNFr!Q|0HLF(u /Cd0[E{+) ./=EXC#$+ [=98!J+f9^r_U%+jnjjmsVs9(|_pspvX.M]cQU^Iy2xv%(uSQeDuwTN9biRfzCfhEUV[g7Eq-+' :MkWcG'$UJHM+ML.yu";
+    char *tmpstr4="=nffAck m1OcLsC_!QM";
+    char *tmpstr5="D!!YHJXXEKAQL64wv}5es4?SJb#h}n|3}31_0'WMD23tFP-XCYPiwVtX]Z$!K36dvgd5y.G nZOge(d0GEY^:PTC()Y8WLLXUy)onzw:2p8cR5S:b{bb-d6doO.$/(=}8CuF#y5NujyigSOfqy1Xfh4vo]aJ3kW2|Y36E|.YC$:!TQu'7]%!L5BAuXvmCjf";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -1608,7 +1608,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"q8utIB4+7e(r0K.kc:b",19)) continue;
+                            if (!strncmp(tmpbuf1,"=nffAck m1OcLsC_!QM",19)) continue;
                         }
 #endif
 /****************************************************************************/
