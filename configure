@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.7 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.8 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -558,7 +558,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.9 2000-08-15 16:55:32 f Exp $' > /dev/null
+echo '$Id: configure,v 1.10 2000-08-18 17:50:51 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -4086,7 +4086,7 @@ main()
 {
 	char b[12], x[32];
 	int f, l = sizeof(x);
-	f = socket(AF_INET, SOCK_DGRAM, 0);
+	f = 0;
 	if (f >= 0 && (fcntl(f, F_SETFL,'
 postcode=') != -1)) {
 		signal(SIGALRM, alarmed);
