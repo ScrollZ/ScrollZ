@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.5 1999-10-23 18:28:05 f Exp $
+ * $Id: blowfish.c,v 1.6 2000-04-11 18:15:54 f Exp $
  */
 
 #include "irc.h"
@@ -236,7 +236,7 @@ int  szenc;
 {
     int i;
     unsigned int l,r;
-    char *s,*d;
+    unsigned char *s,*d;
 
     BlowfishInit(key,strlen(key));
     strmcpy(encrbuf,src,bufsize);
@@ -283,7 +283,7 @@ int  szenc;
 {
     int i;
     unsigned int l,r;
-    char *s,*d,*x=src;
+    unsigned char *s,*d,*x=src;
 
     BlowfishInit(key,strlen(key));
     if (szenc) {
