@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.29 1999-06-14 18:06:08 f Exp $
+ * $Id: edit2.c,v 1.30 1999-07-18 12:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -1764,7 +1764,7 @@ char *subargs;
     else fprintf(usfile,"OFF\n");
 #if defined(EXTRAS) || defined(FLIER)
     fprintf(usfile,"AUTOINV         ");
-    if (AutoInv) fprintf(usfile,"ON\n");
+    if (AutoInv) fprintf(usfile,"ON %s\n",AutoInvChannels);
     else fprintf(usfile,"OFF\n");
 #endif
     fprintf(usfile,"FLOODPROT       ");

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.24 1999-06-14 17:47:26 f Exp $
+ * $Id: edit.c,v 1.25 1999-07-18 12:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -434,7 +434,7 @@ static	IrcCommand FAR irc_command[] =
 	{ "ASSIGN",	"1",		alias,			0 },
   { "AUTOCOMPL", 	"AUTOCOMPL", 	SetAutoCompletion, 	0 },
 #if defined(EXTRAS) || defined(FLIER)
-  { "AUTOINV", 		"AUTOINV", 	OnOffCommand, 		0 },
+  { "AUTOINV", 		"AUTOINV", 	ChannelCommand,		0 },
 #endif
   { "AUTOOPDELAY", 	"AUTOOPDELAY", 	NumberCommand, 		0 },
  	{ "AWAY",	"AWAY",		away,			SERVERREQ },

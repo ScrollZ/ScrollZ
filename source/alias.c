@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.4 1999-02-15 21:18:58 f Exp $
+ * $Id: alias.c,v 1.5 1999-07-18 12:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -4173,7 +4173,7 @@ unsigned char *input;
         { "AREJOIN"        , 3, &AutoRejoin      , &AutoRejoinChannels    },
         { "AJOIN"          , 3, &AutoJoinOnInv   , &AutoJoinChannels      },
 #if defined(EXTRAS) || defined(FLIER)
-        { "AUTOINV"        , 1, &AutoInv         , NULL                   },
+        { "AUTOINV"        , 3, &AutoInv         , &AutoInvChannels       },
 #endif
         /* Floodp should return FloodProt, FloodMessages and FloodSeconds */
         { "FLOODP"         , 1, &FloodProt       , NULL                   },

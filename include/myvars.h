@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.8 1999-05-07 16:07:09 f Exp $
+ * $Id: myvars.h,v 1.9 1999-07-18 12:48:50 f Exp $
  */
 
 #include "mystructs.h"
@@ -151,6 +151,9 @@ extern char   *IdleKickChannels;
 extern char   *CompressModesChannels;
 extern char   *SignoffChannels;
 extern char   *StampChannels;
+#if defined(EXTRAS) || defined(FLIER)
+extern char   *AutoInvChannels;
+#endif
 extern char   *EncryptPassword;
 extern char   *StatsFilter;
 extern char   *AutoReplyBuffer;

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.27 1999-06-14 16:25:23 f Exp $
+ * $Id: edit3.c,v 1.28 1999-07-18 12:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -2008,7 +2008,7 @@ int ScrollZLoad()
         }
 #if defined(EXTRAS) || defined(FLIER)
         else if (!strcmp("AUTOINV",tmpbuf3))
-            OnOffSet(&pointer,&AutoInv,&error,lineno,"AUTOINV");
+            ChannelsSet(&pointer,&AutoInv,&AutoInvChannels,&error,lineno,"AUTOINV",NULL);
 #endif
         else if (!strcmp("FLOODPROT",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);

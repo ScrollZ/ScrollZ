@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.37 1999-06-14 17:47:26 f Exp $
+ * $Id: edit6.c,v 1.38 1999-07-18 12:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -173,6 +173,9 @@ static struct commands {
     { "STAMP"       , &Stamp          , &StampChannels         , "Time stamp publics"         , NULL },
 #ifdef EXTRAS
     { "CHSIGNOFF"   , &ShowSignoffChan, &SignoffChannels       , "Show channels in signoff"   , NULL },
+#endif
+#if defined(EXTRAS) || defined(FLIER)
+    { "AUTOINV"     , &AutoInv        , &AutoInvChannels       , "Auto invite on notify" },
 #endif
     { NULL          , NULL            , NULL                   , NULL                         , NULL }
 };
@@ -1140,9 +1143,6 @@ char *subargs;
         char *setting;
     } command_list[]= {
         { "AUTOGET"     , &AutoGet        , "Cdcc auto-get" },
-#if defined(EXTRAS) || defined(FLIER)
-        { "AUTOINV"     , &AutoInv        , "Auto invite on notify" },
-#endif
         { "EGO"         , &Ego            , "Ego" },
         { "EXTMES"      , &ExtMes         , "Extended messages display" },
         { "LOGON"       , &LogOn          , "Logging if not away" },
