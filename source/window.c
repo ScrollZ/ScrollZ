@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.15 2000-08-09 19:31:21 f Exp $
+ * $Id: window.c,v 1.16 2000-08-10 17:33:28 f Exp $
  */
 
 #include "irc.h"
@@ -1849,7 +1849,16 @@ bind_channel(channel, window)
 			continue;
 		if (!my_stricmp(tmp->bound_channel, channel))
 		{
-			say("Channel %s is already bound to window %s", channel, window->name);
+/**************************** PATCHED by Flier ******************************/
+			/*say("Channel %s is already bound to window %s", channel, window->name);*/
+                        char tmpbuf[mybufsize/2+1];
+
+                        if (window->name)
+                            strmcpy(tmpbuf,window->name,mybufsize/2);
+                        else sprintf(tmpbuf,"%d",window->refnum);
+			say("Channel %s is already bound to window %s",
+                            channel,tmpbuf);
+/****************************************************************************/
 			return;
 		}
 	}
