@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.32 1999-08-15 10:20:35 f Exp $
+ * $Id: edit4.c,v 1.33 1999-09-26 16:26:37 f Exp $
  */
 
 #include "irc.h"
@@ -870,10 +870,8 @@ int  server;
     else unban=0;
     chan=lookup_channel(channel,server,0);
     if (!chan) return;
-    if (!chan->gotbans) {
-        chan->gotbans=1;
-        if (chan->gotwho) PrintSynch(chan);
-    }
+    if (!chan->gotbans) chan->gotbans=1;
+    if (chan->gotbans && chan->gotwho) PrintSynch(chan);
 }
 
 /* Handles received notice */
@@ -1133,14 +1131,8 @@ int  server;
     ChannelList *chan;
 
     if (!(chan=lookup_channel(channel,server,0))) return;
-    if (!chan->gotwho) {
-        chan->gotwho=1;
-        if (*channel!='+') {
-            send_to_server("MODE %s e",channel);
-            send_to_server("MODE %s b",channel);
-        }
-        else PrintSynch(chan);
-    }
+    if (!chan->gotwho) chan->gotwho=1;
+    if (chan->gotwho && chan->gotbans) PrintSynch(chan);
 }
 
 /* Toggles CTCP cloaking on/off */
