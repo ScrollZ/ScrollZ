@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.23 1999-09-19 16:59:02 f Exp $
+ * $Id: cdcc.c,v 1.24 1999-09-19 17:01:39 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -101,7 +101,7 @@ static void statusmcommand _((char *));
 static void statsmcommand _((char *));
 static void warningmcommand _((char *));
 static void verbosemcommand _((char *));
-static void queuemcommand _((char *));
+void queuemcommand _((char *));
 static void GetDir _((char *));
 static void CleanList _((void));
 static void AddFileToList _((char *, char *, int));
@@ -1142,7 +1142,7 @@ char *line;
 /***********************************************************************
  * Lists files in queue                                                *
  ***********************************************************************/
-static void queuemcommand(line)
+void queuemcommand(line)
 char *line;
 {
     int  count=0;
