@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.10 1998-10-21 18:37:02 f Exp $
+ * $Id: edit2.c,v 1.11 1998-10-25 18:36:59 f Exp $
  */
 
 #include "irc.h"
@@ -1870,11 +1870,11 @@ char *subargs;
     fprintf(usfile,"#\n");
     fprintf(usfile,"# ScrollZ.away defines\n");
     fprintf(usfile,"# AWAYSAVE      type\n");
-    fprintf(usfile,"# where type can be : ALL or MSG, NOTICE, MASS, COLL, CDCC, DCC, PROT, HACK, SRVMODE\n");
-    fprintf(usfile,"#                     CTCP, FLOOD, INVITE, KILL, KICK, SERVER or FAKE\n");
-    fprintf(usfile,"#        ALL=524287   MSG=1   NOTICE=2   MASS=4    COLL=8    CDCC=16    DCC=32    PROT=64    HACK=128\n");
-    fprintf(usfile,"#                     SRVMODE=256   CTCP=512   FLOOD=1024  INVITE=2048  KILL=4096  KICK=8192  SERVER=16384\n");
-    fprintf(usfile,"#                     FAKE=32768   AREPLY=65536   CHAT=131072   NOTIFY=262144\n");
+    fprintf(usfile,"# where type is number in following representation\n");
+    fprintf(usfile,"#       ALL=524287   MSG=1   NOTICE=2   MASS=4   COLL=8   CDCC=16   DCC=32\n");
+    fprintf(usfile,"#                    PROT=64   HACK=128   SRVMODE=256   CTCP=512   FLOOD=1024\n");
+    fprintf(usfile,"#                    INVITE=2048    KILL=4096    KICK=8192    SERVER=16384\n");
+    fprintf(usfile,"#                    FAKE=32768   AREPLY=65536   CHAT=131072   NOTIFY=262144\n");
     fprintf(usfile,"#\n");
     fprintf(usfile,"AWAYSAVE        %d\n",AwaySaveSet);
     fprintf(usfile,"#\n");
@@ -1902,6 +1902,9 @@ char *subargs;
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"CDCC STATS      ");
     if (CdccStats) fprintf(usfile,"ON\n");
+    else fprintf(usfile,"OFF\n");
+    fprintf(usfile,"CDCC VERBOSE    ");
+    if (CdccVerbose) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"CDCC WARNING    ");
     if (DCCWarning) fprintf(usfile,"ON\n");
