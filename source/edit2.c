@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.79 2002-01-25 18:23:10 f Exp $
+ * $Id: edit2.c,v 1.80 2002-01-25 18:36:29 f Exp $
  */
 
 #include "irc.h"
@@ -916,75 +916,88 @@ char *text;
 
 /* Bans and kicks nick from the current channel */
 /* Also handles ignore and timed ban */
-void BanKick(command,args,subargs)
+void BanKick(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    char *channel=(char *) 0;
-    char *comment=(char *) 0;
-    char *tmpnick;
-    char tmpbuf1[mybufsize/4];
 #ifdef EXTRAS
-    char tmpbuf2[mybufsize/4];
+    int unbantime = 6;
+#endif
+    char *channel = NULL;
+    char *comment = NULL;
+    char *tmpnick;
+    char tmpbuf1[mybufsize / 4];
+#ifdef EXTRAS
+    char tmpbuf2[mybufsize / 4];
 #endif
     void (*func)();
     NickList *joiner;
     ChannelList *chan;
 
-    tmpnick=new_next_arg(args,&args);
+    tmpnick = new_next_arg(args, &args);
+#ifdef EXTRAS
+    if (!my_stricmp(tmpnick, "-T")) {
+        tmpnick = new_next_arg(args, &args);
+        if (tmpnick) {
+            unbantime = atoi(tmpnick);
+            if (unbantime < 0) unbantime = 6;
+            tmpnick = new_next_arg(args, &args);
+        }
+    }
+#endif
     if (tmpnick) {
-        if (args && is_channel(args)) channel=new_next_arg(args,&args);
+        if (args && is_channel(args)) channel = new_next_arg(args,&args);
         else {
-            channel=get_channel_by_refnum(0);
+            channel = get_channel_by_refnum(0);
             if (!channel) {
                 NoWindowChannel();
                 return;
             }
         }
-        chan=lookup_channel(channel,curr_scr_win->server,0);
+        chan = lookup_channel(channel, curr_scr_win->server, 0);
         if (chan && HAS_OPS(chan->status)) {
-            if (args && *args) comment=args;
+            if (args && *args) comment = args;
             else {
-                if (!my_stricmp(command,"BK")) comment=DefaultBK;
+                if (!my_stricmp(command, "BK")) comment = DefaultBK;
 #ifdef EXTRAS
-                else if (!my_stricmp(command,"BKI")) comment=DefaultBKI;
-                else comment=DefaultBKT;
+                else if (!my_stricmp(command, "BKI")) comment = DefaultBKI;
+                else comment = DefaultBKT;
 #endif
             }
-            joiner=CheckJoiners(tmpnick,channel,from_server,chan);
+            joiner = CheckJoiners(tmpnick, channel, from_server, chan);
             if (joiner) {
-                BanIt(channel,joiner->nick,joiner->userhost,1,chan);
+                BanIt(channel, joiner->nick, joiner->userhost, 1, chan);
 #ifdef CELE
-                send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
-                               comment,CelerityL);
+                send_to_server("KICK %s %s :%s %s", channel, joiner->nick,
+                               comment, CelerityL);
 #else  /* CELE */
-                send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
+                send_to_server("KICK %s %s :%s", channel, joiner->nick, comment);
 #endif /* CELE */
             }
             else {
-                joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
-                if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
+                joiner = CheckJoiners(tmpnick, NULL, from_server, NULL);
+                if (joiner) BanIt(channel, joiner->nick, joiner->userhost, 0, NULL);
                 else {
-                    func=(void(*)())BanKickNew;
+                    func = (void(*)()) BanKickNew;
                     server_list[from_server].SZWI++;
-                    add_to_whois_queue(tmpnick,func,"%s %s",command,channel);
+                    add_to_whois_queue(tmpnick, func, "%s %s", command, channel);
                 }
             }
 #ifdef EXTRAS
             if (joiner) {
                 if (index(command,'I')) {
-                    send_text(joiner->nick,"You're now being ignored","NOTICE");
-                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s ALL",joiner->userhost);
-                    snprintf(tmpbuf2,sizeof(tmpbuf2),"%d",IgnoreTime);
-                    ignore(NULL,tmpbuf1,tmpbuf2);
-                    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s NONE",IgnoreTime,joiner->userhost);
-                    timercmd("TIMER",tmpbuf1,NULL);
+                    send_text(joiner->nick, "You're now being ignored", "NOTICE");
+                    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s ALL", joiner->userhost);
+                    snprintf(tmpbuf2, sizeof(tmpbuf2), "%d", IgnoreTime);
+                    ignore(NULL, tmpbuf1, tmpbuf2);
+                    snprintf(tmpbuf1, sizeof(tmpbuf1), "-INV %d IGNORE %s NONE", IgnoreTime, joiner->userhost);
+                    timercmd("TIMER", tmpbuf1, NULL);
                 }
                 else if (index(command,'T')) {
-                    CreateBan(joiner->nick,joiner->userhost,tmpbuf2);
-                    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV 6 MODE %s -b %s",channel,tmpbuf2);
-                    timercmd("TIMER",tmpbuf1,NULL);
+                    CreateBan(joiner->nick, joiner->userhost, tmpbuf2);
+                    snprintf(tmpbuf1, sizeof(tmpbuf1), "-INV %d MODE %s -b %s", unbantime, channel, tmpbuf2);
+                    timercmd("TIMER", tmpbuf1, NULL);
                 }
             }
 #endif
@@ -992,7 +1005,11 @@ char *subargs;
         else NotChanOp(channel);
     }
     else {
-        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s nick [#channel] [reason]",command);
+#ifdef EXTRAS
+        snprintf(tmpbuf1, sizeof(tmpbuf1), "%s [-T unban time] nick [#channel] [reason]", command);
+#else  /* EXTRAS */
+        snprintf(tmpbuf1, sizeof(tmpbuf1), "%s nick [#channel] [reason]", command);
+#endif /* EXTRAS */
         PrintUsage(tmpbuf1);
     }
 }
