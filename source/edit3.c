@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.36 2000-01-27 16:06:08 f Exp $
+ * $Id: edit3.c,v 1.37 2000-02-24 18:43:52 f Exp $
  */
 
 #include "irc.h"
@@ -818,9 +818,11 @@ char *args;
 char *subargs;
 {
     char *line=new_next_arg(args,&args);
+    char *opt=new_next_arg(args,&args);
 
-    send_to_server("MODE %s %s",get_server_nickname(from_server),
-                   (line && *line)?line:empty_string);
+    send_to_server("MODE %s %s %s",get_server_nickname(from_server),
+                   (line && *line)?line:empty_string,
+                   (opt && *opt)?opt:empty_string);
 }
 
 /* Sets auto join on invite toggle */
