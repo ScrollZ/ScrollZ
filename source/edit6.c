@@ -45,10 +45,13 @@
  CheckServer         Check if server is valid
  CleanUpScrollZVars  Clean up ScrollZ allocated variables
  CleanUp             Clean up memory on exit
+ EncryptChat         Support for encrypted DCC CHAT sessions
+ EncryptChatMessage  Encrypt DCC CHAT message
+ DecryptChatMessage  Decrypt DCC CHAT message
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.11 1998-11-02 21:20:53 f Exp $
+ * $Id: edit6.c,v 1.12 1998-11-15 20:24:01 f Exp $
  */
 
 #include "irc.h"
@@ -109,6 +112,8 @@ extern void CleanUpWindows _((void));
 extern void CleanUpFlood _((void));
 extern void CleanUpVars _((void));
 extern void Dump _((char *, char *, char *));
+extern void EncryptString _((char *, char *, char *, int));
+extern void DecryptString _((char *, char *, char *, int));
 /* Patched by Zakath */
 extern void CeleAway _((int));
 
@@ -2087,6 +2092,7 @@ void CleanUp() {
     struct nicks *tmpnick,*tmpnickfree;
     struct mapstr *tmpmap;
     struct urlstr *tmpurl;
+    struct encrstr *tmpencr;
     struct splitstr *tmpsplit;
     struct spingstr *tmpsping;
     struct wholeftch *tmpchan,*tmpchanfree;
@@ -2170,6 +2176,13 @@ void CleanUp() {
         new_free(&(tmpsping->servername));
         new_free(&tmpsping);
     }
+    while (encrlist) {
+        tmpencr=encrlist;
+        encrlist=encrlist->next;
+        new_free(&(tmpencr->user));
+        new_free(&(tmpencr->key));
+        new_free(&tmpencr);
+    }
     while (maplist) {
         tmpmap=maplist;
         maplist=maplist->next;
@@ -2213,4 +2226,76 @@ void CleanUp() {
         new_free(&(CmdsColors[i].color6));
     }
 #endif
+}
+
+/* Support for encrypted DCC CHAT sessions */
+void EncryptChat(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    int delit=REMOVE_FROM_LIST;
+    char *user;
+    char *key;
+    struct encrstr *tmp;
+
+    user=new_next_arg(args,&args);
+    key=new_next_arg(args,&args);
+    if (user) {
+        if (*user=='=') user++;
+        if (!(*user)) return;
+        if (key) delit=!REMOVE_FROM_LIST;
+        tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,delit);
+        if (key) {
+            if (tmp) malloc_strcpy(&(tmp->key),key);
+            else {
+                tmp=(struct encrstr *) new_malloc(sizeof(struct encrstr));
+                tmp->next=(struct encrstr *) 0;
+                tmp->user=(char *) 0;
+                tmp->key=(char *) 0;
+                malloc_strcpy(&(tmp->user),user);
+                malloc_strcpy(&(tmp->key),key);
+                add_to_list((List **) &encrlist,(List *) tmp);
+            }
+            say("DCC CHAT communication with %s will be encrypted using key %s",
+                user,key);
+        }
+        else {
+            if (!tmp) {
+                say("User %s not found in encryption list",user);
+                return;
+            }
+            new_free(&(tmp->user));
+            new_free(&(tmp->key));
+            new_free(&tmp);
+            say("DCC CHAT communication with %s will no longer be encrypted",user);
+        }
+    }
+    else PrintUsage("ENCRCHAT user [key]");
+}
+
+/* Encrypt DCC CHAT message */
+void EncryptChatMessage(message,user)
+char *message;
+char *user;
+{
+    struct encrstr *tmp;
+
+    if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
+                                            !REMOVE_FROM_LIST))) {
+        EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
+    }
+}
+
+/* Decrypt DCC CHAT message */
+void DecryptChatMessage(message,user)
+char *message;
+char *user;
+{
+    struct encrstr *tmp;
+
+    if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
+                                            !REMOVE_FROM_LIST))) {
+        DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
+    }
 }
