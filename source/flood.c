@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.4 1999-02-15 21:19:19 f Exp $
+ * $Id: flood.c,v 1.5 1999-10-03 09:24:25 f Exp $
  */
 
 #include "irc.h"
@@ -161,6 +161,10 @@ check_flooding(nick, type, line)
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all allocated memory */
 void CleanUpFlood() {
+    int i,users;
+
+    users=get_int_var(FLOOD_USERS_VAR);
+    for (i=0;i<users;i++) new_free(&(flood[i].nick));
     new_free(&flood);
 }
 /****************************************************************************/
