@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.30 1999-08-07 12:57:27 f Exp $
+ * $Id: edit4.c,v 1.31 1999-08-15 08:28:09 f Exp $
  */
 
 #include "irc.h"
@@ -317,7 +317,8 @@ ChannelList *tmpchan;
             Ignore(NULL,tmpbuf,tmpbuf);
         }
     }
-    if (tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
+    if (ischanop && tmpjoiner && chan->FriendList &&
+        ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
         if (privs&FLOP) voice=0;
         else if (privs&FLVOICE) voice=1;
         if (voice>=0) {
