@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.40 2004-07-14 18:50:05 f Exp $
+ * $Id: alias.c,v 1.41 2005-01-18 19:43:00 f Exp $
  */
 
 #include "irc.h"
@@ -67,6 +67,10 @@
 #undef USE_OLD_ALIAS_ALLOC
 
 /**************************** Patched by Flier ******************************/
+#ifdef HAVE_REGCOMP
+#include <regex.h>
+#endif
+
 #include "myvars.h"
 
 extern int  OpenFileRead _((char *));
@@ -311,6 +315,9 @@ static	FAR BuiltIns built_in[] =
         u_char	*function_szvar _((u_char *));
         u_char	*function_stamp _((u_char *));
 #endif
+#ifdef HAVE_REGCOMP
+        u_char	*function_regexp _((u_char *));
+#endif /* REGCOMP */
 #ifdef COUNTRY
         u_char	*function_country _((u_char *));
 #endif
@@ -348,6 +355,11 @@ static BuiltInFunctions	FAR built_in_functions[] =
 #endif
 	{ "INDEX",		function_index },
 	{ "RINDEX",		function_rindex },
+/**************************** PATCHED by Flier ******************************/
+#ifdef HAVE_REGCOMP
+	{ "REGEXP",             function_regexp },
+#endif /* HAVE_REGCOMP */
+/****************************************************************************/
 	{ "MATCH",		function_match },
 #ifndef LITE
 	{ "RMATCH",		function_rmatch },
@@ -4919,6 +4931,30 @@ u_char *input;
     else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
+
+#ifdef HAVE_REGCOMP
+u_char *function_regexp(input)
+u_char *input;
+{
+    char *pattern;
+    u_char *result = NULL;
+    regex_t regex;
+
+    if (((pattern = new_next_arg((char *) input, (char **) &input)) != NULL) &&
+        input && *input) {
+        if (regcomp(&regex, pattern, REG_EXTENDED | REG_NOSUB | REG_ICASE) == 0) {
+            if (regexec(&regex, input, 0, NULL, 0) == 0) {
+                malloc_strcpy((char **) &result, "1");
+            }
+        }
+        regfree(&regex);
+    }
+
+    if (result == NULL) malloc_strcpy((char **) &result, "0");
+    return(result);
+}
+#endif /* REGCOMP */
+
 
 /* Removes all aliases */
 void DumpAliases(type)
