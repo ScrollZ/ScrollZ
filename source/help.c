@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.3 1999-02-15 21:19:23 f Exp $
+ * $Id: help.c,v 1.4 2000-07-23 07:43:27 f Exp $
  */
 
 /*
@@ -547,18 +547,14 @@ help_me(topics, args)
 #endif
 		ptr = get_string_var(HELP_PATH_VAR);
 
-/**************************** PATCHED by Flier ******************************/
-#if !defined(_Windows) && !defined(SZ32)
-/****************************************************************************/
+#if !defined(_Windows)
 	sprintf(path, "%s/%s", ptr, topics);
 #else
 	sprintf(path, "%s\\%s", ptr, topics);
 #endif /* _Windows */
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '/';
-/**************************** PATCHED by Flier ******************************/
-#if defined(_Windows) || defined(SZ32)
-/****************************************************************************/
+#if defined(_Windows)
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '\\';
 	for (ptr = path; (ptr = index(ptr, '/'));)
