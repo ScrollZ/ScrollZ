@@ -57,7 +57,7 @@ If no nick/channel is specified it will redirect to current channel.
 Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
 :DUMP          Dumps aliases, ons, vars or all of them
 Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
-:ENCRCHAT      Defined nicks and keys for encrypted DCC CHAT sessions
+:ENCRCHAT      Maintains encrypted DCC CHAT sessions
 Usage $3ENCRCHAT$0 [$3nick$0 [$3key$0]]
 DCC CHAT with nick will be encrypted using key. Both parties have
 to use the same key for encryption/decryption to work. If no key
@@ -159,8 +159,8 @@ Also look at $2IG$0 and $2IGTIME$0
 Usage $3NOTEPAD text$0
 :NSLOOKUP      Looks up the DNS for your entry
 Usage $3NSLOOKUP host$0|$3nick$0
-:NWHOIS        Prints some statistics about nick
-Usage $3NWHOIS nick$0
+:NWHOIS        Prints some statistics about nicks matching filter
+Usage $3NWHOIS filter$0
 :OV            Turns OperVision on/off
 Usage $3OV on$0|$3off$0
 :P             Pings nick
