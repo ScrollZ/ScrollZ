@@ -1,4 +1,4 @@
-!	 $Id: massdv,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: massdv,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: MASSDV [-F] [-A] [#channel]
+  Mass devoices channel
+
   If passed -F friends with the V flag set will not be devoiced.
   -A will devoice all users.
-  
+
 See also:
   MOP
   MREOP

@@ -1,4 +1,4 @@
-!	 $Id: addn,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: addn,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,10 +6,12 @@
 ! information.
 !
 Usage: ADDN nick [nick ...]
+  Adds user to your notify list
+
   If nick is of form nick!filter where filter is user@host mask, notify
   will be triggered only by people matching filter. If only nick is
   used ircII style notify is used.
-  
+
 See also:
   REMN
   LISTN

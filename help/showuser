@@ -1,4 +1,4 @@
-!	 $Id: showuser,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: showuser,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: SHOWUSER [-O] [-H] [-V] [-F] [-S] [#channels] filter filter...
+  Shows all users that match filter and channel
+
   -O lists channel operators, -H lists halfopped (+h) users, -V lists
   voiced (+v) users, -F lists friends, and -S lists shitlisted people.
   You can combine multiple flags together. If you prepend N before O,
@@ -13,4 +15,3 @@ Usage: SHOWUSER [-O] [-H] [-V] [-F] [-S] [#channels] filter filter...
   include * and ?. Channels is a list of channels separated with ','
   (it must start with #), it can include * and ?. Default is to list
   all people on current channel.
-  

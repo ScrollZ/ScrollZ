@@ -1,4 +1,4 @@
-!	 $Id: close,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: close,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: CDCC CLOSE [pattern]
+  Closes dcc(s)
+
   You just have to enter what dcc(s) you want to close (for more
   info on how to choose what dcc(s) to close refer to CDCC GET).
-  
+
 See also:
   CDCC
   SEND

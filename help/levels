@@ -1,4 +1,4 @@
-!	 $Id: levels,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: levels,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: LEVELS
+  List of all user/shit levels available in ScrollZ
+
   Available user levels are :
   I   user can request invite through CTCP
   V   user can request voice through CTCP
@@ -38,4 +40,3 @@ Usage: LEVELS
   B   user will be banned on join
   I   user will be ignored on join
   P   permanent ban, enforced at all times if possible
-  

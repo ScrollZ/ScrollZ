@@ -1,4 +1,4 @@
-!	 $Id: llook,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: llook,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: LLOOK [-LOAD filename|-SAVE filename]
+  This will store LINKS info internally
+
   When no args are give LINKS info is stored internally. -SAVE will
   save this information to a file. -LOAD will restore this information
   from a file previously saved with -SAVE.
-  
+
 See also:
   LLOOKUP

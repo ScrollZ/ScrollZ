@@ -1,4 +1,4 @@
-!	 $Id: ig,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: ig,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,12 +6,14 @@
 ! information.
 !
 Usage: IG [-T time] nick [type]
+  Ignores user
+
   This will ignore by user@domain. If no type is given it will ignore ALL.
   Ignore will take place for IGTIME seconds unless -T is given.
   In that case, ignore will last time seconds.
   Other types are : MSGS,NOTICES,PUBLIC,INVITES,WALLOPS,
                     NOTES,CTCP,CRAP,ALL,NONE.
-  
+
 See also:
   NOIG
   IGTIME

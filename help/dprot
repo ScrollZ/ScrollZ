@@ -1,4 +1,4 @@
-!	 $Id: dprot,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: dprot,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,10 +6,12 @@
 ! information.
 !
 Usage: DPROT on channels|off
+  Toggles mass deop protection on/off
+
   This will react only on people that have access lower than P or G and
   if mass deop protection is ON. When number of deops doubles that of
   DEOPS, user will be kicked if KICKONFLOOD is ON.
-  
+
 See also:
   KICKONFLOOD
   DEOPS

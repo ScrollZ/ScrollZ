@@ -1,4 +1,4 @@
-!	 $Id: awaysave,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: awaysave,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: AWAYSAVE [-]type
+  Defines what to save in ScrollZ.away
+
   Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
   PROT, HACK, SRVMODE, CTCP, FLOOD, INVITE, KILL, KICK, SERVER, FAKE,
   AREPLY, CHAT, NOTIFY, SENTMSG or ALL. You can specify multiple
@@ -13,4 +15,3 @@ Usage: AWAYSAVE [-]type
   NONE. If preceeded by minus such events will not be saved. Note that
   effects accumulate so if you specify only one type it will be added
   to current set.
-  

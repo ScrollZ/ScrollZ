@@ -1,14 +1,16 @@
-!	 $Id: topiclock,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: topiclock,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: TOPICLOCK [#channel mode]
+Usage: TOPICLOCK [#channel topic]
+  Sets channel's topic lock
+
   Several channels can be specified at once, separate them with comma.
   Every channel's name must start with #. Stored topic locks for all
   channels are shown if no arguments are given.
-  
+
 See also:
   TOPICUNLOCK

@@ -1,4 +1,4 @@
-!	 $Id: dirlsn,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: dirlsn,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,10 @@
 ! information.
 !
 Usage: DIRLSN [nick|#channel]
+  Redirects last sent notice to nick/channel
+
   If no nick/channel is specified it will redirect to current channel.
-  
+
 See also:
   DIRLN
   DIRLM

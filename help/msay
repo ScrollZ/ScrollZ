@@ -1,4 +1,4 @@
-!	 $Id: msay,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: msay,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,7 @@
 ! information.
 !
 Usage: MSAY [#channels] text
+  Sends text to all channels you're on
+
   Channels is list of channels separated with comma, you can
   include * and ?.
-  

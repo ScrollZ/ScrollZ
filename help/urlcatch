@@ -1,4 +1,4 @@
-!	 $Id: urlcatch,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: urlcatch,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: URLCATCH on|auto|quiet|off
+  Toggles URL catcher on/off
+
   If set to AUTO, client will look for publics with *tp:/*.* in them and
   use NOTEPAD to save such entries. QUIET works the same, the only
   difference is that no message will be printed about stored URLs. When set
   to ON, you can use URL to save last grabbed URL.
-  
+
 See also:
   URL
   NOTEPAD

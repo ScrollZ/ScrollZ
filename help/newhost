@@ -1,4 +1,4 @@
-!	 $Id: newhost,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: newhost,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,9 @@
 ! information.
 !
 Usage: NEWHOST [hostname] || [[#]number]
+  For people with virtual IP
+
   Changes your hostname on the fly and reconnects to server. When no
   arguments are passed and client was compiled with -DJIMMIE, all
   available hostnames will be listed. With this option, you can also
   specify new hostname as [#]number.
-  

@@ -1,4 +1,4 @@
-!	 $Id: chanlogdir,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: chanlogdir,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,10 @@
 ! information.
 !
 Usage: CHANLOGDIR path
+  Sets the path to a directory with logfiles
+
   If path is a minus ('-') first directory from SET LOAD_PATH is used.
-  
+
 See also:
   CHANLOG
   CHANLOGPOST

@@ -1,4 +1,4 @@
-!	 $Id: stamp,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: stamp,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: STAMP on|off|max
+  Toggles time stamping on publics on/off
+
   When set to on, client will output time in front of publics. When set
   to MAX client will output time in front of a lot more events (kicks,
   joins, topic changes, mode changes, ...).
-  

@@ -1,4 +1,4 @@
-!	 $Id: autoinv,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: autoinv,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: AUTOINV on channels|off
+  Toggles auto invite on notify on/off
+
   If set to on, client will automatically invite users who have access to
   INVITE, CHOPS, OP and UNBAN when sign-on is detected for them. Note that
   they will be invited only to +i channels.
-  

@@ -1,4 +1,4 @@
-!	 $Id: extpub,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: extpub,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: EXTPUB on|off
+  Toggles extended public messages display on/off
+
   When enabled, @ will be shown in front of a user's public message
   if they have channel operator status, % will be shown if they have
   halfop status, or + will be shown if they have voice status.
-  

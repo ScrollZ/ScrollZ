@@ -1,4 +1,4 @@
-!	 $Id: addfchan,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: addfchan,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: ADDFCHAN filter|#number channel
+  Adds channels for userlist entries
+
   Number is the same as in TBAN or CDCC GET. Example :
   #-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
   from 12 and on. Numbers for entries are shown with LISTF. Note
@@ -13,7 +15,7 @@ Usage: ADDFCHAN filter|#number channel
   remove it (no wildcards are allowed). If #number is does not start
   with digit, it is considered a channel name, and in that case all
   channel will be added to all entries that match #number.
-  
+
 See also:
   ADDF
   ADDFFLAG

@@ -1,4 +1,4 @@
-!	 $Id: showidle,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: showidle,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,10 +6,12 @@
 ! information.
 !
 Usage: SHOWIDLE [channels [filter]]
+  Shows idle time for users on channel
+
   Shows idle time for specified channel. If no channel is given current
   channel is used. If filter is given, idle time for users matching filter
   is displayed.
-  
+
 See also:
   IDLEKICK
   IDLETIME

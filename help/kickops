@@ -1,4 +1,4 @@
-!	 $Id: kickops,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: kickops,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,10 +6,12 @@
 ! information.
 !
 Usage: KICKOPS on channels|off
+  Toggles whether to kick chan-ops on/off
+
   When set to on, channel operators will be kicked on word-kick and
   filter-kick. When set to off, only non channel operators will be
   kicked on word-kick and filter-kick.
-  
+
 See also:
   ADDW
   FBK

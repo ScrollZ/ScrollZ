@@ -1,4 +1,4 @@
-!	 $Id: keys,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: keys,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: KEYS
+  List of default ScrollZ key binds
+
   Cursor left/right moves cursor in input line left and right
   Cursor up/down is for next/previous command
   PageUp or Alt-P scrolls backward
@@ -21,4 +23,3 @@ Usage: KEYS
   Control-_ toggles underline on/off
   F1 this help
   F2 will join last channel you have been invited to
-  

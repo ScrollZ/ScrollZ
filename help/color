@@ -1,4 +1,4 @@
-!	 $Id: color,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: color,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: COLOR event color1 color2 color3 color4 color5
+  Sets colors for events
+
   Available events are WARNING, JOIN, MSG, NOTICE, NETSPLIT, INVITE,
   MODE, SETTING, HELP, LEAVE, NOTIFY, CTCP, KICK, DCC, WHO, WHOIS,
   PUBLIC, CDCC, LINKS, DCCCHAT and CSCAN. Available colors are BOLD,
@@ -13,4 +15,3 @@ Usage: COLOR event color1 color2 color3 color4 color5
   CYAN and WHITE. You can also set background colors by appending BG
   to color name (example : REDBG). You can combine colors together,
   use comma to separate them (example : BOLD,YELLOW).
-  

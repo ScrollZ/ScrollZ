@@ -1,4 +1,4 @@
-!	 $Id: playback,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: playback,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,9 @@
 ! information.
 !
 Usage: PLAYBACK [-R] [pattern]
+  Shows away file without setting you back
+
   Plays back stored messages without marking you as not being away.
   If -R is passed as an argument, messages will be played in
   reverse order. Optional pattern may include * and ?. If used,
   only entries matching pattern will be shown.
-  

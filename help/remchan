@@ -1,4 +1,4 @@
-!	 $Id: remchan,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: remchan,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: REMCHAN setting channel
+  Removes channels from ScrollZ settings
+
   This is used to remove channel for specified setting. Possible
   settings are: AJOIN, AREJOIN, BITCH, DPROT, FAKE, FRLIST, KICKONBAN,
   KICKONFLOOD, KICKOPS, KPROT, NHPROT, NPROT and SHOWAWAY.
-  
+
 See also:
   ADDCHAN

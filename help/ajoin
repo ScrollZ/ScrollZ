@@ -1,4 +1,4 @@
-!	 $Id: ajoin,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: ajoin,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,9 @@
 ! information.
 !
 Usage: AJOIN on|auto channels|off
+  Toggles auto join on invite
+
   Channels is a list of channels separated by , (like : #te,#chan*).
   If marked away and is set to "auto", client will try to join channels 
   you specify every 500 seconds (channels with * and ? will be ignored).
   When set to on, only auto join on invite will take place.
-  

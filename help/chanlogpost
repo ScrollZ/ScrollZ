@@ -1,4 +1,4 @@
-!	 $Id: chanlogpost,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: chanlogpost,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,10 @@
 ! information.
 !
 Usage: CHANLOGPOST postfix
+  Sets a string to postfix the logfiles with
+
   If postfix is a minus ('-') the postfix is removed.
-  
+
 See also:
   CHANLOG
   CHANLOGDIR

@@ -1,4 +1,4 @@
-!	 $Id: secure,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: secure,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: CDCC SECURE on|off
+  Toggles Cdcc security on/of
+
   If turned ON, only people from your friends list that have D access
   will be able to get offered files. If turned OFF, everyone will be able
   to get your offered files. The same rules apply if CDCC AUTOGET is
   turned on.
-  
+
 See also:
   ADDF
   REMF

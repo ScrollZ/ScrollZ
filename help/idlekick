@@ -1,4 +1,4 @@
-!	 $Id: idlekick,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: idlekick,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: IDLEKICK on|auto channels|off
+  Toggles idle kick on/off
+
   This will not kick friends, channel operators or voiced users.
   If set to auto, all non opped users will be kicked.
-  
+
 See also:
   IDLETIME
   SHOWIDLE

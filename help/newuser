@@ -1,11 +1,11 @@
-!       $Id: newuser,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: newuser,v 1.4 2002-02-20 20:03:23 f Exp $
 !
-! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
-! and other ircII contributors.
+! Copyright (c) 1994-2002 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-
 Usage: NEWUSER username [your info]
+  Changes your username if possible
+
   This will fail if your system runs ident.

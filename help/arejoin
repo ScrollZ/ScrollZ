@@ -1,4 +1,4 @@
-!	 $Id: arejoin,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: arejoin,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,7 @@
 ! information.
 !
 Usage: AREJOIN on channels|off
+  Toggles auto rejoin on kick
+
   Channels is a list of channels separated by , (like : #te,#chan*).
   Client will rejoin such channels on kick.
-  

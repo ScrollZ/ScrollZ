@@ -1,4 +1,4 @@
-!	 $Id: nhprot,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: nhprot,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: NHPROT on channels|off quiet|medium|full
+  Toggles nethack protection on/off and sets display level
+
   When set to OFF, no action will be taken on netsplit hacks. If ON,
   it will deop people that are not on your friends list. Display type
   toggles the info that is displayed when netsplit/netjoin occurs. If
@@ -14,4 +16,3 @@ Usage: NHPROT on channels|off quiet|medium|full
   MEDIUM but will display netsplit hacks too. People that left with
   netsplit will be stored internally only if display level is set to
   MEDIUM or FULL.
-  

@@ -1,4 +1,4 @@
-!	 $Id: autocompl,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: autocompl,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: AUTOCOMPL on string|auto string|off
+  Toggles auto nick completion on/off
+
   If set to on or auto, client will do the nick completion for you on
   public messages. If public message starts with 'blah:' client will
   search for nick starting with 'blah' on current channel and insert
@@ -16,4 +18,3 @@ Usage: AUTOCOMPL on string|auto string|off
   on or auto is string that'll be inserted on right side of the nick.
   If set to off, message is left untouched. 
   right side of the nick.
-  

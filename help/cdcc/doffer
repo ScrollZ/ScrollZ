@@ -1,4 +1,4 @@
-!	 $Id: doffer,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: doffer,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: CDCC DOFFER [pattern]
+  Removes pack(s) from offer list
+
   You just have to enter set of pack(s) to deoffer (for more info
   on how to choose what pack(s) to deoffer refer to CDCC PSEND).
-  
+
 See also:
   CDCC
   OFFER

@@ -1,4 +1,4 @@
-!	 $Id: awayt,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: awayt,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,10 @@
 ! information.
 !
 Usage: AWAYT time_in_minutes
+  Sets time before you're automatically set away if idle
+
   Default auto-away time is 10. Setting this to 0 disables auto-away.
-  
+
 See also:
   PLAYBACK
   REMLOG

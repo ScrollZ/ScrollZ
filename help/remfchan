@@ -1,4 +1,4 @@
-!	 $Id: remfchan,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: remfchan,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,12 +6,14 @@
 ! information.
 !
 Usage: REMFCHAN filter|#number channel
+  Removes channels for userlist entries
+
   Number is the same as in TBAN or CDCC GET. Example :
   #-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
   from 12 and on. Numbers for entries are shown with LISTF. Note
   that channel must match the one in userlist entry if you wish to
   remove it (no wildcards are allowed).
-  
+
 See also:
   ADDF
   ADDFFLAG

@@ -1,4 +1,4 @@
-!	 $Id: t,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: t,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: T [#channel] [topic]
+  Like TOPIC
+
   If no arguments are given it will display current channel's topic,
   otherwise it will set topic on channel you have specified.
   T #channel will unset topic.
-  

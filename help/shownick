@@ -1,4 +1,4 @@
-!	 $Id: shownick,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: shownick,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: SHOWNICK on|off
+  Toggles whether to show your nick on publics
+
   If set to on, client will show your nick when sending out public messages
   like it does for other people. When set to off, it will act like plain
   vanilla client.
-  

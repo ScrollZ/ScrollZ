@@ -1,4 +1,4 @@
-!	 $Id: get,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: get,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: CDCC GET [pattern]
+  Prompts you for files to get
+
   Example :
   #   Type    Nick      Status          kb/s Completed Arguments
   #1  GET     I1        Offered                        test1
@@ -22,7 +24,7 @@ Usage: CDCC GET [pattern]
   3-                    All dcss from #3 to #6
   You can enter multiple sets (like : -2,4,5-6).
   Separator can be anything other than digits and -.
-  
+
 See also:
   CDCC
   SEND

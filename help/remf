@@ -1,4 +1,4 @@
-!	 $Id: remf,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: remf,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,13 +6,15 @@
 ! information.
 !
 Usage: REMF nick|filter
+  Removes user from your friends list
+
   Filter can include * and ? or start with #. If it starts with
   #, you can use filters like in Cdcc and TBAN. Example :
   #-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
   from 12 on. Numbers for entries are shown with LISTF.
   Channel matching is also performed if filter starts with #,
   in this case entries with channel match will be removed.
-  
+
 See also:
   ADDF
   ADDFFLAG

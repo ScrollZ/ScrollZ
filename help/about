@@ -1,4 +1,4 @@
-!	 $Id: about,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: about,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: ABOUT
+  Thank you and stuff
+
   First of all, some ScrollZ background: I decided to write ScrollZ
   because I haven't been satisfied with any of the scripts I have
   tried (including PhoEniX, GargOyle and Toolz). Special thanks goes
@@ -14,4 +16,3 @@ Usage: ABOUT
   Special greets to SZ/Net people and to all non-idiotic IRC ops.
   Special thanks to all the people that provided me with accounts,
   ircII authors and, last but not least Linux community.
-  

@@ -1,4 +1,4 @@
-!	 $Id: addbk,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: addbk,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: ADDBK nick|filter channels shit-level [comment]
+  Adds user to your shit list
+
   Filter can include * and ?. When used with nick client will create entry
   that will use pattern like *!user@*.domain.
   Channels is a list of channels separated by ',' where nick will be 
@@ -13,7 +15,7 @@ Usage: ADDBK nick|filter channels shit-level [comment]
   Comment is used as kick comment.
   Available shit-levels are: D=DEOP, K=KICK, B=BBAN, I=IGNORE and
   P=PERMBAN.
-  
+
 See also:
   BKLIST
   REMBK

@@ -1,4 +1,4 @@
-!	 $Id: repword,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: repword,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: REPWORD reply_trigger
+  Allows you to change your AutoReply buffer
+
   Considered a good idea to set this to first few letters of your nick.
   You can set multiple strings that will trigger auto reply, separate
   them with ','. If string starts with '-' it will cause the line not
   to match (example: *oo*,-*foo* would match all lines with *oo* except
   those with *foo*).
-  
+
 See also:
   ARINWIN

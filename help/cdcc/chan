@@ -1,4 +1,4 @@
-!	 $Id: chan,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: chan,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: CDCC CHAN channels
+  Sets valid channels for PLIST
+
   Channels is a list of channels separated by , you can include * and ?
   (example : #test,#c*,-#boo). When set to current, PLIST will go to
   current channel. + in front of channel name means CDCC NOTICE
   format will be used for that channel.
-  
+
 See also:
   CDCC
   PLIST

@@ -1,4 +1,4 @@
-!	 $Id: chpass,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: chpass,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,10 +6,12 @@
 ! information.
 !
 Usage: CHPASS filter password
+  Change user's password
+
   Filter can include * and ? or start with #. If it starts with #
   entries with numbers matching expression that follows # will
   be changed. To remove a password use - (minus).
-  
+
 See also:
   ADDF
   REMF.

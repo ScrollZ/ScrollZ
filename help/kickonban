@@ -1,4 +1,4 @@
-!	 $Id: kickonban,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: kickonban,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,8 @@
 ! information.
 !
 Usage: KICKONBAN on channels|off
+  Toggles whether to kick banned users that join channels
+
   This is here to protect channel from netsplit hackers that split in
   but are banned on your server. It will not kick users from your friend
   list.
-  

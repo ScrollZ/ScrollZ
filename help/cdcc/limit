@@ -1,4 +1,4 @@
-!	 $Id: limit,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: limit,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: CDCC LIMIT limit [queue limit]
+  Sets max number of active dccs
+
   This is valid for for CDCC SEND, CDCC RESEND and when people request
   offered files from you. You can get arround this by using DCC SEND.
   Queue number is used to set limit for queue. Setting it to zero allows
   for unlimited queue size.
-  
+
 See also:
   CDCC
   QUEUE

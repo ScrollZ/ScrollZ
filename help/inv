@@ -1,4 +1,4 @@
-!	 $Id: inv,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: inv,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,5 +6,6 @@
 ! information.
 !
 Usage: INV nick [[#]channel]
+  Invites nick to channel
+
   If no channel is given it will invite nick to current channel
-  

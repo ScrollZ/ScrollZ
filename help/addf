@@ -1,4 +1,4 @@
-!	 $Id: addf,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: addf,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: ADDF nick|filter channels access [password]
+  Adds user to your friends list
+
   Filter can include * and ?. When used with nick client will create entry
   that will use pattern like *!user@*.domain.
   Channels is a list of channels separated by ',' where nick will have
@@ -16,7 +18,7 @@ Usage: ADDF nick|filter channels access [password]
   UNBAN). Client will auto invite users from notify list if they have I,
   C, O and U privileges and don't have a password set. They can
   access CTCP OPEN if they have I, O and U flags set).
-  
+
 See also:
   ADDFFLAG
   ADDFCHAN

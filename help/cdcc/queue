@@ -1,4 +1,4 @@
-!	 $Id: queue,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: queue,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: CDCC QUEUE [LIST [filter]]|[REMOVE filter]|[FLUSH]
+  Cdcc queue management system
+
   Without arguments it will list number of files in queue. If you pass it
   LIST it will show you detailed list with filename and who is it sending
   file to. If filter is passed after LIST, only files that go to nicks
@@ -13,7 +15,7 @@ Usage: CDCC QUEUE [LIST [filter]]|[REMOVE filter]|[FLUSH]
   remove files from queue by specifying filter after REMOVE. Filter is
   the same as in CDCC GET. FLUSH will force the queue to be flushed
   in case it is stuck for some reason.
-  
+
 See also:
   CDCC
   LIMIT

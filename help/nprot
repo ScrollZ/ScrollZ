@@ -1,4 +1,4 @@
-!	 $Id: nprot,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: nprot,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: NPROT on channels|off
+  Toggles nick change flood protection on/off
+
   This will react only on people that have access lower than P or G and
   if nick flood protection is ON.
-  
+
 See also:
   NICKS
   NICKT

@@ -1,4 +1,4 @@
-!	 $Id: orignick,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: orignick,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: ORIGNICK on nick [QUIET]|off
+  Toggles whether to try to revert to original nick
+
   Client will try to switch to nick specified after ON. Use ORIGNTIME
   to define how often it does that. If QUIET is specified messages
   indicating who has your wanted nick will be supressed. Multiple
   nicks can be specified by separating them with comma (example:
   john,doe). Client will use nicks in the specified order.
-  
+
 See also:
   ORIGNTIME

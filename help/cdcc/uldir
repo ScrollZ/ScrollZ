@@ -1,4 +1,4 @@
-!	 $Id: uldir,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: uldir,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,9 +6,11 @@
 ! information.
 !
 Usage: CDCC ULDIR
+  Sets the upload dir for Cdcc
+
   All the files that you send to people will be read from this dir if it
   is set. Current directory will be used otherwise.
-  
+
 See also:
   CDCC
   DLDIR

@@ -1,4 +1,4 @@
-!	 $Id: encrmsg,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: encrmsg,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,6 +6,8 @@
 ! information.
 !
 Usage: ENCRMSG [-PASS master password] [-CLEAR] [-SHOW] [target [key]]
+  Maintains encrypted communication sessions
+
   Communication with nick/channel will be encrypted using key. Both
   parties have to use the same key for encryption/decryption to work.
   If only nick is specified you will be prompted for a password. If
@@ -21,6 +23,6 @@ Usage: ENCRMSG [-PASS master password] [-CLEAR] [-SHOW] [target [key]]
   To clear the encryption list specify -CLEAR. You can set master
   password with command PASSWD. Use -PASS to specify master password
   on a command line.
-  
+
 See also:
   PASSWD

@@ -1,4 +1,4 @@
-!	 $Id: save,v 1.2 2002-02-19 20:23:30 f Exp $
+!	 $Id: save,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,8 +6,10 @@
 ! information.
 !
 Usage: CDCC SAVE [file name]
+  Saves packs to file
+
   If no file name is given, ScrollZ.offer is used.
-  
+
 See also:
   CDCC
   LOAD

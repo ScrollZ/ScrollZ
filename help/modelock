@@ -1,4 +1,4 @@
-!	 $Id: modelock,v 1.2 2002-02-19 20:23:29 f Exp $
+!	 $Id: modelock,v 1.3 2002-02-20 20:03:23 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,11 +6,13 @@
 ! information.
 !
 Usage: MODELOCK [#channel mode]
+  Sets channel's lock mode
+
   Acceptable modes are +aints, -aintskl and +l number. Several channels
   can be specified at once, separate them with comma. Every channel's
   name must start with #. Stored modes for all channels are shown if
   no arguments are given.
-  
+
 See also:
   MC
   MODEUNLOCK
