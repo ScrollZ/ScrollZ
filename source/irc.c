@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.92 2002-05-15 18:25:23 f Exp $
+ * $Id: irc.c,v 1.93 2002-07-13 14:36:48 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -789,7 +789,28 @@ process_hostname()
 		gethostname(MyHostName, sizeof(MyHostName));
 #ifndef INET6
 	if ((hp = gethostbyname(MyHostName)) != NULL)
+/**************************** Patched by Flier ******************************/
+        {
+                int s;
+
+/****************************************************************************/
 		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
+/**************************** Patched by Flier ******************************/
+                if ((s = socket(AF_INET, SOCK_STREAM, 0)) >= 0) {
+                    struct sockaddr_in localaddr;
+
+                    memset(&localaddr, 0, sizeof(struct sockaddr_in));
+                    localaddr.sin_family = AF_INET;
+                    localaddr.sin_addr = MyHostAddr;
+                    localaddr.sin_port = 0;
+                    if ((bind(s, (struct sockaddr *) &localaddr, sizeof(localaddr))) != 0) {
+                        memset(&MyHostAddr, 0, sizeof(MyHostAddr));
+                        say("Invalid virtual host %s", MyHostName);
+                    }
+                    close(s);
+                }
+        }
+/****************************************************************************/
 #endif
 }
 
