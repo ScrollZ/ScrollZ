@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.27 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.29 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -560,7 +560,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.30 2002-03-11 20:25:01 f Exp $' > /dev/null
+echo '$Id: configure,v 1.31 2004-01-04 17:18:03 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -5529,13 +5529,30 @@ else
     fi
 fi
 
+if test "x$COPY_DIRECTORY" = "xpax";
+then
+    INSTALL_TRANSLATION_CMD='cd translation; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(TRANS_PATH)'
+else
+    if test "x$COPY_DIRECTORY" = "xtar";
+    then
+	INSTALL_TRANSLATION_CMD='cd translation; tar -cf - . | ( cd $(TRANS_PATH); tar -xf - )'
+    else
+	if test "x$COPY_DIRECTORY" = "xcpio";
+	then
+	    INSTALL_TRANSLATION_CMD='cd translation; find . -print | cpio -pdu $(TRANS_PATH)'
+	else
+	    INSTALL_TRANSLATION_CMD="@echo \"I couldn't figure out a way to install the translation files.\""
+	fi
+    fi
+fi
+
 
 for ac_prog in gzcat zcat gunzip gzip uncompress uncompress
 do
 # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:5539: checking for $ac_word" >&5
+echo "configure:5556: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_ZCAT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -5610,7 +5627,7 @@ if test -z "$SENDMAIL"; then
   # Extract the first word of `sendmail', so it can be a program name with args.
   set dummy sendmail; word=$2
   echo $ac_n "checking for $word""... $ac_c" 1>&6
-echo "configure:5614: checking for $word" >&5
+echo "configure:5631: checking for $word" >&5
   IFS="${IFS= 	}"; saveifs="$IFS"; IFS="${IFS}:"
   for dir in $_PATH; do
     test -z "$dir" && dir=.
@@ -5771,6 +5788,7 @@ s%@EXTRA_SOURCES@%$EXTRA_SOURCES%g
 s%@IRCLIB@%$IRCLIB%g
 s%@COPY_DIRECTORY@%$COPY_DIRECTORY%g
 s%@INSTALL_HELP_CMD@%$INSTALL_HELP_CMD%g
+s%@INSTALL_TRANSLATION_CMD@%$INSTALL_TRANSLATION_CMD%g
 s%@ZCAT@%$ZCAT%g
 s%@SENDMAIL@%$SENDMAIL%g
 s%@RM@%$RM%g
