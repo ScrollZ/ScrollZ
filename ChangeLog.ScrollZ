@@ -139,6 +139,9 @@ Meaning of flags:
       address (reported by kurd)
     ! don't allow unbindable IP address for virtual hostname, use
       hostname in that case to allow client to connect (reported by kurd)
+    ! URL catcher was saving wrong URL to ScrollZ.notepad (reported by jaska)
+    ! WINDOW NEW followed by WINDOW KILL crash when not connected to a server
+      (reported by brain)
 
 ------------------------------------------------------------------------------
 
