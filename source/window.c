@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.33 2001-07-22 09:05:27 f Exp $
+ * $Id: window.c,v 1.34 2001-11-08 19:36:22 f Exp $
  */
 
 #include "irc.h"
@@ -2932,7 +2932,7 @@ windowcmd(command, args, subargs)
 /*#if defined(_Windows)*/
 /****************************************************************************/
 #ifndef LITE
-		else if (strncmp("TITLE", arg, len) == 0)
+		else if (strncmp("TITLE", cmd, len) == 0)
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*if ((arg = next_arg(args, &args)) != NULL)*/
