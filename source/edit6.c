@@ -72,7 +72,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.147 2003-12-24 19:42:33 f Exp $
+ * $Id: edit6.c,v 1.148 2003-12-30 17:09:48 f Exp $
  */
 
 #include "irc.h"
@@ -2914,10 +2914,12 @@ char *channel;
 /* Force redraw of status bars and input prompt */
 void RedrawAll(void) {
     build_status(NULL);
-    current_screen->input_buffer[0]=current_screen->input_buffer[0]^255;
-    current_screen->input_buffer[1]='\0';
+    if (current_screen->input_buffer[0]) {
+        current_screen->input_buffer[0] = current_screen->input_buffer[0] ^ 255;
+        current_screen->input_buffer[1] = '\0';
+    }
     update_input(UPDATE_ALL);
-    refresh_screen(0,NULL);
+    refresh_screen(0, NULL);
 }
 
 /* Compare two pointers for list.c */
