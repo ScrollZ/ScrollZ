@@ -109,6 +109,34 @@ added AUTOOPDELAY (requested by enkil)
 fixed IGNORE * CRAP preventing client from caching topic (reported by
       Sparhawk)
 added new friend list flag X for instant op
+added -A to NEWHOST to query more interfaces (requested by zero)
+fixed channel loss bug when user joined maximum number of channels
+      (reported by ogre)
+changed the way auto replies work, now whole word is matched - if you want
+        old style matching use *word* (requested by arc)
+fixed closing DCCs with spaces in filenames (reported by arc)
+fixed bug where client got all confused when user supplied illegal
+      nick to NICK (reported by dds)
+fixed bug with auto nick change routine when nick was 9 characters long
+      (reported by dds)
+hopefully fixed ircII bug that is responsible for broken lastlog
+          (reported by many users)
+fixed crash when joining channel which wasn't successfully joined in
+      previous attempt (reported by whytefang)
+fixed crash upon ping reply in some cases (reported by Damm)
+added SENTMSG type to AWAYSAVE (it saves sent publics and private
+      messages, requested by Ahnberg)
+fixed XECHO -LEVEL ircII bug (reported by Ahnberg)
+added mnemonics to TIMER (ie. TIMER 1d2h30m4s SAY hi, requested by arc)
+channel key reported via notice is stored and is used upon join
+        (ScrollZ, Pupette, C-ToolZ and BitchX formats are supported, thanks
+         to asylum and acidflash for snippets of code)
+changed tabkey behaviour, if input line is /m nick<space> it cycles
+        through tabkey list and if there is no space after nick it cycles
+        through matching nicks (this fixes most of tabkey bugs, reported by
+        acidflash and Merlin)
+hopefully fixed annoying PONG messages from server being displayed when
+          client got confused about server name
 
 
 -------------------------------------------------------------------------------
