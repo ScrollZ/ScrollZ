@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.120 2002-01-08 17:34:44 f Exp $
+ * $Id: edit6.c,v 1.121 2002-01-08 17:59:48 f Exp $
  */
 
 #include "irc.h"
@@ -3058,8 +3058,8 @@ char *subargs;
 void UpdateChanLogFName(chan)
 ChannelList *chan;
 {
-    char *filename = (char *) 0;
-    char *filepath = (char *) 0;
+    char *filename = NULL;
+    char *filepath = NULL;
 
     if (!chan || !chan->ChanLog) return;
     if (ChanLogPrefix) malloc_strcpy(&filename, ChanLogPrefix);
@@ -3070,11 +3070,14 @@ ChannelList *chan;
 
         path = OpenCreateFile(filename, 1);
         if (path) malloc_strcpy(&filepath, path);
+        new_free(&filename);
     }
     malloc_strcpy(&(chan->chanlogfpath), filepath);
-    malloc_strcat(&(chan->chanlogfpath), "/");
-    malloc_strcat(&(chan->chanlogfpath), filename);
-    new_free(&filename);
+    if (filename) {
+        malloc_strcat(&(chan->chanlogfpath), "/");
+        malloc_strcat(&(chan->chanlogfpath), filename);
+        new_free(&filename);
+    }
     new_free(&filepath);
 }
 
