@@ -1,4 +1,4 @@
-!	 $Id: encrypt_program,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: encrypt_program,v 1.5 2002-04-08 15:48:45 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,16 +7,19 @@
 ! information.
 !
 Usage: SET ENCRYPT_PROGRAM <encryption program path>
-  Sets the program used to encrypt and decrypt messages.  The
-  program selected must take an encryption key as the first
-  line written to work with ircII, with the second and
-  subsequent lines the text to encrypted, which is expected
-  on the programs standard output.
+  Sets the program used to encrypt messages.  The program
+  selected must take an encryption key as the first line
+  written to work with ircII, with the second and subsequent
+  lines the text to be encrypted, which is expected on the
+  programs standard output.
 
   Note that in ircII 4.4 and previous, this variables program
-  API was different.  Originally the encryption key was they
+  API was different.  Originally the encryption key was the
   command line argument, and the program a true filter.
   However, it is not secure from local users snooping the
   key and being able to decrypt messages, should they obtain
   them.  Set the OLD_ENCRYPT_PROGRAM variable to ON
   to obtain this old behaviour.
+
+See also:
+  SET DECRYPT_PROGRAM
