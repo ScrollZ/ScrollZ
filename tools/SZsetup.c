@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $Id: SZsetup.c,v 1.5 2003-01-08 20:00:54 f Exp $
+ * $Id: SZsetup.c,v 1.6 2003-01-08 20:09:56 f Exp $
  */
 
 #include <stdio.h>
@@ -97,7 +97,7 @@ int lastscrcolor=0;    /* last ScrollZ color cursor was on 1-6 */
 int where=0;           /* 0=setting  1=color */
 int message=0;         /* whether there was a message displayed */
 
-void main(argc,argv)
+int main(argc,argv)
 int argc;
 char **argv;
 {
@@ -106,7 +106,7 @@ char **argv;
 
     if (argc<2) {
         printf("Usage : %s [-l filename] savefile\n",argv[0]);
-        return;
+        return 1;
     }
     for (i=1;i<argc;i++) {
         if (!strcasecmp(argv[i],"-l")) {
@@ -116,7 +116,7 @@ char **argv;
             }
             else {
                 printf("Usage : %s [-l filename] savefile\n",argv[0]);
-                return;
+                return 1;
             }
         }
         else savefile=argv[i];
@@ -124,12 +124,12 @@ char **argv;
     }
     if (!savefile) {
         printf("Usage : %s [-l filename] savefile\n",argv[0]);
-        return;
+        return 1;
     }
     if (filename) {
         if ((fp=fopen(filename,"r"))==NULL) {
             printf("Error, can't open %s\n",filename);
-            return;
+            return 1;
         }
         fclose(fp);
     }
@@ -142,6 +142,7 @@ char **argv;
     attrset(COLWHITE);
     printf("[?25h\n");
     reset_term();
+    return 0;
 }
 
 void set_term() {
