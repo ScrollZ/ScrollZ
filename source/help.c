@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.11 2002-01-24 19:59:04 f Exp $
+ * $Id: help.c,v 1.12 2002-02-16 18:33:17 f Exp $
  */
 
 /*
@@ -571,7 +571,7 @@ help_me(topics, args)
 #endif /* _Windows */
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '/';
-#ifndef _Windows
+#ifdef _Windows
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '\\';
 	for (ptr = path; (ptr = index(ptr, '/'));)
