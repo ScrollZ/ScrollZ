@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.3 1998-09-27 16:30:07 f Exp $
+ * $Id: server.c,v 1.4 1998-10-21 18:23:45 f Exp $
  */
 
 #include "irc.h"
@@ -527,6 +527,10 @@ add_to_server_list(server, port, password, nick, overwrite)
 		server_list[from_server].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
                 server_list[from_server].umodeflags=0;
+                server_list[from_server].LastMessage=(char *) 0;
+                server_list[from_server].LastNotice=(char *) 0;
+                server_list[from_server].LastMessageSent=(char *) 0;
+                server_list[from_server].LastNoticeSent=(char *) 0;
                 server_list[from_server].arcur=(struct nicks *) 0;
                 server_list[from_server].arlist=(struct nicks *) 0;
                 server_list[from_server].nickcur=(struct nicks *) 0;
@@ -662,6 +666,14 @@ remove_from_server_list(i)
 	if (server_list[i].ctcp_send_size)
 		new_free(&server_list[i].ctcp_send_size);
 /**************************** PATCHED by Flier ******************************/
+        if (server_list[i].LastMessage)
+            new_free(&(server_list[i].LastMessage));
+        if (server_list[i].LastNotice)
+            new_free(&(server_list[i].LastNotice));
+        if (server_list[i].LastMessageSent)
+            new_free(&(server_list[i].LastMessageSent));
+        if (server_list[i].LastNoticeSent)
+            new_free(&(server_list[i].LastNoticeSent));
         for (tmpnick=server_list[i].arlist;tmpnick;) {
             tmpnickfree=tmpnick;
             tmpnick=tmpnick->next;
@@ -1026,6 +1038,26 @@ connect_to_server(server_name, port, c_server)
                     struct nicks *tmp;
                     struct nicks *tmpfree;
 
+                    if (server_list[server_index].LastMessage)
+                        new_free(&(server_list[server_index].LastMessage));
+                    if (server_list[server_index].LastNotice)
+                        new_free(&(server_list[server_index].LastNotice));
+                    if (server_list[server_index].LastMessageSent)
+                        new_free(&(server_list[server_index].LastMessageSent));
+                    if (server_list[server_index].LastNoticeSent)
+                        new_free(&(server_list[server_index].LastNoticeSent));
+                    if (server_list[c_server].LastMessage)
+                        malloc_strcpy(&(server_list[server_index].LastMessage),
+                                      server_list[c_server].LastMessage);
+                    if (server_list[c_server].LastNotice)
+                        malloc_strcpy(&(server_list[server_index].LastNotice),
+                                      server_list[c_server].LastNotice);
+                    if (server_list[c_server].LastMessageSent)
+                        malloc_strcpy(&(server_list[server_index].LastMessageSent),
+                                      server_list[c_server].LastMessageSent);
+                    if (server_list[c_server].LastNoticeSent)
+                        malloc_strcpy(&(server_list[server_index].LastNoticeSent),
+                                      server_list[c_server].LastNoticeSent);
                     for (tmp=server_list[server_index].arlist;tmp;) {
                         tmpfree=tmp;
                         tmp=tmp->next;
