@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.22 2000-02-14 17:12:28 f Exp $
+ * $Id: operv.c,v 1.23 2000-08-06 19:43:03 f Exp $
  */
 
 #include "irc.h"
@@ -58,14 +58,17 @@ char *command;
 char *args;
 char *subargs;
 {
+    int incurwin=0;
     char *tmp=(char *) 0;
     char tmpbuf[mybufsize/4+1];
     unsigned int display;
 
     tmp=next_arg(args,&args);
     if (tmp) {
-	if (!my_stricmp("ON",tmp)) {
-	    if (OperV) say("OperVision is already turned on");
+	if (!my_stricmp("ON",tmp) || !my_stricmp("HERE",tmp)) {
+            if (!my_stricmp("HERE",tmp)) incurwin=1;
+	    if (OperV && !incurwin)
+                say("OperVision is already turned on");
             else {
 		OperV=1;
                 ServerNotice=1;
@@ -74,27 +77,18 @@ char *subargs;
                 send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
                 /* made one window command, made it jump back to current window when
                    it's done, all output from /WINDOW command is supressed   -Flier */
-                strcpy(tmpbuf,"NEW NAME OV DOUBLE OFF LEVEL OPNOTE,SNOTE,WALLOP REFNUM 1 GROW 6");
+                if (incurwin)
+                    strcpy(tmpbuf,"NAME OV DOUBLE OFF LEVEL +OPNOTE,SNOTE,WALLOP");
+                else
+                    strcpy(tmpbuf,"NEW NAME OV DOUBLE OFF LEVEL OPNOTE,SNOTE,WALLOP REFNUM 1 GROW 6");
                 display=window_display;
                 window_display=0;
                 windowcmd(NULL,tmpbuf,NULL);
                 window_display=display;
-                say("OperVision is now enabled");
+                say("OperVision is now enabled%s",
+                    incurwin?" in current window":"");
 	    }
 	}
-        else if (!my_stricmp("HERE",tmp)) {
-            OperV=1;
-            ServerNotice=1;
-            /* turn on additional user modes */
-            CreateMode(tmpbuf,mybufsize/4);
-            send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
-            strcpy(tmpbuf,"NAME OV DOUBLE OFF LEVEL +OPNOTE,SNOTE,WALLOP");
-            display=window_display;
-            window_display=0;
-            windowcmd(NULL,tmpbuf,NULL);
-            window_display=display;
-            say("OperVision is now enabled in current window");
-        }
 	else if (!my_stricmp("OFF",tmp)) {
 	    if (!OperV) say("OperVision is not currently active");
 	    else {
