@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.71 2004-01-03 18:06:47 f Exp $
+ * $Id: parse.c,v 1.72 2004-04-20 18:26:35 f Exp $
  */
 
 #include "irc.h"
@@ -461,7 +461,7 @@ p_wallops(from, ArgList)
                 /* Why not show user their own wallops ? I will ignore this */
 		/*else if (strcmp(from, get_server_nickname(get_window_server(0))) != 0)
 			put_it("!%s! %s", from, line);*/
-                else {
+                else if (flag != IGNORED) {
 		    char *stampbuf = TimeStamp(2);
 #if defined(OPERVISION) && defined(WANTANSI)
                     if (OperV) OVformat(line,from);
