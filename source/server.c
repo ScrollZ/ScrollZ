@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.54 2002-04-07 15:55:10 f Exp $
+ * $Id: server.c,v 1.55 2002-08-13 19:36:19 f Exp $
  */
 
 #include "irc.h"
@@ -1390,7 +1390,7 @@ login_to_server(server)
 
             say("SSL connect in progress ...");
             SSLeay_add_ssl_algorithms();
-            server_list[server].meth = SSLv2_client_method();
+            server_list[server].meth = SSLv3_client_method();
             SSL_load_error_strings();
             server_list[server].ctx = SSL_CTX_new(server_list[server].meth);
             CHK_NULL(server_list[server].ctx);
