@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.37 2001-05-08 17:37:16 f Exp $
+ * $Id: parse.c,v 1.38 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -1802,12 +1802,6 @@ irc2_parse_server(line)
 	int	numeric;
 	char	**ArgList;
 	char	*TrueArgs[MAXPARA + 1];
-/**************************** PATCHED by Flier ******************************/
-#ifdef IPCHECKING
-        int     canhook=1;
-        char    *tmpstr;
-#endif
-/****************************************************************************/
 
 	if ((char *) 0 == line)
 		return;
@@ -1818,25 +1812,6 @@ irc2_parse_server(line)
 	if (*end == '\r')
 		*end-- = '\0';
 
-/**************************** PATCHED by Flier ******************************/
-#ifdef IPCHECKING
-        if ((tmpstr=index(line,' ')) && end-tmpstr>7) {
-            tmpstr++;
-            if (tmpstr[0]=='P' && tmpstr[1]=='R' && tmpstr[2]=='I' && tmpstr[3]=='V' &&
-                tmpstr[4]=='M' && tmpstr[5]=='S' && tmpstr[6]=='G') {
-                if ((tmpstr=index(tmpstr+8,' ')) && end-tmpstr>7) {
-                    tmpstr++;
-                    tmpstr++;
-                    if (tmpstr[0]=='' && tmpstr[1]=='W' && tmpstr[2]=='H' &&
-                        tmpstr[3]=='O' && tmpstr[4]=='A' && tmpstr[5]=='M' &&
-                        tmpstr[6]=='I')
-                        canhook=0;
-                }
-            }
-        }
-        if (canhook)
-#endif
-/****************************************************************************/
 	if (*line == ':')
 	{
 		if (!do_hook(RAW_IRC_LIST, "%s", line + 1))

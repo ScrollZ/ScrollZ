@@ -341,9 +341,6 @@
 /* Define this if you have getloadavg(), BSD systems do */
 #undef HAVEGETLOADAVG
 
-/* Define this if you want IP checking */
-#undef IPCHECKING
-
 /* Define this if you want client with ANSI (color) support */
 #define WANTANSI
 

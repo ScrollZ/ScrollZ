@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.61 2001-05-08 17:36:33 f Exp $
+ * $Id: edit3.c,v 1.62 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -93,7 +93,6 @@ extern void NotChanOp _((char *));
 extern void NoWindowChannel _((void));
 extern void ShowHelpLine _((char *));
 extern void PrintUsage _((char *));
-extern void MangleString _((char *, char *, int));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern int  AddLast _((List *, List *));
 extern int  CheckPrivs _((char *, char *));
@@ -104,10 +103,6 @@ extern void dcc_chat _((char *));
 extern void dcc_close _((char *));
 
 extern char *ScrollZver1;
-extern char *chars;
-#ifdef IPCHECKING
-extern char global_track[];
-#endif
 
 static FILE *helpfile;
 static char tmpbufhlp[mybufsize/32];
@@ -2645,11 +2640,6 @@ void InitVars() {
     tmpstr2--;
     *tmpstr2='\0';
     malloc_strcpy(&ScrollZver1,tmpstr1);
-#ifdef IPCHECKING
-    MangleString(global_track,tmpbuf,1);
-    if (!(*tmpbuf)) strcpy(tmpbuf,ScrollZver);
-    malloc_strcpy(&channel_join,tmpbuf);
-#endif
     InitKeysColors();
 }
 

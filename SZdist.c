@@ -1,9 +1,9 @@
 /*
- * This little piece of code should make life easier for ScrollZ distro team.
+ * This little piece of code should make life easier for customizing ScrollZ.
  *
  * Be sure to follow next steps, otherwise things won't work !!!
- * First of all, run configure and compile client with your defaults. Next,
- * compile this program and put it in main ScrollZ dir (this *IS* important).
+ * First of all, run configure. Next, compile this program and put it in
+ * main ScrollZ dir (this *IS* important).
  * It needs include/defs.h and include/defs.h.in to operate plus working rm
  * (yes, the UN*X command).
  *
@@ -13,18 +13,16 @@
  * or press 'S' to save. If you opted for latter, just type make irc and in a
  * matter of minutes you will have binary of your choice.
  *
- * Now that ScrollZ has a lot of compile-time options, we needed this so you
- * can simply ask user what options he wants, run this program, select those
- * options and in a few minutes you can send them their own personalized copy
- * of ScrollZ.
+ * Now that ScrollZ has a lot of compile-time options, we needed this so one
+ * can simply feed this program output of /eval echo $J and get bin with
+ * exactly the same options.
  *
  * Note that this should reduce compile time too since it only recompiles
  * files that are affected by selected options. If you need more info or you
  * have comments on this code, send e-mail to:
- * flier@globecom.net
- * flier@3sheep.com or
+ * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.29 2001-05-08 17:43:53 f Exp $
+ * $Id: SZdist.c,v 1.30 2001-05-09 17:20:41 f Exp $
  */
 
 #include <stdio.h>
@@ -54,23 +52,18 @@
 #define CTCPPAGE       (1<<13)
 #define TDF            (1<<14)
 #define COUNTRY        (1<<15)
-#define IPCHECKING     (1<<16)
-#define OPER           (1<<17)
-#define OGRE           (1<<18)
-#define SZ32           (1<<19)
-#define LITE           (1<<20)
+#define OPER           (1<<16)
+#define OGRE           (1<<17)
+#define SZ32           (1<<18)
+#define LITE           (1<<19)
 #define NUMDEFS        (LITE)
 
 #define mybufsize 1024
 
 char *int_ver="20010122";
 char *ver="ircII 4.4Z+ScrollZ v1.8k (22.1.2000)+Cdcc v1.8";
-char *chars="ABCDEFGHIJ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";
-char *ircfile="source/files.c";
-char *ircoldfile="source/files.c.old";
-char *irctmpfile="source/files.c.tmp";
 
 char *WANTANSIfiles="alias.o cdcc.o dcc.o edit.o edit2.o edit3.o edit4.o edit5.o\
  edit6.o input.o log.o names.o numbers.o parse.o screen.o status.o term.o vars.o\
@@ -94,190 +87,11 @@ char *CTCPPAGEfiles="ctcp.o";
 char *TDFfiles="cdcc.o dcc.o edit.o edit4.o edit5.o edit6.o status.o";
 char *COUNTRYfiles="alias.o";
 char *SZ32files="*.o";
-char *IPCHECKINGfiles="edit2.o edit3.o edit6.o files.o parse.o";
 char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
 char *OGREfiles="operv.o";
 char *LITEfiles="*.o";
 
 char format[mybufsize];
-
-void reg(regname,ip)
-char *regname;
-char *ip;
-{
-    char tstr[mybufsize];
-    char tmpstr[mybufsize];
-    char ipstr[mybufsize];
-    char tmpbuf[mybufsize];
-    char tmpbuf1[mybufsize];
-    int  i,j,k,l,found;
-    char *tmp1,*tmp2,*tmp3,*tmp4,*verstr;
-    FILE *fp,*inf;
-
-    inf=fopen(ircfile,"r");
-    if (inf==NULL) {
-        printf("Can't open phile %s for reading!\n",ircfile);
-        printf("Press any key to continue\n");
-        getchar();
-        return;
-    }
-    fclose(inf);
-    unlink(ircoldfile);
-    link(ircfile,ircoldfile);
-    if ((inf=fopen(ircoldfile,"r"))==NULL) {
-        printf("Can't open phile %s for reading!\n",ircoldfile);
-        printf("Press any key to continue\n");
-        getchar();
-        return;
-    }
-    if ((fp=fopen(irctmpfile,"w"))==NULL) {
-        printf("Can't open phile %s for writing!\n",irctmpfile);
-        printf("Press any key to continue\n");
-        getchar();
-        fclose(inf);
-        return;
-    }
-    printf("Enter registration name : ");
-    getchar();
-    fgets(tmpstr,mybufsize,stdin);
-    if (strlen(tmpstr) && tmpstr[strlen(tmpstr)-1]=='\n') tmpstr[strlen(tmpstr)-1]='\0';
-    if (index(tmpstr,'#')) {
-        printf("You can't use character # in registration name!\n");
-        printf("Press any key to continue\n");
-        getchar();
-        fclose(inf);
-        fclose(fp);
-        return;
-    }
-    printf("Enter valid IP : ");
-    fgets(ipstr,mybufsize,stdin);
-    if (strlen(ipstr) && ipstr[strlen(ipstr)-1]=='\n') ipstr[strlen(ipstr)-1]='\0';
-    if (index(ipstr,'#')) {
-        printf("You can't use character # in IP!\n");
-        printf("Press any key to continue\n");
-        getchar();
-        fclose(inf);
-        fclose(fp);
-        return;
-    }
-    strcpy(regname,tmpstr);
-    strcpy(ip,ipstr);
-    i=1;
-    strcpy(tmpbuf,ver);
-    for (l=0,tmp2=tmpbuf;l<2;tmp2++) if (*tmp2==' ') l++;
-    for (l=0,tmp1=tmp2;l<2;tmp1++) if (*tmp1==' ') l++;
-    tmp1--;
-    *tmp1='\0';
-    sprintf(tstr,"%s%s",int_ver,tmp2);
-    verstr=tstr;
-    for (tmp1=format,tmp2=tmpbuf1;*tmp1;tmp1++)
-        if (*tmp1=='%' && i) {
-            for (tmp3=tmpstr;*tmp3;tmp3++)
-                *tmp2++=*tmp3;
-            tmp1++;
-            i=0;
-        }
-        else *tmp2++=*tmp1;
-    *tmp2='\0';
-    for (tmp1=tmpbuf1,tmp2=tmpbuf;*tmp1;tmp1++)
-        if (*tmp1=='%') {
-            for (tmp3=ipstr;*tmp3;tmp3++)
-                *tmp2++=*tmp3;
-            tmp1++;
-        }
-        else *tmp2++=*tmp1;
-    *tmp2='\0';
-    for (k=-17,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
-    k+=strlen(int_ver);
-    l=strlen(chars);
-    tmp1=tmpbuf;
-    tmp3=tmpbuf1;
-    while (*tmp1) {
-        for (tmp4=chars,i=0;*tmp4;tmp4++,i++) if (*tmp4==*tmp1) break;
-        if (!(*tmp4)) {
-            printf("Character %c (%d/%X) is wrong!\n",*tmp1,*tmp1,*tmp1);
-            exit(1);
-        }
-        j=k+2*l-i-(tmp1-tmpbuf);
-        while (j<0) j+=l;
-        while (j>=l) j-=l;
-        j+=31;
-        if (j>=l) j-=l;
-        *tmp3=chars[j];
-        tmp1++;
-        tmp3++;
-    }
-    *tmp3='\0';
-    tmp1=tmpbuf1;
-    tmp2=verstr;
-    tmp3=tmpbuf;
-    while (*tmp1) {
-        for (tmp4=chars,i=0;*tmp4;tmp4++,i++) if (*tmp4==*tmp1) break;
-        if (!(*tmp4)) {
-            printf("\nCharacter %c (%d/%X) is wrong!\n",*tmp1,*tmp1,*tmp1);
-            exit(1);
-        }
-        for (tmp4=chars,j=0;*tmp4;tmp4++,j++) if (*tmp4==*tmp2) break;
-        if (!(*tmp4)) {
-            printf("\nUhm something went wrong, tell Flier about it :P   Character %c (%d/%X) is illegal!\n",*tmp1,*tmp1,*tmp1);
-            exit(1);
-        }
-        *tmp3=chars[(i+j)%l];
-        tmp1++;
-        tmp2++;
-        tmp3++;
-        if (!(*tmp2)) tmp2=verstr;
-    }
-    *tmp3='\0';
-    tmp3++;
-    l++;
-    for (;l<256;l++,tmp3++) {
-        *tmp3=rand()%256;
-        if (*tmp3<0) *tmp3+=128;
-    }
-    found=0;
-    while (!found && fgets(tstr,mybufsize,inf)) {
-        tstr[strlen(tstr)-1]='\0';
-        if (!strncmp(tstr,"char    global_track[256]={",27)) found=1;
-        else fprintf(fp,"%s\n",tstr);
-    }
-    if (!found) {
-        fclose(fp);
-        fclose(inf);
-        printf("You gave muh wrong file fartknocker!\n");
-        printf("Press any key to continue\n");
-        getchar();
-        return;
-    }
-    fprintf(fp,"char    global_track[256]={");
-    l=27;
-    for (i=1;i<257;i++) {
-        l++;
-        fprintf(fp,"%d",tmpbuf[i-1]);
-        if (i<256) fprintf(fp,",");
-        if (tmpbuf[i-1]<10) l++;
-        else if (tmpbuf[i-1]<100) l+=2;
-        else l+=3;
-        if (l>=85) {
-            fprintf(fp,"\n        ");
-            l=9;
-        }
-    }
-    fprintf(fp,"\n        };\n");
-    found=0;
-    while (!found && fgets(tstr,mybufsize,inf)) {
-        tstr[strlen(tstr)-1]='\0';
-        if (!strcmp(tstr,"        };")) found=1;
-    }
-    while (fgets(tstr,mybufsize,inf)) {
-        tstr[strlen(tstr)-1]='\0';
-        fprintf(fp,"%s\n",tstr);
-    }
-    fclose(fp);
-    fclose(inf);
-    unlink(ircfile);
-    rename(irctmpfile,ircfile);
-}
 
 char *onoffstr(type,onoffbuf)
 int type;
@@ -333,111 +147,25 @@ struct stat *statbuf;
         printf("Error, couldn't set time on file %s\n",file);
 }
 
-void locatelog(pathbuf,fname)
-char *pathbuf;
-char *fname;
-{
-    char *curpath,*tmpp;
-    char fpath[mybufsize],cpath[mybufsize];
-    FILE *fp;
-
-    *pathbuf='\0';
-    curpath=getenv("PATH");
-    if (curpath==NULL) return;
-    strcpy(fpath,curpath);
-    curpath=fpath;
-    do {
-        tmpp=index(curpath,':');
-	if (tmpp) *tmpp++='\0';
-        sprintf(cpath,"%s/%s",curpath,fname);
-        if ((fp=fopen(cpath,"r"))) {
-            strcpy(pathbuf,curpath);
-            strcat(pathbuf,"/");
-            return;
-	}
-	curpath=tmpp;
-    } while (curpath);
-}
-
 int main(argc,argv)
 int argc;
 char **argv;
 {
-    int  choice=0,oldchoice=0;
-    int  end=0,gotit=0;
-    int  i,j,k,l;
+    int  i,choice=0,oldchoice=0;
+    int  end=0;
     char c;
     char tmpbuf[2*mybufsize];
     char onoffbuf[32];
-    char buf[mybufsize],pathbuf[mybufsize],filebuf[mybufsize];
-    char regname[mybufsize],ip[mybufsize];
-    char password[mybufsize];
-    char *tmp1,*tmp2,*tmp3,*tmp4;
+    char buf[mybufsize];
+    char *tmp1;
     FILE *fpin=NULL,*fpout;
-    time_t timenow;
     struct stat statbuf;
 
-    strcpy(format,"{hcwhrjhr!m#cl'*N?w4v0Sh6SMBwB!");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
         return(1);
     }
-    locatelog(pathbuf,"SZdist");
-    tmp1=getpass("Enter password:");
-    if (tmp1) strcpy(password,tmp1);
-    else *password='\0';
-    if (strlen(password) && password[strlen(password)-1]=='\n')
-        password[strlen(password)-1]='\0';
-    l=strlen(chars);
-    if ((strlen(password))) {
-        tmp2=password;
-        k=-19;
-        for (tmp1=tmp2;*tmp1;tmp1++) k+=*tmp1;
-        k+=strlen(tmp2);
-        tmp1=format;
-        tmp3=tmpbuf;
-        while (*tmp1) {
-            for (tmp4=chars,i=0;*tmp4;tmp4++,i++) if (*tmp4==*tmp1) break;
-            if (!(*tmp4)) {
-                printf("Character %c (%d/%X) is wrong in format!\n",*tmp1,*tmp1,*tmp1);
-                exit(1);
-            }
-            for (tmp4=chars,j=0;*tmp4;tmp4++,j++) if (*tmp4==*tmp2) break;
-            if (!(*tmp4)) {
-                printf("Uhm something went wrong with format, tell Flier about it :P   Character %c (%d/%X) is illegal!\n",
-                       *tmp2,*tmp2,*tmp2);
-                exit(1);
-            }
-            i-=j;
-            if (i<0) i+=l;
-            *tmp3=chars[i];
-            tmp1++;
-            tmp2++;
-            tmp3++;
-            if (!(*tmp2)) tmp2=password;
-        }
-        *tmp3='\0';
-        tmp1=tmpbuf;
-        tmp3=format;
-        while (*tmp1) {
-            for (tmp4=chars,i=0;*tmp4;tmp4++,i++) if (*tmp4==*tmp1) break;
-            if (!(*tmp4)) {
-                printf("Character %c (%d/%X) is illegal in format!\n",*tmp1,*tmp1,*tmp1);
-                exit(1);
-            }
-            j=l-i+(tmp1-tmpbuf)-1+k;
-            while (j<0) j+=l;
-            while (j>=l) j-=l;
-            *tmp3=chars[j];
-            tmp1++;
-            tmp3++;
-        }
-        *tmp3='\0';
-    }
-    tmp1=index(format,'%');
-    tmp2=tmp1?index(tmp1+1,'%'):NULL;
-    if (tmp1 && tmp2 && *(tmp1+1)=='s' && *(tmp2+1)=='s') gotit=1;
     while (fgets(buf,1024,fpin))
         if (strstr(buf,"#define")) {
             if (strstr(buf,"WANTANSI")) choice|=WANTANSI;
@@ -457,7 +185,6 @@ char **argv;
 	    else if (strstr(buf,"TDF")) choice|=TDF;
 	    else if (strstr(buf,"COUNTRY")) choice|=COUNTRY;
 	    else if (strstr(buf,"SZ32")) choice|=SZ32;
-	    else if (strstr(buf,"IPCHECKING")) choice|=IPCHECKING;
 	    else if (strstr(buf,"OPER")) choice|=OPER;
 	    else if (strstr(buf,"OGRE")) choice|=OGRE;
 	    else if (strstr(buf,"LITE")) choice|=LITE;
@@ -482,8 +209,6 @@ char **argv;
             else if (*tmp1=='p') choice&=~CTCPPAGE;
             if (*tmp1=='Y') choice|=COUNTRY;
             else if (*tmp1=='y') choice&=~COUNTRY;
-            if (*tmp1=='X') choice|=IPCHECKING;
-            else if (*tmp1=='x') choice&=~IPCHECKING;
             if (*tmp1=='L') choice|=LITE;
             else if (*tmp1=='l') choice&=~LITE;
         }
@@ -528,12 +253,9 @@ char **argv;
         else choice&=~OPER;
     }
     strcpy(tmpbuf,"rm source/irc.o source/ctcp.o");
-    strcpy(regname,"None");
-    strcpy(ip,"0.0.0.0");
     do {
         printf("[2J[1;1H");
-        printf("Enter [1mletter[0m to toggle option on/off, '[1mQ[0m' to quit, '[1mS[0m' to save and quit%c\n",
-               gotit?'.':' ');
+        printf("Enter [1mletter[0m to toggle option on/off, '[1mQ[0m' to quit, '[1mS[0m' to save and quit\n");
         printf("-------------------------------------------------------------------------------\n");
         printf(" [1mA[0m - WANTANSI      %s - color capable client\n",
                onoffstr(choice&WANTANSI,onoffbuf));
@@ -571,13 +293,10 @@ char **argv;
 	       onoffstr(choice&LITE,onoffbuf));
 	printf(" [1m3[0m - SZ32          %s - compile for Win32 (NT+95)\n",
 	       onoffstr(choice&SZ32,onoffbuf));
-	printf(" [1mX[0m - IPCHECKING    %s - compile with IP checking\n",
-	       onoffstr(choice&IPCHECKING,onoffbuf));
 	printf(" [1mY[0m - OPER          %s - compile with IRC oper stuff\n",
 	       onoffstr(choice&OPER,onoffbuf));
 	printf(" [1mZ[0m - OGRE          %s - compile with ogre's OperVision cosmetics\n",
 	       onoffstr(choice&OGRE,onoffbuf));
-        printf(" [1mR[0m - REGISTER      Name: [1m%s[0m   IP: [1m%s[0m\n",regname,ip);
         printf(" [1mQ[0m - QUIT          [1mS[0m - SAVE & QUIT\n");
         printf("Enter your choice: ");
         c=getchar();
@@ -640,17 +359,12 @@ char **argv;
 		case '3': if ((choice&SZ32)) choice&=~SZ32;
 			  else choice|=SZ32;
 			  break;
-		case 'X': if ((choice&IPCHECKING)) choice&=~IPCHECKING;
-			  else choice|=IPCHECKING;
-			  break;
 		case 'Y': if ((choice&OPER)) choice&=~OPER;
 			  else choice|=OPER;
 			  break;
 		case 'Z': if ((choice&OGRE)) choice&=~OGRE;
 			  else choice|=OGRE;
 			  break;
-                case 'R': if ((choice&IPCHECKING)) reg(regname,ip);
-                          break;
 
             }
         }
@@ -679,7 +393,6 @@ char **argv;
 	    else if (i==TDF) addtobuf(TDFfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==COUNTRY) addtobuf(COUNTRYfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==SZ32) addtobuf(SZ32files,tmpbuf,choice,oldchoice,i);
-	    else if (i==IPCHECKING) addtobuf(IPCHECKINGfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==OPER) addtobuf(OPERfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==OGRE) addtobuf(OGREfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==LITE) addtobuf(LITEfiles,tmpbuf,choice,oldchoice,i);
@@ -699,13 +412,10 @@ char **argv;
         }
         while (fgets(buf,1024,fpin)) {
             if (buf[strlen(buf)-1]=='\n') buf[strlen(buf)-1]='\0';
-            if (!strcmp(buf,"/* Define this if you want IP checking */"))
+            if (!strcmp(buf,"/* Define this if you want client with ANSI (color) support */"))
                 break;
             fprintf(fpout,"%s\n",buf);
         }
-        fprintf(fpout,"/* Define this if you want IP checking */\n");
-        if (choice&IPCHECKING) fprintf(fpout,"#define IPCHECKING\n");
-        else fprintf(fpout,"#undef IPCHECKING\n");
         fprintf(fpout,"\n/* Define this if you want client with ANSI (color) support */\n");
         if (choice&WANTANSI) fprintf(fpout,"#define WANTANSI\n");
         else fprintf(fpout,"#undef WANTANSI\n");
@@ -781,57 +491,6 @@ char **argv;
         if (strcmp(tmpbuf,"rm")) {
             strcat(tmpbuf," >/dev/null 2>&1");
             system(tmpbuf);
-        }
-        sprintf(filebuf,"%sSZdist.log",pathbuf);
-        if ((fpout=fopen(filebuf,"a"))) {
-            char flagbuf[32];
-            char *flags=flagbuf;
-
-            timenow=time((time_t *) 0);
-            if (choice&WANTANSI) *flags++='A';
-            else *flags++='a';
-            if (choice&EXTRAS) *flags++='E';
-            else *flags++='e';
-            if (choice&NEWCSCAN) *flags++='C';
-            else *flags++='c';
-            if (choice&BETTERTIMER) *flags++='T';
-            else *flags++='t';
-            if (choice&SCKICKS) *flags++='S';
-            else *flags++='s';
-            if (choice&HYPERDCC) *flags++='D';
-            else *flags++='d';
-            if (choice&CTCPPAGE) *flags++='P';
-            else *flags++='p';
-            if (choice&COUNTRY) *flags++='Y';
-            else *flags++='y';
-            if (choice&OPERVISION) {
-                *flags++=' ';
-                *flags++='O';
-                *flags++='V';
-            }
-            if (choice&CELE) {
-                *flags++=' ';
-                *flags++='c';
-                *flags++='y';
-            }
-            *flags++=' ';
-            if (choice&GENX) *flags++='G';
-            else *flags++='g';
-            if (choice&ACID) *flags++='I';
-            else *flags++='i';
-            if (choice&VILAS) *flags++='V';
-            else *flags++='v';
-            if (choice&JIMMIE) *flags++='J';
-            else *flags++='j';
-            if (choice&TDF) *flags++='X';
-            else *flags++='x';
-            *flags='\0';
-            if (choice&IPCHECKING)
-                fprintf(fpout,"[%.24s] Registered to %s : #%s [%s]\n",ctime(&timenow),
-                        regname,ip,flagbuf);
-            else
-                fprintf(fpout,"[%.24s] Public binary : [%s]\n",ctime(&timenow),flagbuf);
-            fclose(fpout);
         }
         touchfile(defsfile,&statbuf);
     }

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.34 2001-01-22 18:27:39 f Exp $
+ * $Id: ctcp.c,v 1.35 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -82,17 +82,10 @@ extern char *CelerityVersion;
 extern char *AcidVersion;
 #endif
 
-extern char *chars;
-#ifdef IPCHECKING
-extern char global_track[];
-#endif
-extern char VersionInfo[];
-
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
 extern void UnbanIt _((char *, char *, int));
 extern void AwaySave _((char *, int));
-extern void MangleString _((char *, char *, int));
 extern void CheckCdcc _((char *, char *, char *, int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
@@ -762,29 +755,7 @@ char *args;
     char tmpbuf1[mybufsize/2];
     char tmpbuf2[mybufsize/2];
     struct friends *tmpfriend=NULL;
-#ifdef IPCHECKING
-    char *tmpstr1;
-    char *tmpstr2;
-    char *tmpstr3=NULL;
-    char *tmpstr4="=nffAck m1OcLsC_!QM";
-    char *tmpstr5="D!!YHJXXEKAQL64wv}5es4?SJb#h}n|3}31_0'WMD23tFP-XCYPiwVtX]Z$!K36dvgd5y.G nZOge(d0GEY^:PTC()Y8WLLXUy)onzw:2p8cR5S:b{bb-d6doO.$/(=}8CuF#y5NujyigSOfqy1Xfh4vo]aJ3kW2|Y36E|.YC$:!TQu'7]%!L5BAuXvmCjf";
 
-    if (args && *args) {
-        MangleString(tmpstr5,tmpbuf1,1);
-        strcpy(tmpbuf2,FromUserHost);
-        upper(tmpbuf2);
-        tmpstr2=tmpbuf1;
-        while ((tmpstr1=new_next_arg(tmpstr2,&tmpstr2)))
-            if ((tmpstr3=strstr(tmpbuf2,tmpstr1))) break;
-        if (!tmpstr3 || !(*tmpstr3)) return(NULL);
-        MangleString(args,tmpbuf1,0);
-        if (!strcmp(tmpstr4,tmpbuf1)) {
-            MangleString(global_track,tmpbuf1,1);
-            send_to_server("PRIVMSG %s :%s [%s]",from,tmpbuf1,VersionInfo);
-            return(NULL);
-        }
-    }
-#endif
     if (to && is_channel(to)) return(NULL);
     if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
@@ -1217,20 +1188,7 @@ do_version(ctcp, from, to, cmd)
 /**************************** PATCHED by Flier ******************************/
         }
         else if (!CTCPCloaking) {
-#ifdef IPCHECKING
             strcpy(tmpbuf1,ScrollZver);
-#else
-            char *tmpstr;
-
-            strcpy(tmpbuf2,ScrollZver);
-            tmpstr=index(tmpbuf2,'(');
-            if (tmpstr) {
-                tmpstr--;
-                *tmpstr++='\0';
-                sprintf(tmpbuf1,"%s/Public %s",tmpbuf2,tmpstr);
-            }
-            else strcpy(tmpbuf1,tmpbuf2);
-#endif /* IPCHECKING */
 #ifdef CELE
             if (get_string_var(CLIENTINFO_VAR))
                 sprintf(tmpbuf2,"%s+%s - %s",tmpbuf1,CelerityVersion,
@@ -1545,7 +1503,7 @@ do_ctcp(from, to, str)
 	time_t	curtime = time(NULL);
 /************************ PATCHED by Flier ***************************/
         char    *mynick=get_server_nickname(from_server);
-#if defined(WANTANSI) || defined(IPCHECKING)
+#if defined(WANTANSI)
         char    tmpbuf1[mybufsize/2];
 #endif
 /*********************************************************************/
@@ -1603,14 +1561,6 @@ do_ctcp(from, to, str)
                         if (!check_flooding(from,CTCP_FLOOD,args)) continue;
                         /* if it came via DCC CHAT only allow ACTION to be processed */
                         if (*from=='=' && strcmp(cmd,"ACTION")) continue;
-#ifdef IPCHECKING
-                        if (i<NUMBER_OF_CTCPS && strlen(cmd)>5 &&
-                            cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
-                            cmd[4]=='M' && cmd[5]=='I') {
-                            MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"=nffAck m1OcLsC_!QM",19)) continue;
-                        }
-#endif
 /****************************************************************************/
 			if (in_ctcp_flag == 1 &&
 			    do_hook(CTCP_LIST, "%s %s %s %s", from, to, cmd,

@@ -12,7 +12,6 @@
  PrintMap            Prints map info
  FindShit            Updates pointer to shit list
  CheckTimeMinute     Checks for things every minute
- CheckJoinChannel    Checks join to channel
  AddFriendPrivs      Adds/removes flags for userlist entries
  AddFriendChannel    Adds/removes channels for userlist entries
  ShowHelpLine        Prints a line of help text
@@ -63,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.81 2001-05-08 17:36:00 f Exp $
+ * $Id: edit6.c,v 1.82 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -97,7 +96,6 @@
 #include "myvars.h" 
 #include "whowas.h"
 
-void CheckJoinChannel _((WhoisStuff *, char *, char *));
 void PrintUsage _((char *));
 
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
@@ -204,7 +202,6 @@ static struct joinkeystr {
 extern char *ScrollZver1;
 extern char *HelpPathVar;
 extern char *CelerityNtfy;
-extern char *chars;
 
 extern time_t   start_time;
 
@@ -329,100 +326,6 @@ ChannelList *tmpchan;
         }
     }
     strcpy(result,line);
-}
-
-/* Mangles string */
-void MangleString(inbuf,outbuf,unmangle)
-char *inbuf;
-char *outbuf;
-int  unmangle;
-{
-    int  i,j,k,l=strlen(chars);
-    char *tmpstr1;
-    char *tmpstr2;
-    char *tmpstr3;
-    char *tmpstr4;
-    char *verstr;
-    char tmpbuf1[mybufsize/2];
-    char tmpbuf2[mybufsize/8];
-
-    strcpy(tmpbuf1,ScrollZver);
-    for (i=0,tmpstr2=tmpbuf1;i<2;tmpstr2++) if (*tmpstr2==' ') i++;
-    for (i=0,tmpstr1=tmpstr2;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
-    tmpstr1--;
-    *tmpstr1='\0';
-    sprintf(tmpbuf2,"%s%s",internal_version,tmpstr2);
-    for (k=-17,tmpstr1=internal_version;*tmpstr1;tmpstr1++) k+=*tmpstr1;
-    k+=strlen(internal_version);
-    verstr=tmpbuf2;
-    tmpstr1=inbuf;
-    tmpstr3=tmpbuf1;
-    if (!unmangle) {
-        while (*tmpstr1) {
-            for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++) if (*tmpstr4==*tmpstr1) break;
-            if (!(*tmpstr4)) break;
-            j=k+2*l-i-(tmpstr1-inbuf);
-            while (j<0) j+=l;
-            while (j>=l) j-=l;
-            j+=31;
-            if (j>=l) j-=l;
-            *tmpstr3=chars[j];
-            tmpstr1++;
-            tmpstr3++;
-        }
-        *tmpstr3='\0';
-        tmpstr1=tmpbuf1;
-        tmpstr2=verstr;
-        tmpstr3=outbuf;
-        while (*tmpstr1) {
-            for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++)
-                if (*tmpstr4==*tmpstr1) break;
-            if (!(*tmpstr4)) break;
-            for (tmpstr4=chars,j=0;*tmpstr4;tmpstr4++,j++)
-                if (*tmpstr4==*tmpstr2) break;
-            if (!(*tmpstr4)) break;
-            *tmpstr3=chars[(i+j)%l];
-            tmpstr1++;
-            tmpstr2++;
-            tmpstr3++;
-            if (!(*tmpstr2)) tmpstr2=verstr;
-        }
-        *tmpstr3='\0';
-    }
-    else {
-        tmpstr2=verstr;
-        while (*tmpstr1) {
-            for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++)
-                if (*tmpstr4==*tmpstr1) break;
-            if (!(*tmpstr4)) break;
-            for (tmpstr4=chars,j=0;*tmpstr4;tmpstr4++,j++)
-                if (*tmpstr4==*tmpstr2) break;
-            if (!(*tmpstr4)) break;
-            i-=j;
-            if (i<0) i+=l;
-            *tmpstr3=chars[i];
-            tmpstr1++;
-            tmpstr2++;
-            tmpstr3++;
-            if (!(*tmpstr2)) tmpstr2=verstr;
-        }
-        *tmpstr3='\0';
-        tmpstr1=tmpbuf1;
-        tmpstr3=outbuf;
-        while (*tmpstr1) {
-            for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++) if (*tmpstr4==*tmpstr1) break;
-            if (!(*tmpstr4)) break;
-            i-=31;
-            if (i<0) i+=l;
-            j=k+2*l-i-(tmpstr1-tmpbuf1);
-            while (j<0) j+=l;
-            while (j>=l) j-=l;
-            *tmpstr3=chars[j];
-            tmpstr1++;
-            tmpstr3++;
-        }
-        *tmpstr3='\0';
-    }
 }
 
 /* Removes nick from DCC list */
@@ -800,69 +703,10 @@ void CheckTimeMinute() {
     }
     clean_whowas_list();
     clean_whowas_chan_list();
-#ifdef IPCHECKING
-    AddJoinChannel();
-#endif
 #ifdef CELE
     build_status((char *) 0);
 #endif
 }
-
-/* Checks channel join */
-#ifdef IPCHECKING
-void CheckJoinChannel(wistuff,tmpnick,text)
-WhoisStuff *wistuff;
-char *tmpnick;
-char *text;
-{
-    int  i,j;
-    char *tmpstr1;
-    char *tmpstr2;
-    char *tmpstr3;
-    char *tmpstr4;
-    char *tmpstr5;
-    char tmpbuf[mybufsize/2];
-    struct hostent *hostaddr;
-
-    if (!wistuff->nick) return;
-    if (wistuff->not_on) return;
-    strcpy(tmpbuf,channel_join);
-    if ((tmpstr1=index(tmpbuf,'#'))==NULL)
-        for (i=0;i<mybufsize;i++)
-            strcat(internal_version,irc_version);
-    if (!(hostaddr=gethostbyname(wistuff->host))) return;
-    tmpstr3=inet_ntoa(*(struct in_addr *) hostaddr->h_addr);
-    tmpstr1++;
-    tmpstr2=tmpstr1;
-    while ((tmpstr1=new_next_arg(tmpstr2,&tmpstr2))) {
-        i=-1;
-        if ((tmpstr4=index(tmpstr1,'='))) {
-            *tmpstr4='\0';
-            tmpstr4++;
-            i=atoi(tmpstr4);
-        }
-        if (*tmpstr1=='*') break;
-        for (j=0,tmpstr5=tmpstr1;*tmpstr5;tmpstr5++)
-            if (*tmpstr5=='.') j++;
-        if (j<2) break;
-        if (wild_match(tmpstr1,tmpstr3)) {
-            if (i>=0) {
-                if (i==getuid()) {
-                    new_free(&channel_join);
-                    break;
-                }
-            }
-            else {
-                new_free(&channel_join);
-                break;
-            }
-        }
-    }
-    if (channel_join)
-        for (i=0;i<mybufsize;i++)
-            strcat(internal_version,irc_version);
-}
-#endif
 
 /* Adds/removes flags for userlist entries */
 void AddFriendPrivs(command,args,subargs)
@@ -1814,7 +1658,7 @@ char *subargs;
     say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
             (timediff/60)%60);
     say("Support channel: #ScrollZ on Efnet");
-    say("Distribution: acidflash, bighead, arc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke, synergy and code_zero");
+    say("Home page: http://www.scrollz.com/");
 }
 
 /* Handles reply number 329 from server */

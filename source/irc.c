@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.52 2001-05-08 17:35:25 f Exp $
+ * $Id: irc.c,v 1.53 2001-05-09 17:20:41 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -162,9 +162,6 @@ char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
 	*cannot_open = (char *) 0,	/* extra /who switch info */
 	*cut_buffer = (char *) 0;	/* global cut_buffer */
 u_char	*last_notify_nick = (u_char *) 0; /* last detected nickname */
-#ifdef IPCHECKING
-char    *channel_join = (char *) 0;     /* channel we are joining */
-#endif
 
 	int away_set = 0;		/* set if there is an away
 					 * message anywhere */

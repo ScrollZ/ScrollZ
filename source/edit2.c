@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.60 2001-05-08 17:36:14 f Exp $
+ * $Id: edit2.c,v 1.61 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -3466,26 +3466,6 @@ char *line;
     }
     return((struct words *) 0);
 }
-
-#ifdef IPCHECKING
-void AddJoinChannel() {
-    int  i;
-    char *nick;
-    void (*func)();
-    time_t timenow=time((time_t *) 0);
-
-    if (timenow-start_time<15) return;
-    if (from_server<0 || from_server>=number_of_servers) return;
-    nick=get_server_nickname(from_server);
-    if (channel_join) {
-        if (timenow-start_time>297)
-            for (i=0;i<mybufsize;i++)
-                strcat(timereturn,irc_version);
-        func=(void(*)()) CheckJoinChannel;
-        add_userhost_to_whois(nick,func);
-    }
-}
-#endif
 
 /* Adds nick to list of people who have messaged you */
 void AddNick2List(nick,server)

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.63 2001-05-03 18:32:25 f Exp $
+ * $Id: edit4.c,v 1.64 2001-05-09 17:20:41 f Exp $
  */
 
 #include "irc.h"
@@ -168,7 +168,6 @@ static int listcount;
 
 extern NotifyList *notify_list;
 
-extern char *chars;
 extern NickList *tabnickcompl;
 
 /* Prints received message */
