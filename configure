@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.25 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.26 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -560,7 +560,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.28 2002-02-19 20:32:37 f Exp $' > /dev/null
+echo '$Id: configure,v 1.29 2002-03-04 17:47:34 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -5359,9 +5359,9 @@ echo "configure:5358: checking for OpenSSL" >&5
        CFLAGS="-I$openssl_prefix/include $CFLAGS"
      fi
      if test -d "$openssl_prefix/lib" -a -n "$openssl_prefix"; then
-       LIBS="-L$openssl_prefix/lib $LIBS -lssl -lcrypt"
+       LIBS="-L$openssl_prefix/lib $LIBS -lssl -lcrypto"
      else
-       LIBS="$LIBS -lssl -lcrypt"
+       LIBS="$LIBS -lssl -lcrypto"
      fi
      cat > conftest.$ac_ext <<EOF
 #line 5368 "configure"
