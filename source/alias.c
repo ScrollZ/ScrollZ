@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.12 2000-09-24 17:10:33 f Exp $
+ * $Id: alias.c,v 1.13 2000-10-09 17:37:23 f Exp $
  */
 
 #include "irc.h"
@@ -211,7 +211,9 @@ static	FAR BuiltIns built_in[] =
 	{ (char) 0,	 NULL }
 };
 
- 	char	*command_line = (char *) 0;
+/**************************** PATCHED by Flier ******************************/
+ 	/*char	*command_line = (char *) 0;*/
+/****************************************************************************/
 
 	u_char	*function_left _((u_char *));
 	u_char	*function_right _((u_char *));

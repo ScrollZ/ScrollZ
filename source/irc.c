@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.40 2000-09-24 17:10:34 f Exp $
+ * $Id: irc.c,v 1.41 2000-10-09 17:37:23 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -816,8 +816,8 @@ parse_args(argv, argc)
 	int	add_servers = 0;
 	char	*channel = (char *) NULL;
 	struct	passwd	*entry;
-	int	minus_minus = 0;
 /**************************** PATCHED by Flier ******************************/
+	/*int	minus_minus = 0;*/
         char    *CloakCommand=(char *) 0;
 /****************************************************************************/
 
@@ -831,7 +831,11 @@ parse_args(argv, argc)
 		strmcat(buffer, " ", BIG_BUFFER_SIZE);
 		if ((*arg == '-') != '\0')
 		{
-			++arg;
+/**************************** PATCHED by Flier ******************************/
+			/*++arg;*/
+			while (*arg && *arg=='-')
+                            arg++;
+/****************************************************************************/
 			while (*arg)
 			{
 				switch (*(arg++))
@@ -929,18 +933,21 @@ parse_args(argv, argc)
 					}
 					qflag = 1;
 					break;
-				case '-':
+/**************************** PATCHED by Flier ******************************/
+                                /* what the hell is this */
+				/*case '-':
 					if (argv[ac])
 					{
 						while ((arg = argv[ac++]) != NULL)
 						{
 							malloc_strcat(&command_line, arg);
-							malloc_strcat(&command_line, " ");	/* a bit wasteful; only at startup */
-						}
+							malloc_strcat(&command_line, " ");*/	/* a bit wasteful; only at startup */
+						/*}
 						command_line[strlen(command_line)-1] = '\0';
 					}
 					minus_minus = 1;
-					break;
+					break;*/
+/****************************************************************************/
 				default:
 					fprintf(stderr, "%s", switch_help);
 					exit(1);
@@ -954,8 +961,10 @@ parse_args(argv, argc)
 			else
  				malloc_strcpy(&nickname, arg);
 		}
-		if (minus_minus)
-			break;
+/**************************** PATCHED by Flier ******************************/
+		/*if (minus_minus)
+			break;*/
+/****************************************************************************/
 	}
 	malloc_strcpy(&args_str, buffer);
 /**************************** PATCHED by Flier ******************************/
