@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.13 1998-11-15 20:20:44 f Exp $
+ * $Id: edit3.c,v 1.14 1998-11-19 21:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -1550,9 +1550,12 @@ char *command;
     NextArg(*pointer,pointer,tmpbuf);
     if (!my_stricmp(tmpbuf,"ON")) *variable=1;
     else if (!my_stricmp(tmpbuf,"OFF")) *variable=0;
+    else if (!strcmp(command,"MIRCCOLORS") && !my_stricmp(tmpbuf,"STRIP")) *variable=2;
     else {
         sprintf(tmpbuf,"in %s",command);
-        PrintError("must be ON/OFF",tmpbuf,lineno);
+        if (!strcmp(command,"MIRCCOLORS"))
+            PrintError("must be ON/OFF/STRIP",tmpbuf,lineno);
+        else PrintError("must be ON/OFF",tmpbuf,lineno);
         *error=1;
     }
 }
