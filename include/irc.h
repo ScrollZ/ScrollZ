@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.7 2000-08-21 18:59:43 f Exp $
+ * $Id: irc.h,v 1.8 2000-12-04 19:51:22 f Exp $
  */
 
 #ifndef __irc_h
@@ -269,6 +269,9 @@
 #define	WHO_NICK	0x0200
 #define	WHO_LUSERS	0x0400
 #define	WHO_REAL	0x0800
+/**************************** PATCHED by Flier ******************************/
+#define WHO_SHOW_SERVER 0x8000
+/****************************************************************************/
 
 /*
  (* Some defines in case we're using IRCII setuid->root, so that we can bind

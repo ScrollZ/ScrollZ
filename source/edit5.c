@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.50 2000-10-30 17:09:03 f Exp $
+ * $Id: edit5.c,v 1.51 2000-12-04 19:51:22 f Exp $
  */
 
 #include "irc.h"
@@ -1073,13 +1073,15 @@ char *subargs;
 }
 
 /* Prints who reply */
-void PrintWho(channel,nick,stat,user,host,name)
+void PrintWho(channel,nick,stat,user,host,name,server,show_server)
 char *channel;
 char *nick;
 char *stat;
 char *user;
 char *host;
 char *name;
+char *server;
+int  show_server;
 {
     char format[40];
     int  width=-1;
@@ -1099,14 +1101,16 @@ char *name;
             CmdsColors[COLWHO].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHO].color2,host,Colors[COLOFF]);
-    put_it("%s (%s%s%s)",tmpbuf2,
-           CmdsColors[COLWHO].color5,name,Colors[COLOFF]);
+    put_it("%s %c%s%s%s%c",tmpbuf2,
+           show_server?'[':'(',
+           CmdsColors[COLWHO].color5,show_server?server:name,Colors[COLOFF],
+           show_server?']':')');
 #else
     if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
         sprintf(format,"%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
                 (unsigned char) width,(unsigned char) width);
     else strcpy(format,"%s\t%-9s %-3s %s@%s (%s)");
-    put_it(format,channel,nick,stat,user,host,name);
+    put_it(format,channel,nick,stat,user,host,show_server?server:name);
 #endif
 }
 

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.47 2000-09-24 17:10:33 f Exp $
+ * $Id: edit.c,v 1.48 2000-12-04 19:51:22 f Exp $
  */
 
 #include "irc.h"
@@ -2150,6 +2150,13 @@ who(command, args, subargs)
 					return;
 				}
 			}
+/**************************** PATCHED by Flier ******************************/
+			else if (strncmp(cmd,"show_server",len)==0) {
+                            who_mask|=WHO_SHOW_SERVER;
+                            if ((arg=next_arg(args,&args))!=NULL) channel=arg;
+                            else channel="*";
+                        }
+/****************************************************************************/
 			else
 			{
 				say("Unknown or missing flag");
@@ -2174,8 +2181,8 @@ who(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
         if (no_args) {
 		/*say("No argument specified");*/
-            if (get_channel_by_refnum(0)) send_to_server("%s %s",command,
-                                                         get_channel_by_refnum(0));
+            if (get_channel_by_refnum(0))
+                send_to_server("%s %s",command,get_channel_by_refnum(0));
             else NoWindowChannel();
         }
 /****************************************************************************/

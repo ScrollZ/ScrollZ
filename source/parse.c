@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.31 2000-10-12 18:16:12 f Exp $
+ * $Id: parse.c,v 1.32 2000-12-04 19:51:22 f Exp $
  */
 
 #include "irc.h"
@@ -81,7 +81,8 @@ extern int  HandleKick _((char *, char *, char *, char *, char *, int *));
 extern void SplitPrint _((char *, char *, char *, int));
 extern void ModePrint _((char *, char *, char *, char *, char *, char *));
 extern void KickPrint _((char *, char *, char *, char *, char *, int, int));
-extern void PrintWho _((char *, char *, char *, char *, char *, char *));
+extern void PrintWho _((char *, char *, char *, char *, char *, char *, char *,
+                        int));
 extern void PrintPublic _((char *, char *, char *, char *, int));
 extern void DoKill _((char *, char *, char *));
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
@@ -463,6 +464,9 @@ whoreply(from, ArgList)
  		*status,
 		*name;
 	int	i;
+/**************************** PATCHED by Flier ******************************/
+        int     show_server=0;
+/****************************************************************************/
 
 	FILE	*fip;
 	char	buf_data[BUFSIZ];
@@ -508,6 +512,12 @@ whoreply(from, ArgList)
 	if (ArgList[i])
 		name = ArgList[i];
 
+/**************************** PATCHED by Flier ******************************/
+        if (who_mask&WHO_SHOW_SERVER) {
+            show_server=1;
+            who_mask&=~WHO_SHOW_SERVER;
+        }
+/****************************************************************************/
 	if (who_mask)
 	{
 		if (who_mask & WHO_HERE)
@@ -568,7 +578,8 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
  				/*put_it(format, channel, nick, status, user, host,
 					name);*/
-                                PrintWho(channel,nick,status,user,host,name);
+                                PrintWho(channel,nick,status,user,host,name,
+                                         server,show_server);
 /****************************************************************************/				
 			else
 			{
@@ -582,11 +593,15 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, channel, nick, status, user, host,
 					tmp);*/
-                                PrintWho(channel,nick,status,user,host,tmp);
+                                PrintWho(channel,nick,status,user,host,tmp,
+                                         server,show_server);
 /****************************************************************************/				
 			}
 		}
 	}
+/**************************** PATCHED by Flier ******************************/
+        if (show_server) who_mask|=WHO_SHOW_SERVER;
+/****************************************************************************/
 }
 
 static	void
