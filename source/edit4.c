@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.77 2001-10-27 19:46:32 f Exp $
+ * $Id: edit4.c,v 1.78 2001-12-11 18:14:29 f Exp $
  */
 
 #include "irc.h"
@@ -786,160 +786,116 @@ ChannelList *chan;
     return(0);
 }
 
-/* Handles tab key */
-void HandleTabNext(key,ptr)
-u_int key;
-char *ptr;
+void HandleTabNext(u_int key, char *ptr)
 {
-    int  i;
-    int  len;
-    int  curserv=from_server;
-    int  domsgtab=0;
-    int  numchannels=0;
-    char *channel;
-    char *minpos;
-    char *curpos;
-    char *tmpstr;
-    char tmpbuf[mybufsize/8+1];
-    static char *tabnick=NULL;
-    static char *oldtabnick=NULL;
-    Screen *curscr=current_screen;
-    NickList *tmpnick;
-    ChannelList *chan;
-    static ChannelList *origchan=NULL;
+    int i;
+    int length;
+    static int channel_count;
+    static int our_count;       /* how many we've checked */
+    char *p;
+    char *cur_pos, *min_pos;
+    static char completing[mybufsize / 8 + 1];
+    static char *last_completion;
+    static void *next_p;        /* where to start */
+    static NickList *nick_p;
+    static ChannelList *channel_p;
 
-    minpos=&(curscr->input_buffer[curscr->buffer_min_pos]);
-    curpos=&(curscr->input_buffer[curscr->buffer_pos]);
-    tmpstr=minpos;
-    /* on empty line do msg tabkey. */
-    if (!(*tmpstr)) domsgtab=1;
-    /* on /msg nick do msg tabkey */
-    if (!my_strnicmp(tmpstr,"/msg ",5)) {
-        /* if this is not tab (key=9 as in ctrl-i) handle it in the
-           new tabkey fashion (complete nick before cursor) */
-        if (key==9) domsgtab=1;
-    }
-    if (!domsgtab) {
-        /* locate what string to complete. */
-        tmpstr=curpos;
-        len=0;
-        /* start one position left from the cursor and walk left until
-           we see separator or we reach beginning of input line */
-        tmpstr--;
-        while (!isspace(*tmpstr) && tmpstr>=minpos) {
-            tmpstr--;
-            len++;
-        }
-        tmpstr++;
-        if (len>mybufsize/8) len=mybufsize/8;
-        /* store string we will attempt to complete */
-        strmcpy(tmpbuf,tmpstr,len);
-        tmpstr=tmpbuf;
-        if (*tmpstr) {
-            /* complete channel name */
-            if (is_channel(tmpstr)) {
-                chan=server_list[curr_scr_win->server].chan_list;
-                while (chan && my_strnicmp(tmpbuf,chan->channel,len)) chan=chan->next;
-                if (chan && !my_strnicmp(tmpbuf,chan->channel,len)) {
-                    /* insert channel name */
-                    for (i=0;i<len;i++) input_backspace(' ',NULL);
-                    for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
-                        input_add_character(*tmpstr,NULL);
-                }
-                return;
-            }
-            else {
-                int nicklen;
-                int sameloop=0;
-
-                chan=server_list[curr_scr_win->server].chan_list;
-                for (;chan;chan=chan->next) numchannels++;
-                /* check if entry in input line is still valid */
-                if (!tabnickcompl || (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick)))) {
-                    new_free(&tabnick);
-                    new_free(&oldtabnick);
-                    tabnickcompl=NULL;
-                    origchan=NULL;
-                }
-                /* walk through all channels but first verify the stored
-                   channel exists so we don't get core dumps when accessing
-                   already freed memory */
-restart:
-                if (origchan && !ChannelExists(origchan)) origchan=NULL;
-                if (origchan) chan=origchan;
-                else {
-                    /* if we have current channel start there (only on the
-                       first run through the loop) else start with first
-                       channel on this server */
-                    if (!sameloop && (channel=get_channel_by_refnum(0))) {
-                        chan=lookup_channel(channel,from_server,0);
-                        if (!chan) chan=server_list[from_server].chan_list;
-                    }
-                    else chan=server_list[from_server].chan_list;
-                }
-                /* if chan is NULL there are no channels to examine.
-                   If we passed more than once through the loop return because
-                   we exhausted all the channels */
-                if (!chan || sameloop>numchannels) return;
-                for (;chan;) {
-                    /* walk through all matching nicks for given channel.
-                       If we exchausted current channel check next one */
-                    if (!sameloop && tabnickcompl && tabnick) {
-                        tmpnick=tabnickcompl->next;
-                        len=strlen(tabnick);
-                    }
-                    else if (sameloop) {
-                        tmpnick=chan->nicks;
-                        len=tabnick?strlen(tabnick):0;
-                    }
-                    else {
-                        len=strlen(tmpbuf);
-                        tmpnick=chan->nicks;
-                        malloc_strcpy(&tabnick,tmpbuf);
-                    }
-                    for (;tmpnick;tmpnick=tmpnick->next)
-                        if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
-                    if (!tmpnick) {
-                        sameloop++;
-                        if (!sameloop && !(chan->next))
-                            chan=server_list[from_server].chan_list;
-                        else {
-                            chan=chan->next;
-                            /* if we exhausted all channels start from beginning */
-                            if (!chan) {
-                                origchan=NULL;
-                                goto restart;
-                            }
-                        }
-                        continue;
-                    }
-                    origchan=chan;
-                    nicklen=strlen(tabnick);
-                    if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
-                        /* oldtabnick holds old nick we used in previous attempt
-                           else it is first attempt at completion */
-                        if (oldtabnick) len=strlen(oldtabnick);
-                        else len=nicklen;
-                        for (i=0;i<len;i++) input_backspace(' ',NULL);
-                        for (tmpstr=tmpnick->nick;tmpstr && *tmpstr;tmpstr++)
-                            input_add_character(*tmpstr,NULL);
-                        malloc_strcpy(&oldtabnick,tmpnick->nick);
-                        tabnickcompl=tmpnick;
-                        return;
-                    }
-                    chan=chan->next;
-                }
-            }
+    cur_pos = &current_screen->input_buffer[current_screen->buffer_pos];
+    min_pos = &current_screen->input_buffer[current_screen->buffer_min_pos];
+    p = min_pos;    /* beginning of line */
+    if (!*p || (!my_strnicmp(p, "/msg ", 5) && key != 20)) {
+        if (CheckServer(from_server)) {
+            if (!server_list[from_server].nickcur)
+                server_list[from_server].nickcur = server_list[from_server].nicklist;
+            else NickNext();
+            InsertTabNick();
         }
         return;
     }
-    new_free(&tabnick);
-    tabnickcompl=NULL;
-    if (CheckServer(curserv)) {
-        if (!(server_list[curserv].nickcur))
-            server_list[curserv].nickcur=server_list[curserv].nicklist;
-        else NickNext();
-        InsertTabNick();
+    p = cur_pos - 1;    /* at string to complete */
+    length = 0;
+    while (!isspace(*p) && p >= min_pos) {   
+        p--;            /* walk left until white-space or beginning of line */
+        length++;
+    }
+    if (!length) return;
+    p++;                /* back to beginning */
+    if (length > sizeof completing) length = sizeof completing;
+    if (!last_completion || my_stricmp(last_completion, p)) {
+        strmcpy(completing, p, length);
+        last_completion = 0;
+        next_p = 0;
+    }
+    if (is_channel(completing)) {
+channel_begin:
+        if (next_p) channel_p = next_p;
+        else channel_p = server_list[curr_scr_win->server].chan_list;
+        while (channel_p && my_strnicmp(p, channel_p->channel, strlen(completing)))
+            channel_p = channel_p->next;
+        if (!channel_p) {
+            if (last_completion) {
+                last_completion = 0;
+                next_p = 0;
+                goto channel_begin;
+            }
+            else return;
+        }
+        for (i = 0; i < length; i++) input_backspace(' ', NULL);
+        for (p = channel_p->channel; *p; p++) input_add_character(*p, NULL);
+        last_completion = channel_p->channel;
+        if (channel_p->next) next_p = channel_p->next;    /* start here */
+        else next_p = 0;            /* start over */
+    }
+    else {
+nick_begin:
+        if (!last_completion) {
+            channel_p = server_list[curr_scr_win->server].chan_list;
+            channel_count = 0;
+            while (channel_p) {
+                channel_count++;
+                channel_p = channel_p->next;
+            }
+            p = get_channel_by_refnum(0);
+            if (p) channel_p = lookup_channel(p, from_server, 0);
+            else channel_p = server_list[curr_scr_win->server].chan_list;
+            if (!channel_p) return; /* not on any channels */
+            our_count = 0;
+        }
+
+next_channel:
+        while (channel_p && our_count < channel_count) {
+            if (next_p) nick_p = next_p;
+            else nick_p = channel_p->nicks;
+            while (nick_p) {
+                if (!my_strnicmp( nick_p->nick, completing, strlen(completing))) break;
+                nick_p = nick_p->next;
+            }
+            if (nick_p) {
+                for (i = 0; i < length; i++) input_backspace(' ', NULL);
+                for (p = nick_p->nick; *p; p++) input_add_character(*p, NULL);
+                last_completion = nick_p->nick;
+                if (nick_p->next) next_p = nick_p->next;
+                else {
+                    channel_p = channel_p->next;
+                    next_p = 0;
+                }
+                return;
+            }
+            channel_p = channel_p->next;
+            next_p = 0;
+            our_count++;
+        }
+        /* if we started at chan_list our_count will equal
+           channel_count, skipping this */
+        if (our_count < channel_count) {
+            channel_p = server_list[curr_scr_win->server].chan_list;
+            goto next_channel;
+        }
+        /* we've had a match, find it again */
+        if (last_completion) {
+            last_completion = 0;
+            goto nick_begin;
+        }
     }
 }
 
