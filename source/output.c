@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.6 2000-08-14 20:38:14 f Exp $
+ * $Id: output.c,v 1.7 2000-08-18 20:20:31 f Exp $
  */
 
 #include "irc.h"
@@ -252,7 +252,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
  		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
 #else
-  		sprintf(buf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+  		sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
 		add_to_screen(putbuf);
