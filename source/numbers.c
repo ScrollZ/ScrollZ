@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.12 1999-06-14 17:47:26 f Exp $
+ * $Id: numbers.c,v 1.13 1999-06-14 20:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -1132,8 +1132,8 @@ numbered_command(from, comm, ArgList)
 /**************************** PATCHED by Flier ******************************/
 	case 472:
                 /* 
-                 * Don't display if we'er joining a channel since it
-                 * mose likely means it came from MODE #channel e
+                 * Don't display if we're joining a channel since it
+                 * most likely means it came from MODE #channel e
                  */
                 for (chan=server_list[from_server].chan_list;chan;chan=chan->next)
                     if (!(chan->gotbans) || !(chan->gotwho)) break;
