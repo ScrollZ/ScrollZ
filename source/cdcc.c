@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.33 2000-12-05 18:38:36 f Exp $
+ * $Id: cdcc.c,v 1.34 2001-03-12 19:57:02 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -70,7 +70,7 @@ static void plistmcommand _((char *));
 static void noticemcommand _((char *));
 static void listcommand _((char *, char *));
 static void helpcommand _((char *, char *));
-static void sendcommand _((char *, char *, int));
+static void sendcommand _((char *, char *, int, int));
 static void versioncommand _((char *, char *));
 #ifndef LITE
 static void psendmcommand _((char *));
@@ -1884,7 +1884,8 @@ char *line;
             for (tmp=packs;tmp;tmp=tmp->next) {
                 if (matchmcommand(blah,packcount)) {
                     sprintf(tmpbuf,"%d",packcount);
-                    sendcommand(nick,tmpbuf,0);
+                    /* if user is sending manually avoid queue/min speed */
+                    sendcommand(nick,tmpbuf,0, 1);
                 }
                 packcount++;
             }
@@ -2253,6 +2254,7 @@ char *args;
 char *to;
 int  msg;
 {
+    int  level=0;
     char *command=(char *) 0;
 #ifdef WANTANSI
     char  tmpbuf1[mybufsize/2];
@@ -2264,54 +2266,53 @@ int  msg;
     char  tmpbuf4[mybufsize];
     time_t timenow;
     static time_t lastcheck=0;
+    struct friends *tmpfriend=NULL;
 
     if (msg) {
         timenow=time((time_t *) 0);
         if (timenow-lastcheck<3) return;
         lastcheck=timenow;
     }
-    if (Security && !FriendList) {
-        if (!CTCPCloaking) send_to_server("NOTICE %s :This function has been disabled",nick);
+    sprintf(tmpbuf4,"%s!%s",nick,FromUserHost);
+    if ((tmpfriend=CheckUsers(tmpbuf4,NULL))) level=tmpfriend->privs;
+    if (msg) command=new_next_arg(args,&args);
+    else command="CDCC";
+#ifdef WANTANSI
+    if (args && *args)
+        sprintf(tmpbuf1," %s%s%s",
+                CmdsColors[COLCDCC].color3,args,Colors[COLOFF]);
+    else *tmpbuf1='\0';
+    ColorUserHost(FromUserHost,CmdsColors[COLCTCP].color2,tmpbuf2,1);
+    sprintf(tmpbuf4,"%sCdcc%s%s request received from %s%s%s %s",
+            CmdsColors[COLCDCC].color4,Colors[COLOFF],tmpbuf1,
+            CmdsColors[COLCDCC].color1,nick,Colors[COLOFF],tmpbuf2);
+    if (to && is_channel(to)) {
+        sprintf(tmpbuf3," to %s%s%s",CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
+        strcat(tmpbuf4,tmpbuf3);
+    }
+#else
+    if (args && *args) strcpy(tmpbuf1,args);
+    else *tmpbuf1='\0';
+    sprintf(tmpbuf4,"Cdcc%s request received from %s (%s)",tmpbuf1,from,FromUserHost);
+    if (to && is_channel(to)) {
+        sprintf(tmpbuf3," to %s",to);
+        strcat(tmpbuf4,tmpbuf3);
+    }
+#endif
+    if (away_set || LogOn) AwaySave(tmpbuf4,SAVECTCP);
+    if (Security && !(level&FLCDCC)) {
+        strcat(tmpbuf4,", no access");
+        send_to_server("NOTICE %s :You do not have access...  -ScrollZ-",nick);
+        say("%s",tmpbuf4);
         return;
     }
-    command=new_next_arg(args,&args);
+    if (CdccVerbose==1) say("%s",tmpbuf4);
     if (command && (!my_stricmp(command,"CDCC") || !my_stricmp(command,"XDCC")))
         command=new_next_arg(args,&args);
     if (command) {
-#ifdef WANTANSI
-        ColorUserHost(FromUserHost,CmdsColors[COLCDCC].color2,tmpbuf3,1);
-        *tmpbuf2='\0';
-        if (to && is_channel(to))
-            sprintf(tmpbuf2," to %s%s%s",
-                   CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
-        if (args && *args) {
-            sprintf(tmpbuf1,"%sCdcc%s %s%s %s%s request received from %s%s",
-                    CmdsColors[COLCDCC].color4,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color3,command,args,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color1,nick);
-            sprintf(tmpbuf4,"%s%s %s%s",tmpbuf1,Colors[COLOFF],tmpbuf3,tmpbuf2);
-        }
-        else {
-            sprintf(tmpbuf1,"%sCdcc%s %s%s%s request received from %s%s%s",
-                    CmdsColors[COLCDCC].color4,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color3,command,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
-            sprintf(tmpbuf4,"%s %s%s",tmpbuf1,tmpbuf3,tmpbuf2);
-        }
-#else
-        *tmpbuf2='\0';
-        if (to && is_channel(to)) sprintf(tmpbuf2," to %s",to);
-        if (args && *args)
-            sprintf(tmpbuf4,"Cdcc %s %s request received from %s (%s)%s",
-                    command,args,nick,FromUserHost,tmpbuf2);
-        else sprintf(tmpbuf4,"Cdcc %s request received from %s (%s)%s",
-                     command,nick,FromUserHost,tmpbuf2);
-#endif
-        if (CdccVerbose==1) say("%s",tmpbuf4);
-        if (away_set || LogOn) AwaySave(tmpbuf4,SAVECDCC);
         if (!my_stricmp(command,"HELP")) helpcommand(nick,args);
-        else if (!my_stricmp(command,"SEND")) sendcommand(nick,args,0);
-        else if (!my_stricmp(command,"RESEND")) sendcommand(nick,args,1);
+        else if (!my_stricmp(command,"SEND")) sendcommand(nick,args,0,level&FLCDCC);
+        else if (!my_stricmp(command,"RESEND")) sendcommand(nick,args,1,level&FLCDCC);
         else if (!my_stricmp(command,"LIST")) listcommand(nick,args);
         else if (!my_stricmp(command,"VERSION")) versioncommand(nick,args);
         else if (!CTCPCloaking) send_to_server("NOTICE %s :Try /CTCP %s CDCC HELP to get Cdcc help",nick,get_server_nickname(from_server));
@@ -2442,10 +2443,11 @@ char *args;
 }
 
 /* Send pack that they request */
-static void sendcommand(from,args,resend)
+static void sendcommand(from,args,resend,level)
 char *from;
 char *args;
 int  resend;
+int  level;
 {
     int   packcount=1;
     int   totalfiles=0;
@@ -2480,7 +2482,7 @@ int  resend;
                     window_display=0;
                     sent++;
                     for (tmp1=tmp->files;tmp1;tmp1=tmp1->next) {
-                        if (TotalSendDcc()<CdccLimit) {
+                        if (level || TotalSendDcc()<CdccLimit) {
                             int dccflag;
 
                             packsent=1;
@@ -2495,7 +2497,10 @@ int  resend;
                                 dcc_filesend(tmpbuf1);
                             }
                             tmpdcc=dcc_searchlist(NULL,from,dccflag,0,tmpbuf2);
-                            if (tmpdcc) tmpdcc->minspeed=tmp->minspeed;
+                            if (tmpdcc) {
+                                if (!level) tmpdcc->minspeed=tmp->minspeed;
+                                else tmpdcc->minspeed=0.0;
+                            }
                             totalbytes+=tmp1->size;
                             totalfiles++;
                         }
