@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.14 1998-11-16 21:11:08 f Exp $
+ * $Id: edit6.c,v 1.15 1998-11-19 21:11:38 f Exp $
  */
 
 #include "irc.h"
@@ -1150,13 +1150,19 @@ char *subargs;
     if (tmpstr) {
         if (!my_stricmp("ON",tmpstr)) *(command_list[i].var)=1;
         else if (!my_stricmp("OFF",tmpstr)) *(command_list[i].var)=0;
+        else if (!strcmp("MIRC",command_list[i].command) && !my_stricmp("STRIP",tmpstr)) 
+            *(command_list[i].var)=2;
         else {
-            sprintf(tmpbuf,"%s on/off",command_list[i].command);
+            if (!strcmp("MIRC",command_list[i].command))
+                sprintf(tmpbuf,"%s on/off/strip",command_list[i].command);
+            else sprintf(tmpbuf,"%s on/off",command_list[i].command);
             PrintUsage(tmpbuf);
             return;
         }
     }
-    if (*(command_list[i].var))
+    if (!strcmp("MIRC",command_list[i].command) && *(command_list[i].var)==2)
+        PrintSetting(command_list[i].setting,"STRIP",empty_string,empty_string);
+    else if (*(command_list[i].var))
         PrintSetting(command_list[i].setting,"ON",empty_string,empty_string);
     else PrintSetting(command_list[i].setting,"OFF",empty_string,empty_string);
 }
@@ -1501,21 +1507,25 @@ char *newbuf;
             code=atoi(sptr);
             if (code>15 || code<0) continue;
             while (isdigit(*sptr)) sptr++;
-            strcpy(dptr,codes[code].fg);
-            while (*dptr) dptr++;
+            if (DisplaymIRC==1) {
+                strcpy(dptr,codes[code].fg);
+                while (*dptr) dptr++;
+            }
             if (*sptr==',') {
                 sptr++;
                 code=atoi(sptr);
-                if (code>0 && code<15) {
+                if (code>0 && code<15 && DisplaymIRC==1) {
                     strcpy(dptr,codes[code].bg);
                     while (*dptr) dptr++;
                 }
                 while (isdigit(*sptr)) sptr++;
             }
         }
-        else if (*sptr == '') {
-            strcpy(dptr,Colors[COLOFF]);
-            while (*dptr) dptr++;
+        else if (*sptr=='') {
+            if (DisplaymIRC==1) {
+                strcpy(dptr,Colors[COLOFF]);
+                while (*dptr) dptr++;
+            }
             sptr++;
         }
         else *dptr++=*sptr++;
