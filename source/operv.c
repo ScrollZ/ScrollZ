@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.15 1999-10-20 19:40:47 f Exp $
+ * $Id: operv.c,v 1.16 1999-10-31 11:05:39 f Exp $
  */
 
 #include "irc.h"
@@ -47,7 +47,8 @@ char *tmpbuf;
 int  sizeofbuf;
 {
     /* we need to send aditional usermodes (+swfuckrn), for ircd 2.9/2.10 only send +w */
-    if (get_server_version(from_server)==4 || get_server_version(from_server)==5)
+    if (get_server_version(from_server)==Server2_9 || 
+        get_server_version(from_server)==Server2_10)
         strmcpy(tmpbuf,"w",sizeofbuf);
     else strmcpy(tmpbuf,"swfuckrn",sizeofbuf);
 }
@@ -704,14 +705,21 @@ char *from;
 	strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
         strcpy(word3,OVgetword(0,6,tmpline));  /* o/O */
+        tmp=word3;
+        if (*tmp) tmp++;
+        if (get_server_version(from_server)==Server2_9 || 
+            get_server_version(from_server)==Server2_10) {
+            if (*tmp=='o') *tmp='O';
+            else *tmp='o';
+        }
 #ifdef CELECOSM
         sprintf(tmpbuf,"%s%s%s %s is an IRC warrior %s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
-                *word3?(*(word3+1)=='O'?"(global)":"(local)"):"");
+                *tmp?(*tmp=='O'?"(global)":"(local)"):"");
 #else
 	sprintf(tmpbuf,"%s%s%s %s is now %sIRC Operator.",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
-                *word3?(*(word3+1)=='O'?"global ":"local "):"");
+                *tmp?(*tmp=='O'?"global ":"local "):"");
 #endif
     }
     else if (strstr(tmpline,"is rehashing Server config")) {
