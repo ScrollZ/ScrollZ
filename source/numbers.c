@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.59 2002-03-13 18:23:02 f Exp $
+ * $Id: numbers.c,v 1.60 2002-03-21 17:01:49 f Exp $
  */
 
 #include "irc.h"
@@ -125,6 +125,10 @@ static	void	version _((char *, char **));
 static	void	invite _((char *, char **));
 
 static	int	already_doing_reset_nickname = 0;
+/**************************** Patched by Flier ******************************/
+static  int     SentNick = 0;
+static  char    *OldNick = NULL;
+/****************************************************************************/
 
 /*
  * numeric_banner: This returns in a static string of either "xxx" where
@@ -542,6 +546,10 @@ nickname_sendline(data, nick)
 		from_server = new_server;
 		if (nick && *nick)
 		{
+/**************************** PATCHED by Flier ******************************/
+                        SentNick++;
+                        malloc_strcpy(&OldNick, get_server_nickname(new_server));
+/****************************************************************************/
 			send_to_server("NICK %s", nick);
 			if (new_server == primary_server)
 				malloc_strcpy(&nickname, nick);
@@ -587,7 +595,19 @@ reset_nickname(from, ArgList)
 		return;
 	s = next_arg(*ArgList, ArgList);
 	if (my_stricmp(s, get_server_nickname(from_server)) == 0)
+        {
+/**************************** Patched by Flier ******************************/
+                /* ircII has a bug: /set no_ask_nickname off
+                                    /nick <existing nick>
+                                    enter the same nick again when asked
+                   => client thinks it has the nick now */
+                if (SentNick) {
+                    set_server_nickname(parsing_server_index, OldNick);
+                    SentNick = 0;
+                }
+/****************************************************************************/
 		return;
+        }
 
 /**************************** Patched by Flier ******************************/
         if (OrigNickSent) return;
