@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.84 2001-12-23 16:41:57 f Exp $
+ * $Id: edit4.c,v 1.85 2001-12-23 16:50:46 f Exp $
  */
 
 #include "irc.h"
@@ -798,7 +798,7 @@ void HandleTabNext(u_int key, char *ptr)
     int i;
     int length;
     int argc;
-    char argv[3][32] = { 0, 0, 0 };
+    char argv[3][32] = { { 0 }, { 0 }, { 0 } };
     char *p;
     char *cur_pos, *min_pos;
     static char completing[mybufsize / 2 + 1];
