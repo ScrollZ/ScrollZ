@@ -6,6 +6,10 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+------------------------------------------------------------------------------
+
+ScrollZ v1.8m, 15.10.2001
+
     ~ AUTORECON crash (reported by Tero)
     - debian subdirectory
     ~ default compile time flags in defs.h.in
@@ -85,7 +89,8 @@ Meaning of flags:
     ! don't crash doing MAP if no LINKS info is returned by ircd (reported
       by braneded)
     + customizable timestamp format (SET STAMP_FORMAT to see default example,
-      patch submitted by braneded, thanks)
+      code submitted by braneded, thanks)
+    ! don't skip IRC operators in FTRACE (reported by Hans)
 
 ------------------------------------------------------------------------------
 
