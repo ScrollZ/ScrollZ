@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.36 2000-07-17 15:23:24 f Exp $
+ * $Id: edit5.c,v 1.37 2000-07-20 18:43:10 f Exp $
  */
 
 #include "irc.h"
@@ -1186,8 +1186,9 @@ char *channel;
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s %sFriend%s    : [Filt] %s%s%s  [Acs] %s",
+        sprintf(tmpbuf1,"%s %sFriend%s    : [Filt] #%d %s%s%s  [Acs] %s",
                 banner,CmdsColors[COLWHOIS].color5,Colors[COLOFF],
+                tmpfriend->number,
                 CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF],
                 CmdsColors[COLWHOIS].color4);
         BuildPrivs(tmpfriend,tmpbuf1);
@@ -1205,7 +1206,8 @@ char *channel;
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s Friend    : [Filt] %s  [Acs] ",banner,tmpfriend->userhost);
+        sprintf(tmpbuf1,"%s Friend    : [Filt] #%d %s  [Acs] ",
+                banner,tmpfriend->number,tmpfriend->userhost);
         BuildPrivs(tmpfriend,tmpbuf1);
         put_it("%s  [Chnl] %s",tmpbuf1,tmpfriend->channels);
     }
