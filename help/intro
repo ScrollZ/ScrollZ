@@ -1,4 +1,4 @@
-!	 $Id: intro,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: intro,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -10,7 +10,7 @@ Irc is a multi-user, multi-channel chatting network.  It allows
 people all over the Internet to talk to one another in real-time.
 Each irc user has a nickname they use.  All communication with
 other users is either by nickname or by the channel that they or
-you are on.  All IRCII commands begin with a / character.
+you are on.  All ScrollZ commands begin with a / character.
 Anything that does not begin with a / is assumed to be a message
 that is sent to everyone on your channel.  Here is a list of
 basic commands to help you get started:
@@ -27,7 +27,7 @@ basic commands to help you get started:
 			see this message.
     /NICK		Change your nickname
     /QUIT		Exits irc.
-    /HELP <topic>	Gets help on all IRCII commands.
+    /HELP <topic>	Gets help on all ScrollZ commands.
     /WHO <channel>	Shows who is on a given channel,
 			including nickname, user name and host,
 			and realname.

@@ -1,4 +1,4 @@
-!	 $Id: disconnect,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: disconnect,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 Usage: ON [#|+|-|^|&|@]DISCONNECT [-|^]<parameters> [action]
   This is activated whenever you are disconnected from an
-  irc server and IRCII's automatic reconnection techniques
+  irc server and ScrollZ's automatic reconnection techniques
   can't get you reconnected.  This would be any situation
   which you would see
     *** Use /SERVER to connect to a server

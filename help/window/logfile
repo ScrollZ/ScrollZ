@@ -1,4 +1,4 @@
-!	 $Id: logfile,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: logfile,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -12,7 +12,7 @@ Usage: WINDOW LOGFILE [<filename>]
 
   Nothing is appended to this name, if you use WINDOW LOG.
   If you don't set a logfile for the window, and call WINDOW LOG,
-  ircII creates a name for you.
+  ScrollZ creates a name for you.
 
 See Also:
   WINDOW LOG

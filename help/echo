@@ -1,4 +1,4 @@
-!	 $Id: echo,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: echo,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -9,7 +9,7 @@
 Usage: ECHO [<anything you want>]
   This simply displays all of it's arguments.  However, it's not
   that simple.  ECHO will work even if DISPLAY is set to OFF,
-  making it useful in your .ircrc file.  Also, ECHO will work in
+  making it useful in your .scrollzrc file.  Also, ECHO will work in
   the action portion of an ON command in all modes.  This can be
   used to redefine the way messages appear.
 

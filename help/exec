@@ -1,4 +1,4 @@
-!	 $Id: exec,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: exec,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -18,25 +18,25 @@ Usage: EXEC <shell commands>
        EXEC -TARGET [<shell commands]
        EXEC -FILTER <funcname> <shell commands>
 
-  EXEC allows you to start subprocesses in ircII and manipulate
+  EXEC allows you to start subprocesses in ScrollZ and manipulate
   them in various ways.  You can start multiple subprocesses
   simultaneously and access them via a process number assigned
-  by ircII.  You can list all currently running subprocesses by
+  by ScrollZ.  You can list all currently running subprocesses by
   using EXEC with no parameters.  The process id of a process
-  is the number assigned by ircII for that process, or the 
+  is the number assigned by ScrollZ for that process, or the 
   name of the process given by the -NAME flag.  If a NAME is 
   given to a process, that name may be used anyway in place of
-  the process number assigned by ircII.
+  the process number assigned by ScrollZ.
 
   The first form of EXEC will simply start a subprocess and send
   it's output to your display.
 
-  The second form tells IRCII to send the output of the process
+  The second form tells ScrollZ to send the output of the process
   to your current channel.  For example:
     EXEC -OUT ls
   sends the output of ls to your channel.  
     EXEC -OUT %1
-  tells ircII to send the output of subprocess 1 to your channel.
+  tells ScrollZ to send the output of subprocess 1 to your channel.
   Subprocess 1 must exist already by a previous call to EXEC.
 
   The third form is much like the second, except that it sends
@@ -85,10 +85,10 @@ Usage: EXEC <shell commands>
   off subprocesses which don't die when you use -KILL (or other
   flag).  Doing a:
     EXEC -CLOSE %0
-  closes all of ircII's connections to that processes.  This means 
+  closes all of ScrollZ's connections to that processes.  This means 
   that even if the processes is still sending output you won't see
   it.  This also means (in most cases) that the process will be
-  killed by a SIGPIPE when it tries to send to ircII.
+  killed by a SIGPIPE when it tries to send to ScrollZ.
 
   The ninth form sends it's output to whatever the current $T
   points to:
@@ -108,7 +108,7 @@ Usage: EXEC <shell commands>
   the first word on every line.
   /on exec could also be used, but it does not work right
   if you work on multiple servers at the same time.
-  NOTE: If the program outputs lines longer than the ircII
+  NOTE: If the program outputs lines longer than the ScrollZ
   line length limit is, the lines are handled as if they
   were split, and this may not work expectedly. Be careful.
 

@@ -1,4 +1,4 @@
-!	 $Id: input_aliases,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: input_aliases,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -11,7 +11,7 @@ Usage: SET INPUT_ALIASES [ON|OFF|TOGGLE]
   If you set INPUT_ALIASES ON and type: ECHO $S
   you will see your server name echoed to your window.  If it is
   OFF, you will see $S echoed to your window. INPUT_ALIASES now 
-  has no effect on expansions in the .ircrc and loaded files.  To 
+  has no effect on expansions in the .scrollzrc and loaded files.  To 
   Make a line expand when a file is loaded, use EVAL <command>.
 
   Note also, that when INPUT_ALIASES is ON, text within (..) and {..}
@@ -30,6 +30,6 @@ Usage: SET INPUT_ALIASES [ON|OFF|TOGGLE]
           ${ [$0](this) } expands to the return value of $test(this)
   
 Note:
-  If you do turn on INPUT_ALIASES in the .ircrc then the argument
+  If you do turn on INPUT_ALIASES in the .scrollzrc then the argument
   expandos ($*, $0, $1, $3-4, etc) will expand to the command line 
-  arguments passed to IRCII on startup.
+  arguments passed to ScrollZ on startup.

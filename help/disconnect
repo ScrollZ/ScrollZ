@@ -1,4 +1,4 @@
-!	 $Id: disconnect,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: disconnect,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 2000, Matthew Green
 !
@@ -6,7 +6,7 @@
 ! information.
 !
 Usage: DISCONNECT [<server-index>]
-  Makes ircII disconnect from server number <server-index> or the current
+  Makes ScrollZ disconnect from server number <server-index> or the current
   window's server if no index is given.
 
 See Also:

@@ -1,4 +1,4 @@
-!	 $Id: server,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: server,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -17,7 +17,7 @@ Usage: SERVER [<name of server>|<number in server_list> [<port>]]
   unchanged.   Occasionally, you can switch servers faster than the
   irc   network can send out the information that you have left a
   server.  So don't be surprised if it says your nickname is in 
-  use...  just wait a moment and set it with NICK.  IRCII
+  use...  just wait a moment and set it with NICK.  ScrollZ
   maintains an internal list of servers you have connected to.
   To see that list, use SERVER with no arguments.  You may also
   specify one of the servers in the server list by its number in
@@ -32,7 +32,7 @@ Usage: SERVER [<name of server>|<number in server_list> [<port>]]
   respectively.  The second form allows you to specify a port,
   a password and a nickname to be used for this IRC connection.
   Also, you can set a particular server to be associated with a
-  particular IRCII window.  To do this, set the current window to the
+  particular ScrollZ window.  To do this, set the current window to the
   window you wish to use and do:
     SERVER +servername
   In this case, servername may again be a name, IP address, or number

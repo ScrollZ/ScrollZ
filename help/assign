@@ -1,4 +1,4 @@
-!	 $Id: assign,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: assign,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 Usage: ASSIGN [[-]<user-variable> [<whatever>]]
   ASSIGN lets you create user variables which are automatically
-  expanded by ircII in aliases using the $variable-name format.
+  expanded by ScrollZ in aliases using the $variable-name format.
   For example, if you had defined:
     ASSIGN me The Big Cheese
   Then, in an alias, $me would expand to "The Big Cheese".  These

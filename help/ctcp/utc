@@ -1,4 +1,4 @@
-!	 $Id: utc,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: utc,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -13,7 +13,7 @@ Usage: CTCP <nick> UTC <system time>
     UTC number
   where number is the ASCII representation of the 32 bit
   integer representing the time as is used on UNIX machines.
-  When IRCII receives this CTCP, it replaces the text of
+  When ScrollZ receives this CTCP, it replaces the text of
   the local time expressed in the local language back into
   the original message. Thus if you send the following:
     NOTICE nick The time is ^AUTC 702777074^A

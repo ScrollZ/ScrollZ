@@ -1,4 +1,4 @@
-!	 $Id: version,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: version,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,6 +7,6 @@
 ! information.
 !
 Usage: VERSION [<server>]
-  Shows the IRCII version number and the version number of the
+  Shows the ScrollZ version number and the version number of the
   server specified.  If no server name is specifed, the version
   of your current server is shown.

@@ -1,4 +1,4 @@
-!	 $Id: status_format,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: status_format,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -32,7 +32,7 @@ Usage: SET STATUS_FORMAT <format description for status line>
        M          Value of STATUS_MAIL variable. *
        #	  Value of STATUS_UMODE variable.
        B	  Value of STATUS_HOLD_LINES variable. *
-       V          Current IRCII version
+       V          Current ScrollZ version
        >          Makes anything beyond it right justified.
        %          Replaced by %
 
@@ -40,7 +40,7 @@ Usage: SET STATUS_FORMAT <format description for status line>
   certain conditions are met.  Please get help on the variables
   mentioned above for specifics about each one.
 
-  For example, the standard default IRCII status line format
+  For example, the standard default ScrollZ status line format
   looks like this:
 
   %T[%R] %*%@%N %S%H%Q%A%C%+%I%O%M%U %W

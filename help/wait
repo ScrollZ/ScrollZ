@@ -1,4 +1,4 @@
-!	 $Id: wait,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: wait,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -30,7 +30,7 @@ Usage: WAIT [%process] [-cmd <command> <do_command>]
   The second form of the command is:
     WAIT -CMD %process command
   Where %process is a valid running processes id or name.  This is
-  used to cause IRCII to execute the command after the process has
+  used to cause ScrollZ to execute the command after the process has
   exited.  If the given process doesn't exist, return is immediate.
   Here is an example of it's use:
     alias uptime {
@@ -67,7 +67,7 @@ Usage: WAIT [%process] [-cmd <command> <do_command>]
     results can be unpredictable.
 
   - It is not consistant with the message driven programming
-    model which exists in ircII.
+    model which exists in ScrollZ.
 
   With multi window enhancements the problems with WAIT become even
   more prohibitive, unless used in the -CMD form.

@@ -1,4 +1,4 @@
-!	 $Id: window,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: window,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 Usage: WINDOW [<argument> [<argument> <argument> ...]]
   The WINDOW command lets you manipulate multiple "windows" in
-  ircII.  Windows are horizontally divided sections of the
+  ScrollZ.  Windows are horizontally divided sections of the
   screen in which different bits of irc information can be
   displayed.  WINDOW lets you create, manipulate, and remove
   such windows.  The <argument> parameters to WINDOW are described
@@ -27,7 +27,7 @@ Usage: WINDOW [<argument> [<argument> <argument> ...]]
   directed to that window.
   
   If you have JOIN or WINDOW CHANNEL commands in a script, like
-  your .ircrc file, you will need to do a WAIT after each JOIN
+  your .scrollzrc file, you will need to do a WAIT after each JOIN
   or WINDOW CHANNEL.
 
 See Also:

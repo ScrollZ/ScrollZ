@@ -1,4 +1,4 @@
-!	 $Id: cmdchars,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: cmdchars,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,5 +8,5 @@
 !
 Usage: SET CMDCHARS <character set>
   Sets the set of characters which may be used to specify a 
-  command to IRCII.  You can specify as many characters as you
+  command to ScrollZ.  You can specify as many characters as you
   wish to be command characters.

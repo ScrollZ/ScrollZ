@@ -1,4 +1,4 @@
-!	 $Id: create,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: create,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,7 +7,7 @@
 ! information.
 !
 Usage: WINDOW CREATE
-  Creates a new ircII window by either opening a new 'screen' window
+  Creates a new ScrollZ window by either opening a new 'screen' window
   or 'xterm' window depending on the environment.  'screen' is a 
   popular program which allows multiple windows to be recalled under
   unix and displayed one at a time on even a vt100 terminal.

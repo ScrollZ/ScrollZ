@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: functions,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,8 +6,8 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-IRCII Functions
-  IRCII functions are substituted with the format $FUNCTION(arguments).
+ScrollZ Functions
+  ScrollZ functions are substituted with the format $FUNCTION(arguments).
   A function is an ALIAS which assigns a value to FUNCTION_RETURN.
   For example:
     ALIAS DOUBLE assign FUNCTION_RETURN ${[$0]+[$0]}
@@ -52,7 +52,7 @@ IRCII Functions
                         into it's original characters.  Note that these are
                         case sensitive.
   ENCODE(input text)    Convert input text to an encoded string suitable for
-                        use as an ircII variable or alias name.  Any special
+                        use as an ScrollZ variable or alias name.  Any special
                         including spaces can be encoded into the string.
   FILESTAT(filename)    Performs a stat(2) on the specified filename.  The
 			returned values are size, uid, gid, mode and filename.

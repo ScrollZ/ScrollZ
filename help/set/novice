@@ -1,4 +1,4 @@
-!	 $Id: novice,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: novice,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,10 +7,10 @@
 ! information.
 !
 Usage: SET NOVICE [ON|OFF|TOGGLE]
-  The NOVICE variable causes IRCII to disallow certain actions by the
+  The NOVICE variable causes ScrollZ to disallow certain actions by the
   user (such as ON commands) and to show a request to read the NEWUSER
   help file on startup. It is set to ON by default, and should normally
-  be turned off in your .ircrc file. Additionally, it enforces an
+  be turned off in your .scrollzrc file. Additionally, it enforces an
   automatic LEAVE before JOIN so that novice users are not confused
   by multiple channels.
 

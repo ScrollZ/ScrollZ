@@ -1,4 +1,4 @@
-!	 $Id: suppress_server_motd,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: suppress_server_motd,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,6 +8,6 @@
 !
 Usage: SET SUPPRESS_SERVER_MOTD [ON|OFF|TOGGLE]
   This will prevent you from seeing the motd from the server when you
-  connect to a server.  This is not to be confused with the IRCII motd
+  connect to a server.  This is not to be confused with the ScrollZ motd
   which your installation may or may not have.  You will still see the
   server motd if you use the /MOTD command.

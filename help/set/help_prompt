@@ -1,4 +1,4 @@
-!	 $Id: help_prompt,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: help_prompt,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,5 +7,5 @@
 ! information.
 !
 Usage: SET HELP_PROMPT [ON|OFF|TOGGLE]
-  If SET nothing different happens, but if set OFF, then ircII will
+  If SET nothing different happens, but if set OFF, then ScrollZ will
   not prompt for more help after showing a file.

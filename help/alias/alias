@@ -1,4 +1,4 @@
-!	 $Id: alias,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: alias,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -12,8 +12,8 @@ Usage: ALIAS [[-]<alias> [<commands>]]
   If you want an alias to type something to the channel or query
   use SEND or SAY. You can use ';' to put multiple commands in a row.
 
-  Special character sequences, usually ircII variables, are prefixed
-  with '$'.  There are certain $ sequences built in to IRCII for getting
+  Special character sequences, usually ScrollZ variables, are prefixed
+  with '$'.  There are certain $ sequences built in to ScrollZ for getting
   such information as your nickname and current channel, plus you can
   expand your own variables and system variables using the $ format.  
   You can also expand functions, substituting their return values.
@@ -40,7 +40,8 @@ Usage: ALIAS [[-]<alias> [<commands>]]
     }
   is the same as
     ALIAS loadcommon LOAD netsplit;LOAD troy
-  but lacks the ; and it much easier to read in a script or the .ircrc file.
+  but lacks the ; and it much easier to read in a script or the
+  .scrollzrc file.
 
   For more specific information about the $ uses and more examples,
   see the specific help files listed below.

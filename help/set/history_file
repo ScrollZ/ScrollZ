@@ -1,4 +1,4 @@
-!	 $Id: history_file,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: history_file,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -10,7 +10,7 @@ Usage: SET HISTORY_FILE <path for history file>
   If HISTORY_FILE is set, then the command history is saved in
   this file rather than in memory.  The advantage to this is
   that the size of this file is limited by your disk space and
-  doesn't increase the memory usage of IRCII.  The disadvantage
+  doesn't increase the memory usage of ScrollZ.  The disadvantage
   is that history access might be slower (or it might not).  To
   disable the HISTORY_FILE, set it to <EMPTY>.  To completely
   disable the command history functions, you must also set

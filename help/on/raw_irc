@@ -1,4 +1,4 @@
-!	 $Id: raw_irc,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: raw_irc,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 Usage: ON [#|+|-|^|&|@]RAW_IRC [-|^]<parameters> [action]
   This is activated whenever a message is received from a server which is
-  not understood by IRCII. Under normal circumstances this will never
+  not understood by ScrollZ. Under normal circumstances this will never
   happen, however if used in conjunction with /QUOTE, this ON function
   can be used to test new features being added to a server. This will
   normally be used in conjunction with /ALIAS

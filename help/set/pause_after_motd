@@ -1,4 +1,4 @@
-!	 $Id: pause_after_motd,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: pause_after_motd,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,10 +7,10 @@
 ! information.
 !
 Usage: SET PAUSE_AFTER_MOTD [ON|OFF|TOGGLE]
-  When ON, this will cause IRCII to wait for a keystroke after
-  the local IRCII motd is displayed then clear the screen and
+  When ON, this will cause ScrollZ to wait for a keystroke after
+  the local ScrollZ motd is displayed then clear the screen and
   continue.  If OFF, the local motd will be displayed,
   immediately followed by the server banners and motds.  If
-  there is no local IRCII motd, this variable has no effect.
-  PAUSE_AFTER_MOTD only works for the IRCII motds and *not* for
+  there is no local ScrollZ motd, this variable has no effect.
+  PAUSE_AFTER_MOTD only works for the ScrollZ motds and *not* for
   server motds.

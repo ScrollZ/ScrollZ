@@ -1,4 +1,4 @@
-!	 $Id: on,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: on,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -86,7 +86,7 @@ ON [mode]#<event> <serial number> [-|^]<match> [action]
   The [action] parameter is that action that will occur when the
   specified event occurs which matches the given <match>.
   The action parameter is parsed by the command parse in exactly
-  the same way as an IRCII alias is parsed, using the same inline
+  the same way as an ScrollZ alias is parsed, using the same inline
   variable expansions (See ALIAS).  Also, depending on the
   event that is activated, there will be certain values passed
   as arguments to the action, just as if they were arguments to

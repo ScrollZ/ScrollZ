@@ -1,4 +1,4 @@
-!	 $Id: hold_mode,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: hold_mode,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,7 +7,7 @@
 ! information.
 !
 Usage: SET HOLD_MODE [ON|OFF|TOGGLE]
-  When ON, IRCII will pause at the end of each page of output.
+  When ON, ScrollZ will pause at the end of each page of output.
   Output will continue when the TOGGLE_STOP_SCREEN function is
   activated (bound, by default, to ctrl-S) or when the
   SEND_LINE function is activated (bound, by default, to the

@@ -1,4 +1,4 @@
-!	 $Id: save,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: save,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,11 +7,11 @@
 ! information.
 !
 Usage: SAVE [<options>] [<filename>]
-  This will save all of the settings of IRCII to a file.  It
+  This will save all of the settings of ScrollZ to a file.  It
   saves all of the Key Bindings, Variables, and Aliases (in that
-  order) in a format such that they can be loaded into IRCII
+  order) in a format such that they can be loaded into ScrollZ
   using the LOAD command or the -l switch.  If no filename is
-  given, the your default .ircrc file will be used (unless
+  given, the your default .scrollzrc file will be used (unless
   changed with the -l switch).
 
   If any of these options are specific, different things occur.

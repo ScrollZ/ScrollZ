@@ -1,4 +1,4 @@
-!	 $Id: translation,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: translation,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 Usage: SET TRANSLATION <character translation table>
   The TRANSLATION variable defines a character translation
-  table.  By default, ircII assumes that all text processed
+  table.  By default, ScrollZ assumes that all text processed
   over the network is in the ISO 8859/1 map, also known as
   Latin-1.  This is identical to standard ASCII, except that
   it is extended with additional characters in the range

@@ -1,4 +1,4 @@
-!	 $Id: flood,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: flood,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -22,7 +22,7 @@ Usage: ON [#|+|-|^|&|@]FLOOD [-|^]<parameters> [action]
   has stopped.
 
   If you use services like IRCIIHelp or NickServ, these can appear to
-  IRCII as floods, but if you add to following ON lines:
+  ScrollZ as floods, but if you add to following ON lines:
     ON FLOOD ^IRCIIHelp
     ON FLOOD ^NickServ
   These will not be treated as floods and will let their messages through.

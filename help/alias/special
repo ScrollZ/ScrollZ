@@ -1,4 +1,4 @@
-!	 $Id: special,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: special,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -25,7 +25,7 @@ Special character sequences for ALIAS:
          sent a /MSG
     $variable  Expands to the value of one of the following:
            1) Matching ASSIGN'd variable
-           2) Matching IRCII SET variable
+           2) Matching ScrollZ SET variable
            3) Matching environment variable
            4) Nothing
          It checks in the order shown.  Thus, if 1 doesn't match, 2 is
@@ -75,7 +75,7 @@ Special character sequences for ALIAS:
          a current channel)
     $U   Expands to the last thing cut from the command line. e.g. ^U to 
          clear line will put the line in the variable $U
-    $V   Expands to the internal ircII release date
+    $V   Expands to the internal ScrollZ release date
     $W   Expands to the current working directory
     $Z   Expands to the time of day
     $$   Expands to $

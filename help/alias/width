@@ -1,4 +1,4 @@
-!	 $Id: width,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: width,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -19,7 +19,7 @@ ALIAS MODIFIER:
   treated as though no width specifier was used.  If you get real
   tricky, you can do things like this:
     $([$CHANNEL_NAME_WIDTH]C)
-  The value of the IRCII variable CHANNEL_NAME_WIDTH will be expanded
+  The value of the ScrollZ variable CHANNEL_NAME_WIDTH will be expanded
   in the $() expression.   If CHANNEL_NAME_WIDTH is 10, this will result
   in $[10]C which will then expand as described above.
  

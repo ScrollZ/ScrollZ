@@ -1,4 +1,4 @@
-!	 $Id: quote,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: quote,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,7 +8,7 @@
 !
 ALIAS MODIFIER:
   This is a special quoting modifier.  Use of this modifier tells
-  IRCII that you wish certain characters in the converted text to be
+  ScrollZ that you wish certain characters in the converted text to be
   quoted using the \ character.  The form of this modifier is:
     $^c<sequence>
   where c is the character to be quoted, and <sequence> is one of the
@@ -17,7 +17,7 @@ ALIAS MODIFIER:
   and you do
     foo This is a $Test
   Since $ expressions are parsed first, the $^$* is the first thing
-  parsed.  The ^$ part tells IRCII to quote all $ in the resultant
+  parsed.  The ^$ part tells ScrollZ to quote all $ in the resultant
   string.  So, the $^$* is expanded just like $* and becomes:
     This is a $Test
   and the ^$ causes it to quote all $, which becomes:

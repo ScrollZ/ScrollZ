@@ -1,4 +1,4 @@
-!	 $Id: display,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: display,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -9,6 +9,6 @@
 Usage: SET DISPLAY [ON|OFF|TOGGLE]
   Turns ON or OFF all output.  When DISPLAY is off ECHO can still
   produce a message on your screen.
-  DISPLAY is set OFF by default in scripts now, including the .ircrc
+  DISPLAY is set OFF by default in scripts now, including the .scrollzrc
   file.  It is automatically turned back on when the script is done
   loading.

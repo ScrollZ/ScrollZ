@@ -1,4 +1,4 @@
-!	 $Id: numeric,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: numeric,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -11,7 +11,7 @@ Usage: ON [#|+|-|^|&|@]<numeric> [-|^]<parameters> [action]
   The legal range of values for <numeric> are from 001 to 999.
   Numeric messages are special replies send by the server to the client
   in the raw irc protocol.  They are useful to intercept if you are 
-  writing a service using ircII.  For more details about what numbers
+  writing a service using ScrollZ.  For more details about what numbers
   represent what messages from the server, please see the irc server
   source code.  
   The parameters for the action are as follows:

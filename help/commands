@@ -1,4 +1,4 @@
-!	 $Id: commands,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: commands,v 1.4 2002-02-21 17:16:31 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,10 +6,10 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-All IRCII commands typed on the command line must begin with one
+All ScrollZ commands typed on the command line must begin with one
 of the CMDCHAR settings (see SET CMDCHARS).  By default, this 
 is set to /.  Thus, any input line whose first character is a 
-/ is treated as an IRCII command. For example:
+/ is treated as an ScrollZ command. For example:
 
 /MSG BigCheese Howdy!
 
@@ -40,7 +40,7 @@ Now, the MSG command will only send messages to BigCheese:
 /MSG Howdy!
 
 Note that in the alias, there are two / in front of MSG.  Putting
-two of the CMDCHAR in front of a command tells IRCII that you
+two of the CMDCHAR in front of a command tells ScrollZ that you
 want to use the original command, and not any alias of it.
 Therefore, even if you had the above alias for MSG, you could
 still do the following:
