@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.3 1998-09-20 14:41:40 f Exp $
+ * $Id: edit3.c,v 1.4 1998-09-30 21:18:48 f Exp $
  */
 
 #include "irc.h"
@@ -182,7 +182,6 @@ char *subargs;
     put_it("  [1;37m€[0;35;47m               coding[1;30m : [33mFlier[0;30;47m [1;37m([33mflier[1;37m@[33mglobecom[1;37m.[33mnet[1;37m)[30m                       [1;30m€[0m");
     put_it("  [1;37m€[0;35;47m              patches[1;30m : [32;47mZakath[1;37m ([30mxanth[37m@[30m3Sheep[37m.[30mCOM[37m)[0;30;47m                        [1;30m€[0m");
     put_it("  [1;37m€[0;35;47m  distro head/patches[1;30m : [32;47macidflash[1;37m ([30macid[37m@[30mhostu[37m.[30mnet[37m)                       [1;30m€[0m");
-    put_it("  [1;37m€[0;35;47m          logo/distro[1;30m : [32;47manimal nitrate[1;37m ([30manitrate[37m@[30mdakotacom[37m.[30mnet[37m)[30m          [1;30m€[0m");
     put_it("  [1;37m€[0;35;47m                        [1;34mType /SZINFO for more information                [1;30m€[0m");
     put_it("  ﬂ[1;30mﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ[0m");
 #else
