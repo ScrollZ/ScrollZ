@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.29 2000-11-01 09:43:32 f Exp $
+ * $Id: numbers.c,v 1.30 2000-11-01 09:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -1196,6 +1196,7 @@ numbered_command(from, comm, ArgList)
 
 /**************************** PATCHED by Flier ******************************/
 	case 472:
+	case 482:
                 /* 
                  * Don't display if we're joining a channel since it
                  * most likely means it came from MODE #channel e
