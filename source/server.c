@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.26 2000-08-28 22:43:33 f Exp $
+ * $Id: server.c,v 1.27 2000-09-24 17:32:45 f Exp $
  */
 
 #include "irc.h"
@@ -1704,7 +1704,7 @@ servercmd(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 				/*get_connected(primary_server + 1, 0);*/
                                 get_connected(primary_server+1+
-                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0,0);
+                                              (primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0),0);
 /****************************************************************************/
 			return;
 		}
