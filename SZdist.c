@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.15 1999-06-14 17:47:47 f Exp $
+ * $Id: SZdist.c,v 1.16 1999-06-14 17:55:41 f Exp $
  */
 
 #include <stdio.h>
@@ -433,8 +433,8 @@ char **argv;
         *tmp3='\0';
     }
     tmp1=index(format,'%');
-    if (tmp1 && *(tmp1-1)==' ' && *(tmp1+1)=='s' && *(tmp1+2)==' ' && *(tmp1+3)=='#' &&
-        *(tmp1+4)=='%' && *(tmp1+5)=='s' && !(*(tmp1+6))) gotit=1;
+    tmp2=tmp1?index(tmp1+1,'%'):NULL;
+    if (tmp1 && tmp2 && *(tmp1+1)=='s' && *(tmp2+1)=='s') gotit=1;
     while (fgets(buf,1024,fpin))
         if (strstr(buf,"#define")) {
             if (strstr(buf,"WANTANSI")) choice|=WANTANSI;
@@ -565,6 +565,8 @@ char **argv;
 	       onoffstr(choice&SZNCURSES,onoffbuf));
 	printf(" [1mX[0m - IPCHECKING    %s - compile with IP checking\n",
 	       onoffstr(choice&IPCHECKING,onoffbuf));
+	printf(" [1mY[0m - OPER          %s - compile with IRC oper stuff\n",
+	       onoffstr(choice&OPER,onoffbuf));
         printf(" [1mR[0m - REGISTER      Name: [1m%s[0m   IP: [1m%s[0m\n",regname,ip);
         printf(" [1mQ[0m - QUIT          [1mS[0m - SAVE & QUIT\n");
         printf("Enter your choice: ");
@@ -631,6 +633,9 @@ char **argv;
 		case 'X': if ((choice&IPCHECKING)) choice&=~IPCHECKING;
 			  else choice|=IPCHECKING;
 			  break;
+		case 'Y': if ((choice&OPER)) choice&=~OPER;
+			  else choice|=OPER;
+			  break;
                 case 'R': if ((choice&IPCHECKING)) reg(regname,ip);
                           break;
 
@@ -662,6 +667,7 @@ char **argv;
 	    else if (i==SZ32) addtobuf(SZ32files,tmpbuf,choice,oldchoice,i);
 	    else if (i==SZNCURSES) addtobuf(SZNCURSESfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==IPCHECKING) addtobuf(IPCHECKINGfiles,tmpbuf,choice,oldchoice,i);
+	    else if (i==OPER) addtobuf(OPERfiles,tmpbuf,choice,oldchoice,i);
         }
         if (rename(defsfile,defsoldfile)<0) {
             printf("Error, couldn't rename %s to %s\n",defsfile,defsoldfile);
@@ -748,6 +754,9 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want client with ncurses support */\n");
 	if (choice&SZNCURSES) fprintf(fpout,"#define SZNCURSES\n");
 	else fprintf(fpout,"#undef SZNCURSES\n");
+        fprintf(fpout,"\n/* Define this if you want irc oper stuff (not OperVision!) */\n");
+	if (choice&OPER) fprintf(fpout,"#define OPER\n");
+	else fprintf(fpout,"#undef OPER\n");
         fprintf(fpout,"/****************************************************************************/\n");
         fclose(fpin);
         fclose(fpout);
