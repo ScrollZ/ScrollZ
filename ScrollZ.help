@@ -923,27 +923,27 @@ Also look at $2CDCC DLDIR$0
    COMPRESS      CSCAN         CTCPCLOAK     CYCLE         DEOPS
    DEOPT         DIRLM         DIRLMK        DIRLN         DIRLNK
    DIRLSM        DIRLSN        DOBANS        DOP           DPROT
-   DUMP          EGO           EXTMES        FAKE          FBK
-   FINGER        FK            FKLINE        FLOODP        FRLIST
-   IDLEKICK      IDLETIME      IG            IGTIME        INV
-   J             K             KEYS          KICKONBAN     KICKONFLOOD
-   KICKOPS       KICKS         KICKT         KPROT         L
-   LEVELS        LISTBK        LISTF         LISTN         LISTS
-   LISTW         LK            LLOOK         LLOOKUP       LOGON
-   LS            M             MAP           MASSDV        MASSV
-   MC            MDOP          MIRC          MK            MKILL
-   MODELOCK      MODEUNLOCK    MOP           MREOP         MSAY
-   MULTK         N             NET           NEWHOST       NEWUSER
-   NHPROT        NICKS         NICKT         NOCHAT        NOIG
-   NOKEY         NOTEPAD       NPROT         NSLOOKUP      NTFYMODE
-   NWHOIS        OP            ORIGNICK      ORIGNTIME     OV
-   P             PASSWD        PLAYBACK      RANLK         RE
-   RECONNECT     RELOAD        REMBK         REMCHAN       REMF
-   REMFCHAN      REMFFLAG      REMLOG        REMN          REMS
-   REMW          REPWORD       S             SB            SERVNOTICE
-   SETAWAY       SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE
-   SHOWKILL      SHOWNICK      SHOWUSER      SINFO         SPING
-   STAMP         SVE           T             TBAN          TERMINATE
-   TKILL         UMODE         UNBAN         UNFLASH       URL
-   URLCATCH      VER           W             WALL          WHOLEFT
-   WI            WII           WKILL         WW
+   DUMP          EGO           ENCRCHAT      EXTMES        FAKE
+   FBK           FINGER        FK            FKLINE        FLOODP
+   FRLIST        IDLEKICK      IDLETIME      IG            IGTIME
+   INV           J             K             KEYS          KICKONBAN
+   KICKONFLOOD   KICKOPS       KICKS         KICKT         KPROT
+   L             LEVELS        LISTBK        LISTF         LISTN
+   LISTS         LISTW         LK            LLOOK         LLOOKUP
+   LOGON         LS            M             MAP           MASSDV
+   MASSV         MC            MDOP          MIRC          MK
+   MKILL         MODELOCK      MODEUNLOCK    MOP           MREOP
+   MSAY          MULTK         N             NET           NEWHOST
+   NEWUSER       NHPROT        NICKS         NICKT         NOCHAT
+   NOIG          NOKEY         NOTEPAD       NPROT         NSLOOKUP
+   NTFYMODE      NWHOIS        OP            ORIGNICK      ORIGNTIME
+   OV            P             PASSWD        PLAYBACK      RANLK
+   RE            RECONNECT     RELOAD        REMBK         REMCHAN
+   REMF          REMFCHAN      REMFFLAG      REMLOG        REMN
+   REMS          REMW          REPWORD       S             SB
+   SERVNOTICE    SETAWAY       SETBACK       SETTINGS      SHOWAWAY
+   SHOWIDLE      SHOWKILL      SHOWNICK      SHOWUSER      SINFO
+   SPING         STAMP         SVE           T             TBAN
+   TERMINATE     TKILL         UMODE         UNBAN         UNFLASH
+   URL           URLCATCH      VER           W             WALL
+   WHOLEFT       WI            WII           WKILL         WW
