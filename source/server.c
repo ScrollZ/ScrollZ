@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.4 1998-10-21 18:23:45 f Exp $
+ * $Id: server.c,v 1.5 1998-10-21 19:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -531,6 +531,7 @@ add_to_server_list(server, port, password, nick, overwrite)
                 server_list[from_server].LastNotice=(char *) 0;
                 server_list[from_server].LastMessageSent=(char *) 0;
                 server_list[from_server].LastNoticeSent=(char *) 0;
+                malloc_strcpy(&(server_list[from_server].LastJoin),"none yet");
                 server_list[from_server].arcur=(struct nicks *) 0;
                 server_list[from_server].arlist=(struct nicks *) 0;
                 server_list[from_server].nickcur=(struct nicks *) 0;
@@ -666,14 +667,11 @@ remove_from_server_list(i)
 	if (server_list[i].ctcp_send_size)
 		new_free(&server_list[i].ctcp_send_size);
 /**************************** PATCHED by Flier ******************************/
-        if (server_list[i].LastMessage)
-            new_free(&(server_list[i].LastMessage));
-        if (server_list[i].LastNotice)
-            new_free(&(server_list[i].LastNotice));
-        if (server_list[i].LastMessageSent)
-            new_free(&(server_list[i].LastMessageSent));
-        if (server_list[i].LastNoticeSent)
-            new_free(&(server_list[i].LastNoticeSent));
+        if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
+        if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
+        if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
+        if (server_list[i].LastNoticeSent) new_free(&(server_list[i].LastNoticeSent));
+        if (server_list[i].LastJoin) new_free(&(server_list[i].LastJoin));
         for (tmpnick=server_list[i].arlist;tmpnick;) {
             tmpnickfree=tmpnick;
             tmpnick=tmpnick->next;
