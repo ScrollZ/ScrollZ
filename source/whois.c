@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.20 2003-04-16 18:11:59 f Exp $
+ * $Id: whois.c,v 1.21 2003-07-06 10:19:42 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -729,30 +729,36 @@ char **ArgList;
                     *ip++='\0';
                 }
                 else ip = empty_string;
+                if (uh == empty_string && ip == empty_string)
+                    ip = ArgList[1];
 #ifdef WANTANSI
                 ColorUserHost(uh, CmdsColors[COLWHOIS].color2, tmpbuf, 0);
 #endif /* WANTANSI */
 
 #ifdef WANTANSI
 #ifdef GENX
-                put_it("%s³ %sactually%s ³ %s %s%s%s",
+                put_it("%s³ %sactually%s ³ %s%s%s%s%s",
                        numeric_banner(), CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF], tmpbuf,
+                       uh == empty_string ? "" : " ",
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #elif defined(CELECOSM)
-                put_it("%s%sactually%s:   %s %s%s%s",
+                put_it("%s%sactually%s:   %s%s%s%s%s",
                        numeric_banner(), CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF], tmpbuf,
+                       uh == empty_string ? "" : " ",
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #else  /* CELECOSM */
-                put_it("%s%sActually%s  : %s %s%s%s",
+                put_it("%s%sActually%s  : %s%s%s%s%s",
                        numeric_banner(), CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF], tmpbuf,
+                       uh == empty_string ? "" : " ",
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #endif /* GENX */
 #else  /* WANTANSI */
-                put_it("%sActually:   %s %s",
-                       numeric_banner(), uh, ip);
+                put_it("%sActually:   %s%s%s",
+                      numeric_banner(), uh,
+                      uh == empty_string ? "" : " ", ip);
 #endif /* WANTANSI */
             }
         }
