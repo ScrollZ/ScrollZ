@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.10 2001-05-10 18:26:13 f Exp $
+# @(#)$Id: Makefile.in,v 1.11 2001-07-01 09:33:29 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -63,6 +63,9 @@ INSTALL_IRC = ${bindir}/scrollz
 # you put the scripts, help pages and translation tables.  It is
 # very important that you set this correctly.
 IRCLIB = ${libdir}/scrollz
+
+# The documentation directory
+IRCDOC = ${IRCLIB}/doc
 
 # Set this to the lex you want to use, and if they lex uses a library.
 
@@ -196,6 +199,7 @@ installirc: scrollz installdirs
 	$(INSTALL) source/scrollz $(INSTALL_IRC)-$(VERSION)
 	@(cd $(bindir) ; $(LN) scrollz-$(VERSION) scrollz)
 	@cp ScrollZ.help $(HELP_DIR)
+	@cp doc/ScrollZ.doc $(IRCDOC)
 
 installserv: installio
 installio: ircio installdirs
@@ -209,7 +213,7 @@ installwserv: wserv installdirs
 
 installdirs:
 	umask 022; ./mkinstalldirs $(IRCLIB) $(bindir) \
-		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR)
+		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR) $(IRCDOC)
 
 clena clean:
 	@-if test -f source/Makefile; then cd source; $(MAKE) clean; fi
