@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.5 1999-06-05 12:06:22 f Exp $
+ * $Id: mystructs.h,v 1.6 1999-07-24 12:39:40 f Exp $
  */
 
 /* don't change!! */
@@ -42,6 +42,7 @@
 #define FLJOIN 512
 #define FLNOFLOOD 1024
 #define FLINSTANT 2048
+#define FLWHOWAS 4096
 #define FLALL (FLINVITE | FLCHOPS | FLOP | FLAUTOOP | FLUNBAN | FLPROT | FLCDCC | FLGOD | FLVOICE | FLJOIN | FLNOFLOOD | FLINSTANT)
 
 /* some defines for shit list */
