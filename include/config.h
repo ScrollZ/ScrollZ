@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.19 2003-05-04 18:06:58 f Exp $
+ * $Id: config.h,v 1.20 2004-08-13 18:38:56 f Exp $
  */
 
 #ifndef __config_h_
@@ -319,11 +319,19 @@
 
 #elif defined(WANTANSI)
 
+#ifndef LITE
 #ifdef HAVE_STRFTIME
 #define DEFAULT_STAMP_FORMAT "%H:%M$color(cyan)|$color(off)"
 #else
 #define DEFAULT_STAMP_FORMAT "$Z$color(cyan)|$color(off)"
 #endif
+#else  /* LITE */
+#ifdef HAVE_STRFTIME
+#define DEFAULT_STAMP_FORMAT "%H:%M|"
+#else
+#define DEFAULT_STAMP_FORMAT "$Z|"
+#endif
+#endif /* LITE */
 #define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
 #define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
 #define DEFAULT_STATUS_CHANNELCOUNT "[O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6]"
