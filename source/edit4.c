@@ -40,7 +40,7 @@
  HandleNotifyOff     Handles notify off
  HandleNotifyOffUh   Handles notify userhost off
  ListNotify          Lists all users on notify list
- ClearBans           Clears my stuff in ChannelList (bans and modelock)
+ ClearBans           Clears my stuff in ChannelList (bans, hash list)
  HandleGotOps        Handles all things when you get ops
  MyQuit              This executes when you quit from IRC
  AddDelayOp          Adds user to delay op list
@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.71 2001-08-25 18:25:15 f Exp $
+ * $Id: edit4.c,v 1.72 2001-08-27 16:00:33 f Exp $
  */
 
 #include "irc.h"
