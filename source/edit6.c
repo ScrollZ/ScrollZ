@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.21 1999-02-15 21:19:14 f Exp $
+ * $Id: edit6.c,v 1.22 1999-02-17 17:30:42 f Exp $
  */
 
 #include "irc.h"
@@ -181,6 +181,7 @@ extern char *CelerityNtfy;
 extern char *chars;
 
 extern DCC_list *ClientList;
+extern time_t   start_time;
 
 #if defined(EXTRAS) || defined(FLIER)
 /* Checks if signed on user should be invited */
@@ -1720,6 +1721,7 @@ char *command;
 char *args;
 char *subargs;
 {
+    int  timediff=time((time_t *) 0)-start_time;
     char *szver;
     char *tmpstr1;
     char tmpbuf[mybufsize/4];
@@ -1738,15 +1740,17 @@ char *subargs;
         szver=index(tmpstr1+1,' ')+1;
         tmpstr1=index(szver,' ');
         *tmpstr1='\0';
-        say("This is ScrollZ %s (client base ircII %s, version %s)",szver,
-            irc_version,internal_version);
+        say("This is ScrollZ %s (client base ircII %s, version %s)",
+            szver,irc_version,internal_version);
+        say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
+            (timediff/60)%60);
         /*say("Home page:   http://ecover.globecom.net/~flier");
-        say("Alternative: http://bibendum.3sheep.com/~flier");*/
+        say("Alternative: http://bibendum.3sheep.com/~flier");
  	say("Mailing List: scrollz@listserv.sonn.com");
- 	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");
+ 	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");*/
         say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: bighead, zuez, arc, JMnemonic, myc, mathe, frash, ogre, lotbd, TrN, kali and Psylocke");
-	say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");
+        say("Distribution: bighead, arc, myc, frash, ogre, lotbd, TrN, kali and Psylocke");
+	/*say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");*/
     /* XXX - Remove this, Flier */
     }
     else if ((chan=lookup_channel(get_channel_by_refnum(0),curr_scr_win->server,0))) {
