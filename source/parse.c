@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.26 2000-08-19 15:57:26 f Exp $
+ * $Id: parse.c,v 1.27 2000-08-21 15:49:02 f Exp $
  */
 
 #include "irc.h"
@@ -409,11 +409,13 @@ p_wallops(from, ArgList)
 			if (do_hook(WALLOP_LIST, "%s S %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s!%s!%s %s", high, from, high, line);*/
+                        {
 #if defined(OPERVISION) && defined(WANTANSI)
                             if (OperV) OVformat(line,from);
                             else
 #endif
                             put_it("%s!%s!%s %s", high, from, high, line);
+                        }
 /****************************************************************************/
 			if (beep_on_level & LOG_WALLOP)
 				beep_em(1);
