@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.72 2002-01-07 19:18:16 f Exp $
+ * $Id: edit2.c,v 1.73 2002-01-13 16:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -1685,7 +1685,7 @@ char *line;
 }
 
 /* Shows or sets topic for current or specified channel */
-void Topic(command,args,subargs)
+void Topic(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
@@ -1694,38 +1694,38 @@ char *subargs;
     char *tmparg;
     ChannelList *chan;
 
-    channel=get_channel_by_refnum(0);
+    channel = get_channel_by_refnum(0);
     if (!(args && *args)) {
-        if (channel && (chan=lookup_channel(channel,from_server,0))) {
-            say("Topic for %s: %s",chan->channel,
-                chan->topicstr?chan->topicstr:"No topic is set.");
+        if (channel && (chan = lookup_channel(channel, from_server, 0))) {
+            if (chan->topicstr) say("Topic for %s: %s", chan->channel, chan->topicstr);
+            else say("No topic is set for %s", chan->channel);
             if (chan->topicwho)
-                say("%s by %s on %.19s",chan->topicstr?"Set":"Unset",
-                    chan->topicwho,ctime(&(chan->topicwhen)));
+                say("%s by %s on %.19s", chan->topicstr ? "Set" : "Unset",
+                    chan->topicwho, ctime(&(chan->topicwhen)));
         }
         else NoWindowChannel();
     }
     else {
         if (!is_channel(args)) {
             if (channel) {
-                if ((chan=lookup_channel(channel,from_server,0))) {
-                    if (((chan->mode)&MODE_TOPIC) && HAS_OPS(chan->status))
-                        send_to_server("TOPIC %s :%s",channel,args);
-                    else if ((chan->mode)&MODE_TOPIC) NotChanOp(channel);
-                    else send_to_server("TOPIC %s :%s",channel,args);
+                if ((chan = lookup_channel(channel, from_server, 0))) {
+                    if (((chan->mode) & MODE_TOPIC) && HAS_OPS(chan->status))
+                        send_to_server("TOPIC %s :%s", channel, args);
+                    else if ((chan->mode) & MODE_TOPIC) NotChanOp(channel);
+                    else send_to_server("TOPIC %s :%s", channel, args);
                 }
             }
             else NoWindowChannel();
         }
         else {
-            tmparg=new_next_arg(args,&args);
-            if ((chan=lookup_channel(tmparg,from_server,0))) {
-                if (((chan->mode)&MODE_TOPIC) && HAS_OPS(chan->status))
-                    send_to_server("TOPIC %s :%s",chan->channel,args);
-                else if ((chan->mode)&MODE_TOPIC) NotChanOp(chan->channel);
-                else send_to_server("TOPIC %s :%s",chan->channel,args);
+            tmparg = new_next_arg(args, &args);
+            if ((chan = lookup_channel(tmparg, from_server, 0))) {
+                if (((chan->mode) & MODE_TOPIC) && HAS_OPS(chan->status))
+                    send_to_server("TOPIC %s :%s", chan->channel, args);
+                else if ((chan->mode) & MODE_TOPIC) NotChanOp(chan->channel);
+                else send_to_server("TOPIC %s :%s", chan->channel, args);
             }
-            else say("You are not on channel %s",tmparg);
+            else say("You are not on channel %s", tmparg);
         }
     }
 }
