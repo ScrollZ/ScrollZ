@@ -4,15 +4,15 @@
 /*
  * Routines for Blowfish encryption
  *
- * $Id: blowfish.h,v 1.2 1998-11-15 20:13:57 f Exp $
+ * $Id: blowfish.h,v 1.3 1998-11-16 17:44:29 f Exp $
  */
 
-static unsigned int F(unsigned int);
-static void BlowfishEncipher(unsigned int *, unsigned int *);
-static void BlowfishDecipher(unsigned int *, unsigned int *);
-static void BlowfishInit(char *, int);
-void EncryptString(char *, char *, char *, int);
-int  Base64Decode(char);
-void DecryptString(char *, char *, char *, int);
+static unsigned int F _((unsigned int));
+static void BlowfishEncipher _((unsigned int *, unsigned int *));
+static void BlowfishDecipher _((unsigned int *, unsigned int *));
+static void BlowfishInit _((char *, int));
+void EncryptString _((char *, char *, char *, int));
+int  Base64Decode _((char));
+void DecryptString _((char *, char *, char *, int));
 
 #endif /* _blowfish_h_ */
