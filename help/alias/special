@@ -1,4 +1,4 @@
-!	 $Id: special,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: special,v 1.5 2002-02-24 11:02:23 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -63,6 +63,8 @@ Special character sequences for ALIAS:
     $H   Expands to the current numeric being processed
     $I   Expands to the name of the channel to which you were last
          INVITED
+    $J   Expands to the current ScrollZ version. See ScrollZ tutorial
+         for the meaning of additional flags.
     $K   Expands to the current value of CMDCHAR.  Useful to have 
          aliases work even when you change CMDCHAR.
     $L   Expands to the current contents of the input line
@@ -77,6 +79,7 @@ Special character sequences for ALIAS:
          clear line will put the line in the variable $U
     $V   Expands to the internal ScrollZ release date
     $W   Expands to the current working directory
+    $W   Expands to the Celerity version
     $Z   Expands to the time of day
     $$   Expands to $
 
