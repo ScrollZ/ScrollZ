@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.52 1999-09-19 17:21:25 f Exp $
+ * $Id: edit6.c,v 1.53 1999-10-23 18:28:17 f Exp $
  */
 
 #include "irc.h"
@@ -119,8 +119,8 @@ extern void CleanUpWindows _((void));
 extern void CleanUpFlood _((void));
 extern void CleanUpVars _((void));
 extern void Dump _((char *, char *, char *));
-extern void EncryptString _((char *, char *, char *, int, int));
-extern void DecryptString _((char *, char *, char *, int, int));
+extern int  EncryptString _((char *, char *, char *, int, int));
+extern int  DecryptString _((char *, char *, char *, int, int));
 extern void queuemcommand _((char *));
 /* Patched by Zakath */
 extern void CeleAway _((int));
@@ -2360,9 +2360,9 @@ char *user;
 
     if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
                                             !REMOVE_FROM_LIST))) {
-        EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1);
+        return(EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1));
     }
-    return(tmp?1:0);
+    return(0);
 }
 
 /* Decrypt message */
@@ -2374,9 +2374,9 @@ char *user;
 
     if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
                                             !REMOVE_FROM_LIST))) {
-        DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1);
+        return(DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1));
     }
-    return(tmp?1:0);
+    return(0);
 }
 
 #ifdef OPER

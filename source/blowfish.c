@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.4 1999-08-25 20:09:04 f Exp $
+ * $Id: blowfish.c,v 1.5 1999-10-23 18:28:05 f Exp $
  */
 
 #include "irc.h"
@@ -227,7 +227,7 @@ int keybytes;
     }
 }
 
-void EncryptString(dest,src,key,bufsize,szenc)
+int EncryptString(dest,src,key,bufsize,szenc)
 char *dest;
 char *src;
 char *key;
@@ -262,6 +262,7 @@ int  szenc;
         }
     }
     *d=0;
+    return(szenc);
 }
 
 int Base64Decode(c)
@@ -273,7 +274,7 @@ char c;
     return(0);
 }
 
-void DecryptString(dest,src,key,bufsize,szenc)
+int DecryptString(dest,src,key,bufsize,szenc)
 char *dest;
 char *src;
 char *key;
@@ -288,7 +289,7 @@ int  szenc;
     if (szenc) {
         if (strncmp(x,SZCRYPTSTR,4)) {
             strmcpy(dest,x,bufsize);
-            return;
+            return(0);
         }
         x+=strlen(SZCRYPTSTR);
     }
@@ -307,4 +308,5 @@ int  szenc;
         for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8))) >> ((3-i)*8);
     }
     *d=0;
+    return(szenc);
 }
