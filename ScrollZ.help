@@ -165,12 +165,12 @@ Usage $3NSLOOKUP host$0|$3nick$0
 :NWHOIS        Prints some statistics about nicks matching filter
 Usage $3NWHOIS filter$0
 :OV            Turns OperVision on/off
-Usage $3OV on$0 [$3nots$0]|$3here$0 [$3nots$0]|$3off$0
+Usage $3OV on$0 [$3nots$0] [$3nomodes$0]|$3here$0 [$3nots$0] [$3nomodes$0]|$3off$0 [$3nomodes$0]
 When enabled client will create a new window which will receive
 all IRC operator related stuff. If enabled with $3here$0 IRC
 operator related stuff goes to current window. Time stamping
 is enabled by default. If $4NOTS$0 is given, time stamping is
-disabled.
+disabled. If $4NOMODES$0 is given, no user modes will be sent.
 :P             Pings nick
 Usage $3P nick$0|$3#channel$0
 If no arguments are given, current channel will be pinged
@@ -482,6 +482,9 @@ they will be invited only to +i channels.
 :AUTOOPDELAY   Delay before automatically oping user
 Usage $3AUTOOPDELAY time_in_seconds$0
 Default auto-op time is 4. Setting this to 0 disables auto-op delay.
+:AUTORECON     Toggles automatic reconnect to a server on/off
+Usage $3AUTORECON on$0|$3off$0
+If on, client will automatically reconnect to a server upon disconnect.
 :AWAYSAVE      Defines what to save in ScrollZ.away
 Usage $3AWAYSAVE $0[$3-$0]$3type$0
 Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
@@ -545,8 +548,8 @@ if mass deop protection is $3ON$0. When number of deops doubles that of
 $4DEOPS$0, user will be kicked if $4KICKONFLOOD$0 is $3ON$0.
 Also look at $2KICKONFLOOD$0, $2DEOPS$0 and $2DEOPT$0
 :EGO           Toggles ego on/off
-If on, your nick will have different colour in public messages
 Usage $3EGO on$0|$3off$0
+If on, your nick will have different colour in public messages
 :EXTMES        Toggles extended message display on/off
 Usage $3EXTMES on$0|$3off$0
 :FAKE          Toggles fake modes display on/off
