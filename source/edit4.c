@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.95 2002-01-24 17:00:11 f Exp $
+ * $Id: edit4.c,v 1.96 2002-01-24 17:04:19 f Exp $
  */
 
 #include "irc.h"
@@ -851,7 +851,7 @@ void HandleTabNext(u_int key, char *ptr)
     p++;                /* back to beginning */
     length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
     if (!last_completion || my_stricmp(last_completion, p)) {
-        strmcpy(completing, p, length);
+        strmcpy(completing, p, length + 1);
         last_completion = NULL;
         next_p = 0;
     }
@@ -904,14 +904,14 @@ send_begin:
         if (p) {
             if (p == completing) *dir = '/';
             else {
-                strmcpy(dir, completing, sizeof(dir) - 1);
+                strmcpy(dir, completing, sizeof(dir));
                 if (p - completing < mybufsize / 2) dir[p - completing] = '\0';
             }
-            strmcpy(file, p + 1, sizeof(file) - 1);
+            strmcpy(file, p + 1, sizeof(file));
         }
-        else strmcpy(file, completing, sizeof(file) - 1);
+        else strmcpy(file, completing, sizeof(file));
         if (!(*dir)) {
-            if (CdccUlDir) strmcpy(root, CdccUlDir, sizeof(root) - 1);
+            if (CdccUlDir) strmcpy(root, CdccUlDir, sizeof(root));
             else {
                 getcwd(root, sizeof(root));
                 if (!(*root)) strcpy(root, ".");
@@ -928,11 +928,11 @@ send_begin:
         }
         else {
             if (*dir != '/' && CdccUlDir) {
-                strmcpy(root, CdccUlDir, sizeof(root) - 1);
-                strmcat(root, "/", sizeof(root) - 1);
-                strmcat(root, dir, sizeof(root) - 1);
+                strmcpy(root, CdccUlDir, sizeof(root));
+                strmcat(root, "/", sizeof(root));
+                strmcat(root, dir, sizeof(root));
             }
-            else strmcpy(root, dir, sizeof(root) - 1);
+            else strmcpy(root, dir, sizeof(root));
             n = scandir(root, &dir_list, NULL, alphasort);
         }
         if (n < 0) return;
@@ -948,13 +948,13 @@ send_begin:
             if (!strncmp(dir_list[j]->d_name, file, strlen(file))) {
                 for (i = 0; i < length; i++) input_backspace(' ', NULL);
                 for (p = dir; *p; p++) input_add_character(*p, NULL);
-                strmcpy(buffer, dir, sizeof(buffer) - 1);
+                strmcpy(buffer, dir, sizeof(buffer));
                 if (p != dir && *(p - 1) != '/') {
                     input_add_character('/', NULL);
-                    strmcat(buffer, "/", sizeof(buffer) - 1);
+                    strmcat(buffer, "/", sizeof(buffer));
                 }
                 for (p = dir_list[j]->d_name; *p; p++) input_add_character(*p, NULL);
-                strmcat(buffer, dir_list[j]->d_name, sizeof(buffer) - 1);
+                strmcat(buffer, dir_list[j]->d_name, sizeof(buffer));
                 last_completion = buffer;
                 break;
             }
