@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.77 2004-08-31 14:12:26 f Exp $
+ * $Id: numbers.c,v 1.78 2004-08-31 14:24:26 f Exp $
  */
 
 #include "irc.h"
@@ -795,6 +795,10 @@ cannot_join_channel(from, ArgList)
             strmcpy(buffer, ArgList[0], sizeof(buffer));
             strmcat(buffer, " Cannot join channel ", sizeof(buffer));
         }
+        else if (-current_numeric == 515) {
+            PasteArgs(ArgList, 1);
+            strmcpy(buffer, ArgList[0], sizeof(buffer));
+        }
         else {
             /* valid for the rest of numerics covered here */
             PasteArgs(ArgList, 0);
@@ -851,6 +855,9 @@ cannot_join_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 		case 477:
 			strmcat(buffer, " (You must first identify yourself with NickServ to join that channel)", sizeof(buffer));
+                        break;
+		case 515:
+			strmcat(buffer, " (You need to be identified to join that channel)", sizeof(buffer));
                         break;
 /****************************************************************************/
 		}
@@ -1393,8 +1400,9 @@ numbered_command(from, comm, ArgList)
  	case 475: 		/* #define ERR_BADCHANNELKEY    475 */
  	case 476:		/* #define ERR_BADCHANMASK      476 */
 /**************************** PATCHED by Flier ******************************/
- 	case 477:
+ 	case 477:               /* restricted to identified users */
  	case 276:               /* hybrid7 - virtual channels       */
+ 	case 515:               /* freenode - restricted to identified users */
 /****************************************************************************/
  		cannot_join_channel(from, ArgList);
  		break;
