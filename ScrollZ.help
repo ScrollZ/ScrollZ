@@ -60,7 +60,7 @@ Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
 :DUMP          Dumps aliases, ons, vars or all of them
 Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
 :ENCRMSG       Maintains encrypted communication sessions
-Usage $3ENCRMSG$0 [$3-CLEAR$0] [$3-SHOW$0] [$3nick$0|$3#channel$0 [$3key$0]]
+Usage $3ENCRMSG$0 [$3-PASS master password$0] [$3-CLEAR$0] [$3-SHOW$0] [$3target$0 [$3key$0]]
 Communication with nick/channel will be encrypted using key. Both
 parties have to use the same key for encryption/decryption to work.
 If only nick is specified you will be prompted for a password. If
@@ -73,7 +73,10 @@ is used publics and private messages are prepended with [!]. DCC CHAT
 messages are encrypted if nick is enclosed in *. Warning: messages are
 cut at 304 characters to avoid decryption problems when IRC server cuts
 the message. To see the passwords used for encryption specify $3-SHOW$0.
-To clear the encryption list specify $3-CLEAR$0.
+To clear the encryption list specify $3-CLEAR$0. You can set master
+password with command $4PASSWD$0. Use $3-PASS$0 to specify master password
+on a command line.
+Also look at $2PASSWD$0
 :FCLINE        Does STATS c with filter
 Usage $3FCLINE filter$0 [$3server$0]
 :FILINE        Does STATS I with filter
@@ -201,16 +204,22 @@ disabled. If $4NOMODES$0 is given, no user modes will be sent.
 :P             Pings nick
 Usage $3P nick$0|$3#channel$0
 If no arguments are given, current channel will be pinged
-:PASSWD        Sets password for ScrollZ.away and your log file
-Usage $3PASSWD password$0 [$3old_password$0]
-Be sure not to forget your password as you will not be able
+:PASSWD        Sets master password for $4ENCRMSG$0 and log files
+Usage $3PASSWD$0 [$3password$0 [$3old_password$0]]
+Be sure not to forget your password or you will not be able
 to read encrypted files!! Use one word for password, the
 longer it is the better. If you're changing it specify new
 password as first argument and old password as second argument.
 If old password won't match, new password will NOT be set! If
 setting it for the first time, just set your password. It is
 possible to disable encryption, just pass the current password.
-Use decode.c to read the encrypted files.
+Use SZdecode.c to read the encrypted files. It is possible to
+use it in interactive mode so you don't have to specify password
+on the command line. If setting the password for the first time you
+will be prompted only once. If changing the password you will be
+asked to enter the old password first. To disable the encryption
+just press Enter.
+Also look at $2ENCRMSG$0
 :PLAYBACK      Shows away file without setting you back
 Usage $3PLAYBACK$0 [$3-R$0] [$3pattern$0]
 Plays back stored messages without marking you as not being away.

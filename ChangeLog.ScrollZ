@@ -31,10 +31,11 @@ Meaning of flags:
       now returns info for current channel if none is given)
     + L now accepts list of channels separated by comma (coded by braneded)
     + improved tabkey completion now cycles through channels as well,
-      /DCC GET nick <tab> cycles through the files offered by nick
-      /DCC SEND nick <tab> cycles through files on disk (if you use a
-      relative path it looks in your CDCC ULDIR or . if that isn't set,
-      coded by braneded, many thanks)
+      /DCC GET nick<tab> cycles through the files offered by nick
+      /DCC SEND nick <tab> cycles through files on disk - if you use a
+      relative path it looks in your CDCC ULDIR or current dir if that
+      isn't set, also completes commands as in /M<tab> and /LOAD
+      (coded by braneded, many thanks!)
     + SHOWWALLOP to toggle whether to show included/excluded nicks with
       channel wallops
     ! don't core in completion routine if we're not on a server
@@ -43,7 +44,13 @@ Meaning of flags:
       hostname with a ! as in scrollz nick !server:port. SSL connections are
       indicated with a ! in the server list (thanks to Sharky and Darkie for
       permission to use their code from BitchX SSL port)
-    ~ changed ENCRMSG, see help for new usage (requested by ogre)
+    ~ PASSWD, it now acts as a master password a-la Mozilla for
+      ENCRMSG and log files encryption - because of this you can't decode
+      pre ScrollZ 1.9 encrypted files!. it can now be used in interactive
+      mode for privacy reasons
+    ~ changed interface to ENCRMSG, it is now possible to use it entirely in
+      interactive mode for privacy reasons, see help for new usage
+      (requested by ogre)
     ! core dump on page up on very long lines (thanks to braneded)
     ! core dump on long lines when logging was enabled
     + time stamping to wallops (coded by braneded)
@@ -61,6 +68,17 @@ Meaning of flags:
     ! PONG notice being displayed on servers without dot in the server name
       (reported by Ahnberg)
     + decrypter for log files to tools subdir
+    ! don't allow FTRACE command if previous one hasn't completed yet
+      (reported by ogre)
+    + OperVision now displays IP and server name if available in SERVER
+      command (requested by Tero)
+    ! ignore case of nickname in IGNORE nickname (reported by braneded)
+    ~ display channel mode +-I when mode compression is enabled
+      (reported by ogre)
+    + mIRC compatible DCC resume, it has to be enabled in defs.h
+      (patch submitted by braneded)
+    ~ DCC speed calculation for resend/reget (fixed by braneded)
+    ~ merged ircii-20011210 changes
 
 ------------------------------------------------------------------------------
 
