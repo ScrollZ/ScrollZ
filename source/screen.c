@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.19 2001-09-28 16:31:13 f Exp $
+ * $Id: screen.c,v 1.20 2001-12-20 17:39:41 f Exp $
  */
 
 #include "irc.h"
@@ -2267,7 +2267,11 @@ next_line_back(window)
 		if (!LogLine)
 			return NULL;
 		TheirLines = split_up_line(LogLine->msg);
-		for (row = 0; TheirLines[row]; row++)
+/**************************** Patched by Flier ******************************/
+		/*for (row = 0; TheirLines[row]; row++)*/
+                /* don't walk past the array boundary - fix suggested by braneded */
+		for (row = 0; TheirLines[row] && row < MAXIMUM_SPLITS; row++)
+/****************************************************************************/
 		{
 			ScreenLines[row] = TheirLines[row];
 			TheirLines[row] = NULL;
