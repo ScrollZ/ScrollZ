@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.50 2003-10-03 19:01:14 f Exp $
+ * $Id: names.c,v 1.51 2003-12-24 10:35:21 f Exp $
  */
 
 #include "irc.h"
@@ -448,24 +448,45 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 /****************************************************************************/
 	{
 /**************************** Patched by Flier ******************************/
-                /* hispano net supports @+nick */
-                if (*nick == '+') {
-                    hasvoice = 1;
-                    nick++;
+                char *tmpnick = nick;
+
+                /* support for @+%nick */
+                while (tmpnick && *tmpnick) {
+                    if (*tmpnick == '+') {
+                        hasvoice = 1;
+                        nick++;
+                    }
+                    else if (*tmpnick == '%') {
+			ishalfop = 1;
+                        nick++;
+                    }
+                    else if (*tmpnick == '@') {
+                        ischop = 1;
+                        nick++;
+                    }
+                    tmpnick++;
                 }
-/****************************************************************************/
-		if (*nick == '+')
+                if (ishalfop && !my_stricmp(nick, get_server_nickname(server)))
+                    chan->status |= CHAN_HALFOP;
+                if (hasvoice && !my_stricmp(nick, get_server_nickname(server)))
+                    chan->status |= CHAN_VOICE;
+                if (ischop && !my_stricmp(nick, get_server_nickname(server)) && !((chan->status & CHAN_NAMES) && (chan->status & CHAN_MODE)))
+                {
+                    char *mode =  recreate_mode(chan);
+
+                    if (*mode) {
+                        int old_server = from_server;
+
+                        from_server = server;
+                        send_to_server("MODE %s %s", chan->channel, mode);
+                        from_server = old_server;
+                    }
+                    chan->status |= CHAN_CHOP;
+                }
+		/*if (*nick == '+')
 		{
 			hasvoice = 1;
 			nick++;
-		}
-		if (*nick == '%')
-		{
-			nick++;
-			if (!my_stricmp(nick, get_server_nickname(server)))
-				chan->status |= CHAN_HALFOP;
-
-			ishalfop = 1;
 		}
 		if (*nick == '@')
 		{
@@ -486,12 +507,8 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 				chan->status |= CHAN_CHOP;
 			}
 			ischop = 1;
-/**************************** PATCHED by Flier ******************************/
-                        if (hasvoice &&
-                            !my_stricmp(nick, get_server_nickname(server)))
-                            chan->status |= CHAN_VOICE;
+		}*/
 /****************************************************************************/
-		}
 
 /**************************** PATCHED by Flier ******************************/
 		/*if ((new = (NickList *) remove_from_list((List **) &(chan->nicks), nick)))
