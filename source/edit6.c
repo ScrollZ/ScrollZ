@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.46 1999-08-18 20:22:13 f Exp $
+ * $Id: edit6.c,v 1.47 1999-08-18 20:22:56 f Exp $
  */
 
 #include "irc.h"
@@ -2678,5 +2678,5 @@ char *subargs;
             malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
         }
     }
-    put_it("Changed %d out of %d entries",count,countall);
+    say("Changed %d out of %d entries",count,countall);
 }
