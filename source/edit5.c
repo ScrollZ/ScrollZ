@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.52 2000-12-11 16:19:55 f Exp $
+ * $Id: edit5.c,v 1.53 2001-01-06 19:17:51 f Exp $
  */
 
 #include "irc.h"
@@ -3159,6 +3159,7 @@ void LastJoinerKick() {
         if (channel) {
             *channel=0;
             if (!my_stricmp(tmpbuf,get_server_nickname(from_server))) return;
+            *channel=' ';
             BanKick("BK",tmpbuf,NULL);
         }
     }
