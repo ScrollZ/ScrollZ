@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.2 1998-09-10 17:45:53 f Exp $
+ * $Id: notify.c,v 1.3 1998-10-04 16:16:15 f Exp $
  */
 
 /*
@@ -57,6 +57,7 @@ extern void HandleNotifyOn _((char *, int));
 extern void HandleNotifyOff _((char *, time_t));
 extern void HandleNotifyOffUh _((char *, char *, char *, time_t, int));
 extern void AddDelayNotify _((char *));
+extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 
 extern void e_nick _((char *, char *, char *));
 
@@ -359,11 +360,21 @@ notify_mark(nick, flag, doit)
                         }
                         else if (tmp->flag == 1 && doit && do_hook(NOTIFY_SIGNOFF_LIST, "%s", nick))
                             HandleNotifyOff(tmp->nick,timenow);
-                        new_free(&tmp->userhost);
                         if (OrigNickChange && OrigNick && !my_stricmp(OrigNick,nick)) {
-                            e_nick(NULL,OrigNick,NULL);
-                            LastNick=timenow;
+                            int changenick=1;
+                            char *mynick=get_server_nickname(from_server);
+                            NickList *joiner;
+
+                            if (tmp->userhost && (joiner=CheckJoiners(mynick,NULL,from_server,NULL))) {
+                                if (joiner->userhost && !my_stricmp(tmp->userhost,joiner->userhost))
+                                    changenick=0;
+                            }
+                            if (changenick) {
+                                e_nick(NULL,OrigNick,NULL);
+                                LastNick=timenow;
+                            }
                         }
+                        new_free(&tmp->userhost);
 /****************************************************************************/
 			tmp->flag = 0;
 		}
