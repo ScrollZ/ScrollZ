@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.16 1998-11-20 20:43:35 f Exp $
+ * $Id: edit6.c,v 1.17 1998-11-20 20:59:57 f Exp $
  */
 
 #include "irc.h"
@@ -2300,7 +2300,7 @@ char *subargs;
 }
 
 /* Encrypt DCC CHAT message */
-void EncryptChatMessage(message,user)
+int EncryptChatMessage(message,user)
 char *message;
 char *user;
 {
@@ -2310,10 +2310,11 @@ char *user;
                                             !REMOVE_FROM_LIST))) {
         EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
     }
+    return(tmp?1:0);
 }
 
 /* Decrypt DCC CHAT message */
-void DecryptChatMessage(message,user)
+int DecryptChatMessage(message,user)
 char *message;
 char *user;
 {
@@ -2323,6 +2324,7 @@ char *user;
                                             !REMOVE_FROM_LIST))) {
         DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
     }
+    return(tmp?1:0);
 }
 
 #ifdef ACID
