@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.27 1999-06-14 15:52:43 f Exp $
+ * $Id: edit2.c,v 1.28 1999-06-14 16:25:23 f Exp $
  */
 
 #include "irc.h"
@@ -1918,7 +1918,8 @@ char *subargs;
     if (CdccStats) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"CDCC VERBOSE    ");
-    if (CdccVerbose) fprintf(usfile,"ON\n");
+    if (CdccVerbose==1) fprintf(usfile,"ON\n");
+    else if (CdccVerbose==2) fprintf(usfile,"QUIET\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"CDCC WARNING    ");
     if (DCCWarning) fprintf(usfile,"ON\n");

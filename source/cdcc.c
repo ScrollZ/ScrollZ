@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.19 1999-05-29 13:27:15 f Exp $
+ * $Id: cdcc.c,v 1.20 1999-06-14 16:25:23 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2286,7 +2286,7 @@ int  msg;
         else sprintf(tmpbuf4,"Cdcc %s request received from %s (%s)%s",
                      command,nick,FromUserHost,tmpbuf2);
 #endif
-        if (CdccVerbose) say("%s",tmpbuf4);
+        if (CdccVerbose==1) say("%s",tmpbuf4);
         if (away_set || LogOn) AwaySave(tmpbuf4,SAVECDCC);
         if (!my_stricmp(command,"HELP")) helpcommand(nick,args);
         else if (!my_stricmp(command,"SEND")) sendcommand(nick,args,0);
@@ -2514,7 +2514,7 @@ int  resend;
                         CmdsColors[COLCDCC].color4,Colors[COLOFF],
                         CmdsColors[COLCDCC].color3,resend?"re":"",Colors[COLOFF],
                         CmdsColors[COLCDCC].color1,from,Colors[COLOFF],tmpbuf3);
-                if (CdccVerbose) {
+                if (CdccVerbose==1) {
                     if (!queue) say("%s[%s%s%s]",tmpbuf1,
                                     CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
                     else say("%s[%s%s%s], %s%d%s file%s in queue",tmpbuf1,
@@ -2526,7 +2526,7 @@ int  resend;
                                        CmdsColors[COLCDCC].color3,Colors[COLOFF]);
                 }
 #else
-                if (CdccVerbose) {
+                if (CdccVerbose==1) {
                     if (!queue) say("Cdcc %ssent %s %s : [%s]",resend?"re":"",
                                     from,tmpbuf3,tmpbuf2);
                     else say("Cdcc %ssent %s %s : [%s], %d file%s in queue",
@@ -2539,7 +2539,8 @@ int  resend;
                     send_to_server("NOTICE %s :I need : %s",from,CdccRequest);
 /*****************************/
             }
-            if (queuesay && CdccVerbose) say("Duplicate files were not put in queue");
+            if (queuesay && CdccVerbose==1)
+                say("Duplicate files were not put in queue");
             if (!sent && !CTCPCloaking) send_to_server("NOTICE %s :No packs found matching %s",from,word);
         }
         else if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, there are no files offered",from);

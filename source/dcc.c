@@ -30,7 +30,7 @@
 * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 * SUCH DAMAGE.
 *
-* $Id: dcc.c,v 1.15 1999-05-29 13:27:15 f Exp $
+* $Id: dcc.c,v 1.16 1999-06-14 16:25:23 f Exp $
 */
 
 #include "irc.h"
@@ -207,44 +207,44 @@ static	char	*dcc_time _((time_t));
 static int StatusDCC(Client)
 DCC_list *Client;
 {
-int  size;
-int  flags;
-int  change=0;
-int  percentage;
-long completed;
-char type;
-char tmpbuf[mybufsize/16];
+    int  size;
+    int  flags;
+    int  change=0;
+    int  percentage;
+    long completed;
+    char type;
+    char tmpbuf[mybufsize/16];
 
-if (DCCDone || !Client || !(Client->filesize)) new_free(&CurrentDCC);
-else {
-    flags=(Client->flags)&DCC_TYPES;
-    if (flags==DCC_FILEREAD) {
-        completed=Client->bytes_read;
-        type='G';
-    }
-    else if (flags==DCC_FILEREGET) {
-        completed=Client->bytes_read+Client->resendoffset;
-        type='g';
-    }
-    else if (flags==DCC_FILEOFFER) {
-        completed=Client->bytes_sent;
-        type='S';
-    }
+    if (DCCDone || !Client || !(Client->filesize)) new_free(&CurrentDCC);
     else {
-        completed=Client->bytes_sent+Client->resendoffset;
-        type='s';
+        flags=(Client->flags)&DCC_TYPES;
+        if (flags==DCC_FILEREAD) {
+            completed=Client->bytes_read;
+            type='G';
+        }
+        else if (flags==DCC_FILEREGET) {
+            completed=Client->bytes_read+Client->resendoffset;
+            type='g';
+        }
+        else if (flags==DCC_FILEOFFER) {
+            completed=Client->bytes_sent;
+            type='S';
+        }
+        else {
+            completed=Client->bytes_sent+Client->resendoffset;
+            type='s';
+        }
+        size=Client->filesize;
+        if (size>=10000000) percentage=completed/(size/100);
+        else percentage=completed*100/size;
+        sprintf(tmpbuf,"%s %c%%%d",Client->user,type,percentage);
+        if (!CurrentDCC || (CurrentDCC && strcmp(tmpbuf,CurrentDCC))) {
+            change=1;
+            malloc_strcpy(&CurrentDCC,tmpbuf);
+        }
     }
-    size=Client->filesize;
-    if (size>=10000000) percentage=completed/(size/100);
-    else percentage=completed*100/size;
-    sprintf(tmpbuf,"%s %c%%%d",Client->user,type,percentage);
-    if (!CurrentDCC || (CurrentDCC && strcmp(tmpbuf,CurrentDCC))) {
-        change=1;
-        malloc_strcpy(&CurrentDCC,tmpbuf);
-    }
-}
-DCCDone=0;
-return(change);
+    DCCDone=0;
+    return(change);
 }
 
 static void PrintEstablish(type,Client,remaddr,byteoffset)
@@ -253,92 +253,92 @@ DCC_list *Client;
 struct sockaddr_in remaddr;
 unsigned long byteoffset;
 {
-char tmpbuf1[mybufsize/4];
-char tmpbuf2[mybufsize/4];
+    char tmpbuf1[mybufsize/4];
+    char tmpbuf2[mybufsize/4];
 
 #ifdef WANTANSI
 #ifdef TDF
-malloc_strcpy(&(Client->addr),inet_ntoa(remaddr.sin_addr));
-sprintf(tmpbuf1,"%d",ntohs(remaddr.sin_port));
-malloc_strcpy(&(Client->port),tmpbuf1);
+    malloc_strcpy(&(Client->addr),inet_ntoa(remaddr.sin_addr));
+    sprintf(tmpbuf1,"%d",ntohs(remaddr.sin_port));
+    malloc_strcpy(&(Client->port),tmpbuf1);
 #endif
-sprintf(tmpbuf2,"%sDCC%s %s%s%s connection with %s%s%s",
-        CmdsColors[COLDCC].color5,Colors[COLOFF],
-        CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-        CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
-sprintf(tmpbuf1,"%s[%s%s,%d%s]",tmpbuf2,
-        CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
-        ntohs(remaddr.sin_port),Colors[COLOFF]);
-if (byteoffset) {
-    sprintf(tmpbuf2," at %s%ld%s bytes",
-            CmdsColors[COLDCC].color4,byteoffset,Colors[COLOFF]);
-    strcat(tmpbuf1,tmpbuf2);
-}
-sprintf(tmpbuf2,"%s %sestablished%s",
-        tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
+    sprintf(tmpbuf2,"%sDCC%s %s%s%s connection with %s%s%s",
+            CmdsColors[COLDCC].color5,Colors[COLOFF],
+            CmdsColors[COLDCC].color3,type,Colors[COLOFF],
+            CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
+    sprintf(tmpbuf1,"%s[%s%s,%d%s]",tmpbuf2,
+            CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
+            ntohs(remaddr.sin_port),Colors[COLOFF]);
+    if (byteoffset) {
+        sprintf(tmpbuf2," at %s%ld%s bytes",
+                CmdsColors[COLDCC].color4,byteoffset,Colors[COLOFF]);
+        strcat(tmpbuf1,tmpbuf2);
+    }
+    sprintf(tmpbuf2,"%s %sestablished%s",
+            tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
 #else
-sprintf(tmpbuf1,"DCC %s connection with %s[%s,%d]",
-        type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
-if (byteoffset) {
-    sprintf(tmpbuf2," at %ld bytes",byteoffset);
-    strcat(tmpbuf1,tmpbuf2);
-}
-sprintf(tmpbuf2,"%s established",tmpbuf1);
+    sprintf(tmpbuf1,"DCC %s connection with %s[%s,%d]",
+            type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
+    if (byteoffset) {
+        sprintf(tmpbuf2," at %ld bytes",byteoffset);
+        strcat(tmpbuf1,tmpbuf2);
+    }
+    sprintf(tmpbuf2,"%s established",tmpbuf1);
 #endif
-say("%s",tmpbuf2);
-if (away_set || LogOn) AwaySave(tmpbuf2,SAVEDCC);
+    if (CdccVerbose<2) say("%s",tmpbuf2);
+    if (away_set || LogOn) AwaySave(tmpbuf2,SAVEDCC);
 }
 
 static void PrintComplete(type,Client)
 char *type;
 DCC_list *Client;
 {
-int  flags=(Client->flags)&DCC_TYPES;
-int  premature;
-char *tmpstr="from";
-char tmpbuf1[mybufsize/2];
-char tmpbuf2[mybufsize/4];
-time_t xtime=time((time_t *) 0)-Client->starttime;
-double sent,oldsent;
+    int  flags=(Client->flags)&DCC_TYPES;
+    int  premature;
+    char *tmpstr="from";
+    char tmpbuf1[mybufsize/2];
+    char tmpbuf2[mybufsize/4];
+    time_t xtime=time((time_t *) 0)-Client->starttime;
+    double sent,oldsent;
 
-if (flags==DCC_FILEREAD) sent=(double) Client->bytes_read;
-else if (flags==DCC_FILEREGET)
-    sent=(double) Client->bytes_read+(double) Client->resendoffset;
-else if (flags==DCC_FILEOFFER) {
-    sent=(double) Client->bytes_sent;
-    tmpstr="to";
-}
-else {
-    sent=(double) Client->bytes_sent+(double) Client->resendoffset;
-    tmpstr="to";
-}
-if (sent<=0) sent=1;
-oldsent=sent;
-premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize);
-sent/=(double)1024.0;
-if (xtime<=0) xtime=1;
+    if (flags==DCC_FILEREAD) sent=(double) Client->bytes_read;
+    else if (flags==DCC_FILEREGET)
+        sent=(double) Client->bytes_read+(double) Client->resendoffset;
+    else if (flags==DCC_FILEOFFER) {
+        sent=(double) Client->bytes_sent;
+        tmpstr="to";
+    }
+    else {
+        sent=(double) Client->bytes_sent+(double) Client->resendoffset;
+        tmpstr="to";
+    }
+    if (sent<=0) sent=1;
+    oldsent=sent;
+    premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize);
+    sent/=(double)1024.0;
+    if (xtime<=0) xtime=1;
 #ifdef WANTANSI
-sprintf(tmpbuf2,"%sDCC%s %s%s%s %s %s",
-        CmdsColors[COLDCC].color5,Colors[COLOFF],
-        CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-        Client->description,tmpstr);
-sprintf(tmpbuf1,"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
-        CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF],
-        CmdsColors[COLDCC].color4,premature?" prematurely":"",Colors[COLOFF],
-        (sent/(double) xtime));
+    sprintf(tmpbuf2,"%sDCC%s %s%s%s %s %s",
+            CmdsColors[COLDCC].color5,Colors[COLOFF],
+            CmdsColors[COLDCC].color3,type,Colors[COLOFF],
+            Client->description,tmpstr);
+    sprintf(tmpbuf1,"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
+            CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF],
+            CmdsColors[COLDCC].color4,premature?" prematurely":"",Colors[COLOFF],
+            (sent/(double) xtime));
 #else
-sprintf(tmpbuf1,"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
-        tmpstr,Client->user,premature?" prematurely":"",(sent/(double) xtime));
+    sprintf(tmpbuf1,"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
+            tmpstr,Client->user,premature?" prematurely":"",(sent/(double) xtime));
 #endif
-if (premature) {
-    sprintf(tmpbuf2,", %.0f bytes left",(double) Client->filesize-oldsent);
+    if (premature) {
+        sprintf(tmpbuf2,", %.0f bytes left",(double) Client->filesize-oldsent);
+        strcat(tmpbuf1,tmpbuf2);
+    }
+    if (!sent) xtime=0;
+    sprintf(tmpbuf2," [%02ld:%02ld]",xtime/60,xtime%60);
     strcat(tmpbuf1,tmpbuf2);
-}
-if (!sent) xtime=0;
-sprintf(tmpbuf2," [%02ld:%02ld]",xtime/60,xtime%60);
-strcat(tmpbuf1,tmpbuf2);
-say("%s",tmpbuf1);
-if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
+    if (CdccVerbose<2) say("%s",tmpbuf1);
+    if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
 
 static void PrintError(type,user,description,error)
@@ -347,53 +347,53 @@ char *user;
 char *description;
 char *error;
 {
-char *tmpstr="to";
-char tmpbuf1[mybufsize/4];
-char tmpbuf2[mybufsize/4];
+    char *tmpstr="to";
+    char tmpbuf1[mybufsize/4];
+    char tmpbuf2[mybufsize/4];
 
 #ifdef WANTANSI
-sprintf(tmpbuf1,"%sDCC%s %s%s%s ",
-        CmdsColors[COLDCC].color5,Colors[COLOFF],
-        CmdsColors[COLDCC].color3,type,Colors[COLOFF]);
-if (!error) {
-    sprintf(tmpbuf2,"%s ",description);
+    sprintf(tmpbuf1,"%sDCC%s %s%s%s ",
+            CmdsColors[COLDCC].color5,Colors[COLOFF],
+            CmdsColors[COLDCC].color3,type,Colors[COLOFF]);
+    if (!error) {
+        sprintf(tmpbuf2,"%s ",description);
+        strcat(tmpbuf1,tmpbuf2);
+    }
+    sprintf(tmpbuf2,"connection %s %s%s%s lost",tmpstr,
+            CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-}
-sprintf(tmpbuf2,"connection %s %s%s%s lost",tmpstr,
-        CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
-strcat(tmpbuf1,tmpbuf2);
-if (error) {
-    sprintf(tmpbuf2,": %s",error);
-    strcat(tmpbuf1,tmpbuf2);
-}
+    if (error) {
+        sprintf(tmpbuf2,": %s",error);
+        strcat(tmpbuf1,tmpbuf2);
+    }
 #else
-sprintf(tmpbuf1,"DCC %s ",type);
-if (!error) {
-    sprintf(tmpbuf2,"%s ",description);
+    sprintf(tmpbuf1,"DCC %s ",type);
+    if (!error) {
+        sprintf(tmpbuf2,"%s ",description);
+        strcat(tmpbuf1,tmpbuf2);
+    }
+    sprintf(tmpbuf2,"connection %s %s lost",tmpstr,user);
     strcat(tmpbuf1,tmpbuf2);
-}
-sprintf(tmpbuf2,"connection %s %s lost",tmpstr,user);
-strcat(tmpbuf1,tmpbuf2);
-if (error) {
-    sprintf(tmpbuf2,": %s",error);
-    strcat(tmpbuf1,tmpbuf2);
-}
+    if (error) {
+        sprintf(tmpbuf2,": %s",error);
+        strcat(tmpbuf1,tmpbuf2);
+    }
 #endif
-say("%s",tmpbuf1);
-if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
+    if (CdccVerbose<2) say("%s",tmpbuf1);
+    if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
 
 static void OverWrite(fullname,Client)
 char **fullname;
 DCC_list *Client;
 {
-struct stat statbuf;
+    struct stat statbuf;
 
-if (CdccOverWrite || !fullname || !Client) return;
-while ((stat(*fullname,&statbuf))==0) {
-    malloc_strcat(fullname,"_");
-    malloc_strcat(&(Client->description),"_");
-}
+    if (CdccOverWrite || !fullname || !Client) return;
+    while ((stat(*fullname,&statbuf))==0) {
+        malloc_strcat(fullname,"_");
+        malloc_strcat(&(Client->description),"_");
+    }
 }
 /****************************************************************************/
 
@@ -572,13 +572,13 @@ dcc_check(rd, wd)
                                     save_message_from();
                                     message_from((*Client)->user, LOG_DCC);
                                     if (((*Client)->flags & DCC_TYPES) != DCC_RAW)
+/**************************** PATCHED by Flier ******************************/
                                             /*say("DCC %s connection with %s[%s,%d] established",
                                                     dcc_types[(*Client)->flags&DCC_TYPES], (*Client)->user,
                                                     inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                                         PrintEstablish(dcc_types[(*Client)->flags&DCC_TYPES],
                                                        *Client,remaddr,0L);
                                     restore_message_from();
-/**************************** PATCHED by Flier ******************************/
 /****** Coded by Zakath ******/
                                     if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
                                         ((*Client)->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;

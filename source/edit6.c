@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.35 1999-06-05 12:06:37 f Exp $
+ * $Id: edit6.c,v 1.36 1999-06-14 16:25:23 f Exp $
  */
 
 #include "irc.h"
@@ -1169,9 +1169,14 @@ char *subargs;
         else if (!my_stricmp("OFF",tmpstr)) *(command_list[i].var)=0;
         else if (!strcmp("MIRC",command_list[i].command) && !my_stricmp("STRIP",tmpstr)) 
             *(command_list[i].var)=2;
+        else if (!strcmp("VERBOSE",command_list[i].command) &&
+                 !my_stricmp("QUIET",tmpstr)) 
+            *(command_list[i].var)=2;
         else {
             if (!strcmp("MIRC",command_list[i].command))
                 sprintf(tmpbuf,"%s on/off/strip",command_list[i].command);
+            else if (!strcmp("VERBOSE",command_list[i].command))
+                sprintf(tmpbuf,"%s on/off/quiet",command_list[i].command);
             else sprintf(tmpbuf,"%s on/off",command_list[i].command);
             PrintUsage(tmpbuf);
             return;
@@ -1179,6 +1184,8 @@ char *subargs;
     }
     if (!strcmp("MIRC",command_list[i].command) && *(command_list[i].var)==2)
         PrintSetting(command_list[i].setting,"STRIP",empty_string,empty_string);
+    else if (!strcmp("VERBOSE",command_list[i].command) && *(command_list[i].var)==2)
+        PrintSetting(command_list[i].setting,"QUIET",empty_string,empty_string);
     else if (*(command_list[i].var))
         PrintSetting(command_list[i].setting,"ON",empty_string,empty_string);
     else PrintSetting(command_list[i].setting,"OFF",empty_string,empty_string);

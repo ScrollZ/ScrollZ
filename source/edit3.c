@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.26 1999-06-05 12:06:37 f Exp $
+ * $Id: edit3.c,v 1.27 1999-06-14 16:25:23 f Exp $
  */
 
 #include "irc.h"
@@ -1546,10 +1546,13 @@ char *command;
     if (!my_stricmp(tmpbuf,"ON")) *variable=1;
     else if (!my_stricmp(tmpbuf,"OFF")) *variable=0;
     else if (!strcmp(command,"MIRCCOLORS") && !my_stricmp(tmpbuf,"STRIP")) *variable=2;
+    else if (!strcmp(command,"CDCC VERBOSE") && !my_stricmp(tmpbuf,"QUIET")) *variable=2;
     else {
         sprintf(tmpbuf,"in %s",command);
         if (!strcmp(command,"MIRCCOLORS"))
             PrintError("must be ON/OFF/STRIP",tmpbuf,lineno);
+        else if (!strcmp(command,"CDCC VERBOSE"))
+            PrintError("must be ON/OFF/VERBOSE",tmpbuf,lineno);
         else PrintError("must be ON/OFF",tmpbuf,lineno);
         *error=1;
     }
