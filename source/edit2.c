@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.87 2002-07-09 16:44:16 f Exp $
+ * $Id: edit2.c,v 1.88 2002-08-12 18:29:51 f Exp $
  */
 
 #include "irc.h"
@@ -476,6 +476,7 @@ int type;
                 if (!my_stricmp(nick->nick, me)) continue;
                 if (allusers || (!nick->halfop && !nick->chanop)) {
                     if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLHOP))) continue;
+                    if (nick->shitlist && (nick->shitlist->shit&SLDEOP)) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -500,6 +501,8 @@ int type;
                 if (!my_stricmp(nick->nick, me)) continue;
                 if (allusers || !nick->chanop) {
                     if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
+                    /* don't op shitlisted users */
+                    if (nick->shitlist && (nick->shitlist->shit&SLDEOP)) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
