@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.47 2003-01-08 20:00:54 f Exp $
+ * $Id: names.c,v 1.48 2003-03-25 16:51:11 f Exp $
  */
 
 #include "irc.h"
@@ -434,7 +434,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 	int	ischop = oper;
 	int	hasvoice = voice;
 /**************************** PATCHED by Flier ******************************/
-        char    tmpbuf[mybufsize/4];
+        char    tmpbuf[mybufsize / 4];
         time_t  timenow;
 	NickList *tmp;
         WhowasList *whowas;
@@ -442,8 +442,8 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 
 /**************************** PATCHED by Flier ******************************/
 	/*if ((chan = lookup_channel(channel, server, CHAN_NOUNLINK)))*/
-        if (tmpchan) chan=tmpchan;
-        else chan=lookup_channel(channel,server,CHAN_NOUNLINK);
+        if (tmpchan) chan = tmpchan;
+        else chan = lookup_channel(channel,server, CHAN_NOUNLINK);
         if (chan)
 /****************************************************************************/
 	{
@@ -463,6 +463,13 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 		if (*nick == '@')
 		{
 			nick++;
+/**************************** Patched by Flier ******************************/
+                        /* hispano net supports @+nick */
+                        if (*nick == '+') {
+                            hasvoice = 1;
+                            nick++;
+                        }
+/****************************************************************************/
 			if (!my_stricmp(nick, get_server_nickname(server)) && !((chan->status & CHAN_NAMES) && (chan->status & CHAN_MODE)))
 			{
 				char	*mode =  recreate_mode(chan);
@@ -480,7 +487,9 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 			}
 			ischop = 1;
 /**************************** PATCHED by Flier ******************************/
-                        if (hasvoice) chan->status|=CHAN_VOICE;
+                        if (hasvoice &&
+                            !my_stricmp(nick, get_server_nickname(server)))
+                            chan->status |= CHAN_VOICE;
 /****************************************************************************/
 		}
 
@@ -499,65 +508,73 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 		new->hasvoice = hasvoice;
 		malloc_strcpy(&(new->nick), nick);
 		add_to_list((List **) &(chan->nicks), (List *) new);*/
-		tmp=(NickList *) remove_from_list((List **) &(chan->nicks),nick);
-                if (userhost && (whowas=check_whowas_buffer(nick,userhost,channel,1))) {
-                    new=whowas->nicklist;
+		tmp = (NickList *) remove_from_list((List **) &(chan->nicks),
+                                                    nick);
+                if (userhost &&
+                    (whowas = check_whowas_buffer(nick, userhost, channel, 1))) {
+                    new = whowas->nicklist;
                     new_free(&whowas);
-                    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
-                    if (!(new->frlist && wild_match(new->frlist->userhost,tmpbuf) &&
-                          CheckChannel(new->frlist->channels,channel)))
-                        new->frlist=(struct friends *) FindMatch(tmpbuf,channel);
-                    if (!(new->shitlist && wild_match(new->shitlist->userhost,tmpbuf) &&
-                          CheckChannel(new->shitlist->channels,channel)))
-                        new->shitlist=(struct autobankicks *) FindShit(tmpbuf,channel);
+                    snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", nick, userhost);
+                    if (!(new->frlist &&
+                        wild_match(new->frlist->userhost, tmpbuf) &&
+                          CheckChannel(new->frlist->channels, channel)))
+                        new->frlist = (struct friends *)
+                                      FindMatch(tmpbuf, channel);
+                    if (!(new->shitlist &&
+                        wild_match(new->shitlist->userhost, tmpbuf) &&
+                          CheckChannel(new->shitlist->channels, channel)))
+                        new->shitlist = (struct autobankicks *)
+                                        FindShit(tmpbuf, channel);
                 }
                 else {
-                    new=(NickList *) new_malloc(sizeof(NickList));
-                    new->nick=(char *) 0;
-                    new->userhost=(char *) 0;
-                    new->frlist=(struct friends *) 0;
-                    new->shitlist=(struct autobankicks *) 0;
-                    new->pluso=tmp?tmp->pluso:0;
-                    new->minuso=tmp?tmp->minuso:0;
-                    new->plusb=tmp?tmp->plusb:0;
-                    new->minusb=tmp?tmp->minusb:0;
-                    new->kick=tmp?tmp->kick:0;
-                    new->nickc=tmp?tmp->nickc:0;
-                    new->publics=tmp?tmp->publics:0;
+                    new = (NickList *) new_malloc(sizeof(NickList));
+                    new->nick = (char *) 0;
+                    new->userhost = (char *) 0;
+                    new->frlist = (struct friends *) 0;
+                    new->shitlist = (struct autobankicks *) 0;
+                    new->pluso = tmp ? tmp->pluso : 0;
+                    new->minuso = tmp ? tmp->minuso : 0;
+                    new->plusb = tmp ? tmp->plusb : 0;
+                    new->minusb = tmp ? tmp->minusb : 0;
+                    new->kick = tmp ? tmp->kick : 0;
+                    new->nickc = tmp ? tmp->nickc : 0;
+                    new->publics = tmp ? tmp->publics : 0;
                     if (userhost) {
-                        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
-                        malloc_strcpy(&(new->userhost),userhost);
-                        new->frlist=(struct friends *) FindMatch(tmpbuf,channel);
-                        new->shitlist=(struct autobankicks *) FindShit(tmpbuf,channel);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", nick, userhost);
+                        malloc_strcpy(&(new->userhost), userhost);
+                        new->frlist = (struct friends *)
+                                      FindMatch(tmpbuf, channel);
+                        new->shitlist = (struct autobankicks *)
+                                        FindShit(tmpbuf, channel);
                     }
                 }
                 if (tmp) {
                     new_free(&(tmp->userhost));
-                    remove_nick_from_hash(chan,tmp);
+                    remove_nick_from_hash(chan, tmp);
                     new_free(&(tmp->nick));
                     new_free(&tmp);
                 }
                 malloc_strcpy(&(new->nick), nick);
-                new->chanop=ischop;
-		new->halfop=ishalfop;
-		new->hasvoice=hasvoice;
-                new->curo=0;
-                new->curk=0;
-                new->curn=0;
-                timenow=time((time_t *) 0);
-                new->deopt=timenow;
-                new->kickt=timenow;
-                new->nickt=timenow;
-                new->lastmsg=timenow;
-                new->deopp=0;
-                new->kickp=0;
-                new->nickp=0;
+                new->chanop = ischop;
+		new->halfop = ishalfop;
+		new->hasvoice = hasvoice;
+                new->curo = 0;
+                new->curk = 0;
+                new->curn = 0;
+                timenow = time((time_t *) 0);
+                new->deopt = timenow;
+                new->kickt = timenow;
+                new->nickt = timenow;
+                new->lastmsg = timenow;
+                new->deopp = 0;
+                new->kickp = 0;
+                new->nickp = 0;
 #ifdef SORTED_NICKS
                 add_to_list_ext((List **) &(chan->nicks), (List *) new, SortedCmp);
 #else
                 add_to_list((List **) &(chan->nicks), (List *) new);
 #endif
-                add_nick_to_hash(chan,new);
+                add_nick_to_hash(chan, new);
 /****************************************************************************/
 	}
 	notify_mark(nick, 1, 0);
