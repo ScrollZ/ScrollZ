@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.5 2001-05-09 18:06:41 f Exp $
+# @(#)$Id: Makefile.in,v 1.6 2001-07-13 17:22:26 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -65,7 +65,7 @@ install: scrollz
 # .o files needing special compilation flags
 
 irc.o: Makefile ../Makefile
-	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCLIB=\"$(IRCLIB)/\" -DIRCPATH=\"$(IRCPATH)\" -c irc.c
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCLIB=\"$(IRCSHARE)/\" -DIRCPATH=\"$(IRCPATH)\" -c irc.c
 
 vars.o: Makefile ../Makefile
 	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DDEFAULT_HELP_PATH=\"$(HELP_DIR)\" -c vars.c

@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.13 2001-07-11 19:54:15 f Exp $
+# @(#)$Id: Makefile.in,v 1.14 2001-07-13 17:22:26 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -52,7 +52,7 @@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
-libdir = @libdir@
+sharedir = @prefix@/share
 mandir = ${prefix}/man/man1
 
 # Where the ircII binary will be installed.
@@ -62,10 +62,10 @@ INSTALL_IRC = ${bindir}/scrollz
 # Where the ircII library will be.  Generally this is the place that
 # you put the scripts, help pages and translation tables.  It is
 # very important that you set this correctly.
-IRCLIB = ${libdir}/scrollz
+IRCSHARE = ${sharedir}/scrollz
 
 # The documentation directory
-IRCDOC = ${IRCLIB}/doc
+IRCDOC = ${IRCSHARE}/doc
 
 # Set this to the lex you want to use, and if they lex uses a library.
 
@@ -102,10 +102,10 @@ LDFLAGS = @LDFLAGS@
 ## You probably don't need to change anything below this line
 
 # Full path of the directory for ircII help files.  
-HELP_DIR = $(IRCLIB)/help
+HELP_DIR = $(IRCSHARE)/help
 
 # Full path of the directory for the ircII scripts.
-INSTALL_SCRIPT = $(IRCLIB)/script
+INSTALL_SCRIPT = $(IRCSHARE)/script
 
 # Default setting for IRC_PATH where irc will look for
 # its script files if the environment variable is undefined.
@@ -116,7 +116,7 @@ INSTALL_SCRIPT = $(IRCLIB)/script
 IRC_PATH = ~/.ScrollZ:$(INSTALL_SCRIPT):.
 
 # Path for TRANSLATION variable.
-TRANS_PATH = $(IRCLIB)/translation
+TRANS_PATH = $(IRCSHARE)/translation
 
 # Set the next line to the full path for installation of the ircio program
 # if you wish to use it. 
@@ -158,7 +158,7 @@ MFLAGS ='CC=$(CC)'					\
 	'INSTALL_IRC=$(INSTALL_IRC)'			\
 	'INSTALL_IRCIO=$(INSTALL_IRCIO)'		\
 	'INSTALL_WSERV=$(INSTALL_WSERV)'		\
-	'IRCLIB=$(IRCLIB)'				\
+	'IRCSHARE=$(IRCSHARE)'				\
 	'IRCPATH=$(IRC_PATH)'				\
 	'LDFLAGS=$(LDFLAGS)'				\
 	'LEX=$(LEX)'					\
@@ -168,13 +168,16 @@ MFLAGS ='CC=$(CC)'					\
 	'RM=$(RM)'					\
 	'TRANS_DIR=$(TRANS_PATH)'
 
-all: scrollz
+all: scrollz scrollz.1
 
 install: all installbin installdirs installman
 
 scrollz: source/Makefile Makefile
 	@cd include; $(MAKE)
 	@cd source; $(MAKE) all
+
+scrollz.1: scrollz.1.in
+	sed -e "s,SHAREDIR,$(IRCSHARE)," < scrollz.1.in > scrollz.1
 
 installeverything: install installman installflush installio installwserv
 
@@ -202,7 +205,7 @@ installirc: scrollz installdirs
 	@cp ScrollZ.help $(HELP_DIR)
 	@cp doc/ScrollZ.doc $(IRCDOC)
 
-installman:
+installman: scrollz.1
 	$(INSTALL) scrollz.1 $(mandir)
 
 installserv: installio
@@ -216,7 +219,7 @@ installwserv: wserv installdirs
 	$(INSTALL) source/wserv $(INSTALL_WSERV)
 
 installdirs:
-	umask 022; ./mkinstalldirs $(IRCLIB) $(bindir) \
+	umask 022; ./mkinstalldirs $(IRCSHARE) $(bindir) \
 		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR) $(IRCDOC)
 
 clena clean:
@@ -224,7 +227,7 @@ clena clean:
 	@-if test -f include/Makefile; then cd include; $(MAKE) clean; fi
 
 distclean cleandir realclean: clean
-	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h include/hook.h include/keys.h include/vars.h ircbug
+	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h include/hook.h include/keys.h include/vars.h ircbug scrollz.1
 
 lint:
 	@if test -f source/Makefile; then cd source; $(MAKE) lint; fi
