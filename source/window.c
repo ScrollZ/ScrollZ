@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.23 2000-09-10 10:12:01 f Exp $
+ * $Id: window.c,v 1.24 2000-09-10 10:14:58 f Exp $
  */
 
 #include "irc.h"
@@ -143,7 +143,7 @@ static	int	get_boolean _((char *, char **, int *));
 static	void	win_list_channels _((Window *));
 
 /**************************** PATCHED by Flier ******************************/
-extern int      AddFirst _((List *, List *));
+extern int      AddLast _((List *, List *));
 /****************************************************************************/
 
 /*
@@ -1940,7 +1940,7 @@ bind_channel(channel, window)
         malloc_strcpy(&(chan->channel),channel);
         chan->next=NULL;
         add_to_list_ext((List **) &(window->bound_chans),(List *) chan,
-                        (int (*) _((List *, List *))) AddFirst);
+                        (int (*) _((List *, List *))) AddLast);
 /****************************************************************************/
 }
 
