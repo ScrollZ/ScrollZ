@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.102 2003-04-20 19:05:21 f Exp $
+ * $Id: irc.c,v 1.103 2003-04-27 18:37:09 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1858,6 +1858,9 @@ main(argc, argv, envp)
         InitVars();
 /****************************************************************************/
 	init_variables();
+/**************************** Patched by Flier ******************************/
+        SetStampFormat(NULL);
+/****************************************************************************/
 
 	if (!dumb)
 	{
