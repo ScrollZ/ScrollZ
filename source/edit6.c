@@ -59,10 +59,11 @@
  ARinWindowToggle    Toggle value of ARinWindow
  IsIrcNetOperChannel Figure out if we're dealing with IrcNet's oper channel
  RedrawAll           Force redraw of status bars and input prompt
+ CompareAddr         Compare two List pointers (for list.c)
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.79 2001-04-11 20:52:54 f Exp $
+ * $Id: edit6.c,v 1.80 2001-05-08 17:19:35 f Exp $
  */
 
 #include "irc.h"
@@ -2775,4 +2776,20 @@ void RedrawAll(void) {
     current_screen->input_buffer[1]='\0';
     update_input(UPDATE_ALL);
     refresh_screen(0,NULL);
+}
+
+/* Compare two pointers for list.c */
+int CompareAddr(element1,element2)
+    List *element1;
+    List *element2;
+{
+    typedef struct winlist_str Winlist;
+    struct winlist_str {
+        Winlist *next;
+        Window *window;
+    };
+    Winlist *winelem=(Winlist *) element1;
+
+    if (winelem->window==(Window *) element2) return(0);
+    return(1);
 }
