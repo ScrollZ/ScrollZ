@@ -1,0 +1,12 @@
+!	 $Id: nickchan,v 1.1 2002-03-05 18:23:31 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: NICKCHAN
+  Toggles whether to display nick change in all channels
+
+  When set to ON nick change for user will be shown for all channels
+  user is member of.
