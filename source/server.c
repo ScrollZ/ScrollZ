@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.50 2002-01-24 19:59:04 f Exp $
+ * $Id: server.c,v 1.51 2002-01-25 18:58:31 f Exp $
  */
 
 #include "irc.h"
@@ -164,7 +164,8 @@ close_server(server_index, message)
 		server_list[i].buffer = (char *) 0;
  		server_list[i].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
- 		server_list[i].umodeflags=0;
+ 		server_list[i].umodeflags = 0;
+ 		server_list[i].umodeflags2 = 0;
                 if (server_list[i].ConnectTime) {
                     int timedays, timehours, timeminutes;
                     time_t timediff = time((time_t *) 0) - server_list[i].ConnectTime;
@@ -599,18 +600,19 @@ add_to_server_list(server, port, password, nick, overwrite)
                     server_list[from_server].enable_ssl = 1;
                 }
 #endif
-                server_list[from_server].umodeflags=0;
-                server_list[from_server].LastMessage=(char *) 0;
-                server_list[from_server].LastNotice=(char *) 0;
-                server_list[from_server].LastMessageSent=(char *) 0;
-                server_list[from_server].LastNoticeSent=(char *) 0;
-                server_list[from_server].LastJoin=(char *) 0;
-                malloc_strcpy(&(server_list[from_server].LastJoin),"none yet");
-                server_list[from_server].arcur=(struct nicks *) 0;
-                server_list[from_server].arlist=(struct nicks *) 0;
-                server_list[from_server].nickcur=(struct nicks *) 0;
-                server_list[from_server].nicklist=(struct nicks *) 0;
-                server_list[from_server].ConnectTime=0;
+                server_list[from_server].umodeflags = 0;
+                server_list[from_server].umodeflags2 = 0;
+                server_list[from_server].LastMessage = NULL;
+                server_list[from_server].LastNotice = NULL;
+                server_list[from_server].LastMessageSent = NULL;
+                server_list[from_server].LastNoticeSent = NULL;
+                server_list[from_server].LastJoin = NULL;
+                malloc_strcpy(&(server_list[from_server].LastJoin), "none yet");
+                server_list[from_server].arcur = NULL;
+                server_list[from_server].arlist = NULL;
+                server_list[from_server].nickcur = NULL;
+                server_list[from_server].nicklist = NULL;
+                server_list[from_server].ConnectTime = 0;
 /****************************************************************************/
 		server_list[from_server].nickname = (char *) 0;
 		server_list[from_server].connected = 0;
@@ -706,7 +708,7 @@ remove_from_server_list(i)
 		flag = 1;
 	Window	*tmp;
 /**************************** PATCHED by Flier ******************************/
-        struct  nicks *tmpnick,*tmpnickfree;
+        struct  nicks *tmpnick, *tmpnickfree;
 /****************************************************************************/
 
 	from_server = i;
@@ -755,14 +757,14 @@ remove_from_server_list(i)
         if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
         if (server_list[i].LastNoticeSent) new_free(&(server_list[i].LastNoticeSent));
         if (server_list[i].LastJoin) new_free(&(server_list[i].LastJoin));
-        for (tmpnick=server_list[i].arlist;tmpnick;) {
-            tmpnickfree=tmpnick;
-            tmpnick=tmpnick->next;
+        for (tmpnick = server_list[i].arlist; tmpnick;) {
+            tmpnickfree = tmpnick;
+            tmpnick = tmpnick->next;
             new_free(&(tmpnickfree->nick));
             new_free(&tmpnickfree);
         }
-        for (tmpnick=server_list[i].nicklist;tmpnick;) {
-            tmpnickfree=tmpnick;
+        for (tmpnick = server_list[i].nicklist; tmpnick;) {
+            tmpnickfree = tmpnick;
             tmpnick=tmpnick->next;
             new_free(&(tmpnickfree->nick));
             new_free(&tmpnickfree);
@@ -785,18 +787,18 @@ remove_from_server_list(i)
 
 /**************************** Patched by Flier ******************************/
         /* only if we still have some servers left */
-        if (i+1<number_of_servers)
+        if (i + 1 < number_of_servers)
 /****************************************************************************/
  	bcopy((char *) &server_list[i + 1], (char *) &server_list[i], (number_of_servers - i - 1) * sizeof(Server));
 /**************************** PATCHED by Flier *******************************/
 	/*server_list = (Server *) new_realloc((char *) server_list, --number_of_servers * sizeof(Server));*/
         number_of_servers--;
         /* only if we still have some servers left */
-        if (number_of_servers>0)
-            server_list=(Server *) new_realloc((char *) server_list,number_of_servers*sizeof(Server));
+        if (number_of_servers > 0)
+            server_list = (Server *) new_realloc((char *) server_list, number_of_servers * sizeof(Server));
         else {
             new_free(&server_list);
-            server_list=(Server *) 0;
+            server_list = NULL;
         }
 /****************************************************************************/
 }
@@ -1574,7 +1576,7 @@ display_server_list()
 	int	i;
 /**************************** Patched by Flier ******************************/
         time_t  timediff;
-        char    tmpbuf[mybufsize/4];
+        char    tmpbuf[mybufsize / 4];
 /****************************************************************************/
 
 	if (server_list)
@@ -1598,7 +1600,7 @@ display_server_list()
                         if (server_list[i].ConnectTime) {
                             int timedays, timehours, timeminutes;
 
-                            timediff = time((time_t *) 0)-server_list[i].ConnectTime;
+                            timediff = time(NULL) - server_list[i].ConnectTime;
                             timedays = timediff / 86400;
                             timehours = (timediff / 3600) % 24;
                             timeminutes = (timediff / 60) % 60;
@@ -1606,8 +1608,8 @@ display_server_list()
                                     timedays, timehours, timeminutes);
                         }
                         else {
-                            timediff=0;
-                            *tmpbuf='\0';
+                            timediff = 0;
+                            *tmpbuf = '\0';
                         }
 /****************************************************************************/
 			if (!server_list[i].nickname)
@@ -1702,7 +1704,7 @@ MarkAllAway(command, message)
 		/*if (is_server_connected(from_server))
 			send_to_server("%s :%s", command, message);*/
             	if (message && *message) {
-                    malloc_strcpy(&(server_list[from_server].away),message);
+                    malloc_strcpy(&(server_list[from_server].away), message);
                     if (is_server_connected(from_server)) {
                         send_to_server("%s :%s", command, message);
 #ifdef CELE
@@ -2072,26 +2074,42 @@ get_server_flag(server_index, value)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void set_server_umode_flag(server_index,flag,add)
+void set_server_umode_flag(server_index, flag, add)
 int server_index;
 char flag;
 int add;
 {
-    int flagvalue=(1 << (tolower(flag)-'`')) >> 1;
+    int flagvalue;
+    int *flags;
+    char c = '`';
 
-    if (server_index==-1) server_index=primary_server;
-    if (add) server_list[server_index].umodeflags|=flagvalue;
-    else server_list[server_index].umodeflags&=~flagvalue;
+    if (server_index == -1) server_index = primary_server;
+    if (isupper(flag)) {
+        c = 'A';
+        flags = &server_list[server_index].umodeflags2;
+    }
+    else flags = &server_list[server_index].umodeflags;
+    flagvalue = 1 << (flag - c - 1);
+    if (add) *flags |= flagvalue;
+    else *flags &= ~flagvalue;
 }
 
-int get_server_umode_flag(server_index,flag)
+int get_server_umode_flag(server_index, flag)
 int server_index;
 char flag;
 {
-    int flagvalue=(1 << (tolower(flag)-'`')) >> 1;
+    int flagvalue;
+    int flags;
+    char c = '`';
 
-    if (server_index==-1) server_index=primary_server;
-    return(server_list[server_index].umodeflags&flagvalue);
+    if (server_index == -1) server_index = primary_server;
+    if (isupper(flag)) {
+        c = 'A';
+        flags = server_list[server_index].umodeflags2;
+    }
+    else flags = server_list[server_index].umodeflags;
+    flagvalue = 1 << (flag - c - 1);
+    return(flags & flagvalue);
 }
 /****************************************************************************/
 
@@ -2198,7 +2216,7 @@ is_server_connected(server_index)
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index < 0)
 		return (0);*/
-        if (server_index<0 || server_index>=number_of_servers) return(0);
+        if (server_index < 0 || server_index >= number_of_servers) return(0);
 /****************************************************************************/
 	return (server_list[server_index].connected && (server_list[server_index].flags & LOGGED_IN));
 }

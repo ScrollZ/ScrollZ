@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.18 2002-01-24 19:59:04 f Exp $
+ * $Id: funny.c,v 1.19 2002-01-25 18:58:31 f Exp $
  */
 
 #include "irc.h"
@@ -402,15 +402,15 @@ funny_mode(from, ArgList)
 	{
 /**************************** PATCHED by Flier ******************************/
 		/*update_channel_mode(channel, parsing_server_index, mode);*/
-		update_channel_mode(channel,parsing_server_index,mode,NULL,NULL,NULL,NULL,tmp);
-                if ((get_server_version(from_server)==Server2_9 || 
-                     get_server_version(from_server)==Server2_10) &&
+		update_channel_mode(channel, parsing_server_index, mode, NULL, NULL, NULL, NULL, tmp);
+                if ((get_server_version(from_server) == Server2_9 || 
+                     get_server_version(from_server) == Server2_10) &&
                     IsIrcNetOperChannel(channel)) {
-                    tmp->gotbans=1;
-                    tmp->gotwho=1;
-                    if (server_list[from_server].SZUnban>2)
+                    tmp->gotbans = 1;
+                    tmp->gotwho = 1;
+                    if (server_list[from_server].SZUnban > 2)
                         server_list[from_server].SZUnban--;
-                    else server_list[from_server].SZUnban=0;
+                    else server_list[from_server].SZUnban = 0;
                     server_list[from_server].SZWho--;
                     PrintSynch(tmp);
                 }
@@ -472,13 +472,15 @@ char *modes;
 void reinstate_user_modes()
 {
     int  i;
-    char modes[32];
+    char modes[64]; /* more than enough */
     char *c;
 
     if (get_server_version(parsing_server_index) < Server2_7) return;
     c = modes;
     for (i = 0; i < 25; i++)
         if ('a' + i != 'o' && get_server_umode_flag(parsing_server_index, 'a' + i)) *c ++= 'a' + i;
+    for (i = 0; i < 25; i++)
+        if ('A' + i != 'O' && get_server_umode_flag(parsing_server_index, 'A' + i)) *c ++= 'A' + i;
     *c = '\0';
     if (PermUserMode)
         send_to_server("MODE %s %s", get_server_nickname(parsing_server_index), PermUserMode);

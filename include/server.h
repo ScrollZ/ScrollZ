@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.11 2002-01-21 21:37:35 f Exp $
+ * $Id: server.h,v 1.12 2002-01-25 18:58:31 f Exp $
  */
 
 #ifndef __server_h_
@@ -73,7 +73,8 @@ typedef	struct
 	int	whois;			/* true if server sends numeric 318 */
         int	flags;			/* Various flags */
 /**************************** PATCHED by Flier ******************************/
-        int     umodeflags;             /* holds usermode */
+        int     umodeflags;             /* holds usermode for lowercase modes */
+        int     umodeflags2;            /* holds usermode for uppercase modes */
 /****************************************************************************/
 	int	connected;		/* true if connection is assured */
 	int	write;			/* write descriptor */
