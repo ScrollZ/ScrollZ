@@ -79,7 +79,9 @@ Usage $3FKLINE$0 [$3-TEMP$0] $3filter$0 [$3server$0]
 When $3-TEMP$0 is specified $4STATS k$0 is sent instead of usual $4STATS K$0.
 On some servers STATS k returns only temporary K: lines.
 :FLLINE        Does STATS L with filter
-Usage $3FLLINE filter$0
+Usage $3FLLINE$0 [$3-NAME$0] $3filter$0
+When $3-NAME$0 is specified $4STATS l$0 is sent instead of usual $4STATS L$0.
+STATS l returns hostnames instead of IP addresses.
 :FTRACE        Does TRACE with filter
 Usage $3FTRACE filter$0 [$3server$0]
 :IG            Ignores user
