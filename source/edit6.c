@@ -66,10 +66,11 @@
  ChannelLogReport    Report channel logging event (start, stop)
  ChannelLogReportAll Report channel logging event for all channels
  ChannelLogSave      Save channel logging event (join, kick, ...)
+ CdExceptions        Clears channel of ban exceptions
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.145 2003-09-17 17:44:03 f Exp $
+ * $Id: edit6.c,v 1.146 2003-12-03 18:09:55 f Exp $
  */
 
 #include "irc.h"
@@ -3255,3 +3256,69 @@ char *str2;
     StatsdNumber++;
 }
 #endif /* OPER */
+
+/* Clears channel of ban exceptions */
+void CdExceptions(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    int  count = 0;
+    int  send = 0;
+    int  max = get_int_var(MAX_MODES_VAR);
+    char *tmpchan = (char *) 0;
+    char tmpbuf1[mybufsize];
+    char tmpbuf2[mybufsize];
+    char tmpbuf3[mybufsize / 4];
+    char tmpbuf4[mybufsize];
+    ChannelList *chan;
+    struct bans *tmpban;
+
+    if (*args) {
+        tmpchan = new_next_arg(args, &args);
+        if (is_channel(tmpchan)) strmcpy(tmpbuf3, tmpchan, sizeof(tmpbuf3));
+        else snprintf(tmpbuf3, sizeof(tmpbuf3), "#%s", tmpchan);
+        tmpchan = tmpbuf3;
+    }
+    else if ((tmpchan = get_channel_by_refnum(0)) == NULL) {
+        NoWindowChannel();
+        return;
+    }
+    chan = lookup_channel(tmpchan, from_server, 0);
+    if (!chan) return;
+    if (HAS_OPS(chan->status)) {
+        *tmpbuf1 = '\0';
+        *tmpbuf2 = '\0';
+        *tmpbuf4 = '\0';
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "MODE %s -", chan->channel);
+        for (tmpban = chan->banlist; tmpban; tmpban = tmpban->next) {
+            if (!tmpban->exception) continue;
+            strmcat(tmpbuf2, "b", sizeof(tmpbuf2));
+            strmcat(tmpbuf4, " ", sizeof(tmpbuf2));
+            strmcat(tmpbuf4, tmpban->ban, sizeof(tmpbuf2));
+            count++;
+            send = 1;
+            if (count == max) {
+                strmcat(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
+                strmcat(tmpbuf1, tmpbuf4, sizeof(tmpbuf1));
+                strmcat(tmpbuf1, "\r\n", sizeof(tmpbuf1));
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "MODE %s -", chan->channel);
+                *tmpbuf4 = '\0';
+                count = 0;
+            }
+            if (strlen(tmpbuf1) >= IRCD_BUFFER_SIZE - 150) {
+                send_to_server("%s", tmpbuf1);
+                *tmpbuf1 = '\0';
+                send = 0;
+            }
+        }
+        if (count) {
+            strmcat(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
+            strmcat(tmpbuf1, tmpbuf4, sizeof(tmpbuf1));
+            strmcat(tmpbuf1, "\r\n", sizeof(tmpbuf1));
+            send=1;
+        }
+        if (send) send_to_server("%s", tmpbuf1);
+    }
+    else NotChanOp(tmpchan);
+}

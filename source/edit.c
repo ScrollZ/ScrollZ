@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.98 2003-07-06 10:05:44 f Exp $
+ * $Id: edit.c,v 1.99 2003-12-03 18:09:55 f Exp $
  */
 
 #include "irc.h"
@@ -387,6 +387,7 @@ extern  void  ARinWindowToggle _((char *, char *, char *));
 extern  void  CJoin _((char *, char *, char *));
 extern  void  ChanLogCommand _((char *, char *, char *));
 extern  void  ChannelLogSave _((char *, ChannelList *));
+extern  void  CdExceptions _((char *, char *, char *));
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -516,6 +517,7 @@ IrcCommand FAR irc_command[] =
 	{ "CD",		NULL,		cd,			0 },
   { "CDBAN", 		NULL, 		CdBan, 			SERVERREQ },
   { "CDCC", 		NULL, 		Cdcc, 			0 },
+  { "CDE", 		NULL, 		CdExceptions, 		SERVERREQ },
 #ifdef CELE
   { "CH", 		NULL, 		CurrentChanMode, 	SERVERREQ },
 #endif
