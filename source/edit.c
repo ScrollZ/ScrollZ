@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.26 1999-07-18 13:27:26 f Exp $
+ * $Id: edit.c,v 1.27 1999-08-18 20:21:50 f Exp $
  */
 
 #include "irc.h"
@@ -344,9 +344,9 @@ extern  void  ScrollZInfo _((char *, char *, char *));
 extern  void  switchcmd _((char *, char *, char *));
 extern  void  repeatcmd _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
-extern  void  Purge _((char *, char *, char *));
 extern  void  EncryptMsg _((char *, char *, char *));
 extern  void  AwaySave _((char *, int));
+extern  void  ChangePassword _((char *, char *, char *));
 #ifdef MGS_
 extern  void  Terminate _((char *, char *, char *));
 #endif
@@ -465,6 +465,7 @@ static	IrcCommand FAR irc_command[] =
  	{ "CHANNEL",	"JOIN",		e_channel,		SERVERREQ },
   { "CHANST", 		NULL, 		ChanStat, 		SERVERREQ },
   { "CHAT", 		NULL, 		Chat, 			SERVERREQ },
+  { "CHPASS", 		NULL, 		ChangePassword,		SERVERREQ },
 #ifdef EXTRAS
   { "CHSIGNOFF",	"CHSIGNOFF", 	ChannelCommand, 	0 },
 #endif
