@@ -1,4 +1,4 @@
-!	 $Id: remn,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: remn,v 1.4 2002-02-24 09:29:46 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -11,3 +11,4 @@ Usage: REMN nick [nick ...]
 See also:
   ADDN
   LISTN
+  SET NOTIFY_STRING
