@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.99 2003-04-16 15:40:46 f Exp $
+ * $Id: irc.c,v 1.100 2003-04-16 19:32:33 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -174,7 +174,9 @@ static	RETSIGTYPE	sig_user2 _((void)) ;
 static	RETSIGTYPE	cntl_y _((void));
 #endif
 #ifdef CORECATCH
-static	RETSIGTYPE	coredump _((void)) ;
+/*static	RETSIGTYPE	coredump _((void)) ;*/
+static	RETSIGTYPE	coredump _((int)) ;
+/****************************************************************************/
 #endif /* CORECATCH */
 static	void	process_hostname _((void));
 static	void	TimerTimeout _((struct timeval *tv));
