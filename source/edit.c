@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.50 2001-01-06 19:16:11 f Exp $
+ * $Id: edit.c,v 1.51 2001-01-15 17:01:17 f Exp $
  */
 
 #include "irc.h"
@@ -4362,26 +4362,45 @@ describe(command, args, subargs)
 			/*put_it("* -> %s: %s %s", target,
 				get_server_nickname(from_server), message);*/
                 {
-                    if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target))
+                    char stampbuf[mybufsize/16];
+
+                    *stampbuf='\0';
+                    if (Stamp==2) {
 #ifdef WANTANSI
+                        sprintf(stampbuf,"%s(%s%s%s)%s ",
+                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                                update_clock(0,0,GET_TIME),
+                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+                        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+                    }
+                    if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target)) {
+#ifdef WANTANSI
+                        char *tmpstr=(char *) 0;
+                    
+                        malloc_strcpy(&tmpstr,stampbuf);
+                        malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
                         put_it("%s%c%s %s%s%s %s%s%s",
-                               CmdsColors[COLME].color1,thing,Colors[COLOFF],
+                               tmpstr,thing,Colors[COLOFF],
                                CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
                                CmdsColors[COLME].color5,message,Colors[COLOFF]);
+                        new_free(&tmpstr);
 #else
-                        put_it("%c%c%c %s %s",bold,thing,bold,
+                        put_it("%s%c%c%c %s %s",stampbuf,bold,thing,bold,
                                get_server_nickname(from_server),message);
 #endif
+                    }
                     else {
 #ifdef WANTANSI
                         sprintf(tmpbuf,"<%s%s%s> %s%c%s %s%s%s",
                                CmdsColors[COLME].color4,target,Colors[COLOFF],
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
                                CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF]);
-                        put_it("%s %s%s%s",tmpbuf,
+                        put_it("%s%s %s%s%s",stampbuf,tmpbuf,
                               CmdsColors[COLME].color5,message,Colors[COLOFF]);
 #else
-                        put_it("<%s> %c%c%c %s %s",target,bold,thing,bold,
+                        put_it("%s<%s> %c%c%c %s %s",stampbuf,target,bold,thing,bold,
                                get_server_nickname(from_server),message);
 #endif
                     }
@@ -4453,15 +4472,36 @@ me(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("* %s %s",
 				    get_server_nickname(from_server), message);*/
+                        {
 #ifdef WANTANSI
-                            put_it("%s%c%s %s%s%s %s%s%s",
-                                   CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                                   CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
-                                   CmdsColors[COLME].color5,message,Colors[COLOFF]);
-#else
-                            put_it("%c%c%c %s %s",bold,thing,bold,
-                                   get_server_nickname(from_server), message);
+                            char *tmpstr=(char *) 0;
 #endif
+                            char stampbuf[mybufsize/16];
+
+                            *stampbuf='\0';
+                            if (Stamp==2) {
+#ifdef WANTANSI
+                                sprintf(stampbuf,"%s(%s%s%s)%s ",
+                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                                        update_clock(0,0,GET_TIME),
+                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+                                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+                            }
+#ifdef WANTANSI
+                            malloc_strcpy(&tmpstr,stampbuf);
+                            malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
+                            put_it("%s%c%s %s%s%s %s%s%s",
+                                    tmpstr,thing,Colors[COLOFF],
+                                    CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
+                                    CmdsColors[COLME].color5,message,Colors[COLOFF]);
+                            new_free(&tmpstr);
+#else
+                            put_it("%s%c%c%c %s %s",stampbuf,bold,thing,bold,
+                                    get_server_nickname(from_server), message);
+#endif
+                        }
 /****************************************************************************/
 			set_lastlog_msg_level(old);
  			restore_message_from();
