@@ -64,7 +64,8 @@ parties have to use the same key for encryption/decryption to work.
 If no key is given encrypted communication with nick/channel is
 ended. If neither user nor key are given all users in encryption
 list are listed. DCC CHAT sessions can be encrypted if nick starts
-with '='.
+with '='. Use '-' as first character in key if you want to communicate
+with users of ScrollZ v1.8j and older.
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
@@ -642,7 +643,9 @@ Also look at $2ADDCHAN$0
 Usage $3REPWORD reply_trigger$0
 Considered a good idea to set this to first few letters of your nick.
 You can set multiple strings that will trigger auto reply, separate
-them with ','.
+them with ','. If string starts with '-' it will cause the line not
+to match (example: *oo*,-*foo* would match all lines with *oo* except
+those with *foo*).
 Also look at $2ARINWIN$0
 :SERVNOTICE    Toggles server notices display on/off
 Usage $3SERVNOTICE on$0|$3off$0
@@ -661,9 +664,10 @@ If set to on, client will show your nick when sending out public messages
 like it does for other people. When set to off, it will act like plain
 vanilla client.
 :STAMP         Toggles time stamping on publics on/off
-Usage $3STAMP on channels$0|$3off$0
-Channels is a list of channels separated by , (like : #te,#chan*).
-When set to on, client will output time in front of publics.
+Usage $3STAMP on$0|$3off$0|$3max$0
+When set to on, client will output time in front of publics. When set
+to MAX client will output time in front of a lot more events (kicks,
+joins, topic changes, mode changes, ...).
 :URLCATCH      Toggles URL catcher on/off
 Usage $3URLCATCH on$0|$3auto$0|$3quiet$0|$3off$0
 If set to $3AUTO$0, client will look for publics with *tp:/*.* in them and
