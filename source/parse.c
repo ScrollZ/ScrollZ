@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.22 2000-05-14 07:57:56 f Exp $
+ * $Id: parse.c,v 1.23 2000-07-04 17:35:30 f Exp $
  */
 
 #include "irc.h"
@@ -1178,7 +1178,7 @@ out:
                                         channel,channel,channel);
                             }
                         }
-                        send_to_server(tmpbuf);
+                        send_to_server("%s", tmpbuf);
 /*************************************************************************/
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);
