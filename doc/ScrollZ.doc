@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.5 2001-08-11 15:59:01 f Exp $
+  $Id: ScrollZ.doc,v 1.6 2001-10-15 15:42:55 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -109,6 +109,10 @@
   in ScrollZ so the ircII ICB or DCC TALK related stuff does NOT work!
 
   3.  Installing it
+
+  3.0.  IMPORTANT
+
+  Read INSTALL.ScrollZ file located in doc subdirectory.
 
   3.1.  Setting up ScrollZ directory
 
