@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.7 1998-10-25 18:27:08 f Exp $
+ * $Id: edit6.c,v 1.8 1998-10-27 17:09:24 f Exp $
  */
 
 #include "irc.h"
@@ -2151,6 +2151,7 @@ void CleanUp() {
 	if (server_list[i].whois_stuff.server) new_free(&server_list[i].whois_stuff.server);
 	if (server_list[i].whois_stuff.server_stuff) new_free(&server_list[i].whois_stuff.server_stuff);
 	if (server_list[i].ctcp_send_size) new_free(&server_list[i].ctcp_send_size);
+	if (server_list[i].LastJoin) new_free(&(server_list[i].LastJoin));
         for (tmpnick=server_list[i].arlist;tmpnick;) {
             tmpnickfree=tmpnick;
             tmpnick=tmpnick->next;
