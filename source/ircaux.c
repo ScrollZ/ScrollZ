@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.12 2001-01-22 18:19:01 f Exp $
+ * $Id: ircaux.c,v 1.13 2001-02-01 19:31:16 f Exp $
  */
 
 #include "irc.h"
@@ -750,6 +750,7 @@ connect_by_number(service,host,nonblocking,dccget)
 		return (s);
 	}
 /**************************** PATCHED by Flier ******************************/
+#ifndef INET6
         if (DCCLowPort>1023 && DCCHighPort<65500 && dccget) {
             int newsock;
             struct sockaddr_in localaddr;
@@ -759,6 +760,7 @@ connect_by_number(service,host,nonblocking,dccget)
             localaddr.sin_addr = MyHostAddr;
             if ((newsock=BindPort(s,0,&localaddr))<0) return(newsock);
         }
+#endif
 /****************************************************************************/
 	if (source_host)
 	{
