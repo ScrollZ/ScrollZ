@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.107 2003-05-08 18:18:39 f Exp $
+ * $Id: edit5.c,v 1.108 2003-12-24 14:59:00 f Exp $
  */
 
 #include "irc.h"
@@ -3233,67 +3233,66 @@ void AcceptLastChat() {
 }
 
 /* This bolds out URLs and copies them to buffer */
-int GrabURL(line,buffer,filepath,source)
+int GrabURL(line, buffer, filepath, source)
 char *line;
 char *buffer;
 char *filepath;
 char *source;
 {
-    register int  urlnum=0;
-    register int  saveit;
-    register char store;
+    int  urlnum = 0;
+    int  saveit;
+    char store;
     char tmpbuf1[mybufsize];
-    char tmpbuf2[mybufsize/2];
-    register char *tmpstr1=tmpbuf1;
-    register char *tmpstr2=buffer;
-    register char *tmpstr3;
+    char tmpbuf2[mybufsize / 2];
+    char *tmpstr1 = tmpbuf1;
+    char *tmpstr2 = buffer;
+    char *tmpstr3;
     FILE *notefile;
     time_t now;
-    struct urlstr *urlnew,*tmpurl,*prevurl=NULL;
+    struct urlstr *urlnew, *tmpurl, *prevurl = NULL;
 
-    strmcpy(tmpbuf1,line,sizeof(tmpbuf1));
-    *tmpstr2='\0';
+    strmcpy(tmpbuf1, line, sizeof(tmpbuf1));
+    *tmpstr2 = '\0';
     while (*tmpstr1) {
-        while (isspace(*tmpstr1)) *tmpstr2++=*tmpstr1++;
-        *tmpstr2='\0';
+        while (isspace(*tmpstr1)) *tmpstr2 ++= *tmpstr1++;
+        *tmpstr2 = '\0';
         if (*tmpstr1) {
-            for (tmpstr3=tmpstr1;*tmpstr3 && !isspace(*tmpstr3);tmpstr3++);
-            store=*tmpstr3;
-            *tmpstr3='\0';
-            if ((!my_strnicmp(tmpstr1,"http://",7) || !my_strnicmp(tmpstr1,"ftp://",6) ||
-                 !my_strnicmp(tmpstr1,"https://",8) ||
-                 !my_strnicmp(tmpstr1,"www.",4) || !my_strnicmp(tmpstr1,"ftp.",4)) &&
-                index(tmpstr1,'.')) {
-                saveit=1;
-                prevurl=(struct urlstr *) 0;
-                for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next) {
-                    if (!my_stricmp(tmpurl->urls,tmpstr1)) break;
-                    prevurl=tmpurl;
+            for (tmpstr3 = tmpstr1; *tmpstr3 && !isspace(*tmpstr3); tmpstr3++);
+            store = *tmpstr3;
+            *tmpstr3 = '\0';
+            if ((!my_strnicmp(tmpstr1, "http://", 7) || !my_strnicmp(tmpstr1, "ftp://", 6) ||
+                 !my_strnicmp(tmpstr1, "https://", 8) ||
+                 !my_strnicmp(tmpstr1, "www.", 4) || !my_strnicmp(tmpstr1, "ftp.", 4))) {
+                saveit = 1;
+                prevurl = NULL;
+                for (tmpurl = urllist; tmpurl; tmpurl = tmpurl->next) {
+                    if (!my_stricmp(tmpurl->urls, tmpstr1)) break;
+                    prevurl = tmpurl;
                 }
                 if (tmpurl) {
-                    if (prevurl) prevurl->next=tmpurl->next;
-                    else urllist=tmpurl->next;
-                    for (urlnew=urllist;urlnew && urlnew->next;) urlnew=urlnew->next;
-                    if (urlnew) urlnew->next=tmpurl;
-                    else urllist=tmpurl;
-                    tmpurl->next=(struct urlstr *) 0;
-                    saveit=0;
+                    if (prevurl) prevurl->next = tmpurl->next;
+                    else urllist = tmpurl->next;
+                    for (urlnew = urllist; urlnew && urlnew->next;) urlnew = urlnew->next;
+                    if (urlnew) urlnew->next = tmpurl;
+                    else urllist = tmpurl;
+                    tmpurl->next = NULL;
+                    saveit = 0;
                 }
-                snprintf(tmpbuf2,sizeof(tmpbuf2),"%c%s%c",bold,tmpstr1,bold);
-                strmcat(tmpstr2,tmpbuf2,sizeof(tmpbuf2));
-                tmpstr2+=strlen(tmpbuf2);
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%c%s%c", bold, tmpstr1, bold);
+                strmcat(tmpstr2, tmpbuf2, sizeof(tmpbuf2));
+                tmpstr2 += strlen(tmpbuf2);
                 /* Add URL to list */
                 if (saveit) {
-                    tmpurl=urllist;
-                    urlnew=(struct urlstr *) new_malloc(sizeof(struct urlstr));
-                    urlnew->urls=(char *) 0;
-                    urlnew->source=(char *) 0;
-                    urlnew->next=(struct urlstr *) 0;
-                    malloc_strcpy(&(urlnew->urls),tmpstr1);
-                    if (source) malloc_strcpy(&(urlnew->source),source);
+                    tmpurl = urllist;
+                    urlnew = (struct urlstr *) new_malloc(sizeof(struct urlstr));
+                    urlnew->urls = NULL;
+                    urlnew->source = NULL;
+                    urlnew->next = NULL;
+                    malloc_strcpy(&(urlnew->urls), tmpstr1);
+                    if (source) malloc_strcpy(&(urlnew->source), source);
                     URLnum++;
-                    if (URLnum>10) {
-                        urllist=tmpurl->next;
+                    if (URLnum > 10) {
+                        urllist = tmpurl->next;
                         new_free(&(tmpurl->urls));
                         new_free(&(tmpurl->source));
                         new_free(&tmpurl);
@@ -3302,12 +3301,12 @@ char *source;
                     add_to_list_ext((List **) &urllist,(List *) urlnew,
                                     (int (*) _((List *, List *))) AddLast);
                     /* if URL Catcher is set to auto... */
-                    if (URLCatch>=2 && filepath) {
-                        int oldumask=umask(0177);
+                    if (URLCatch >= 2 && filepath) {
+                        int oldumask = umask(0177);
 
-                        if ((notefile=fopen(filepath,"a"))!=NULL) {
-                            now=time((time_t *) 0);
-                            fprintf(notefile,"## %s [%.24s]\n",urlnew->urls,ctime(&now));
+                        if ((notefile = fopen(filepath, "a")) != NULL) {
+                            now = time(NULL);
+                            fprintf(notefile,"## %s [%.24s]\n", urlnew->urls, ctime(&now));
                             fclose(notefile);
                             urlnum++;
                         }
@@ -3316,11 +3315,11 @@ char *source;
                 }
             }
             else {
-                strcat(tmpstr2,tmpstr1);
-                tmpstr2+=strlen(tmpstr1);
+                strcat(tmpstr2, tmpstr1);
+                tmpstr2 += strlen(tmpstr1);
             }
-            tmpstr1=tmpstr3;
-            if (store) *tmpstr1=store;
+            tmpstr1 = tmpstr3;
+            if (store) *tmpstr1 = store;
         }
     }
     return(urlnum);
