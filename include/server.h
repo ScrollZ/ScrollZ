@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.8 2000-08-28 22:43:33 f Exp $
+ * $Id: server.h,v 1.9 2001-11-19 19:01:16 f Exp $
  */
 
 #ifndef __server_h_
@@ -99,6 +99,7 @@ typedef	struct
         char    *LastMessageSent;       /* last sent message */
         char    *LastNoticeSent;        /* last sent notice */
 	char    *LastJoin;              /* last person to join */
+        time_t  ConnectTime;            /* when the server was connected */
         struct  nicks *arlist,*arcur;   /* auto-reply list */
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;

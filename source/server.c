@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.33 2001-03-21 20:32:32 f Exp $
+ * $Id: server.c,v 1.34 2001-11-19 19:01:16 f Exp $
  */
 
 #include "irc.h"
@@ -159,6 +159,16 @@ close_server(server_index, message)
  		server_list[i].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
  		server_list[i].umodeflags=0;
+                if (server_list[i].ConnectTime) {
+                    int timedays, timehours, timeminutes;
+                    time_t timediff = time((time_t *) 0) - server_list[i].ConnectTime;
+
+                    timedays = timediff / 86400;
+                    timehours = (timediff / 3600) % 24;
+                    timeminutes = (timediff / 60) % 60;
+                    say("You have been connected to server %s for %dd %02dh %02dm",
+                        get_server_name(i), timedays, timehours, timeminutes);
+                }
 /****************************************************************************/
 		if (-1 != server_list[i].write)
 		{
@@ -572,6 +582,7 @@ add_to_server_list(server, port, password, nick, overwrite)
                 server_list[from_server].arlist=(struct nicks *) 0;
                 server_list[from_server].nickcur=(struct nicks *) 0;
                 server_list[from_server].nicklist=(struct nicks *) 0;
+                server_list[from_server].ConnectTime=0;
 /****************************************************************************/
 		server_list[from_server].nickname = (char *) 0;
 		server_list[from_server].connected = 0;
@@ -1346,6 +1357,7 @@ login_to_server(server)
 	server_list[server].SZWI=0;
 	server_list[server].SZWho=0;
 	server_list[server].SZUnban=0;
+	server_list[server].ConnectTime=time((time_t *) 0);
 /****************************************************************************/
 	server_list[server].flags |= LOGGED_IN;
 #ifdef NON_BLOCKING_CONNECTS
@@ -1491,6 +1503,10 @@ void
 display_server_list()
 {
 	int	i;
+/**************************** Patched by Flier ******************************/
+        time_t  timediff;
+        char    tmpbuf[mybufsize/4];
+/****************************************************************************/
 
 	if (server_list)
 	{
@@ -1509,12 +1525,35 @@ display_server_list()
 		say("Server list:");
 		for (i = 0; i < number_of_servers; i++)
 		{
+/**************************** Patched by Flier ******************************/
+                        if (server_list[i].ConnectTime) {
+                            int timedays, timehours, timeminutes;
+
+                            timediff = time((time_t *) 0)-server_list[i].ConnectTime;
+                            timedays = timediff / 86400;
+                            timehours = (timediff / 3600) % 24;
+                            timeminutes = (timediff / 60) % 60;
+                            sprintf(tmpbuf," | connected %dd %02dh %02dm",
+                                    timedays, timehours, timeminutes);
+                        }
+                        else {
+                            timediff=0;
+                            *tmpbuf='\0';
+                        }
+/****************************************************************************/
 			if (!server_list[i].nickname)
 			{
-				say("\t%d) %s %d%s", i,
+/**************************** Patched by Flier ******************************/
+				/*say("\t%d) %s %d%s", i,*/
+				say("\t%d) %s %d%s%s", i,
+/****************************************************************************/
 					server_list[i].name,
 					server_list[i].port,
-					server_list[i].read == -1 ? " (not connected)" : "");
+/**************************** Patched by Flier ******************************/
+					/*server_list[i].read == -1 ? " (not connected)" : "");*/
+					server_list[i].read == -1 ? " (not connected)" : "",
+                                        server_list[i].read == -1 ? "" : tmpbuf);
+/****************************************************************************/
 			}
 			else
 			{
@@ -1524,10 +1563,16 @@ display_server_list()
 						server_list[i].port,
 						server_list[i].nickname);
 				else
-					say("\t%d) %s %d (%s)", i,
+/**************************** Patched by Flier ******************************/
+					/*say("\t%d) %s %d (%s)", i,*/
+					say("\t%d) %s %d (%s)%s", i,
+/****************************************************************************/
 						server_list[i].name,
 						server_list[i].port,
-						server_list[i].nickname);
+/**************************** Patched by Flier ******************************/
+						/*server_list[i].nickname);*/
+						server_list[i].nickname, tmpbuf);
+/****************************************************************************/
 			}
 #ifdef GKM
 /**************************** PATCHED by Flier ******************************/

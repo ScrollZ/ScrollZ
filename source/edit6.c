@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.111 2001-11-17 11:13:40 f Exp $
+ * $Id: edit6.c,v 1.112 2001-11-19 19:01:16 f Exp $
  */
 
 #include "irc.h"
@@ -1689,9 +1689,11 @@ char *subargs;
     tmpstr1=index(szver,' ');
     *tmpstr1='\0';
     say("This is ScrollZ %s (client base ircII %s, version %s)",
-            szver,irc_version,internal_version);
-    say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
-            (timediff/60)%60);
+        szver,irc_version,internal_version);
+    say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,(timediff/60)%60);
+    timediff=time((time_t *) 0)-server_list[from_server].ConnectTime;
+    say("Connected to the current server (%s): %dd %02dh %02dm",
+        get_server_name(from_server),timediff/86400,(timediff/3600)%24,(timediff/60)%60);
     say("Support channel: #ScrollZ on Efnet");
     say("Mailing list: scrollz@ahnberg.pp.se");
     say("Home page: http://www.scrollz.com/");
