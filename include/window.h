@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: window.h,v 1.7 2000-08-28 22:43:33 f Exp $
  */
 
 #ifndef __window_h_
@@ -158,5 +158,6 @@ extern	u_int	window_display;
 #define	WIN_ALL		0x01
 #define	WIN_TRANSFER	0x02
 #define	WIN_FORCE	0x04
+#define	WIN_OLDCONN	0x08
 
 #endif /* __window_h_ */

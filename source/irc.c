@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.38 2000-08-28 20:25:47 f Exp $
+ * $Id: irc.c,v 1.39 2000-08-28 22:43:33 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -1809,7 +1809,7 @@ main(argc, argv, envp)
 /****************************************************************************/
 	if (bflag)
 		load_ircrc();
-	get_connected(0);
+	get_connected(0, 0);
         if (channel)
 	{
 		char    *ptr;

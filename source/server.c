@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.25 2000-08-27 18:01:56 f Exp $
+ * $Id: server.c,v 1.26 2000-08-28 22:43:33 f Exp $
  */
 
 #include "irc.h"
@@ -343,20 +343,14 @@ do_server(rd, wd)
 					if (old_serv != -1 && (server_list[old_serv].flags & CLOSE_PENDING))
 					{
 						say("Connection to server %s resumed...", server_list[old_serv].name);
-/**************************** PATCHED by Flier ******************************/
-                                                /* moved below because we need
-                                                 * it in get_connected() to
-                                                 * transfer channels when
-                                                 * connection fails */
-						/*server_list[i].close_serv = -1;*/
-/****************************************************************************/
+						server_list[i].close_serv = -1;
 						server_list[old_serv].flags &= ~(CLOSE_PENDING|CLEAR_PENDING);
 						server_list[old_serv].flags |= LOGGED_IN;
 						server_list[old_serv].connected = 1;
 #if 1
-						get_connected(old_serv);
+						get_connected(old_serv, 1);
 #else
-						/* get_connected(old_serv);
+						/* get_connected(old_serv, 0);
 						   should be used only for
 						   primary_server -Sol */
 						/* connect_to_server(server_list[old_serv].name, server_list[old_serv].port, server_list[server].nickname, -1);
@@ -375,14 +369,6 @@ do_server(rd, wd)
 						}
 #endif /* 1 */
 					}
-/**************************** PATCHED by Flier ******************************/
-                                        /* see comment above! */
-                                        server_list[i].close_serv = -1;
-                                        if (curr_scr_win->server==old_serv) {
-                                            is_current_channel(NULL,old_serv,
-                                                               curr_scr_win->refnum);
-                                        }
-/****************************************************************************/
 					window_check_servers();
 					break;
 				}
@@ -403,7 +389,7 @@ a_hack:
 							times = 0;
 						}
 						else
-							get_connected(i);
+							get_connected(i, 0);
 					}
 					else
 					{
@@ -416,7 +402,7 @@ a_hack:
 							times = 0;
   						}
 						else
-							get_connected(i);
+							get_connected(i, 0);
 					}
 				}
 				else if (server_list[i].eof)
@@ -1392,8 +1378,9 @@ irc2_login_to_server(server)
  * resurected (eg. connection to server failed).
  */
 void
-get_connected(server)
+get_connected(server, oldconn)
 	int	server;
+	int	oldconn;
 {
 	int	s,
 		ret = -1;
@@ -1435,8 +1422,12 @@ get_connected(server)
  		if (from_server != -1) {
  			int flags;
 
-			flags = (already_connected ? 0 : WIN_TRANSFER);
+			flags = (already_connected ? 0 : WIN_TRANSFER) |
+                                (oldconn ? WIN_OLDCONN : 0);
 			window_set_server(-1, from_server, flags);
+/**************************** PATCHED by Flier ******************************/
+                        if (flags&WIN_OLDCONN) switch_channels(0,(char *) 0);
+/****************************************************************************/
  		}
 	}
 	else
@@ -1613,7 +1604,7 @@ servercmd(command, args, subargs)
 			 */
 			if (*++server == '\0')
 			{
-				get_connected(primary_server - 1);
+				get_connected(primary_server - 1, 0);
 				return;
 			}
 			upper(server);
@@ -1711,9 +1702,9 @@ servercmd(command, args, subargs)
 			}
 			else
 /**************************** PATCHED by Flier ******************************/
-				/*get_connected(primary_server + 1);*/
+				/*get_connected(primary_server + 1, 0);*/
                                 get_connected(primary_server+1+
-                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0);
+                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0,0);
 /****************************************************************************/
 			return;
 		}

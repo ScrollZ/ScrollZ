@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.25 2000-08-27 18:01:56 f Exp $
+ * $Id: numbers.c,v 1.26 2000-08-28 22:43:33 f Exp $
  */
 
 #include "irc.h"
@@ -926,7 +926,7 @@ numbered_command(from, comm, ArgList)
 			    (user_cnt < get_int_var(MINIMUM_USERS_VAR)))
 			{
 				say("Trying better populated server...");
-				get_connected(from_server + 1);
+				get_connected(from_server + 1, 0);
 			}
 		}
  		break;
@@ -1149,7 +1149,7 @@ numbered_command(from, comm, ArgList)
 		close_server(parsing_server_index, empty_string);
 		window_check_servers();
 		if (!connected_to_server)
-			get_connected(parsing_server_index + 1);
+			get_connected(parsing_server_index + 1, 0);
 		break;
 
 	case 464:		/* #define ERR_PASSWDMISMATCH   464 */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.19 2000-08-21 18:41:40 f Exp $
+ * $Id: window.c,v 1.20 2000-08-28 22:43:33 f Exp $
  */
 
 #include "irc.h"
@@ -1986,11 +1986,11 @@ window_set_server(refnum, server, misc)
 		if ((misc & WIN_TRANSFER) && (old_serv >= 0))
 		{
 /**************************** PATCHED by Flier ******************************/
-                        /* Don't transfer channels if close_serv is set here
+                        /* Don't transfer channels if WIN_OLDCONN is set here
                          * because it means connection to old server failed
                          * and if we transfer channels we lose information
                          * on nicks in channels! */
-                        if (server_list[old_serv].close_serv<0)
+                        if (misc&WIN_OLDCONN)
 /****************************************************************************/
 			for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
 			{
