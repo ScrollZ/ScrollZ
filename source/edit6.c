@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.124 2002-01-21 22:20:12 f Exp $
+ * $Id: edit6.c,v 1.125 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -247,7 +247,7 @@ int  server;
     struct friends *tmpfriend;
 
     if (AutoInv) {
-        sprintf(tmpbuf,"%s!%s",nick,userhost);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
         for (tmpchan=server_list[server].chan_list;tmpchan;tmpchan=tmpchan->next) {
             if (!CheckChannel(tmpchan->channel,AutoInvChannels)) continue;
 #if defined(ACID) || defined(FLIER)
@@ -398,7 +398,7 @@ ChannelList *chan;
                         break;
                 }
                 if (!tmpban) {
-                    sprintf(tmpbuf," %s",tmpabk->userhost);
+                    snprintf(tmpbuf,sizeof(tmpbuf)," %s",tmpabk->userhost);
                     malloc_strcat(&modes,tmpbuf);
                     count++;
                     if (count==max) {
@@ -461,7 +461,7 @@ char *user;
     }
     if (nick && *nick && host && *host) {
         if (!my_stricmp(nick,get_server_nickname(from_server))) return;
-        sprintf(tmpbuf,"%s!%s",nick,host);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,host);
         if (wild_match(tmpbuf,tkillpattern) || wild_match(tkillpattern,tmpbuf)) {
             FilterKillNum++;
             if (tkillreason) strcpy(tmpbuf,tkillreason);
@@ -556,18 +556,18 @@ void PrintMap() {
         maplist=maplist->next;
 #ifdef WANTANSI
         if (!tmpmap->distance || prevdist!=tmpmap->distance)
-            sprintf(tmpbuf2,"[%s%d%s]",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"[%s%d%s]",
                     CmdsColors[COLLINKS].color3,tmpmap->distance,Colors[COLOFF]);
-        else sprintf(tmpbuf2,empty_string);
-        sprintf(tmpbuf1,"%%s%%%ds%%s%s%s%s %s",tmpmap->distance*4,
+        else snprintf(tmpbuf2,sizeof(tmpbuf2),empty_string);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%%s%%%ds%%s%s%s%s %s",tmpmap->distance*4,
                 CmdsColors[COLLINKS].color1,tmpmap->server,Colors[COLOFF],tmpbuf2);
         say(tmpbuf1,CmdsColors[COLLINKS].color4,
             prevdist!=tmpmap->distance?ascii:empty_string,Colors[COLOFF]);
 #else
         if (!tmpmap->distance || prevdist!=tmpmap->distance)
-            sprintf(tmpbuf2,"[%d]",tmpmap->distance);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"[%d]",tmpmap->distance);
         else *tmpbuf2='\0';
-        sprintf(tmpbuf1,"%%%ds%%s %s",tmpmap->distance*3,tmpbuf2);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%%%ds%%s %s",tmpmap->distance*3,tmpbuf2);
         say(tmpbuf1,prevdist!=tmpmap->distance?ascii:empty_string,
             tmpmap->server);
 #endif
@@ -624,9 +624,9 @@ void CheckTimeMinute() {
     if (curr_scr_win->server!=-1) {
         if (AutoAwayTime>0 && timenow-idle_time>AutoAwayTime*60 && !away_set) {
 #ifdef CELE
-            sprintf(tmpbuf,"Inactive - %d mins (Auto SetAway)",AutoAwayTime);
+            snprintf(tmpbuf,sizeof(tmpbuf),"Inactive - %d mins (Auto SetAway)",AutoAwayTime);
 #else
-            sprintf(tmpbuf,"Automatically set away");
+            snprintf(tmpbuf,sizeof(tmpbuf),"Automatically set away");
 #endif
             say("Setting you away after being idle for %d minutes",AutoAwayTime);
             SetAway(NULL,tmpbuf,NULL);
@@ -678,7 +678,7 @@ void CheckTimeMinute() {
                         send_to_server("MODE %s -o+b %s %s",tmpchan->channel,tmpnick->nick,
                                        tmpbuf);
                         send_to_server("KICK %s %s :Idle user",tmpchan->channel,tmpnick->nick);
-                        sprintf(tmpbuf2,"30 MODE %s -b %s",tmpchan->channel,tmpbuf);
+                        snprintf(tmpbuf2,sizeof(tmpbuf2),"30 MODE %s -b %s",tmpchan->channel,tmpbuf);
                         timercmd("TIMER",tmpbuf2,NULL);
                     }
                 }
@@ -795,7 +795,7 @@ char *subargs;
         say("%d out of %d userlist entries changed",count,i-1);
     }
     else {
-        sprintf(tmpbuf,"%sFFLAG filter|#number flaglist",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sFFLAG filter|#number flaglist",command);
         PrintUsage(tmpbuf);
     }
 }
@@ -815,7 +815,7 @@ int  add;
     if (add) {
         if (!CheckChannel(*setting,channel)) {
             change=1;
-            sprintf(tmpbuf2,",%s",channel);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),",%s",channel);
             malloc_strcat(setting,tmpbuf2);
         }
     }
@@ -876,7 +876,7 @@ char *subargs;
                             if (CheckChannel(chan->channel,channel))
                                 for (tmpnick=chan->nicks;tmpnick;tmpnick=tmpnick->next) {
                                     if (tmpnick->userhost)
-                                        sprintf(tmpbuf,"%s!%s",tmpnick->nick,tmpnick->userhost);
+                                        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmpnick->nick,tmpnick->userhost);
                                     else strcpy(tmpbuf,tmpnick->nick);
                                     if (change>1) {
                                         if (wild_match(tmpfriend->userhost,tmpbuf))
@@ -890,7 +890,7 @@ char *subargs;
         say("%d out of %d userlist entries changed",count,i);
     }
     else {
-        sprintf(tmpbuf,"%sFCHAN filter|#number channel",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sFCHAN filter|#number channel",command);
         PrintUsage(tmpbuf);
     }
 }
@@ -1109,20 +1109,20 @@ char *subargs;
             *(command_list[i].var)=2;
         else {
             if (!strcmp("MIRC",command_list[i].command))
-                sprintf(tmpbuf,"%s on/off/strip",command_list[i].command);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s on/off/strip",command_list[i].command);
             else if (!strcmp("VERBOSE",command_list[i].command))
-                sprintf(tmpbuf,"CDCC %s on/off/quiet",command_list[i].command);
+                snprintf(tmpbuf,sizeof(tmpbuf),"CDCC %s on/off/quiet",command_list[i].command);
             else if (!strcmp("AUTOGET",command_list[i].command))
-                sprintf(tmpbuf,"CDCC %s on/off/always",command_list[i].command);
+                snprintf(tmpbuf,sizeof(tmpbuf),"CDCC %s on/off/always",command_list[i].command);
             else if (!strcmp("LONGSTATUS",command_list[i].command) ||
                      !strcmp("OVERWRITE",command_list[i].command)  ||
                      !strcmp("SECURE",command_list[i].command)     ||
                      !strcmp("STATS",command_list[i].command)      ||
                      !strcmp("WARNING",command_list[i].command))
-                sprintf(tmpbuf,"CDCC %s on/off",command_list[i].command);
+                snprintf(tmpbuf,sizeof(tmpbuf),"CDCC %s on/off",command_list[i].command);
             else if (!strcmp("STAMP",command_list[i].command))
-                sprintf(tmpbuf,"%s on/off/max",command_list[i].command);
-            else sprintf(tmpbuf,"%s on/off",command_list[i].command);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s on/off/max",command_list[i].command);
+            else snprintf(tmpbuf,sizeof(tmpbuf),"%s on/off",command_list[i].command);
             PrintUsage(tmpbuf);
             return;
         }
@@ -1189,12 +1189,12 @@ char *subargs;
             if (!strcmp(command_list[i].command,"ORIGNTIME")) LastNick=time((time_t *) 0);
         }
         else {
-            sprintf(tmpbuf,"%s number",command_list[i].command);
+            snprintf(tmpbuf,sizeof(tmpbuf),"%s number",command_list[i].command);
             PrintUsage(tmpbuf);
             return;
         }
     }
-    sprintf(tmpbuf,"%d",*(command_list[i].var));
+    snprintf(tmpbuf,sizeof(tmpbuf),"%d",*(command_list[i].var));
     PrintSetting(command_list[i].setting,tmpbuf,empty_string,empty_string);
 }
 
@@ -1435,7 +1435,7 @@ char *subargs;
             quietstr=new_next_arg(args,&args);
             if (tmpchan && *tmpchan) malloc_strcpy(command_list[i].strvar,tmpchan);
             else {
-                sprintf(tmpbuf,"%s on %s%s/off",command_list[i].command,
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s on %s%s/off",command_list[i].command,
                         isorignick?"nick":"channels",isorignick?" [quiet]":"");
                 PrintUsage(tmpbuf);
                 return;
@@ -1453,7 +1453,7 @@ char *subargs;
             new_free(command_list[i].strvar);
         }
         else {
-            sprintf(tmpbuf,"%s on %s%s/off",command_list[i].command,
+            snprintf(tmpbuf,sizeof(tmpbuf),"%s on %s%s/off",command_list[i].command,
                     isorignick?"nick":"channels",isorignick?" [quiet]":"");
             PrintUsage(tmpbuf);
             return;
@@ -1656,7 +1656,7 @@ char *subargs;
     szsetting=new_next_arg(args,&args);
     channel=new_next_arg(args,&args);
     if (!szsetting || !channel) {
-        sprintf(tmpbuf,"%sCHAN setting channel",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sCHAN setting channel",command);
         PrintUsage(tmpbuf);
         return;
     }
@@ -1763,7 +1763,7 @@ char *subargs;
 {
     char tmpbuf[mybufsize/4];
 
-    sprintf(tmpbuf,"uptime");
+    snprintf(tmpbuf,sizeof(tmpbuf),"uptime");
     execcmd(NULL,tmpbuf,NULL);
 }
 
@@ -1902,8 +1902,8 @@ char *subargs;
 
     channel=new_next_arg(args,&args);
     if (channel) {
-        if (is_channel(channel)) strcpy(tmpbuf1,channel);
-        else sprintf(tmpbuf1,"#%s",channel);
+        if (is_channel(channel)) strmcpy(tmpbuf1,channel,sizeof(tmpbuf1));
+        else snprintf(tmpbuf1,sizeof(tmpbuf1),"#%s",channel);
         channel=tmpbuf1;
     }
     if (!channel && (channel=get_channel_by_refnum(0))==NULL) {
@@ -1915,7 +1915,7 @@ char *subargs;
     if (!(filter=new_next_arg(args,&args))) filter="*";
     say("%-42s  Idle time","User");
     for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-        sprintf(tmpbuf2,"%s!%s",joiner->nick,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",joiner->nick,
                 joiner->userhost?joiner->userhost:empty_string);
         if (!wild_match(filter,tmpbuf2)) continue;
         origidle=timenow-joiner->lastmsg;
@@ -2517,7 +2517,7 @@ char *stuff;
         *host++ = '\0';
         if ((tmpstr = index(host, ']'))) *tmpstr = '\0';
         else host = (char *) 0;
-        sprintf(tmpbuf, "%s!%s", nick, host);
+        snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", nick, host);
         if (*pattern == ':') pattern++;
         if (wild_match(pattern, tmpbuf)) {
             mattcount++;
@@ -2539,7 +2539,7 @@ int timediff;
 {
     static char timebuf[mybufsize/32];
 
-    sprintf(timebuf,"%dd%dh%dm%ds",timediff/86400,(timediff/3600)%24,(timediff/60)%60,
+    snprintf(timebuf,sizeof(timebuf),"%dd%dh%dm%ds",timediff/86400,(timediff/3600)%24,(timediff/60)%60,
             timediff%60);
     return(timebuf);
 }
@@ -2750,7 +2750,7 @@ void TryChannelJoin() {
             lasttimer-=time((time_t *) 0);
             lasttimer+=30;
             if (lasttimer<=0) lasttimer=30;
-            sprintf(tmpbuf,"-INV %d rejoin",lasttimer);
+            snprintf(tmpbuf,sizeof(tmpbuf),"-INV %d rejoin",lasttimer);
             timercmd("FTIMER",tmpbuf,(char *) func);
         }
     }
@@ -3004,7 +3004,7 @@ char *subargs;
     tmpchan=new_next_arg(args,&args);
     topic=args;
     if (tmpchan && !is_channel(tmpchan)) {
-        sprintf(tmpbuf,"#%s",tmpchan);
+        snprintf(tmpbuf,sizeof(tmpbuf),"#%s",tmpchan);
         tmpchan=tmpbuf;
     }
     switch (remove) {
@@ -3105,11 +3105,11 @@ char *subargs;
 
     tmpchan=new_next_arg(args,&args);
     if (tmpchan && !is_channel(tmpchan)) {
-        sprintf(tmpbuf,"#%s",tmpchan);
+        snprintf(tmpbuf,sizeof(tmpbuf),"#%s",tmpchan);
         tmpchan=tmpbuf;
     }
     if (!tmpchan) {
-        sprintf(tmpbuf,"%s [#]channel",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s [#]channel",command);
         PrintUsage(tmpbuf);
         return;
     }
@@ -3194,7 +3194,7 @@ ChannelList *chan;
     if (!chan || !chan->ChanLog) return;
     fp = fopen(chan->chanlogfpath, "a");
     if (fp) {
-        sprintf(tmpbuf2, "[%.24s] ", ctime(&timenow));
+        snprintf(tmpbuf2,sizeof(tmpbuf2), "[%.24s] ", ctime(&timenow));
         malloc_strcpy(&tmpbuf, tmpbuf2);
         malloc_strcat(&tmpbuf, "Log for ");
         malloc_strcat(&tmpbuf, chan->channel);
@@ -3233,7 +3233,7 @@ ChannelList *chan;
     oldumask = umask(0177);
     if ((logfile = fopen(chan->chanlogfpath, "a")) != NULL) {
         now = time((time_t *) 0);
-        sprintf(tmpbuf2, "[%.24s] %s", ctime(&now), message);
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
         if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
         else strcpy(tmpbuf2, tmpbuf1);

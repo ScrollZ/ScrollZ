@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.43 2002-01-21 22:17:20 f Exp $
+ * $Id: cdcc.c,v 1.44 2002-01-23 18:48:10 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -302,8 +302,8 @@ char *line;
             }
         }
     }
-    sprintf(tmpbuf1,"%d",CdccLimit);
-    if (CdccQueueLimit) sprintf(tmpbuf2,"%d",CdccQueueLimit);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%d",CdccLimit);
+    if (CdccQueueLimit) snprintf(tmpbuf2,sizeof(tmpbuf2),"%d",CdccQueueLimit);
     else strcpy(tmpbuf2,"unlimited");
     PrintSetting("Cdcc limit",tmpbuf1,", queue limit is",tmpbuf2);
     RemoveFromQueue(0);
@@ -591,7 +591,7 @@ int type;
                 etatime=0;
             }
 #if !defined(CELEHOOK) && !defined(LITE)
-            sprintf(tmpbuf1,"%.2f",rate);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f",rate);
             if (do_hook(DCC_LIST,"%d %s %s %c %s %ld %s %d %ld",count,
                         dcc_types[flags],Client->user,dccstatus(Client->flags),
                         tmpbuf1,etatime,filename,fills,(long) Client->filesize))
@@ -601,7 +601,7 @@ int type;
                     if (LongStatus) {
                         strcpy(tmpbuf1,"\026    ");
                         for (i=1;i<7;i++) strcat(tmpbuf1,"          ");
-                        sprintf(tmpbuf2,"%3d%%  (%ld of %ld bytes)",fills,completed,
+                        snprintf(tmpbuf2,sizeof(tmpbuf2),"%3d%%  (%ld of %ld bytes)",fills,completed,
                                 (long) Client->filesize);
                         fills=(fills+1)*63/100;
                         for (i=0,j=0;i<=fills;i++)
@@ -626,7 +626,7 @@ int type;
                         char *fillchar=highascii?"²":" ";
                         char *emptychar=highascii?"°":"_";
 
-                        sprintf(tmpbuf2," %3d%%",fills);
+                        snprintf(tmpbuf2,sizeof(tmpbuf2)," %3d%%",fills);
                         fills=((fills+3)*BARSIZE)/100;
                         if (highascii) *tmpbuf1='\0';
                         else strcpy(tmpbuf1,"\026");
@@ -642,10 +642,10 @@ int type;
                         if (flags==DCC_FILEREGET || flags==DCC_RESENDOFFER)
                             completed-=Client->resendoffset;
                         rate=(float) (completed)/(float)(timenow-Client->starttime);
-                        sprintf(tmpbuf2,"%6.2f",rate/1024.0);
+                        snprintf(tmpbuf2,sizeof(tmpbuf2),"%6.2f",rate/1024.0);
                         if (rate>0.0 && completed<=Client->filesize) {
                             etatime=(float) (((float) (Client->filesize)-(float) completed)/(float) rate);
-                            sprintf(tmpbuf3,"%3ld:%02ld ",etatime/60,etatime%60);
+                            snprintf(tmpbuf3,sizeof(tmpbuf3),"%3ld:%02ld ",etatime/60,etatime%60);
                         }
                     }
                     else strcpy(tmpbuf3,"        N/A ");
@@ -661,7 +661,7 @@ int type;
                         strcpy(tmpbuf3,"        N/A ");
                     }
                 }
-                sprintf(tmpbuf4,"%-2d",count);
+                snprintf(tmpbuf4,sizeof(tmpbuf4),"%-2d",count);
                 if (!(*tmpbuf2)) strcpy(tmpbuf2,"      ");
                 if (LongStatus) {
                     flags=Client->flags;
@@ -767,7 +767,7 @@ char *line;
             flags=Client->flags;
             if (matchmcommand(line,packcount)) {
                 count++;
-                sprintf(tmpbuf,"%s %s \"%s\"",dcc_types[flags&DCC_TYPES],Client->user,
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s %s \"%s\"",dcc_types[flags&DCC_TYPES],Client->user,
                         Client->description);
                 dcc_close(tmpbuf);
             }
@@ -859,9 +859,9 @@ int cdccstuff;
         byteschar='M';
         mult=1024.0;
     }
-    if (cdccstuff) sprintf(tmpbuf,"%s Received %.2f %cB",CdccString,
+    if (cdccstuff) snprintf(tmpbuf,sizeof(tmpbuf),"%s Received %.2f %cB",CdccString,
                            BytesReceived/(1024.0*mult),byteschar);
-    else sprintf(tmpbuf,"Received %.2f %cB",BytesReceived/(1024.0*mult),byteschar);
+    else snprintf(tmpbuf,sizeof(tmpbuf),"Received %.2f %cB",BytesReceived/(1024.0*mult),byteschar);
     if (BytesSent>1073741823.0) {
         byteschar='G';
         mult=1048576.0;
@@ -975,7 +975,7 @@ ChannelList *chan;
             if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",chan->channel,count,mynick))
 #endif
             {
-                sprintf(tmpbuf1,"%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
                         CdccString,count,count==1?empty_string:"S",mynick);
                 send_text(chan->channel,tmpbuf1,"PRIVMSG");
             }
@@ -983,13 +983,13 @@ ChannelList *chan;
             number=1;
             for (tmp=packs;tmp;tmp=tmp->next) {
 #if !defined(CELEHOOK) && !defined(LITE)
-                sprintf(tmpbuf2,"%.2f",tmp->minspeed);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f",tmp->minspeed);
                 if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",number,tmp->totalfiles,
                             tmp->totalbytes,tmpbuf2,tmp->gets,tmp->description))
 #endif
                 {
                     if (delay==-1) delay=0;
-                    sprintf(tmpbuf2,"%d/%dx",number,tmp->gets);
+                    snprintf(tmpbuf2,sizeof(tmpbuf2),"%d/%dx",number,tmp->gets);
                     if (tmp->totalbytes>1048575) {
                         byteschar='M';
                         mult=1024.0;
@@ -998,12 +998,12 @@ ChannelList *chan;
                         byteschar='k';
                         mult=1.0;
                     }
-                    sprintf(tmpbuf1,"-INV %d PRIVMSG %s :#%-6s %s  [%d file%s/%.2f %cB",
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d PRIVMSG %s :#%-6s %s  [%d file%s/%.2f %cB",
                             delay,chan->channel,tmpbuf2,tmp->description,tmp->totalfiles,
                             tmp->totalfiles==1?"":"s",
                             (float) (tmp->totalbytes)/(1024.0*mult),byteschar);
                     if (tmp->minspeed>0.0) {
-                        sprintf(tmpbuf2,"/min %.2f kB/s",tmp->minspeed);
+                        snprintf(tmpbuf2,sizeof(tmpbuf2),"/min %.2f kB/s",tmp->minspeed);
                         strcat(tmpbuf1,tmpbuf2);
                     }
                     strcat(tmpbuf1,"]");
@@ -1013,7 +1013,7 @@ ChannelList *chan;
                 number++;
             }
 #if !defined(CELEHOOK) && !defined(LITE)
-            sprintf(tmpbuf2,"%.0f %.0f",BytesReceived,BytesSent);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.0f %.0f",BytesReceived,BytesSent);
             if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf2))
 #endif
             {
@@ -1021,7 +1021,7 @@ ChannelList *chan;
                     formatstats(tmpbuf2,1);
                     if (delay==-1) send_text(chan->channel,tmpbuf2,"PRIVMSG");
                     else {
-                        sprintf(tmpbuf1,"-INV %d PRIVMSG %s :%s",delay,chan->channel,
+                        snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d PRIVMSG %s :%s",delay,chan->channel,
                                 tmpbuf2);
                         timercmd("FTIMER",tmpbuf1,(char *) func);
                     }
@@ -1080,7 +1080,7 @@ ChannelList *chan;
     oldserver=from_server;
     for (;chan;chan=chan->next) {
         if (current || CheckCdccChannel(chan->channel,tmpchan)) {
-            sprintf(tmpbuf,"%s  %d PACK%s OFFERED   /CTCP %s CDCC LIST",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%s  %d PACK%s OFFERED   /CTCP %s CDCC LIST",
                     CdccString,count,count==1?empty_string:"S",mynick);
             from_server=chan->server;
             send_text(chan->channel,tmpbuf,"PRIVMSG");
@@ -1578,11 +1578,11 @@ char *desc;
         byteschar='k';
         mult=1.0;
     }
-    sprintf(tmpbuf1,"%.2f %cB/%d file%s",(float) (totalbytes)/(1024.0*mult),byteschar,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f %cB/%d file%s",(float) (totalbytes)/(1024.0*mult),byteschar,
             totalfiles,totalfiles==1?empty_string:"s");
 #ifdef WANTANSI
     if (new->minspeed>0.0)
-        sprintf(tmpbuf2,"%s/min %.2f kB/s%s",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s/min %.2f kB/s%s",
                 CmdsColors[COLCDCC].color5,new->minspeed,Colors[COLOFF]);
     else *tmpbuf2='\0';
     say("%sCdcc%s %screated new pack%s : [%s%s%s%s] ",
@@ -1667,7 +1667,7 @@ char *line;
             window_display=0;
             for (tmp=files;tmp;tmp=tmp->next) {
                 if (TotalSendDcc()<CdccLimit) {
-                    sprintf(tmpbuf1,"%s \"%s/%s\"",nick,tmp->path,tmp->file);
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s \"%s/%s\"",nick,tmp->path,tmp->file);
                     dcc_filesend(tmpbuf1);
                     count++;
                     total+=tmp->size;
@@ -1695,16 +1695,16 @@ char *line;
                 byteschar='k';
                 mult=1.0;
             }
-            sprintf(tmpbuf2,"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
-            if (queue) sprintf(tmpbuf1,", %d file%s in queue",queue,
+            if (queue) snprintf(tmpbuf1,sizeof(tmpbuf1),", %d file%s in queue",queue,
                                queue==1?"":"s");
             else *tmpbuf1='\0';
             if (count || queue) {
                 if (!CTCPCloaking)
                     send_to_server("NOTICE %s :Sent : [%s]%s",nick,tmpbuf2,tmpbuf1);
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"%sCdcc%s %ssending%s %s%s%s : ",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %ssending%s %s%s%s : ",
                         CmdsColors[COLCDCC].color4,Colors[COLOFF],
                         CmdsColors[COLCDCC].color3,Colors[COLOFF],
                         CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
@@ -1790,7 +1790,7 @@ char *line;
             display=window_display;
             window_display=0;
             for (tmp=files;tmp;tmp=tmp->next) {
-                sprintf(tmpbuf1,"%s \"%s/%s\"",nick,tmp->path,tmp->file);
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s \"%s/%s\"",nick,tmp->path,tmp->file);
                 dcc_resend(tmpbuf1);
                 count++;
                 total=total+tmp->size;
@@ -1804,11 +1804,11 @@ char *line;
                 byteschar='k';
                 mult=1.0;
             }
-            sprintf(tmpbuf2,"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
             if (!CTCPCloaking) send_to_server("NOTICE %s :Resent : [%s]",nick,tmpbuf2);
 #ifdef WANTANSI
-            sprintf(tmpbuf1,"%sCdcc%s %sresending%s %s%s%s : ",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %sresending%s %s%s%s : ",
                     CmdsColors[COLCDCC].color4,Colors[COLOFF],
                     CmdsColors[COLCDCC].color3,Colors[COLOFF],
                     CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
@@ -1885,7 +1885,7 @@ char *line;
             packcount=1;
             for (tmp=packs;tmp;tmp=tmp->next) {
                 if (matchmcommand(blah,packcount)) {
-                    sprintf(tmpbuf,"%d",packcount);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%d",packcount);
                     /* if user is sending manually avoid queue/min speed */
                     sendcommand(nick,tmpbuf,0, 1);
                 }
@@ -1919,7 +1919,7 @@ int  error;
 
     file=line;
     if (*file=='/') {
-        if (strlen(file)>1 && rindex(file,'/')==file) sprintf(tmpbuf1,"/ %s",&file[1]);
+        if (strlen(file)>1 && rindex(file,'/')==file) snprintf(tmpbuf1,sizeof(tmpbuf1),"/ %s",&file[1]);
         else strcpy(tmpbuf1,file);
     }
     else if (*file=='~') {
@@ -2012,13 +2012,13 @@ char *line;
         count+=SeedFiles(file,1);
     if (count) {
 #ifdef WANTANSI
-        sprintf(tmpbuf,"%sCdcc%s %sadded%s %s%d%s file%s (",
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sCdcc%s %sadded%s %s%d%s file%s (",
                 CmdsColors[COLCDCC].color4,Colors[COLOFF],
                 CmdsColors[COLCDCC].color3,Colors[COLOFF],
                 CmdsColors[COLCDCC].color5,count,Colors[COLOFF],
                 count==1?empty_string:"s");
 #else
-        sprintf(tmpbuf,"Added %d file%s (",count,count==1?empty_string:"s");
+        snprintf(tmpbuf,sizeof(tmpbuf),"Added %d file%s (",count,count==1?empty_string:"s");
 #endif
         for (tmpfile=files;tmpfile;tmpfile=tmpfile->next) {
 #ifdef WANTANSI
@@ -2089,7 +2089,7 @@ char *args;
                     else say("Pack: %d  Description: %s",packcount,tmp->description);
                     say("kBytes      File");
                     for (tmp1=tmp->files;tmp1;tmp1=tmp1->next) {
-                        sprintf(tmpbuf1,"%-11.2f",(float) (tmp1->size)/1024.0);
+                        snprintf(tmpbuf1,sizeof(tmpbuf1),"%-11.2f",(float) (tmp1->size)/1024.0);
                         say("%s %s",tmpbuf1,tmp1->file);
                     }
                     say("----------- ---------------");
@@ -2105,7 +2105,7 @@ char *args;
         if (packs) {
             for (tmp=packs;tmp;tmp=tmp->next) {
                 if (tmp->minspeed>0.0)
-                    sprintf(tmpbuf2,"/min %.2f kB/s]",tmp->minspeed);
+                    snprintf(tmpbuf2,sizeof(tmpbuf2),"/min %.2f kB/s]",tmp->minspeed);
                 else strcpy(tmpbuf2,"]");
                 if (tmp->totalbytes>1048575) {
                     byteschar='M';
@@ -2115,10 +2115,10 @@ char *args;
                     byteschar='k';
                     mult=1.0;
                 }
-                sprintf(tmpbuf1,"[%d file%s/%.2f %cB%s",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"[%d file%s/%.2f %cB%s",
                         tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
                         (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf2);
-                sprintf(tmpbuf2,"%d/%d",packcount,tmp->gets);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%d/%d",packcount,tmp->gets);
                 say("#%-4s %s  %s",tmpbuf2,tmp->description,tmpbuf1);
                 packcount++;
             }
@@ -2186,7 +2186,7 @@ char *file;
 {
     char  tmpbuf[mybufsize/2];
 
-    sprintf(tmpbuf,"%s/%s",path,file);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s/%s",path,file);
     stat(tmpbuf,&CdccStatBuf);
     if (CdccStatBuf.st_mode & S_IFDIR) return(-1);
     return(CdccStatBuf.st_size);
@@ -2235,7 +2235,7 @@ char *line;
             else if ((flags&DCC_TYPES)==DCC_FILEREGET) mode=2;
             count++;
             if (matchmcommand(tmp,count)) {
-                sprintf(tmpbuf,"%s %s",Client->user,Client->description);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s %s",Client->user,Client->description);
                 if (mode==1) dcc_getfile(tmpbuf);
                 else if (mode==2) dcc_regetfile(tmpbuf);
             }
@@ -2269,30 +2269,30 @@ int  msg;
         if (timenow-lastcheck<3) return;
         lastcheck=timenow;
     }
-    sprintf(tmpbuf4,"%s!%s",nick,FromUserHost);
+    snprintf(tmpbuf4,sizeof(tmpbuf4),"%s!%s",nick,FromUserHost);
     if ((tmpfriend=CheckUsers(tmpbuf4,NULL))) level=tmpfriend->privs;
     if (msg) command=new_next_arg(args,&args);
     else command="CDCC";
 #ifdef WANTANSI
     if (args && *args)
-        sprintf(tmpbuf1," %s%s%s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1)," %s%s%s",
                 CmdsColors[COLCDCC].color3,args,Colors[COLOFF]);
     else *tmpbuf1='\0';
     ColorUserHost(FromUserHost,CmdsColors[COLCTCP].color2,tmpbuf2,1);
-    sprintf(tmpbuf4,"%sCdcc%s%s request received from %s%s%s %s",
+    snprintf(tmpbuf4,sizeof(tmpbuf4),"%sCdcc%s%s request received from %s%s%s %s",
             CmdsColors[COLCDCC].color4,Colors[COLOFF],tmpbuf1,
             CmdsColors[COLCDCC].color1,nick,Colors[COLOFF],tmpbuf2);
     if (to && is_channel(to)) {
-        sprintf(tmpbuf3," to %s%s%s",CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
-        strcat(tmpbuf4,tmpbuf3);
+        snprintf(tmpbuf3,sizeof(tmpbuf3)," to %s%s%s",CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
+        strmcat(tmpbuf4,tmpbuf3,sizeof(tmpbuf4));
     }
 #else
-    sprintf(tmpbuf4,"Cdcc%s request received from %s (%s)",args,nick,FromUserHost);
+    snprintf(tmpbuf4,sizeof(tmpbuf4),"Cdcc%s request received from %s (%s)",args,nick,FromUserHost);
     if (to && is_channel(to)) {
         char buf[mybufsize];
 
-        sprintf(buf," to %s",to);
-        strcat(tmpbuf4,buf);
+        snprintf(buf,sizeof(buf)," to %s",to);
+        strmcat(tmpbuf4,buf,sizeof(tmpbuf4));
     }
 #endif
     if (away_set || LogOn) AwaySave(tmpbuf4,SAVECTCP);
@@ -2387,7 +2387,7 @@ char *args;
         if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",from,count,mynick)) 
 #endif
         {
-            sprintf(tmpbuf1,"-INV %d NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
                     delay,from,CdccString,count,count==1?empty_string:"S",
                     mynick);
             timercmd("FTIMER",tmpbuf1,(char *) func);
@@ -2395,7 +2395,7 @@ char *args;
         }
         for (tmp=packs;tmp;tmp=tmp->next) {
             if (tmp->minspeed>0.0)
-                sprintf(tmpbuf1,"/min %.2f kB/s]",tmp->minspeed);
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"/min %.2f kB/s]",tmp->minspeed);
             else strcpy(tmpbuf1,"]");
             if (tmp->totalbytes>1048575) {
                 byteschar='M';
@@ -2405,19 +2405,19 @@ char *args;
                 byteschar='k';
                 mult=1.0;
             }
-            sprintf(tmpbuf2,"[%d file%s/%.2f %cB%s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"[%d file%s/%.2f %cB%s",
                     tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
                     (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf1);
-            sprintf(tmpbuf3,"%d/%dx",packcount,tmp->gets);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%d/%dx",packcount,tmp->gets);
 
-            sprintf(tmpbuf1,"%.2f",tmp->minspeed);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f",tmp->minspeed);
 #if !defined(CELEHOOK) && !defined(LITE)
             if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",packcount,
                         tmp->totalfiles,tmp->totalbytes,tmpbuf1,tmp->gets,
                         tmp->description))
 #endif
             {
-                sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d NOTICE %s :#%-6s %s  %s",delay,
                         from,tmpbuf3,tmp->description,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
                 if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
@@ -2426,13 +2426,13 @@ char *args;
             packcount++;
         }
 #if !defined(CELEHOOK) && !defined(LITE)
-        sprintf(tmpbuf1,"%.0f %.0f",BytesReceived,BytesSent);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%.0f %.0f",BytesReceived,BytesSent);
         if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf1))
 #endif
         {
             if (CdccStats) {
                 formatstats(tmpbuf2,1);
-                sprintf(tmpbuf1,"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
                 if (delay) delay++;
             }
@@ -2461,7 +2461,7 @@ char *args;
     for (;tmp;tmp=tmp->next) {
         if (tmp->server==parsing_server_index && !my_stricmp(tmp->nick,from)) {
             if (cnt) malloc_strcat(&tmpstr,",");
-            sprintf(tmpbuf,"%d",i);
+            snprintf(tmpbuf,sizeof(tmpbuf),"%d",i);
             malloc_strcat(&tmpstr,tmpbuf);
             if (cnt>=10) {
                 malloc_strcat(&tmpstr,"...");
@@ -2521,8 +2521,8 @@ int  level;
                             int dccflag;
 
                             packsent=1;
-                            sprintf(tmpbuf2,"%s/%s",tmp1->path,tmp1->file);
-                            sprintf(tmpbuf1,"%s \"%s\"",from,tmpbuf2);
+                            snprintf(tmpbuf2,sizeof(tmpbuf2),"%s/%s",tmp1->path,tmp1->file);
+                            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s \"%s\"",from,tmpbuf2);
                             if (resend) {
                                 dccflag=DCC_RESENDOFFER;
                                 dcc_resend(tmpbuf1);
@@ -2556,9 +2556,9 @@ int  level;
                     }
                     window_display=display;
                     if (packsent) {
-                        sprintf(tmpbuf1,"%d",packcount);
+                        snprintf(tmpbuf1,sizeof(tmpbuf1),"%d",packcount);
                         if (*tmpbuf3) strcat(tmpbuf3,",");
-                        strcat(tmpbuf3,tmpbuf1);
+                        strmcat(tmpbuf3,tmpbuf1,sizeof(tmpbuf3));
                     }
                 }
                 packcount++;
@@ -2572,7 +2572,7 @@ int  level;
                     byteschar='k';
                     mult=1.0;
                 }
-                sprintf(tmpbuf2,"%.2f %cB/%d file%s",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",
                         (float) (totalbytes)/(1024.0*mult),byteschar,
                         totalfiles,totalfiles==1?empty_string:"s");
                 if (!queue) {
@@ -2583,7 +2583,7 @@ int  level;
                                                        from,resend?"Res":"S",tmpbuf3,tmpbuf2,queue,
                                                        queue==1?"":"s");
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"%sCdcc%s %s%ssent%s %s%s%s packs %s : ",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %s%ssent%s %s%s%s packs %s : ",
                         CmdsColors[COLCDCC].color4,Colors[COLOFF],
                         CmdsColors[COLCDCC].color3,resend?"re":"",Colors[COLOFF],
                         CmdsColors[COLCDCC].color1,from,Colors[COLOFF],tmpbuf3);
@@ -2663,13 +2663,13 @@ char *type;
     struct friends *tmpfriend;
 
     if (Security) {
-        sprintf(tmpbuf,"%s!%s",nick,userhost);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
         tmpfriend=CheckUsers(tmpbuf,NULL);
         if (!tmpfriend) return;
         if (!((tmpfriend->privs)&FLCDCC)) return;
     }
 #ifdef WANTANSI
-    sprintf(tmpbuf,"%sCdcc%s %sauto getting%s %s%s%s from ",
+    snprintf(tmpbuf,sizeof(tmpbuf),"%sCdcc%s %sauto getting%s %s%s%s from ",
             CmdsColors[COLCDCC].color4,Colors[COLOFF],
             CmdsColors[COLCDCC].color3,Colors[COLOFF],
             CmdsColors[COLCDCC].color5,file,Colors[COLOFF]);
@@ -2678,10 +2678,10 @@ char *type;
     say("Cdcc auto getting %s from %s",file,nick);
 #endif
     if (away_set || LogOn) {
-        sprintf(tmpbuf,"Cdcc auto getting %s from %s (%s)",file,nick,FromUserHost);
+        snprintf(tmpbuf,sizeof(tmpbuf),"Cdcc auto getting %s from %s (%s)",file,nick,FromUserHost);
         AwaySave(tmpbuf,SAVECDCC);
     }
-    sprintf(tmpbuf,"%s \"%s\"",nick,file);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s \"%s\"",nick,file);
     if (!my_stricmp(type,"SEND")) dcc_getfile(tmpbuf);
     else if (!my_stricmp(type,"RESEND")) dcc_regetfile(tmpbuf);
 #ifdef BROKEN_MIRC_RESUME
@@ -2720,12 +2720,12 @@ void CheckCdccTimers()
                 if ((flags&DCC_TYPES)==DCC_FILEOFFER || (flags&DCC_TYPES)==DCC_RESENDOFFER) {
                     if (timenow-Client->CdccTime>CdccIdle) {
 #ifdef WANTANSI
-                        sprintf(tmpbuf1,"%sCdcc%s %sclosing%s idle dcc %s%s%s",
+                        snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %sclosing%s idle dcc %s%s%s",
                                 CmdsColors[COLCDCC].color4,Colors[COLOFF],
                                 CmdsColors[COLCDCC].color3,Colors[COLOFF],
                                 CmdsColors[COLCDCC].color3,dcc_types[flags&DCC_TYPES],
                                 Colors[COLOFF]);
-                        sprintf(tmpbuf2," %s%s%s to %s%s%s",
+                        snprintf(tmpbuf2,sizeof(tmpbuf2)," %s%s%s to %s%s%s",
                                 CmdsColors[COLCDCC].color5,tmpstr,Colors[COLOFF],
                                 CmdsColors[COLCDCC].color1,Client->user,Colors[COLOFF]);
                         say("%s%s",tmpbuf1,tmpbuf2);
@@ -2747,12 +2747,12 @@ void CheckCdccTimers()
                 }
                 else if (timenow-Client->CdccTime>3*CdccIdle) {
 #ifdef WANTANSI
-                    sprintf(tmpbuf1,"%sCdcc%s %sclosing%s idle dcc %s%s%s",
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %sclosing%s idle dcc %s%s%s",
                             CmdsColors[COLCDCC].color4,Colors[COLOFF],
                             CmdsColors[COLCDCC].color3,Colors[COLOFF],
                             CmdsColors[COLCDCC].color3,dcc_types[flags&DCC_TYPES],
                             Colors[COLOFF]);
-                    sprintf(tmpbuf2," %s%s%s from %s%s%s",
+                    snprintf(tmpbuf2,sizeof(tmpbuf2)," %s%s%s from %s%s%s",
                             CmdsColors[COLCDCC].color5,tmpstr,Colors[COLOFF],
                             CmdsColors[COLCDCC].color1,Client->user,Colors[COLOFF]);
                     say("%s%s",tmpbuf1,tmpbuf2);
@@ -2813,12 +2813,12 @@ time_t timenow;
         tmpstr=rindex(Client->description,'/');
         if (tmpstr) tmpstr++;
 #ifdef WANTANSI
-        sprintf(tmpbuf1,"%sCdcc%s %sclosing%s slow dcc %s%s%s ",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %sclosing%s slow dcc %s%s%s ",
                 CmdsColors[COLCDCC].color4,Colors[COLOFF],
                 CmdsColors[COLCDCC].color3,Colors[COLOFF],
                 CmdsColors[COLCDCC].color3,dcc_types[Client->flags&DCC_TYPES],
                 Colors[COLOFF]);
-        sprintf(tmpbuf2,"%s%s%s%s to %s%s%s (%srate %.2f",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s to %s%s%s (%srate %.2f",
                 tmpbuf1,CmdsColors[COLCDCC].color5,tmpstr,Colors[COLOFF],
                 CmdsColors[COLCDCC].color1,Client->user,Colors[COLOFF],
                 CmdsColors[COLCDCC].color5,rate);
@@ -2864,7 +2864,7 @@ int   flag;
 
     count=TotalQueue();
     if (CdccQueueLimit>0 && count>=CdccQueueLimit) return(0);
-    sprintf(tmpbuf,"%s/%s",tmpfile->path,tmpfile->file);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s/%s",tmpfile->path,tmpfile->file);
     /* check if nick/file combination is already in DCC list */
     for (Client=ClientList;Client;Client=Client->next) {
         /* we're only interested in filename so we strip path */
@@ -2907,7 +2907,7 @@ int removed;
 
     while (tmp && active<CdccLimit) {
         queuelist=queuelist->next;
-        sprintf(tmpbuf,"%s \"%s\"",tmp->nick,tmp->file);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s \"%s\"",tmp->nick,tmp->file);
         display=window_display;
         window_display=0;
         oldserver=from_server;

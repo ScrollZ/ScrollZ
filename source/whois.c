@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.12 2002-01-21 22:36:39 f Exp $
+ * $Id: whois.c,v 1.13 2002-01-23 18:48:10 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -680,19 +680,19 @@ whois_lastcom(from, ArgList)
                     signontime=atoi(ArgList[2]);
 #ifdef WANTANSI
 #ifdef GENX
-                    sprintf(tmpbuf,"%ssigned on: %.16s",
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%ssigned on: %.16s",
                             numeric_banner(),ctime(&signontime));
 #elif defined(CELECOSM)
-                    sprintf(tmpbuf,"%s%ssignon%s:     %.24s",
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%s%ssignon%s:     %.24s",
                             numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                             ctime(&signontime));
 #else  /* CELE */
-                    sprintf(tmpbuf,"%s%sSignOn%s    : %.24s",
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%s%sSignOn%s    : %.24s",
                             numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                             ctime(&signontime));
 #endif /* GENX */
 #else  /* WANTANSI */
-                    sprintf(tmpbuf,"%sSignOn    : %.24s",
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%sSignOn    : %.24s",
                             numeric_banner(),ctime(&signontime));
 #endif /* WANTANSI */
                 }
@@ -839,7 +839,7 @@ end_of_whois(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 #ifdef CELECOSM
     if (whoisfriend && whoisfriend->privs) {
-        sprintf(tmpbuf,"%sfriend%s:     filter %s%s%s | flags %s",
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sfriend%s:     filter %s%s%s | flags %s",
                 CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                 CmdsColors[COLWHOIS].color4,whoisfriend->userhost,Colors[COLOFF],
                 CmdsColors[COLWHOIS].color4);

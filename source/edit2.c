@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.74 2002-01-21 22:38:59 f Exp $
+ * $Id: edit2.c,v 1.75 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -228,10 +228,10 @@ char *subargs;
                 if (tmp->halfop) continue;
                 if (tmp->hasvoice && !all) continue;
 #ifdef CELE
-                sprintf(tmpbuf2,"KICK %s %s :%s %s\r\n",channel,tmp->nick,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"KICK %s %s :%s %s\r\n",channel,tmp->nick,
                         comment,CelerityL);
 #else  /* CELE */
-                sprintf(tmpbuf2,"KICK %s %s :%s\r\n",channel,tmp->nick,comment);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"KICK %s %s :%s\r\n",channel,tmp->nick,comment);
 #endif /* CELE */
                 if (strlen(tmpbuf1)+strlen(tmpbuf2)>=IRCD_BUFFER_SIZE-150) {
                     send_to_server("%s",tmpbuf1);
@@ -239,7 +239,7 @@ char *subargs;
                     count=0;
                 }
                 count++;
-                strcat(tmpbuf1,tmpbuf2);
+                strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
             }
             if (count) send_to_server("%s",tmpbuf1);
             say("Sent the server all the lamer kicks, sit back and watch !");
@@ -340,7 +340,7 @@ char *subargs;
              * on the exclude list, does not allow wildcards
              * in the exclude list! EXPENSIVE!
              */
-            sprintf(tmpnick," %s ",tmp->nick);
+            snprintf(tmpnick,sizeof(tmpnick)," %s ",tmp->nick);
             if (strstr(excludelist,tmpnick)) continue;
             strcat(fulllist,tmpnick);
             opscount++;
@@ -354,7 +354,7 @@ char *subargs;
         strcat(currentlist,ptr);
         totalcount++;
         if (totalcount>=maxnicks) {
-            sprintf(buffer,"[S-WallOp/%s] %s",chan->channel,args);
+            snprintf(buffer,sizeof(buffer),"[S-WallOp/%s] %s",chan->channel,args);
             send_to_server("NOTICE %s :%s",currentlist,buffer);
             totalcount=0;
             *currentlist='\0';
@@ -363,7 +363,7 @@ char *subargs;
         malloc_strcat(&alllist,ptr);
     }
     if (totalcount) {
-        sprintf(buffer,"[S-WallOp/%s] %s",chan->channel,args);
+        snprintf(buffer,sizeof(buffer),"[S-WallOp/%s] %s",chan->channel,args);
         send_to_server("NOTICE %s :%s",currentlist,buffer);
     }
     if (ShowWallop) {
@@ -631,7 +631,7 @@ int type;
 	    modetype="o";
 	    break;
     }
-    sprintf(tmpbuf2,"MODE %s %c",channel,sign);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
     for (tmp=new_next_arg(chops,&chops);tmp;tmp=new_next_arg(chops,&chops)) {
         count++;
         strcat(tmpbuf2,modetype);
@@ -642,13 +642,13 @@ int type;
             strcat(tmpbuf1,tmpbuf2);
             strcat(tmpbuf1,tmpbuf3);
             strcat(tmpbuf1,"\r\n");
-            sprintf(tmpbuf2,"MODE %s %c",channel,sign);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
             *tmpbuf3='\0';
             count=0;
         }
         if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
             send_to_server("%s",tmpbuf1);
-            sprintf(tmpbuf2,"MODE %s %c",channel,sign);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
             *tmpbuf1='\0';
             *tmpbuf3='\0';
             send=0;
@@ -695,7 +695,7 @@ char *subargs;
     if (servernum!=-1) {
         port=get_server_port(servernum);
         say("Reconnecting to server %s port %d...",get_server_name(servernum),port);
-        sprintf(tmpbuf,"SERVER %s:%d",get_server_name(servernum),port);
+        snprintf(tmpbuf,sizeof(tmpbuf),"SERVER %s:%d",get_server_name(servernum),port);
         close_server(servernum,"reconnecting to server");
         clean_whois_queue();
         windowcmd(NULL,tmpbuf,NULL);
@@ -726,7 +726,7 @@ int servernum;
         if (tmp->visible) irc_goto_window(tmp->refnum);
         else swap_window(oldwindow,tmp);
     }
-    sprintf(tmpbuf,"SERVER %d",servernum);
+    snprintf(tmpbuf,sizeof(tmpbuf),"SERVER %d",servernum);
     windowcmd(NULL,tmpbuf,NULL);
     if (change && tmp) {
         if (tmp->visible) irc_goto_window(oldwindow->refnum);
@@ -911,7 +911,7 @@ char *text;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf,"%s@%s",wistuff->user,wistuff->host);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s@%s",wistuff->user,wistuff->host);
     BanIt(text,wistuff->nick,tmpbuf,0,NULL);
 }
 
@@ -976,15 +976,15 @@ char *subargs;
             if (joiner) {
                 if (index(command,'I')) {
                     send_text(joiner->nick,"You're now being ignored","NOTICE");
-                    sprintf(tmpbuf1,"%s ALL",joiner->userhost);
-                    sprintf(tmpbuf2,"%d",IgnoreTime);
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s ALL",joiner->userhost);
+                    snprintf(tmpbuf2,sizeof(tmpbuf2),"%d",IgnoreTime);
                     ignore(NULL,tmpbuf1,tmpbuf2);
-                    sprintf(tmpbuf1,"-INV %d IGNORE %s NONE",IgnoreTime,joiner->userhost);
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s NONE",IgnoreTime,joiner->userhost);
                     timercmd("TIMER",tmpbuf1,NULL);
                 }
                 else if (index(command,'T')) {
                     CreateBan(joiner->nick,joiner->userhost,tmpbuf2);
-                    sprintf(tmpbuf1,"-INV 6 MODE %s -b %s",channel,tmpbuf2);
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV 6 MODE %s -b %s",channel,tmpbuf2);
                     timercmd("TIMER",tmpbuf1,NULL);
                 }
             }
@@ -993,7 +993,7 @@ char *subargs;
         else NotChanOp(channel);
     }
     else {
-        sprintf(tmpbuf1,"%s nick [#channel] [reason]",command);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s nick [#channel] [reason]",command);
         PrintUsage(tmpbuf1);
     }
 }
@@ -1019,19 +1019,19 @@ char *text;
     command=new_next_arg(text,&text);
     channel=new_next_arg(text,&text);
     if (!command || !channel) return;
-    sprintf(tmpbuf1,"%s@%s",wistuff->user,wistuff->host);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",wistuff->user,wistuff->host);
     BanIt(channel,wistuff->nick,tmpbuf1,0,NULL);
 #ifdef EXTRAS
     if (index(command,'I')) {
         strcat(tmpbuf1," ALL");
-        sprintf(tmpbuf2,"%d",IgnoreTime);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%d",IgnoreTime);
         ignore(NULL,tmpbuf1,tmpbuf2);
-        sprintf(tmpbuf1,"-INV %d IGNORE %s@%s NONE",IgnoreTime,wistuff->user,wistuff->host);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s@%s NONE",IgnoreTime,wistuff->user,wistuff->host);
         timercmd("TIMER",tmpbuf1,NULL);
     }
     else if (index(command,'T')) {
         CreateBan(wistuff->nick,tmpbuf1,tmpbuf2);
-        sprintf(tmpbuf1,"-INV 6 MODE %s -b %s",channel,tmpbuf2);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV 6 MODE %s -b %s",channel,tmpbuf2);
         timercmd("TIMER",tmpbuf1,NULL);
     }
 #endif
@@ -1065,7 +1065,7 @@ char *subargs;
         if (!chan) return;
         if (*args) {
             if (chan->status&CHAN_CHOP) {
-		sprintf(modebuf,"%c%s",flag,type=='o'?"oooooooo":"hhhhhhhh");
+		snprintf(modebuf,sizeof(modebuf),"%c%s",flag,type=='o'?"oooooooo":"hhhhhhhh");
                 *tmpbuf='\0';
                 while ((tmpnick=new_next_arg(args,&args))) {
                     if ((tmp=find_in_hash(chan,tmpnick))) {
@@ -1092,7 +1092,7 @@ char *subargs;
     }
     else usage=1;
     if (usage) {
-        sprintf(tmpbuf,"%s nicks",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s nicks",command);
         PrintUsage(tmpbuf);
     }
 }
@@ -1112,8 +1112,8 @@ char *subargs;
         tmpnick=new_next_arg(args,&args);
         if (args && *args) {
             tmpchannel=new_next_arg(args,&args);
-            if (!is_channel(tmpchannel)) sprintf(tmpbuf,"#%s",tmpchannel);
-            else strcpy(tmpbuf,tmpchannel);
+            if (!is_channel(tmpchannel)) snprintf(tmpbuf,sizeof(tmpbuf),"#%s",tmpchannel);
+            else strmcpy(tmpbuf,tmpchannel,sizeof(tmpbuf));
             tmpchannel=tmpbuf;
         }
         else if ((tmpchannel=get_channel_by_refnum(0))==NULL) {
@@ -1184,12 +1184,12 @@ char *subargs;
     channel=get_channel_by_refnum(0);
     if (channel && (chan=lookup_channel(channel,from_server,0))) {
         if (HAS_OPS(chan->status)) {
-            sprintf(tmpbuf,"MODE %s -ntislmp",channel);
+            snprintf(tmpbuf,sizeof(tmpbuf),"MODE %s -ntislmp",channel);
 	    if (get_server_version(from_server)==Server2_11)
-		strcat(tmpbuf,"a");
+		strmcat(tmpbuf,"a",sizeof(tmpbuf));
             if ((chan->mode)&MODE_KEY && chan->key) {
-                strcat(tmpbuf,"k ");
-                strcat(tmpbuf,chan->key);
+                strmcat(tmpbuf,"k ",sizeof(tmpbuf));
+                strmcat(tmpbuf,chan->key,sizeof(tmpbuf));
             }
             send_to_server("%s",tmpbuf);
         }
@@ -1247,8 +1247,8 @@ char *subargs;
         }
         if (!gotchannel && (channel = new_next_arg(args, &args))) gotchannel = 1;
         if (gotchannel) {
-            if (is_channel(channel)) strcpy(tmpbuf1, channel);
-            else sprintf(tmpbuf1, "#%s", channel);
+            if (is_channel(channel)) strmcpy(tmpbuf1, channel, sizeof(tmpbuf1));
+            else snprintf(tmpbuf1, sizeof(tmpbuf1), "#%s", channel);
             channel = tmpbuf1;
         }
         else channel = (char *) 0;
@@ -1263,15 +1263,15 @@ char *subargs;
 #ifdef WANTANSI
 #ifndef NEWCSCAN
     szlen = strlen(ScrollZstr) - CountAnsi(prefstr, -1);
-    sprintf(tmpbuf3, "%%%ds",szlen);
+    snprintf(tmpbuf3, sizeof(tmpbuf3), "%%%ds",szlen);
 #endif /* NEWCSCAN */
-    sprintf(tmpbuf1, "%s%sUsers on %s%s%s :", prefstr, Stamp ? "" : " ",
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s%s%s :", prefstr, Stamp ? "" : " ",
             CmdsColors[COLCSCAN].color1, chan->channel, Colors[COLOFF]);
 #else /* WANTANSI */
-    sprintf(tmpbuf1, "%sUsers on %s :", prefstr, chan->channel);
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%sUsers on %s :", prefstr, chan->channel);
 #ifndef NEWCSCAN
     szlen = strlen(prefstr);
-    sprintf(tmpbuf3, "%%%ds", szlen);
+    snprintf(tmpbuf3, sizeof(tmpbuf3), "%%%ds", szlen);
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
 
@@ -1291,7 +1291,7 @@ char *subargs;
 #else
     width=(CO - (strlen(prefstr) + 7)) / (len + 2);
 #endif /* WANTANSI */
-    sprintf(tmpbuf1, "%%-%ds", len);
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%%-%ds", len);
 #endif /* NEWCSCAN */
 
     tmp = chan->nicks;
@@ -1394,21 +1394,21 @@ char *subargs;
 
 #ifdef WANTANSI
         if (tmp->chanop) {
-            sprintf(tmpbuf4, "%s@%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+            snprintf(tmpbuf4, sizeof(tmpbuf4), "%s@%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
             malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
             buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
         }
 	else if (tmp->halfop) {
-	    sprintf(tmpbuf4, "%s%%%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+	    snprintf(tmpbuf4, sizeof(tmpbuf4), "%s%%%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
 	    malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
 	    buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
 	}
         else if (tmp->hasvoice) {
-            sprintf(tmpbuf4, "%s+%s", CmdsColors[COLNICK].color5, Colors[COLOFF]);
+            snprintf(tmpbuf4, sizeof(tmpbuf4), "%s+%s", CmdsColors[COLNICK].color5, Colors[COLOFF]);
             malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
             buflen += strlen(tmpbuf4) + 1;
@@ -1438,7 +1438,7 @@ char *subargs;
         malloc_strcat(&users, tmp->nick);
         buflen += strlen(tmp->nick);
 #else
-        sprintf(tmpbuf2, tmpbuf1,tmp->nick);
+        snprintf(tmpbuf2, sizeof(tmpbuf2), tmpbuf1,tmp->nick);
         malloc_strcat(&users, tmpbuf2);
 #endif /* NEWCSCAN */
 
@@ -1453,7 +1453,7 @@ char *subargs;
         if (buflen >= BIG_BUFFER_SIZE - 100) {
             put_it("%s", users);
             buflen = 0;
-            sprintf(tmpbuf2, tmpbuf3, " ");
+            snprintf(tmpbuf2, sizeof(tmpbuf2), tmpbuf3, " ");
             malloc_strcpy(&users, tmpbuf2);
         }
 #else
@@ -1533,24 +1533,24 @@ char *line;
             *tmpbuf1='\0';
             BuildPrivs(tmpfriendlist,tmpbuf1);
 #ifdef WANTANSI
-            sprintf(tmpbuf2,"%s%-11s%s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%-11s%s",
                     CmdsColors[COLSETTING].color2,tmpbuf1,Colors[COLOFF]);
-            strcpy(tmpbuf1,tmpfriendlist->userhost);
+            strmcpy(tmpbuf1,tmpfriendlist->userhost,sizeof(tmpbuf1));
             i=strlen(tmpbuf1);
             if ((tmpstr=index(tmpbuf1,'@'))) {
                 *tmpstr='\0';
                 tmpstr++;
-                sprintf(tmpbuf3,"%s%s%s%s@%s%s%s%s",
+                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%s%s@%s%s%s%s",
                         CmdsColors[COLSETTING].color4,tmpbuf1,Colors[COLOFF],
                         CmdsColors[COLMISC].color1,Colors[COLOFF],
                         CmdsColors[COLSETTING].color4,tmpstr,Colors[COLOFF]);
-                strcpy(tmpbuf1,tmpbuf3);
+                strmcpy(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
             }
             else
-                sprintf(tmpbuf1,"%s%s%s",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s",
                         CmdsColors[COLSETTING].color4,tmpfriendlist->userhost,Colors[COLOFF]);
             for (;i<38;i++) strcat(tmpbuf1," ");
-            sprintf(tmpbuf3,"#%-3d %s %s %s",tmpfriendlist->number,tmpbuf1,tmpbuf2,
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"#%-3d %s %s %s",tmpfriendlist->number,tmpbuf1,tmpbuf2,
                     tmpfriendlist->passwd?"Y":"N");
             say("%s %s%s%s",tmpbuf3,
                 CmdsColors[COLSETTING].color5,tmpfriendlist->channels,Colors[COLOFF]);
@@ -1642,13 +1642,13 @@ char *line;
             if ((tmpstr=index(tmpbuf2,'@'))) {
                 *tmpstr='\0';
                 tmpstr++;
-                sprintf(tmpbuf3,"%s%s%s%s@%s%s%s%s",
+                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%s%s@%s%s%s%s",
                         CmdsColors[COLSETTING].color4,tmpbuf2,Colors[COLOFF],
                         CmdsColors[COLMISC].color1,Colors[COLOFF],
                         CmdsColors[COLSETTING].color4,tmpstr,Colors[COLOFF]);
             }
             else
-                sprintf(tmpbuf3,"%s%s%s",
+                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%s",
                         CmdsColors[COLSETTING].color4,tmpabklist->userhost,Colors[COLOFF]);
             say("#%-2d %s%-3s%s %s",countall,
                 CmdsColors[COLSETTING].color2,tmpbuf1,Colors[COLOFF],tmpbuf3);
@@ -1753,7 +1753,7 @@ char *subargs;
 
     if (args && *args) {
         tmpchannel=new_next_arg(args,&args);
-        if (!is_channel(tmpchannel)) sprintf(tmpbuf,"#%s",tmpchannel);
+        if (!is_channel(tmpchannel)) snprintf(tmpbuf,sizeof(tmpbuf),"#%s",tmpchannel);
         else strcpy(tmpbuf,tmpchannel);
         tmpchannel=tmpbuf;
     }
@@ -2253,16 +2253,16 @@ char *subargs;
         PrintUsage("ADDF nick/filter channels privileges [password]");
         return;
     }
-    sprintf(tmpbuf1,"%s %s",tmpchan,args);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpchan,args);
     if (strchr(tmpnick,'!') || strchr(tmpnick,'@') || strchr(tmpnick,'*') ||
         strchr(tmpnick,'.') || strchr(tmpnick,'?'))
         AddFriend2List(NULL,tmpnick,tmpbuf1);
     else {
         joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
         if (joiner && joiner->userhost) {
-            strcpy(tmpbuf2,joiner->userhost);
+            strmcpy(tmpbuf2,joiner->userhost,sizeof(tmpbuf2));
             UserDomainList(tmpbuf2);
-            sprintf(tmpbuf3,"*!%s",tmpbuf2);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"*!%s",tmpbuf2);
             AddFriend2List(joiner->nick,tmpbuf3,tmpbuf1);
         }
         else {
@@ -2287,9 +2287,9 @@ char *text;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf1,"%s@%s",wistuff->user,wistuff->host);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",wistuff->user,wistuff->host);
     UserDomainList(tmpbuf1);
-    sprintf(tmpbuf2,"*!%s",tmpbuf1);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf1);
     AddFriend2List(wistuff->nick,tmpbuf2,text);
 }
 
@@ -2443,8 +2443,8 @@ char *buffer;
              tmpchan=tmpchan->next)
             if (CheckChannel(tmpchan->channel,chanlist)) {
                 for (tmp=tmpchan->nicks;tmp;tmp=tmp->next) {
-                    if (tmp->userhost) sprintf(tmpbuf1,"%s!%s",tmp->nick,tmp->userhost);
-                    else strcpy(tmpbuf1,tmp->nick);
+                    if (tmp->userhost) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",tmp->nick,tmp->userhost);
+                    else strmcpy(tmpbuf1,tmp->nick,sizeof(tmpbuf1));
                     if (wild_match(userhost,tmpbuf1)) tmp->frlist=tmpfriend;
                 }
             }
@@ -2457,7 +2457,7 @@ char *buffer;
         else new_free(&(tmpfriend->passwd));
         tmpfriend->privs=i;
         synch_whowas_adduser(tmpfriend);
-        sprintf(tmpbuf1,"Auto:%s  Prot:%s  No flood:%s  God:%s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Auto:%s  Prot:%s  No flood:%s  God:%s",
                 YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
                 YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
         if (nick) {
@@ -2476,7 +2476,7 @@ char *buffer;
             CmdsColors[COLSETTING].color2,tmpbuf2,Colors[COLOFF]);
         say("on channels %s%s%s",
             CmdsColors[COLSETTING].color5,chanlist,Colors[COLOFF]);
-        sprintf(tmpbuf1,"Auto:%s%s%s  Prot:%s%s%s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Auto:%s%s%s  Prot:%s%s%s",
                 CmdsColors[COLSETTING].color2,
                 YNreply((i&FLAUTOOP)|(i&FLINSTANT)),Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,YNreply(i&FLPROT),Colors[COLOFF]);
@@ -2521,7 +2521,7 @@ char *subargs;
         PrintUsage("ADDBK nick/filter channels shit-level [comment]");
         return;
     }
-    sprintf(tmpbuf1,"%s %s",tmpchan,args);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpchan,args);
     if (strchr(tmpnick,'!') || strchr(tmpnick,'@') || strchr(tmpnick,'*') ||
         strchr(tmpnick,'.') || strchr(tmpnick,'?'))
         AddBK2List(tmpnick,tmpshit,tmpbuf1);
@@ -2530,15 +2530,15 @@ char *subargs;
         if (joiner && joiner->userhost) {
             userhost=(joiner->userhost)+1;
             if (*userhost=='@') userhost--;
-            strcpy(tmpbuf2,userhost);
+            strmcpy(tmpbuf2,userhost,sizeof(tmpbuf2));
             UserDomainList(tmpbuf2);
-            sprintf(tmpbuf3,"*!%s",tmpbuf2);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"*!%s",tmpbuf2);
             AddBK2List(tmpbuf3,tmpshit,tmpbuf1);
         }
         else {
             func=(void(*)())AddBKNew;
             server_list[from_server].SZWI++;
-            sprintf(tmpbuf1,"%s %s %s",tmpshit,tmpchan,args);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s %s",tmpshit,tmpchan,args);
             add_to_whois_queue(tmpnick,func,"%s",tmpbuf1);
         }
     }
@@ -2563,9 +2563,9 @@ char *text;
     tmpshit=new_next_arg(text,&text);
     username=(wistuff->user)+1;
     if (!(*username)) username--;
-    sprintf(tmpbuf1,"%s@%s",username,wistuff->host);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",username,wistuff->host);
     UserDomainList(tmpbuf1);
-    sprintf(tmpbuf2,"*!%s",tmpbuf1);
+    snprintf(tmpbuf2,sizeof(tmpbuf1),"*!%s",tmpbuf1);
     AddBK2List(tmpbuf2,tmpshit,text);
 }
 
@@ -2639,8 +2639,8 @@ char *reason;
         for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next)
             if (CheckChannel(chan->channel,tmpchan)) {
                 for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-                    if (tmp->userhost) sprintf(tmpbuf1,"%s!%s",tmp->nick,tmp->userhost);
-                    else strcpy(tmpbuf1,tmp->nick);
+                    if (tmp->userhost) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",tmp->nick,tmp->userhost);
+                    else strmcpy(tmpbuf1,tmp->nick,sizeof(tmpbuf1));
                     if (wild_match(userhost,tmpbuf1)) tmp->shitlist=tmpabk;
                 }
             }
@@ -2677,8 +2677,8 @@ char *subargs;
 
     if (args && *args) {
         channel=new_next_arg(args,&args);
-        if (!is_channel(channel)) sprintf(tmpbuf,"#%s",channel);
-        else strcpy(tmpbuf,channel);
+        if (!is_channel(channel)) snprintf(tmpbuf,sizeof(tmpbuf),"#%s",channel);
+        else strmcpy(tmpbuf,channel,sizeof(tmpbuf));
         channel=tmpbuf;
     }
     else if ((channel=get_channel_by_refnum(0))==NULL) {
@@ -2725,7 +2725,7 @@ char *subargs;
         else {
             joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
             if (joiner && joiner->userhost) {
-                sprintf(tmpbuf,"%s!%s",joiner->nick,joiner->userhost);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",joiner->nick,joiner->userhost);
                 RemoveFriendFromList(tmpbuf);
                 return;
             }
@@ -2748,7 +2748,7 @@ char *tmpnick;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf,"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
     RemoveFriendFromList(tmpbuf);
 }
 
@@ -2805,8 +2805,8 @@ char *userhost;
                  tmpchan=tmpchan->next)
                 if (CheckChannel(tmpchan->channel,tmpfriend1->channels)) {
                     for (tmp=tmpchan->nicks;tmp;tmp=tmp->next) {
-                        if (tmp->userhost) sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
-                        else strcpy(tmpbuf,tmp->nick);
+                        if (tmp->userhost) snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmp->nick,tmp->userhost);
+                        else strmcpy(tmpbuf,tmp->nick,sizeof(tmpbuf));
                         if (wild_match(tmpfriend1->userhost,tmpbuf)) tmp->frlist=NULL;
                     }
                 }
@@ -2847,7 +2847,7 @@ char *subargs;
         else {
             joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
             if (joiner && joiner->userhost) {
-                sprintf(tmpbuf,"%s!%s",joiner->nick,joiner->userhost);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",joiner->nick,joiner->userhost);
                 RemoveAutoBanKickFromList(tmpbuf);
                 return;
             }
@@ -2870,7 +2870,7 @@ char *tmpnick;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf,"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
     RemoveAutoBanKickFromList(tmpbuf);
 }
 
@@ -2911,8 +2911,8 @@ char *userhost;
                  tmpchan=tmpchan->next)
                 if (CheckChannel(tmpchan->channel,tmpabk1->channels)) {
                     for (tmp=tmpchan->nicks;tmp;tmp=tmp->next) {
-                        if (tmp->userhost) sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
-                        else strcpy(tmpbuf,tmp->nick);
+                        if (tmp->userhost) snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmp->nick,tmp->userhost);
+                        else strmcpy(tmpbuf,tmp->nick,sizeof(tmpbuf));
                         if (wild_match(tmpabk1->userhost,tmpbuf)) tmp->shitlist=NULL;
                     }
                 }
@@ -2970,7 +2970,7 @@ char *subargs;
                 }
                 joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
                 if (joiner) {
-                    sprintf(tmpbuf,"%s!%s",joiner->nick,joiner->userhost);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",joiner->nick,joiner->userhost);
                     UnbanIt(tmpbuf,channel,from_server);
                     return;
                 }
@@ -2998,7 +2998,7 @@ char *channel;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf,"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s@%s",wistuff->nick,wistuff->user,wistuff->host);
     UnbanIt(tmpbuf,channel,from_server);
 }
 
@@ -3060,8 +3060,8 @@ char *subargs;
 
     if (*args) {
         tmpchan=new_next_arg(args,&args);
-        if (is_channel(tmpchan)) strcpy(tmpbuf3,tmpchan);
-        else sprintf(tmpbuf3,"#%s",tmpchan);
+        if (is_channel(tmpchan)) strmcpy(tmpbuf3,tmpchan,sizeof(tmpbuf3));
+        else snprintf(tmpbuf3,sizeof(tmpbuf3),"#%s",tmpchan);
         tmpchan=tmpbuf3;
     }
     else if ((tmpchan=get_channel_by_refnum(0))==NULL) {
@@ -3073,7 +3073,7 @@ char *subargs;
     if (HAS_OPS(chan->status)) {
         *tmpbuf1='\0';
         *tmpbuf2='\0';
-        sprintf(tmpbuf2,"MODE %s",chan->channel);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s",chan->channel);
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
             if (tmpban->exception) continue;
             strcat(tmpbuf2," -b ");
@@ -3083,7 +3083,7 @@ char *subargs;
             if (count==max) {
                 strcat(tmpbuf1,tmpbuf2);
                 strcat(tmpbuf1,"\r\n");
-                sprintf(tmpbuf2,"MODE %s ",chan->channel);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s ",chan->channel);
                 count=0;
             }
             if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
@@ -3108,12 +3108,12 @@ char *command;
 char *args;
 char *subargs;
 {
-    char *tmpnick=(char *) 0;
+    char *tmpnick;
     char tmpbuf[mybufsize/4];
 
-    if (*args) {
-        tmpnick=new_next_arg(args,&args);
-        sprintf(tmpbuf,"%s NONE",tmpnick);
+    tmpnick=new_next_arg(args,&args);
+    if (tmpnick && *tmpnick) {
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s NONE",tmpnick);
         ignore(NULL,tmpbuf,NULL);
     }
     else PrintUsage("NOIG nick");
@@ -3149,22 +3149,22 @@ char *subargs;
         else tmpnick=tmpstr;
         if (!(args && *args)) args="ALL";
         if (!igtime) igtime=subargs?ShitIgnoreTime:IgnoreTime;
-        sprintf(tmpbuf3,"%d",igtime);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%d",igtime);
         if (strchr(tmpnick,'@') || strchr(tmpnick,'?') ||
             strchr(tmpnick,'*') || strchr(tmpnick,'.')) {
-            sprintf(tmpbuf1,"%s %s",tmpnick,args);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpnick,args);
             ignore(NULL,tmpbuf1,tmpbuf3);
-            sprintf(tmpbuf1,"-INV %d IGNORE %s NONE",igtime,tmpnick);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s NONE",igtime,tmpnick);
             timercmd("TIMER",tmpbuf1,NULL);
             return;
         }
         joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
         if (joiner) {
-            strcpy(tmpbuf2,joiner->userhost);
+            strmcpy(tmpbuf2,joiner->userhost,sizeof(tmpbuf2));
             UserDomainList(tmpbuf2);
-            sprintf(tmpbuf1,"%s %s",tmpbuf2,args);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpbuf2,args);
             ignore(NULL,tmpbuf1,tmpbuf3);
-            sprintf(tmpbuf1,"-INV %d IGNORE %s NONE",igtime,tmpbuf2);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s NONE",igtime,tmpbuf2);
             timercmd("TIMER",tmpbuf1,NULL);
             return;
         }
@@ -3190,12 +3190,12 @@ char *igtype;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf2,"%s@%s",wistuff->user,wistuff->host);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s@%s",wistuff->user,wistuff->host);
     UserDomainList(tmpbuf2);
     tmpstr=new_next_arg(igtype,&igtype);
-    sprintf(tmpbuf1,"%s %s",tmpbuf2,igtype);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpbuf2,igtype);
     ignore(NULL,tmpbuf1,tmpstr);
-    sprintf(tmpbuf1,"-INV %s IGNORE %s NONE",tmpstr,tmpbuf2);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %s IGNORE %s NONE",tmpstr,tmpbuf2);
     timercmd("TIMER",tmpbuf1,NULL);
 }
 
@@ -3211,18 +3211,18 @@ time_t timediff;
     if (timediff>60) {
         timemin=timediff/60;
         timesec=timediff%60;
-        sprintf(timereturn,"%dm%ds",timemin,timesec);
+        snprintf(timereturn,sizeof(timereturn),"%dm%ds",timemin,timesec);
     }
-    else sprintf(timereturn,"%lds",timediff);
+    else snprintf(timereturn,sizeof(timereturn),"%lds",timediff);
     if (timemin>60) {
         timehour=timemin/60;
         timemin=timemin%60;
-        sprintf(timereturn,"%dh%dm%ds",timehour,timemin,timesec);
+        snprintf(timereturn,sizeof(timereturn),"%dh%dm%ds",timehour,timemin,timesec);
     }
     if (timehour>24) {
         timeday=timehour/24;
         timehour=timehour%24;
-        sprintf(timereturn,"%dd%dh%dm%ds",timeday,timehour,timemin,timesec);
+        snprintf(timereturn,sizeof(timereturn),"%dd%dh%dm%ds",timeday,timehour,timemin,timesec);
     }
     return(timereturn);
 }
@@ -3242,9 +3242,9 @@ int modify;
     if (celeawaystr) strmcpy(tmpbuf1,celeawaystr,mybufsize/4);
     else if (DefaultSetAway) strmcpy(tmpbuf1,DefaultSetAway,mybufsize/4);
     if (modify)
-        sprintf(tmpbuf2,"-ALL %s /%c%s%c/ ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s /%c%s%c/ ",
                 tmpbuf1,bold,CeleTimeFormat(timediff),bold);
-    else sprintf(tmpbuf2,"-ALL %s",tmpbuf1);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s",tmpbuf1);
     SentAway=1;
     away("AWAY",tmpbuf2,NULL);
 }
@@ -3289,9 +3289,9 @@ char *subargs;
     CeleAway(modify);
 #else
     if (modify)
-        sprintf(tmpbuf2,"-ALL %s [SZ%con%c]  Away since %.16s",tmpbuf1,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s [SZ%con%c]  Away since %.16s",tmpbuf1,bold,bold,
                 ctime(&timenow));
-    else sprintf(tmpbuf2,"-ALL %s",tmpbuf1);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s",tmpbuf1);
     away("AWAY",tmpbuf2,NULL);
 #endif /* CELE */
     oldserver=from_server;
@@ -3301,13 +3301,13 @@ char *subargs;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
 #ifdef CELE
             if (modify)
-                sprintf(tmpbuf2,"%s is away. %s %s",tmpchan->channel,tmpbuf1,CelerityL);
-            else sprintf(tmpbuf2,"%s %s",tmpchan->channel,tmpbuf1);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s is away. %s %s",tmpchan->channel,tmpbuf1,CelerityL);
+            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s",tmpchan->channel,tmpbuf1);
 #else
             if (modify)
-                sprintf(tmpbuf2,"%s is away. %s [SZ%con%c]",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s is away. %s [SZ%con%c]",
                         tmpchan->channel,tmpbuf1,bold,bold);
-            else sprintf(tmpbuf2,"%s %s",tmpchan->channel,tmpbuf1);
+            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s",tmpchan->channel,tmpbuf1);
 #endif /* CELE */
             describe(NULL,tmpbuf2,NULL);
         }
@@ -3397,12 +3397,12 @@ char *line;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
             if (modify)
 #ifdef CELE
-                sprintf(tmpbuf,"%s is back. %s",tmpchan->channel,backstr);
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s is back. %s",tmpchan->channel,backstr);
 #else
-                sprintf(tmpbuf,"%s is back. %s [SZ%coff%c]",tmpchan->channel,backstr,
+                snprintf(tmpbuf,sizeof(tmpbuf),"%s is back. %s [SZ%coff%c]",tmpchan->channel,backstr,
                         bold,bold);
 #endif
-            else sprintf(tmpbuf,"%s %s",tmpchan->channel,backstr);
+            else snprintf(tmpbuf,sizeof(tmpbuf),"%s %s",tmpchan->channel,backstr);
             describe(NULL,tmpbuf,NULL);
         }
         from_server=oldserver;
@@ -3430,7 +3430,7 @@ char *stat;
             last=tmp;
         }
         if (tmp) {
-            sprintf(tmpbuf1,"%s@%s",user,host);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",user,host);
             if ((whowas=check_whowas_buffer(nick,tmpbuf1,channel,1))) {
                 remove_nick_from_hash(chan,tmp);
                 if (last) last->next=whowas->nicklist;
@@ -3466,7 +3466,7 @@ char *stat;
             }
             else {
                 malloc_strcpy(&(tmp->userhost),tmpbuf1);
-                sprintf(tmpbuf2,"%s!%s",nick,tmpbuf1);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",nick,tmpbuf1);
                 tmp->frlist=(struct friends *) FindMatch(tmpbuf2,channel);
                 tmp->shitlist=(struct autobankicks *) FindShit(tmpbuf2,channel);
             }
@@ -3507,13 +3507,13 @@ char *subargs;
             add=1;
         }
         if (tmpword) {
-            sprintf(tmpbuf,"%s",tmpstr);
+            snprintf(tmpbuf,sizeof(tmpbuf),"%s",tmpstr);
             malloc_strcpy(&(tmpword->channels),channels);
             malloc_strcpy(&(tmpword->word),tmpbuf);
             while (*args && isspace(*args)) args++;
             if (*args) malloc_strcpy(&(tmpword->reason),args);
             else {
-                sprintf(tmpbuf,"You said %s",tmpstr);
+                snprintf(tmpbuf,sizeof(tmpbuf),"You said %s",tmpstr);
                 malloc_strcpy(&(tmpword->reason),tmpbuf);
             }
             if (add) add_to_list_ext((List **) &wordlist,(List *) tmpword,
@@ -3810,14 +3810,14 @@ char *subargs;
         server = new_next_arg(tmpstr, &tmpstr);
         strcpy(tmpbuf3, CeleTimeFormat(timenow-wholeft->time));
 #ifdef WANTANSI
-        sprintf(tmpbuf2, "[%s%s%s %s<-%s %s%s%s]",
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "[%s%s%s %s<-%s %s%s%s]",
                 CmdsColors[COLNETSPLIT].color3, tmpstr, Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color6, Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color3, server, Colors[COLOFF]);
-        sprintf(tmpbuf4, ": [%s%s%s]", CmdsColors[COLNETSPLIT].color2, tmpbuf3, Colors[COLOFF]);
+        snprintf(tmpbuf4, sizeof(tmpbuf4), ": [%s%s%s]", CmdsColors[COLNETSPLIT].color2, tmpbuf3, Colors[COLOFF]);
 #else
-        sprintf(tmpbuf2, "[%s <- %s]", tmpstr, server);
-        sprintf(tmpbuf4, ": [%s]", tmpbuf3);
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "[%s <- %s]", tmpstr, server);
+        snprintf(tmpbuf4, sizeof(tmpbuf4), ": [%s]", tmpbuf3);
 #endif
         len = current_screen->co - ctlen - 29 - strlen(server) - strlen(tmpstr) - strlen(tmpbuf3);
         *tmpbuf3 = '\0';
@@ -3831,17 +3831,17 @@ char *subargs;
 #endif
         for (tmpch = wholeft->channels; tmpch; tmpch = tmpch->next) {
 #ifdef WANTANSI
-            sprintf(tmpbuf1, "%s%-7s%s :",
+            snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%-7s%s :",
                     CmdsColors[COLNETSPLIT].color4, tmpch->channel, Colors[COLOFF]);
 #else
-            sprintf(tmpbuf1, "%-7s :", tmpch->channel);
+            snprintf(tmpbuf1, sizeof(tmpbuf1), "%-7s :", tmpch->channel);
 #endif
             malloc_strcpy(&leftnicks, tmpbuf1);
             for (tmplist = tmpch->nicklist; tmplist; tmplist = tmplist->next) {
 #ifdef WANTANSI
-                sprintf(tmpbuf1, " %s%s%s", CmdsColors[COLNETSPLIT].color5, tmplist->nick, Colors[COLOFF]);
+                snprintf(tmpbuf1, sizeof(tmpbuf1), " %s%s%s", CmdsColors[COLNETSPLIT].color5, tmplist->nick, Colors[COLOFF]);
 #else
-                sprintf(tmpbuf1, " %s", tmplist->nick);
+                snprintf(tmpbuf1, sizeof(tmpbuf1), " %s", tmplist->nick);
 #endif
                 malloc_strcat(&leftnicks, tmpbuf1);
             }
@@ -3877,7 +3877,7 @@ char *subargs;
                 if (!strcmp(command,"FBK"))
                     send_to_server("MODE %s +b %s",channel,filter);
                 for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-                    sprintf(tmpbuf,"%s!%s",joiner->nick,joiner->userhost);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",joiner->nick,joiner->userhost);
                     if ((!(joiner->chanop) || chan->KickOps) &&
                         my_stricmp(joiner->nick,mynick) && wild_match(filter,tmpbuf))
 #ifdef CELE
@@ -3893,7 +3893,7 @@ char *subargs;
         else NoWindowChannel();
     }
     else {
-        sprintf(tmpbuf,"%s filter [reason]",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s filter [reason]",command);
         PrintUsage(tmpbuf);
     }
 }
@@ -3922,7 +3922,7 @@ char *subargs;
             while (tmpabk) {
                 if ((tmpabk->shit)&(SLBAN | SLIGNORE | SLPERMBAN) &&
                     CheckChannel(channel,tmpabk->channels)) {
-                    sprintf(tmpbuf," %s",tmpabk->userhost);
+                    snprintf(tmpbuf,sizeof(tmpbuf)," %s",tmpabk->userhost);
                     malloc_strcat(&banmodes,tmpbuf);
                     count++;
                     if (count==max) {
@@ -4020,7 +4020,7 @@ char *subargs;
         else if (wild_match("*sunos*",unamebuf.sysname)) type=3;
     }
     /* create temporary file */
-    sprintf(filename,"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
+    snprintf(filename,sizeof(filename),"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
     /* obtain device name */
@@ -4075,7 +4075,7 @@ char *subargs;
             int isvalid;
             int numinvalid=0;
 
-            sprintf(ifr.ifr_name,"%s%d",devname,i);
+            snprintf(ifr.ifr_name,sizeof(ifr.ifr_name),"%s%d",devname,i);
             /* obtain destination address */
             ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
             isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
@@ -4089,7 +4089,7 @@ char *subargs;
             }
             if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
             for (count=0;count<1023;count++) {
-                sprintf(ifr.ifr_name,"%s%d:%d",devname,i,count);
+                snprintf(ifr.ifr_name,sizeof(ifr.ifr_name),"%s%d:%d",devname,i,count);
                 /* obtain destination address */
                 ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
                 if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
@@ -4116,7 +4116,7 @@ char *subargs;
             tmpstr="-a";
             break;
     }
-    sprintf(tmpbuf,"/sbin/ifconfig %s >%s 2>/dev/null",tmpstr,filename);
+    snprintf(tmpbuf,sizeof(tmpbuf),"/sbin/ifconfig %s >%s 2>/dev/null",tmpstr,filename);
     system(tmpbuf);
 #endif /* __linux__ */
     if ((fp=fopen(filename,"r"))==NULL) {
@@ -4151,7 +4151,7 @@ char *subargs;
         for (listnew=tmplist,i=1;listnew;i++,countall++) {
             tmplist=listnew;
             listnew=listnew->next;
-            sprintf(tmpbuf,"%2d) %-33s",i,tmplist->servers);
+            snprintf(tmpbuf,sizeof(tmpbuf),"%2d) %-33s",i,tmplist->servers);
             strcat(putbuf,tmpbuf);
             count++;
             if (count==2 || strlen(tmplist->servers)>35) {

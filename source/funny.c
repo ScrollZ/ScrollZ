@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.16 2002-01-21 22:22:41 f Exp $
+ * $Id: funny.c,v 1.17 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -411,7 +411,7 @@ funny_mode(from, ArgList)
                 if (tmp && tmp->ChanLog) {
                     char tmpbuf[mybufsize];
 
-                    sprintf(tmpbuf, "Mode for channel %s is %s", channel, mode);
+                    snprintf(tmpbuf, sizeof(tmpbuf), "Mode for channel %s is %s", channel, mode);
                     ChannelLogSave(tmpbuf, tmp);
                 }
 /****************************************************************************/

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.78 2002-01-22 19:27:22 f Exp $
+ * $Id: edit.c,v 1.79 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -2995,11 +2995,11 @@ send_text(org_nick, line, command)
                             PrintPublic(mynick, NULL, nick, line, 0, iscrypted);
                         chan = lookup_channel(nick, parsing_server_index, 0);
                         if (chan && chan->ChanLog && list_type == SEND_NOTICE_LIST) {
-                            sprintf(tmpbuf, "-%s- %s", mynick, line);
+                            snprintf(tmpbuf, sizeof(tmpbuf), "-%s- %s", mynick, line);
                             ChannelLogSave(tmpbuf, chan);
                         }
                         if ((away_set || LogOn) && my_stricmp(command, "NOTICE")) {
-                            sprintf(tmpbuf, "<%s> %s", mynick, line);
+                            snprintf(tmpbuf, sizeof(tmpbuf), "<%s> %s", mynick, line);
                             AwaySave(tmpbuf, SAVESENTMSG);
                         }
 /****************************************************************************/
@@ -3058,13 +3058,13 @@ send_text(org_nick, line, command)
                             if (!my_stricmp(command, "NOTICE")) {
 #ifdef WANTANSI
 #ifdef CELECOSM
-                                sprintf(tmpbuf, "%s[%s%s(notice)%s%s%s%s%s]%s",
+                                snprintf(tmpbuf, sizeof(tmpbuf), "%s[%s%s(notice)%s%s%s%s%s]%s",
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF],
                                         CmdsColors[COLCELE].color2, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #else  /* CELECOSM */
-                                sprintf(tmpbuf, "%s<%s-%s%s%s-%s>%s",
+                                snprintf(tmpbuf, sizeof(tmpbuf), "%s<%s-%s%s%s-%s>%s",
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
@@ -3078,13 +3078,13 @@ send_text(org_nick, line, command)
                             else {
 #ifdef WANTANSI
 #ifdef CELECOSM
-                                sprintf(tmpbuf,"%s[%s%s(msg)%s%s%s%s%s]%s",
+                                snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s(msg)%s%s%s%s%s]%s",
                                         CmdsColors[COLMSG].color5, Colors[COLOFF],
                                         CmdsColors[COLCELE].color1, Colors[COLOFF],
                                         CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #else  /* CELECOSM */
-                                sprintf(tmpbuf,"%s[%s%c%s%s%s%c%s]%s",
+                                snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%c%s%s%s%c%s]%s",
 					CmdsColors[COLMSG].color5, Colors[COLOFF], thing,
 					CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         thing, CmdsColors[COLMSG].color5, Colors[COLOFF]);
@@ -3100,12 +3100,12 @@ send_text(org_nick, line, command)
                         if (line != server_list[from_server].LastMessageSent &&
                             line != server_list[from_server].LastNoticeSent) {
                             if (!my_stricmp(command, "NOTICE")) {
-                                sprintf(tmpbuf, "-> -%s- %s", nick, line);
+                                snprintf(tmpbuf, sizeof(tmpbuf), "-> -%s- %s", nick, line);
                                 if (CheckServer(from_server))
                                     malloc_strcpy(&(server_list[from_server].LastNoticeSent), tmpbuf);
                             }
                             else {
-                                sprintf(tmpbuf,"-> [-%s-] %s", nick, line);
+                                snprintf(tmpbuf,sizeof(tmpbuf),"-> [-%s-] %s", nick, line);
                                 if (CheckServer(from_server))
                                     malloc_strcpy(&(server_list[from_server].LastMessageSent), tmpbuf);
                                 if (away_set || LogOn) AwaySave(tmpbuf, SAVESENTMSG);
@@ -4395,7 +4395,7 @@ send_action(target, text)
 
             chan = lookup_channel(target, parsing_server_index, 0);
             if (chan && chan->ChanLog) {
-                sprintf(tmpbuf, "* %s %s", get_server_nickname(parsing_server_index), text);
+                snprintf(tmpbuf, sizeof(tmpbuf), "* %s %s", get_server_nickname(parsing_server_index), text);
                 ChannelLogSave(tmpbuf, chan);
             }
         }
@@ -4494,7 +4494,7 @@ describe(command, args, subargs)
                     }
                     else {
 #ifdef WANTANSI
-                        sprintf(tmpbuf,"<%s%s%s> %s%c%s %s%s%s",
+                        snprintf(tmpbuf,sizeof(tmpbuf),"<%s%s%s> %s%c%s %s%s%s",
                                CmdsColors[COLME].color4,target,Colors[COLOFF],
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
                                CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF]);

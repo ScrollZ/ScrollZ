@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.56 2002-01-22 19:04:16 f Exp $
+ * $Id: parse.c,v 1.57 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -298,7 +298,7 @@ p_topic(from, ArgList)
             CheckTopic(chan->channel, parsing_server_index, chan);
 #endif
             if (chan->ChanLog) {
-                sprintf(tmpbuf, "%s has changed the topic on channel %s to %s", from, ArgList[0], ArgList[1]);
+                snprintf(tmpbuf, sizeof(tmpbuf), "%s has changed the topic on channel %s to %s", from, ArgList[0], ArgList[1]);
                 ChannelLogSave(tmpbuf, chan);
             }
         }
@@ -711,7 +711,7 @@ p_privmsg(from, Args)
         if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(from, to, IGNORE_PUBLIC) == IGNORED)
             goto out;
         if (FloodProt > 1 && flood_type == MSG_FLOOD) {
-            sprintf(tmpbuf, "%s!%s", from, FromUserHost);
+            snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", from, FromUserHost);
             tmpfriend = CheckUsers(tmpbuf, NULL);
             if (!tmpfriend || (tmpfriend && !(tmpfriend->privs) & FLNOFLOOD)) {
                 if (timenow > LastMsgTime + FloodSeconds) {
@@ -723,14 +723,14 @@ p_privmsg(from, Args)
                     LastMsgTime = timenow;
                     LastNickFlood = timenow;
                     NumberMessages = 0;
-                    sprintf(tmpbuf, "%.7s%c%c", get_server_nickname(from_server),
+                    snprintf(tmpbuf,sizeof(tmpbuf), "%.7s%c%c", get_server_nickname(from_server),
                            'a' + (rand() % 25) ,'a' + (rand() % 25));
                     e_nick(NULL, tmpbuf, NULL);
 #ifdef WANTANSI
-                    sprintf(tmpbuf, "%sFlood attack%s detected, changing nick",
+                    snprintf(tmpbuf,sizeof(tmpbuf), "%sFlood attack%s detected, changing nick",
                             CmdsColors[COLWARNING].color1, Colors[COLOFF]);
 #else
-                    sprintf(tmpbuf, "%cFlood attack%c detected, changing nick", bold, bold);
+                    snprintf(tmpbuf,sizeof(tmpbuf), "%cFlood attack%c detected, changing nick", bold, bold);
 #endif
                     say("%s", tmpbuf);
                     if (away_set || LogOn) AwaySave(tmpbuf, SAVEFLOOD);
@@ -1103,7 +1103,7 @@ p_pong(from, ArgList)
                         timenow.tv_sec--;
                     }
 #ifdef WANTANSI
-                    sprintf(tmpbuf,"%06ld",timenow.tv_usec);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%06ld",timenow.tv_usec);
                     tmpbuf[3]='\0';
                     say("Server pong from %s%s%s received in %s%ld.%s%s seconds",
                         CmdsColors[COLCSCAN].color1,ArgList[0],Colors[COLOFF],
@@ -1219,12 +1219,12 @@ p_channel(from, ArgList)
                         if ((get_server_version(from_server)==Server2_9 || 
                              get_server_version(from_server)==Server2_10) &&
                             IsIrcNetOperChannel(channel)) {
-                            sprintf(tmpbuf,"MODE %s",channel);
+                            snprintf(tmpbuf,sizeof(tmpbuf),"MODE %s",channel);
                         }
                         else {
-                            sprintf(tmpbuf,"WHO %s",channel);
+                            snprintf(tmpbuf,sizeof(tmpbuf),"WHO %s",channel);
                             if (*channel!='+') {
-                                sprintf(&tmpbuf[strlen(tmpbuf)],
+                                snprintf(&tmpbuf[strlen(tmpbuf)],sizeof(tmpbuf),
                                         "\r\nMODE %s\r\nMODE %s e\r\nMODE %s b",
                                         channel,channel,channel);
                             }
@@ -1268,14 +1268,14 @@ p_channel(from, ArgList)
                             save_message_from();
                             message_from(channel, LOG_CRAP);
 #ifdef WANTANSI
-                            sprintf(tmpbuf1,"[%s%s%s] on %s%s%s",
+                            snprintf(tmpbuf1,sizeof(tmpbuf1),"[%s%s%s] on %s%s%s",
                                     CmdsColors[COLNETSPLIT].color3,GetNetsplitServer(channel,from),Colors[COLOFF],
                                     CmdsColors[COLNETSPLIT].color4,channel,Colors[COLOFF]);
-                            sprintf(tmpbuf2,"%sNetsplit hack%s %s by : %s%s%s",
+                            snprintf(tmpbuf2,sizeof(tmpbuf2),"%sNetsplit hack%s %s by : %s%s%s",
                                     CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],tmpbuf1,
                                     CmdsColors[COLNETSPLIT].color5,from,Colors[COLOFF]);
 #else
-                            sprintf(tmpbuf2,"Netsplit hack [%s] on %s by : %s",
+                            snprintf(tmpbuf2,sizeof(tmpbuf2),"Netsplit hack [%s] on %s by : %s",
                                     GetNetsplitServer(channel,from),channel,from);
 #endif
                             say("%s",tmpbuf2);
@@ -1606,7 +1606,7 @@ p_kick(from, ArgList)
                         chan=lookup_channel(channel,parsing_server_index,0);
                         if (chan) {
                             if (chan->AutoRejoin) {
-                                sprintf(tmpbuf,"%s ",chan->channel);
+                                snprintf(tmpbuf,sizeof(tmpbuf),"%s ",chan->channel);
                                 if (chan->key) strcat(tmpbuf,chan->key);
                                 rejoin=1;
                             }
@@ -1754,8 +1754,9 @@ p_part(from, ArgList)
                         if (chan->ChanLog) {
                             char tmpbuf2[mybufsize];
 
-                            sprintf(tmpbuf2, "%s has left channel %s", from, channel);
-                            if (comment && *comment) sprintf(&tmpbuf2[strlen(tmpbuf2)], "(%s)", comment);
+                            snprintf(tmpbuf2, sizeof(tmpbuf2), "%s has left channel %s", from, channel);
+                            if (comment && *comment)
+                                snprintf(&tmpbuf2[strlen(tmpbuf2)], sizeof(tmpbuf2), "(%s)", comment);
                             ChannelLogSave(tmpbuf2, chan);
                         }
                     }

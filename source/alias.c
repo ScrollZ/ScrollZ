@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.23 2002-01-21 22:15:31 f Exp $
+ * $Id: alias.c,v 1.24 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -2488,9 +2488,9 @@ alias_server_version()
 
 /**************************** PATCHED by Flier ******************************/
 static u_char *alias_ScrollZ_version() {
-    static u_char tmpbuf[mybufsize/16];
+    static u_char tmpbuf[mybufsize / 16];
 
-    sprintf((char *) tmpbuf,"%s [%s]",ScrollZver1,VersionInfo);
+    snprintf((char *) tmpbuf, sizeof(tmpbuf), "%s [%s]", ScrollZver1, VersionInfo);
     return(tmpbuf);
 }
 
@@ -2498,7 +2498,7 @@ static u_char *alias_ScrollZ_version() {
 static u_char *alias_Celerity_version() {
     static u_char tmpbuf[32];
 
-    sprintf((char *) tmpbuf,"%s",CelerityVersion);
+    snprintf((char *) tmpbuf, sizeof(tmpbuf), "%s", CelerityVersion);
     return(tmpbuf);
 }
 #endif
@@ -2702,7 +2702,7 @@ function_rand(input)
 	char	tmp[40];
 /**************************** PATCHED by Flier ******************************/
 	/*long	tempin;*/
-        int     value=0;
+        int     value = 0;
 /****************************************************************************/
 
 #ifdef _Windows
@@ -2710,9 +2710,9 @@ function_rand(input)
 #else
 /**************************** PATCHED by Flier ******************************/
 	/*snprintf(CP(tmp), sizeof tmp, "%ld", (tempin = my_atol(input)) ? randm(0L) % tempin : 0);*/
-        if (input && * input) value=atoi(input);
-        if (!value) value=1;
-        sprintf(tmp,"%d",(input && *input)?rand()%value:rand());
+        if (input && * input) value = atoi(input);
+        if (!value) value = 1;
+        snprintf(tmp, sizeof(tmp), "%d", (input && *input) ? rand() % value : rand());
 /****************************************************************************/
 #endif /* _Windows */
 	malloc_strcpy((char **) &result, tmp);
@@ -3837,9 +3837,9 @@ u_char *words;
     if (words && *words) {
         *(words+1)='\0';
         upper(words);
-        if (*words=='R') sprintf(locbuf,"%d",OpenFileRead(filename));
+        if (*words=='R') snprintf(locbuf,sizeof(locbuf),"%d",OpenFileRead(filename));
         else if (*words=='W' || *words=='A')
-            sprintf(locbuf,"%d",OpenFileWrite(filename,words));
+            snprintf(locbuf,sizeof(locbuf),"%d",OpenFileWrite(filename,words));
     }
     else strcpy(locbuf,"-1");
     malloc_strcpy((char **) &result,locbuf);
@@ -3855,7 +3855,7 @@ u_char *words;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        sprintf(locbuf,"%d",FileClose(atoi(args)));
+        snprintf(locbuf,sizeof(locbuf),"%d",FileClose(atoi(args)));
     }
     else strcpy(locbuf,"-1");
     malloc_strcpy((char **) &result,locbuf);
@@ -3885,7 +3885,7 @@ u_char *words;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        if (words && *words) sprintf(locbuf,"%d",FileWrite(atoi(args),words));
+        if (words && *words) snprintf(locbuf,sizeof(locbuf),"%d",FileWrite(atoi(args),words));
         else strcpy(locbuf,"-1");
     }
     else strcpy(locbuf,"-1");
@@ -3902,7 +3902,7 @@ u_char *words;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        sprintf(locbuf,"%d",FileEof(atoi(args)));
+        snprintf(locbuf,sizeof(locbuf),"%d",FileEof(atoi(args)));
     }
     else strcpy(locbuf,"-1");
     malloc_strcpy((char **) &result,locbuf);
@@ -3921,7 +3921,7 @@ u_char *words;
         oldname=next_arg((char *) words,(char **) &words);
         newname=next_arg((char *) words,(char **) &words);
         if (newname && *newname) {
-            sprintf(locbuf,"%d",rename(oldname,newname));
+            snprintf(locbuf,sizeof(locbuf),"%d",rename(oldname,newname));
             malloc_strcpy((char **) &result,locbuf);
         }
         else malloc_strcpy((char **) &result,"-1");
@@ -3942,7 +3942,7 @@ u_char *words;
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
         joiner=CheckJoiners(args,0,from_server,NULL);
-        if (joiner && joiner->userhost) sprintf(locbuf,"%s!%s",joiner->nick,joiner->userhost);
+        if (joiner && joiner->userhost) snprintf(locbuf,sizeof(locbuf),"%s!%s",joiner->nick,joiner->userhost);
         else strcpy(locbuf,"-1");
         malloc_strcpy((char **) &result,locbuf);
     }
@@ -4231,8 +4231,8 @@ u_char *input;
 
     if ((channel=next_arg((char *) input,(char **) &channel)) &&
         (chan=lookup_channel(channel,from_server,0)) && chan->topicstr) {
-        if (chan->topicwho) sprintf(locbuf,"%s %ld ",chan->topicwho,chan->topicwhen);
-        else sprintf(locbuf,"unknown 0 ");
+        if (chan->topicwho) snprintf(locbuf,sizeof(locbuf),"%s %ld ",chan->topicwho,chan->topicwhen);
+        else strcpy(locbuf,"unknown 0 ");
         strcat(locbuf,chan->topicstr);
         malloc_strcpy((char **) &result,locbuf);
     }
@@ -4247,7 +4247,7 @@ u_char *input;
     char locbuf[2*mybufsize];
 
     if (input && *input) {
-        sprintf(locbuf,"%d",strlen(input));
+        snprintf(locbuf,sizeof(locbuf),"%d",strlen(input));
         malloc_strcpy((char **) &result,locbuf);
     }
     else malloc_strcpy((char **) &result,"0");
@@ -4271,7 +4271,7 @@ u_char *input;
             }
             if (*tmp) tmp++;
         }
-        sprintf(locbuf,"%d",count);
+        snprintf(locbuf,sizeof(locbuf),"%d",count);
         malloc_strcpy((char **) &result,locbuf);
     }
     else malloc_strcpy((char **) &result,"0");
@@ -4295,7 +4295,7 @@ u_char *input;
         new_free(&filename);
         if (fexists==-1) malloc_strcpy((char **) &result,"-1");
         else {
-            sprintf(locbuf,"%ld",statbuf.st_size);
+            snprintf(locbuf,sizeof(locbuf),"%ld",statbuf.st_size);
             malloc_strcpy((char **) &result,locbuf);
         }
     }
@@ -4683,7 +4683,7 @@ u_char *input;
 
     slots=CdccLimit-TotalSendDcc();
     if (slots<0) slots=0;
-    sprintf(locbuf,"%d",slots);
+    snprintf(locbuf,sizeof(locbuf),"%d",slots);
     malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
@@ -4698,7 +4698,7 @@ u_char *input;
     if (CdccQueueLimit) slots=CdccQueueLimit-TotalQueue();
     else slots=10;
     if (slots<0) slots=0;
-    sprintf(locbuf,"%d",slots);
+    snprintf(locbuf,sizeof(locbuf),"%d",slots);
     malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
@@ -4846,12 +4846,12 @@ u_char *input;
             case 1:
                 /* Cdcc limit is special case */
                 if (!strcmp(command_list[i].command,"CDCCLIMIT"))
-                    sprintf(locbuf,"%d %d",*(command_list[i].ivar),CdccQueueLimit);
+                    snprintf(locbuf,sizeof(locbuf),"%d %d",*(command_list[i].ivar),CdccQueueLimit);
                 /* Floodp is special case */
                 else if (!strcmp(command_list[i].command,"FLOODP"))
-                    sprintf(locbuf,"%d %d %d",
+                    snprintf(locbuf,sizeof(locbuf),"%d %d %d",
                             *(command_list[i].ivar),FloodMessages,FloodSeconds);
-                else sprintf(locbuf,"%d",*(command_list[i].ivar));
+                else snprintf(locbuf,sizeof(locbuf),"%d",*(command_list[i].ivar));
                 break;
             case 2:
                 /* Bantype is special case */
@@ -4863,7 +4863,7 @@ u_char *input;
                 break;
             case 3:
                 if (*(command_list[i].ivar) && *(command_list[i].svar))
-                    sprintf(locbuf,"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
+                    snprintf(locbuf,sizeof(locbuf),"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
                 else strcpy(locbuf,"0");
                 break;
         }
@@ -4904,7 +4904,7 @@ char *name;
     Alias *tmp;
     Alias *tmprem;
 
-    sprintf(locbuf,"%s.",name);
+    snprintf(locbuf,sizeof(locbuf),"%s.",name);
     namelen=strlen(locbuf);
     for (tmp=alias_list[VAR_ALIAS];tmp;) {
         tmprem=tmp;

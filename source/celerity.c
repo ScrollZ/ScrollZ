@@ -4,7 +4,7 @@
  *  code:      jeremy roethel [xanth@3sheep.COM]
  *  cosmetics: sasha eysymontt [sage@3Sheep.COM]
  *
- *  $Id: celerity.c,v 1.4 2000-08-15 16:31:40 f Exp $
+ *  $Id: celerity.c,v 1.5 2002-01-23 18:48:10 f Exp $
  */
 /*
  * Cstatusbar()		- /set STATUSBAR #
@@ -74,13 +74,13 @@ char *subargs;
 	}
 	old_display=window_display;
 	window_display=0;
-	sprintf(tmpbuf,"STATUS_FORMAT %s",newbar0);
+	snprintf(tmpbuf,sizeof(tmpbuf),"STATUS_FORMAT %s",newbar0);
 	set_variable(NULL,tmpbuf,NULL);
-	sprintf(tmpbuf,"STATUS_FORMAT1 %s",newbar1);
+	snprintf(tmpbuf,sizeof(tmpbuf),"STATUS_FORMAT1 %s",newbar1);
 	set_variable(NULL,tmpbuf,NULL);
-	sprintf(tmpbuf,"STATUS_FORMAT2 %s",newbar2);
+	snprintf(tmpbuf,sizeof(tmpbuf),"STATUS_FORMAT2 %s",newbar2);
 	set_variable(NULL,tmpbuf,NULL);
-	sprintf(tmpbuf,"STATUS_FORMAT3 %s",newbar3);
+	snprintf(tmpbuf,sizeof(tmpbuf),"STATUS_FORMAT3 %s",newbar3);
 	set_variable(NULL,tmpbuf,NULL);
 	window_display=old_display;
     }

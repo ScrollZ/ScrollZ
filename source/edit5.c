@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.82 2002-01-21 22:38:59 f Exp $
+ * $Id: edit5.c,v 1.83 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -232,7 +232,7 @@ char **ArgList;
             if (chan->ChanLog) {
                 char tmpbuf[mybufsize];
 
-                sprintf(tmpbuf, "Set by %s on %.19s", chan->topicwho, ctime(&(chan->topicwhen)));
+                snprintf(tmpbuf, sizeof(tmpbuf), "Set by %s on %.19s", chan->topicwho, ctime(&(chan->topicwhen)));
                 ChannelLogSave(tmpbuf, chan);
             }
         }
@@ -275,7 +275,7 @@ char *text;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    sprintf(tmpbuf1,"%s@%s",wistuff->user,wistuff->server);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",wistuff->user,wistuff->server);
     tmp=nickwatchlist;
     while (tmp && tmp->next) tmp=tmp->next;
     tmpnickwatch=(struct list *) new_malloc(sizeof(struct list));
@@ -887,14 +887,14 @@ int  netsplit;
         server = new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
 #ifdef CELECOSM
-        if (Stamp < 2) sprintf(tmpbuf2, "%snetsplit%s %s[%s%s%s%s%s]%s - ",
+        if (Stamp < 2) snprintf(tmpbuf2,sizeof(tmpbuf2), "%snetsplit%s %s[%s%s%s%s%s]%s - ",
                                CmdsColors[COLNETSPLIT].color1, Colors[COLOFF],
                                CmdsColors[COLNETSPLIT].color3, Colors[COLOFF],
                                CmdsColors[COLNETSPLIT].color2, update_clock(0, 0, GET_TIME), Colors[COLOFF],
                                CmdsColors[COLNETSPLIT].color3, Colors[COLOFF]);
-        else sprintf(tmpbuf2, "%snetsplit%s - ", CmdsColors[COLNETSPLIT].color1, Colors[COLOFF]);
+        else snprintf(tmpbuf2,sizeof(tmpbuf2), "%snetsplit%s - ", CmdsColors[COLNETSPLIT].color1, Colors[COLOFF]);
 #else  /* CELECOSM */
-        sprintf(tmpbuf2, "%sNetsplit detected%s%s%s%s%s : ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2), "%sNetsplit detected%s%s%s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1, Colors[COLOFF],
                 Stamp < 2 ? " at " : empty_string,
                 CmdsColors[COLNETSPLIT].color2,
@@ -935,21 +935,21 @@ char *servmode;
         if (NHDisp==2 && nethacks[0]) {
 #ifdef WANTANSI
 #ifdef CELECOSM
-            sprintf(tmpbuf1,"/%s%s%s - %s%s%s/",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"/%s%s%s - %s%s%s/",
 #else
-            sprintf(tmpbuf1,"[%s%s%s] on %s%s%s",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"[%s%s%s] on %s%s%s",
 #endif /* CELECOSM */
                     CmdsColors[COLNETSPLIT].color3,nick,Colors[COLOFF],
                     CmdsColors[COLNETSPLIT].color4,channel,Colors[COLOFF]);
 #ifdef CELECOSM
-            sprintf(tmpbuf2,"%snethack%s %s  %s%s%s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%snethack%s %s  %s%s%s",
 #else
-            sprintf(tmpbuf2,"%sNetsplit hack%s %s by : %s%s%s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%sNetsplit hack%s %s by : %s%s%s",
 #endif /* CELECOSM */
                     CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],tmpbuf1,
                     CmdsColors[COLNETSPLIT].color5,nethacks,Colors[COLOFF]);
 #else  /* WANTANSI */
-            sprintf(tmpbuf2,"%cNetsplit hack%c [%s] detected on %s by : %s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%cNetsplit hack%c [%s] detected on %s by : %s",
                     bold,bold,nick,channel,nethacks);
 #endif /* WANTANSI */
             say("%s",tmpbuf2);
@@ -959,20 +959,20 @@ char *servmode;
         if (servmode[0]) {
 #ifdef WANTANSI
 #ifdef CELECOSM
-            sprintf(tmpbuf1,"%sserver modes%s in %s%s%s: \"%s%s%s\" by ",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%sserver modes%s in %s%s%s: \"%s%s%s\" by ",
                     CmdsColors[COLMODE].color5,Colors[COLOFF],
                     CmdsColors[COLMODE].color3,channel,Colors[COLOFF],
                     CmdsColors[COLMODE].color4,servmode,Colors[COLOFF]);
 #else  /* CELECOSM */
-            sprintf(tmpbuf1,"%sServer modes%s \"%s%s%s\" detected on %s%s%s by : ",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%sServer modes%s \"%s%s%s\" detected on %s%s%s by : ",
                     CmdsColors[COLMODE].color5,Colors[COLOFF],
                     CmdsColors[COLMODE].color4,servmode,Colors[COLOFF],
                     CmdsColors[COLMODE].color3,channel,Colors[COLOFF]);
 #endif /* CELECOSM */
-            sprintf(tmpbuf2,"%s%s%s%s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s",
                     tmpbuf1,CmdsColors[COLMODE].color1,nick,Colors[COLOFF]);
 #else  /* WANTANSI */
-            sprintf(tmpbuf2,"%cServer modes%c \"%s\" detected on %s by : %s",
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%cServer modes%c \"%s\" detected on %s by : %s",
                     bold,bold,servmode,channel,nick);
 #endif /* WANTANSI */
             say("%s",tmpbuf2);
@@ -983,12 +983,12 @@ char *servmode;
     else {
 #ifdef WANTANSI
 #ifdef CELECOSM
-        sprintf(tmpbuf1,"%smode%s in %s%s%s: \"%s%s%s\" by ",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%smode%s in %s%s%s: \"%s%s%s\" by ",
                 CmdsColors[COLMODE].color5,Colors[COLOFF],
                 CmdsColors[COLMODE].color3,channel,Colors[COLOFF],
                 CmdsColors[COLMODE].color4,line,Colors[COLOFF]);
 #else  /* CELECOSM */
-        sprintf(tmpbuf1,"%sMode change%s \"%s%s%s\" on channel %s%s%s by ",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%sMode change%s \"%s%s%s\" on channel %s%s%s by ",
                 CmdsColors[COLMODE].color5,Colors[COLOFF],
                 CmdsColors[COLMODE].color4,line,Colors[COLOFF],
                 CmdsColors[COLMODE].color3,channel,Colors[COLOFF]);
@@ -998,7 +998,7 @@ char *servmode;
         say("Mode change \"%s\" on channel %s by %s",line, channel, nick);
 #endif /* WANTANSI */
         if (chan && chan->ChanLog) {
-            sprintf(tmpbuf2, "Mode change \"%s\" on channel %s by %s",line, channel, nick);
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "Mode change \"%s\" on channel %s by %s",line, channel, nick);
             ChannelLogSave(tmpbuf2, chan);
         }
     }
@@ -1021,12 +1021,12 @@ int  frkick;
     if (frkick) colnick=CmdsColors[COLKICK].color6;
     else colnick=CmdsColors[COLKICK].color1;
 #ifdef CELECOSM
-    sprintf(tmpbuf,"%s%s%s %s %skicked%s from %s%s%s by",
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s %skicked%s from %s%s%s by",
             colnick,who,Colors[COLOFF],word,
             CmdsColors[COLKICK].color5,Colors[COLOFF],
             CmdsColors[COLKICK].color3,channel,Colors[COLOFF]);
 #else  /* CELECOSM */
-    sprintf(tmpbuf,"%s%s%s %s been %skicked%s from channel %s%s%s by",
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s been %skicked%s from channel %s%s%s by",
             colnick,who,Colors[COLOFF],word,
             CmdsColors[COLKICK].color5,Colors[COLOFF],
             CmdsColors[COLKICK].color3,channel,Colors[COLOFF]);
@@ -1175,13 +1175,13 @@ int  show_server;
     char tmpbuf2[mybufsize/2];
 
     if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
-        sprintf(format,"%%s%%-%u.%us%%s %%s%%-9s%%s",
+        snprintf(format,sizeof(format),"%%s%%-%u.%us%%s %%s%%-9s%%s",
                 (unsigned char) width,(unsigned char) width);
     else strcpy(format,"%s%s%s\t%s%-9s%s");
-    sprintf(tmpbuf1,format,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),format,
             CmdsColors[COLWHO].color3,channel,Colors[COLOFF],
             CmdsColors[COLWHO].color1,nick,Colors[COLOFF]);
-    sprintf(tmpbuf2,"%s %s%-3s%s %s%s%s%s@%s%s%s%s",tmpbuf1,
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s%-3s%s %s%s%s%s@%s%s%s%s",tmpbuf1,
             CmdsColors[COLWHO].color4,stat,Colors[COLOFF],
             CmdsColors[COLWHO].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
@@ -1192,7 +1192,7 @@ int  show_server;
            show_server?']':')');
 #else
     if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
-        sprintf(format,"%s%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
+        snprintf(format,sizeof(format),"%s%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
                 (unsigned char) width,(unsigned char) width);
     else strcpy(format,"%s%s\t%-9s %-3s %s@%s (%s)");
     put_it(format,stampbuf,channel,nick,stat,user,host,show_server?server:name);
@@ -1220,18 +1220,18 @@ char *channel;
 #ifdef COUNTRY
     if ((country=rindex(host,'.'))) country++;
     country=function_country(country);
-    sprintf(tmpbuf1," [%s]",country);
+    snprintf(tmpbuf1,sizeof(tmpbuf1)," [%s]",country);
     new_free(&country);
     malloc_strcpy(&country,tmpbuf1);
 #endif /* COUNTRY */
-    sprintf(tmpbuf1,"%s!%s@%s",nick,user,host);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s@%s",nick,user,host);
     tmpfriend=CheckUsers(tmpbuf1,get_channel_by_refnum(0));
 #ifdef WANTANSI
 #ifdef GENX
     if (!my_stricmp(word,"is")) word="address";
     else word="was";
     put_it("%sÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",banner);
-    sprintf(tmpbuf2, "%s³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
+    snprintf(tmpbuf2,sizeof(tmpbuf2), "%s³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
             CmdsColors[COLWHOIS].color5,word,Colors[COLOFF],
             CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
@@ -1242,16 +1242,16 @@ char *channel;
     put_it("%s³ %sirc name%s ³ %s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF], name);
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s³   %sfriend%s ³ filt: %s%s%s",banner,
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s³   %sfriend%s ³ filt: %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF]);
-        sprintf(tmpbuf2,"  acs: %s",CmdsColors[COLWHOIS].color4);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"  acs: %s",CmdsColors[COLWHOIS].color4);
         BuildPrivs(tmpfriend,tmpbuf2);
         put_it("%s%s%s  chnl: %s%s%s",tmpbuf1,tmpbuf2,Colors[COLOFF],
                CmdsColors[COLWHOIS].color5,tmpfriend->channels,Colors[COLOFF]);
     }
 #elif defined(CELECOSM)
-    sprintf(tmpbuf1,"%s%s%s%s@%s%s%s%s",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s%s@%s%s%s%s",
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
@@ -1266,7 +1266,7 @@ char *channel;
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color3,channel,Colors[COLOFF]);
 #else /* GENX & CELE */
-    sprintf(tmpbuf1,"%s%s%s%s@%s%s%s%s",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s%s@%s%s%s%s",
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
@@ -1276,7 +1276,7 @@ char *channel;
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s%sFriend%s    : [Filt] #%d %s%s%s  [Acs] %s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%sFriend%s    : [Filt] #%d %s%s%s  [Acs] %s",
                 banner,CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                 tmpfriend->number,
                 CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF],
@@ -1296,7 +1296,7 @@ char *channel;
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%sFriend    : [Filt] #%d %s  [Acs] ",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%sFriend    : [Filt] #%d %s  [Acs] ",
                 banner,tmpfriend->number,tmpfriend->userhost);
         BuildPrivs(tmpfriend,tmpbuf1);
         put_it("%s  [Chnl] %s",tmpbuf1,tmpfriend->channels);
@@ -1346,7 +1346,7 @@ char *line;
         if (*uplink=='[') uplink++;
         tmpstr=index(uplink,']');
         if (tmpstr) *tmpstr='\0';
-        sprintf(tmpbuf,"%c:%c%s%s%s",bold,bold,
+        snprintf(tmpbuf,sizeof(tmpbuf),"%c:%c%s%s%s",bold,bold,
                 CmdsColors[COLWHOIS].color4,uplink,Colors[COLOFF]);
     }
     if (uplink) put_it("%s³   %sserver%s ³ %s%s%s UpLink%s",banner,
@@ -1457,8 +1457,8 @@ int  iscrypted;
 #endif /* CELECOSM */
 	if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
         else coln=CmdsColors[COLPUBLIC].color2;
-        sprintf(tmpbuf1,"%s%c%s",coln,pubschar,Colors[COLOFF]);
-        sprintf(tmpbuf5,"%s%c%s",coln,pubechar,Colors[COLOFF]);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s",coln,pubschar,Colors[COLOFF]);
+        snprintf(tmpbuf5,sizeof(tmpbuf5),"%s%c%s",coln,pubechar,Colors[COLOFF]);
         *tmpbuf3='\0';
         if (ExtPub) {
             strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
@@ -1480,7 +1480,7 @@ int  iscrypted;
                     currentar++;
                     invmatch=1;
                 }
-                sprintf(tmpbuf3,"%s %s",currentar,tmpbuf4);
+                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s %s",currentar,tmpbuf4);
                 currentar=function_match(tmpbuf3);
                 if (atoi(currentar)>0) {
                     if (!invmatch) foundar=1;
@@ -1519,7 +1519,7 @@ int  iscrypted;
                     else if (isvoiced) strcat(tmpbuf3,"+");
                     strcat(tmpbuf3,Colors[COLOFF]);
                 }
-                sprintf(tmpbuf2,"%s%c%s%s%s%s%s:%s%s%s%s%c%s ",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%c%s%s%s%s%s:%s%s%s%s%c%s ",
                         CmdsColors[COLPUBLIC].color2,pubschar,Colors[COLOFF],
                         tmpbuf3,
                         CmdsColors[COLPUBLIC].color4,nick,Colors[COLOFF],
@@ -1539,7 +1539,7 @@ int  iscrypted;
             if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,5);
             else strcpy(channel1,newchan);
 #endif
-            sprintf(tmpbuf2,"%s%s%s%s%s%s%s",tmpbuf1,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s%s%s%s",tmpbuf1,
                     nick,Colors[COLOFF],newcol,
 #ifdef CELE
                     CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF]
@@ -1552,7 +1552,7 @@ int  iscrypted;
         }
 	/* AwaySave needs to go after the put_it(). Two if's doesn't hurt */
 	if (foundar && (away_set || LogOn)) {
-            sprintf(tmpbuf3,"<%s:%s> %s",nick,channel,tmpbuf4);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"<%s:%s> %s",nick,channel,tmpbuf4);
             AwaySave(tmpbuf3,SAVEAREPLY);
 	}
     }
@@ -1562,7 +1562,7 @@ int  iscrypted;
                    CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF],
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         else if (print) {
-            sprintf(tmpbuf1,"%s%c%s%s%s%s%s>%s ",
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s%s%s%s%s>%s ",
                     CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
@@ -1578,7 +1578,7 @@ int  iscrypted;
             do {
                 newar=strchr(currentar,',');
                 if (newar) *newar='\0';
-                sprintf(tmpbuf3,"*%s*",currentar);
+                snprintf(tmpbuf3,sizeof(tmpbuf3),"*%s*",currentar);
                 foundar=wild_match(tmpbuf3,tmpbuf4);
                 if (newar) newar++;
                 currentar=newar;
@@ -1594,7 +1594,7 @@ int  iscrypted;
             strcat(tmpbuf2,"");
         }
         if (print && (!foundar || isitme)) {
-            sprintf(tmpbuf3,"%s%s%c%s",iscrypted?"[!]":"",stampbuf,pubschar,tmpbuf2);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%c%s",iscrypted?"[!]":"",stampbuf,pubschar,tmpbuf2);
             put_it("%s%s%s%s%s%s%c %s",tmpbuf3,
                    (isitme && Ego)?"":"",nick,(isitme && Ego)?"":"",newcol,newchan,pubechar,tmpbuf4);
         }
@@ -1603,7 +1603,7 @@ int  iscrypted;
                 put_it("%s%s%c%s%s%s%s%c %s",iscrypted?"[!]":"",
                         stampbuf,pubschar,tmpbuf2,nick,newcol,newchan,pubechar,tmpbuf4);
             if (away_set || LogOn) {
-                sprintf(tmpbuf2,"<%s:%s> %s",nick,channel,tmpbuf4);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"<%s:%s> %s",nick,channel,tmpbuf4);
                 AwaySave(tmpbuf2,SAVEAREPLY);
             }
         }
@@ -1619,7 +1619,7 @@ int  iscrypted;
     if (foundar) AddNick2AutoReply(nick);
     if (!isitme) Check4WordKick(line,joiner,isfriend,chan);
     if (chan && chan->ChanLog) {
-        sprintf(tmpbuf3,"<%s> %s", nick, line);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"<%s> %s", nick, line);
         ChannelLogSave(tmpbuf3, chan);
     }
 }
@@ -1668,33 +1668,33 @@ char *distance;
     dist=atoi(distance);
 #ifdef WANTANSI
     if (!LinksNumber) PrintLinksHead();
-    sprintf(tmpbuf1,"%s%c%s",CmdsColors[COLLINKS].color5,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s",CmdsColors[COLLINKS].color5,
             get_int_var(HIGH_ASCII_VAR)?'³':'|',Colors[COLOFF]);
     LinksNumber++;
-    sprintf(tmpbuf2,"%s%s%3d%s %s %s%s%26s%s%s",
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%3d%s %s %s%s%26s%s%s",
             tmpbuf1,CmdsColors[COLLINKS].color1,LinksNumber,Colors[COLOFF],tmpbuf1,
             tmpbuf1,CmdsColors[COLLINKS].color1,server,Colors[COLOFF],tmpbuf1);
-    sprintf(tmpbuf3,"%s%s%3d%s %s %s>%s %s%s%25s%s%s",
+    snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%3d%s %s %s>%s %s%s%25s%s%s",
             tmpbuf1,CmdsColors[COLLINKS].color3,dist,Colors[COLOFF],tmpbuf1,
             CmdsColors[COLLINKS].color4,Colors[COLOFF],tmpbuf1,
             CmdsColors[COLLINKS].color2,uplink,Colors[COLOFF],tmpbuf1);
     say("%s %s",tmpbuf2,tmpbuf3);
-/*    sprintf(tmpbuf1,"%s[%s",CmdsColors[COLLINKS].color4,Colors[COLOFF]);
-    sprintf(tmpbuf2,"%s]%s",CmdsColors[COLLINKS].color4,Colors[COLOFF]);
+/*    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s[%s",CmdsColors[COLLINKS].color4,Colors[COLOFF]);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s]%s",CmdsColors[COLLINKS].color4,Colors[COLOFF]);
     if (!LinksNumber) {
-        sprintf(tmpbuf3,"%s%sNo.%s%s %s          %sServer%s         %s",
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%sNo.%s%s %s          %sServer%s         %s",
                 tmpbuf1,CmdsColors[COLLINKS].color1,Colors[COLOFF],tmpbuf2,
                 tmpbuf1,CmdsColors[COLLINKS].color1,Colors[COLOFF],tmpbuf2);
-        sprintf(tmpbuf4,"%s%sDis%s%s    %s          %sUplink%s         %s",
+        snprintf(tmpbuf4,sizeof(tmpbuf4),"%s%sDis%s%s    %s          %sUplink%s         %s",
                 tmpbuf1,CmdsColors[COLLINKS].color2,Colors[COLOFF],tmpbuf2,
                 tmpbuf1,CmdsColors[COLLINKS].color2,Colors[COLOFF],tmpbuf2);
         say("%s %s",tmpbuf3,tmpbuf4);
     }
     LinksNumber++;
-    sprintf(tmpbuf3,"%s%s%3d%s%s %s%s%25s%s%s",
+    snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%3d%s%s %s%s%25s%s%s",
             tmpbuf1,CmdsColors[COLLINKS].color1,LinksNumber,Colors[COLOFF],tmpbuf2,
             tmpbuf1,CmdsColors[COLLINKS].color1,server,Colors[COLOFF],tmpbuf2);
-    sprintf(tmpbuf4,"%s%s%3d%s%s %s->%s %s%s%25s%s%s",
+    snprintf(tmpbuf4,sizeof(tmpbuf4),"%s%s%3d%s%s %s->%s %s%s%25s%s%s",
             tmpbuf1,CmdsColors[COLLINKS].color3,dist,Colors[COLOFF],tmpbuf2,
             CmdsColors[COLLINKS].color3,Colors[COLOFF],
             tmpbuf1,CmdsColors[COLLINKS].color2,uplink,Colors[COLOFF],tmpbuf2);
@@ -1737,7 +1737,7 @@ char *subargs;
         DontHold=0;
         if (command) subargs=NULL;
         if (pattern && *pattern) {
-            if (*pattern!='*') sprintf(tmpbuf,"*%s*",pattern);
+            if (*pattern!='*') snprintf(tmpbuf,sizeof(tmpbuf),"*%s*",pattern);
             else strcpy(tmpbuf,pattern);
             malloc_strcpy(&playpattern,tmpbuf);
         }
@@ -1790,7 +1790,7 @@ char *line;
     else if (count>=curr_scr_win->display_size) {
         readline=((float) (100*ftell(awayfile))/(float) filesize);
         if (PlayReverse) readline=100-readline;
-        sprintf(tmpbuf,"[%2d%%] Press any key to continue, 'c' for continuous, 'q' to quit",
+        snprintf(tmpbuf,sizeof(tmpbuf),"[%2d%%] Press any key to continue, 'c' for continuous, 'q' to quit",
                 readline);
         add_wait_prompt(tmpbuf,PlayBack2,stuff,WAIT_PROMPT_KEY);
     }
@@ -1978,7 +1978,7 @@ char *rest;
         format="%s%s";
         username=empty_string;
     }
-    sprintf(tmpbuf1,format,username,kline);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),format,username,kline);
     if ((StatskFilter && wild_match(StatskFilter,tmpbuf1)) || !StatskFilter)
         put_it("%s%-30s %s",numeric_banner(),tmpbuf1,comment);
     StatskNumber++;
@@ -2250,7 +2250,7 @@ char *nick;
             nickbuf[rand()%nicklen]='_';
         }
     }
-    sprintf(tmpbuf,"%d",parsing_server_index);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%d",parsing_server_index);
     strcpy(oldnick,nickbuf);
     nickname_sendline(tmpbuf,nickbuf);
 }
@@ -2276,15 +2276,15 @@ int  iscrypted;
     if (Stamp==2) func=(void(*)())say;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
-    sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
-    sprintf(thingright,"%c%s",thing,iscrypted?"*":"");
+    snprintf(thingleft,sizeof(thingleft),"%s%c",iscrypted?"*":"",thing);
+    snprintf(thingright,sizeof(thingright),"%c%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
-    sprintf(tmpbuf,"%s%s%s%s%s%s%s%s%s",
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s%s%s%s%s%s%s",
             CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color1,client->user,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF]);
 #ifdef TDF
-    sprintf(tmpbuf2,"<[%s%s%s]%s%s,%s%s>",
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"<[%s%s%s]%s%s,%s%s>",
             CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],
             CmdsColors[COLDCC].color4,client->addr,client->port,Colors[COLOFF]);
     func("%s %s%s%s %s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF],
@@ -2296,7 +2296,7 @@ int  iscrypted;
     func("%s%s%s %s",thingleft,client->user,thingright,line);
 #endif /* WANTANSI */
     if (bytes>512 && (away_set || LogOn)) {
-        sprintf(tmpbuf,"DCC CHAT from %s is %d bytes long",client->user,bytes);
+        snprintf(tmpbuf,sizeof(tmpbuf),"DCC CHAT from %s is %d bytes long",client->user,bytes);
         AwaySave(tmpbuf,SAVEDCC);
     }
 }
@@ -2318,10 +2318,10 @@ int  iscrypted;
     if (Stamp==2) func=(void(*)())say;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
-    sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
-    sprintf(thingright,"%c%s",thing,iscrypted?"*":"");
+    snprintf(thingleft,sizeof(thingleft),"%s%c",iscrypted?"*":"",thing);
+    snprintf(thingright,sizeof(thingright),"%c%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
-    sprintf(tmpbuf,"%s[%s%s%s%s%s%s%s%s%s%s%s]%s",
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s%s%s%s%s%s%s%s%s%s]%s",
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color5,nick,Colors[COLOFF],
@@ -2373,21 +2373,21 @@ char *banstr;
     char tmpbuf[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (!userhost) sprintf(tmpbuf2,"*%s*!*@*",nick);
-    else if (defban=='N') sprintf(tmpbuf2,"%s!%s",nick,userhost);
+    if (!userhost) snprintf(tmpbuf2,sizeof(tmpbuf2),"*%s*!*@*",nick);
+    else if (defban=='N') snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",nick,userhost);
     else {
         userhost++;
         if (*userhost=='@') userhost--;
         if (defban=='B') {
             strcpy(tmpbuf,userhost);
             UserDomainList(tmpbuf);
-            sprintf(tmpbuf2,"*!%s",tmpbuf);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
         }
         else if (defban=='E') {
             srand(time((time_t *) 0));
             strcpy(tmpbuf,userhost);
             UserDomainList(tmpbuf);
-            sprintf(tmpbuf2,"*!%s",tmpbuf);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
             rate1=350;
             rate2=1;
             for (tmpstr=tmpbuf2;*tmpstr;tmpstr++) {
@@ -2402,7 +2402,7 @@ char *banstr;
                 }
             }
         }
-        else if (defban=='H') sprintf(tmpbuf2,"*!*%s",index(userhost,'@'));
+        else if (defban=='H') snprintf(tmpbuf2,sizeof(tmpbuf2),"*!*%s",index(userhost,'@'));
         else if (defban=='S') {
             tmpstr2=userhost;
             while ((tmpstr=index(tmpstr2,'.'))) {
@@ -2417,7 +2417,7 @@ char *banstr;
                 }
             }
             else tmpstr=index(userhost,'@')+1;
-            sprintf(tmpbuf2,"*!*@*%s",tmpstr);
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"*!*@*%s",tmpstr);
         }
     }
     strcpy(banstr,tmpbuf2);
@@ -2454,9 +2454,9 @@ ChannelList *chan;
         timenow.tv_usec = timenow.tv_usec-chan->time.tv_usec + 1000000;
         timenow.tv_sec--;
     }
-    sprintf(tmpbuf2, "%06ld", timenow.tv_usec);
+    snprintf(tmpbuf2,sizeof(tmpbuf2), "%06ld", timenow.tv_usec);
     tmpbuf2[3] = '\0';
-    sprintf(tmpbuf1, "%ld.%s", timenow.tv_sec, tmpbuf2);
+    snprintf(tmpbuf1,sizeof(tmpbuf1), "%ld.%s", timenow.tv_sec, tmpbuf2);
 #ifndef CELEHOOK
     if (do_hook(CHANNEL_SYNCH_LIST, "%s %s", chan->channel, tmpbuf1))
 #endif /* CELEHOOK */
@@ -2473,7 +2473,7 @@ ChannelList *chan;
     if (chan && chan->ChanLog) {
         char tmpbuf3[mybufsize];
 
-        sprintf(tmpbuf3, "Join to %s is now synched (%s seconds)", chan->channel, tmpbuf1);
+        snprintf(tmpbuf3,sizeof(tmpbuf3), "Join to %s is now synched (%s seconds)", chan->channel, tmpbuf1);
         ChannelLogSave(tmpbuf3, chan);
     }
 }
@@ -2526,16 +2526,16 @@ char *buffer;
     else if (joiner->hasvoice) colnick=CmdsColors[COLCSCAN].color4;
     *thing='\0';
     if (joiner->hasvoice) {
-        sprintf(thing,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
+        snprintf(thing,sizeof(thing),"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
         count--;
     }
     if (joiner->chanop || joiner->halfop) {
-        sprintf(&thing[strlen(thing)],"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
+        sprintf(&thing[strlen(thing)],sizeof(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
         count--;
     }
     while (count) {
         sprintf(buffer," %s",thing);
-        sprintf(thing,buffer);
+        snprintf(thing,sizeof(thing),buffer);
         count--;
     }
     sprintf(buffer,"%s%s%-9s%s",thing,colnick,joiner->nick,Colors[COLOFF]);
@@ -2648,7 +2648,7 @@ char *subargs;
     for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next)
         if (chan->channel && CheckChannel(chan->channel,channels)) {
             for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-                if (joiner->userhost) sprintf(tmpbuf1,"%s!%s",joiner->nick,joiner->userhost);
+                if (joiner->userhost) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",joiner->nick,joiner->userhost);
                 else strcpy(tmpbuf1,joiner->nick);
                 /* Check for u@h match */
                 for (tmpfilt=filtlist;tmpfilt;tmpfilt=tmpfilt->next)
@@ -2698,7 +2698,7 @@ char *subargs;
                         }
 			tmpbuf2[1-count]=joiner->chanop?'@':'%';
                     }
-                    sprintf(tmpbuf1,"%s%-9s",tmpbuf2,joiner->nick);
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%-9s",tmpbuf2,joiner->nick);
                     *tmpbuf2='\0';
                     BuildPrivs(joiner->frlist,tmpbuf2);
                     say("%-3d %-14s %s %-34s %s",
@@ -2768,9 +2768,9 @@ char *subargs;
         if (error) PrintUsage("COLOR SETTING COLOR1 COLOR2 COLOR3 COLOR4 COLOR5");
         else {
             if (args && *args) SetColors(colsetting,&args,&error,0);
-            sprintf(tmpbuf1,"Color for %s",tmpstr);
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"Color for %s",tmpstr);
             GetColors(colsetting,tmpbuf2);
-            sprintf(tmpbuf3,"  [%d]",colsetting+1);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"  [%d]",colsetting+1);
             PrintSetting(tmpbuf1,tmpbuf2,tmpbuf3,empty_string);
             if (colsetting==COLSBAR1 || colsetting==COLSBAR2) build_status((char *) 0);
         }
@@ -2874,7 +2874,7 @@ int servernum;
                 if ((tmp=find_window(servernum))) {
                     visible=tmp->visible;
                     if (!visible) {
-                        sprintf(tmpbuf2,"SHOW %d",tmp->refnum);
+                        snprintf(tmpbuf2,sizeof(tmpbuf2),"SHOW %d",tmp->refnum);
                         window(NULL,tmpbuf2,NULL);
                     }
                     set_current_window(tmp);
@@ -2890,7 +2890,7 @@ int servernum;
                             new_free(&tmp->current_channel);
                             update_all_status();
                             if (!visible) {
-                                sprintf(tmpbuf2,"HIDE");
+                                snprintf(tmpbuf2,sizeof(tmpbuf2),"HIDE");
                                 window(NULL,tmpbuf2,NULL);
                             }
                             set_current_window(old);
@@ -3002,13 +3002,13 @@ void PrintLinksHead() {
     char tmpbuf2[mybufsize/4];
 
     if (get_int_var(HIGH_ASCII_VAR)) {
-        sprintf(tmpbuf1,"%sÚ%sú%sNo%sú%s¿ ÚÄÄÄÄÄÄÄÄÄ%sú%sServer%sú%sÄÄÄÄÄÄÄÄÄ¿%s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%sÚ%sú%sNo%sú%s¿ ÚÄÄÄÄÄÄÄÄÄ%sú%sServer%sú%sÄÄÄÄÄÄÄÄÄ¿%s",
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color1,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color1,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF]);
-        sprintf(tmpbuf2,"%sÚ%sú%sDs%sú%s¿   ÚÄÄÄÄÄÄÄÄ%sú%sUplink%sú%sÄÄÄÄÄÄÄÄÄ¿%s",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sÚ%sú%sDs%sú%s¿   ÚÄÄÄÄÄÄÄÄ%sú%sUplink%sú%sÄÄÄÄÄÄÄÄÄ¿%s",
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color3,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
@@ -3016,13 +3016,13 @@ void PrintLinksHead() {
                 CmdsColors[COLLINKS].color5,Colors[COLOFF]);
     }
     else {
-        sprintf(tmpbuf1,"%s.%s-%sNo%s-%s. .---------%s-%sServer%s-%s---------.%s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s.%s-%sNo%s-%s. .---------%s-%sServer%s-%s---------.%s",
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color1,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color1,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF]);
-        sprintf(tmpbuf2,"%s.%s-%sDs%s-%s.   .--------%s-%sUplink%s-%s---------.%s",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s.%s-%sDs%s-%s.   .--------%s-%sUplink%s-%s---------.%s",
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color3,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
@@ -3242,7 +3242,7 @@ char *filepath;
                     tmpurl->next=(struct urlstr *) 0;
                     saveit=0;
                 }
-                sprintf(tmpbuf2,"%c%s%c",bold,tmpstr1,bold);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%c%s%c",bold,tmpstr1,bold);
                 strcat(tmpstr2,tmpbuf2);
                 tmpstr2+=strlen(tmpbuf2);
                 /* Add URL to list */
@@ -3342,7 +3342,7 @@ ChannelList *chan;
     if (chan && chan->ChanLog) {
         char tmpbuf[4 * mybufsize];
 
-        sprintf(tmpbuf, "Users on %s: %s", channel, nicks);
+        snprintf(tmpbuf,sizeof(tmpbuf), "Users on %s: %s", channel, nicks);
         ChannelLogSave(tmpbuf, chan);
     }
 }
@@ -4025,7 +4025,7 @@ char *host;
     char tmpbuf[mybufsize/4];
 
     if (!my_stricmp(nick,get_server_nickname(from_server))) return;
-    sprintf(tmpbuf,"%s!%s@%s",nick,user,host);
+    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s@%s",nick,user,host);
     if (!wild_match(wkillpattern,tmpbuf)) return;
     WhoKillNum++;
     if (wkillreason) strcpy(tmpbuf,wkillreason);

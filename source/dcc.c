@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.34 2002-01-21 22:34:20 f Exp $
+ * $Id: dcc.c,v 1.35 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -260,7 +260,7 @@ DCC_list *Client;
         size=Client->filesize;
         if (size>=10000000) percentage=completed/(size/100);
         else percentage=completed*100/size;
-        sprintf(tmpbuf,"%s %c%%%d",Client->user,type,percentage);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s %c%%%d",Client->user,type,percentage);
         if (!CurrentDCC || (CurrentDCC && strcmp(tmpbuf,CurrentDCC))) {
             change=1;
             malloc_strcpy(&CurrentDCC,tmpbuf);
@@ -282,31 +282,31 @@ unsigned long byteoffset;
 #ifdef WANTANSI
 #ifdef TDF
     malloc_strcpy(&(Client->addr),inet_ntoa(remaddr.sin_addr));
-    sprintf(tmpbuf1,"%d",ntohs(remaddr.sin_port));
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%d",ntohs(remaddr.sin_port));
     malloc_strcpy(&(Client->port),tmpbuf1);
 #endif
-    sprintf(tmpbuf2,"%sDCC%s %s%s%s connection with %s%s%s",
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%sDCC%s %s%s%s connection with %s%s%s",
             CmdsColors[COLDCC].color5,Colors[COLOFF],
             CmdsColors[COLDCC].color3,type,Colors[COLOFF],
             CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
-    sprintf(tmpbuf1,"%s[%s%s,%d%s]",tmpbuf2,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s[%s%s,%d%s]",tmpbuf2,
             CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
             ntohs(remaddr.sin_port),Colors[COLOFF]);
     if (byteoffset) {
-        sprintf(tmpbuf2," at %s%ld%s bytes",
+        snprintf(tmpbuf2,sizeof(tmpbuf2)," at %s%ld%s bytes",
                 CmdsColors[COLDCC].color4,byteoffset,Colors[COLOFF]);
-        strcat(tmpbuf1,tmpbuf2);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
-    sprintf(tmpbuf2,"%s %sestablished%s",
+    snprintf(tmpbuf2,sizeof(tmpbuf1),"%s %sestablished%s",
             tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
 #else
-    sprintf(tmpbuf1,"DCC %s connection with %s[%s,%d]",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s connection with %s[%s,%d]",
             type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
     if (byteoffset) {
-        sprintf(tmpbuf2," at %ld bytes",byteoffset);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2)," at %ld bytes",byteoffset);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
-    sprintf(tmpbuf2,"%s established",tmpbuf1);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s established",tmpbuf1);
 #endif
     if (CdccVerbose<2) say("%s",tmpbuf2);
     if (away_set || LogOn) AwaySave(tmpbuf2,SAVEDCC);
@@ -340,25 +340,25 @@ DCC_list *Client;
     sent/=(double)1024.0;
     if (xtime<=0) xtime=1;
 #ifdef WANTANSI
-    sprintf(tmpbuf2,"%sDCC%s %s%s%s %s %s",
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%sDCC%s %s%s%s %s %s",
             CmdsColors[COLDCC].color5,Colors[COLOFF],
             CmdsColors[COLDCC].color3,type,Colors[COLOFF],
             Client->description,tmpstr);
-    sprintf(tmpbuf1,"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
             CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF],
             CmdsColors[COLDCC].color4,premature?" prematurely":"",Colors[COLOFF],
             (sent/(double) xtime));
 #else
-    sprintf(tmpbuf1,"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
             tmpstr,Client->user,premature?" prematurely":"",(sent/(double) xtime));
 #endif
     if (premature) {
-        sprintf(tmpbuf2,", %.0f bytes left",(double) Client->filesize-oldsent);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),", %.0f bytes left",(double) Client->filesize-oldsent);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
     if (!sent) xtime=0;
-    sprintf(tmpbuf2," [%02ld:%02ld]",xtime/60,xtime%60);
-    strcat(tmpbuf1,tmpbuf2);
+    snprintf(tmpbuf2,sizeof(tmpbuf2)," [%02ld:%02ld]",xtime/60,xtime%60);
+    strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     if (CdccVerbose<2) say("%s",tmpbuf1);
     if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
@@ -374,31 +374,31 @@ char *error;
     char tmpbuf2[mybufsize/4];
 
 #ifdef WANTANSI
-    sprintf(tmpbuf1,"%sDCC%s %s%s%s ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%sDCC%s %s%s%s ",
             CmdsColors[COLDCC].color5,Colors[COLOFF],
             CmdsColors[COLDCC].color3,type,Colors[COLOFF]);
     if (!error) {
-        sprintf(tmpbuf2,"%s ",description);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s ",description);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
-    sprintf(tmpbuf2,"connection %s %s%s%s lost",tmpstr,
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"connection %s %s%s%s lost",tmpstr,
             CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
-    strcat(tmpbuf1,tmpbuf2);
+    strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     if (error) {
-        sprintf(tmpbuf2,": %s",error);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),": %s",error);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
 #else
-    sprintf(tmpbuf1,"DCC %s ",type);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s ",type);
     if (!error) {
-        sprintf(tmpbuf2,"%s ",description);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s ",description);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
-    sprintf(tmpbuf2,"connection %s %s lost",tmpstr,user);
-    strcat(tmpbuf1,tmpbuf2);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"connection %s %s lost",tmpstr,user);
+    strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     if (error) {
-        sprintf(tmpbuf2,": %s",error);
-        strcat(tmpbuf1,tmpbuf2);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),": %s",error);
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
     }
 #endif
     if (CdccVerbose<2) say("%s",tmpbuf1);
@@ -609,7 +609,7 @@ dcc_check(rd, wd)
                                         if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
                                             ((*Client)->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
                                         if (((*Client)->flags&DCC_TYPES)==DCC_CHAT) {
-                                            sprintf(tmpbuf,"=%s",(*Client)->user);
+                                            snprintf(tmpbuf,sizeof(tmpbuf),"=%s",(*Client)->user);
                                             AddNick2List(tmpbuf,(*Client)->server);
                                         }
                                         update_all_status();
@@ -807,7 +807,7 @@ dcc_open(Client)
                 update_all_status();
 /*****************************/
                 if ((Client->flags&DCC_TYPES)==DCC_CHAT) {
-                    sprintf(tmpbuf,"=%s",user);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"=%s",user);
                     AddNick2List(tmpbuf,Client->server);
                 }
 /****************************************************************************/
@@ -888,7 +888,7 @@ dcc_open(Client)
                         new_free(&nopath);
 /****************************************************************************/
 		}
-		sprintf(tmpbuf1, "%d", ntohs(localaddr.sin_port));
+		snprintf(tmpbuf1, sizeof(tmpbuf1), "%d", ntohs(localaddr.sin_port));
 		malloc_strcpy(&Client->othername, tmpbuf1);
 		/*
 		 * Is this where dcc times are fucked up??  - phone
@@ -1867,16 +1867,16 @@ register_dcc_offer(user, type, description, address, port, size)
 /**************************** PATCHED by Flier ******************************/
 		/*say("Unknown DCC %s (%s) received from %s", type, description, user);*/
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"Unknown %sDCC%s %s%s%s (%s%s%s) received from",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"Unknown %sDCC%s %s%s%s (%s%s%s) received from",
                         CmdsColors[COLDCC].color5,Colors[COLOFF],
                         CmdsColors[COLDCC].color3,type,Colors[COLOFF],
                         CmdsColors[COLDCC].color4,description,Colors[COLOFF]);
-                sprintf(tmpbuf2,"%s %s%s%s",tmpbuf1,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s%s%s",tmpbuf1,
                         CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
-                strcat(tmpbuf2,tmpbuf3);
+                strmcat(tmpbuf2,tmpbuf3,sizeof(tmpbuf2));
 #else
-                sprintf(tmpbuf2,"Unknown DCC %s (%s) received from %s (%s)",type,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"Unknown DCC %s (%s) received from %s (%s)",type,
                         description,user,FromUserHost);
 #endif
                 say("%s",tmpbuf2);
@@ -1920,16 +1920,16 @@ register_dcc_offer(user, type, description, address, port, size)
 	if (TempInt<1024 || TempInt>65535)
 	{
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"%sDCC%s %s%s%s (%s%s%s) request from",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sDCC%s %s%s%s (%s%s%s) request from",
                         CmdsColors[COLDCC].color5,Colors[COLOFF],
                         CmdsColors[COLDCC].color3,type,Colors[COLOFF],
                         CmdsColors[COLDCC].color4,description,Colors[COLOFF]);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
-                sprintf(tmpbuf2,"%s %s%s%s %s %srejected%s [Port=%u]",tmpbuf1,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s%s%s %s %srejected%s [Port=%u]",tmpbuf1,
                         CmdsColors[COLDCC].color1,user,Colors[COLOFF],
                         tmpbuf3,CmdsColors[COLDCC].color6,Colors[COLOFF],TempInt);
 #else
-                sprintf(tmpbuf2,"DCC %s (%s) request from %s (%s) rejected [Port=%u]",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"DCC %s (%s) request from %s (%s) rejected [Port=%u]",
                         type,description,user,FromUserHost,TempInt);
 #endif
                 say("%s",tmpbuf2);
@@ -1961,23 +1961,23 @@ register_dcc_offer(user, type, description, address, port, size)
  		say("DCC %s (%s) request received from %s [%s:%s]", type, description, user, inet_ntoa(Client->remote), port);*/
 	else if (Client->filesize) {
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"%sDCC%s %s%s%s (%s%s %ld%s) request ",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sDCC%s %s%s%s (%s%s %ld%s) request ",
                         CmdsColors[COLDCC].color5,Colors[COLOFF],
                         CmdsColors[COLDCC].color3,type,Colors[COLOFF],
                         CmdsColors[COLDCC].color4,description,
                         (long) Client->filesize,Colors[COLOFF]);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
-                sprintf(tmpbuf2,"%s%sreceived%s from %s%s%s %s [%s:%s]",tmpbuf1,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%sreceived%s from %s%s%s %s [%s:%s]",tmpbuf1,
                         CmdsColors[COLDCC].color4,Colors[COLOFF],
                         CmdsColors[COLDCC].color1,user,Colors[COLOFF],tmpbuf3,
                         inet_ntoa(Client->remote), port);
 #else
-                sprintf(tmpbuf2,"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
                         type,description,(long) Client->filesize,user,
                         FromUserHost,inet_ntoa(Client->remote),port);
 #endif
                 if (DCCWarning) {
-                    strcpy(tmpbuf1,FromUserHost);
+                    strmcpy(tmpbuf1,FromUserHost,sizeof(tmpbuf1));
                     fromhost=index(tmpbuf1,'@');
                     fromhost++;
                     hostent_fromhost=gethostbyname(fromhost);
@@ -1997,7 +1997,7 @@ register_dcc_offer(user, type, description, address, port, size)
                         addr2.s_addr=inet_addr(fromhost);
                         if ((addr1.s_addr!=Client->remote.s_addr) &&
                             (addr2.s_addr!=Client->remote.s_addr)) {
-                            strcpy(tmpbuf3,inet_ntoa(addr1));
+                            strmcpy(tmpbuf3,inet_ntoa(addr1),sizeof(tmpbuf3));
 #ifdef WANTANSI
                             say("%sWarning%s, fake DCC handshake detected [%s!=%s]",
                                 CmdsColors[COLDCC].color6,Colors[COLOFF],
@@ -2013,11 +2013,11 @@ register_dcc_offer(user, type, description, address, port, size)
                 }
                 say("%s",tmpbuf2);
                 if (away_set || LogOn) {
-                    sprintf(tmpbuf1,"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
                             type,description,(long) Client->filesize,user,
                             FromUserHost,inet_ntoa(Client->remote), port);
-                    if (warning==1) strcat(tmpbuf1,", address couldn't be figured out");
-                    else if (warning==2) strcat(tmpbuf1,", fake DCC handshake detected");
+                    if (warning==1) strmcat(tmpbuf1,", address couldn't be figured out",sizeof(tmpbuf1));
+                    else if (warning==2) strmcat(tmpbuf1,", fake DCC handshake detected",sizeof(tmpbuf1));
                     AwaySave(tmpbuf1,SAVEDCC);
                 }
                 if ((AutoGet>1) || (!warning && AutoGet)) {
@@ -2040,17 +2040,17 @@ register_dcc_offer(user, type, description, address, port, size)
 	}
         else {
 #ifdef WANTANSI
-                sprintf(tmpbuf1,"%sDCC%s %s%s%s (%s%s%s) request %sreceived",
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sDCC%s %s%s%s (%s%s%s) request %sreceived",
                         CmdsColors[COLDCC].color5,Colors[COLOFF],
                         CmdsColors[COLDCC].color3,type,Colors[COLOFF],
                         CmdsColors[COLDCC].color4,description,Colors[COLOFF],
                         CmdsColors[COLDCC].color4);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
-                sprintf(tmpbuf2,"%s%s from %s%s%s %s [%s:%s]",tmpbuf1,Colors[COLOFF],
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s from %s%s%s %s [%s:%s]",tmpbuf1,Colors[COLOFF],
                         CmdsColors[COLDCC].color1,user,Colors[COLOFF],tmpbuf3,
                         inet_ntoa(Client->remote),port);
 #else
-                sprintf(tmpbuf2,"DCC %s (%s) request received from %s (%s) [%s:%s]",
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"DCC %s (%s) request received from %s (%s) [%s:%s]",
                         type,description,user,FromUserHost,inet_ntoa(Client->remote),port);
 #endif
                 if (((Client->flags)&DCC_TYPES)==DCC_FILEREAD ||
@@ -2067,12 +2067,12 @@ register_dcc_offer(user, type, description, address, port, size)
                 }
                 say("%s",tmpbuf2);
                 if (away_set || LogOn) {
-                    sprintf(tmpbuf1,"DCC %s (%s) request received from %s (%s)",
+                    snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s (%s) request received from %s (%s)",
                             type,description,user,FromUserHost);
-                    if (warning) strcat(tmpbuf1,", file size was zero");
+                    if (warning) strmcat(tmpbuf1,", file size was zero",sizeof(tmpbuf1));
                     AwaySave(tmpbuf1,SAVEDCC);
                 }
-                sprintf(tmpbuf1,"%s!%s",user,FromUserHost);
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",user,FromUserHost);
                 if (!my_stricmp("CHAT",type)) {
                     if ((tmpfriend=CheckUsers(tmpbuf1,NULL)) && (tmpfriend->privs)&FLCDCC)
                         dcc_chat(user);
@@ -2140,7 +2140,7 @@ process_incoming_chat(Client)
 		/*say("DCC chat connection to %s[%s,%d] established", Client->user,
 			inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                 PrintEstablish("chat",Client,remaddr,0L);
-                sprintf(tmpbuf,"=%s",Client->user);
+                snprintf(tmpbuf,sizeof(tmpbuf),"=%s",Client->user);
                 AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
 		Client->starttime = time(NULL);
@@ -2196,7 +2196,7 @@ process_incoming_chat(Client)
 		{
  			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX XXX: stop dcc long messages, stupid but "safe"? */
 /**************************** PATCHED by Flier ******************************/
-                        sprintf(tmpbuf,"=%s",Client->user);
+                        snprintf(tmpbuf,sizeof(tmpbuf),"=%s",Client->user);
                         iscrypted=DecryptMessage(s,tmpbuf);
 /****************************************************************************/
 #ifndef LITE
@@ -2219,10 +2219,10 @@ process_incoming_chat(Client)
 		}
 /**************************** PATCHED by Flier ******************************/
                 if (away_set) {
-                    sprintf(tmpbuf,"=%s= %s",Client->user,s);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"=%s= %s",Client->user,s);
                     AwaySave(tmpbuf,SAVECHAT);
                 }
-                sprintf(tmpbuf,"=%s",Client->user);
+                snprintf(tmpbuf,sizeof(tmpbuf),"=%s",Client->user);
                 AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
 	}
@@ -2760,7 +2760,7 @@ dcc_message_transmit(user, text, type, flag)
 	strmcpy(tmp, text, BIG_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
 	if (type==DCC_CHAT) {
-            sprintf(tmpbuf,"=%s",Client->user);
+            snprintf(tmpbuf,sizeof(tmpbuf),"=%s",Client->user);
             iscrypted=EncryptMessage(tmp,tmpbuf);
         }
 /****************************************************************************/
@@ -3033,8 +3033,8 @@ dcc_chat_rename(args)
 /**************************** PATCHED by Flier ******************************/
                 if (strlen(user)>mybufsize/16) user[mybufsize/16]='\0';
                 if (strlen(temp)>mybufsize/16) temp[mybufsize/16]='\0';
-                sprintf(oldnick,"=%s",user);
-                sprintf(newnick,"=%s",temp);
+                snprintf(oldnick,sizeof(oldnick),"=%s",user);
+                snprintf(newnick,sizeof(newnick),"=%s",temp);
                 if (CheckServer(Client->server)) {
                     for (nickstr=server_list[Client->server].nicklist;nickstr;
                          nickstr=nickstr->next)

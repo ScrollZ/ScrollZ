@@ -11,7 +11,7 @@
  *
  * Modified by Flier
  *
- * $Id: whowas.c,v 1.8 2001-08-27 16:45:28 f Exp $
+ * $Id: whowas.c,v 1.9 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -187,14 +187,14 @@ struct friends *added;
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
-            sprintf(user,"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
+            snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
             if (wild_match(added->userhost,user)) tmp->nicklist->frlist=added;
         }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
-            sprintf(user,"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
+            snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
             if (wild_match(added->userhost,user)) tmp->nicklist->frlist=added;
         }
     }
@@ -230,14 +230,14 @@ struct autobankicks *added;
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
-            sprintf(user,"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
+            snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
             if (wild_match(added->userhost,user)) tmp->nicklist->shitlist=added;
         }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
-            sprintf(user,"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
+            snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
             if (wild_match(added->userhost,user)) tmp->nicklist->shitlist=added;
         }
     }

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.73 2002-01-21 22:12:15 f Exp $
+ * $Id: edit3.c,v 1.74 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -124,8 +124,8 @@ char *subargs;
 
     if (args && *args) {
         channel=new_next_arg(args,&args);
-        if (is_channel(channel)) strcpy(tmpbuf1,channel);
-        else sprintf(tmpbuf1,"#%s",channel);
+        if (is_channel(channel)) strmcpy(tmpbuf1,channel,sizeof(tmpbuf1));
+        else snprintf(tmpbuf1,sizeof(tmpbuf1),"#%s",channel);
         channel=tmpbuf1;
     }
     else if ((channel=get_channel_by_refnum(0))==NULL) {
@@ -134,7 +134,7 @@ char *subargs;
     }
     if (is_chanop(channel,get_server_nickname(from_server))) {
         if ((curmode=get_channel_mode(channel,from_server))!=NULL) {
-            strcpy(tmpbuf2,curmode);
+            strmcpy(tmpbuf2,curmode,sizeof(tmpbuf2));
             curmode=tmpbuf2;
             while (*curmode && *curmode!='k') curmode++;
             if (*curmode && *curmode=='k') {
@@ -203,31 +203,31 @@ int  type;
     filepath = OpenCreateFile(filename, 1);
     if (filepath && (awayfile = fopen(filepath, "a")) != NULL) {
         now = time((time_t *) 0);
-        if (type & SAVEMSG)          sprintf(tmpbuf1, "%cMSG   %c", REV_TOG, REV_TOG);
-        else if (type & SAVENOTICE)  strcpy(tmpbuf1, "NOTICE");
-        else if (type & SAVEMASS)    strcpy(tmpbuf1 ,"MASS  ");
-        else if (type & SAVECOLL)    strcpy(tmpbuf1, "COLL  ");
-        else if (type & SAVECDCC)    strcpy(tmpbuf1, "CDCC  ");
-        else if (type & SAVEDCC)     strcpy(tmpbuf1, "DCC   ");
-        else if (type & SAVEPROT)    strcpy(tmpbuf1, "PROT  ");
-        else if (type & SAVEHACK)    strcpy(tmpbuf1, "HACK  ");
-        else if (type & SAVESRVM)    strcpy(tmpbuf1, "SRVM  ");
-        else if (type & SAVECTCP)    strcpy(tmpbuf1, "CTCP  ");
-        else if (type & SAVEFLOOD)   strcpy(tmpbuf1, "FLOOD ");
-        else if (type & SAVEINVITE)  strcpy(tmpbuf1, "INVITE");
-        else if (type & SAVEKILL)    strcpy(tmpbuf1, "KILL  ");
-        else if (type & SAVEKICK)    strcpy(tmpbuf1, "KICK  ");
-        else if (type & SAVESERVER)  strcpy(tmpbuf1, "SERVER");
-        else if (type & SAVEFAKE)    strcpy(tmpbuf1, "FAKE  ");
-        else if (type & SAVEAREPLY)  strcpy(tmpbuf1, "AREPLY");
-        else if (type & SAVENOTIFY)  strcpy(tmpbuf1, "NOTIFY");
-        else if (type & SAVESENTMSG) strcpy(tmpbuf1, "SENTMSG");
+        if (type & SAVEMSG)          snprintf(tmpbuf1,sizeof(tmpbuf1), "%cMSG   %c", REV_TOG, REV_TOG);
+        else if (type & SAVENOTICE)  strmcpy(tmpbuf1, "NOTICE", sizeof(tmpbuf1));
+        else if (type & SAVEMASS)    strmcpy(tmpbuf1, "MASS  ", sizeof(tmpbuf1));
+        else if (type & SAVECOLL)    strmcpy(tmpbuf1, "COLL  ", sizeof(tmpbuf1));
+        else if (type & SAVECDCC)    strmcpy(tmpbuf1, "CDCC  ", sizeof(tmpbuf1));
+        else if (type & SAVEDCC)     strmcpy(tmpbuf1, "DCC   ", sizeof(tmpbuf1));
+        else if (type & SAVEPROT)    strmcpy(tmpbuf1, "PROT  ", sizeof(tmpbuf1));
+        else if (type & SAVEHACK)    strmcpy(tmpbuf1, "HACK  ", sizeof(tmpbuf1));
+        else if (type & SAVESRVM)    strmcpy(tmpbuf1, "SRVM  ", sizeof(tmpbuf1));
+        else if (type & SAVECTCP)    strmcpy(tmpbuf1, "CTCP  ", sizeof(tmpbuf1));
+        else if (type & SAVEFLOOD)   strmcpy(tmpbuf1, "FLOOD ", sizeof(tmpbuf1));
+        else if (type & SAVEINVITE)  strmcpy(tmpbuf1, "INVITE", sizeof(tmpbuf1));
+        else if (type & SAVEKILL)    strmcpy(tmpbuf1, "KILL  ", sizeof(tmpbuf1));
+        else if (type & SAVEKICK)    strmcpy(tmpbuf1, "KICK  ", sizeof(tmpbuf1));
+        else if (type & SAVESERVER)  strmcpy(tmpbuf1, "SERVER", sizeof(tmpbuf1));
+        else if (type & SAVEFAKE)    strmcpy(tmpbuf1, "FAKE  ", sizeof(tmpbuf1));
+        else if (type & SAVEAREPLY)  strmcpy(tmpbuf1, "AREPLY", sizeof(tmpbuf1));
+        else if (type & SAVENOTIFY)  strmcpy(tmpbuf1, "NOTIFY", sizeof(tmpbuf1));
+        else if (type & SAVESENTMSG) strmcpy(tmpbuf1, "SENTMSG", sizeof(tmpbuf1));
         else *tmpbuf1 = '\0';
-        if (*tmpbuf1) sprintf(tmpbuf2, "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
-        else sprintf(tmpbuf2, "[%.24s] %s", ctime(&now), message);
+        if (*tmpbuf1) snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
+        else snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
         if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
-        else strcpy(tmpbuf2, tmpbuf1);
+        else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(awayfile, "%s\n", tmpbuf2);
         fclose(awayfile);
     }
@@ -371,11 +371,11 @@ char *subargs;
     *tmpbuf3='\0';
     if (NHProt) {
 #ifdef WANTANSI
-        sprintf(tmpbuf2,"ON%s for channels : %s%s%s",Colors[COLOFF],
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"ON%s for channels : %s%s%s",Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,NHProtChannels,Colors[COLOFF]);
-        strcpy(tmpbuf3,CmdsColors[COLSETTING].color2);
+        strmcpy(tmpbuf3,CmdsColors[COLSETTING].color2,sizeof(tmpbuf3));
 #else
-        sprintf(tmpbuf2,"ON for channels : %c%s%c",bold,NHProtChannels,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"ON for channels : %c%s%c",bold,NHProtChannels,
                 bold);
 #endif
         switch (NHDisp) {
@@ -393,17 +393,17 @@ char *subargs;
     }
     else {
 #ifdef WANTANSI
-        strcpy(tmpbuf3,CmdsColors[COLSETTING].color2);
+        strmcpy(tmpbuf3,CmdsColors[COLSETTING].color2,sizeof(tmpbuf3));
 #endif
         switch (NHDisp) {
             case 0:
-                strcat(tmpbuf3,"QUIET");
+                strmcat(tmpbuf3,"QUIET",sizeof(tmpbuf3));
                 break;
             case 1:
-                strcat(tmpbuf3,"MEDIUM");
+                strmcat(tmpbuf3,"MEDIUM",sizeof(tmpbuf3));
                 break;
             case 2:
-                strcat(tmpbuf3,"FULL");
+                strmcat(tmpbuf3,"FULL",sizeof(tmpbuf3));
                 break;
         }
         PrintSetting(tmpbuf1,"OFF",", display is",tmpbuf3);
@@ -443,32 +443,32 @@ char *subargs;
             CmdsColors[COLSETTING].color5,tmpchan->channel,Colors[COLOFF]);
         say("Channel created in memory at %s%.24s%s",
             CmdsColors[COLSETTING].color2,ctime(&(tmpchan->creationtime)),Colors[COLOFF]);
-	sprintf(tmpbuf, "Ops     : %s%-5d%s Deops    : %s%-5d%s Servops    : %s%-5d%s Servdeops    : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->pluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minuso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servpluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminuso, Colors[COLOFF]);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Ops     : %s%-5d%s Deops    : %s%-5d%s Servops    : %s%-5d%s Servdeops    : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->pluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minuso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servpluso, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminuso, Colors[COLOFF]);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Halfops : %s%-5d%s Dehalfops: %s%-5d%s Servhalfops: %s%-5d%s Servdehalfops: %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminush, Colors[COLOFF]);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Halfops : %s%-5d%s Dehalfops: %s%-5d%s Servhalfops: %s%-5d%s Servdehalfops: %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplush, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminush, Colors[COLOFF]);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Bans    : %s%-5d%s Unbans   : %s%-5d%s Servbans   : %s%-5d%s Servunbans   : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminusb, Colors[COLOFF]);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Bans    : %s%-5d%s Unbans   : %s%-5d%s Servbans   : %s%-5d%s Servunbans   : %s%-5d%s", CmdsColors[COLSETTING].color2, tmpchan->plusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->minusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servplusb, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->servminusb, Colors[COLOFF]);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Bans set: %s%-5d%s Kicks    : %s%-5d%s Topics     : %s%-5d%s Publics      : %s%-5d%s", CmdsColors[COLSETTING].color2, bancount, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->kick, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->topic, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->pub, Colors[COLOFF]);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Bans set: %s%-5d%s Kicks    : %s%-5d%s Topics     : %s%-5d%s Publics      : %s%-5d%s", CmdsColors[COLSETTING].color2, bancount, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->kick, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->topic, Colors[COLOFF], CmdsColors[COLSETTING].color2, tmpchan->pub, Colors[COLOFF]);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Opped   : %s%-5d%s Halfopped: %s%-5d%s Unopped    : %s%-5d%s Voiced       : %s%-5d%s", CmdsColors[COLSETTING].color2, ops, Colors[COLOFF], CmdsColors[COLSETTING].color2, halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, users - ops - halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, voice, Colors[COLOFF]);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Opped   : %s%-5d%s Halfopped: %s%-5d%s Unopped    : %s%-5d%s Voiced       : %s%-5d%s", CmdsColors[COLSETTING].color2, ops, Colors[COLOFF], CmdsColors[COLSETTING].color2, halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, users - ops - halfops, Colors[COLOFF], CmdsColors[COLSETTING].color2, voice, Colors[COLOFF]);
 	say("%s", tmpbuf);
 	say("Total   : %s%-5d%s", CmdsColors[COLSETTING].color2, users, Colors[COLOFF]);
 #else  /* WANTANSI */
         say("Statistics for channel %s :",tmpchan->channel);
         say("Channel created in memory at %c%.24s%c",
             bold,ctime(&(tmpchan->creationtime)),bold);
-	sprintf(tmpbuf, "Ops     : %c%-5d%c Deops    : %c%-5d%c Servops    : %c%-5d%c Servdeops    : %c%-5d%c", bold, tmpchan->pluso, bold, bold, tmpchan->minuso, bold, bold, tmpchan->servpluso, bold, bold, tmpchan->servminuso, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Ops     : %c%-5d%c Deops    : %c%-5d%c Servops    : %c%-5d%c Servdeops    : %c%-5d%c", bold, tmpchan->pluso, bold, bold, tmpchan->minuso, bold, bold, tmpchan->servpluso, bold, bold, tmpchan->servminuso, bold);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Halfops : %c%-5d%c Dehalfops: %c%-5d%c Servhalfops: %c%-5d%c Servdehalfops: %c%-5d%c", bold, tmpchan->plush, bold, bold, tmpchan->minush, bold, bold, tmpchan->servplush, bold, bold, tmpchan->servminush, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Halfops : %c%-5d%c Dehalfops: %c%-5d%c Servhalfops: %c%-5d%c Servdehalfops: %c%-5d%c", bold, tmpchan->plush, bold, bold, tmpchan->minush, bold, bold, tmpchan->servplush, bold, bold, tmpchan->servminush, bold);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Bans    : %c%-5d%c Unbans   : %c%-5d%c Servbans   : %c%-5d%c Servunbans   : %c%-5d%c", bold, tmpchan->plusb, bold, bold, tmpchan->minusb, bold, bold, tmpchan->servplusb, bold, bold, tmpchan->servminusb, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Bans    : %c%-5d%c Unbans   : %c%-5d%c Servbans   : %c%-5d%c Servunbans   : %c%-5d%c", bold, tmpchan->plusb, bold, bold, tmpchan->minusb, bold, bold, tmpchan->servplusb, bold, bold, tmpchan->servminusb, bold);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Bans set: %c%-5d%c Kicks    : %c%-5d%c Topics     : %c%-5d%c Publics      : %c%-5d%c", bold, bancount, bold, bold, tmpchan->kick, bold, bold, tmpchan->topic, bold, bold, tmpchan->pub, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Bans set: %c%-5d%c Kicks    : %c%-5d%c Topics     : %c%-5d%c Publics      : %c%-5d%c", bold, bancount, bold, bold, tmpchan->kick, bold, bold, tmpchan->topic, bold, bold, tmpchan->pub, bold);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Opped   : %c%-5d%c Halfopped: %c%-5d%c Unopped    : %c%-5d%c Voiced       : %c%-5d%c", bold, ops, bold, bold, halfops, bold, bold, users - ops - halfops, bold, bold, voice, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Opped   : %c%-5d%c Halfopped: %c%-5d%c Unopped    : %c%-5d%c Voiced       : %c%-5d%c", bold, ops, bold, bold, halfops, bold, bold, users - ops - halfops, bold, bold, voice, bold);
 	say("%s", tmpbuf);
-	sprintf(tmpbuf, "Total   : %c%-5d%c", bold, users, bold);
+	snprintf(tmpbuf, sizeof(tmpbuf), "Total   : %c%-5d%c", bold, users, bold);
 #endif /* WANTANSI */
     }
     else NoWindowChannel();
@@ -682,7 +682,7 @@ char *subargs;
         say("No chat request so far");
         return;
     }
-    sprintf(tmpbuf,"CHAT %s",who);
+    snprintf(tmpbuf,sizeof(tmpbuf),"CHAT %s",who);
     dcc_close(tmpbuf);
 }
 
@@ -702,7 +702,7 @@ char *subargs;
     if (*args) {
         tmpnick=new_next_arg(args,&args);
         if (strchr(tmpnick,'@')) {
-            sprintf(tmpbuf,"finger %s",tmpnick);
+            snprintf(tmpbuf,sizeof(tmpbuf),"finger %s",tmpnick);
             execcmd(NULL,tmpbuf,NULL);
             say("Launching finger on %s",tmpnick);
         }
@@ -711,7 +711,7 @@ char *subargs;
             if (joiner && joiner->userhost) {
                 tmpstr=joiner->userhost;
                 if (*tmpstr=='~' || *tmpstr=='+') tmpstr++;
-                sprintf(tmpbuf,"finger %s",tmpstr);
+                snprintf(tmpbuf,sizeof(tmpbuf),"finger %s",tmpstr);
                 execcmd(NULL,tmpbuf,NULL);
                 say("Launching finger on %s",tmpstr);
             }
@@ -738,9 +738,9 @@ char *tmpnick;
         say("Can't find %s on IRC",tmpnick);
         return;
     }
-    if (*(wistuff->user)!='~') sprintf(tmpbuf1,"%s@%s",wistuff->user,wistuff->host);
-    else sprintf(tmpbuf1,"%s@%s",&(wistuff->user[1]),wistuff->host);
-    sprintf(tmpbuf2,"finger %s",tmpbuf1);
+    if (*(wistuff->user)!='~') snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",wistuff->user,wistuff->host);
+    else snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",&(wistuff->user[1]),wistuff->host);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"finger %s",tmpbuf1);
     execcmd(NULL,tmpbuf2,NULL);
     say("Launching finger on %s",tmpbuf1);
 }
@@ -840,153 +840,153 @@ char *subargs;
 #ifdef WANTANSI
     say("-----------------------= %sScrollZ settings%s =-----------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
-    sprintf(tmpbuf1,"A-setaway time   : %s%-3d%sm   ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"A-setaway time   : %s%-3d%sm   ",
             CmdsColors[COLSETTING].color2,AutoAwayTime,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| A-join on invite  : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-join on invite  : ");
     if (AutoJoinOnInv==2)
-        sprintf(tmpbuf3,"%sAUTO%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sAUTO%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,AutoJoinChannels,
                 Colors[COLOFF]);
     else if (AutoJoinOnInv)
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,AutoJoinChannels,
                 Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ban type         : %s%c%s      ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ban type         : %s%c%s      ",
             CmdsColors[COLSETTING].color2,defban,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| A-rejoin on kick  : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-rejoin on kick  : ");
     if (AutoRejoin)
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,AutoRejoinChannels,
                 Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ignore time      : %s%-3d%ss   ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ignore time      : %s%-3d%ss   ",
             CmdsColors[COLSETTING].color2,IgnoreTime,Colors[COLOFF]);
     strcat(tmpbuf1,"| Fake modes disp   : ");
     if (ShowFakes) 
-        sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 ShowFakesChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Server notices   : ");
-    if (ServerNotice) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,
+    if (ServerNotice) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,
                               Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Notify on away    : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Notify on away    : ");
     if (ShowAway) 
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 ShowAwayChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"CTCP cloaking    : ");
-    if (CTCPCloaking==1) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,
+    if (CTCPCloaking==1) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,
                                  Colors[COLOFF]);
-    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%sHIDE%s   ",CmdsColors[COLSETTING].color2,
+    else if (CTCPCloaking==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sHIDE%s   ",CmdsColors[COLSETTING].color2,
                                       Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Kick ops          : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Kick ops          : ");
     if (KickOps)
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 KickOpsChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Ext msgs display : ");
-    if (ExtMes) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (ExtMes) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Kick on flood     : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Kick on flood     : ");
     if (KickOnFlood) 
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 KickOnFloodChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Show nick on pub : ");
-    if (ShowNick) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (ShowNick) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf2,"| Kick on ban       : ");
     if (KickOnBan)
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 KickOnBanChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"URL Catcher      : ");
-    if (URLCatch==3) sprintf(tmpbuf2,"%sQUIET%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else if (URLCatch==2) sprintf(tmpbuf2,"%sAUTO%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else if (URLCatch) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (URLCatch==3) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sQUIET%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (URLCatch==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sAUTO%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (URLCatch) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf2,"| Bitch mode        : ");
     if (Bitch)
-        sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 BitchChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf2,"| Extended publics  : ");
     if (ExtPub)
-        sprintf(tmpbuf3,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %sCdcc settings%s =------------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
-    if (AutoGet==1) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else if (AutoGet==2) sprintf(tmpbuf2,"%sALWAYS%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (AutoGet==1) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (AutoGet==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sALWAYS%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Cdcc security     : ");
-    if (Security) sprintf(tmpbuf3,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Cdcc security     : ");
+    if (Security) snprintf(tmpbuf3,sizeof(tmpbuf3),"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc limit       : %s%-2d%s     ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc limit       : %s%-2d%s     ",
             CmdsColors[COLSETTING].color2,CdccLimit,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| A-close idle send : %s%d%ss",
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-close idle send : %s%d%ss",
             CmdsColors[COLSETTING].color2,CdccIdle,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %s%-4d%ss  ",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc ptime       : %s%-4d%ss  ",
             CmdsColors[COLSETTING].color2,PlistTime,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| Cdcc channels     : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Cdcc channels     : ");
     if (CdccChannels)
-        sprintf(tmpbuf3,"%s%s%s",CmdsColors[COLSETTING].color5,CdccChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf3,"%sNone%s",CmdsColors[COLSETTING].color5,Colors[COLOFF]);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%s",CmdsColors[COLSETTING].color5,CdccChannels,Colors[COLOFF]);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%sNone%s",CmdsColors[COLSETTING].color5,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc ntime       : %s%-3d%ss",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc ntime       : %s%-3d%ss",
             CmdsColors[COLSETTING].color2,NlistTime,Colors[COLOFF]);
     say("%s",tmpbuf1);
     strcpy(tmpbuf2,"Cdcc long status : ");
-    if (LongStatus) sprintf(tmpbuf1,"%s%sON%s     ",tmpbuf2,
+    if (LongStatus) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%sON%s     ",tmpbuf2,
                             CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf1,"%s%sOFF%s    ",tmpbuf2,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    sprintf(tmpbuf3,"| Dcc on status bar : ");
-    if (ShowDCCStatus) sprintf(tmpbuf2,"%s%sON%s",tmpbuf3,
+    else snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%sOFF%s    ",tmpbuf2,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    snprintf(tmpbuf3,sizeof(tmpbuf3),"| Dcc on status bar : ");
+    if (ShowDCCStatus) snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%sON%s",tmpbuf3,
                             CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%s%sOFF%s",tmpbuf3,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%sOFF%s",tmpbuf3,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
-    if (CdccUlDir) sprintf(tmpbuf1,"Cdcc uldir       : %s%s%s",
+    if (CdccUlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %s%s%s",
                            CmdsColors[COLSETTING].color2,CdccUlDir,Colors[COLOFF]);
     else {
         getcwd(tmpbuf2,mybufsize);
-        sprintf(tmpbuf1,"Cdcc uldir       : %s%s%s - current dir",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %s%s%s - current dir",
                 CmdsColors[COLSETTING].color2,tmpbuf2,Colors[COLOFF]);
     }
     say("%s",tmpbuf1);
-    if (CdccDlDir) sprintf(tmpbuf1,"Cdcc dldir       : %s%s%s",
+    if (CdccDlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %s%s%s",
                            CmdsColors[COLSETTING].color2,CdccDlDir,Colors[COLOFF]);
     else {
         getcwd(tmpbuf2,mybufsize);
-        sprintf(tmpbuf1,"Cdcc dldir       : %s%s%s - current dir",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %s%s%s - current dir",
                 CmdsColors[COLSETTING].color2,tmpbuf2,Colors[COLOFF]);
     }
     say("%s",tmpbuf1);
@@ -994,284 +994,284 @@ char *subargs;
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
     strcpy(tmpbuf1,"Mass deop prot   : ");
     if (MDopWatch) {
-        sprintf(tmpbuf2,"%sON%s for %s%s%s, %s%d%s deops in ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s, %s%d%s deops in ",
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,MDopWatchChannels,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,DeopSensor,Colors[COLOFF]);
-        sprintf(tmpbuf3,"%s%2d%ss",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%2d%ss",CmdsColors[COLSETTING].color2,
                 MDopTimer,Colors[COLOFF]);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Mass kick prot   : ");
     if (KickWatch) {
-        sprintf(tmpbuf2,"%sON%s for %s%s%s, %s%d%s kicks in ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s, %s%d%s kicks in ",
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,KickWatchChannels,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,KickSensor,Colors[COLOFF]);
-        sprintf(tmpbuf3,"%s%2d%ss",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%2d%ss",CmdsColors[COLSETTING].color2,
                 KickTimer,Colors[COLOFF]);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Nick flood prot  : ");
     if (NickWatch) {
-        sprintf(tmpbuf2,"%sON%s for %s%s%s, %s%d%s nicks in ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s, %s%d%s nicks in ",
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,NickWatchChannels,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,NickSensor,Colors[COLOFF]);
-        sprintf(tmpbuf3,"%s%2d%ss",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%2d%ss",CmdsColors[COLSETTING].color2,
                 NickTimer,Colors[COLOFF]);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Flood prot       : ");
     if (FloodProt>1)
-        sprintf(tmpbuf2,"%sMAX%s, activates with %s%d%s messages in %s%d%s seconds",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sMAX%s, activates with %s%d%s messages in %s%d%s seconds",
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,FloodMessages,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,FloodSeconds,Colors[COLOFF]);
-    else if (FloodProt) sprintf(tmpbuf2,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (FloodProt) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Nethack prot     : ");
     if (NHProt)
-        sprintf(tmpbuf2,"%sON%s for %s%s%s, display is ",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s, display is ",
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,NHProtChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s, display is ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s, display is ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     switch (NHDisp) {
         case 0: 
-            sprintf(tmpbuf3,"%sQUIET%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%sQUIET%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
             break;
         case 1:
-            sprintf(tmpbuf3,"%sMEDIUM%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%sMEDIUM%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
             break;
         case 2:
-            sprintf(tmpbuf3,"%sFULL%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%sFULL%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
             break;
     }
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Friend list      : ");
     if (FriendList)
-        sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 FriendListChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Shit list        : ");
     if (BKList)
-        sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
                 BKChannels,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
 #ifdef EXTRAS
     strcpy(tmpbuf1,"Idle kicks       : ");
     if (IdleKick)
-        sprintf(tmpbuf2,"%s%s%s for %s%s%s after %s%d%s minutes",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s for %s%s%s after %s%d%s minutes",
                 CmdsColors[COLSETTING].color2,IdleKick==1?"ON":"AUTO",Colors[COLOFF],
                 CmdsColors[COLSETTING].color5,IdleKickChannels,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,IdleTime,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
 #endif /* EXTRAS */
 #else  /* WANTANSI */
     say("-----------------------= %cScrollZ settings%c =-----------------------",
         bold,bold);
-    sprintf(tmpbuf1,"A-setaway time   : %c%-3d%cm   ",bold,AutoAwayTime,bold);
-    sprintf(tmpbuf2,"| A-join on invite  : ");
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"A-setaway time   : %c%-3d%cm   ",bold,AutoAwayTime,bold);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-join on invite  : ");
     if (AutoJoinOnInv==2)
-        sprintf(tmpbuf3,"%cAUTO%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cAUTO%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
     else if (AutoJoinOnInv)
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ban type         : %c%c%c      ",bold,defban,bold);
-    sprintf(tmpbuf2,"| A-rejoin on kick  : ");
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ban type         : %c%c%c      ",bold,defban,bold);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-rejoin on kick  : ");
     if (AutoRejoin)
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,AutoRejoinChannels,bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,AutoRejoinChannels,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ignore time      : %c%-3d%cs   ",bold,IgnoreTime,bold);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ignore time      : %c%-3d%cs   ",bold,IgnoreTime,bold);
     strcat(tmpbuf1,"| Fake modes disp   : ");
     if (ShowFakes) 
-        sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,ShowFakesChannels,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c",bold,bold,bold,ShowFakesChannels,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Server notices   : ");
-    if (ServerNotice) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (ServerNotice) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Notify on away    : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Notify on away    : ");
     if (ShowAway) 
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,ShowAwayChannels,bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,ShowAwayChannels,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"CTCP cloaking    : ");
-    if (CTCPCloaking==1) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%cHIDE%c   ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (CTCPCloaking==1) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else if (CTCPCloaking==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cHIDE%c   ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Kick ops          : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Kick ops          : ");
     if (KickOps)
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOpsChannels,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,KickOpsChannels,
                 bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Ext msgs display : ");
-    if (ExtMes) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (ExtMes) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Kick on flood     : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Kick on flood     : ");
     if (KickOnFlood) 
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOnFloodChannels,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,KickOnFloodChannels,
                 bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Show nick on pub : ");
-    if (ShowNick) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (ShowNick) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Kick on ban       : ");
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Kick on ban       : ");
     if (KickOnBan)
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOnBanChannels,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,KickOnBanChannels,
                 bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"URL Catcher      : ");
-    if (URLCatch==2) sprintf(tmpbuf2,"%cAUTO%c   ",bold,bold);
-    else if (URLCatch) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (URLCatch==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cAUTO%c   ",bold,bold);
+    else if (URLCatch) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf2,"| Bitch mode        : ");
     if (Bitch)
-        sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,BitchChannels,
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c for %c%s%c",bold,bold,bold,BitchChannels,
                 bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf2,"| Extended publics  : ");
-    if (ExtPub) sprintf(tmpbuf3,"%cON%c     ",bold,bold);
-    else sprintf(tmpbuf3,"%cOFF%c    ",bold,bold);
+    if (ExtPub) snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c     ",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c    ",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %cCdcc settings%c =------------------------",
         bold,bold);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
-    if (AutoGet==1) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
-    else if (AutoGet==2) sprintf(tmpbuf2,"%cALWAYS%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    if (AutoGet==1) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
+    else if (AutoGet==2) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cALWAYS%c ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"| Cdcc security     : ");
-    if (Security) sprintf(tmpbuf3,"%cON%c",bold,bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Cdcc security     : ");
+    if (Security) snprintf(tmpbuf3,sizeof(tmpbuf3),"%cON%c",bold,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc limit       : %c%-2d%c     ",bold,CdccLimit,bold);
-    sprintf(tmpbuf2,"| A-close idle send : %c%d%cs",bold,CdccIdle,bold);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc limit       : %c%-2d%c     ",bold,CdccLimit,bold);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| A-close idle send : %c%d%cs",bold,CdccIdle,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %c%-4d%cs  ",bold,PlistTime,bold);
-    sprintf(tmpbuf2,"| Cdcc channels     : ");
-    if (CdccChannels) sprintf(tmpbuf3,"%c%s%c",bold,CdccChannels,bold);
-    else sprintf(tmpbuf3,"%cNone%c",bold,bold);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc ptime       : %c%-4d%cs  ",bold,PlistTime,bold);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"| Cdcc channels     : ");
+    if (CdccChannels) snprintf(tmpbuf3,sizeof(tmpbuf3),"%c%s%c",bold,CdccChannels,bold);
+    else snprintf(tmpbuf3,sizeof(tmpbuf3),"%cNone%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc ptime       : %c%-3d%cs   ",bold,PlistTime,bold);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc ptime       : %c%-3d%cs   ",bold,PlistTime,bold);
     say("%s",tmpbuf1);
     strcpy(tmpbuf2,"Cdcc long status : ");
-    if (LongStatus) sprintf(tmpbuf1,"%s%cON%c     ",tmpbuf2,bold,bold);
-    else sprintf(tmpbuf1,"%s%cOFF%c    ",tmpbuf2,bold,bold);
-    sprintf(tmpbuf3,"| Dcc on status bar : ");
-    if (ShowDCCStatus) sprintf(tmpbuf2,"%s%cON%c ",tmpbuf3,bold,bold);
-    else sprintf(tmpbuf2,"%s%cOFF%c",tmpbuf3,bold,bold);
+    if (LongStatus) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%cON%c     ",tmpbuf2,bold,bold);
+    else snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%cOFF%c    ",tmpbuf2,bold,bold);
+    snprintf(tmpbuf3,sizeof(tmpbuf3),"| Dcc on status bar : ");
+    if (ShowDCCStatus) snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%cON%c ",tmpbuf3,bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%cOFF%c",tmpbuf3,bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
-    if (CdccUlDir) sprintf(tmpbuf1,"Cdcc uldir       : %c%s%c",bold,CdccUlDir,bold);
+    if (CdccUlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %c%s%c",bold,CdccUlDir,bold);
     else {
         getcwd(tmpbuf2,mybufsize);
-        sprintf(tmpbuf1,"Cdcc uldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
     }
     say("%s",tmpbuf1);
-    if (CdccDlDir) sprintf(tmpbuf1,"Cdcc dldir       : %c%s%c",bold,CdccDlDir,bold);
+    if (CdccDlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %c%s%c",bold,CdccDlDir,bold);
     else {
         getcwd(tmpbuf2,mybufsize);
-        sprintf(tmpbuf1,"Cdcc dldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
     }
     say("%s",tmpbuf1);
     say("----------------------= %cProtection settings%c =---------------------",
         bold,bold);
     strcpy(tmpbuf1,"Mass deop prot   : ");
     if (MDopWatch) {
-        sprintf(tmpbuf2,"%cON%c for %c%s%c, %c%d%c deops in ",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c, %c%d%c deops in ",bold,bold,bold,
                 MDopWatchChannels,bold,bold,DeopSensor,bold);
-        sprintf(tmpbuf3,"%c%2d%cs",bold,MDopTimer,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%c%2d%cs",bold,MDopTimer,bold);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Mass kick prot   : ");
     if (KickWatch) {
-        sprintf(tmpbuf2,"%cON%c for %c%s%c, %c%d%c kicks in ",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c, %c%d%c kicks in ",bold,bold,bold,
                 KickWatchChannels,bold,bold,KickSensor,bold);
-        sprintf(tmpbuf3,"%c%2d%cs",bold,KickTimer,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%c%2d%cs",bold,KickTimer,bold);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Nick flood prot  : ");
     if (NickWatch) {
-        sprintf(tmpbuf2,"%cON%c for %c%s%c, %c%d%c nicks in ",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c, %c%d%c nicks in ",bold,bold,bold,
                 NickWatchChannels,bold,bold,NickSensor,bold);
-        sprintf(tmpbuf3,"%c%2d%cs",bold,NickTimer,bold);
+        snprintf(tmpbuf3,sizeof(tmpbuf3),"%c%2d%cs",bold,NickTimer,bold);
         strcat(tmpbuf2,tmpbuf3);
     }
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Flood prot       : ");
     if (FloodProt>1)
-        sprintf(tmpbuf2,"%cMAX%c, activates with %c%d%c messages in %c%d%c seconds",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cMAX%c, activates with %c%d%c messages in %c%d%c seconds",
                 bold,bold,bold,FloodMessages,bold,bold,FloodSeconds,bold);
-    else if (FloodProt) sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else if (FloodProt) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Nethack prot     : ");
     if (NHProt)
-        sprintf(tmpbuf2,"%cON%c for %c%s%c, display is ",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c, display is ",bold,bold,bold,
                 NHProtChannels,bold);
-    else sprintf(tmpbuf2,"%cOFF%c, display is ",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c, display is ",bold,bold);
     switch (NHDisp) {
         case 0: 
-            sprintf(tmpbuf3,"%cQUIET%c",bold,bold);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%cQUIET%c",bold,bold);
             break;
         case 1:
-            sprintf(tmpbuf3,"%cMEDIUM%c",bold,bold);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%cMEDIUM%c",bold,bold);
             break;
         case 2:
-            sprintf(tmpbuf3,"%cFULL%c",bold,bold);
+            snprintf(tmpbuf3,sizeof(tmpbuf3),"%cFULL%c",bold,bold);
             break;
     }
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Friend list      : ");
     if (FriendList)
-        sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c",bold,bold,bold,
                 FriendListChannels,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Shit list        : ");
     if (BKList)
-        sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c",bold,bold,bold,
                 BKChannels,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
 #ifdef EXTRAS
     strcpy(tmpbuf1,"Idle kicks       : ");
     if (IdleKick)
-        sprintf(tmpbuf2,"%c%s%c for %c%s%c after %c%d%c minutes",
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%c%s%c for %c%s%c after %c%d%c minutes",
                 bold,IdleKick==1?"ON":"AUTO",bold,bold,IdleKickChannels,bold,bold,
                 IdleTime,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
 #endif /* EXTRAS */
 #endif /* WANTANSI */
@@ -1309,7 +1309,7 @@ char *subargs;
         }
     }
     if (FloodProt>1) {
-        sprintf(tmpbuf,"%d messages in %d seconds",FloodMessages,FloodSeconds);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%d messages in %d seconds",FloodMessages,FloodSeconds);
         PrintSetting("Flood protection","MAX",", activates with",tmpbuf);
     }
     else if (FloodProt) PrintSetting("Flood protection","ON",empty_string,empty_string);
@@ -1449,16 +1449,16 @@ char *newname;
     FILE *fp;
 
     c='a';
-    if (CdccDlDir) sprintf(tmpbuf,"%s/ca%c",CdccDlDir,c);
-    else sprintf(tmpbuf,"ca%c",c);
+    if (CdccDlDir) snprintf(tmpbuf,sizeof(tmpbuf),"%s/ca%c",CdccDlDir,c);
+    else snprintf(tmpbuf,sizeof(tmpbuf),"ca%c",c);
     while ((fp=fopen(tmpbuf,"r"))!=NULL) {
         fclose(fp);
         c++;
-        if (CdccDlDir) sprintf(tmpbuf,"%s/ca%c",CdccDlDir,c);
-        else sprintf(tmpbuf,"ca%c",c);
+        if (CdccDlDir) snprintf(tmpbuf,sizeof(tmpbuf),"%s/ca%c",CdccDlDir,c);
+        else snprintf(tmpbuf,sizeof(tmpbuf),"ca%c",c);
     }
     fclose(fp);
-    sprintf(newname,"ca%c",c);
+    snprintf(newname,sizeof(newname),"ca%c",c);
 }
 #endif
 
@@ -1498,7 +1498,7 @@ char *subargs;
             say("Hit CONTROL-W then ? for help on window commands");
             firsttime=0;
         }
-        sprintf(tmpbuf,"NEW SERVER %s:%s::%s HIDE",server,port,newnick);
+        snprintf(tmpbuf,sizeof(tmpbuf),"NEW SERVER %s:%s::%s HIDE",server,port,newnick);
         windowcmd(NULL,tmpbuf,NULL);
     }
 }
@@ -1569,7 +1569,7 @@ char *command;
     else if (!strcmp(command,"STAMP") && !my_stricmp(tmpbuf,"MAX")) *variable=2;
     else if (!strcmp(command,"CDCC AUTOGET") && !my_stricmp(tmpbuf,"ALWAYS")) *variable=2;
     else {
-        sprintf(tmpbuf,"in %s",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
         if (!strcmp(command,"MIRCCOLORS"))
             PrintError("must be ON/OFF/STRIP",tmpbuf,lineno);
         else if (!strcmp(command,"CDCC VERBOSE"))
@@ -1598,7 +1598,7 @@ char *command;
     number=atoi(tmpbuf);
     if (*tmpbuf && is_number(tmpbuf)) *variable=number;
     else {
-        sprintf(tmpbuf,"in %s",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
         PrintError("must be NUMBER",tmpbuf,lineno);
         *loaderror=1;
     }
@@ -1619,7 +1619,7 @@ char *command;
     NextArg(*pointer,pointer,tmpbuf);
     if (*tmpbuf) malloc_strcpy(variable,tmpbuf);
     else {
-        sprintf(tmpbuf,"in %s",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
         PrintError(message,tmpbuf,lineno);
         *loaderror=1;
     }
@@ -1638,7 +1638,7 @@ char *command;
     while (*pointer && isspace(*pointer)) pointer++;
     if (*pointer) malloc_strcpy(variable,pointer);
     else {
-        sprintf(tmpbuf,"in %s",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
         PrintError("must be STRING",tmpbuf,lineno);
         *loaderror=1;
     }
@@ -1665,7 +1665,7 @@ char *message;
         }
         else {
             if (!message) message="must be ON CHANLIST";
-            sprintf(tmpbuf,"in %s",command);
+            snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
             PrintError(message,tmpbuf,lineno);
             *loaderror=1;
         }
@@ -1678,7 +1678,7 @@ char *message;
             malloc_strcpy(strvar,tmpbuf);
         }
         else {
-            sprintf(tmpbuf,"in %s",command);
+            snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
             PrintError(message,tmpbuf,lineno);
             *loaderror=1;
         }
@@ -1688,7 +1688,7 @@ char *message;
         new_free(strvar);
     }
     else {
-        sprintf(tmpbuf,"in %s",command);
+        snprintf(tmpbuf,sizeof(tmpbuf),"in %s",command);
         PrintError("must be OFF",tmpbuf,lineno);
         *loaderror=1;
     }
@@ -1887,7 +1887,7 @@ int ScrollZLoad()
             while (pointer && *pointer && isspace(*pointer)) pointer++;
             if (pointer && *pointer) malloc_strcpy(&(wordnew->reason),pointer);
             else {
-                sprintf(tmpbuf2,"You said %s",wordnew->word);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"You said %s",wordnew->word);
                 malloc_strcpy(&(wordnew->reason),tmpbuf2);
             }
             add_to_list_ext((List **) &wordlist,(List *) wordnew,
@@ -2418,7 +2418,7 @@ char *subargs;
     for (i=0;i<number_of_servers;i++)
         for (tmpchan=server_list[i].chan_list;tmpchan;tmpchan=tmpchan->next) {
             for (tmp=tmpchan->nicks;tmp;tmp=tmp->next) {
-                if (tmp->userhost) sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
+                if (tmp->userhost) snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmp->nick,tmp->userhost);
                 else strcpy(tmpbuf,tmp->nick);
                 for (tmpfriend=frlist;tmpfriend;tmpfriend=tmpfriend->next)
                     if (CheckChannel(tmpchan->channel,tmpfriend->channels) &&

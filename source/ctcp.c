@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.39 2002-01-21 22:12:15 f Exp $
+ * $Id: ctcp.c,v 1.40 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -354,31 +354,31 @@ int  required;
     char tmpbuf1[mybufsize/2];
 
     ColorUserHost(userhost,CmdsColors[COLCTCP].color2,tmpbuf1,1);
-    sprintf(tmpaway,"%s%s%s request received from %s%s%s %s",
+    snprintf(tmpaway,sizeof(tmpaway),"%s%s%s request received from %s%s%s %s",
             CmdsColors[COLCTCP].color4,ctcp,Colors[COLOFF],
             CmdsColors[COLCTCP].color1,nick,Colors[COLOFF],tmpbuf1);
     if (channel && *channel) {
-        sprintf(tmpbuf1," to %s%s%s",
+        snprintf(tmpbuf1,sizeof(tmpaway)," to %s%s%s",
                 CmdsColors[COLCTCP].color3,channel,Colors[COLOFF]);
-        strcat(tmpaway,tmpbuf1);
+        strmcat(tmpaway,tmpbuf1,sizeof(tmpaway));
     }
 #else
-    sprintf(tmpaway,"%s request received from %s (%s)",ctcp,nick,userhost);
+    snprintf(tmpaway,sizeof(tmpaway),"%s request received from %s (%s)",ctcp,nick,userhost);
     if (channel && *channel) {
-        strcat(tmpaway," to ");
-        strcat(tmpaway,channel);
+        strmcat(tmpaway," to ",sizeof(tmpaway));
+        strmcat(tmpaway,channel,sizeof(tmpaway));
     }
 #endif
     if (!(channel && *channel) && access && required && required!=FLALL) {
         if (!CTCPCloaking)
             send_to_server("NOTICE %s :Usage  /CTCP %s %s [#]channel [password]",
                            nick,mynick,ctcp);
-        strcat(tmpaway,", wrong usage");
+        strmcat(tmpaway,", wrong usage",sizeof(tmpaway));
         return(-1);
     }
     else if (required && ((required!=FLALL && access!=required) ||
                           (required==FLALL && !access))) {
-        strcat(tmpaway,", no access");
+        strmcat(tmpaway,", no access",sizeof(tmpaway));
         if (!CTCPCloaking) send_to_server("NOTICE %s :You do not have access... -ScrollZ-",nick);
         return(0);
     }
@@ -447,12 +447,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("INVITE",mynick,from,userhost,channel,i,FLINVITE);
@@ -476,7 +476,7 @@ char *args;
         }
         if (!CheckJoiners(from,channel,from_server,chan)) {
 #ifndef VILAS
-            if (chan->key) sprintf(tmpbuf1," (key is %s)",chan->key);
+            if (chan->key) snprintf(tmpbuf1,sizeof(tmpbuf1)," (key is %s)",chan->key);
             else *tmpbuf1='\0';
             send_to_server("NOTICE %s :You have been ctcp invited to %s%s -ScrollZ-",
                            from,channel,tmpbuf1);
@@ -516,12 +516,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("OP",mynick,from,userhost,channel,i,FLOP);
@@ -578,12 +578,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("HOP",mynick,from,userhost,channel,i,FLHOP);
@@ -640,12 +640,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("UNBAN",mynick,from,userhost,channel,i,FLUNBAN);
@@ -704,12 +704,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("CHOPS",mynick,from,userhost,channel,i,FLCHOPS);
@@ -774,12 +774,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("VOICE",mynick,from,userhost,channel,i,FLVOICE);
@@ -832,7 +832,7 @@ char *args;
     if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
-    sprintf(tmpbuf2,"%s!%s",from,userhost);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf2,NULL))) i=tmpfriend->privs;
     else i=0;
     i=request("WHOAMI",mynick,from,userhost,(char *) 0,i,FLALL);
@@ -867,7 +867,7 @@ char *args;
             if (i&FLVOICE) strcat(tmpbuf1,"VOICE ");
             if ((i&(FLOP|FLINVITE|FLUNBAN))==(FLOP|FLINVITE|FLUNBAN))
                 strcat(tmpbuf1,"OPEN");
-            sprintf(tmpaway,"Auto:%s  Prot:%s  No flood:%s  God:%s",
+            snprintf(tmpaway,sizeof(tmpaway),"Auto:%s  Prot:%s  No flood:%s  God:%s",
                     YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
                     YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
             send_to_server("NOTICE %s :-ScrollZ- %s",from,tmpbuf1);
@@ -895,7 +895,7 @@ char *args;
     if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,NULL))) i=tmpfriend->privs;
     else i=0;
     i=request("HELP",mynick,from,userhost,(char *) 0,i,FLALL);
@@ -952,12 +952,12 @@ char *args;
         channel=next_arg(args,&args);
         passwd=next_arg(args,&args);
         if (channel && *channel) {
-            if (!is_channel(channel)) sprintf(tmpchan,"#%s",channel);
-            else strcpy(tmpchan,channel);
+            if (!is_channel(channel)) snprintf(tmpchan,sizeof(tmpchan),"#%s",channel);
+            else strmcpy(tmpchan,channel,sizeof(tmpchan));
             channel=tmpchan;
         }
     }
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,channel))) i=tmpfriend->privs;
     else i=0;
     i=request("OPEN",mynick,from,userhost,channel,i,FLOP|FLINVITE|FLUNBAN);
@@ -1018,7 +1018,7 @@ char *args;
     if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
-    sprintf(tmpbuf1,"%s!%s",from,userhost);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf1,NULL))) i=tmpfriend->privs;
     else i=0;
     i=request("PAGE",mynick,from,userhost,(char *) 0,i,FLALL);
@@ -1060,26 +1060,26 @@ char *args;
     mynick=get_server_nickname(from_server);
 #ifdef WANTANSI
     if (args && *args)
-        sprintf(tmpbuf1," %s%s%s",CmdsColors[COLCDCC].color3,args,Colors[COLOFF]);
+        snprintf(tmpbuf1,sizeof(tmpbuf1)," %s%s%s",CmdsColors[COLCDCC].color3,args,Colors[COLOFF]);
     else *tmpbuf1='\0';
     ColorUserHost(userhost,CmdsColors[COLCTCP].color2,tmpbuf2,1);
-    sprintf(tmpaway,"%sCdcc%s%s request received from %s%s%s %s",
+    snprintf(tmpaway,sizeof(tmpaway),"%sCdcc%s%s request received from %s%s%s %s",
             CmdsColors[COLCDCC].color4,Colors[COLOFF],tmpbuf1,
             CmdsColors[COLCDCC].color1,from,Colors[COLOFF],tmpbuf2);
     if (to && is_channel(to)) {
-        sprintf(tmpbuf1," to %s%s%s",CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
-        strcat(tmpaway,tmpbuf1);
+        snprintf(tmpbuf1,sizeof(tmpbuf1)," to %s%s%s",CmdsColors[COLCDCC].color6,to,Colors[COLOFF]);
+        strmcat(tmpaway,tmpbuf1,sizeof(tmpaway));
     }
 #else
-    if (args && *args) sprintf(tmpbuf1," %s",args);
+    if (args && *args) snprintf(tmpbuf1,sizeof(tmpbuf1)," %s",args);
     else *tmpbuf1='\0';
-    sprintf(tmpaway,"Cdcc%s request received from %s (%s)",tmpbuf1,from,userhost);
+    snprintf(tmpaway,sizeof(tmpaway),"Cdcc%s request received from %s (%s)",tmpbuf1,from,userhost);
     if (to && is_channel(to)) {
-        sprintf(tmpbuf1," to %s",to);
-        strcat(tmpaway,tmpbuf1);
+        snprintf(tmpbuf1,sizeof(tmpbuf1)," to %s",to);
+        strmcat(tmpaway,tmpbuf1,sizeof(tmpaway));
     }
 #endif
-    sprintf(tmpbuf2,"%s!%s",from,userhost);
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s!%s",from,userhost);
     if ((tmpfriend=CheckUsers(tmpbuf2,NULL))) i=tmpfriend->privs;
     else i=0;
     if (Security)
@@ -1262,22 +1262,22 @@ do_version(ctcp, from, to, cmd)
 /**************************** PATCHED by Flier ******************************/
         }
         else if (!CTCPCloaking) {
-            strcpy(tmpbuf1,ScrollZver);
+            strmcpy(tmpbuf1,ScrollZver,sizeof(tmpbuf1));
 #ifdef CELE
             if (get_string_var(CLIENTINFO_VAR))
-                sprintf(tmpbuf2,"%s+%s - %s",tmpbuf1,CelerityVersion,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s+%s - %s",tmpbuf1,CelerityVersion,
                         get_string_var(CLIENTINFO_VAR));
-            else sprintf(tmpbuf2,"%s+%s",tmpbuf1,CelerityVersion);
+            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s+%s",tmpbuf1,CelerityVersion);
 #else  /* CELE */
 #ifdef OPER
 	    if (get_string_var(CLIENTINFO_VAR))
-                sprintf(tmpbuf2,"%s+%s - %s",tmpbuf1,AcidVersion,
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s+%s - %s",tmpbuf1,AcidVersion,
                         get_string_var(CLIENTINFO_VAR));
-            else sprintf(tmpbuf2,"%s+%s",tmpbuf1,AcidVersion);
+            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s+%s",tmpbuf1,AcidVersion);
 #else  /* OPER */
             if (get_string_var(CLIENTINFO_VAR))
-                sprintf(tmpbuf2,"%s - %s",tmpbuf1,get_string_var(CLIENTINFO_VAR));
-            else strcpy(tmpbuf2,tmpbuf1);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s - %s",tmpbuf1,get_string_var(CLIENTINFO_VAR));
+            else strmcpy(tmpbuf2,tmpbuf1,sizeof(tmpbuf2));
 #endif /* OPER */
 #endif /* CELE */
             send_ctcp_reply(from, ctcp->name, "%s", tmpbuf2);
@@ -1463,7 +1463,7 @@ do_atmosphere(ctcp, from, to, cmd)
 #endif
                                 else {
 #ifdef WANTANSI
-                                    sprintf(tmpbuf1,"<%s%s%s> %s%c%s %s%s%s",
+                                    snprintf(tmpbuf1,sizeof(tmpbuf1),"<%s%s%s> %s%c%s %s%s%s",
                                            CmdsColors[COLME].color4, to,Colors[COLOFF],
                                            CmdsColors[COLME].color1, thing,Colors[COLOFF],
                                            CmdsColors[COLME].color3, from,Colors[COLOFF]);
@@ -1481,7 +1481,7 @@ do_atmosphere(ctcp, from, to, cmd)
 
                             chan = lookup_channel(to, parsing_server_index, 0);
                             if (chan && chan->ChanLog) {
-                                sprintf(tmpbuf2, "* %s %s", from, cmd);
+                                snprintf(tmpbuf2, sizeof(tmpbuf2), "* %s %s", from, cmd);
                                 ChannelLogSave(tmpbuf2, chan);
                             }
                         }
@@ -1681,7 +1681,7 @@ do_ctcp(from, to, str)
 #endif
                                 if (i == NUMBER_OF_CTCPS && get_int_var(VERBOSE_CTCP_VAR)) {
 #ifdef WANTANSI
-                                    sprintf(tmpbuf1,"%sUnknown CTCP %s%s from %s%s%s",
+                                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%sUnknown CTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
                                             CmdsColors[COLCTCP].color1,from,Colors[COLOFF]);
                                     if (to && my_stricmp(to,mynick))
@@ -1697,7 +1697,7 @@ do_ctcp(from, to, str)
 				}
 				else if (ctcp_flag & CTCP_VERBOSE && get_int_var(VERBOSE_CTCP_VAR)) {
 #ifdef WANTANSI
-                                    sprintf(tmpbuf1,"%sCTCP %s%s from %s%s%s",
+                                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
                                             CmdsColors[COLCTCP].color1,from,Colors[COLOFF]);
                                     if (to && my_stricmp(to,mynick))
@@ -1917,18 +1917,18 @@ do_new_notice_ctcp(from, to, str, cmd)
                                                               atol(tmpstr)+1000000;
                                             timeofday.tv_sec--;
                                         }
-                                        sprintf(tmpbuf1,"%06ld",timeofday.tv_usec);
+                                        snprintf(tmpbuf1,sizeof(tmpbuf1),"%06ld",timeofday.tv_usec);
                                         tmpbuf1[3]='\0';
-                                        sprintf(buf, "%ld.%s",timeofday.tv_sec,tmpbuf1);
-                                        strcat(buf," seconds");
+                                        snprintf(buf,sizeof(buf),"%ld.%s",timeofday.tv_sec,tmpbuf1);
+                                        strmcat(buf," seconds",sizeof(buf));
 #ifdef CELE
                                         timenow=timeofday;
 #endif
                                     }
-                                    else sprintf(buf,"%ld second%s",timeofday.tv_sec,
+                                    else snprintf(buf,sizeof(buf),"%ld second%s",timeofday.tv_sec,
                                                  (timeofday.tv_sec==1)?"":"s");
                                 }
-                                else sprintf(buf, "0 seconds");
+                                else strcpy(buf, "0 seconds");
                                 args=buf;
 /****************************************************************************/
 			}

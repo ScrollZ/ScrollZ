@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.48 2002-01-22 19:03:54 f Exp $
+ * $Id: server.c,v 1.49 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -371,7 +371,7 @@ do_server(rd, wd)
 					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
 /**************************** Patched by Flier ******************************/
                                 restore_message_from();
-				sprintf(tmpbuf,"Connection closed from %s: %s", server_list[i].name,
+				snprintf(tmpbuf,sizeof(tmpbuf),"Connection closed from %s: %s", server_list[i].name,
 					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
                                 HandleClosedConn(i, tmpbuf);
 /****************************************************************************/
@@ -1602,7 +1602,7 @@ display_server_list()
                             timedays = timediff / 86400;
                             timehours = (timediff / 3600) % 24;
                             timeminutes = (timediff / 60) % 60;
-                            sprintf(tmpbuf," | connected %dd %02dh %02dm",
+                            snprintf(tmpbuf,sizeof(tmpbuf)," | connected %dd %02dh %02dm",
                                     timedays, timehours, timeminutes);
                         }
                         else {

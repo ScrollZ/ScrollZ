@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.32 2002-01-21 22:12:15 f Exp $
+ * $Id: names.c,v 1.33 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -493,7 +493,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
                 if (userhost && (whowas=check_whowas_buffer(nick,userhost,channel,1))) {
                     new=whowas->nicklist;
                     new_free(&whowas);
-                    sprintf(tmpbuf,"%s!%s",nick,userhost);
+                    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
                     if (!(new->frlist && wild_match(new->frlist->userhost,tmpbuf) &&
                           CheckChannel(new->frlist->channels,channel)))
                         new->frlist=(struct friends *) FindMatch(tmpbuf,channel);
@@ -515,7 +515,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
                     new->nickc=tmp?tmp->nickc:0;
                     new->publics=tmp?tmp->publics:0;
                     if (userhost) {
-                        sprintf(tmpbuf,"%s!%s",nick,userhost);
+                        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
                         malloc_strcpy(&(new->userhost),userhost);
                         new->frlist=(struct friends *) FindMatch(tmpbuf,channel);
                         new->shitlist=(struct autobankicks *) FindShit(tmpbuf,channel);
@@ -955,7 +955,7 @@ char    *servmodes;
                                         && !CheckChannel(lastdeop, ThisNick->nick)
                                         && !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                         if (away_set || LogOn || (chan && chan->ChanLog)) {
-                                            sprintf(tmpbuf,"%s (%s) has been deopped on channel %s by %s",
+                                            snprintf(tmpbuf,sizeof(tmpbuf),"%s (%s) has been deopped on channel %s by %s",
                                                     ThisNick->nick, ThisNick->userhost,
                                                     chan->channel, from);
                                             if (!isserver) {
@@ -1098,7 +1098,7 @@ char    *servmodes;
                             }
                             if (add) {
                                 if (!exception) chan->plusb++;
-                                if (userhost) sprintf(tmpbuf, "%s!%s", from, userhost);
+                                if (userhost) snprintf(tmpbuf,sizeof(tmpbuf), "%s!%s", from, userhost);
                                 else strcpy(tmpbuf, from);
                                 if (AddBan(person, chan->channel, server, tmpbuf, exception, timenow, chan)) {
                                     if (chan->CompressModes) {
@@ -1118,7 +1118,7 @@ char    *servmodes;
                                         if ((privs & (FLPROT | FLGOD)) && (privs & FLUNBAN) && 
                                             !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                             if (joiner->userhost)
-                                                sprintf(tmpbuf, "%s!%s", joiner->nick, joiner->userhost);
+                                                snprintf(tmpbuf,sizeof(tmpbuf), "%s!%s", joiner->nick, joiner->userhost);
                                             else strcpy(tmpbuf, joiner->nick);
                                             if (wild_match(person, tmpbuf)) {
                                                 if (*chop & CHAN_CHOP) {
@@ -1148,7 +1148,7 @@ char    *servmodes;
                                                     }
                                                 }
                                                 if (away_set || LogOn || (chan && chan->ChanLog)) {
-                                                    sprintf(tmpbuf, "%cBan%c on mask %s on channel %s by %s",
+                                                    snprintf(tmpbuf, sizeof(tmpbuf), "%cBan%c on mask %s on channel %s by %s",
                                                             bold, bold, person,
                                                             chan->channel, from);
                                                     if (!isserver) {
@@ -1187,7 +1187,7 @@ char    *servmodes;
                                                 if (privs & (FLGOD | FLPROT) && (privs & FLUNBAN) &&
                                                     !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                                     if (whowas->nicklist->userhost)
-                                                        sprintf(tmpbuf, "%s!%s",
+                                                        snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s",
                                                                 whowas->nicklist->nick,
                                                                 whowas->nicklist->userhost);
                                                     else strcpy(tmpbuf, whowas->nicklist->nick);
@@ -1216,7 +1216,7 @@ char    *servmodes;
                                                             deopped = 1;
                                                         }
                                                         if (away_set || LogOn || (chan && chan->ChanLog)) {
-                                                            sprintf(tmpbuf,
+                                                            snprintf(tmpbuf, sizeof(tmpbuf),
                                                                     "%cBan%c on mask %s on channel %s by %s",
                                                                     bold, bold, person,
                                                                     chan->channel, from);
@@ -1304,12 +1304,12 @@ char    *servmodes;
                     }
                     deopped = 1;
 #ifdef WANTANSI
-                    sprintf(tmpbuf, "%sMass deop%s detected on %s%s%s by %s%s%s",
+                    snprintf(tmpbuf, sizeof(tmpbuf), "%sMass deop%s detected on %s%s%s by %s%s%s",
                             CmdsColors[COLWARNING].color1, Colors[COLOFF],
                             CmdsColors[COLWARNING].color4, chan->channel, Colors[COLOFF],
                             CmdsColors[COLWARNING].color2, from, Colors[COLOFF]);
 #else
-                    sprintf(tmpbuf,"%cMass deop%c detected on %s by %s",
+                    snprintf(tmpbuf, sizeof(tmpbuf),"%cMass deop%c detected on %s by %s",
                             bold, bold, chan->channel, from);
 #endif
                     say("%s", tmpbuf);
@@ -1331,17 +1331,17 @@ char    *servmodes;
                         send_to_server("KICK %s %s :Deop flood detected", chan->channel, from);
                     deopped = 1;
 #ifdef WANTANSI
-                    sprintf(tmpbuf, "%sDeop flood%s detected on %s%s%s by %s%s%s",
+                    snprintf(tmpbuf, sizeof(tmpbuf), "%sDeop flood%s detected on %s%s%s by %s%s%s",
                             CmdsColors[COLWARNING].color1, Colors[COLOFF],
                             CmdsColors[COLWARNING].color4, chan->channel, Colors[COLOFF],
                             CmdsColors[COLWARNING].color2, from, Colors[COLOFF]);
 #else
-                    sprintf(tmpbuf,"%cDeop flood%c detected on %s by %s",
+                    snprintf(tmpbuf, sizeof(tmpbuf),"%cDeop flood%c detected on %s by %s",
                             bold, bold, chan->channel, from);
 #endif
                     say("%s", tmpbuf);
                     if (away_set || LogOn || (chan && chan->ChanLog)) {
-                        sprintf(tmpbuf, "%cDeop flood%c detected on %s by %s",
+                        snprintf(tmpbuf, sizeof(tmpbuf), "%cDeop flood%c detected on %s by %s",
                                 bold, bold, chan->channel, from);
                         if (!isserver) {
                             strcat(tmpbuf, " (");
@@ -1376,7 +1376,7 @@ char    *servmodes;
                 HandleGotOps(mynick, chan);
             if (chan->CompressModes) {
                 *compmodeadd = '\0';
-                if (*compmode) sprintf(origmode, "%s %s", compmode, compline);
+                if (*compmode) snprintf(origmode, sizeof(origmode), "%s %s", compmode, compline);
                 else *origmode = '\0';
                 if (*origmode && origmode[strlen(origmode) - 1] == ' ')
                     origmode[strlen(origmode) - 1] = '\0';
@@ -1673,7 +1673,7 @@ rename_nick(old_nick, new_nick, server)
 #endif
                                 add_nick_to_hash(chan,tmp);
                                 if (tmp->userhost) {
-                                    sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
+                                    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmp->nick,tmp->userhost);
                                     tmp->frlist=(struct friends *) FindMatch(tmpbuf,chan->channel);
                                 }
 /****************************************************************************/

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.51 2002-01-21 22:34:55 f Exp $
+ * $Id: numbers.c,v 1.52 2002-01-23 18:48:10 f Exp $
  */
 
 #include "irc.h"
@@ -148,7 +148,7 @@ numeric_banner()
 		/*strcpy(thing, "***");*/
         {
             if (Stamp==2) strcpy(thing,TimeStamp(2));
-            else if (ScrollZstr && *ScrollZstr) sprintf(thing,"%s ",ScrollZstr);
+            else if (ScrollZstr && *ScrollZstr) snprintf(thing,sizeof(thing),"%s ",ScrollZstr);
             else *thing='\0';
         }
 /**********************************************************************/
@@ -257,7 +257,7 @@ char **ArgList;
 /* Too lazy to put ifdef's for every put_it(), so it's just in two chunks */
     if (from) {
         sname=from;
-        sprintf(tmpbuf2," (from %s)",from);
+        snprintf(tmpbuf2,sizeof(tmpbuf2)," (from %s)",from);
     }
     else {
         sname=server_list[from_server].itsname;
@@ -271,7 +271,7 @@ char **ArgList;
 	if (sscanf(rest,"There are %d users and %d invisible on %d servers",
                    &usernum,&invnum,&servernum)==3) {
             totalnum=usernum+invnum;
-	    sprintf(tmpbuf,"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
+	    snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -282,7 +282,7 @@ char **ArgList;
         else if (sscanf(rest,"There are %d users plus %d invisible on %d servers",
                         &usernum,&invnum,&servernum)==3) {
             totalnum=usernum+invnum;
-            sprintf(tmpbuf,"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -293,7 +293,7 @@ char **ArgList;
 	else if (sscanf(rest,"There are %d users and %d services on %d servers",
                         &usernum,&servicenum,&servernum)==3) {
             totalnum=usernum;
-	    sprintf(tmpbuf,"%sThere are %s%d%s users and %s%d%s services on %s%d%s servers",
+	    snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s users and %s%d%s services on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,usernum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
@@ -305,7 +305,7 @@ char **ArgList;
                         &totalnum,&servernum)==2) {
 	    usernum=totalnum;
 	    invnum=0;
-            sprintf(tmpbuf,"%sThere are %s%d%s users on %s%d%s servers",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s users on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -315,14 +315,14 @@ char **ArgList;
     }
     else if (comm==252) {
         if (sscanf(rest,"%d IRC Operators online",&opernum)==1) {
-            sprintf(tmpbuf,"%sThere are %s%d%s IRC Operator(s) online",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s IRC Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
-            sprintf(tmpbuf,"%sThere are %s%d%s Operator(s) online",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
@@ -332,7 +332,7 @@ char **ArgList;
     else if (comm==254) {
 	if (sscanf(rest,"%d channels formed",&channelnum)==1)
 	{
-            sprintf(tmpbuf,"%sCurrently, %s%d%s channels have been formed",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sCurrently, %s%d%s channels have been formed",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,channelnum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
@@ -344,7 +344,7 @@ char **ArgList;
                    &clientnum,&connectnum)==2) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) and %s%d%s users (apx. %c%.1f%%%c of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %s%d%s server(s) and %s%d%s users (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -357,7 +357,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -371,7 +371,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -387,7 +387,7 @@ char **ArgList;
 	if (sscanf(rest,"There are %d users and %d invisible on %d servers",
                    &usernum,&invnum,&servernum)==3) {
 	    totalnum=usernum+invnum;
-            sprintf(tmpbuf,"%sThere are %d users (%d + %d invisible) on %d servers",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d users (%d + %d invisible) on %d servers",
                     numeric_banner(),totalnum,usernum,invnum,servernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -396,7 +396,7 @@ char **ArgList;
 	else if (sscanf(rest,"There are %d users and %d services on %d servers",
                         &usernum,&servicenum,&servernum)==3) {
             totalnum=usernum;
-	    sprintf(tmpbuf,"%sThere are %d users and %d services on %d servers",
+	    snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d users and %d services on %d servers",
                     numeric_banner(),usernum,servicenum,servernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -404,7 +404,7 @@ char **ArgList;
         else if (sscanf(rest,"There are %d users on %d servers",&totalnum,&servernum)==2) {
 	    usernum=totalnum;
 	    invnum=0;
-            sprintf(tmpbuf,"%sThere are %c%d%c users on %c%d%c servers",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %c%d%c users on %c%d%c servers",
                    numeric_banner(),bold,totalnum,bold,bold,servernum,bold);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -412,20 +412,20 @@ char **ArgList;
     }
     else if (comm==252) {
         if (sscanf(rest,"%d IRC Operators online",&opernum)==1) {
-            sprintf(tmpbuf,"%sThere are %d IRC Operator(s) online",numeric_banner(),
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d IRC Operator(s) online",numeric_banner(),
                     opernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
-            sprintf(tmpbuf,"%sThere are %d Operator(s) online",numeric_banner(),opernum);
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d Operator(s) online",numeric_banner(),opernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
     }
     else if (comm==254) {
         if (sscanf(rest,"%d channels formed",&channelnum)==1) {
-            sprintf(tmpbuf,"%sCurrently, %d channels have been formed",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sCurrently, %d channels have been formed",
                    numeric_banner(),channelnum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -435,7 +435,7 @@ char **ArgList;
         if (sscanf(rest,"I have %d clients and %d servers",&clientnum,&connectnum)==2) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %d server(s) and %d users (apx. %.1f%% of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) and %d users (apx. %.1f%% of total users)",
                    numeric_banner(),connectnum,clientnum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -445,7 +445,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -455,7 +455,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
+            snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -639,7 +639,7 @@ channel_topic(from, ArgList)
             if (chan && chan->ChanLog) {
                 char tmpbuf[mybufsize];
 
-                sprintf(tmpbuf, "Topic for %s: %s", channel, topic);
+                snprintf(tmpbuf, sizeof(tmpbuf), "Topic for %s: %s", channel, topic);
                 ChannelLogSave(tmpbuf, chan);
             }
         }
@@ -889,7 +889,7 @@ char **ArgList;
     time_t timediff=time((time_t *) 0)-SPingTime;
 
     if ((comm==351) && SPingTime) {
-	sprintf(tmpbuf,"%d second%s",timediff,(timediff==1)?"":"s");
+	snprintf(tmpbuf,sizeof(tmpbuf),"%d second%s",timediff,(timediff==1)?"":"s");
 
 #else
     struct timeval timeofday;
@@ -902,13 +902,13 @@ char **ArgList;
             timeofday.tv_usec=timeofday.tv_usec-SPingTime.tv_usec+1000000;
             timeofday.tv_sec--;
         }
-        sprintf(tmpbuf2,"%06d",timeofday.tv_usec);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%06d",timeofday.tv_usec);
         tmpbuf2[3]='\0';
 #ifdef WANTANSI
-        sprintf(tmpbuf,"%s%d.%s%s",
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%d.%s%s",
                 CmdsColors[COLCSCAN].color2,timeofday.tv_sec,tmpbuf2,Colors[COLOFF]);
 #else
-        sprintf(tmpbuf,"%c%d.%s%c",bold,timeofday.tv_sec,tmpbuf2,bold);
+        snprintf(tmpbuf,sizeof(tmpbuf),"%c%d.%s%c",bold,timeofday.tv_sec,tmpbuf2,bold);
 #endif
         strcat(tmpbuf," seconds");
 #endif
@@ -1508,7 +1508,7 @@ numbered_command(from, comm, ArgList)
 #endif
 #ifdef EXTRAS
                                 else if (inSZLinks) {
-                                    sprintf(tmpbuf,"%-20s %-20s",ArgList[0],ArgList[1]);
+                                    snprintf(tmpbuf,sizeof(tmpbuf),"%-20s %-20s",ArgList[0],ArgList[1]);
                                     HandleLinks(tmpbuf);
                                 }
 #endif
@@ -1528,7 +1528,7 @@ numbered_command(from, comm, ArgList)
 #endif
 #ifdef EXTRAS
                                 else if (inSZLinks) {
-                                    sprintf(tmpbuf,"%-20s",ArgList[0]);
+                                    snprintf(tmpbuf,sizeof(tmpbuf),"%-20s",ArgList[0]);
                                     HandleLinks(tmpbuf);
                                 }
 #endif
