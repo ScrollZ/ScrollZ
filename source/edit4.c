@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.52 2001-02-26 19:18:12 f Exp $
+ * $Id: edit4.c,v 1.53 2001-02-27 19:28:13 f Exp $
  */
 
 #include "irc.h"
@@ -1366,12 +1366,24 @@ char *subargs;
     else NotChanOp(chan->channel);
 }
 
+/* Check if ban still exists on given channel */
+int CheckBanExists(channel)
+char *channel;
+{
+    if (!tmpbn) return(0);
+    return(1);
+}
+
 /* Lists one page of bans list */
 void ListBansPage(line)
 char *line;
 {
     int count=1;
 
+    if (!CheckBanExists(line)) {
+        say("Channel %s data changed, aborting",line);
+        return;
+    }
     while (count<curr_scr_win->display_size && tmpbanlist) {
         if (!(tmpbanlist->exception)) {
             count++;
@@ -1407,6 +1419,10 @@ char *line;
     char modebuf[mybufsize/32];
 
     if (line && *line) {
+        if (!CheckBanExists(stuff)) {
+            say("Channel %s no longer exists, aborting",stuff);
+            return;
+        }
         strcpy(modebuf,"-bbbbbbbb");
         for (tmpbanlist=tmpbn;tmpbanlist;tmpbanlist=tmpbanlist->next) {
             if (tmpbanlist->exception) continue;
@@ -2063,6 +2079,7 @@ ChannelList *chan;
     struct bans *tmpbant;
     struct hashstr *tmp;
 
+    if (tmpbn==chan->banlist) tmpbn=NULL;
     for (tmpbant=chan->banlist;tmpbant;) {
         tmpban=tmpbant;
         tmpbant=tmpbant->next;
