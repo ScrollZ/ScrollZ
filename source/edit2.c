@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.36 1999-09-30 19:23:03 f Exp $
+ * $Id: edit2.c,v 1.37 1999-11-12 20:52:00 f Exp $
  */
 
 #include "irc.h"
@@ -3336,7 +3336,7 @@ char *subargs;
             add=1;
         }
         if (tmpword) {
-            sprintf(tmpbuf,"*%s*",tmpstr);
+            sprintf(tmpbuf,"%s",tmpstr);
             malloc_strcpy(&(tmpword->channels),channels);
             malloc_strcpy(&(tmpword->word),tmpbuf);
             while (*args && isspace(*args)) args++;
@@ -3369,8 +3369,9 @@ char *subargs;
     if (channels && tmpstr) {
         for (tmpword=wordlist;tmpword;tmpword=tmpword->next) {
             if (CheckChannel(tmpword->channels,channels) &&
-                (wild_match(tmpword->word,tmpstr) || wild_match(tmpstr,tmpword->word)))
+                !my_stricmp(tmpword->word,tmpstr)) {
                 break;
+            }
             tmp=tmpword;
         }
         if (tmpword) {
@@ -3409,11 +3410,24 @@ struct words *CheckLine(channels,line)
 char *channels;
 char *line;
 {
-    register struct words *tmpword;
+    char *curword;
+    char *tmpline;
+    static char curline[mybufsize/2+1];
+    struct words *tmpword;
 
-    for (tmpword=wordlist;tmpword;tmpword=tmpword->next)
-        if (CheckChannel(tmpword->channels,channels) && wild_match(tmpword->word,line))
-            return(tmpword);
+    tmpline=curline;
+    strmcpy(tmpline,line,mybufsize/2);
+    for (curword=next_arg(tmpline,&tmpline);curword;curword=next_arg(tmpline,&tmpline)) {
+        for (tmpword=wordlist;tmpword;tmpword=tmpword->next) {
+            if (CheckChannel(tmpword->channels,channels)) {
+                if (((index(tmpword->word,'?') || index(tmpword->word,'*')) &&
+                    wild_match(tmpword->word,curword)) ||
+                    !my_stricmp(tmpword->word,curword)) {
+                    return(tmpword);
+                }
+            }
+        }
+    }
     return((struct words *) 0);
 }
 
