@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.91 2001-08-31 15:37:55 f Exp $
+ * $Id: edit6.c,v 1.92 2001-08-31 15:52:10 f Exp $
  */
 
 #include "irc.h"
@@ -2564,8 +2564,8 @@ char *subargs;
 {
     char *tmpstr;
 
-    if (args && *args) {
-        tmpstr=new_next_arg(args,&args);
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr) {
         malloc_strcpy(&StatsiFilter,tmpstr);
         StatsiNumber=0;
         send_to_server("STATS I %s",args);
@@ -2603,7 +2603,8 @@ char *subargs;
 {
     char *tmpstr;
 
-    if (args && *args) {
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr) {
         tmpstr=new_next_arg(args,&args);
         malloc_strcpy(&StatscFilter,tmpstr);
         StatscNumber=0;
@@ -2640,15 +2641,23 @@ char *command;
 char *args;
 char *subargs;
 {
+    char statschar='L';
     char *tmpstr;
 
-    if (args && *args) {
-        tmpstr=new_next_arg(args,&args);
-        malloc_strcpy(&StatslFilter,tmpstr);
-        StatslNumber=0;
-        send_to_server("STATS L * %s",args);
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr) {
+        if (!my_stricmp(tmpstr,"-NAME")) {
+            statschar='l';
+            tmpstr=new_next_arg(args,&args);
+        }
+        if (tmpstr) {
+            malloc_strcpy(&StatslFilter,tmpstr);
+            StatslNumber=0;
+            send_to_server("STATS %c * %s",statschar,args);
+            return;
+        }
     }
-    else PrintUsage("FLLINE filter");
+    PrintUsage("FLLINE [-NAME] filter");
 }
 
 /* Parses STATS L reply from server */
