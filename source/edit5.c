@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.13 1998-11-26 20:07:08 f Exp $
+ * $Id: edit5.c,v 1.14 1998-11-28 19:56:00 f Exp $
  */
 
 #include "irc.h"
@@ -1985,16 +1985,18 @@ char *nick;
     int curserv=from_server;
     struct nicks *artmp;
     struct nicks *arstr;
+    struct nicks *arcnt;
 
     if (CheckServer(curserv)) {
-        arstr=server_list[curserv].arlist;
         artmp=server_list[curserv].arlist;
-        while (arstr) {
+        for (arcnt=artmp;arcnt;arcnt=arcnt->next) {
             if (!found) {
-                if (!my_stricmp(nick,arstr->nick)) found=1;
-                else artmp=arstr;
+                if (!my_stricmp(nick,arcnt->nick)) {
+                    found=1;
+                    arstr=arcnt;
+                }
+                else artmp=arcnt;
             }
-            arstr=arstr->next;
             numentr++;
         }
         if (found) {
