@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.25 1999-07-18 12:50:08 f Exp $
+ * $Id: edit.c,v 1.26 1999-07-18 13:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -229,6 +229,7 @@ extern  void  AutoNickComplete _((char *, char *, ChannelList *));
 extern  void  NoWindowChannel _((void));
 extern  int   CheckServer _((int));
 extern  char  *CheckJoinKey _((char *));
+extern  int   EncryptMessage _((char *, char *));
 
 extern  void  ListFriends _((char *, char *, char *));
 extern  void  ListAutoBanKicks _((char *, char *, char *));
@@ -344,7 +345,7 @@ extern  void  switchcmd _((char *, char *, char *));
 extern  void  repeatcmd _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
-extern  void  EncryptChat _((char *, char *, char *));
+extern  void  EncryptMsg _((char *, char *, char *));
 extern  void  AwaySave _((char *, int));
 #ifdef MGS_
 extern  void  Terminate _((char *, char *, char *));
@@ -507,7 +508,7 @@ static	IrcCommand FAR irc_command[] =
   { "DUMP", 		NULL, 		Dump, 			0 },
 	{ "ECHO",	NULL,		my_echo,		0 },
   { "EGO", 		"EGO", 		OnOffCommand, 		0 },
-  { "ENCRCHAT",		NULL, 		EncryptChat, 		0 },
+  { "ENCRMSG",		NULL, 		EncryptMsg, 		0 },
 	{ "ENCRYPT",	NULL,		encrypt_cmd,		0 },
 	{ "EVAL",	NULL,		evalcmd,		0 },
 	{ "EXEC",	NULL,		execcmd,		0 },
@@ -2629,7 +2630,7 @@ send_text(org_nick, line, command)
 /**************************** PATCHED by Flier ******************************/
         char    thing;
         char    *mynick=get_server_nickname(from_server);
-        char    tmpbuf[mybufsize];
+        char    tmpbuf[mybufsize+1];
 
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
         else thing='-';
@@ -2768,6 +2769,13 @@ send_text(org_nick, line, command)
 					send_to_server("%s %s :%s", command, nick, crypt_line);
 				continue;
 			}
+/**************************** PATCHED by Flier ******************************/
+                        strmcpy(tmpbuf,line,mybufsize);
+                        if (EncryptMessage(tmpbuf,nick)) {
+                            send_to_server("%s %s :%s",command,nick,tmpbuf);
+                            continue;
+                        }
+/****************************************************************************/
 			if (!in_on_who)
 			{
 				if (*nick_list)
@@ -2865,6 +2873,14 @@ send_text(org_nick, line, command)
 				continue;
 			}
 			set_lastlog_msg_level(lastlog_level);
+/**************************** PATCHED by Flier ******************************/
+                        strmcpy(tmpbuf,line,mybufsize);
+                        if (EncryptMessage(tmpbuf,nick)) {
+                            send_to_server("%s %s :%s",command?command:"PRIVMSG",nick,
+                                           tmpbuf);
+                            continue;
+                        }
+/****************************************************************************/
 
 			if (!in_on_who)
 			{

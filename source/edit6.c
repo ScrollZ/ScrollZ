@@ -45,9 +45,9 @@
  CheckServer         Check if server is valid
  CleanUpScrollZVars  Clean up ScrollZ allocated variables
  CleanUp             Clean up memory on exit
- EncryptChat         Support for encrypted DCC CHAT sessions
- EncryptChatMessage  Encrypt DCC CHAT message
- DecryptChatMessage  Decrypt DCC CHAT message
+ EncryptMsg          Support for encrypted communication sessions
+ EncryptMessage      Encrypt message
+ DecryptMessage      Decrypt message
  FilterTrace         Filtered trace
  DoFilterTrace       Actual filtered trace
  FormatTime          Format time in compressed format
@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.38 1999-07-18 12:50:08 f Exp $
+ * $Id: edit6.c,v 1.39 1999-07-18 13:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -2282,7 +2282,7 @@ void CleanUp() {
 }
 
 /* Support for encrypted DCC CHAT sessions */
-void EncryptChat(command,args,subargs)
+void EncryptMsg(command,args,subargs)
 char *command;
 char *args;
 char *subargs;
@@ -2295,8 +2295,6 @@ char *subargs;
     user=new_next_arg(args,&args);
     key=new_next_arg(args,&args);
     if (user) {
-        if (*user=='=') user++;
-        if (!(*user)) return;
         if (key) delit=!REMOVE_FROM_LIST;
         tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,delit);
         if (key) {
@@ -2310,7 +2308,7 @@ char *subargs;
                 malloc_strcpy(&(tmp->key),key);
                 add_to_list((List **) &encrlist,(List *) tmp);
             }
-            say("DCC CHAT communication with %s will be encrypted using key %s",
+            say("Communication with %s will be encrypted using key %s",
                 user,key);
         }
         else {
@@ -2321,7 +2319,7 @@ char *subargs;
             new_free(&(tmp->user));
             new_free(&(tmp->key));
             new_free(&tmp);
-            say("DCC CHAT communication with %s will no longer be encrypted",user);
+            say("Communication with %s will no longer be encrypted",user);
         }
     }
     else {
@@ -2334,8 +2332,8 @@ char *subargs;
     }
 }
 
-/* Encrypt DCC CHAT message */
-int EncryptChatMessage(message,user)
+/* Encrypt message */
+int EncryptMessage(message,user)
 char *message;
 char *user;
 {
@@ -2348,8 +2346,8 @@ char *user;
     return(tmp?1:0);
 }
 
-/* Decrypt DCC CHAT message */
-int DecryptChatMessage(message,user)
+/* Decrypt message */
+int DecryptMessage(message,user)
 char *message;
 char *user;
 {

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.17 1999-06-14 17:47:26 f Exp $
+ * $Id: parse.c,v 1.18 1999-07-18 13:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -93,6 +93,7 @@ extern void AwaySave _((char *, int));
 extern char *GetNetsplitServer _((char *, char *));
 extern void CheckCdcc _((char *, char *, char *, int));
 extern int  CheckChannel _((char *, char *));
+extern int  DecryptMessage _((char *, char *));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -729,6 +730,9 @@ p_privmsg(from, Args)
 			malloc_strcpy(&recv_nick, from);
 			if (away_set)
 				beep_em(get_int_var(BEEP_WHEN_AWAY_VAR));
+/**************************** PATCHED by Flier ******************************/
+                        DecryptMessage(ptr,from);
+/****************************************************************************/
 			if (do_hook(list_type, "%s %s", from, ptr))
 			{
 /**************************** PATCHED by Flier ******************************/
@@ -746,7 +750,7 @@ p_privmsg(from, Args)
 			    else
 				put_it("%s*%s*%s %s", high, from, high, ptr);*/
                             PrintMessage(from,FromUserHost,ptr,1);
-/****************************************************************************/                                
+/****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
                         else PrintMessage(from,FromUserHost,ptr,0);
@@ -754,6 +758,9 @@ p_privmsg(from, Args)
 			break;
 		case PUBLIC_LIST:
 			doing_privmsg = 1;
+/**************************** PATCHED by Flier ******************************/
+                        DecryptMessage(ptr,to);
+/****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from, 
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/
@@ -765,6 +772,9 @@ p_privmsg(from, Args)
 			break;
 		case PUBLIC_OTHER_LIST:
 			doing_privmsg = 1;
+/**************************** PATCHED by Flier ******************************/
+                        DecryptMessage(ptr,to);
+/****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from,
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/

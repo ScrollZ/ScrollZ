@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.17 1999-06-14 20:11:39 f Exp $
+ * $Id: dcc.c,v 1.18 1999-07-18 13:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -127,8 +127,8 @@ extern void CheckDCCSpeed _((DCC_list *, time_t));
 extern void RemoveFromQueue _((int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern int  CheckServer _((int));
-extern int  DecryptChatMessage _((char *, char *));
-extern int  EncryptChatMessage _((char *, char *));
+extern int  DecryptMessage _((char *, char *));
+extern int  EncryptMessage _((char *, char *));
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -1994,7 +1994,8 @@ process_incoming_chat(Client)
 		{
  			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX XXX: stop dcc long messages, stupid but "safe"? */
 /**************************** PATCHED by Flier ******************************/
-                        iscrypted=DecryptChatMessage(s,Client->user);
+                        sprintf(tmpbuf,"=%s",Client->user);
+                        iscrypted=DecryptMessage(s,tmpbuf);
 /****************************************************************************/
 			if (do_hook(DCC_CHAT_LIST, "%s %s", Client->user, s))
                         {
@@ -2506,6 +2507,7 @@ dcc_message_transmit(user, text, type, flag)
  	size_t	len;
 /**************************** PATCHED by Flier ******************************/
         int     iscrypted=0;
+        char    tmpbuf[mybufsize/8];
 /****************************************************************************/
 
  	lastlog_level = set_lastlog_msg_level(LOG_DCC);
@@ -2553,7 +2555,10 @@ dcc_message_transmit(user, text, type, flag)
 #endif /* DCC_DCNT_PEND */
 	strmcpy(tmp, text, BIG_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
-	if (type==DCC_CHAT) iscrypted=EncryptChatMessage(tmp,Client->user);
+	if (type==DCC_CHAT) {
+            sprintf(tmpbuf,"=%s",Client->user);
+            iscrypted=EncryptMessage(tmp,tmpbuf);
+        }
 /****************************************************************************/
 	if (type == DCC_CHAT) {
 		nickbuf[0] = '=';
