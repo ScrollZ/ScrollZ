@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.17 2003-01-08 20:00:54 f Exp $
+ * $Id: ircaux.c,v 1.18 2003-12-24 11:12:10 f Exp $
  */
 
 #include "irc.h"
@@ -861,20 +861,20 @@ bind_local_addr(localhost, localport, fd, family)
 	err = getaddrinfo(localhost, localport, &hintsx, &res0x);
 
 	if (err != 0)
-#if defined(__linux__) && 0
-		/*
-		 * Due to bug in glibc implementation in getaddrinfo() we always
-		 * return -10.   This will be fixed, soon
-		 */
-		return -10;
-#else
 	{
+/* Dirty little hack here, brought to us by ircII-20030709 damm@yazzy.org */
+#ifndef EAI_ADDRFAMILY
+# ifdef EAI_FAMILY
+#  define EAI_ADDRFAMILY EAI_FAMILY
+# else
+#  error "no EAI_ADDRFAMILY or EAI_FAMILY"
+# endif
+#endif
 		if (err == EAI_ADDRFAMILY)
 			return -10;
 		else
 			return -2;
 	}
-#endif
 	err = -1;
 	for (resx = res0x; resx; resx = resx->ai_next)
 	{
