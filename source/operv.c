@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.32 2001-01-06 18:26:55 f Exp $
+ * $Id: operv.c,v 1.33 2001-01-07 20:07:31 f Exp $
  */
 
 #include "irc.h"
@@ -71,8 +71,8 @@ char *subargs;
             if (!my_stricmp("HERE",tmp)) incurwin=1;
             if (ovts && !my_stricmp("NOTS",ovts)) OVTS=0;
             else OVTS=1;
-            if (ovts && my_stricmp("NOMODES",ovts)) nomodes=next_arg(args,&args);
-            else nomodes=ovts;
+            if (ovts && !my_stricmp("NOMODES",ovts)) nomodes=ovts;
+            else nomodes=next_arg(args,&args);
             if (nomodes && !my_stricmp("NOMODES",nomodes)) sendmodes=0;
 	    if (OperV && !incurwin)
                 say("OperVision is already turned on");
