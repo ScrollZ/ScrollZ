@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.90 2002-04-07 16:42:01 f Exp $
+ * $Id: irc.c,v 1.91 2002-05-08 18:13:04 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -985,7 +985,7 @@ parse_args(argv, argc)
 		}
 		else
 		{
- 			if (nickname && *nickname)
+ 			if (strchr(arg, '.') || (nickname && *nickname))
 				build_server_list(arg);
 			else
  				malloc_strcpy(&nickname, arg);
