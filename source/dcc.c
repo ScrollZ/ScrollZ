@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.4 1998-09-27 16:29:26 f Exp $
+ * $Id: dcc.c,v 1.5 1998-10-22 16:59:27 f Exp $
  */
 
 #include "irc.h"
@@ -121,6 +121,7 @@ extern void PrintMyChatMsg _((char *, char *));
 extern void CheckDCCSpeed _((DCC_list *, time_t));
 extern void RemoveFromQueue _((int));
 extern void ColorUserHost _((char *, char *, char *, int));
+extern int  CheckServer _((int));
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -2692,7 +2693,12 @@ dcc_chat_rename(args)
 	DCC_list	*Client;
 	char	*user;
 	char	*temp;
-	
+/**************************** PATCHED by Flier ******************************/
+        char    oldnick[mybufsize/16+3];
+        char    newnick[mybufsize/16+3];
+        struct  nicks *nickstr;
+/****************************************************************************/
+
 	if (!(user = next_arg(args, &args)) || !(temp = next_arg(args, &args)))
 	{
 		say("you must specify a current DCC CHAT connection, and a new name for it");
@@ -2708,6 +2714,18 @@ dcc_chat_rename(args)
 		new_free(&(Client->user));
 		malloc_strcpy(&(Client->user), temp);
 		say("DCC CHAT connection with %s renamed to %s", user, temp);
+/**************************** PATCHED by Flier ******************************/
+                if (strlen(user)>mybufsize/16) user[mybufsize/16]='\0';
+                if (strlen(temp)>mybufsize/16) temp[mybufsize/16]='\0';
+                sprintf(oldnick,"=%s",user);
+                sprintf(newnick,"=%s",temp);
+                if (CheckServer(Client->server)) {
+                    for (nickstr=server_list[Client->server].nicklist;nickstr;
+                         nickstr=nickstr->next)
+                        if (!my_stricmp(nickstr->nick,oldnick))
+                            malloc_strcpy(&(nickstr->nick),newnick);
+                }
+/****************************************************************************/
 	}
 	else
 		say("No DCC CHAT connection with %s", user);
