@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.31 1999-05-09 08:53:57 f Exp $
+ * $Id: edit6.c,v 1.32 1999-05-11 15:33:02 f Exp $
  */
 
 #include "irc.h"
@@ -222,7 +222,13 @@ int  server;
                     ((tmpfriend->privs)&(FLINVITE | FLCHOPS | FLOP | FLUNBAN))==
                      (FLINVITE | FLCHOPS | FLOP | FLUNBAN))
 #endif
-                        send_to_server("INVITE %s %s",nick,tmpchan->channel);
+                     {
+#ifndef VILAS
+                         if (tmpchan->key)
+                             send_to_server("NOTICE %s :You have been ctcp invited to %s (key is %s) -ScrollZ-",nick,tmpchan->channel,tmpchan->key);
+#endif
+                         send_to_server("INVITE %s %s",nick,tmpchan->channel);
+                     }
             }
     }
 }
