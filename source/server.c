@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.23 2000-08-21 18:41:40 f Exp $
+ * $Id: server.c,v 1.24 2000-08-27 10:58:41 f Exp $
  */
 
 #include "irc.h"
@@ -1171,13 +1171,31 @@ connect_to_server(server_name, port, nick, c_server)
 	struct sockaddr_in	sa;
 	int salen = sizeof( struct sockaddr_in );
 #endif
-
 /**************************** PATCHED by Flier ******************************/
+        int i;
+
         LastServer=time((time_t *) 0);
 /****************************************************************************/
  	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
 	server_index = find_in_server_list(server_name, port, nick);
+/**************************** PATCHED by Flier ******************************/
+        /* Fix for ircII bug where client believes it is connected to
+         * two servers if following sequence is executed:
+         * 1) connect to server
+         * 2) /s server which is firewalled or timeouts
+         * 3) /s new_server while 2) is still in progress
+         * Now client is confused about servers. */
+        for (i=0;i<number_of_servers;i++) {
+            if ((server_list[i].flags)&CLEAR_PENDING)
+                clear_channel_list(i);
+            if ((server_list[i].flags)&CLOSE_PENDING) {
+		server_list[i].close_serv=-1;
+		server_list[i].flags&=~(CLOSE_PENDING|CLEAR_PENDING);
+                close_server(i,"broken connect");
+            }
+        }
+/****************************************************************************/
 	attempting_to_connect = 1;
 	/*
 	 * check if the server doesn't exist, or that we're not already
@@ -1265,7 +1283,9 @@ connect_to_server(server_name, port, nick, c_server)
 				say("--- why are we flagging this for closing a second time?");
 #endif
 /**************************** PATCHED by Flier ******************************/
-                        say("Server %s will be closed when we connect",server_list[c_server].name);
+                        say("Server %s:%d will be closed when we connect",
+                            server_list[c_server].name,
+                            server_list[c_server].port);
 /****************************************************************************/
 			server_list[from_server].close_serv = c_server;
 			server_list[c_server].flags |= CLOSE_PENDING;
