@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.4 1999-02-15 21:20:00 f Exp $
+ * $Id: notify.c,v 1.5 1999-09-29 19:27:54 f Exp $
  */
 
 /*
@@ -222,6 +222,7 @@ notify(command, args, subargs)
                                                 else new->flag=2;
                                                 if (*tmpbuf) strcat(tmpbuf," ");
                                                 strcat(tmpbuf,new->nick);
+                                                new->server=from_server;
 /****************************************************************************/
  						from_server = old_server;
 					}
@@ -336,12 +337,19 @@ notify_mark(nick, flag, doit)
 /****************************************************************************/
 		if (flag)
 		{
+/**************************** PATCHED by Flier ******************************/
+                        if (tmp->server!=parsing_server_index) {
+                            new_free(&(tmp->userhost));
+                            tmp->flag=0;
+                            tmp->server=parsing_server_index;
+                        }
+/****************************************************************************/
 			if (tmp->flag != 1)
 			{
 				if (tmp->flag != -1 && doit && do_hook(NOTIFY_SIGNON_LIST, "%s", nick))
 /**************************** PATCHED by Flier ******************************/
 					/*say("Signon by %s detected", nick);*/
-					if (flag!=2) HandleNotifyOn(nick,from_server);
+					if (flag!=2) HandleNotifyOn(nick,tmp->server);
 /****************************************************************************/
 				/*
 				 * copy the correct case of the nick
