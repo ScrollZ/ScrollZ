@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.11 2000-11-05 17:52:07 f Exp $
+ * $Id: config.h,v 1.12 2001-01-14 11:05:11 f Exp $
  */
 
 #ifndef __config_h_
@@ -110,6 +110,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 #define DEFAULT_ALWAYS_SPLIT_BIGGEST 1
+#define DEFAULT_AUTO_RECONNECT 1
 #define DEFAULT_AUTO_UNMARK_AWAY 0
 #define DEFAULT_AUTO_WHOWAS 0
 #define DEFAULT_BEEP 1
