@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.93 2002-01-23 18:48:10 f Exp $
+ * $Id: edit4.c,v 1.94 2002-01-23 18:50:07 f Exp $
  */
 
 #include "irc.h"
@@ -932,7 +932,7 @@ send_begin:
             p = strrchr(last_completion, '/');
             if (p) p++;
             else p = last_completion;
-            while (strcmp(dir_list[j]->d_name, p)) j++;
+            while (j < n - 1 && strcmp(dir_list[j]->d_name, p)) j++;
             j++;
         }
         while (j < n) {
