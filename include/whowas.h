@@ -7,7 +7,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: whowas.h,v 1.3 1999-07-24 12:40:06 f Exp $
+ * $Id: whowas.h,v 1.4 2000-08-26 10:51:54 f Exp $
  *
  * Modified by Flier
  */
@@ -32,7 +32,6 @@ typedef	struct	whowaslist_stru
 typedef	struct	whowaschanlist_stru
 {
     struct whowaschanlist_stru *next;  /* pointer to next whowas chan entry */
-    int refnum;                        /* to rejoin in correct window */
     time_t time;                       /* time added on list */
     ChannelList *channellist;          /* ChannelList entry */
 } WhowasChanList;

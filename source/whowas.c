@@ -11,7 +11,7 @@
  *
  * Modified by Flier
  *
- * $Id: whowas.c,v 1.6 2000-08-21 18:41:40 f Exp $
+ * $Id: whowas.c,v 1.7 2000-08-26 10:51:54 f Exp $
  */
 
 #include "irc.h"
@@ -300,7 +300,6 @@ ChannelList *channel;
                                       (whowas_chan_max+1)-whowas_chan_count);
     }
     new=(WhowasChanList *) new_malloc(sizeof(WhowasChanList));
-    new->refnum=channel->window?channel->window->refnum:-1;
     new->channellist=channel;
     new->time=time(NULL);
     /* we've created it, now put it in order */
