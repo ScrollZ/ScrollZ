@@ -107,6 +107,10 @@ Also look at $2J$0
 :LISTS         Lists all servers on server list
 Also look at $2ADDS$0 and $2REMS$0
 :LLOOK         This will store LINKS info internally
+Usage $3LLOOK$0 [$3-LOAD filename$0|$3-SAVE filename$0]
+When no args are give LINKS info is stored internally. $3-SAVE$0 will
+save this information to a file. $3-LOAD$0 will restore this information
+from a file previously saved with $3-SAVE$0.
 Also look at $2LLOOKUP$0
 :LLOOKUP       This will compare LINKS info against stored one
 You have to issue $4LLOOK$0 first!
@@ -114,8 +118,7 @@ Also look at $2LLOOK$0
 :LOGON         Toggles logging to ScrollZ.away on/off
 Usage $3LOGON on$0|$3off$0
 If you set it to $3ON$0, client will log events to ScrollZ.away
-even if you are not set away. Note that this setting is NOT
-saved to ScrollZ.save
+even if you are not set away.
 :LS            Does ls (shows specified directory)
 Usage $3LS$0 [$3options$0]
 :M             Sends message to nick/channel
@@ -371,7 +374,8 @@ $3G$0   user is god, client will reop/unban/invite him when he gets
 $3D$0   user has access to CDCC. This is only relevant when /CDCC SECURE
     is ON. If so, user will be able to see/get files from your offer
     list plus you will autoget files from this user if /CDCC AUTOGET
-    is ON as well.
+    is ON as well. User will be exempt from minimum speed check and
+    their requests will not be queued but carried right away.
 $3J$0   upon invite to a channel from user with this level, you will au-
     tomatically join no matter what /AJOIN is set to
 $3F$0   such users won't trigger flood protection
@@ -744,10 +748,11 @@ Also look at $2K$0, $2LK$0, $2MULTK$0 and $2RANLK$0
 Usage $3MKILL$0 $3nick1$0 $3nick2$0 $3nick3$0 ... [:$3reason$0]
 Also look at $2WKILL$0 and $2TKILL$0
 :MODELOCK      Sets channel's lock mode
-Usage $3MODELOCK$0 $3#channel mode$0
+Usage $3MODELOCK$0 [$3#channel mode$0]
 Acceptable modes are +ints, -intskl and +l number. Several channels
 can be specified at once, separate them with comma. Every channel's
-name must start with #.
+name must start with #. Stored modes for all channels are shown if
+no arguments are given.
 Also look at $2MC$0 and $2MODEUNLOCK$0
 :MODEUNLOCK    Resets channel's lock mode
 Usage $3MODEUNLOCK$0 [[$3#$0]$3channel$0]
