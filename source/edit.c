@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.97 2003-05-18 17:07:50 f Exp $
+ * $Id: edit.c,v 1.98 2003-07-06 10:05:44 f Exp $
  */
 
 #include "irc.h"
@@ -2233,9 +2233,7 @@ who(command, args, subargs)
 			}
 /**************************** PATCHED by Flier ******************************/
 			else if (strncmp(cmd,"show_server",len)==0) {
-                            who_mask|=WHO_SHOW_SERVER;
-                            if ((arg=next_arg(args,&args))!=NULL) channel=arg;
-                            else channel=get_channel_by_refnum(0);
+                            who_mask |= WHO_SHOW_SERVER;
                         }
 /****************************************************************************/
 			else
@@ -2271,6 +2269,9 @@ who(command, args, subargs)
 	{
 		if (!channel && who_mask & WHO_OPS)
 			channel = "*";
+/**************************** PATCHED by Flier ******************************/
+                if (!channel && (who_mask & WHO_SHOW_SERVER)) channel = "*";
+/****************************************************************************/
 		send_to_server("%s %s %c", command, channel ? channel :
 				empty_string, (who_mask & WHO_OPS) ?
 					'o' : '\0');
