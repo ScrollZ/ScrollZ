@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.26 2001-01-22 18:27:39 f Exp $
+ * $Id: SZdist.c,v 1.27 2001-04-11 20:47:00 f Exp $
  */
 
 #include <stdio.h>
@@ -36,6 +36,8 @@
 #include <utime.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 
 #define WANTANSI       (1<<0)
 #define EXTRAS         (1<<1)
@@ -358,13 +360,13 @@ char *fname;
     } while (curpath);
 }
 
-void main(argc,argv)
+int main(argc,argv)
 int argc;
 char **argv;
 {
     int  choice=0,oldchoice=0;
     int  end=0,gotit=0;
-    int  i,j,k,l;
+    int  i,j,k,l,fd;
     char c;
     char tmpbuf[2*mybufsize];
     char onoffbuf[32];
@@ -375,16 +377,24 @@ char **argv;
     FILE *fpin=NULL,*fpout;
     time_t timenow;
     struct stat statbuf;
+    struct termio orig,noecho,*tp;
 
     strcpy(format,"{hcwhrjhr!m#cl'*N?w4v0Sh6SMBwB!");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
-        return;
+        return(1);
     }
     locatelog(pathbuf,"SZdist");
     printf("Enter password:");
+    fd=fileno(stdin);
+    if (ioctl(fd,TCGETA,&orig)<0) exit(0);
+    noecho=orig;
+    noecho.c_lflag&=~ECHO;
+    tp=&noecho;
+    ioctl(fd,TCSETA,tp);
     fgets(password,mybufsize,stdin);
+    ioctl(fd,TCSETA,&orig);
     if (strlen(password) && password[strlen(password)-1]=='\n')
         password[strlen(password)-1]='\0';
     l=strlen(chars);
@@ -684,16 +694,16 @@ char **argv;
         }
         if (rename(defsfile,defsoldfile)<0) {
             printf("Error, couldn't rename %s to %s\n",defsfile,defsoldfile);
-            return;
+            return(1);
         }
         if ((fpin=fopen(defsoldfile,"r"))==NULL) {
             printf("Error, couldn't open %s for reading\n",defsoldfile);
-            return;
+            return(1);
         }
         if ((fpout=fopen(defsfile,"w"))==NULL) {
             printf("Error, couldn't open %s for writing\n",defsfile);
             fclose(fpin);
-            return;
+            return(1);
         }
         while (fgets(buf,1024,fpin)) {
             if (buf[strlen(buf)-1]=='\n') buf[strlen(buf)-1]='\0';
@@ -833,4 +843,5 @@ char **argv;
         }
         touchfile(defsfile,&statbuf);
     }
+    return(0);
 }
