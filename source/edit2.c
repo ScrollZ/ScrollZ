@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.9 1998-10-21 18:25:50 f Exp $
+ * $Id: edit2.c,v 1.10 1998-10-21 18:37:02 f Exp $
  */
 
 #include "irc.h"
@@ -2014,13 +2014,12 @@ char *subargs;
         msg=0;
     }
     if (message) {
-        if (!(*args)) {
+        if (!(tmparg=new_next_arg(args,&args))) {
             channel=get_channel_by_refnum(0);
             if (channel) send_text(channel,message,"PRIVMSG");
             else NoWindowChannel();
         }
         else {
-            tmparg=new_next_arg(args,&args);
             send_text(tmparg,message,"PRIVMSG");
             AddNick2List(tmparg,from_server);
         }
