@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.3 1999-02-15 21:19:21 f Exp $
+ * $Id: funny.c,v 1.4 1999-03-22 17:33:45 f Exp $
  */
 
 #include "irc.h"
@@ -196,11 +196,11 @@ funny_list(from, ArgList)
 		else
 			strcpy(format, "*** %s\t%-5s  %s");*/
 		if ((last_width = get_int_var(CHANNEL_NAME_WIDTH_VAR)) != 0)
-			sprintf(format, "%s %%-%u.%us %%-5s  %%s",ScrollZstr,
+			sprintf(format, "%%-%u.%us %%-5s  %%s",
 				(unsigned char) last_width,
 				(unsigned char) last_width);
 		else
-			sprintf(format, "%s %%s\t%%-5s  %%s",ScrollZstr);
+			sprintf(format, "%%s\t%%-5s  %%s");
 /****************************************************************************/
 	}
 	channel = ArgList[0];
@@ -251,9 +251,15 @@ funny_list(from, ArgList)
 		if (channel && user_cnt)
 		{
 			if (*channel == '*')
-				put_it(format, "Prv", user_cnt, line);
+/**************************** PATCHED by Flier ******************************/
+				/*put_it(format, "Prv", user_cnt, line);*/
+				say(format, "Prv", user_cnt, line);
+/****************************************************************************/
 			else
-				put_it(format, channel, user_cnt, line);
+/**************************** PATCHED by Flier ******************************/
+				/*put_it(format, channel, user_cnt, line);*/
+				say(format, channel, user_cnt, line);
+/****************************************************************************/
 		}
 	}
 }
