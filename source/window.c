@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.16 2000-08-10 17:33:28 f Exp $
+ * $Id: window.c,v 1.17 2000-08-10 20:38:04 f Exp $
  */
 
 #include "irc.h"
@@ -1743,6 +1743,15 @@ is_current_channel(channel, server, delete)
 	int	found = 0,
 		flag = 1;
 
+/**************************** PATCHED by Flier ******************************/
+        if (!channel) {
+            found=1;
+            found_window=curr_scr_win;
+            delete=curr_scr_win->refnum;
+            channel="";
+        }
+        else
+/****************************************************************************/
 	while ((tmp = traverse_all_windows(&flag)) != NULL)
 	{
 		char *	c = tmp->current_channel;
@@ -1975,6 +1984,13 @@ window_set_server(refnum, server, misc)
 	{
 		if ((misc & WIN_TRANSFER) && (old_serv >= 0))
 		{
+/**************************** PATCHED by Flier ******************************/
+                        /* Don't transfer channels if close_serv is set here
+                         * because it means connection to old server failed
+                         * and if we transfer channels we lose information
+                         * on nicks in channels! */
+                        if (server_list[old_serv].close_serv<0)
+/****************************************************************************/
 			for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
 			{
 				/* XXX: moved is always 0 at this point */

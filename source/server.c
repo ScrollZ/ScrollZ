@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.20 2000-08-10 18:06:27 f Exp $
+ * $Id: server.c,v 1.21 2000-08-10 20:38:04 f Exp $
  */
 
 #include "irc.h"
@@ -357,7 +357,13 @@ do_server(rd, wd)
 					if (old_serv != -1 && (server_list[old_serv].flags & CLOSE_PENDING))
 					{
 						say("Connection to server %s resumed...", server_list[old_serv].name);
-						server_list[i].close_serv = -1;
+/**************************** PATCHED by Flier ******************************/
+                                                /* moved below because we need
+                                                 * it in get_connected() to
+                                                 * transfer channels when
+                                                 * connection fails */
+						/*server_list[i].close_serv = -1;*/
+/****************************************************************************/
 						server_list[old_serv].flags &= ~(CLOSE_PENDING|CLEAR_PENDING);
 						server_list[old_serv].flags |= LOGGED_IN;
 						server_list[old_serv].connected = 1;
@@ -383,6 +389,14 @@ do_server(rd, wd)
 						}
 #endif /* 1 */
 					}
+/**************************** PATCHED by Flier ******************************/
+                                        /* see comment above! */
+                                        server_list[i].close_serv = -1;
+                                        if (curr_scr_win->server==old_serv) {
+                                            is_current_channel(NULL,old_serv,
+                                                               curr_scr_win->refnum);
+                                        }
+/****************************************************************************/
 					window_check_servers();
 					break;
 				}
