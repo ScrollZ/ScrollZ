@@ -102,6 +102,11 @@ Meaning of flags:
       color number 6 for this (requested by )
     + NICKCHAN to display nick change in all user's channels (only once per
       window though, much like SHOWSIGN for signoffs, requested by fox)
+    + AWAYENCR to toggle encryption of ScrollZ.away on or off (the file is
+      encrypted using master password, a tool to decrypt such encrypted
+      files can be found in tools directory)
+    + hopefully made scandir() stuff work on all platforms by moving the
+      #ifdef magic to scandir.h
 
 ------------------------------------------------------------------------------
 
