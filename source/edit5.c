@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.15 1998-12-10 18:39:18 f Exp $
+ * $Id: edit5.c,v 1.16 1999-01-10 20:20:04 f Exp $
  */
 
 #include "irc.h"
@@ -3106,7 +3106,7 @@ char *filepath;
     register char *tmpstr3;
     FILE *notefile;
     time_t now;
-    struct urlstr *urlnew,*tmpurl;
+    struct urlstr *urlnew,*tmpurl,*prevurl=NULL;
 
     strcpy(tmpbuf1,line);
     *tmpstr2='\0';
@@ -3121,9 +3121,19 @@ char *filepath;
                  !my_strnicmp(tmpstr1,"www.",4) || !my_strnicmp(tmpstr1,"ftp.",4)) &&
                 index(tmpstr1,'.')) {
                 saveit=1;
-                for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next)
+                for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next) {
                     if (!my_stricmp(tmpurl->urls,tmpstr1)) break;
-                if (tmpurl) saveit=0;
+                    prevurl=tmpurl;
+                }
+                if (tmpurl) {
+                    if (prevurl) prevurl->next=tmpurl->next;
+                    else urllist=tmpurl->next;
+                    for (urlnew=urllist;urlnew && urlnew->next;) urlnew=urlnew->next;
+                    if (urlnew) urlnew->next=tmpurl;
+                    else urllist=tmpurl;
+                    tmpurl->next=(struct urlstr *) 0;
+                    saveit=0;
+                }
                 sprintf(tmpbuf2,"%c%s%c",bold,tmpstr1,bold);
                 strcat(tmpstr2,tmpbuf2);
                 tmpstr2+=strlen(tmpbuf2);
