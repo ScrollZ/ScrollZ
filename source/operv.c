@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.33 2001-01-07 20:07:31 f Exp $
+ * $Id: operv.c,v 1.34 2001-01-12 18:08:36 f Exp $
  */
 
 #include "irc.h"
@@ -767,6 +767,24 @@ char *from;
             }
         }
     }
+    else if (!strncmp(tmpline,"Received SERVER",15)) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* server */
+	strcpy(word2,OVgetword(0,5,tmpline));  /* remote */
+#ifdef CELECOSM
+        sprintf(tmpbuf,"link/%sserver%s  %s%s%s from %s",
+                CmdsColors[COLOV].color3,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %slink%s] %sserver%s %s%s%s from %s",
+                CmdsColors[COLOV].color5,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+#else
+	sprintf(tmpbuf,"Link: %s%s%s recieved %sSERVER%s from %s",
+		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color4,Colors[COLOFF],word2);
+#endif
+    }
     else if (!strncmp(tmpline,"Possible Eggdrop:",17)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* BotNick */
 	strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
@@ -945,13 +963,16 @@ char *from;
              !strncmp(tmpline,"Sending SERVER ",15)) {
         strcpy(word1,OVgetword(0,2,tmpline));
         strcpy(word2,OVgetword(0,3,tmpline));
+        strcpy(word3,OVgetword(4,0,tmpline));
 #ifdef OGRE
-        sprintf(tmpbuf,"[      %slink%s] sending %s%s%s %s",
+        sprintf(tmpbuf,"[      %slink%s] sending %s%s%s %s %s",
                 CmdsColors[COLOV].color5,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2,
+                !strncmp(tmpline,"Sending SQUIT ",14)?word3:"");
 #else
-        sprintf(tmpbuf,"Sending %s%s%s %s",
-                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+        sprintf(tmpbuf,"Sending %s%s%s %s %s",
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,
+                !strncmp(tmpline,"Sending SQUIT ",14)?word3:"");
 #endif
     }
     else if (!strncmp(tmpline,"Rejecting connection from ",26)) {
