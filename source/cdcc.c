@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.52 2004-04-27 09:13:16 f Exp $
+ * $Id: cdcc.c,v 1.53 2004-06-18 17:07:12 f Exp $
  */
 
 #include "irc.h"
@@ -642,10 +642,11 @@ int type;
                         flags&=DCC_TYPES;
                         rate = (float)(completed - Client->resendoffset) / (float)(timenow - Client->starttime);
                         snprintf(tmpbuf2,sizeof(tmpbuf2),"%6.2f",rate/1024.0);
-                        if (rate>0.0 && completed<=Client->filesize) {
+                        if (rate>0.01 && completed<=Client->filesize) {
                             etatime=(float) (((float) (Client->filesize)-(float) completed)/(float) rate);
                             snprintf(tmpbuf3,sizeof(tmpbuf3),"%3ld:%02ld ",etatime/60,etatime%60);
                         }
+                        else strmcpy(tmpbuf3,"   N/A ",sizeof(tmpbuf3));
                     }
                     else strmcpy(tmpbuf3,"        N/A ",sizeof(tmpbuf3));
                 }
