@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.4 1998-09-30 21:23:49 f Exp $
+ * $Id: edit4.c,v 1.5 1998-10-21 18:32:35 f Exp $
  */
 
 #include "irc.h"
@@ -233,7 +233,7 @@ int  print;
     StripAnsi(message,tmpbuf3,2);
     if (!(userhost && *userhost)) userhost=empty_string;
     sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(GET_TIME));
-    malloc_strcpy(&LastMessage,tmpbuf1);
+    malloc_strcpy(&(server_list[from_server].LastMessage),tmpbuf1);
     sprintf(tmpbuf1,"*%s* %s  (%s)",nick,tmpbuf3,userhost);
     if (away_set || LogOn) {
        AwaySave(tmpbuf1,SAVEMSG);
@@ -893,8 +893,9 @@ int  print;
         }
     }
     sprintf(tmpbuf,"-%s- %s",nick,notice);
-    malloc_strcpy(&LastNotice,tmpbuf);
-    if (!print && (away_set || LogOn)) AwaySave(LastNotice,SAVENOTICE);
+    malloc_strcpy(&(server_list[from_server].LastNotice),tmpbuf);
+    if (!print && (away_set || LogOn))
+        AwaySave(server_list[from_server].LastNotice,SAVENOTICE);
     return(!hooked);
 }
 
@@ -1599,6 +1600,7 @@ char *subargs;
 {
     char *channel;
     char *tmpnick;
+    char *notice=server_list[from_server].LastNotice;
     NickList *joiner;
     ChannelList *chan;
 
@@ -1612,13 +1614,13 @@ char *subargs;
                 joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
                 if (joiner) {
 #if defined(VILAS)
-                    if (LastNotice) send_to_server("KICK %s %s :%s",channel,tmpnick,LastNotice);
+                    if (notice) send_to_server("KICK %s %s :%s",channel,tmpnick,notice);
                     else send_to_server("KICK %s %s :%s",channel,tmpnick,DefaultK);
 #elif defined(CELE)
-                    if (LastNotice) send_to_server("KICK %s %s :%s %s",channel,tmpnick,LastNotice,CelerityL);
+                    if (notice) send_to_server("KICK %s %s :%s %s",channel,tmpnick,notice,CelerityL);
                     else send_to_server("KICK %s %s :%s %s",channel,tmpnick,DefaultK,CelerityL);
 #else  /* CELE */
-                    if (LastNotice) send_to_server("KICK %s %s :<ScrollZ-LNK> %s",channel,tmpnick,LastNotice);
+                    if (notice) send_to_server("KICK %s %s :<ScrollZ-LNK> %s",channel,tmpnick,notice);
                     else send_to_server("KICK %s %s :<ScrollZ-K> %s",channel,tmpnick,DefaultK);
 #endif /* VILAS */
                 }
