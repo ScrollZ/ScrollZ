@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.5 1998-09-20 14:40:17 f Exp $
+ * $Id: edit2.c,v 1.6 1998-09-24 18:26:20 f Exp $
  */
 
 #include "irc.h"
@@ -2263,9 +2263,10 @@ char *command;
 char *args;
 char *subargs;
 {
-    char *tmpnick=(char *) 0;
-    char *tmpchan=(char *) 0;
-    char *tmpshit=(char *) 0;
+    char *tmpnick;
+    char *tmpchan;
+    char *tmpshit;
+    char *userhost;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
     char tmpbuf3[mybufsize/4];
@@ -2286,7 +2287,9 @@ char *subargs;
     else {
         joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
         if (joiner && joiner->userhost) {
-            strcpy(tmpbuf2,joiner->userhost);
+            userhost=(joiner->userhost)+1;
+            if (*userhost=='@') userhost--;
+            strcpy(tmpbuf2,userhost);
             UserDomainList(tmpbuf2);
             sprintf(tmpbuf3,"*!%s",tmpbuf2);
             AddBK2List(tmpbuf3,tmpshit,tmpbuf1);
@@ -2306,7 +2309,8 @@ WhoisStuff *wistuff;
 char *tmpnick;
 char *text;
 {
-    char *tmpshit=(char *) 0;
+    char *tmpshit;
+    char *username;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
@@ -2316,7 +2320,9 @@ char *text;
         return;
     }
     tmpshit=new_next_arg(text,&text);
-    sprintf(tmpbuf1,"%s@%s",wistuff->user,wistuff->host);
+    username=(wistuff->user)+1;
+    if (!(*username)) username--;
+    sprintf(tmpbuf1,"%s@%s",username,wistuff->host);
     UserDomainList(tmpbuf1);
     sprintf(tmpbuf2,"*!%s",tmpbuf1);
     AddBK2List(tmpbuf2,tmpshit,text);
