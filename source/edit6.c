@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.47 1999-08-18 20:22:56 f Exp $
+ * $Id: edit6.c,v 1.48 1999-08-22 12:35:44 f Exp $
  */
 
 #include "irc.h"
@@ -177,7 +177,10 @@ static struct commands {
     { "CHSIGNOFF"   , &ShowSignoffChan, &SignoffChannels       , "Show channels in signoff"   , NULL },
 #endif
 #if defined(EXTRAS) || defined(FLIER)
-    { "AUTOINV"     , &AutoInv        , &AutoInvChannels       , "Auto invite on notify" },
+    { "AUTOINV"     , &AutoInv        , &AutoInvChannels       , "Auto invite on notify"      , NULL },
+#endif
+#ifdef ACID
+    { "FORCEJOIN"   , &ForceJoin      , &ForceJoinChannels     , "Force channel join"         , NULL },
 #endif
     { NULL          , NULL            , NULL                   , NULL                         , NULL }
 };
@@ -2570,7 +2573,6 @@ char *channel;
 #ifdef ACID
 void TryChannelJoin() {
     int  found;
-    int  wildcards;
     int  lasttimer=0;
     char *tmpstr;
     char *tmpstr1;
@@ -2580,39 +2582,34 @@ void TryChannelJoin() {
     WhowasList *whowas;
     ChannelList *tmpchan;
 
-    if (curr_scr_win->server!=-1 && AutoJoinOnInv==2 && AutoJoinChannels) {
-        strmcpy(tmpbuf,AutoJoinChannels,mybufsize/2);
+    if (curr_scr_win->server!=-1 && ForceJoin && ForceJoinChannels) {
+        strmcpy(tmpbuf,ForceJoinChannels,mybufsize/2);
         tmpstr=tmpbuf;
         tmpstr1=tmpbuf;
-        wildcards=0;
         while (1) {
-            if (*tmpstr=='?' || *tmpstr=='*') wildcards=1;
             if (*tmpstr==',' || !(*tmpstr)) {
                 if (!(*tmpstr)) *(tmpstr+1)='\0';
                 *tmpstr='\0';
-                if (!wildcards) {
-                    for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
-                            tmpchan=tmpchan->next)
-                        if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
-                    /* 
-                     * ask up to 5 users with +z flag set to open the channel for us
-                     */
-                    if (!tmpchan) {
-                        found=0;
-                        for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
-                            if (whowas->nicklist && whowas->nicklist->frlist &&
+                for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
+                        tmpchan=tmpchan->next)
+                    if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
+                /* 
+                 * ask up to 5 users with +z flag set to open the channel for us
+                 */
+                if (!tmpchan) {
+                    found=0;
+                    for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
+                        if (whowas->nicklist && whowas->nicklist->frlist &&
                                 ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
                                 !my_stricmp(whowas->channel,tmpstr1)) {
-                                found++;
-                                if (found>5) break;
-                                send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
-                                        whowas->nicklist->nick,tmpstr1,tmpstr1);
-                            }
+                            found++;
+                            if (found>5) break;
+                            send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
+                                    whowas->nicklist->nick,tmpstr1,tmpstr1);
                         }
                     }
                 }
                 tmpstr1=tmpstr+1;
-                wildcards=0;
             }
             if (!(*tmpstr) && !(*(tmpstr+1))) break;
             tmpstr++;
