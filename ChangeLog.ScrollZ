@@ -6,6 +6,14 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+ScrollZ v1.9.3, 11.5.2004
+
+    ! when ARINWIN was trigered by an action and current window
+      did not match target window for the action, all messages
+      would start showing in current window
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.2, 9.5.2004
 
     ! only characters with ASCII codes below 32 are printed in
