@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.57 2001-07-21 19:07:46 f Exp $
+ * $Id: irc.c,v 1.58 2001-07-22 09:10:52 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -231,11 +231,11 @@ static	char	FAR switch_help[] =
    -s\t\tdon't use separate server processes (ircio)\n\
    -S\t\tuse separate server processes (ircio)\n\
    -d\t\truns IRCII in \"dumb\" terminal mode\n\
-   -q\t\tdoes not load .scrollzrc and not .ircquick\n\
+   -q\t\tdoes not load .scrollzrc and not .scrollzquick\n\
    -a\t\tadds default servers and command line servers to server list\n\
    -b\t\tload .scrollzrc before connecting to a server\n\
    -l <file>\tloads <file> in place of your .scrollzrc\n\
-   -I <file>\tloads <file> in place of your .ircquick\n\
+   -I <file>\tloads <file> in place of your .scrollzquick\n\
    -L <file>\tloads <file> in place of your .scrollzrc and expands $ expandos\n";
 /**************************** PATCHED by Flier ******************************/
 extern void Logo _((char *, char *, char *));

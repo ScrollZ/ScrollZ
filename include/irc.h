@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.8 2000-12-04 19:51:22 f Exp $
+ * $Id: irc.h,v 1.9 2001-07-22 09:10:52 f Exp $
  */
 
 #ifndef __irc_h
@@ -47,9 +47,9 @@
 /****************************************************************************/
 
 #ifdef __MSDOS__
-#define IRCQUICK_NAME "/ircquick.rc"
+#define IRCQUICK_NAME "/scrollzq.rc"
 #else
-#define IRCQUICK_NAME "/.ircquick"
+#define IRCQUICK_NAME "/.scrollzquick"
 #endif
 
 /*
