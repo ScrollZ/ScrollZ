@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.57 2001-02-03 19:39:58 f Exp $
+ * $Id: edit2.c,v 1.58 2001-02-06 20:35:07 f Exp $
  */
 
 #include "irc.h"
@@ -1899,7 +1899,7 @@ char *subargs;
     if (AutoReplyBuffer) fprintf(usfile,"AUTOREPLY       %s\n",AutoReplyBuffer);
     fprintf(usfile,"ORIGNICK        ");
     if (OrigNickChange)
-        fprintf(usfile,"%s %s\n",OrigNick,OrigNickQuiet?"QUIET":"ON");
+        fprintf(usfile,"%s %s\n",OrigNickQuiet?"QUIET":"ON",OrigNick);
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"NOTIFYMODE      ");
     if (NotifyMode==2) fprintf(usfile,"Verbose\n");
