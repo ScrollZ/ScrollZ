@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.21 1999-09-12 10:47:11 f Exp $
+ * $Id: cdcc.c,v 1.22 1999-09-18 10:13:33 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1210,6 +1210,8 @@ char *line;
         }
         else PrintUsage("CDCC QUEUE REMOVE filter");
     }
+    else if (tmpstr && *tmpstr && !my_stricmp(tmpstr,"FLUSH")) 
+        RemoveFromQueue(0);
     else {
         for (tmp=queuelist;tmp;tmp=tmp->next) count++;
         say("Total of %d file%s in queue",count,count==1?"":"s");
