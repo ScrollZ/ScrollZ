@@ -1,4 +1,4 @@
-!	 $Id: fsend,v 1.1 2002-05-04 14:51:56 f Exp $
+!	 $Id: fsend,v 1.2 2002-05-08 18:22:10 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -6,7 +6,7 @@
 ! information.
 !
 Usage: CDCC FSEND [pattern1 pattern2 , nick1 nick2]
-  Sends file(s) to nick(s)
+  Sends file(s) to nick(s) ignoring Cdcc queue
 
   First you enter what file(s) you wanna send. You can use
   * and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). If you
