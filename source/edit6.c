@@ -72,7 +72,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.148 2003-12-30 17:09:48 f Exp $
+ * $Id: edit6.c,v 1.149 2004-04-20 16:51:09 f Exp $
  */
 
 #include "irc.h"
@@ -2410,21 +2410,31 @@ char *user;
 
 #ifdef OPER
 /* Filtered trace */
-void FilterTrace(command,args,subargs)
+void FilterTrace(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
+    int etrace = 0;
     int countonly = 0;
     int haveserver = 0;
     char *filter;
     char *server;
+    char cmdbuf[mybufsize];
 
     if (inSZTrace) {
         say("Already doing filtered trace");
         return;
     }
     filter = new_next_arg(args, &args);
+    if (!my_stricmp(filter,"-E")) {
+        etrace = 3;
+        filter = new_next_arg(args, &args);
+    }
+    else if (!my_stricmp(filter,"-G")) {
+        etrace = 4;
+        filter = new_next_arg(args, &args);
+    }
     if (!my_stricmp(filter,"-COUNT")) {
         countonly = 1;
         filter = new_next_arg(args, &args);
@@ -2437,12 +2447,19 @@ char *subargs;
         new_free(&ftpattern);
         if (countonly) malloc_strcpy(&ftpattern, ":");
         malloc_strcat(&ftpattern, filter);
-        inSZTrace = 2;
-        send_to_server("TRACE %s", haveserver ? server : "");
+        if (etrace) {
+            snprintf(cmdbuf, sizeof(cmdbuf), "ETRACE %s", haveserver ? server : "");
+            inSZTrace = etrace;
+        }
+        else {
+            snprintf(cmdbuf, sizeof(cmdbuf), "TRACE %s", haveserver ? server : "");
+            inSZTrace = 2;
+        }
+        send_to_server("%s", cmdbuf);
         say("Finding all users matching %s on %sserver%s%s", filter,
             haveserver ? "" : "local ", haveserver ? " " : "", haveserver ? server : "");
     }
-    else PrintUsage("FTRACE [-COUNT] filter [server]");
+    else PrintUsage("FTRACE [-E|-G] [-COUNT] filter [server]");
 }
 
 /* Actual filtered trace */

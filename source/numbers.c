@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.73 2004-03-01 20:49:27 f Exp $
+ * $Id: numbers.c,v 1.74 2004-04-20 16:51:09 f Exp $
  */
 
 #include "irc.h"
@@ -1767,7 +1767,7 @@ numbered_command(from, comm, ArgList)
                 case 262:		/* #define RPL_ENDOFTRACE       262 */
                         if (comm==262 && inSZTrace) {
 #ifdef OPER
-                            if (inSZTrace==2)
+                            if (inSZTrace>=2)
                                 say("Matched %d out of %d entries",mattcount,tottcount);
 #endif
                             inSZTrace=0;
@@ -1792,7 +1792,7 @@ numbered_command(from, comm, ArgList)
                 case 204:
                 case 206:
                         if (comm==203 || comm==204 || comm==206) {
-                            if (inSZTrace!=2 && !inSZFKill) inSZTrace=0;
+                            if (inSZTrace<2 && !inSZFKill) inSZTrace=0;
 #ifdef OPER
                             if (inSZTrace==2 && (comm==203 || comm==204))
                                 DoFilterTrace(ArgList[2]);
@@ -1820,6 +1820,30 @@ numbered_command(from, comm, ArgList)
 #ifdef OPER
                         if (comm==209 && inSZTrace) {
                             if (inSZTrace==1) HandleEndOfTraceKill();
+                            break;
+                        }
+#endif
+#ifdef CELE
+                        HandleTrace(comm,ArgList[0],ArgList[1],ArgList[2],ArgList[3],ArgList[4],ArgList[5]);
+                        break;
+#endif
+                case 709: /* ETRACE on ircd-ratbox */
+#ifdef OPER
+                        if (comm == 709 && inSZTrace) {
+                            if (inSZTrace == 3) {
+                                char tmpbuf1[2 * mybufsize];
+
+                                snprintf(tmpbuf1, sizeof(tmpbuf1), "%s[%s@%s] %s",
+                                        ArgList[2], ArgList[3], ArgList[4], ArgList[5]);
+                                DoFilterTrace(tmpbuf1);
+                            }
+                            else if (inSZTrace == 4) {
+                                char tmpbuf2[2 * mybufsize];
+
+                                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s[%s@%s] [%s]",
+                                        ArgList[2], ArgList[3], ArgList[4], ArgList[6]);
+                                DoFilterTrace(tmpbuf2);
+                            }
                             break;
                         }
 #endif
