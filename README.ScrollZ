@@ -1,4 +1,4 @@
-$Id: README.ScrollZ,v 1.9 2001-12-19 19:20:12 f Exp $
+$Id: README.ScrollZ,v 1.10 2002-05-08 18:24:11 f Exp $
 
 This is the readme file for ScrollZ IRC client.
 ScrollZ is copyright (C) 1995-2001 by Flier (flier@scrollz.com).
@@ -18,9 +18,10 @@ Mailing list address: scrollz@ahnberg.pp.se
 I would like to thank the following individuals: f0x for scrollz.com,
 acidflash for patches and support, ogre, Anton and colrebel for arranging
 and maintaining the FTP site/mirrors, Ahnberg for the FTP mirror and the
-mailing list, largo for the web page design, Sheik for cdcc.c, whowas.c and
-edit2.c.lame, and Saud for the FTP mirror. Also thanks to Sharky and Darkie
-for permission to use the code from their BitchX SSL port - it was modified
-as ircII code differs a lot from the EPIC code these days.
+mailing list, largo for the web page design, tel for the web space,
+Sheik for cdcc.c, whowas.c and edit2.c.lame, and Saud for the FTP mirror.
+Also thanks to Sharky and Darkie for permission to use the code from their
+BitchX SSL port - it was modified as ircII code differs a lot from the EPIC
+code these days.
 
 -Flier
