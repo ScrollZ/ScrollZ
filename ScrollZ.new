@@ -91,7 +91,6 @@ added ability to complete first matching channel name on ^T and
       TAB (try /M #first_few_letters_of_channel<TAB> or
       #first_few_letters_of_channel<^T>)
 Cdcc hooks now also work on CTCP your_nick CDCC LIST
-added ENCRCHAT to allow for encrypted DCC CHAT (requested by Doxx)
 added FTRACE to -DACID
 NWHOIS now accepts filter (requested by TrN)
 added MIRC STRIP which strips mIRC color crap (requested by Sparhawk)
@@ -135,8 +134,42 @@ changed tabkey behaviour, if input line is /m nick<space> it cycles
         through tabkey list and if there is no space after nick it cycles
         through matching nicks (this fixes most of tabkey bugs, reported by
         acidflash and Merlin)
-hopefully fixed annoying PONG messages from server being displayed when
-          client got confused about server name
+fixed annoying PONG messages from server being displayed when client got
+      confused about server name
+fixed tabkey bug introduced with change in tabkey behaviour
+fixed reconnect to server, it now uses WINDOW SERVER to reconnect
+SHOWIDLE now displays idle times even if IDLEKICK is turned off and
+         it also displays average idle time (requested by arc)
+MODELOCK can now be given list of channels separated with comma
+         (requested by arc)
+LOGON setting is now saved to ScrollZ.save (requested by Zig)
+added ability to receive files enclosed in quotes, any spaces in
+      filename are converted to underscore (requested by Infinii)
+added support for channel mode +e (ban exceptions)
+CDCC VERBOSE QUIET is now possible, it prevents DCC and Cdcc stuff
+     from being displayed for files you send out (requested by Zig)
+IGNORE #channel CRAP now also ignores numerics 441 and 443
+       (requested by couple of users)
+REMF #channel now works (requested by cain)
+INV sends channel key if set (requested by acidflash)
+moved some code to OPER which will be IRC opers related stuff (coded
+      by acidflash)
+AUTOINV now accepts list of channels if turned on (requested by ogre)
+if compress modes and auto join on invite are enabled, client will show
+   invite to a channel only once (requested by Zig)
+replaced ENCRCHAT with ENCRMSG to allow for encrypted communication
+         with users and/or channels (requested by several people)
+fixed broken stock ircII /SET HISTORY_FILE on Linux 
+fixed REMF #number removing entries with channels set to *
+      (reported by acidflash)
+added CHPASS to change users' password (requested by some-guy)
+fixed CDCC SAVE to correctly save filenames with spaces (reported by Dynamix)
+added support for numeric 477 (requested by Vortexia)
+added CDCC QUEUE FLUSH to flush the Cdcc queue in case it gets stuck
+      (requested by bad2da), this command is also called every 5 minutes
+fixed notify bugs when switching servers (reported by cain)
+merged ircII 4.4J code
+improved OperVision code and added support for ircnet's ircd
 
 
 -------------------------------------------------------------------------------
