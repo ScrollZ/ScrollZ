@@ -109,8 +109,7 @@ The hostname to use for the DCC file transfer
 .TP
 .B HOME
 Set home directory (overrides your home directory in
-.I /etc/passwd
-)
+.IR /etc/passwd )
 .TP
 .B IRCHOST
 The hostname to use
@@ -133,7 +132,7 @@ The path for loading files (defaults to
 .TP
 .B IRCRC
 The initalization file to use (defaults to
-.I ~/.scrollzrc )
+.IR ~/.scrollzrc )
 .TP
 .B IRCSERVER
 The IRC server(s) to use
@@ -171,3 +170,31 @@ The server list is a whitespace-separated list of server names.
 This manual page was written by Mike Markley <mike@markley.org>,
 for the Debian GNU/Linux system (but may be used by others).
 Updated for ScrollZ by Flier <flier@scrollz.com>.
+.SH BUG REPORTS
+If you find a bug in 
+.B ScrollZ
+you should report it. But first, you should make sure that it
+really is a bug, and that it appears in the latest version of
+.BR ScrollZ .
+.PP
+Once you have determined that a bug actually exists, mail the
+bug report to
+.B ScrollZ
+mailing list
+.BR scrollz@ahnberg.pp.se .
+If you have a fix, you are encouraged to mail that as well!
+.PP
+ALL bug reports should include:
+.PP
+.PD 0
+.TP 22
+The version number of 
+.B ScrollZ
+.TP
+The hardware and operating system
+.TP
+The compiler used to compile
+.TP
+A description of the bug behaviour
+.TP
+A short script or `recipe' which exercises the bug
