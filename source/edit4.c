@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.81 2001-12-19 19:16:39 f Exp $
+ * $Id: edit4.c,v 1.82 2001-12-20 17:29:15 f Exp $
  */
 
 #include "irc.h"
@@ -836,7 +836,6 @@ void HandleTabNext(u_int key, char *ptr)
         if (*p-- == ' ') spaces++;
     }
     if (!my_strnicmp(min_pos, "/dcc get ", 9) && spaces == 3) {
-        char buffer[mybufsize / 2 + 1];
         DCC_list *dcc_p;
 
 get_begin:
