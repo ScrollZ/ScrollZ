@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.30 1999-05-07 17:52:36 f Exp $
+ * $Id: edit6.c,v 1.31 1999-05-09 08:53:57 f Exp $
  */
 
 #include "irc.h"
@@ -2429,7 +2429,11 @@ char *notice;
                     key=tmpstr;
                     while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
                     tmpstr--;
-                    if (*tmpstr==')') *tmpstr='\0';
+                    if (*tmpstr==')') {
+                        *tmpstr++='\0';
+                        if (strcmp(tmpstr," -ScrollZ-")) channel=(char *) 0;
+                    }
+                    else channel=(char *) 0;
                 }
             }
             break;
@@ -2446,6 +2450,23 @@ char *notice;
             }
             break;
         case 3: /* C-ToolZ */
+            channel=notice+18;
+            tmpstr=channel;
+            while (*tmpstr && *tmpstr!='') tmpstr++;
+            if (*tmpstr) {
+                *tmpstr++='\0';
+                if (!strncmp(tmpstr," is ",5)) {
+                    tmpstr+=5;
+                    key=tmpstr;
+                    while (*tmpstr && *tmpstr!='.') tmpstr++;
+                    if (*tmpstr=='.') tmpstr--;
+                    if (*tmpstr=='') {
+                        *tmpstr++='\0';
+                        if (strcmp(tmpstr,". <C-ToolZ>")) channel=(char *) 0;
+                    }
+                    else channel=(char *) 0;
+                }
+            }
             break;
         case 4: /* BitchX */
             channel=notice+22;
@@ -2462,6 +2483,7 @@ char *notice;
                     if (*tmpstr=='') {
                         *tmpstr--='\0';
                         if (*tmpstr==']') *tmpstr='\0';
+                        else channel=(char *) 0;
                     }
                 }
             }

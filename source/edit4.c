@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.19 1999-05-07 17:52:36 f Exp $
+ * $Id: edit4.c,v 1.20 1999-05-09 08:53:57 f Exp $
  */
 
 #include "irc.h"
@@ -886,6 +886,7 @@ int  print;
     if (!print) {
         if (!strncmp(notice,"You have been ctcp invited to ",30)) AddJoinKey(1,notice);
         else if (!strncmp(notice,"Use channel key ",16)) AddJoinKey(2,notice);
+        else if (!strncmp(notice,"Channel key for ",17)) AddJoinKey(3,notice);
         else if (!strncmp(notice,"Ctcp-inviting you to ",22)) AddJoinKey(4,notice);
     }
     if (!foundchan ||
