@@ -2,6 +2,8 @@
  * dcc.c: Things dealing client to client connections. 
  *
  * Written By Troy Rollo <troy@cbme.unsw.oz.au> 
+ * mIRC resume code by EPIC
+ * Copyright (c) 1995, 2003 EPIC Software Labs
  *
  * Copyright (c) 1991, 1992 Troy Rollo.
  * Copyright (c) 1992-2003 Matthew R. Green.
@@ -30,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.43 2003-05-04 18:06:58 f Exp $
+ * $Id: dcc.c,v 1.44 2003-12-24 10:55:25 f Exp $
  */
 
 #include "irc.h"
