@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.19 1999-11-14 13:36:34 f Exp $
+ * $Id: operv.c,v 1.20 1999-11-14 14:28:09 f Exp $
  */
 
 #include "irc.h"
@@ -82,6 +82,21 @@ char *subargs;
                 say("OperVision is now enabled");
 	    }
 	}
+        else if (!my_stricmp("HERE",tmp)) {
+            OperV=1;
+            ServerNotice=1;
+            /* turn on additional user modes */
+            CreateMode(tmpbuf,mybufsize/4);
+            send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
+            /* made one window command, made it jump back to current window when
+               it's done, all output from /WINDOW command is supressed   -Flier */
+            strcpy(tmpbuf,"NAME OV DOUBLE OFF LEVEL +OPNOTE,SNOTE,WALLOP");
+            display=window_display;
+            window_display=0;
+            windowcmd(NULL,tmpbuf,NULL);
+            window_display=display;
+            say("OperVision is now enabled in current window");
+        }
 	else if (!my_stricmp("OFF",tmp)) {
 	    if (!OperV) say("OperVision is not currently active");
 	    else {
