@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.50 2002-01-21 21:37:36 f Exp $
+ * $Id: numbers.c,v 1.51 2002-01-21 22:34:55 f Exp $
  */
 
 #include "irc.h"
@@ -86,6 +86,7 @@ extern void ChannelCreateTime _((char *, char **));
 extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
 extern void CdccTimeWarning _((void));
+extern void ChannelLogSave _((char *, ChannelList *));
 #ifdef ACID
 extern void TryChannelJoin _((void));
 #endif
@@ -96,7 +97,6 @@ extern void HandleStatsK _((char *, char *));
 extern void HandleStatsI _((char *, char *, char *));
 extern void HandleStatsC _((char *, char *, char *));
 extern void HandleStatsL _((char *, char *, char *));
-extern void ChannelLogSave _((char *, ChannelList *));
 #endif
 /* Patched by Zakath */
 #ifdef CELE
