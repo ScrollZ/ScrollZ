@@ -183,6 +183,16 @@ fixed ircII bug where nickname was corrupted after ping timeout
       (thanks to ogre for information on this one)
 fixed core dump in NEWHOST on non-Linux systems (I forgot who first
       mentioned this, also thanks to ogre for bringing attention about this one)
+fixed core dump upon QUIT if started with -d (reported by Jaded)
+fixed ircII bug where client core dumps in WINDOW BACK after WINDOW KILL
+      (reported by emufreak)
+fixed password encryption bug with high-ascii characters
+fixed WHO problem when reconnecting to a server during channel join
+      (reported by ogre)
+fixed core dumping on hooks when compiling w/o support for stdarg
+      (CDCC PLIST coredumps etc, reported by colrebel)
+changed NEWHOST to query all available devices on Linux (hello IBM Suomi)
+fixed encrypted DCC CHAT messages being saved to ScrollZ.away (reported by acidflash)
 
 
 -------------------------------------------------------------------------------
