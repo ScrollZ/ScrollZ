@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.68 2001-11-19 18:37:33 f Exp $
+ * $Id: edit2.c,v 1.69 2001-12-11 18:06:18 f Exp $
  */
 
 #include "irc.h"
@@ -1141,19 +1141,26 @@ char *command;
 char *args;
 char *subargs;
 {
+    char *p;
     char *comment=(char *) 0;
     char *tmpchannel=(char *) 0;
     char tmpbuf[mybufsize/4];
+    char output[mybufsize/4];
 
     if (args && *args=='*') {
         tmpchannel=new_next_arg(args,&args);
         tmpchannel=get_channel_by_refnum(0);
     }
     else if (args && *args) {
-        tmpchannel=new_next_arg(args,&args);
-        if (!is_channel(tmpchannel)) sprintf(tmpbuf,"#%s",tmpchannel);
-        else strcpy(tmpbuf,tmpchannel);
-        tmpchannel=tmpbuf;
+	strmcpy(tmpbuf,new_next_arg(args,&args),sizeof(tmpbuf)-1);
+	p=strtok(tmpbuf,",");
+	while (p) {
+	    if (*p != '#') strmcat(output,"#",sizeof(output)-1);
+	    strmcat(output,p,sizeof output-1);
+	    p=strtok(NULL,",");
+	    if (p) strmcat(output,",",sizeof(output)-1);
+	}
+	tmpchannel=output;
     }
     comment=args;
     if (!tmpchannel && (tmpchannel=get_channel_by_refnum(0))==NULL) {
