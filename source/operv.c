@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.13 1999-10-14 18:50:08 f Exp $
+ * $Id: operv.c,v 1.14 1999-10-20 19:39:41 f Exp $
  */
 
 #include "irc.h"
@@ -257,7 +257,6 @@ char *from;
     else if (strstr(line,"***")) tmpline=line+4; 
     else tmpline=line;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
-    strcpy(tmpbuf,"IP# Mismatch: 209.58.53.67 != Teleglobe.net[8230cac7]");
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
     if (from && index(from,'.')) from=(char *) 0;
