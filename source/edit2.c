@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.17 1999-02-21 18:03:19 f Exp $
+ * $Id: edit2.c,v 1.18 1999-02-24 20:03:55 f Exp $
  */
 
 #include "irc.h"
@@ -159,6 +159,7 @@ extern void PrintUsage _((char *));
 extern void CheckJoinChannel _((WhoisStuff *, char *, char *));
 extern void EncryptString _((char *, char *, char *, int));
 extern int  CheckServer _((int));
+extern char *FormatTime _((int));
 extern int  matchmcommand _((char *, int));
 extern NickList *find_in_hash _((ChannelList *, char *));
 extern void add_nick_to_hash _((ChannelList *, NickList *));
@@ -2452,7 +2453,6 @@ char *args;
 char *subargs;
 {
     int  count=0;
-    int  timediff;
     char *channel=(char *) 0;
     char tmpbuf[mybufsize/4];
     ChannelList *chan;
@@ -2472,9 +2472,8 @@ char *subargs;
     if (chan) {
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
             if (tmpban->who && tmpban->when) {
-                timediff=time((time_t *) 0)-tmpban->when;
-                say("%s %-30s %s %dd%dh%dm%ds",chan->channel,tmpban->ban,tmpban->who,
-                    timediff/86400,(timediff/3600)%24,(timediff/60)%60,timediff%60);
+                say("%s %-30s %s %s",chan->channel,tmpban->ban,tmpban->who,
+                    FormatTime(time((time_t *) 0)-tmpban->when));
             }
             else say("%s %s",chan->channel,tmpban->ban);
             count++;
@@ -2773,7 +2772,6 @@ void OnBans(args)
 char **args;
 {
     int  server;
-    int  timediff;
     char *chan;
     char *daban;
     char *who;
@@ -2802,9 +2800,7 @@ char **args;
             who=*args;
             args++;
             when=atoi(*args);
-            timediff=time((time_t *) 0)-when;
-            say("%s %-30s %s %dd%dh%dm%ds",chan,daban,who,
-                timediff/86400,(timediff/3600)%24,(timediff/60)%60,timediff%60);
+            say("%s %-30s %s %s",chan,daban,who,FormatTime(time((time_t *) 0)-when));
         }
         else say("%s %s",chan,daban);
     }
