@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.10 1999-11-14 14:27:20 f Exp $
+ * $Id: window.c,v 1.11 2000-02-23 17:55:27 f Exp $
  */
 
 #include "irc.h"
@@ -1597,7 +1597,8 @@ Window *window;
     new_free(&window->current_channel);
     new_free(&window->logfile);
     new_free(&window->name);
-    free_display(window);
+    if (window->top_of_display)
+        free_display(window);
     free_hold(window);
     free_lastlog(window);
     free_nicks(window);
