@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.3 1998-09-25 20:24:52 f Exp $
+ * $Id: names.c,v 1.4 1998-10-12 17:52:01 f Exp $
  */
 
 #include "irc.h"
@@ -1350,8 +1350,9 @@ remove_channel(channel, server)
                     if (tmp->status&CHAN_BOUND) tmp->status|=CHAN_LIMBO;
                     free_channel(&tmp);
                 }
-                if (is_current_channel(channel,server,-1)) switch_channels(0,(char *) 0);
 /****************************************************************************/
+
+		(void)is_current_channel(channel, server, -1);
 	}
 	else
 	{
