@@ -61,7 +61,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.69 2000-10-12 18:15:54 f Exp $
+ * $Id: edit6.c,v 1.70 2000-10-30 17:41:25 f Exp $
  */
 
 #include "irc.h"
@@ -1117,14 +1117,40 @@ char *subargs;
 {
     char *server;
     struct spingstr *spingnew;
+    struct spingstr *spingnext;
+    struct spingstr *spingold=NULL;
 #ifdef HAVETIMEOFDAY
     struct timeval timenow;
 #else
     time_t timenow;
 #endif
 
-    if (args && *args) {
-        server=new_next_arg(args,&args);
+    server=new_next_arg(args,&args);
+    if (server) {
+#ifdef HAVETIMEOFDAY
+        gettimeofday(&timenow,NULL);
+#else
+        timenow=time((time_t *) 0);
+#endif
+        for (spingnew=spinglist;spingnew;spingnew=spingnext) {
+            spingnext=spingnew->next;
+            if (
+#ifdef HAVETIMEOFDAY
+                timenow.tv_sec-spingnew->sec>=600
+#else
+                timenow-spingnew->sec>=600
+#endif
+               )
+            {
+                say("Removed server %s from list after 10 minutes",
+                    spingnew->servername);
+                if (spingold) spingold->next=spingnew->next;
+                else spinglist=spingnew->next;
+                new_free(&(spingnew->servername));
+                new_free(&spingnew);
+            }
+            else spingold=spingnew;
+        }
         spingnew=(struct spingstr *) new_malloc(sizeof(struct spingstr));
         spingnew->servername=(char *) 0;
         spingnew->usec=0L;
@@ -1139,11 +1165,9 @@ char *subargs;
         say("Sent server ping to %c%s%c",bold,server,bold);
 #endif
 #ifdef HAVETIMEOFDAY
-        gettimeofday(&timenow,NULL);
         spingnew->sec=timenow.tv_sec;
         spingnew->usec=timenow.tv_usec;
 #else
-        timenow=time((time_t *) 0);
         spingnew->sec=timenow;
 #endif
     }
