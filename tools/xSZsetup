@@ -23,7 +23,7 @@ exec wish "$0" "$*"
 # (i.e. remove all -anchor and -justify switches). Be warned that look
 # might suffer under Tk older than 4.1.
 #
-# $Id: xSZsetup,v 1.2 2001-10-05 18:32:40 f Exp $
+# $Id: xSZsetup,v 1.3 2001-10-05 18:36:42 f Exp $
 #
 
 # some global variables
@@ -750,7 +750,7 @@ proc About {} {
 
     pack ._About._Right._Button -fill both -padx 90 -pady 8 -side bottom
 
-    pack ._About._Right._Text1 ._About._Right._Text2 About._Right._Text3 \
+    pack ._About._Right._Text1 ._About._Right._Text2 ._About._Right._Text3 \
             -fill both -padx 10 -pady 5 -side top
     pack ._About._Right -fill both
 
