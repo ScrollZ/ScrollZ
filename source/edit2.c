@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.35 1999-09-04 20:54:23 f Exp $
+ * $Id: edit2.c,v 1.36 1999-09-30 19:23:03 f Exp $
  */
 
 #include "irc.h"
@@ -3831,7 +3831,7 @@ char *subargs;
         ReconnectServer(NULL,NULL,NULL);
     }
     else PrintUsage("NEWHOST <Virtual Host>");
-#else
+#else  /* JIMMIE */
     /* if user passed -a they want to probe 1024 interfaces */
     if (newhname && !my_strnicmp(newhname,"-A",2)) {
         tryall=1;
@@ -3839,10 +3839,12 @@ char *subargs;
     }
     /* figure out OS
        1 = Linux
-       2 = BSD */
+       2 = BSD 
+       3 = Solaris */
     if (!(uname(&unamebuf))) {
         if (wild_match("*linux*",unamebuf.sysname)) type=1;
         else if (wild_match("*bsd*",unamebuf.sysname)) type=2;
+        else if (wild_match("*sunos*",unamebuf.sysname)) type=3;
     }
     /* create temporary file */
     sprintf(filename,"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
@@ -3897,11 +3899,17 @@ char *subargs;
     close(tmpsock);
     fclose(fp);
     umask(oldumask);
-#else
-    /* run /sbin/ifconfig
-       we use -m -a on BSD */
-    sprintf(tmpbuf,"/sbin/ifconfig %s >%s",
-            type==2?"-m -a":empty_string,filename);
+#else  /* __linux__ */
+    /* run /sbin/ifconfig */
+    switch (type) {
+        case 2: /* BSD */
+            tmpstr="-m -a";
+            break;
+        case 3: /* Solaris */
+            tmpstr="-a";
+            break;
+    }
+    sprintf(tmpbuf,"/sbin/ifconfig %s >%s 2>/dev/null",tmpstr,filename);
     system(tmpbuf);
 #endif /* __linux__ */
     if ((fp=fopen(filename,"r"))==NULL) {
