@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.10 2002-03-09 18:04:56 f Exp $
+  $Id: ScrollZ.doc,v 1.11 2002-06-03 16:58:55 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -48,6 +48,7 @@
   8.  Miscellaneous stuff
   8.1.  How to enable DCCs if you are behind a firewall
   8.2.  How to connect via bouncer to multiple IRC networks
+  8.3.  How to fix terminal size in screen
 
 
   1.  Introduction
@@ -728,3 +729,19 @@
 
      Now it works fine - you can connect through IRC bouncer to more than
      one IRC network from within the same client.
+
+  8.3.  How to fix terminal size in screen
+
+  If you are attaching to a screen session in a terminal whose size is
+  different from the terminal size when you detached screen, client
+  might be confused about the terminal size. Here is how to fix it:
+  
+  1. Identify the terminal device client is using (ps -ef | grep scrollz)
+
+  2. stty -F /path/to/terminal/device cols X rows Y
+     where /path/to/terminal/device is the full path to the terminal
+     device your client is running on, X is number of columns and Y
+     is number of rows (example: stty -F /dev/pts0 cols 80 rows 38)
+
+  The above works at least on Linux, for other platforms you might
+  have to read the manual page for stty command.
