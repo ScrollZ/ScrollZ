@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.76 2001-03-12 18:10:44 f Exp $
+ * $Id: edit6.c,v 1.77 2001-03-12 20:06:14 f Exp $
  */
 
 #include "irc.h"
@@ -127,6 +127,7 @@ extern void Dump _((char *, char *, char *));
 extern int  EncryptString _((char *, char *, char *, int, int));
 extern int  DecryptString _((char *, char *, char *, int, int));
 extern void queuemcommand _((char *));
+extern void CheckDCCSpeed _((DCC_list *, time_t));
 /* Patched by Zakath */
 extern void CeleAway _((int));
 
@@ -664,6 +665,7 @@ void CheckTimeMinute() {
     int  max=get_int_var(MAX_MODES_VAR);
 #endif
     int  found;
+    int  old_server;
     int  wildcards;
     char *tmpstr;
     char *tmpstr1;
@@ -678,6 +680,7 @@ void CheckTimeMinute() {
     struct wholeftstr *wholeft;
     struct wholeftstr *tmpwholeft;
     struct list *tmplist;
+    DCC_list *Client;
 #ifdef EXTRAS
     NickList *tmpnick;
 #endif
@@ -785,6 +788,14 @@ void CheckTimeMinute() {
         strcpy(tmpbuf,"flush");
         queuemcommand(tmpbuf);
         lastqueuechk=timenow;
+    }
+    for (Client=ClientList;Client;Client=Client->next) {
+        if (Client->minspeed>=0.001 && timenow>=Client->CdccTime) {
+            old_server=from_server;
+            from_server=Client->server;
+            CheckDCCSpeed(Client,timenow);
+            from_server=old_server;
+        }
     }
     clean_whowas_list();
     clean_whowas_chan_list();
