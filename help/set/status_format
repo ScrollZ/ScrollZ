@@ -1,4 +1,4 @@
-!	 $Id: status_format,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: status_format,v 1.5 2002-02-24 09:37:37 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -79,6 +79,7 @@ See Also:
   SET STATUS_OPER
   SET STATUS_OVERWRITE
   SET STATUS_QUERY
+  SET STATUS_REVERSE
   SET STATUS_SERVER
   SET STATUS_UMODE
   SET STATUS_USER
