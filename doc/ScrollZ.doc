@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.6 2001-10-15 15:42:55 f Exp $
+  $Id: ScrollZ.doc,v 1.7 2002-02-19 20:53:02 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -36,13 +36,17 @@
 
   5.  ScrollZ key bindings
 
-  6.  Thnings not found in ircII
+  6.  Things not found in ircII
   6.1.  New /set variables
   6.2.  Additional status_format modifiers
 
   7.  Additional stuff for scripters
   7.1.  $ functions
   7.2.  ON hooks
+
+  8.  Miscellaneous stuff
+  8.1.  How to enable DCCs if you are behind a firewall
+
 
   1.  Introduction
 
@@ -630,3 +634,37 @@
      * notify_signoff_uh  - activated upon notify signoff and we have userhost
      * notify_signon_uh   - activated when we have userhost for notify entry
      * send_ctcp          - activated when CTCP is sent
+
+  8.  Miscellaneous stuff
+
+  8.1.  How to enable DCCs if you are behind a firewall
+
+  This is dependant on your firewall of course. Example will be given for
+  Linux 2.4.x kernels using iptables. Nevertheless the aproach is generic
+  enough so it can be applied to other types of firewalls. Note that we
+  don't use the ip_conntrack_irc kernel feature!
+  In the example ports 50000 to 50010 will be allowed for the DCC. Whenever
+  we say <router_ip> we mean the IP address that is visible on the Internet.
+  Whenever we say <internal_ip> we mean the IP address that is visible on the
+  LAN (they could be the same if you are not using NAT or IP masquerading).
+
+  1. We have to allow packets to ports 50000-50010:
+     iptables -I INPUT -p tcp -s 0/0 --dport 50000:50010 -j ACCEPT
+
+     If your firewall configuration is more sophisticated (NAT or IP
+     masquerading) you have to redirect incoming packets on ports 50000-50010
+     to the internal_ip ports 50000-50010 (we assume the incoming packets
+     on Ethernet interface eth1):
+     iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 50000:50010 \
+              -j REDIRECT --to <internal_ip>
+
+  2. Tell the client to announce the router's IP address in the DCC requests:
+     for ksh, sh, zsh, bash:
+       DCCHOST="<router_ip>"
+       export DCCHOST
+     for csh, tcsh:
+       setenv DCCHOST "<router_ip>"
+
+  3. We tell the client to only use ports 50000-50010 for the DCC stuff:
+     /set dcc_ports 50000-50010 (or 50000:50010)
+
