@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.15 2001-05-08 17:35:18 f Exp $
+ * $Id: alias.c,v 1.16 2001-08-02 18:42:53 f Exp $
  */
 
 #include "irc.h"
@@ -3424,6 +3424,11 @@ function_servertype(input)
 		case Server2_11:
 			s = "IRC2.11";
 			break;
+/**************************** Patched by Flier ******************************/
+                default:
+                        s="Unknown";
+                        break;
+/****************************************************************************/
 		}
 
 	malloc_strcpy((char **) &result, s);
