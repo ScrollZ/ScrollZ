@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.22 1999-09-18 10:13:33 f Exp $
+ * $Id: cdcc.c,v 1.23 1999-09-19 16:59:02 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1155,12 +1155,13 @@ char *line;
     FileQueue *prev=(FileQueue *) 0;
     FileQueue *tmpdel;
 
+    tmpstr=new_next_arg(line,&line);
     if (!queuelist) {
-        say("No files in queue");
+        if (!tmpstr || my_stricmp(tmpstr,"FLUSH"))
+            say("No files in queue");
         return;
     }
-    tmpstr=new_next_arg(line,&line);
-    if (tmpstr && *tmpstr && !my_stricmp(tmpstr,"LIST")) {
+    if (tmpstr && !my_stricmp(tmpstr,"LIST")) {
         tmpstr=new_next_arg(line,&line);
         if (tmpstr && *tmpstr) nick=tmpstr;
         if (nick) say("Listing all files in queue for %s",nick);
@@ -1189,7 +1190,7 @@ char *line;
         }
         else say("Total of %d file%s in queue",count,count==1?"":"s");
     }
-    else if (tmpstr && *tmpstr && !my_stricmp(tmpstr,"REMOVE")) {
+    else if (tmpstr && !my_stricmp(tmpstr,"REMOVE")) {
         tmpstr=new_next_arg(line,&line);
         if (tmpstr && *tmpstr) {
             for (tmp=queuelist;tmp;) {
@@ -1210,7 +1211,7 @@ char *line;
         }
         else PrintUsage("CDCC QUEUE REMOVE filter");
     }
-    else if (tmpstr && *tmpstr && !my_stricmp(tmpstr,"FLUSH")) 
+    else if (tmpstr && !my_stricmp(tmpstr,"FLUSH")) 
         RemoveFromQueue(0);
     else {
         for (tmp=queuelist;tmp;tmp=tmp->next) count++;
