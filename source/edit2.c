@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.43 2000-08-09 19:31:20 f Exp $
+ * $Id: edit2.c,v 1.44 2000-08-10 17:21:16 f Exp $
  */
 
 #include "irc.h"
@@ -4000,7 +4000,7 @@ char *subargs;
         for (listnew=tmplist,i=1;listnew;i++,countall++) {
             tmplist=listnew;
             listnew=listnew->next;
-            sprintf(tmpbuf,"%2d) %-35s",i,tmplist->servers);
+            sprintf(tmpbuf,"%2d) %-33s",i,tmplist->servers);
             strcat(putbuf,tmpbuf);
             count++;
             if (count==2 || strlen(tmplist->servers)>35) {
@@ -4025,7 +4025,7 @@ char *subargs;
     }
     else say("No valid hostnames found");
     if (chosenname) {
-        malloc_strcpy(&VirtualHost,chosenname);
+        malloc_strcpy(&source_host,chosenname);
         ReconnectServer(NULL,NULL,NULL);
         new_free(&chosenname);
     }
