@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.43 2000-08-16 20:44:40 f Exp $
+ * $Id: edit5.c,v 1.44 2000-08-20 18:41:14 f Exp $
  */
 
 #include "irc.h"
@@ -1309,14 +1309,16 @@ int  print;
     char tmpbuf5[mybufsize/16];
 #endif
     char stampbuf[mybufsize/16];
-#undef STEFY
-    Window *old;
+#ifdef WANTANSI
+    Window *oldwin;
+#endif
     NickList *joiner;
     ChannelList *chan=NULL;
 #ifdef CELE
     int truncate=get_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR);
     char channel1[mybufsize/16];
 #endif
+#undef STEFY
 
     chan=lookup_channel(channel,from_server,0);
     *stampbuf='\0';
@@ -1414,7 +1416,7 @@ int  print;
             /* Display AR in current screen window too
                if it's different from orig channel window  -Pier */
             if (chan->window!=curr_scr_win && ARinWindow) {
-                old=to_window;
+                oldwin=to_window;
                 if (ARinWindow==1) /* ON */
                     to_window=get_window_by_refnum(curr_scr_win->refnum);
                 else { /* USER */
@@ -1436,7 +1438,7 @@ int  print;
                         CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
                 put_it("%s%s%s%s%s",stampbuf,tmpbuf2,
                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
-                to_window=old; 
+                to_window=oldwin; 
             }
         }
         if (print) {
@@ -2571,7 +2573,7 @@ char *subargs;
 #else
                     count=0;
                     strcpy(tmpbuf2,"  ");
-                    if (joiner->voice) {
+                    if (joiner->hasvoice) {
                         tmpbuf2[1]='+';
                         count++;
                     }
