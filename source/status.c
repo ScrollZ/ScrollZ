@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.18 2001-03-12 18:10:44 f Exp $
+ * $Id: status.c,v 1.19 2001-08-20 18:12:53 f Exp $
  */
 
 #include "irc.h"
@@ -1228,10 +1228,7 @@ make_status(window)
 #endif
 /****************************************************************************/
 				{
-/**************************** PATCHED by Flier ******************************/
-					/*if (RealPosition == CO)*/
-					if (RealPosition == CO-1)
-/****************************************************************************/
+					if (RealPosition == CO)
 					{
 						lbuf[i] = '\0';
 						break;
