@@ -57,7 +57,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.43 1999-08-08 09:21:20 f Exp $
+ * $Id: edit6.c,v 1.44 1999-08-15 09:59:12 f Exp $
  */
 
 #include "irc.h"
@@ -2595,8 +2595,8 @@ void TryChannelJoin() {
                         found=0;
                         for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
                             if (whowas->nicklist && whowas->nicklist->frlist &&
-                                    ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
-                                    !my_stricmp(whowas->channel,tmpstr1)) {
+                                ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
+                                !my_stricmp(whowas->channel,tmpstr1)) {
                                 found++;
                                 if (found>5) break;
                                 send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
@@ -2608,7 +2608,7 @@ void TryChannelJoin() {
                 tmpstr1=tmpstr+1;
                 wildcards=0;
             }
-            if (!(*(tmpstr+1))) break;
+            if (!(*tmpstr) && !(*(tmpstr+1))) break;
             tmpstr++;
         }
         /*
@@ -2620,7 +2620,11 @@ void TryChannelJoin() {
             if (tmptimer->command && tmptimer->func==func &&
                 !strcmp(tmptimer->command,"rejoin")) {
                 found++;
+#ifdef BETTERTIMER
+                lasttimer=tmptimer->time.tv_sec;
+#else
                 lasttimer=tmptimer->time;
+#endif
             }
         }
         if (found<2) {
