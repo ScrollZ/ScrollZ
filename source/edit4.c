@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.99 2002-03-09 17:49:13 f Exp $
+ * $Id: edit4.c,v 1.100 2002-03-11 20:36:31 f Exp $
  */
 
 #include "irc.h"
@@ -960,7 +960,7 @@ send_begin:
             }
         }
     }
-    else if (*min_pos == '/' && argc == 0) {
+    else if ((*min_pos == '/' && argc == 0) || !my_strnicmp(argv[0], "/he", 3)) {
         IrcCommand *command_p;
 
 command_begin:
