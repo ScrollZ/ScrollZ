@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.5 2002-01-21 21:37:35 f Exp $
+ * $Id: ircterm.h,v 1.6 2002-09-22 18:00:51 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -192,6 +192,7 @@ char *tgetstr(char *, char **);
 	void    term_putkanji _((u_int, u_int));
 #endif
  	int	term_puts _((char *, size_t));
+        int     tputs_s _((char *, size_t));
 	void	term_flush _((void));
 	void	term_space_erase _((int));
 	void	term_reset _((void));

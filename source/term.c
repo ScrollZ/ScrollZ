@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.11 2002-03-11 20:25:01 f Exp $
+ * $Id: term.c,v 1.12 2002-09-22 18:00:51 f Exp $
  */
 
 #include "irc.h"
@@ -396,6 +396,25 @@ term_puts(str, len)
 /****************************************************************************/
 	return (i);
 }
+
+/**************************** PATCHED by Flier ******************************/
+/* tputs_s: uses putchar_x to print text */
+int tputs_s(str, len)
+char *str;
+size_t len;
+{
+    size_t i;
+
+#ifdef SZNCURSES
+    my_addstr(str, len);
+    i = len;
+#else
+    for (i = 0; *str && (i < len); i++)
+        putchar_x((u_char) *str++);
+#endif /* SZNCURSES */
+    return(i);
+}
+/****************************************************************************/
 
 /* putchar_x: the putchar function used by tputs */
 TPUTSRETVAL

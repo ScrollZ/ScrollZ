@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.18 2002-03-11 20:25:01 f Exp $
+ * $Id: input.c,v 1.19 2002-09-22 18:00:51 f Exp $
  */
 
 #include "irc.h"
@@ -273,18 +273,24 @@ update_input(update)
 				len = current_screen->co - WIDTH - 1;
 			else
 				len = current_screen->buffer_min_pos;
-			cnt = term_puts(&(current_screen->input_buffer[
+/**************************** Patched by Flier ******************************/
+			/*cnt = term_puts(&(current_screen->input_buffer[*/
+			cnt = tputs_s(&(current_screen->input_buffer[
+/****************************************************************************/
 				current_screen->str_start]), len);
  			term_echo(isecho);
 /**************************** PATCHED by Flier ******************************/
 			/*cnt += term_puts(&(current_screen->input_buffer[
 				current_screen->str_start + len]), current_screen->co - len);*/
-			cnt += term_puts(&(current_screen->input_buffer[
+			cnt += tputs_s(&(current_screen->input_buffer[
 				current_screen->str_start + len]), current_screen->co - len + ansi_count);
 /****************************************************************************/
 		}
 		else
-			cnt = term_puts(&(current_screen->input_buffer[current_screen->str_start]), (size_t)current_screen->co);
+/**************************** Patched by Flier ******************************/
+			/*cnt = term_puts(&(current_screen->input_buffer[current_screen->str_start]), (size_t)current_screen->co);*/
+			cnt = tputs_s(&(current_screen->input_buffer[current_screen->str_start]), (size_t)current_screen->co);
+/****************************************************************************/
 		if (term_clear_to_eol())
 			term_space_erase(cnt);
 		term_move_cursor(current_screen->cursor, current_screen->input_line);
@@ -300,7 +306,10 @@ update_input(update)
 		if ((len = strlen(&(current_screen->input_buffer[
 				current_screen->buffer_pos]))) > max)
 			len = max;
-		cnt += term_puts(&(current_screen->input_buffer[
+/**************************** Patched by Flier ******************************/
+		/*cnt += term_puts(&(current_screen->input_buffer[*/
+		cnt += tputs_s(&(current_screen->input_buffer[
+/****************************************************************************/
 			current_screen->buffer_pos]), len);
 		if (term_clear_to_eol())
 			term_space_erase(cnt);
