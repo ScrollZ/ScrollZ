@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.129 2002-02-02 10:33:34 f Exp $
+ * $Id: edit6.c,v 1.130 2002-02-02 10:38:22 f Exp $
  */
 
 #include "irc.h"
@@ -3138,23 +3138,17 @@ char *subargs;
 
                 malloc_strcpy(&ChanLogDir, path);
                 new_free(&path);
-                SetChannels(100);
             }
         }
         else if (!strcmp(command, "CHANLOGPREFIX")) {
             if (!strcmp(setting, "-")) new_free(&ChanLogPrefix);
-            else {
-                malloc_strcpy(&ChanLogPrefix, setting);
-                SetChannels(100);
-            }
+            else malloc_strcpy(&ChanLogPrefix, setting);
         }
         else if (!strcmp(command, "CHANLOGPOST")) {
             if (!strcmp(setting, "-")) new_free(&ChanLogPostfix);
-            else {
-                malloc_strcpy(&ChanLogPostfix, setting);
-                SetChannels(100);
-            }
+            else malloc_strcpy(&ChanLogPostfix, setting);
         }
+        SetChannels(100);
     }
     if (!strcmp(command, "CHANLOGDIR")) {
         if (ChanLogDir) PrintSetting("Channel logging directory", ChanLogDir, empty_string, empty_string);
