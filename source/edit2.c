@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.46 2000-08-14 20:38:13 f Exp $
+ * $Id: edit2.c,v 1.47 2000-08-16 15:09:45 f Exp $
  */
 
 #include "irc.h"
@@ -190,7 +190,7 @@ static struct autobankicks *tmpabklist;
 static char timereturn[mybufsize/16];
 #ifdef CELE
 static char *celeawaystr=(char *) 0;
-static time_t CeleAwayTime;
+static time_t CeleAwayTime=0;
 #endif
 extern char *CelerityNtfy;
 
@@ -3082,10 +3082,14 @@ int modify;
     char tmpbuf2[mybufsize/2+1];
     time_t timediff;
 
+    if (!CeleAwayTime) CeleAwayTime=time((time_t *) 0);
     timediff=time((time_t *) 0)-CeleAwayTime;
-    strmcpy(tmpbuf1,celeawaystr,mybufsize/4);
+    *tmpbuf1='\0';
+    if (celeawaystr) strmcpy(tmpbuf1,celeawaystr,mybufsize/4);
+    else if (DefaultSetAway) strmcpy(tmpbuf1,DefaultSetAway,mybufsize/4);
     if (modify)
-        sprintf(tmpbuf2,"-ALL %s /%c%s%c/ ",tmpbuf1,bold,CeleTimeFormat(timediff),bold);
+        sprintf(tmpbuf2,"-ALL %s /%c%s%c/ ",
+                tmpbuf1,bold,CeleTimeFormat(timediff),bold);
     else sprintf(tmpbuf2,"-ALL %s",tmpbuf1);
     SentAway=1;
     away("AWAY",tmpbuf2,NULL);
