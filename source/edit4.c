@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.55 2001-03-19 19:28:39 f Exp $
+ * $Id: edit4.c,v 1.56 2001-03-20 21:18:28 f Exp $
  */
 
 #include "irc.h"
@@ -719,6 +719,8 @@ void InsertTabNick() {
         if (!(cmdchars=get_string_var(CMDCHARS_VAR))) cmdchars=DEFAULT_CMDCHARS;
         input_add_character(*cmdchars,NULL);
         input_add_character('m',NULL);
+        input_add_character('s',NULL);
+        input_add_character('g',NULL);
         input_add_character(' ',NULL);
         for (nickstr=(server_list[curserv].nickcur)->nick;nickstr && *nickstr;nickstr++)
             input_add_character(*nickstr,NULL);
@@ -739,50 +741,53 @@ ChannelList *chan;
 
 /* Handles tab key */
 void HandleTabNext() {
+    int  i;
     int  len;
     int  curserv=from_server;
-    int  dotabcompl=0;
+    int  domsgtab=0;
+    char *minstr;
     char *tmpstr;
-    char *nickstr;
-    char *cmdchars;
-    char tmpbuf[mybufsize/8];
+    char tmpbuf[mybufsize/8+1];
     static char *tabnick=NULL;
+    static char *oldtabnick=NULL;
     Screen *curscr=current_screen;
     NickList *tmpnick;
     ChannelList *chan;
     static ChannelList *origchan=NULL;
 
-    tmpstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
-    if (*tmpstr && (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
-        /* skip /m or /msg */
-        tmpstr+=2;
-        while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
-        /* skip space */
-        tmpstr++;
-        /* skip nick */
-        if (*tmpstr) {
-            nickstr=tmpstr;
-            while (*nickstr && !isspace(*nickstr)) nickstr++;
-            if (*nickstr=='\0' || !isspace(*nickstr)) dotabcompl=1;
+    minstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
+    tmpstr=minstr;
+    /* On empty line do msg tabkey. */
+    if (!(*tmpstr) || !my_strnicmp(tmpstr,"/msg ",5)) domsgtab=1;
+    else {
+        /* Locate what string to complete. */
+        tmpstr=&(curscr->input_buffer[curscr->buffer_pos]);
+        len=0;
+        /* Start one position left from the cursor and walk left until
+           we see separator or we reach beginning of input line. */
+        tmpstr--;
+        while (!isspace(*tmpstr) && tmpstr>minstr) {
+            tmpstr--;
+            len++;
         }
+        if (isspace(*tmpstr)) tmpstr++;
+        if (len>mybufsize/8) len=mybufsize/8;
+        /* Store string we will attempt to complete. */
+        strmcpy(tmpbuf,tmpstr,len);
+        tmpstr=tmpbuf;
     }
-    if (dotabcompl) {
+    if (!domsgtab) {
         if (*tmpstr) {
-            /* option to complete channel name */
+            /* Complete channel name. */
             if (is_channel(tmpstr)) {
-                for (nickstr=tmpbuf;*tmpstr;) *nickstr++=*tmpstr++;
-                *nickstr=0;
-                len=strlen(tmpbuf);
                 chan=server_list[curr_scr_win->server].chan_list;
                 while (chan && my_strnicmp(tmpbuf,chan->channel,len)) chan=chan->next;
                 if (chan && !my_strnicmp(tmpbuf,chan->channel,len)) {
-                    input_clear_line(0,(char *) 0);
-                    if (!(cmdchars=get_string_var(CMDCHARS_VAR)))
-                        cmdchars=DEFAULT_CMDCHARS;
-                    input_add_character(*cmdchars,NULL);
-                    input_add_character('m',NULL);
-                    input_add_character(' ',NULL);
-                    for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
+                    /* A little optimization: insert only missing characters
+                       instead of erasing everything and inserting all over.
+                       This works because we only look for first match. */
+                    len=strlen(chan->channel)-len-1;
+                    for (tmpstr=chan->channel+len;tmpstr && *tmpstr;tmpstr++)
                         input_add_character(*tmpstr,NULL);
                 }
                 return;
@@ -791,11 +796,22 @@ void HandleTabNext() {
                 int nicklen;
                 int sameloop=0;
 
+                /* Check if entry in input line is still valid. */
+                if (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick))) {
+                    new_free(&tabnick);
+                    new_free(&oldtabnick);
+                    tabnickcompl=NULL;
+                }
+                /* Walk through all channels but first verify the stored
+                   channel exists so we don't get core dumps when accessing
+                   already freed memory. */
                 if (!ChannelExists(origchan)) origchan=NULL;
                 if (origchan) chan=origchan;
                 else chan=server_list[from_server].chan_list;
                 if (!chan) return;
                 for (;chan;) {
+                    /* Walk through all matching nicks for given channel.
+                       If we exchausted current channel check next one. */
                     if (!sameloop && tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
                         len=strlen(tabnick);
@@ -805,11 +821,6 @@ void HandleTabNext() {
                         len=tabnick?strlen(tabnick):0;
                     }
                     else {
-                        char *tempnick=tmpstr;
-
-                        for (nickstr=tmpbuf;*tempnick && !isspace(*tempnick);)
-                            *nickstr++=*tempnick++;
-                        *nickstr=0;
                         len=strlen(tmpbuf);
                         tmpnick=chan->nicks;
                         malloc_strcpy(&tabnick,tmpbuf);
@@ -826,14 +837,15 @@ void HandleTabNext() {
                     origchan=chan;
                     nicklen=strlen(tabnick);
                     if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
-                        input_clear_line(0,(char *) 0);
-                        if (!(cmdchars=get_string_var(CMDCHARS_VAR)))
-                            cmdchars=DEFAULT_CMDCHARS;
-                        input_add_character(*cmdchars,NULL);
-                        input_add_character('m',NULL);
-                        input_add_character(' ',NULL);
+                        /* oldtabnick holds old nick we used in previous attempt
+                           else it is first attempt at completion */
+                        if (oldtabnick) len=strlen(oldtabnick);
+                        else len=nicklen;
+                        for (i=0;i<len;i++)
+                            input_backspace(' ',NULL);
                         for (tmpstr=tmpnick->nick;tmpstr && *tmpstr;tmpstr++)
                             input_add_character(*tmpstr,NULL);
+                        malloc_strcpy(&oldtabnick,tmpnick->nick);
                         tabnickcompl=tmpnick;
                         return;
                     }
