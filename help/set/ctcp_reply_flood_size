@@ -1,4 +1,4 @@
-!	 $eterna: ctcp_reply_flood_size,v 1.2 2001/08/12 15:43:35 mrg Exp $
+!	 $Id: ctcp_reply_flood_size,v 1.2 2002-02-19 19:39:19 f Exp $
 !
 Usage: SET CTCP_REPLY_FLOOD_SIZE <size in bytes>
   Used by the CTCP reply flood protection system. Setting

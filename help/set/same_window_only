@@ -1,4 +1,4 @@
-!	 $eterna: same_window_only,v 1.2 2001/08/12 15:43:37 mrg Exp $
+!	 $Id: same_window_only,v 1.2 2002-02-19 19:39:19 f Exp $
 !
 Usage: SET SAME_WINDOW_ONLY [ON|OFF|TOGGLE]
   Specifies whether or not a channel belonging to a different
