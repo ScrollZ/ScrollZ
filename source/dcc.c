@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.35 2002-01-23 18:48:10 f Exp $
+ * $Id: dcc.c,v 1.36 2002-01-24 16:58:54 f Exp $
  */
 
 #include "irc.h"
@@ -1373,16 +1373,6 @@ dcc_filesend(args)
 		return;
 	}
 #endif
-	if (scanstr(FileBuf, "/etc/"))
-	{
-		yell("Send request rejected");
-		return;
-	}
-	if ((int) strlen(FileBuf) >= 7 && 0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
-	{
-		yell("Send request rejected");
-		return;
-	}
 	filesize = stat_buf.st_size;
 	Client = dcc_searchlist(FileBuf, user, DCC_FILEOFFER, 1, filename);
 	if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
@@ -1462,17 +1452,6 @@ dcc_resend(args)
 	if (stat_buf.st_mode & S_IFDIR)
 	{
 		yell("Cannot send a directory");
-		return;
-	}
-	if (scanstr(FileBuf, "/etc/"))
-	{
-		yell("Resend request rejected");
-		return;
-	}
-	if (strlen(FileBuf) >= 7 &&
-	    0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
-	{
-		yell("Resend request rejected");
 		return;
 	}
 	filesize = stat_buf.st_size;
