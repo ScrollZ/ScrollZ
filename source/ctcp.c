@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.9 1998-11-21 15:47:18 f Exp $
+ * $Id: ctcp.c,v 1.10 1998-11-21 16:12:17 f Exp $
  */
 
 #include "irc.h"
@@ -1511,7 +1511,9 @@ do_ctcp(from, to, str)
 	time_t	curtime = time(NULL);
 /************************ PATCHED by Flier ***************************/
         char    *mynick=get_server_nickname(from_server);
+#if defined(WANTANSI) || defined(IPCHECKING)
         char    tmpbuf1[mybufsize/2];
+#endif
 /*********************************************************************/
 
 	flag = double_ignore(from, FromUserHost, IGNORE_CTCPS);
