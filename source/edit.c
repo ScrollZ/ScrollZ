@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.93 2002-11-11 18:16:31 f Exp $
+ * $Id: edit.c,v 1.94 2002-12-22 17:53:46 f Exp $
  */
 
 #include "irc.h"
@@ -1925,7 +1925,7 @@ info(command, args, subargs)
 		say("       versions 2.1 to 2.2pre7 by Troy Rollo");
 		say("       development continued by matthew green");
 		say("       e-mail: mrg@eterna.com.au  irc: phone");
-		say("       copyright (c) 1990-2001");
+		say("       copyright (c) 1990-2002");
 		say("       do a /help ircii copyright for the full copyright");
 		say("       ircii includes software developed by the university");
 		say("       of california, berkeley and its contributors");
