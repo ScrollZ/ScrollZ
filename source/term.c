@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.13 2003-01-08 20:00:54 f Exp $
+ * $Id: term.c,v 1.14 2004-04-27 09:05:37 f Exp $
  */
 
 #include "irc.h"
@@ -390,8 +390,10 @@ term_puts(str, len)
 	for (i = 0; *str && (i < len); i++)
 /**************************** PATCHED by Flier ******************************/
 		/*term_putchar((u_int)*str++);*/
+                /* For ANSI colours in input prompt */
+                if (*str == 0x1B) putchar_x((u_char) *str++);
                 /* We need this for high ascii characters! */
- 		term_putchar((u_char) *str++);
+                else term_putchar((u_char) *str++);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	return (i);
