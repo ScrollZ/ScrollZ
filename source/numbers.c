@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.54 2002-01-25 17:54:13 f Exp $
+ * $Id: numbers.c,v 1.55 2002-01-28 16:24:12 f Exp $
  */
 
 #include "irc.h"
@@ -1250,9 +1250,11 @@ numbered_command(from, comm, ArgList)
 		break;
 
 	case 433:		/* #define ERR_NICKNAMEINUSE    433 */ 
+/**************************** Patched by Flier ******************************/
+                strmcpy(tmpbuf,ArgList[0],sizeof(tmpbuf));
+/****************************************************************************/
                 nickname_in_use(from, ArgList);
 /**************************** Patched by Flier ******************************/
-                strmcpy(tmpbuf,ArgList[0],mybufsize/4);
                 if (server_list[parsing_server_index].connected) {
                     tmpnick=tmpbuf;
                     if (DisplayNickInfo())
