@@ -36,10 +36,19 @@ ScrollZ v1.9.1
       by Zid)
     + $stamp() which returns current timestamp as set by
       SET STAMP_FORMAT
-    ! IDLETIME not being used at all when determining what users
-      to kick (reported by taliz)
+    ! IDLETIME value being ignored when determining what users to kick
+      (reported by taliz)
     ! delayed op no longer ops already opped users (reported by taliz)
     ! turn off all colours after user's IRCNAME in whois (reported by taliz)
+    ! a possible buffer overflow
+    + AWAYSAVE AWAY, it controls saving of SetAway/SetBack messages to
+      ScrollZ.away (requested by taliz)
+    ! timer + orignick related bug where ScrollZ would take all CPU time
+      it could get (reported by Una, thanks to TrN for testing)
+    + ADDF now accepts -QUIET to omit sending notice to target nick
+      (requested by taliz)
+    + SET HYPER_DCC which replaces compile time define HYPERDCC
+      (suggested by Merlin)
 
 ------------------------------------------------------------------------------
 
