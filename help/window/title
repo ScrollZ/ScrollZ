@@ -1,0 +1,9 @@
+!	 $Id: title,v 1.1 2002-02-21 16:52:06 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW TITLE <title>
+  Sets a window title, this works for xterm/screen and Windows.
