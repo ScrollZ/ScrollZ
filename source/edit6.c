@@ -57,10 +57,11 @@
  StatsIFilter        Does /STATS i with filter
  HandleStatsI        Handles STATS i reply from server
  ARinWindowToggle    Toggle value of ARinWindow
+ IsIrcNetOperChannel Figure out if we're dealing with IrcNet's oper channel
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.68 2000-09-24 17:10:34 f Exp $
+ * $Id: edit6.c,v 1.69 2000-10-12 18:15:54 f Exp $
  */
 
 #include "irc.h"
@@ -2694,4 +2695,17 @@ char *subargs;
             break;
     }
     PrintSetting("Auto reply in window",tmpstr,empty_string,empty_string);
+}
+
+/* Figure out if we're dealing with IrcNet's oper channel */
+int IsIrcNetOperChannel(channel)
+char *channel;
+{
+    if (!my_stricmp(channel,"&servers") || !my_stricmp(channel,"&errors")   ||
+        !my_stricmp(channel,"&notices") || !my_stricmp(channel,"&local")    ||
+        !my_stricmp(channel,"&channel") || !my_stricmp(channel,"&numerics") ||
+        !my_stricmp(channel,"&kills")   || !my_stricmp(channel,"&clients")  ||
+        !my_stricmp(channel,"&oper"))
+        return(1);
+    return(0);
 }
