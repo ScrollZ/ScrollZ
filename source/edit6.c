@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.93 2001-09-03 17:25:39 f Exp $
+ * $Id: edit6.c,v 1.94 2001-09-06 19:51:36 f Exp $
  */
 
 #include "irc.h"
@@ -1385,7 +1385,6 @@ char *subargs;
     char *quietstr;
     char tmpbuf[mybufsize/8];
 
-    OrigNickQuiet=0;
     upper(command);
     for (i=0;command_list[i].command;i++)
         if (!strcmp(command_list[i].command,command)) break;
@@ -1408,6 +1407,7 @@ char *subargs;
             *(command_list[i].var)=1;
         }
         else if (!my_stricmp("OFF",tmpstr)) {
+            if (isorignick) OrigNickQuiet=0;
             *(command_list[i].var)=0;
             new_free(command_list[i].strvar);
         }
