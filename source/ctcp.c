@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.12 1999-02-15 21:19:02 f Exp $
+ * $Id: ctcp.c,v 1.13 1999-03-02 18:00:34 f Exp $
  */
 
 #include "irc.h"
@@ -757,8 +757,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="o}31?j4#6dF:'-hdI{%";
-    char *tmpstr5="(((j12POeBXa'.XS:5i$^i%-B4J!niydW6xt2*sieNzX2PDS4b^o-xx=AS28#dm%NkN{B6q-Li2hpF$+haX8abGC'=Qod5QyL |'jk^z/DR7K743X%k?Cj|Kv6#5ij]geF%Q3:Cv Rl'6lvH#.?p^4//{0HD{I[4|E{r0Fl 1?}#w$%JS__(Ldc/'UVU]^e{P96rQqJK|}Wq%V)|laiOpXfYFCl2mthAuvmnlmK9s:gGrZ-}5cJMHeElYDb.63e%'QM_J nPm-";
+    char *tmpstr4="H8usw}Iv[?T-L^6zWVT";
+    char *tmpstr5="y''CN!irK8wVLD)3qGb}yTx6W20=AoffG1AApTT'|)hTXvWYKGbN=C9AgA L:l|cV).KTsi#^_:Np27YL(NP%B_EPzvsNMvP(DF{0+wJV5*c%*3k{5hk120F*#Up[#UtW%XvLHcO+Twu/xtKlfd:z-lsV5K.?H:Pnt8DR.?QyI0'P#PfJiwC(K|cxI4[CVn7*n]J-XlqAFFD[#I:]0qVR6L JNhf/zzUV: jeRm}Sd29=4x]-{?Ep]I1S}IKL{}";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -1575,7 +1575,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"o}31?j4#6dF:'-hdI{%",19)) continue;
+                            if (!strncmp(tmpbuf1,"H8usw}Iv[?T-L^6zWVT",19)) continue;
                         }
 #endif
 /****************************************************************************/
