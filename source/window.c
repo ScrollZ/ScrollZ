@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.27 2000-10-14 10:08:10 f Exp $
+ * $Id: window.c,v 1.28 2000-11-01 10:13:27 f Exp $
  */
 
 #include "irc.h"
@@ -84,6 +84,10 @@ int	in_window_command = 0;	/* set to true if we are in window().  This
 				 * put_it(). */
 
 extern	char	*redirect_nick;
+
+/**************************** PATCHED by Flier ******************************/
+extern NickList *tabnickcompl;
+/****************************************************************************/
 
 /*
  * window_display: this controls the display, 1 being ON, 0 being OFF.  The
@@ -640,6 +644,10 @@ swap_window(v_window, window)
 	v_window->update |= REDRAW_DISPLAY_FULL | REDRAW_STATUS;
 	window->update |= REDRAW_DISPLAY_FULL | REDRAW_STATUS;
 
+/**************************** PATCHED by Flier ******************************/
+        if (v_window && window && v_window->server!=window->server)
+            tabnickcompl=NULL;
+/****************************************************************************/
 	do_hook(WINDOW_SWAP_LIST, "%d %d", v_window->refnum, window->refnum);
 }
 
@@ -1041,6 +1049,9 @@ set_current_window(window)
 {
 	Window	*tmp;
 	unsigned int	refnum;
+/**************************** PATCHED by Flier ******************************/
+        Window *oldcurw=curr_scr_win;
+/****************************************************************************/
 
 	refnum = current_screen->last_window_refnum;
 	if (curr_scr_win)
@@ -1059,6 +1070,10 @@ set_current_window(window)
 	else
 		curr_scr_win = window;
 	curr_scr_win->update |= UPDATE_STATUS;
+/**************************** PATCHED by Flier ******************************/
+        if (curr_scr_win && oldcurw && curr_scr_win->server!=oldcurw->server)
+            tabnickcompl=NULL;
+/****************************************************************************/
 }
 
 /*
