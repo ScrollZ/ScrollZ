@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.23 2001-01-25 17:53:52 f Exp $
+ * $Id: myvars.h,v 1.24 2001-03-21 20:32:32 f Exp $
  */
 
 #include "mystructs.h"
@@ -160,7 +160,6 @@ extern char   *StatsiFilter;
 #endif
 extern char   *AutoReplyBuffer;
 extern char   *OrigNick;
-extern char   *CurrentNick;
 extern char   *LastChat;
 extern char   *CurrentDCC;
 extern char   *DefaultK;
@@ -183,7 +182,6 @@ extern int    usersloaded;
 extern int    inSZNotify;
 extern int    inSZLinks;
 extern int    inSZFKill;
-extern int    inSZNickCompl;
 extern int    inSZTrace;
 extern int    ExtMes;
 extern int    NHProt;

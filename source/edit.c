@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.54 2001-02-03 19:18:44 f Exp $
+ * $Id: edit.c,v 1.55 2001-03-21 20:32:32 f Exp $
  */
 
 #include "irc.h"
@@ -2910,7 +2910,6 @@ send_text(org_nick, line, command)
                                     if (!my_stricmp(command,"NOTICE")) put_it("-%s- %s",nick,line);
                                     else PrintPublic(mynick,":",nick,line,1,iscrypted);
                                 }
-                                new_free(&CurrentNick);
                                 tabnickcompl=NULL;
 /****************************************************************************/
 			}

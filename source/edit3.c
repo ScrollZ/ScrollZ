@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.58 2001-02-26 17:24:37 f Exp $
+ * $Id: edit3.c,v 1.59 2001-03-21 20:32:32 f Exp $
  */
 
 #include "irc.h"
@@ -2533,7 +2533,6 @@ void InitVars() {
     inSZNotify=0;
     inSZLinks=0;
     inSZFKill=0;
-    inSZNickCompl=0;
     inSZTrace=0;
     ExtMes=1;
     NHProt=0;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.32 2001-01-22 18:19:01 f Exp $
+ * $Id: server.c,v 1.33 2001-03-21 20:32:32 f Exp $
  */
 
 #include "irc.h"
@@ -2278,7 +2278,6 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
                 inSZLinks=0;
                 inSZFKill=0;
                 inSZTrace=0;
-                inSZNickCompl=0;
         }
 /****************************************************************************/
 	in_send_to_server = 0;

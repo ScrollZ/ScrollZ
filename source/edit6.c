@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.77 2001-03-12 20:06:14 f Exp $
+ * $Id: edit6.c,v 1.78 2001-03-21 20:32:32 f Exp $
  */
 
 #include "irc.h"
@@ -2121,7 +2121,6 @@ void CleanUpScrollZVars() {
     new_free(&HelpPathVar);
     new_free(&CelerityNtfy);
     new_free(&URLBuffer);
-    new_free(&CurrentNick);
     new_free(&LastChat);
     new_free(&CurrentDCC);
     new_free(&DefaultK);

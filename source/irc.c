@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.50 2001-03-20 21:22:33 f Exp $
+ * $Id: irc.c,v 1.51 2001-03-21 20:32:32 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -339,7 +339,6 @@ int   SentAway=0;
 #endif
 char  *URLBuffer=(char *) 0;
 /*******************************/
-char  *CurrentNick=(char *) 0;
 char  *LastChat=(char *) 0;
 char  *CurrentDCC=(char *) 0;
 char  *DefaultK=(char *) 0;
@@ -365,7 +364,6 @@ int   usersloaded;
 int   inSZNotify;
 int   inSZLinks;
 int   inSZFKill;
-int   inSZNickCompl;
 int   inSZTrace;
 int   ExtMes;
 int   NHProt;
