@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.4 1998-10-31 18:27:42 f Exp $
+ * $Id: vars.c,v 1.5 1998-10-31 18:53:08 f Exp $
  */
 
 #include "irc.h"
@@ -247,9 +247,7 @@ static	IrcVariable irc_variable[] =
 	{ "STATUS_HOLD_LINES",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_INSERT",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
-#ifdef CELE
         { "STATUS_LOADAVG",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
-#endif
 /****************************************************************************/
 	{ "STATUS_MAIL",		STR_TYPE_VAR,	0, NULL, build_status, 0, VF_NODAEMON },
 	{ "STATUS_MODE",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
@@ -287,9 +285,7 @@ static	IrcVariable irc_variable[] =
 	{ "TAB_MAX",			INT_TYPE_VAR,	DEFAULT_TAB_MAX, NULL, NULL, 0, 0 },
 	{ "TRANSLATION",		STR_TYPE_VAR,	0, NULL, set_translation, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
-#ifdef CELE
         { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
-#endif
 /****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
 	{ "USE_OLD_MSG",		BOOL_TYPE_VAR,	DEFAULT_USE_OLD_MSG, NULL, NULL, 0, 0 },

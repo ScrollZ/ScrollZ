@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.2 1998-10-31 18:26:04 f Exp $
+ * $Id: vars.h.proto,v 1.3 1998-10-31 18:51:55 f Exp $
  */
 
 #ifndef __vars_h_
@@ -185,9 +185,7 @@ extern	int	loading_global;
 #define STATUS_HOLD_LINES_VAR $
 #define STATUS_INSERT_VAR $
 /**************************** PATCHED by Flier ******************************/
-#ifdef CELE
 #define STATUS_LOADAVG_VAR $
-#endif
 /****************************************************************************/
 #define STATUS_MAIL_VAR $
 #define STATUS_MODE_VAR $
@@ -221,9 +219,7 @@ extern	int	loading_global;
 #define	TAB_MAX_VAR $
 #define TRANSLATION_VAR $
 /**************************** PATCHED by Flier ******************************/
-#ifdef CELE
 #define TRUNCATE_PUBLIC_CHANNEL_VAR $
-#endif
 /****************************************************************************/
 #define UNDERLINE_VIDEO_VAR $
 #define USE_OLD_MSG_VAR $

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.3 1998-10-31 18:25:58 f Exp $
+ * $Id: config.h,v 1.4 1998-10-31 18:51:52 f Exp $
  */
 
 #ifndef __config_h_
@@ -240,6 +240,8 @@
 #define DEFAULT_STATUS_CHANNELCOUNT "(O:%o N:%n T:%t)"
 #define DEFAULT_STATUS_UPTIME "[up %dd %hh %mm]"
 
+#define DEFAULT_TRUNCATE_PUBLIC_CHANNEL 1
+
 #if defined(CELE) || defined(WANTANSI)
 
 #undef DEFAULT_STATUS_AWAY
@@ -280,7 +282,6 @@
 
 #if defined(CELE)
 
-#define DEFAULT_TRUNCATE_PUBLIC_CHANNEL 1
 #define DEFAULT_SHOW_STATUS_ALL 1
 #define DEFAULT_BEEP_ON_MSG "MSG"
 #define DEFAULT_STATUS_AWAY "%y6[%y5dead:%y4%A%y6]"
