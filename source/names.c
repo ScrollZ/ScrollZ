@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.55 2004-08-31 15:04:34 f Exp $
+ * $Id: names.c,v 1.56 2004-12-19 19:04:17 f Exp $
  */
 
 #include "irc.h"
@@ -1401,7 +1401,8 @@ char    *servmodes;
                 /* we handle e properly together with b above */
 /****************************************************************************/
  		case 'I':
- 		case 'O': /* this is a weird special case */
+ 		case 'O':
+ 		case 'R': /* this is a weird special case */
 /**************************** Patched by Flier ******************************/
   			/*(void) next_arg(rest, &rest);*/
   			arg = next_arg(rest, &rest);
@@ -1411,10 +1412,10 @@ char    *servmodes;
                         }
 /****************************************************************************/
   			break;
-		case 'R':
+/**************************** PATCHED by Flier ******************************/
+		/*case 'R':
 			value = MODE_REGONLY;
-			break;
-/**************************** Patched by Flier ******************************/
+			break;*/
                 case 'S':
                         value = MODE_SSLONLY;
                         break;
