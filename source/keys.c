@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.3 1999-02-15 21:19:43 f Exp $
+ * $Id: keys.c,v 1.4 2000-07-10 15:54:15 f Exp $
  */
 
 #include "irc.h"
@@ -789,7 +789,11 @@ KeyMap	FAR keys[] =
 			/* And I moved STOP_IRC to META1 26 */
 /**************************** PATCHED by Flier ******************************/
  	/*{ ENTER_DIGRAPH,	0, 0,	(char *) 0 },*/
+#ifndef SZ32
         { STOP_IRC, 		0, 0,	(char *) 0 },
+#else
+        { NOTHING, 		0, 0,	(char *) 0 },
+#endif
 /****************************************************************************/
 	{ META1_CHARACTER,	0, 0,	(char *) 0 },
 	{ SELF_INSERT,		0, 0,	(char *) 0 },
