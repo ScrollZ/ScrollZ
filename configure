@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.24 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.25 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -560,7 +560,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.27 2002-02-04 17:57:35 f Exp $' > /dev/null
+echo '$Id: configure,v 1.28 2002-02-19 20:32:37 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -5473,15 +5473,15 @@ done
 fi
 if test "x$COPY_DIRECTORY" = "xpax";
 then
-    INSTALL_HELP_CMD='cd $(topdir)/help; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(HELP_DIR)'
+    INSTALL_HELP_CMD='cd help; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(HELP_DIR)'
 else
     if test "x$COPY_DIRECTORY" = "xtar";
     then
-	INSTALL_HELP_CMD='cd $(topdir)/help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
+	INSTALL_HELP_CMD='cd help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
     else
 	if test "x$COPY_DIRECTORY" = "xcpio";
 	then
-	    INSTALL_HELP_CMD='cd $(topdir)/help; find . -print | cpio -pdu $(HELP_DIR)'
+	    INSTALL_HELP_CMD='cd help; find . -print | cpio -pdu $(HELP_DIR)'
 	else
 	    INSTALL_HELP_CMD="@echo \"I couldn't figure out a way to install the help files.\""
 	fi

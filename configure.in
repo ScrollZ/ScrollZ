@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.25 2002-02-04 17:57:35 f Exp $
+dnl @(#)$Id: configure.in,v 1.26 2002-02-19 20:32:37 f Exp $
 
-AC_REVISION($Revision: 1.25 $)dnl
+AC_REVISION($Revision: 1.26 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.25 2002-02-04 17:57:35 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.26 2002-02-19 20:32:37 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1224,15 +1224,15 @@ else
 fi
 if test "x$COPY_DIRECTORY" = "xpax";
 then
-    INSTALL_HELP_CMD='cd $(topdir)/help; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(HELP_DIR)'
+    INSTALL_HELP_CMD='cd help; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(HELP_DIR)'
 else
     if test "x$COPY_DIRECTORY" = "xtar";
     then
-	INSTALL_HELP_CMD='cd $(topdir)/help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
+	INSTALL_HELP_CMD='cd help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
     else
 	if test "x$COPY_DIRECTORY" = "xcpio";
 	then
-	    INSTALL_HELP_CMD='cd $(topdir)/help; find . -print | cpio -pdu $(HELP_DIR)'
+	    INSTALL_HELP_CMD='cd help; find . -print | cpio -pdu $(HELP_DIR)'
 	else
 	    INSTALL_HELP_CMD="@echo \"I couldn't figure out a way to install the help files.\""
 	fi
