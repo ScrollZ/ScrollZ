@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.56 2001-01-25 17:53:52 f Exp $
+ * $Id: edit2.c,v 1.57 2001-02-03 19:39:58 f Exp $
  */
 
 #include "irc.h"
@@ -560,8 +560,8 @@ int type;
         }
         if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
             send_to_server("%s",tmpbuf1);
+            sprintf(tmpbuf2,"MODE %s %c",channel,sign);
             *tmpbuf1='\0';
-            *tmpbuf2='\0';
             *tmpbuf3='\0';
             send=0;
         }
