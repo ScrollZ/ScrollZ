@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.100 2004-07-02 18:04:52 f Exp $
+ * $Id: edit.c,v 1.101 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -259,6 +259,7 @@ extern  void  NoWindowChannel _((void));
 extern  int   CheckServer _((int));
 extern  char  *CheckJoinKey _((char *));
 extern  int   EncryptMessage _((char *, char *));
+extern  int   RateLimitJoin _((int));
 
 extern  void  ListFriends _((char *, char *, char *));
 extern  void  ListAutoBanKicks _((char *, char *, char *));
@@ -1809,9 +1810,34 @@ e_channel(command, args, subargs)
 					send_to_server("%s %s %s", command, ptr, args);*/
                         {
                             ptr = fix_channel(ptr);
-                            if ((ptr = do_channel(ptr, force, nowho)) && *ptr) {
-                                chankey = CheckJoinKey(ptr);
-                                send_to_server("%s %s %s %s", command, ptr, args, chankey);
+                            if (RateLimitJoin(from_server)) {
+                                ChannelList *newchan, *tmpchan;
+
+                                newchan = (ChannelList *) new_malloc(sizeof(ChannelList));
+                                newchan->channel = (char *) 0;
+                                newchan->key = (char *) 0;
+                                newchan->s_mode = (char *) 0;
+                                newchan->topicstr = (char *) 0;
+                                malloc_strcpy(&newchan->channel, ptr);
+                                malloc_strcpy(&newchan->key, chankey);
+                                malloc_strcpy(&newchan->s_mode, args);
+                                malloc_strcpy(&newchan->topicstr, command);
+                                newchan->status = force;
+                                newchan->connected = nowho;
+                                newchan->next = NULL;
+                                for (tmpchan = server_list[from_server].ChanPendingList;
+                                     tmpchan && tmpchan->next; ) {
+                                     tmpchan = tmpchan->next;
+                                }
+                                if (tmpchan) tmpchan->next = newchan;
+                                else server_list[from_server].ChanPendingList = newchan;
+                            }
+                            else {
+                                if ((ptr = do_channel(ptr, force, nowho)) && *ptr) {
+                                    chankey = CheckJoinKey(ptr);
+                                    send_to_server("%s %s %s %s",
+                                                   command, ptr, args, chankey);
+                                }
                             }
                         }
 /****************************************************************************/

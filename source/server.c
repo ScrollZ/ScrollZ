@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.59 2003-12-28 16:47:05 f Exp $
+ * $Id: server.c,v 1.60 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -566,6 +566,7 @@ add_to_server_list(server, port, password, nick, overwrite)
                 server_list[from_server].nickcur = NULL;
                 server_list[from_server].nicklist = NULL;
                 server_list[from_server].ConnectTime = 0;
+                server_list[from_server].ChanPendingList = NULL;
 /****************************************************************************/
 		server_list[from_server].nickname = (char *) 0;
 		server_list[from_server].connected = 0;
@@ -662,6 +663,7 @@ remove_from_server_list(i)
 	Window	*tmp;
 /**************************** PATCHED by Flier ******************************/
         struct  nicks *tmpnick, *tmpnickfree;
+        ChannelList *tmpchan, *tmpchanfree;
 /****************************************************************************/
 
 	from_server = i;
@@ -721,6 +723,15 @@ remove_from_server_list(i)
             tmpnick=tmpnick->next;
             new_free(&(tmpnickfree->nick));
             new_free(&tmpnickfree);
+        }
+        for (tmpchan = server_list[i].ChanPendingList; tmpchan;) {
+            tmpchanfree = tmpchan;
+            tmpchan = tmpchan->next;
+            new_free(&(tmpchanfree->channel));
+            new_free(&(tmpchanfree->key));
+            new_free(&(tmpchanfree->s_mode));
+            new_free(&(tmpchanfree->topicstr));
+            new_free(&tmpchanfree);
         }
 /****************************************************************************/
 

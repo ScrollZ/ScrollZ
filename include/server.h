@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.14 2003-10-03 19:00:56 f Exp $
+ * $Id: server.h,v 1.15 2004-07-02 19:57:53 f Exp $
  */
 
 #ifndef __server_h_
@@ -109,6 +109,7 @@ typedef	struct
         struct  nicks *arlist,*arcur;   /* auto-reply list */
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;
+	ChannelList *ChanPendingList;   /* list of channels pending for join */
 #ifdef HAVE_SSL
         int        enable_ssl;
         SSL        *ssl_fd;

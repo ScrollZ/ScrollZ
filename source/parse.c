@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.73 2004-04-25 09:59:32 f Exp $
+ * $Id: parse.c,v 1.74 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -1183,10 +1183,6 @@ p_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
         int     donelj = 0;
         char    tmpbuf[mybufsize + 1];
-        void    (*func)() = (void(*)()) SendToServer;
-        time_t  timenow = time(NULL);
-        static int numjoins = 0;
-        static time_t lastjoin = 0;
         NickList *joiner = NULL;
         ChannelList *chan = NULL;
 /****************************************************************************/
@@ -1236,7 +1232,8 @@ p_channel(from, ArgList)
                                     chan ? chan->gotwho : 0);
                         chan = lookup_channel(channel, parsing_server_index, 0);
                         if ((get_server_version(parsing_server_index) == Server2_9 || 
-                             get_server_version(parsing_server_index) == Server2_10) &&
+                             get_server_version(parsing_server_index) == Server2_10 ||
+                             get_server_version(parsing_server_index) == Server2_11) &&
                             IsIrcNetOperChannel(channel)) {
                             snprintf(tmpbuf,sizeof(tmpbuf), "MODE %s", channel);
                         }
@@ -1249,24 +1246,7 @@ p_channel(from, ArgList)
                                         channel, channel, channel);
                             }
                         }
-                        if (RateLimitJoin(parsing_server_index)) {
-                            if (timenow - lastjoin < 2) {
-                                char tmpbuf2[mybufsize];
-
-                                /* delay subsequent WHOs by 3 seconds */
-                                numjoins += 4;
-                                snprintf(tmpbuf2, sizeof(tmpbuf2), "-INV %d %s",
-                                        numjoins, tmpbuf);
-                                timercmd("FTIMER", tmpbuf2, (char *) func);
-                            }
-                            else {
-                                numjoins = 0;
-                                send_to_server("%s", tmpbuf);
-                            }
-                            lastjoin = timenow;
-                        }
-                        else
-                            send_to_server("%s", tmpbuf);
+                        send_to_server("%s", tmpbuf);
 /*************************************************************************/
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);

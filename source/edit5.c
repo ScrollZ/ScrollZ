@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.110 2004-05-05 16:42:11 f Exp $
+ * $Id: edit5.c,v 1.111 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -152,6 +152,7 @@ extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  EncryptString _((char *, char *, char *, int, int));
 extern int  DecryptString _((char *, char *, char *, int, int));
+extern int  RateLimitJoin _((int));
 
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
@@ -2515,6 +2516,20 @@ ChannelList *chan;
 
         snprintf(tmpbuf3,sizeof(tmpbuf3), "Join to %s is now synched (%s seconds)", chan->channel, tmpbuf1);
         ChannelLogSave(tmpbuf3, chan);
+    }
+    /* join next channel in the list */
+    if (RateLimitJoin(from_server)) {
+        ChannelList *tmpchan = server_list[from_server].ChanPendingList;
+        if (tmpchan) {
+            server_list[from_server].ChanPendingList = tmpchan->next;
+            send_to_server("%s %s %s %s", tmpchan->topicstr, tmpchan->channel,
+                           tmpchan->s_mode, tmpchan->key);
+            new_free(&tmpchan->channel);
+            new_free(&tmpchan->key);
+            new_free(&tmpchan->s_mode);
+            new_free(&tmpchan->topicstr);
+            new_free(&tmpchan);
+        }
     }
 }
 

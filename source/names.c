@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.53 2004-06-17 20:29:34 f Exp $
+ * $Id: names.c,v 1.54 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -74,6 +74,7 @@ extern Window *FindWindowByPtr _((Window *));
 extern void UpdateChanLogFName _((ChannelList *));
 extern void ChannelLogReport _((char *, ChannelList *));
 extern void ChannelLogSave _((char *, ChannelList *));
+extern int  RateLimitJoin _((int));
 
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -2084,24 +2085,50 @@ reconnect_all_channels(server)
 	ChannelList *tmp = (ChannelList *) 0;
 	char	*mode, *chan;
 /**************************** PATCHED by Flier ******************************/
-	ChannelList *next;
+	ChannelList *next, *tmpchan, *newchan;
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
         /*for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)*/
-        for (tmp = server_list[server].chan_list;tmp;tmp=next)
+        for (tmp = server_list[server].chan_list; tmp; tmp = next)
 /****************************************************************************/
 	{
 /**************************** PATCHED by Flier ******************************/
-                next=tmp->next;
+                next = tmp->next;
 /****************************************************************************/
 		mode = recreate_mode(tmp);
 		chan = tmp->channel;
+/**************************** PATCHED by Flier ******************************/
+                if (RateLimitJoin(server) && tmp != server_list[server].chan_list) {
+                    newchan = (ChannelList *) new_malloc(sizeof(ChannelList));
+                    newchan->channel = (char *) 0;
+                    newchan->key = (char *) 0;
+                    newchan->s_mode = (char *) 0;
+                    newchan->topicstr = (char *) 0;
+                    malloc_strcpy(&newchan->channel, tmp->channel);
+                    malloc_strcpy(&newchan->key, tmp->key);
+                    malloc_strcpy(&newchan->s_mode, empty_string);
+                    malloc_strcpy(&newchan->topicstr, "JOIN");
+                    newchan->status = 0;
+                    newchan->connected = 0;
+                    newchan->next = NULL;
+                    for (tmpchan = server_list[from_server].ChanPendingList;
+                            tmpchan && tmpchan->next; ) {
+                        tmpchan = tmpchan->next;
+                    }
+                    if (tmpchan) tmpchan->next = newchan;
+                    else server_list[from_server].ChanPendingList = newchan;
+                }
+                else {
+/****************************************************************************/
 		if (get_server_version(server) >= Server2_8)
 			send_to_server("JOIN %s%s%s", tmp->channel, tmp->key ? " " : "", tmp->key ? tmp->key : "");
 		else
 			send_to_server("JOIN %s%s%s", tmp->channel, mode ? " " : "", mode ? mode : "");
 		tmp->connected = CHAN_JOINING;
+/**************************** PATCHED by Flier ******************************/
+                }
+/****************************************************************************/
 	}
 }
 

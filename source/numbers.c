@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.75 2004-07-02 18:04:52 f Exp $
+ * $Id: numbers.c,v 1.76 2004-07-02 19:57:53 f Exp $
  */
 
 #include "irc.h"
@@ -91,6 +91,7 @@ extern void ChannelLogSave _((char *, ChannelList *));
 extern void TryChannelJoin _((void));
 #endif
 extern char *TimeStamp _((int));
+extern int  RateLimitJoin _((int));
 #ifdef OPER
 extern void DoFilterTrace _((char *));
 extern void HandleStatsK _((char *, char *));
@@ -756,9 +757,9 @@ cannot_join_channel(from, ArgList)
 	char	buffer[BIG_BUFFER_SIZE+1];
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
-        int     tryjoin=0;
+        int     tryjoin = 0;
         char    *tmpchan;
-        char    tmpbuf[mybufsize/4+1];
+        char    tmpbuf[mybufsize / 4 + 1];
 #endif
 /****************************************************************************/
 
@@ -770,13 +771,13 @@ cannot_join_channel(from, ArgList)
 /**************************** Patched by Flier ******************************/
         /* handle ircd 2.9/2.10 here because numeric 477 has totally
            different meaning than on networks with NickServ */
-        if ((-current_numeric==477) &&
-            ((get_server_version(from_server)==Server2_9) ||
-            (get_server_version(from_server)==Server2_10) ||
-            (get_server_version(from_server)==Server2_11))) {
-            PasteArgs(ArgList,0);
-            if (do_hook(current_numeric, "%s %s",from,*ArgList))
-                put_it("%s%s",numeric_banner(),ArgList[0]);
+        if ((-current_numeric == 477) &&
+            ((get_server_version(from_server) == Server2_9) ||
+             (get_server_version(from_server) == Server2_10) ||
+             (get_server_version(from_server) == Server2_11))) {
+            PasteArgs(ArgList, 0);
+            if (do_hook(current_numeric, "%s %s", from, *ArgList))
+                put_it("%s%s", numeric_banner(), ArgList[0]);
             return;
         }
 /****************************************************************************/
@@ -789,19 +790,19 @@ cannot_join_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
         /*PasteArgs(ArgList, 0);
 	strcpy(buffer, ArgList[0]);*/
-        if (-current_numeric==437) {
+        if (-current_numeric == 437) {
             /* special case for ircd 2.9 */
-            strmcpy(buffer,ArgList[0],sizeof(buffer));
-            strmcat(buffer," Cannot join channel ",sizeof(buffer));
+            strmcpy(buffer, ArgList[0], sizeof(buffer));
+            strmcat(buffer, " Cannot join channel ", sizeof(buffer));
         }
         else {
             /* valid for the rest of numerics covered here */
-            PasteArgs(ArgList,0);
-            strmcpy(buffer,ArgList[0],sizeof(buffer));
+            PasteArgs(ArgList, 0);
+            strmcpy(buffer, ArgList[0], sizeof(buffer));
         }
 #ifdef ACID
-        strmcpy(tmpbuf,buffer,mybufsize/4);
-        if ((tmpchan=index(tmpbuf,' '))) *tmpchan='\0';
+        strmcpy(tmpbuf, buffer, sizeof(tmpbuf));
+        if ((tmpchan = index(tmpbuf, ' '))) *tmpchan = '\0';
 #endif
 /****************************************************************************/
  	if (do_hook(current_numeric, "%s %s", from, *ArgList)) {
@@ -816,7 +817,7 @@ cannot_join_channel(from, ArgList)
 			strmcat(buffer, " (Channel is full)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
-                        tryjoin=1;
+                        tryjoin = 1;
 #endif
 /****************************************************************************/
 			break;
@@ -824,7 +825,7 @@ cannot_join_channel(from, ArgList)
 			strmcat(buffer, " (Invite only channel)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
-                        tryjoin=1;
+                        tryjoin = 1;
 #endif
 /****************************************************************************/
 			break;
@@ -832,7 +833,7 @@ cannot_join_channel(from, ArgList)
 			strmcat(buffer, " (Banned from channel)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
-                        tryjoin=1;
+                        tryjoin = 1;
 #endif
 /****************************************************************************/
 			break;
@@ -840,7 +841,7 @@ cannot_join_channel(from, ArgList)
 			strmcat(buffer, " (Bad channel key)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
-                        tryjoin=1;
+                        tryjoin = 1;
 #endif
 /****************************************************************************/
 			break;
@@ -861,15 +862,29 @@ cannot_join_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
         if (tryjoin) {
-            WhowasChanList *whowaschan=check_whowas_chan_buffer(tmpbuf,0);
+            WhowasChanList *whowaschan = check_whowas_chan_buffer(tmpbuf, 0);
 
             if (whowaschan && whowaschan->channellist &&
-                whowaschan->channellist->TryRejoin==0) {
-                whowaschan->channellist->TryRejoin=1;
+                whowaschan->channellist->TryRejoin == 0) {
+                whowaschan->channellist->TryRejoin = 1;
                 TryChannelJoin();
             }
         }
 #endif
+        /* join next channel in the list */
+        if (RateLimitJoin(from_server)) {
+            ChannelList *tmpchan = server_list[from_server].ChanPendingList;
+            if (tmpchan) {
+                server_list[from_server].ChanPendingList = tmpchan->next;
+                send_to_server("%s %s %s %s", tmpchan->topicstr, tmpchan->channel,
+                        tmpchan->s_mode, tmpchan->key);
+                new_free(&tmpchan->channel);
+                new_free(&tmpchan->key);
+                new_free(&tmpchan->s_mode);
+                new_free(&tmpchan->topicstr);
+                new_free(&tmpchan);
+            }
+        }
 /****************************************************************************/
 }
 
