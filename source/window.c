@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.11 2000-02-23 17:55:27 f Exp $
+ * $Id: window.c,v 1.12 2000-04-10 15:58:49 f Exp $
  */
 
 #include "irc.h"
@@ -1243,6 +1243,10 @@ back_window(key, ptr)
 	Window	*tmp;
 
 	tmp = get_window_by_refnum(current_screen->last_window_refnum);
+/**************************** PATCHED by Flier ******************************/
+        /* tmp is NULL after we do /WINDOW KILL */
+        if (!tmp) return;
+/****************************************************************************/
 	if (tmp->visible)
 		set_current_window(tmp);
 	else
