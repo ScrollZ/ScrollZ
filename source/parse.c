@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.39 2001-05-14 17:09:48 f Exp $
+ * $Id: parse.c,v 1.40 2001-07-01 09:14:31 f Exp $
  */
 
 #include "irc.h"
@@ -962,11 +962,11 @@ p_quit(from, ArgList)
 /**************************** PATCHED by Flier *****************************/
 				/*say("Signoff: %s (%s)", from, Reason);*/
                             if (!netsplit || !NHDisp) {
-                                ChannelList *chan;
 #ifdef EXTRAS
                                 int showed=0;
                                 char chanbuf[mybufsize/4+1];
                                 Window *oldto_window;
+                                ChannelList *chan;
 
                                 *chanbuf='\0';
                                 oldto_window=to_window;
