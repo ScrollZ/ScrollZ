@@ -1,6 +1,6 @@
 dnl configure.in for ScrollZ
 dnl
-dnl Copyright (c) 1993-2000 Matthew R. Green.
+dnl Copyright (c) 1993-2002 Matthew R. Green.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.28 2002-03-11 20:25:01 f Exp $
+dnl @(#)$Id: configure.in,v 1.29 2003-01-08 20:00:53 f Exp $
 
-AC_REVISION($Revision: 1.28 $)dnl
+AC_REVISION($Revision: 1.29 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.28 2002-03-11 20:25:01 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.29 2003-01-08 20:00:53 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff

@@ -3,7 +3,7 @@
  *
  * written by matthew green.
  *
- * Copyright (c) 1993-1998 Matthew R. Green.
+ * Copyright (c) 1993-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  *
  * see the copyright file, or type help ircii copyright
  *
- * $Id: screen.h,v 1.4 2002-02-01 18:47:37 f Exp $
+ * $Id: screen.h,v 1.5 2003-01-08 20:00:54 f Exp $
  */
 
 #ifndef __screen_h_

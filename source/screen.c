@@ -5,7 +5,7 @@
  * by Michael Sandrof.
  *
  * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1993-1998 Matthew R. Green.
+ * Copyright (c) 1993-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.29 2002-09-22 18:33:43 f Exp $
+ * $Id: screen.c,v 1.30 2003-01-08 20:00:54 f Exp $
  */
 
 #include "irc.h"

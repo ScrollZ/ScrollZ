@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
+ * Copyright (c) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.h,v 1.6 2000-11-07 17:46:09 f Exp $
+ * $Id: ircaux.h,v 1.7 2003-01-08 20:00:54 f Exp $
  */
 
 #ifndef __ircaux_h_

@@ -3,7 +3,7 @@
  *
  * written by matthew green
  *
- * Copyright (c) 1995-1998 Matthew R. Green.
+ * Copyright (c) 1995-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.h,v 1.3 2002-02-01 19:03:45 f Exp $
+ * $Id: newio.h,v 1.4 2003-01-08 20:00:54 f Exp $
  */
 
 #ifndef __newio_h_

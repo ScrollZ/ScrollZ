@@ -8,7 +8,7 @@
  * Written by Jeremy Nelson
  *
  * Copyright (c) 1993 Jeremy Nelson.
- * Copyright (c) 1993-1998 Matthew R. Green.
+ * Copyright (c) 1993-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.8 2002-01-21 21:37:36 f Exp $
+ * $Id: queue.c,v 1.9 2003-01-08 20:00:54 f Exp $
  */
 
 #include "irc.h"

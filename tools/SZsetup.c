@@ -5,7 +5,7 @@
  * that complain about default colors. :-)
  * I hope this will generate tons of different color schemes
  *
- * Copyright (C) July 1997 by Flier
+ * Copyright (C) 1994-2003 Flier
  *
  * Requires ansi capable terminal (Linux console, xterm_color or rxvt should
  * work O.K.). If it causes problems, contact the author via e-mail:
@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $Id: SZsetup.c,v 1.4 2002-03-05 17:50:07 f Exp $
+ * $Id: SZsetup.c,v 1.5 2003-01-08 20:00:54 f Exp $
  */
 
 #include <stdio.h>

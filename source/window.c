@@ -6,7 +6,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
+ * Copyright (c) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.41 2002-07-27 14:28:29 f Exp $
+ * $Id: window.c,v 1.42 2003-01-08 20:00:54 f Exp $
  */
 
 #include "irc.h"

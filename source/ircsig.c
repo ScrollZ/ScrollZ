@@ -1,6 +1,6 @@
 /*
  * ircsig.c: has a `my_signal()' that uses sigaction().
- * Copyright (c) 1993-1998 Matthew R. Green.
+ * Copyright (c) 1993-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircsig.c,v 1.4 2000-08-09 19:31:21 f Exp $
+ * $Id: ircsig.c,v 1.5 2003-01-08 20:00:54 f Exp $
  */
 
 /*

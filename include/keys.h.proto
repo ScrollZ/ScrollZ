@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
+ * Copyright (c) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
  *
  * This file is automatically created from keys.h.proto.
  *
- * $Id: keys.h.proto,v 1.4 2001-03-20 21:22:33 f Exp $
+ * $Id: keys.h.proto,v 1.5 2003-01-08 20:00:54 f Exp $
  */
 
 #ifndef __keys_h_

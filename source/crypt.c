@@ -5,7 +5,7 @@
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2000 Matthew R. Green.
+ * Copyright (c) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.12 2002-02-01 18:47:37 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.13 2003-01-08 20:00:54 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
