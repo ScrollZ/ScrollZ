@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.83 2003-05-11 18:24:44 f Exp $
+ * $Id: edit3.c,v 1.84 2003-12-24 12:15:52 f Exp $
  */
 
 #include "irc.h"
@@ -1716,11 +1716,27 @@ void ScrollZLoad()
                 usersloaded=1;
                 return;
             }
-            wordnew->channels=(char *) 0;
-            wordnew->word=(char *) 0;
-            wordnew->reason=(char *) 0;
+            wordnew->channels=NULL;
+            wordnew->word=NULL;
+            wordnew->reason=NULL;
+            wordnew->ban=0;
+            wordnew->bantime=0;
             wordnew->next=NULL;
             NextArg(pointer,&pointer,tmpbuf3);
+            if (*tmpbuf3 && !my_stricmp(tmpbuf3,"-BAN")) {
+                wordnew->ban=1;
+                NextArg(pointer,&pointer,tmpbuf3);
+            }
+            if (*tmpbuf3 && !my_stricmp(tmpbuf3,"-TIME")) {
+                NextArg(pointer,&pointer,tmpbuf3);
+                if (*tmpbuf3) wordnew->bantime=atoi(tmpbuf3);
+                else {
+                    PrintError("missing BANTIME","in ADDW",lineno);
+                    loaderror=1;
+                    continue;
+                }
+                NextArg(pointer,&pointer,tmpbuf3);
+            }
             if (*tmpbuf3) malloc_strcpy(&(wordnew->channels),tmpbuf3);
             else {
                 PrintError("missing CHANLIST","in ADDW",lineno);

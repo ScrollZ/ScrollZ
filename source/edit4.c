@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.107 2003-05-08 18:18:39 f Exp $
+ * $Id: edit4.c,v 1.108 2003-12-24 12:15:52 f Exp $
  */
 
 #include "irc.h"
@@ -147,7 +147,7 @@ extern int  AddLast _((List *, List *));
 extern NickList *find_in_hash _((ChannelList *, char *));
 extern void HandleDelayOp _((void));
 extern void HandleDelayNotify _((void));
-extern void BanIt _((char *, char *, char *, int, ChannelList *));
+extern void BanIt _((char *, char *, char *, int, ChannelList *, int));
 #ifdef WANTANSI
 extern void FixColorAnsi _((char *));
 #endif
@@ -1461,7 +1461,7 @@ char *subargs;
     update_all_status();
 }
 
-void Check4WordKick(line,joiner,privs,chan)
+void Check4WordKick(line, joiner, privs, chan)
 char *line;
 NickList *joiner;
 int  privs;
@@ -1470,17 +1470,16 @@ ChannelList *chan;
     char *reason;
     struct words *tmpword;
 
-    if (chan && HAS_OPS(chan->status) && !(privs&FLNOFLOOD) && joiner &&
-        (chan->KickOps || !(joiner->chanop)) && (tmpword=CheckLine(chan->channel,line))) {
-        reason=tmpword->reason;
-        if (joiner->userhost && *reason=='B') {
-            reason++;
-            BanIt(chan->channel,joiner->nick,joiner->userhost,1,chan);
+    if (chan && HAS_OPS(chan->status) && !(privs & FLNOFLOOD) && joiner &&
+        (chan->KickOps || !(joiner->chanop)) && (tmpword = CheckLine(chan->channel, line))) {
+        reason = tmpword->reason;
+        if (joiner->userhost && tmpword->ban) {
+            BanIt(chan->channel, joiner->nick, joiner->userhost, 1, chan, tmpword->bantime);
         }
 #ifdef CELE
-        send_to_server("KICK %s %s :%s %s",chan->channel,joiner->nick,reason,CelerityL);
+        send_to_server("KICK %s %s :%s %s", chan->channel, joiner->nick, reason, CelerityL);
 #else  /* CELE */
-        send_to_server("KICK %s %s :%s",chan->channel,joiner->nick,reason);
+        send_to_server("KICK %s %s :%s", chan->channel, joiner->nick, reason);
 #endif /* CELE */
     }
 }

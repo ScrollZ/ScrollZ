@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.95 2003-12-24 11:27:07 f Exp $
+ * $Id: edit2.c,v 1.96 2003-12-24 12:15:52 f Exp $
  */
 
 #include "irc.h"
@@ -594,7 +594,7 @@ char *subargs;
 }
 #endif
 
-void DoDops(chops,channel,type)
+void DoDops(chops, channel, type)
 char *chops;
 char *channel;
 int type;
@@ -851,22 +851,28 @@ char *subargs;
 }
 
 /* Bans nick on specified channel */
-void BanIt(channel,nick,userhost,deop,chan)
+void BanIt(channel, nick, userhost, deop, chan, timer)
 char *channel;
 char *nick;
 char *userhost;
 int  deop;
 ChannelList *chan;
+int  timer;
 {
     ChannelList *tmpchan;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
+    char tmpbuf2[mybufsize / 2];
 
-    if (channel && chan) tmpchan=chan;
-    else tmpchan=lookup_channel(channel,curr_scr_win->server,0);
-    CreateBan(nick,userhost,tmpbuf);
+    if (channel && chan) tmpchan = chan;
+    else tmpchan = lookup_channel(channel, curr_scr_win->server, 0);
+    CreateBan(nick, userhost, tmpbuf);
     if (tmpchan && HAS_OPS(tmpchan->status)) {
-        if (deop) send_to_server("MODE %s -o+b %s %s",channel,nick,tmpbuf);
-        else send_to_server("MODE %s +b %s",channel,tmpbuf);
+        if (deop) send_to_server("MODE %s -o+b %s %s", channel, nick, tmpbuf);
+        else send_to_server("MODE %s +b %s", channel, tmpbuf);
+        if (timer) {
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "-INV %d MODE %s -b %s", timer, channel, tmpbuf);
+            timercmd("TIMER", tmpbuf2, NULL);
+        }
     }
     else NotChanOp(channel);
 }
@@ -896,10 +902,10 @@ char *subargs;
                         continue;
                     }
                     joiner=CheckJoiners(tmpnick,chan->channel,from_server,chan);
-                    if (joiner) BanIt(channel,joiner->nick,joiner->userhost,1,chan);
+                    if (joiner) BanIt(channel,joiner->nick,joiner->userhost,1,chan,0);
                     else {
                         joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
-                        if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
+                        if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL,0);
                         else {
                             func=(void(*)())BanNew;
                             server_list[from_server].SZWI++;
@@ -929,7 +935,7 @@ char *text;
         return;
     }
     snprintf(tmpbuf,sizeof(tmpbuf),"%s@%s",wistuff->user,wistuff->host);
-    BanIt(text,wistuff->nick,tmpbuf,0,NULL);
+    BanIt(text,wistuff->nick,tmpbuf,0,NULL,0);
 }
 
 /* Bans and kicks nick from the current channel */
@@ -985,7 +991,7 @@ char *subargs;
             }
             joiner = CheckJoiners(tmpnick, channel, from_server, chan);
             if (joiner) {
-                BanIt(channel, joiner->nick, joiner->userhost, 1, chan);
+                BanIt(channel, joiner->nick, joiner->userhost, 1, chan, 0);
 #ifdef CELE
                 send_to_server("KICK %s %s :%s %s", channel, joiner->nick,
                                comment, CelerityL);
@@ -995,7 +1001,7 @@ char *subargs;
             }
             else {
                 joiner = CheckJoiners(tmpnick, NULL, from_server, NULL);
-                if (joiner) BanIt(channel, joiner->nick, joiner->userhost, 0, NULL);
+                if (joiner) BanIt(channel, joiner->nick, joiner->userhost, 0, NULL, 0);
                 else {
                     func = (void(*)()) BanKickNew;
                     server_list[from_server].SZWI++;
@@ -1055,7 +1061,7 @@ char *text;
     channel=new_next_arg(text,&text);
     if (!command || !channel) return;
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s@%s",wistuff->user,wistuff->host);
-    BanIt(channel,wistuff->nick,tmpbuf1,0,NULL);
+    BanIt(channel,wistuff->nick,tmpbuf1,0,NULL,0);
 #ifdef EXTRAS
     if (index(command,'I')) {
         strmcat(tmpbuf1," ALL",sizeof(tmpbuf1));
@@ -1903,7 +1909,10 @@ char *subargs;
     fprintf(usfile,"# ADDW   channels word comment\n");
     fprintf(usfile,"#\n");
     for (tmpword=wordlist,wlistcount=0;tmpword;tmpword=tmpword->next) {
-        fprintf(usfile,"ADDW %15s %20s %s\n",
+        fprintf(usfile,"ADDW ");
+        if (tmpword->ban) fprintf(usfile,"-BAN ");
+        if (tmpword->bantime) fprintf(usfile,"-TIME %d", tmpword->bantime);
+        fprintf(usfile,"%15s %20s %s\n",
                 tmpword->channels,tmpword->word,tmpword->reason);
         wlistcount++;
     }
@@ -3106,7 +3115,7 @@ int exception;
 }
 
 /* Clears channel of bans */
-void CdBan(command,args,subargs)
+void CdBan(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
@@ -3522,45 +3531,66 @@ List *toadd;
 }
 
 /* Adds word to your wordkick list */
-void AddWord(command,args,subargs)
+void AddWord(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    int  add=0;
+    int  add = 0;
+    int  ban = 0;
+    int  bantime = 0;
     char *tmpstr;
     char *channels;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
     struct words *tmpword;
 
-    channels=new_next_arg(args,&args);
-    tmpstr=new_next_arg(args,&args);
+    channels = new_next_arg(args, &args);
+    if (channels && !my_strnicmp(channels, "-BAN", 2)) {
+        ban = 1;
+        channels = new_next_arg(args, &args);
+    }
+    if (channels && !my_strnicmp(channels, "-TIME", 2)) {
+        tmpstr = new_next_arg(args, &args);
+        if (!tmpstr) {
+            PrintUsage("ADDW [options] channels word [comment]");
+            return;
+        }
+        bantime = atoi(tmpstr);
+        channels = new_next_arg(args, &args);
+    }
+    tmpstr = new_next_arg(args, &args);
     if (channels && tmpstr) {
-        tmpword=CheckLine(channels,tmpstr);
+        tmpword = CheckLine(channels, tmpstr);
         if (!tmpword) {
-            tmpword=(struct words *) new_malloc(sizeof(struct words));
-            tmpword->channels=(char *) 0;
-            tmpword->word=(char *) 0;
-            tmpword->reason=(char *) 0;
-            tmpword->next=(struct words *) 0;
-            add=1;
+            tmpword = (struct words *) new_malloc(sizeof(struct words));
+            tmpword->channels = NULL;
+            tmpword->word = NULL;
+            tmpword->reason = NULL;
+            tmpword->next = NULL;
+            tmpword->ban = 0;
+            tmpword->bantime = 0;
+            add = 1;
         }
         if (tmpword) {
-            snprintf(tmpbuf,sizeof(tmpbuf),"%s",tmpstr);
-            malloc_strcpy(&(tmpword->channels),channels);
-            malloc_strcpy(&(tmpword->word),tmpbuf);
+            snprintf(tmpbuf, sizeof(tmpbuf), "%s", tmpstr);
+            malloc_strcpy(&(tmpword->channels), channels);
+            malloc_strcpy(&(tmpword->word), tmpbuf);
+            tmpword->ban = ban;
+            tmpword->bantime = bantime;
             while (*args && isspace(*args)) args++;
-            if (*args) malloc_strcpy(&(tmpword->reason),args);
+            if (*args) malloc_strcpy(&(tmpword->reason), args);
             else {
-                snprintf(tmpbuf,sizeof(tmpbuf),"You said %s",tmpstr);
-                malloc_strcpy(&(tmpword->reason),tmpbuf);
+                snprintf(tmpbuf, sizeof(tmpbuf), "You said %s", tmpstr);
+                malloc_strcpy(&(tmpword->reason), tmpbuf);
             }
             if (add) add_to_list_ext((List **) &wordlist,(List *) tmpword,
                                      (int (*) _((List *, List *))) AddLast);
-            say("%s added to your wordkick list for %s",tmpword->word,tmpword->channels);
+            say("%s added to your wordkick list for %s", tmpword->word, tmpword->channels);
+            if (ban && bantime) say("Offender will be banned for %d seconds", bantime);
+            else if (ban) say("Offender will be banned", bantime);
         }
     }
-    else PrintUsage("ADDW channels word [comment]");
+    else PrintUsage("ADDW [options] channels word [comment]");
 }
 
 /* Removes word from your wordkick list */
@@ -3600,19 +3630,24 @@ char *subargs;
 }
 
 /* Lists all the word on your wordkick list */
-void ListWords(command,args,subargs)
+void ListWords(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    int count=1;
+    int count = 1;
+    char tmpbuf[mybufsize / 2];
     struct words *tmpword;
 
-    say("#   Channels        Filter                Reason");
-    for (tmpword=wordlist;tmpword;tmpword=tmpword->next,count++)
-        say("#%-2d %-15s %-20s  %s",count,tmpword->channels,tmpword->word,
-            tmpword->reason);
-    say("Total of %d words on your wordkick list",count-1);
+    say("#   Channels        Ban   Filter                Reason");
+    for (tmpword = wordlist; tmpword; tmpword = tmpword->next,count++) {
+        if (tmpword->bantime) sprintf(tmpbuf, "%d", tmpword->bantime);
+        else if (tmpword->ban) strcpy(tmpbuf, "Y");
+        else strcpy(tmpbuf, "N");
+        say("#%-2d %-15s %-5s %-20s  %s", count, tmpword->channels, tmpbuf,
+            tmpword->word, tmpword->reason);
+    }
+    say("Total of %d words on your wordkick list", count - 1);
 }
 
 /* Checks if there is a match with some of your words that are on wordkick list */

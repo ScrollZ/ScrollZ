@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.10 2003-05-08 18:18:39 f Exp $
+ * $Id: mystructs.h,v 1.11 2003-12-24 12:19:33 f Exp $
  */
 
 /* don't change!! */
@@ -81,6 +81,8 @@ struct words {
      char *channels;
      char *word;
      char *reason;
+     int  bantime;
+     int  ban;
 };
 
 struct nicks {
