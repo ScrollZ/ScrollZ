@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.42 2002-01-17 19:17:12 f Exp $
+ * $Id: cdcc.c,v 1.43 2002-01-21 22:17:20 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1958,7 +1958,7 @@ int  error;
             strmcat(tmpbuf3,"/",mybufsize/2);
             strmcat(tmpbuf3,tmpbuf2,mybufsize/2);
             tmpstat.st_mode=0;
-            size=stat_file(tmpbuf3,&tmpstat);
+            size=stat(tmpbuf3,&tmpstat);
             if (tmpstat.st_mode & S_IFDIR) {
                 if (error)
                     say("You tried to send a dir %s, please do a %s/* to send a whole dir",
@@ -2187,7 +2187,7 @@ char *file;
     char  tmpbuf[mybufsize/2];
 
     sprintf(tmpbuf,"%s/%s",path,file);
-    stat_file(tmpbuf,&CdccStatBuf);
+    stat(tmpbuf,&CdccStatBuf);
     if (CdccStatBuf.st_mode & S_IFDIR) return(-1);
     return(CdccStatBuf.st_size);
 }

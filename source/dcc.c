@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.32 2002-01-21 21:37:35 f Exp $
+ * $Id: dcc.c,v 1.33 2002-01-21 22:17:20 f Exp $
  */
 
 #include "irc.h"
@@ -1463,7 +1463,7 @@ dcc_resend(args)
 		yell("Cannot access %s", FileBuf);
 		return;
 	}
-	stat_file(FileBuf, &stat_buf);
+	stat(FileBuf, &stat_buf);
 	if (stat_buf.st_mode & S_IFDIR)
 	{
 		yell("Cannot send a directory");
