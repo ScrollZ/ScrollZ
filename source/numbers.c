@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.58 2002-03-13 18:15:37 f Exp $
+ * $Id: numbers.c,v 1.59 2002-03-13 18:23:02 f Exp $
  */
 
 #include "irc.h"
@@ -589,6 +589,9 @@ reset_nickname(from, ArgList)
 	if (my_stricmp(s, get_server_nickname(from_server)) == 0)
 		return;
 
+/**************************** Patched by Flier ******************************/
+        if (OrigNickSent) return;
+/****************************************************************************/
 	say("You have specified an illegal nickname");
 	if (!dumb && !get_int_var(NO_ASK_NICKNAME_VAR))
 	{
