@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.34 2001-01-25 17:53:52 f Exp $
+ * $Id: parse.c,v 1.35 2001-02-26 20:08:57 f Exp $
  */
 
 #include "irc.h"
@@ -60,6 +60,7 @@
 
 /************************* PATCHED by Flier *************************/
 #include "list.h"
+#include "status.h"
 #include "myvars.h"
 
 extern void OnWho _((char *, char *, char *, char *, char *));
@@ -744,8 +745,29 @@ p_privmsg(from, Args)
 			    put_it("%s(%s/%s)%s %s", high, from, to, high, ptr);
 			break;
 		case MSG_GROUP_LIST:
+/**************************** Patched by Flier ******************************/
+                        if (*to=='@' && is_channel(to+1)) message_from(to+1,LOG_MSG);
+/****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from, to, ptr))
-			    put_it("%s-%s:%s-%s %s", high, from, to, high, ptr);
+/**************************** Patched by Flier ******************************/
+                        {
+			    /*put_it("%s-%s:%s-%s %s", high, from, to, high, ptr);*/
+                            char stampbuf[mybufsize/16];
+
+                            *stampbuf='\0';
+                            if (Stamp==2) {
+#ifdef WANTANSI
+                                sprintf(stampbuf,"%s(%s%s%s)%s ",
+                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                                        update_clock(0,0,GET_TIME),
+                                        CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+#else
+                                sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif
+                            }
+			    put_it("%s-%s:%s- %s",stampbuf,from,to,ptr);
+                        }
+/****************************************************************************/
 			break;
 		case MSG_LIST:
 			if (!no_flood)
