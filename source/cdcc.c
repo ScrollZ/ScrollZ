@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.9 1998-11-12 18:43:02 f Exp $
+ * $Id: cdcc.c,v 1.10 1998-11-12 19:11:24 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -990,7 +990,7 @@ ChannelList *chan;
                     }
                     strcat(tmpbuf1,"]");
                     timercmd("FTIMER",tmpbuf1,(char *) func);
-                    if (tmp->next && !(number%3)) delay+=LIST_DELAY;
+                    if ((tmp->next || chan->next) && !(number%3)) delay+=LIST_DELAY;
 #ifndef CELEHOOK
                 }
 #endif
@@ -2329,7 +2329,7 @@ char *text;
 }
 
 /* Check what listing type they want. */
-static void listcommand(from, args)
+static void listcommand(from,args)
 char *from;
 char *args;
 {
@@ -2337,6 +2337,7 @@ char *args;
     int   delay=0;
     int   packcount=1;
     char  byteschar;
+    char  *mynick=get_server_nickname(from_server);
     char  tmpbuf1[mybufsize];
     char  tmpbuf2[mybufsize/2];
     char  tmpbuf3[mybufsize/16];
@@ -2346,9 +2347,11 @@ char *args;
 
     if (packs) {
         for (tmp=packs;tmp;tmp=tmp->next) count++;
-        send_to_server("NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
-                       from,CdccString,count,count==1?empty_string:"S",
-                       get_server_nickname(from_server));
+#ifndef CELEHOOK
+        if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",from,count,mynick)) 
+#endif
+            send_to_server("NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+                           from,CdccString,count,count==1?empty_string:"S",mynick);
         for (tmp=packs;tmp;tmp=tmp->next) {
             if (tmp->minspeed>0.0)
                 sprintf(tmpbuf1,"/min %.2f kB/s]",tmp->minspeed);
@@ -2365,17 +2368,33 @@ char *args;
                     tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
                     (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf1);
             sprintf(tmpbuf3,"%d/%dx",packcount,tmp->gets);
-            sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
-                    tmp->description,tmpbuf2);
-            timercmd("FTIMER",tmpbuf1,(char *) func);
-            if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
+
+#ifndef CELEHOOK
+            if (do_hook(CDCC_PLIST,"%d %d %d %.2f %d %s",packcount,tmp->totalfiles,
+                        tmp->totalbytes,tmp->minspeed,tmp->gets,tmp->description)) {
+#endif
+                sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
+                        tmp->description,tmpbuf2);
+                timercmd("FTIMER",tmpbuf1,(char *) func);
+                if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
+#ifndef CELEHOOK
+            }
+#endif
+
             packcount++;
         }
-        if (CdccStats) {
-            formatstats(tmpbuf2,1);
-            sprintf(tmpbuf1,"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
-            timercmd("FTIMER",tmpbuf1,(char *) func);
+#ifndef CELEHOOK
+        if (do_hook(CDCC_PLIST_FOOTER,"%d %d %.0f %.0f",count,CdccStats,
+                    BytesReceived,BytesSent)) {
+#endif
+            if (CdccStats) {
+                formatstats(tmpbuf2,1);
+                sprintf(tmpbuf1,"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
+                timercmd("FTIMER",tmpbuf1,(char *) func);
+            }
+#ifndef CELEHOOK
         }
+#endif
     }
     else if (!CTCPCloaking)
         send_to_server("NOTICE %s :Sorry, there are no files offered",from);
