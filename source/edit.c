@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.83 2002-02-02 10:33:34 f Exp $
+ * $Id: edit.c,v 1.84 2002-02-04 17:47:22 f Exp $
  */
 
 #include "irc.h"
@@ -4907,7 +4907,7 @@ show_timer(command)
                     time_left.tv_usec = time_left.tv_usec - current.tv_usec + 1000000;
                     time_left.tv_sec--;
                 }
-                snprintf(tmpbuf, sizeof(tmpbuf), "%d.%06d", time_left.tv_sec, time_left.tv_usec);
+                snprintf(tmpbuf, sizeof(tmpbuf), "%d.%06d", (int) time_left.tv_sec, (int) time_left.tv_usec);
                 say("%-5d %-12s %s", tmp->ref, tmpbuf, tmp->command);
 /****************************************************************************/
 	}
