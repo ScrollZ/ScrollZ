@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.17 1999-03-04 22:06:08 f Exp $
+ * $Id: edit.c,v 1.18 1999-03-18 19:25:21 f Exp $
  */
 
 #include "irc.h"
@@ -1464,6 +1464,12 @@ do_channel(chan)
  		return (char *) 0;
 
         channel = lookup_channel(chan, curr_scr_win->server, CHAN_NOUNLINK);
+/**************************** PATCHED by Flier ******************************/
+        /* if you try to join same channel twice and you reached limit for
+           maximum number of channels this fix prevents client from removing
+           channel from memory */
+        if (channel && channel->connected==CHAN_JOINING) return(NULL);
+/****************************************************************************/
 
 	if (is_on_channel(chan, curr_scr_win->server,
 		get_server_nickname(curr_scr_win->server)))

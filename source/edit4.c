@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.17 1999-03-09 20:39:41 f Exp $
+ * $Id: edit4.c,v 1.18 1999-03-18 19:25:22 f Exp $
  */
 
 #include "irc.h"
@@ -566,7 +566,7 @@ char *comment;
 }
 
 /* Handles my kicks */
-int HandleMyKick(mynick,nick,userhost,channel,comment,frkick)
+void HandleMyKick(mynick,nick,userhost,channel,comment,frkick)
 char *mynick;
 char *nick;
 char *userhost;
@@ -574,33 +574,14 @@ char *channel;
 char *comment;
 int  *frkick;
 {
-    int rejoin=0;
     char tmpbuf[mybufsize/2];
-    NickList *joiner;
-    ChannelList *chan;
 
-    chan=lookup_channel(channel,from_server,0);
-    if (chan) {
-        if (chan->AutoRejoin) {
-            sprintf(tmpbuf,"%s",chan->channel);
-            if (chan->key) {
-                strcat(tmpbuf," :");
-                strcat(tmpbuf,chan->key);
-            }
-            e_channel("JOIN",tmpbuf,tmpbuf);
-            rejoin=1;
-        }
-        chan->kick++;
-    }
     if (away_set || LogOn) {
         sprintf(tmpbuf,"You have been kicked off channel %s by %s (%s)",
                 channel,nick,userhost);
         AddComment(tmpbuf,comment);
         AwaySave(tmpbuf,SAVEKICK);
     }
-    joiner=CheckJoiners(mynick,channel,from_server,chan);
-    *frkick=(joiner && joiner->frlist)?joiner->frlist->privs:0;
-    return(rejoin);
 }
 
 /* Handles kicks */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.12 1999-02-24 20:01:37 f Exp $
+ * $Id: parse.c,v 1.13 1999-03-18 19:25:20 f Exp $
  */
 
 #include "irc.h"
@@ -76,7 +76,7 @@ extern void HandleNickChange _((char *, char *, char *, int));
 #ifdef EXTRAS
 extern void CheckLock _((char *, int, ChannelList *));
 #endif
-extern int  HandleMyKick _((char *, char *, char *, char *, char *, int *));
+extern void HandleMyKick _((char *, char *, char *, char *, char *));
 extern int  HandleKick _((char *, char *, char *, char *, char *, int *));
 extern void SplitPrint _((char *, char *, char *, int));
 extern void ModePrint _((char *, char *, char *, char *, char *, char *));
@@ -95,6 +95,7 @@ extern void CheckCdcc _((char *, char *, char *, int));
 extern int  CheckChannel _((char *, char *));
 
 extern void e_nick _((char *, char *, char *));
+extern void e_channel _((char *, char *, char *));
 
 #if defined(HAVETIMEOFDAY) && defined(CELE)
 extern struct timeval PingSent;
@@ -1484,8 +1485,7 @@ kick(from, ArgList)
 	char	*channel,
 		*who,
 		*comment;
-/**************************** PATCHED by Flier ******************************/
-        int     rejoin;
+/**************************** PATCHED by Flier *******************************/
         int     frkick;
 /****************************************************************************/
 
@@ -1516,7 +1516,26 @@ kick(from, ArgList)
 					say("You have been kicked off channel %s by %s",
 						channel, from);
 			}*/
-                        rejoin=HandleMyKick(who,from,FromUserHost,channel,comment,&frkick);
+                        int rejoin=0;
+                        char tmpbuf[mybufsize/2];
+                        NickList *joiner;
+                        ChannelList *chan;
+
+                        chan=lookup_channel(channel,parsing_server_index,0);
+                        if (chan) {
+                            if (chan->AutoRejoin) {
+                                sprintf(tmpbuf,"%s",chan->channel);
+                                if (chan->key) {
+                                    strcat(tmpbuf," :");
+                                    strcat(tmpbuf,chan->key);
+                                }
+                                rejoin=1;
+                            }
+                            chan->kick++;
+                        }
+                        joiner=CheckJoiners(who,channel,from_server,chan);
+                        frkick=(joiner && joiner->frlist)?joiner->frlist->privs:0;
+                        HandleMyKick(who,from,FromUserHost,channel,comment);
                         if ((double_ignore(channel,NULL,IGNORE_CRAP))!=IGNORED) {
                             if (comment && *comment)
                             {
@@ -1541,6 +1560,9 @@ kick(from, ArgList)
                         }
 /****************************************************************************/
 			remove_channel(channel, parsing_server_index);
+/**************************** PATCHED by Flier ******************************/
+                        if (rejoin) e_channel("JOIN",tmpbuf,NULL);
+/****************************************************************************/
 			update_all_status();
 		}
 		else
