@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.91 2002-08-20 19:05:26 f Exp $
+ * $Id: edit.c,v 1.92 2002-09-30 21:40:46 f Exp $
  */
 
 #include "irc.h"
@@ -4276,25 +4276,26 @@ edit_char(ikey)
 	{
 		func = key_names[meta5_keys[key].index].func;
 		str = meta5_keys[key].stuff;
-/**************************** PATCHED by Flier ******************************/
-		current_screen->meta5_hit=0;
-/****************************************************************************/
+		current_screen->meta5_hit = 0;
 	}
 #ifndef LITE
 	else if (current_screen->meta6_hit)
 	{
 		func = key_names[meta6_keys[key].index].func;
 		str = meta6_keys[key].stuff;
+		current_screen->meta6_hit = 0;
 	}
 	else if (current_screen->meta7_hit)
 	{
 		func = key_names[meta7_keys[key].index].func;
 		str = meta7_keys[key].stuff;
+		current_screen->meta7_hit = 0;
 	}
 	else if (current_screen->meta8_hit)
 	{
 		func = key_names[meta8_keys[key].index].func;
 		str = meta8_keys[key].stuff;
+		current_screen->meta8_hit = 0;
 	}
 #endif
 	else
