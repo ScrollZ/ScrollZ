@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.106 2003-01-15 18:41:51 f Exp $
+ * $Id: edit4.c,v 1.107 2003-05-08 18:18:39 f Exp $
  */
 
 #include "irc.h"
@@ -130,7 +130,7 @@ extern char *OpenCreateFile _((char *, int));
 extern void PrintSynch _((ChannelList *));
 extern void StripAnsi _((char *, char *, int));
 extern int  matchmcommand _((char *, int));
-extern int  GrabURL _((char *, char *, char *));
+extern int  GrabURL _((char *, char *, char *, char *));
 extern void Ignore _((char *, char *, char *));
 extern void CheckPermBans _((ChannelList *));
 #ifdef EXTRAS
@@ -209,7 +209,7 @@ int  iscrypted;
     else thing='*';
     if (URLCatch) {
         filepath=OpenCreateFile("ScrollZ.notepad",1);
-        numurl=GrabURL(msg,tmpbuf4,filepath);
+        numurl=GrabURL(msg,tmpbuf4,filepath,nick);
         message=tmpbuf4;
     }
     else message=msg;

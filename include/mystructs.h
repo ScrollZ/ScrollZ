@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.9 2001-08-25 18:25:15 f Exp $
+ * $Id: mystructs.h,v 1.10 2003-05-08 18:18:39 f Exp $
  */
 
 /* don't change!! */
@@ -112,6 +112,7 @@ struct splitstr {
 struct urlstr {
     struct urlstr *next;
     char *urls;
+    char *source;
 };
 
 struct mapstr {

@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.143 2003-04-28 18:46:12 f Exp $
+ * $Id: edit6.c,v 1.144 2003-05-08 18:18:39 f Exp $
  */
 
 #include "irc.h"
@@ -2134,6 +2134,7 @@ void CleanUp() {
         tmpurl=urllist;
         urllist=urllist->next;
         new_free(&(tmpurl->urls));
+        new_free(&(tmpurl->source));
         new_free(&tmpurl);
     }
     while (wholist) {

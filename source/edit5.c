@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.106 2003-05-08 18:07:51 f Exp $
+ * $Id: edit5.c,v 1.107 2003-05-08 18:18:39 f Exp $
  */
 
 #include "irc.h"
@@ -118,7 +118,7 @@ void PrintLinksHead _((void));
 void URLSave _((char *, char *, char *)); /* /URL coded by Zakath */
 void URLSave2 _((char *, char *));
 void URLSave3 _((char *, char *));
-int  GrabURL _((char *, char *, char *));
+int  GrabURL _((char *, char *, char *, char *));
 void MasterPassword _((char *, char *));
 void MasterPasswordOld _((char *, char *));
 
@@ -1473,7 +1473,7 @@ int  iscrypted;
     isitme=!my_stricmp(mynick,nick);
     if (!isitme && URLCatch) {
         filepath=OpenCreateFile("ScrollZ.notepad",1);
-        numurl=GrabURL(line,tmpbuf4,filepath);
+        numurl=GrabURL(line,tmpbuf4,filepath,channel);
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
@@ -3075,6 +3075,7 @@ char *subargs;
                 tmpurl=urllist;
                 urllist=urllist->next;
                 new_free(&(tmpurl->urls));
+                new_free(&(tmpurl->source));
                 new_free(&tmpurl);
             }
             return;
@@ -3086,8 +3087,11 @@ char *subargs;
  	if (!urllist) say("There are currently no URLs stored in memory.");
  	else {
  	    say("List of all URLs currently stored in memory:");
- 	    for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next,count++)
- 		say("%-2d %c%s%c",count,bold,tmpurl->urls,bold);
+ 	    for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next,count++) {
+ 		say("%-2d %c%s%c %s",
+                    count,bold,tmpurl->urls,bold,
+                    tmpurl->source?tmpurl->source:empty_string);
+            }
             say("A total of %d URL%s stored in memory.",count,count==1?"":"s");
  	    add_wait_prompt("Type the # of the URL to save, any other key to abort -> ",URLSave2,args,WAIT_PROMPT_KEY);
  	}
@@ -3109,6 +3113,10 @@ char *line;
         for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next,count++)
             if (count==urlnum) {
                 malloc_strcpy(&urlbuf,tmpurl->urls);
+                if (tmpurl->source) {
+                    malloc_strcat(&urlbuf," ");
+                    malloc_strcat(&urlbuf,tmpurl->source);
+                }
                 found=1;
                 break;
             }
@@ -3225,10 +3233,11 @@ void AcceptLastChat() {
 }
 
 /* This bolds out URLs and copies them to buffer */
-int GrabURL(line,buffer,filepath)
+int GrabURL(line,buffer,filepath,source)
 char *line;
 char *buffer;
 char *filepath;
+char *source;
 {
     register int  urlnum=0;
     register int  saveit;
@@ -3278,12 +3287,15 @@ char *filepath;
                     tmpurl=urllist;
                     urlnew=(struct urlstr *) new_malloc(sizeof(struct urlstr));
                     urlnew->urls=(char *) 0;
+                    urlnew->source=(char *) 0;
                     urlnew->next=(struct urlstr *) 0;
                     malloc_strcpy(&(urlnew->urls),tmpstr1);
+                    if (source) malloc_strcpy(&(urlnew->source),source);
                     URLnum++;
                     if (URLnum>10) {
                         urllist=tmpurl->next;
                         new_free(&(tmpurl->urls));
+                        new_free(&(tmpurl->source));
                         new_free(&tmpurl);
                         URLnum--;
                     }
