@@ -277,13 +277,13 @@
 #undef HAVETIMEOFDAY
 
 /* Define this if you want IP checking */
-/* #undef IPCHECKING */
+#undef IPCHECKING
 
 /* Define this if you want client with ANSI (color) support */
-#define WANTANSI 1
+#define WANTANSI
 
 /* Define this if you want OperVision support in the client */
-/* #undef OPERVISION */
+#undef OPERVISION
 
 /* Define this if you want following optional stuff:
  - /AUTOINV   - Invites on Notify    - /LOGO
@@ -293,46 +293,46 @@
  - /LLOOKUP   - /LLOOK               - /RANLK
  - /MN        - /ML                  - /TERMINATE
  - /MSAY      - /DOBANS */
-/* #undef EXTRAS */
+#undef EXTRAS
 
 /* Define this if you want more /TIMER that's accurate to 0.01s */
-/* #undef BETTERTIMER */
+#undef BETTERTIMER
 
 /* Define this if you want formatted /CSCAN */
-/* #undef NEWCSCAN */
+#undef NEWCSCAN
 
 /* Define this if you feel users should be invited to non +i channels on
    notify signon */
-/* #undef ACID */
+#undef ACID
 
 /* Define this if you want sorted nicks in /CSCAN and old style of MSGs */
-/* #undef MGS */
+#undef MGS
 
 /* Define this if you want scatter kicks */
-/* #undef SCKICKS */
+#undef SCKICKS
 
 /* Define this if you want to compile with Celerity C-Script */
-/* #undef CELE */
-/* #undef CELECOSM */
-/* #undef CELEPROT */
-/* #undef CELESCRP */
-/* #undef CELEHOOK */
+#undef CELE
+#undef CELECOSM
+#undef CELEPROT
+#undef CELESCRP
+#undef CELEHOOK
 
 /* Define this if you want HyperDCC by Annatar in the client */
-/* #undef HYPERDCC */
+#undef HYPERDCC
 
 /* Define this if you don't want ScrollZ trademarks in KICKs and AWAY msgs */
-/* #undef VILAS */
+#undef VILAS
 
 /* Define this if you want better /NEWHOST */
-/* #undef JIMMIE */
+#undef JIMMIE
 
 /* Define this if you want CTCP PAGE by BiGhEaD */
-/* #undef CTCPPAGE */
+#undef CTCPPAGE
 
 /* Define this if you want different messages, chat messages and CDCC */
-/* #undef TDF */
+#undef TDF
 
 /* Define this if you want $country() in the client */
-/* #undef COUNTRY */
+#undef COUNTRY
 /****************************************************************************/
