@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.98 2001-09-17 15:34:22 f Exp $
+ * $Id: edit6.c,v 1.99 2001-09-17 16:29:44 f Exp $
  */
 
 #include "irc.h"
@@ -1405,6 +1405,7 @@ char *subargs;
             if (isorignick) {
                 if (quietstr && *quietstr && !my_stricmp(quietstr,"QUIET")) OrigNickQuiet=1;
                 else OrigNickQuiet=0;
+                OrigNickNumber=0; /* start from scratch */
             }
             *(command_list[i].var)=1;
         }
@@ -1904,13 +1905,34 @@ char *subargs;
 
 /* Try to switch nick to orignick */
 void SwitchNick() {
+    int i=0;
+    char savechar='\0';
+    char *curnick;
+    char *realnick=OrigNick;
     time_t timenow=time((time_t *) 0);
 
     if (timenow>=LastNick+OrigNickDelay) {
-        if (my_stricmp(get_server_nickname(from_server),OrigNick))
-            e_nick(NULL,OrigNick,NULL);
+        for (;i<OrigNickNumber;i++) {
+            realnick=index(realnick,',');
+            if (realnick) realnick++;
+        }
+        if (!realnick) { /* we have exhausted all possible nicks */
+            realnick=OrigNick;
+            OrigNickNumber=0;
+        }
+        else if (realnick && *realnick) {
+            if ((curnick=index(realnick,','))) {
+                OrigNickNumber++;
+                savechar=',';
+                *curnick='\0';
+            }
+            else OrigNickNumber=0;
+        }
+        if (my_stricmp(get_server_nickname(from_server),realnick))
+            e_nick(NULL,realnick,NULL);
         LastNick=timenow+1;
         OrigNickSent=1;
+        if (savechar) *curnick=savechar;
     }
 }
 

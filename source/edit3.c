@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.68 2001-08-25 18:25:15 f Exp $
+ * $Id: edit3.c,v 1.69 2001-09-17 16:29:44 f Exp $
  */
 
 #include "irc.h"
@@ -2652,6 +2652,7 @@ void InitVars() {
     ARinWindow=0;
     OrigNickQuiet=0;
     OrigNickSent=0;
+    OrigNickNumber=0;
 #ifdef EXTRAS
     ShowSignAllChan=0;
 #endif

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.63 2001-09-10 21:39:17 f Exp $
+ * $Id: irc.c,v 1.64 2001-09-17 16:29:44 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -457,6 +457,7 @@ int   ARinWindow;
 int   BKList;
 int   OrigNickQuiet;
 int   OrigNickSent;
+int   OrigNickNumber;
 #ifdef EXTRAS
 int   ShowSignAllChan;
 #endif
