@@ -357,5 +357,5 @@
 #undef OPER
 
 /* Define this if you want ogre's cosmetics in OperVision */
-#define OGRE
+#undef OGRE
 /****************************************************************************/
