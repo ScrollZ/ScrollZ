@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.8 1999-09-26 10:12:37 f Exp $
+ * $Id: operv.c,v 1.9 1999-09-26 10:22:23 f Exp $
  */
 
 #include "irc.h"
@@ -42,10 +42,17 @@ static  int  NewNotice;   /* 1 if we are parsing new notice, 0 otherwise */
 static  int  OldWord;     /* holds number  for previous word, if NewNotice is 0 */
 static  char *OldPtr;     /* holds pointer for previous word, if NewNotice is 0 */
 
-/* Exceptions for my ircd that required slight changes to the code:
-   Link with IRC1.FR[@127.0.0.1.6669] established.   no word #5
-   Client exiting: I2 [~i2@beavis.leet.com]          no word #5 and using []'s
-   Client connecting: I2 [~i2@beavis.leet.com]       using []'s */
+void CreateMode(tmpbuf,sizeofbuf)
+char *tmpbuf;
+int  sizeofbuf;
+{
+    /* we need to send aditional usermodes (+swfuckrn), for ircd
+       2.9/2.10 only send +w */
+    if (get_server_version(from_server)==4 ||
+            get_server_version(from_server)==5)
+        strmcpy(tmpbuf,"w",sizeofbuf);
+    else strmcpy(tmpbuf,"swfuckrn",sizeofbuf);
+}
 
 void OperVision(command,args,subargs)
 char *command;
@@ -53,7 +60,7 @@ char *args;
 char *subargs;
 {
     char *tmp=(char *) 0;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize/4+1];
     unsigned int display;
 
     tmp=next_arg(args,&args);
@@ -63,12 +70,8 @@ char *subargs;
             else {
 		OperV=1;
                 ServerNotice=1;
-                /* we need to send aditional usermodes (+swfuckrn), for ircd
-                   2.9/2.10 only send +w */
-                if (get_server_version(from_server)==4 ||
-                    get_server_version(from_server)==5)
-                    strcpy(tmpbuf,"w");
-                else strcpy(tmpbuf,"swfuckrn");
+                /* turn on additional user modes */
+                CreateMode(tmpbuf,mybufsize/4);
                 send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
                 /* made one window command, made it jump back to current window when
                    it's done, all output from /WINDOW command is supressed   -Flier */
@@ -85,7 +88,8 @@ char *subargs;
 	    else {
 		OperV=0;
                 /* we need to undo aditional usermodes (-swfuckrn) */
-                send_to_server("MODE %s :-swfuckrn",get_server_nickname(from_server));
+                CreateMode(tmpbuf,mybufsize/4);
+                send_to_server("MODE %s :-%s",get_server_nickname(from_server),tmpbuf);
                 /* made one window command, all output from /WINDOW command is
                    supressed   -Flier */
 		strcpy(tmpbuf,"REFNUM OV KILL");
@@ -664,6 +668,7 @@ char *from;
 	sprintf(tmpbuf,"Failed OPER attempt: %s%s%s %s",
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
+    /* ircd 2.9/2.10 parsing */
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
     if (from) put_it("[%s%s%s] Opermsg from %s%s%s: %s",
