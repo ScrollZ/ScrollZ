@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.65 2003-07-06 09:34:44 f Exp $
+ * $Id: operv.c,v 1.66 2003-07-06 09:43:55 f Exp $
  */
 
 #include "irc.h"
@@ -308,7 +308,6 @@ char *from;
         }
     }
     strmcpy(tmpbuf,tmpline,sizeof(tmpbuf)); /* Default if no match is found */
-    strcpy(tmpbuf,"info requested by xtrek (SciFi-IRC@212.199.192.171.forward.012.net.il) [irc.isprime.com]");
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
     origfrom=from;
@@ -1661,6 +1660,32 @@ char *from;
         snprintf(tmpbuf,sizeof(tmpbuf),"X-Line added by %s%s%s %s for %s%s%s: %s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 CmdsColors[COLOV].color4,word3,Colors[COLOFF],word4);
+#endif
+    }
+    else if (strstr(tmpline," already K-Lined by ")) {
+        char *tmp1=word1;
+        char *tmp2=word2;
+
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+        if (*tmp1=='[') tmp1++;
+        if (strlen(word1)>0 && word1[strlen(word1)-1]==']')
+            word1[strlen(word1)-1]='\0';
+	strcpy(word2,OVgetword(0,5,tmpline));  /* pattern */
+        if (*tmp2=='[') tmp2++;
+        if (strlen(word2)>0 && word1[strlen(word2)-1]==']')
+            word1[strlen(word2)-1]='\0';
+	strcpy(word3,OVgetword(7,0,tmpline));  /* reason */
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] %s%s%s already klined by %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,tmp1,Colors[COLOFF],
+                CmdsColors[COLOV].color5,tmp2,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word3,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s already klined by %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color5,tmp1,Colors[COLOFF],
+                CmdsColors[COLOV].color5,tmp2,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
 #endif
     }
     servername=server_list[from_server].itsname;
