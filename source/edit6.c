@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.53 1999-10-23 18:28:17 f Exp $
+ * $Id: edit6.c,v 1.54 1999-11-17 20:36:06 f Exp $
  */
 
 #include "irc.h"
@@ -313,11 +313,13 @@ ChannelList *tmpchan;
                     break;
                 }
             }
-        /* if set to AUTO and we have a match stop, same if there
+        put_it("count:%d  tmpnick:%p  Auto:%d",count,tmpnick,AutoNickCompl);
+        /* stop if set to AUTO and we have a match, same if there
            was only one match found */
         if (count==1 || (AutoNickCompl==2 && count)) tmpnick=NULL;
         if (!tmpnick && nick) {
-            strcpy(tmpbuf,nick->nick);
+            if (count==1 || AutoNickCompl==2) strcpy(tmpbuf,nick->nick);
+            else if (AutoNickCompl==1) strcpy(tmpbuf,result);
             if (*tmpstr==' ' && tmp && *(tmp+1)==' ') tmpstr++;
             if (tmp && *tmp) strcat(tmpbuf,tmp);
             strcat(tmpbuf,tmpstr);
