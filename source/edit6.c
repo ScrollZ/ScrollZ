@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.94 2001-09-06 19:51:36 f Exp $
+ * $Id: edit6.c,v 1.95 2001-09-08 16:56:31 f Exp $
  */
 
 #include "irc.h"
@@ -1402,12 +1402,13 @@ char *subargs;
                 PrintUsage(tmpbuf);
                 return;
             }
-            if (quietstr && *quietstr && isorignick && !my_stricmp(quietstr,"QUIET"))
-                OrigNickQuiet=1;
+            if (isorignick) {
+                if (quietstr && *quietstr && !my_stricmp(quietstr,"QUIET")) OrigNickQuiet=1;
+                else OrigNickQuiet=0;
+            }
             *(command_list[i].var)=1;
         }
         else if (!my_stricmp("OFF",tmpstr)) {
-            if (isorignick) OrigNickQuiet=0;
             *(command_list[i].var)=0;
             new_free(command_list[i].strvar);
         }
