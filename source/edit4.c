@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.13 1998-12-13 19:20:59 f Exp $
+ * $Id: edit4.c,v 1.14 1999-01-11 18:51:19 f Exp $
  */
 
 #include "irc.h"
@@ -153,6 +153,7 @@ extern void BanIt _((char *, char *, char *, int, ChannelList *));
 extern void FixColorAnsi _((char *));
 #endif
 extern int  CheckServer _((int));
+extern void CdccQueueNickChange _((char *, char*));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -545,6 +546,7 @@ int  server;
             if (!my_stricmp(nickstr->nick,oldnick))
                 malloc_strcpy(&(nickstr->nick),newnick);
     }
+    CdccQueueNickChange(oldnick,newnick);
 }
 
 /* Adds comment to buffer */
