@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.21 1999-05-10 16:13:04 f Exp $
+ * $Id: edit4.c,v 1.22 1999-05-21 16:56:45 f Exp $
  */
 
 #include "irc.h"
@@ -720,6 +720,7 @@ void InsertTabNick() {
 void HandleTabNext() {
     int  len;
     int  curserv=from_server;
+    int  dotabcompl=0;
     char *tmpstr;
     char *nickstr;
     char *channel;
@@ -731,11 +732,21 @@ void HandleTabNext() {
     ChannelList *chan;
 
     tmpstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
-    if (*tmpstr && (*(tmpstr+strlen(tmpstr)-1)!=' ') && 
-        (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
+    if (*tmpstr && (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
+        /* skip /m or /msg */
+        tmpstr+=2;
         while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+        /* skip space */
+        tmpstr++;
+        /* skip nick */
         if (*tmpstr) {
-            tmpstr++;
+            nickstr=tmpstr;
+            while (*nickstr && !isspace(*nickstr)) nickstr++;
+            if (*nickstr=='\0' || !isspace(*nickstr)) dotabcompl=1;
+        }
+    }
+    if (dotabcompl) {
+        if (*tmpstr) {
             /* option to complete channel name */
             if (*tmpstr=='#') {
                 for (nickstr=tmpbuf;*tmpstr;) *nickstr++=*tmpstr++;
