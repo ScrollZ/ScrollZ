@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.70 2001-10-18 20:19:55 f Exp $
+ * $Id: edit3.c,v 1.71 2001-11-01 20:31:46 f Exp $
  */
 
 #include "irc.h"
@@ -839,9 +839,9 @@ char *subargs;
 #ifdef WANTANSI
     say("-----------------------= %sScrollZ settings%s =-----------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
-    sprintf(tmpbuf1,"A-setaway time   : %s%-3d%sm ",
+    sprintf(tmpbuf1,"A-setaway time   : %s%-3d%sm   ",
             CmdsColors[COLSETTING].color2,AutoAwayTime,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| A-join on invite : ");
+    sprintf(tmpbuf2,"| A-join on invite  : ");
     if (AutoJoinOnInv==2)
         sprintf(tmpbuf3,"%sAUTO%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,AutoJoinChannels,
@@ -852,18 +852,18 @@ char *subargs;
                 Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ban type         : %s%c%s  ",
+    sprintf(tmpbuf1,"Ban type         : %s%c%s      ",
             CmdsColors[COLSETTING].color2,defban,Colors[COLOFF]);
-    sprintf(tmpbuf2,"  | A-rejoin on kick : ");
+    sprintf(tmpbuf2,"| A-rejoin on kick  : ");
     if (AutoRejoin)
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,AutoRejoinChannels,
                 Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ignore time      : %s%-3d%ss",
+    sprintf(tmpbuf1,"Ignore time      : %s%-3d%ss   ",
             CmdsColors[COLSETTING].color2,IgnoreTime,Colors[COLOFF]);
-    strcat(tmpbuf1," | Fake modes disp  : ");
+    strcat(tmpbuf1,"| Fake modes disp   : ");
     if (ShowFakes) 
         sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -871,11 +871,11 @@ char *subargs;
     else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Server notices   : ");
-    if (ServerNotice) sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,
+    if (ServerNotice) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,
                               Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Notify on away   : ");
+    sprintf(tmpbuf2,"| Notify on away    : ");
     if (ShowAway) 
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -883,13 +883,13 @@ char *subargs;
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"CTCP cloaking    : ");
-    if (CTCPCloaking==1) sprintf(tmpbuf2,"%sON%s  ",CmdsColors[COLSETTING].color2,
+    if (CTCPCloaking==1) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,
                                  Colors[COLOFF]);
-    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%sHIDE%s",CmdsColors[COLSETTING].color2,
+    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%sHIDE%s   ",CmdsColors[COLSETTING].color2,
                                       Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2," | Kick ops         : ");
+    sprintf(tmpbuf2,"| Kick ops          : ");
     if (KickOps)
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -897,10 +897,10 @@ char *subargs;
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Ext msgs display : ");
-    if (ExtMes) sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (ExtMes) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Kick on flood    : ");
+    sprintf(tmpbuf2,"| Kick on flood     : ");
     if (KickOnFlood) 
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -908,9 +908,9 @@ char *subargs;
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Show nick on pub : ");
-    if (ShowNick) sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    strcat(tmpbuf2,"  | Kick on ban      : ");
+    if (ShowNick) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    strcat(tmpbuf2,"| Kick on ban       : ");
     if (KickOnBan)
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -918,11 +918,11 @@ char *subargs;
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"URL Catcher      : ");
-    if (URLCatch==3) sprintf(tmpbuf2,"%sQUIET%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else if (URLCatch==2) sprintf(tmpbuf2,"%sAUTO%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else if (URLCatch) sprintf(tmpbuf2,"%sON%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    strcat(tmpbuf2,"| Bitch mode       : ");
+    if (URLCatch==3) sprintf(tmpbuf2,"%sQUIET%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (URLCatch==2) sprintf(tmpbuf2,"%sAUTO%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (URLCatch) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    strcat(tmpbuf2,"| Bitch mode        : ");
     if (Bitch)
         sprintf(tmpbuf3,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
                 Colors[COLOFF],CmdsColors[COLSETTING].color5,
@@ -931,31 +931,32 @@ char *subargs;
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%sON%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    strcat(tmpbuf2,"| Extended publics : ");
+        sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    strcat(tmpbuf2,"| Extended publics  : ");
     if (ExtPub)
-        sprintf(tmpbuf3,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+        sprintf(tmpbuf3,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %sCdcc settings%s =------------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
-    if (AutoGet) sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    if (AutoGet==1) sprintf(tmpbuf2,"%sON%s     ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (AutoGet==2) sprintf(tmpbuf2,"%sALWAYS%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s    ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Cdcc security    : ");
+    sprintf(tmpbuf2,"| Cdcc security     : ");
     if (Security) sprintf(tmpbuf3,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc limit       : %s%-2d%s",
+    sprintf(tmpbuf1,"Cdcc limit       : %s%-2d%s     ",
             CmdsColors[COLSETTING].color2,CdccLimit,Colors[COLOFF]);
-    sprintf(tmpbuf2,"   | A-close idle send: %s%d%ss",
+    sprintf(tmpbuf2,"| A-close idle send : %s%d%ss",
             CmdsColors[COLSETTING].color2,CdccIdle,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %s%-4d%ss",
+    sprintf(tmpbuf1,"Cdcc ptime       : %s%-4d%ss  ",
             CmdsColors[COLSETTING].color2,PlistTime,Colors[COLOFF]);
-    sprintf(tmpbuf2,"| Cdcc channels    : ");
+    sprintf(tmpbuf2,"| Cdcc channels     : ");
     if (CdccChannels)
         sprintf(tmpbuf3,"%s%s%s",CmdsColors[COLSETTING].color5,CdccChannels,Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sNone%s",CmdsColors[COLSETTING].color5,Colors[COLOFF]);
@@ -964,11 +965,11 @@ char *subargs;
             CmdsColors[COLSETTING].color2,NlistTime,Colors[COLOFF]);
     say("%s",tmpbuf1);
     strcpy(tmpbuf2,"Cdcc long status : ");
-    if (LongStatus) sprintf(tmpbuf1,"%s%sON%s ",tmpbuf2,
+    if (LongStatus) sprintf(tmpbuf1,"%s%sON%s     ",tmpbuf2,
                             CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf1,"%s%sOFF%s",tmpbuf2,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    sprintf(tmpbuf3,"  | Dcc on status bar: ");
-    if (ShowDCCStatus) sprintf(tmpbuf2,"%s%sON%s ",tmpbuf3,
+    else sprintf(tmpbuf1,"%s%sOFF%s    ",tmpbuf2,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    sprintf(tmpbuf3,"| Dcc on status bar : ");
+    if (ShowDCCStatus) sprintf(tmpbuf2,"%s%sON%s",tmpbuf3,
                             CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     else sprintf(tmpbuf2,"%s%sOFF%s",tmpbuf3,CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
@@ -1032,7 +1033,7 @@ char *subargs;
                 CmdsColors[COLSETTING].color2,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,FloodMessages,Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,FloodSeconds,Colors[COLOFF]);
-    else if (FloodProt) sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else if (FloodProt) sprintf(tmpbuf2,"%sON%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Nethack prot     : ");
@@ -1080,71 +1081,71 @@ char *subargs;
 #else  /* WANTANSI */
     say("-----------------------= %cScrollZ settings%c =-----------------------",
         bold,bold);
-    sprintf(tmpbuf1,"A-setaway time   : %c%-3d%cm ",bold,AutoAwayTime,bold);
-    sprintf(tmpbuf2,"| A-join on invite : ");
+    sprintf(tmpbuf1,"A-setaway time   : %c%-3d%cm   ",bold,AutoAwayTime,bold);
+    sprintf(tmpbuf2,"| A-join on invite  : ");
     if (AutoJoinOnInv==2)
         sprintf(tmpbuf3,"%cAUTO%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
     else if (AutoJoinOnInv)
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,AutoJoinChannels,bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ban type         : %c%c%c  ",bold,defban,bold);
-    sprintf(tmpbuf2,"  | A-rejoin on kick : ");
+    sprintf(tmpbuf1,"Ban type         : %c%c%c      ",bold,defban,bold);
+    sprintf(tmpbuf2,"| A-rejoin on kick  : ");
     if (AutoRejoin)
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,AutoRejoinChannels,bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Ignore time      : %c%-3d%cs",bold,IgnoreTime,bold);
-    strcat(tmpbuf1," | Fake modes disp  : ");
+    sprintf(tmpbuf1,"Ignore time      : %c%-3d%cs   ",bold,IgnoreTime,bold);
+    strcat(tmpbuf1,"| Fake modes disp   : ");
     if (ShowFakes) 
         sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,ShowFakesChannels,bold);
     else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
     strcpy(tmpbuf1,"Server notices   : ");
-    if (ServerNotice) sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    if (ServerNotice) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Notify on away   : ");
+    sprintf(tmpbuf2,"| Notify on away    : ");
     if (ShowAway) 
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,ShowAwayChannels,bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"CTCP cloaking    : ");
-    if (CTCPCloaking==1) sprintf(tmpbuf2,"%cON%c  ",bold,bold);
-    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%cHIDE%c",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c ",bold,bold);
+    if (CTCPCloaking==1) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else if (CTCPCloaking==2) sprintf(tmpbuf2,"%cHIDE%c   ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2," | Kick ops         : ");
+    sprintf(tmpbuf2,"| Kick ops          : ");
     if (KickOps)
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOpsChannels,
                 bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Ext msgs display : ");
-    if (ExtMes) sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    if (ExtMes) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Kick on flood    : ");
+    sprintf(tmpbuf2,"| Kick on flood     : ");
     if (KickOnFlood) 
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOnFloodChannels,
                 bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Show nick on pub : ");
-    if (ShowNick) sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    if (ShowNick) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Kick on ban      : ");
+    sprintf(tmpbuf2,"| Kick on ban       : ");
     if (KickOnBan)
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,KickOnBanChannels,
                 bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"URL Catcher      : ");
-    if (URLCatch==2) sprintf(tmpbuf2,"%cAUTO%c",bold,bold);
-    else if (URLCatch) sprintf(tmpbuf2,"%cON%c  ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c ",bold,bold);
-    strcat(tmpbuf2," | Bitch mode       : ");
+    if (URLCatch==2) sprintf(tmpbuf2,"%cAUTO%c   ",bold,bold);
+    else if (URLCatch) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    strcat(tmpbuf2,"| Bitch mode        : ");
     if (Bitch)
         sprintf(tmpbuf3,"%cON%c for %c%s%c",bold,bold,bold,BitchChannels,
                 bold);
@@ -1152,36 +1153,37 @@ char *subargs;
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%cON%c  ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c ",bold,bold);
-    strcat(tmpbuf2," | Extended publics : ");
-    if (ExtPub) sprintf(tmpbuf3,"%cON%c",bold,bold);
-    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+        sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
+    strcat(tmpbuf2,"| Extended publics  : ");
+    if (ExtPub) sprintf(tmpbuf3,"%cON%c     ",bold,bold);
+    else sprintf(tmpbuf3,"%cOFF%c    ",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %cCdcc settings%c =------------------------",
         bold,bold);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
-    if (AutoGet) sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    if (AutoGet==1) sprintf(tmpbuf2,"%cON%c     ",bold,bold);
+    else if (AutoGet==2) sprintf(tmpbuf2,"%cALWAYS%c ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c    ",bold,bold);
     strcat(tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf2,"  | Cdcc security    : ");
+    sprintf(tmpbuf2,"| Cdcc security     : ");
     if (Security) sprintf(tmpbuf3,"%cON%c",bold,bold);
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc limit       : %c%-2d%c",bold,CdccLimit,bold);
-    sprintf(tmpbuf2,"   | A-close idle send: %c%d%cs",bold,CdccIdle,bold);
+    sprintf(tmpbuf1,"Cdcc limit       : %c%-2d%c     ",bold,CdccLimit,bold);
+    sprintf(tmpbuf2,"| A-close idle send : %c%d%cs",bold,CdccIdle,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %c%-4d%cs",bold,PlistTime,bold);
-    sprintf(tmpbuf2,"| Cdcc channels    : ");
+    sprintf(tmpbuf1,"Cdcc ptime       : %c%-4d%cs  ",bold,PlistTime,bold);
+    sprintf(tmpbuf2,"| Cdcc channels     : ");
     if (CdccChannels) sprintf(tmpbuf3,"%c%s%c",bold,CdccChannels,bold);
     else sprintf(tmpbuf3,"%cNone%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
-    sprintf(tmpbuf1,"Cdcc ptime       : %c%-3d%cs",bold,PlistTime,bold);
+    sprintf(tmpbuf1,"Cdcc ptime       : %c%-3d%cs   ",bold,PlistTime,bold);
     say("%s",tmpbuf1);
     strcpy(tmpbuf2,"Cdcc long status : ");
-    if (LongStatus) sprintf(tmpbuf1,"%s%cON%c ",tmpbuf2,bold,bold);
-    else sprintf(tmpbuf1,"%s%cOFF%c",tmpbuf2,bold,bold);
-    sprintf(tmpbuf3,"  | Dcc on status bar: ");
+    if (LongStatus) sprintf(tmpbuf1,"%s%cON%c     ",tmpbuf2,bold,bold);
+    else sprintf(tmpbuf1,"%s%cOFF%c    ",tmpbuf2,bold,bold);
+    sprintf(tmpbuf3,"| Dcc on status bar : ");
     if (ShowDCCStatus) sprintf(tmpbuf2,"%s%cON%c ",tmpbuf3,bold,bold);
     else sprintf(tmpbuf2,"%s%cOFF%c",tmpbuf3,bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
@@ -1564,6 +1566,7 @@ char *command;
     else if (!strcmp(command,"MIRCCOLORS") && !my_stricmp(tmpbuf,"STRIP")) *variable=2;
     else if (!strcmp(command,"CDCC VERBOSE") && !my_stricmp(tmpbuf,"QUIET")) *variable=2;
     else if (!strcmp(command,"STAMP") && !my_stricmp(tmpbuf,"MAX")) *variable=2;
+    else if (!strcmp(command,"CDCC AUTOGET") && !my_stricmp(tmpbuf,"ALWAYS")) *variable=2;
     else {
         sprintf(tmpbuf,"in %s",command);
         if (!strcmp(command,"MIRCCOLORS"))
@@ -1572,6 +1575,8 @@ char *command;
             PrintError("must be ON/OFF/VERBOSE",tmpbuf,lineno);
         else if (!strcmp(command,"STAMP"))
             PrintError("must be ON/OFF/MAX",tmpbuf,lineno);
+        else if (!strcmp(command,"CDCC AUTOGET"))
+            PrintError("must be ON/OFF/ALWAYS",tmpbuf,lineno);
         else PrintError("must be ON/OFF",tmpbuf,lineno);
         *loaderror=1;
     }

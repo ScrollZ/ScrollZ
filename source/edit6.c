@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.109 2001-11-01 20:12:15 f Exp $
+ * $Id: edit6.c,v 1.110 2001-11-01 20:31:46 f Exp $
  */
 
 #include "irc.h"
@@ -1099,11 +1099,22 @@ char *subargs;
         else if (!strcmp("STAMP",command_list[i].command) &&
                  !my_stricmp("MAX",tmpstr)) 
             *(command_list[i].var)=2;
+        else if (!strcmp("AUTOGET",command_list[i].command) &&
+                 !my_stricmp("ALWAYS",tmpstr)) 
+            *(command_list[i].var)=2;
         else {
             if (!strcmp("MIRC",command_list[i].command))
                 sprintf(tmpbuf,"%s on/off/strip",command_list[i].command);
             else if (!strcmp("VERBOSE",command_list[i].command))
-                sprintf(tmpbuf,"%s on/off/quiet",command_list[i].command);
+                sprintf(tmpbuf,"CDCC %s on/off/quiet",command_list[i].command);
+            else if (!strcmp("AUTOGET",command_list[i].command))
+                sprintf(tmpbuf,"CDCC %s on/off/always",command_list[i].command);
+            else if (!strcmp("LONGSTATUS",command_list[i].command) ||
+                     !strcmp("OVERWRITE",command_list[i].command)  ||
+                     !strcmp("SECURE",command_list[i].command)     ||
+                     !strcmp("STATS",command_list[i].command)      ||
+                     !strcmp("WARNING",command_list[i].command))
+                sprintf(tmpbuf,"CDCC %s on/off",command_list[i].command);
             else if (!strcmp("STAMP",command_list[i].command))
                 sprintf(tmpbuf,"%s on/off/max",command_list[i].command);
             else sprintf(tmpbuf,"%s on/off",command_list[i].command);
@@ -1115,6 +1126,8 @@ char *subargs;
         PrintSetting(command_list[i].setting,"STRIP",empty_string,empty_string);
     else if (!strcmp("VERBOSE",command_list[i].command) && *(command_list[i].var)==2)
         PrintSetting(command_list[i].setting,"QUIET",empty_string,empty_string);
+    else if (!strcmp("AUTOGET",command_list[i].command) && *(command_list[i].var)==2)
+        PrintSetting(command_list[i].setting,"ALWAYS",empty_string,empty_string);
     else if (!strcmp("STAMP",command_list[i].command) && *(command_list[i].var)==2)
         PrintSetting(command_list[i].setting,"MAX",empty_string,empty_string);
     else if (*(command_list[i].var))

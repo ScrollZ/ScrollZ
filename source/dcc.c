@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.29 2001-02-26 17:32:12 f Exp $
+ * $Id: dcc.c,v 1.30 2001-11-01 20:31:46 f Exp $
  */
 
 #include "irc.h"
@@ -1893,7 +1893,7 @@ register_dcc_offer(user, type, description, address, port, size)
                     else if (warning==2) strcat(tmpbuf1,", fake DCC handshake detected");
                     AwaySave(tmpbuf1,SAVEDCC);
                 }
-                if (!warning && AutoGet) CheckAutoGet(user,FromUserHost,description,type);
+                if ((AutoGet>1) || (!warning && AutoGet)) CheckAutoGet(user,FromUserHost,description,type);
 	}
         else {
 #ifdef WANTANSI
@@ -1934,6 +1934,10 @@ register_dcc_offer(user, type, description, address, port, size)
                     if ((tmpfriend=CheckUsers(tmpbuf1,NULL)) && (tmpfriend->privs)&FLCDCC)
                         dcc_chat(user);
                     malloc_strcpy(&LastChat,user);
+                }
+                if (((Client->flags)&DCC_TYPES)==DCC_FILEREAD ||
+                    ((Client->flags)&DCC_TYPES)==DCC_FILEREGET) {
+                    if (AutoGet>1) CheckAutoGet(user,FromUserHost,description,type);
                 }
         }
 /****************************************************************************/

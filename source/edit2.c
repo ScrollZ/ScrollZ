@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.66 2001-09-03 17:38:16 f Exp $
+ * $Id: edit2.c,v 1.67 2001-11-01 20:31:46 f Exp $
  */
 
 #include "irc.h"
@@ -2068,7 +2068,8 @@ char *subargs;
     fprintf(usfile,"CDCC LIMIT      %d %d\n",CdccLimit,CdccQueueLimit);
     fprintf(usfile,"CDCC IDLE       %d\n",CdccIdle);
     fprintf(usfile,"CDCC AUTOGET    ");
-    if (AutoGet) fprintf(usfile,"ON\n");
+    if (AutoGet==1) fprintf(usfile,"ON\n");
+    else if (AutoGet==2) fprintf(usfile,"ALWAYS\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"CDCC SECURE     ");
     if (Security) fprintf(usfile,"ON\n");

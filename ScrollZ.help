@@ -1000,7 +1000,8 @@ Also look at $2CDCC LIMIT$0 and $2CDCC GET$0
 Usage $3CDCC IDLE number_of_seconds$0
 When set to $3zero$0, this function is disabled.
 :CDCC AUTOGET  Toggles whether to auto-get offered files
-Usage $3CDCC AUTOGET on$0|$3off$0
+Always will auto-get regardless of warnings.
+Usage $3CDCC AUTOGET on$0|$3off$0|$3always$0
 Also look at $2CDCC GET$0, $2CDCC CLOSE$0 and $2CDCC SECURE$0
 :CDCC SECURE   Toggles Cdcc security on/of
 Usage $3CDCC SECURE on$0|$3off$0
