@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.2 1998-09-10 17:46:30 f Exp $
+ * $Id: window.c,v 1.3 1998-09-25 20:29:43 f Exp $
  */
 
 #include "irc.h"
@@ -1495,7 +1495,7 @@ delete_window(window)
 
 /**************************** PATCHED by Flier ******************************/
 /*
- * delete_window: This deletes the given window.  It frees all data and
+ * cleanup_window: This deletes the given window.  It frees all data and
  * structures associated with the window.
  */
 void cleanup_window(window)
@@ -3263,6 +3263,19 @@ win_list_channels(window)
 }
 
 /**************************** PATCHED by Flier ******************************/
+/* Try to find given window in window list */
+Window *FindWindow(wind)
+Window *wind;
+{
+    Window *tmp;
+
+    for (tmp=curr_scr_win->screen->window_list;tmp;tmp=tmp->next)
+        if (tmp->server==wind->server && tmp==wind) return(tmp);
+    for (tmp=invisible_list;tmp;tmp=tmp->next)
+        if (tmp->server==wind->server && tmp==wind) break;
+    return(tmp);
+}
+
 /* Clean up all memory related to window */
 void CleanUpWindows(void) {
     Screen *tmpscreen;
