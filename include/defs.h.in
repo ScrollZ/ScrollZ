@@ -363,7 +363,7 @@
 /* Define this if you want formatted /CSCAN */
 #define NEWCSCAN
 
-/* Define this if you want () arround nick in public messages */
+/* Define this if you want () around nick in public messages */
 #undef ALTERNATIVE_PUBLICS
 
 /* Define this if you feel users should be invited to non +i channels on

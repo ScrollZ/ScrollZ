@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.34 2001-09-10 21:39:17 f Exp $
+ * $Id: SZdist.c,v 1.35 2001-09-20 15:30:23 f Exp $
  */
 
 #include <stdio.h>
@@ -301,7 +301,7 @@ char **argv;
 	       onoffstr(choice&TDF,onoffbuf));
 	printf(" [1mP[0m - COUNTRY       %s - compile with $country()\n",
 	       onoffstr(choice&COUNTRY,onoffbuf));
-	printf(" [1mR[0m - ALTPUBLICS    %s - () arround nick in public messages\n",
+	printf(" [1mR[0m - ALTPUBLICS    %s - () around nick in public messages\n",
 	       onoffstr(choice&ALTPUBLICS,onoffbuf));
 	printf(" [1mS[0m - LITE          %s - compile without some functionality\n",
 	       onoffstr(choice&LITE,onoffbuf));
@@ -465,7 +465,7 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want formatted /CSCAN */\n");
         if (choice&NEWCSCAN) fprintf(fpout,"#define NEWCSCAN\n");
         else fprintf(fpout,"#undef NEWCSCAN\n");
-        fprintf(fpout,"\n/* Define this if you want () arround nick in public messages */\n");
+        fprintf(fpout,"\n/* Define this if you want () around nick in public messages */\n");
         if (choice&ALTPUBLICS) fprintf(fpout,"#define ALTERNATIVE_PUBLICS\n");
         else fprintf(fpout,"#undef ALTERNATIVE_PUBLICS\n");
         fprintf(fpout,"\n/* Define this if you feel users should be invited to non +i channels on\n");
