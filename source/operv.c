@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.44 2002-04-07 16:08:23 f Exp $
+ * $Id: operv.c,v 1.45 2002-05-04 16:54:23 f Exp $
  */
 
 #include "irc.h"
@@ -275,7 +275,13 @@ char *from;
     char word3[mybufsize];
     char word4[mybufsize];
     char tmpbuf[mybufsize];
+#ifdef MULTI_SERVER_OV
+    Window *oldwin;
 
+    oldwin=to_window;
+    to_window=get_window_by_name("OV");
+    if (!to_window) to_window=oldwin;
+#endif
     /* Set up tmpline to be just the message to parse */
     if (!strncmp(line,"*** Notice -- ",14)) tmpline=line+14;
     /* SZNet support */
@@ -905,7 +911,8 @@ char *from;
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
 #endif
     }
-    else if (!strncmp(tmpline,"Added K-Line [",14)) return;
+    else if (!strncmp(tmpline,"Added K-Line [",14)) {
+    }
     else if (!strncmp(tmpline,"Bogus server name",17)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bogus name */
 	strcpy(word2,OVgetword(0,6,tmpline));  /* Nick */
@@ -1298,6 +1305,9 @@ char *from;
                 CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
                 OVTS?"|":empty_string,
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
+#ifdef MULTI_SERVER_OV
+    to_window=oldwin;
+#endif
 }
 
 void OperVisionReinit(void) {

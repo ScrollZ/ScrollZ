@@ -340,6 +340,9 @@
 /* Define this if you have getloadavg(), BSD systems do */
 #undef HAVEGETLOADAVG
 
+/* Define this if you want one OperVision window for several servers */
+#undef MULTI_SERVER_OV
+
 /* Define this if you want client with ANSI (color) support */
 #define WANTANSI
 
