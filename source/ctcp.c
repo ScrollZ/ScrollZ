@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.26 1999-10-12 19:45:08 f Exp $
+ * $Id: ctcp.c,v 1.27 2000-01-27 16:09:38 f Exp $
  */
 
 #include "irc.h"
@@ -96,7 +96,6 @@ extern void MangleString _((char *, char *, int));
 extern void CheckCdcc _((char *, char *, char *, int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
-extern void MangleVersion _((char *));
 extern void EncryptString _((char *, char *, char *, int, int));
 /****************************************************************************/
 
@@ -762,8 +761,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="0WLzNt2Ja{%l#{UQA+T";
-    char *tmpstr5="P++J^axF!WNA#*/f99bKo%n4=Ddp]0tu7alGg2D%63|uy!_DNx?ks$kIKMv$vLgYqjM9pNl8K2}e.az2uBCt[NJLf1]x $1*!zAMR{RcZ]ymT5_d(gp3eWX4 dE7gA.+[n5X9*8/S?I5g{8WTrDt%kPoPNklithL^o]!mFe|WCx.}})D{G!G!$=VyUAVblxDhvJ4xo{E12aJ=hUBl'+4XU2e[=u7^uH9/=5e|BU5nCBX'T/MW4?9i2^[.iEINmn";
+    char *tmpstr4="m4jiEgo/qa#gJbMH?fL";
+    char *tmpstr5="H?? *] _IOE^J+c8zz4ujR'Wk1e.l4iekq-'|$d5k^5eaUZ}G%L#P?y^tO4QrySRrb5yxDtp[Bu7$^Gl3]AI:Z(K=U*F *HMHETUL'Cn$VA12+zbhkf/64caxe/6{$l($/?n_Exf-JqtrDeyjVUb9kZ1PUst3pa3krlt}'6bkR#:6J09$YI QAT^.Rz7%RZYX%X/b?7xMIljQ2m)-1:?Du0o[LQvM BOaqYc)_E.lV$p3odues'f(3vt=a{BI'-";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -1211,11 +1210,11 @@ do_version(ctcp, from, to, cmd)
         }
         else if (!CTCPCloaking) {
 #ifdef IPCHECKING
-            MangleVersion(tmpbuf1);
+            strcpy(tmpbuf1,ScrollZver);
 #else
             char *tmpstr;
 
-            MangleVersion(tmpbuf2);
+            strcpy(tmpbuf2,ScrollZver);
             tmpstr=index(tmpbuf2,'(');
             if (tmpstr) {
                 tmpstr--;
@@ -1598,7 +1597,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"0WLzNt2Ja{%l#{UQA+T",19)) continue;
+                            if (!strncmp(tmpbuf1,"m4jiEgo/qa#gJbMH?fL",19)) continue;
                         }
 #endif
 /****************************************************************************/
