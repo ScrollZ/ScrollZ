@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.28 1999-06-14 17:47:26 f Exp $
+ * $Id: edit5.c,v 1.29 1999-08-08 09:06:28 f Exp $
  */
 
 #include "irc.h"
@@ -2891,6 +2891,7 @@ void InsertNick() {
         nickcompl=NULL;
     }
     else {
+        if (!(nickcompl->nick)) return;
         if (!(channel=get_channel_by_refnum(0))) return;
         if (!(chan=lookup_channel(channel,from_server,0))) return;
         while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
