@@ -298,7 +298,7 @@ UNBAN). Client will auto invite users from notify list if they have $3I$0,
 $3C$0, $3O$0 and $3U$0 privileges and they don't have password set. They can
 access $3CTCP OPEN$0 if they have I, O and U flags set).
 Also look at $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2REMFCHAN$0, $2LISTF$0,
-$2FRLIST$0, $2LEVELS$0 and $2AUTOINV$0.
+$2FRLIST$0, $2LEVELS$0, $2AUTOINV$0 and $2CHPASS$0.
 :ADDFFLAG      Adds flags for userlist entries
 Usage $3ADDFFLAG filter$0|$3#number flaglist$0
 Number is the same as in $4TBAN$0 or $4CDCC GET$0. Example :
@@ -330,6 +330,12 @@ Channels is a list of channels, separated with comma. You can use * and ?
 in channels. Note that this will kick unopped people only unless you turn
 on $4KICKOPS$0. This won't kick users with +F flag set (no flood checking).
 Also look at $2REMW$0, $2LISTW$0 and $2KICKOPS$0
+:CHPASS        Change user's password
+Usage $3CHPASS filter password$0
+Filter can include * and ? or start with #. If it starts with #
+entries with numbers matching expression that follows # will
+be changed.
+Also look at $2ADDF$0 and $2REMF$0.
 :FRLIST        Toggles friend list on/off
 Usage $3FRLIST on channels$0|$3off$0
 Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0,
@@ -371,8 +377,8 @@ Also look at $2ADDBK$0 and $2REMBK$0
 Usage $3LISTF$0 [$3filter$0]
 If no filter is given, * is used. If filter starts with # and
 a number follows it, entries matching given filter will be
-shown. Otherwise only entries where channel matches filter
-will be shown.
+shown, otherwise only entries where channel matches filter
+will be shown. Else userhost matching is performed.
 Can also have $3#s*$0 as an argument to show
 users with access in all channels that begin with 's'
 Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0,
@@ -939,32 +945,32 @@ Also look at $2CDCC DLDIR$0
    AREJOIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY   AWAYSAVE
    AWAYT         BAN           BANTYPE       BITCH         BK
    BKI           BKT           BYE           C             CDBAN
-   CDCC          CHANST        CHAT          CHSIGNOFF     CLEARTAB
-   COLOR         COMPRESS      CSCAN         CTCPCLOAK     CYCLE
-   DEOPS         DEOPT         DIRLM         DIRLMK        DIRLN
-   DIRLNK        DIRLSM        DIRLSN        DOBANS        DOP
-   DPROT         DUMP          EGO           ENCRCHAT      EXTMES
-   FAKE          FBK           FINGER        FK            FKLINE
-   FLOODP        FRLIST        IDLEKICK      IDLETIME      IG
-   IGTIME        INV           J             K             KEYS
-   KICKONBAN     KICKONFLOOD   KICKOPS       KICKS         KICKT
-   KPROT         L             LEVELS        LISTBK        LISTF
-   LISTN         LISTS         LISTW         LK            LLOOK
-   LLOOKUP       LOGON         LS            M             MAP
-   MASSDV        MASSV         MC            MDOP          MIRC
-   MK            MKILL         MODELOCK      MODEUNLOCK    MOP
-   MREOP         MSAY          MULTK         N             NET
-   NEWHOST       NEWUSER       NHPROT        NICKS         NICKT
-   NOCHAT        NOIG          NOKEY         NOTEPAD       NPROT
-   NSLOOKUP      NTFYMODE      NWHOIS        OP            ORIGNICK
-   ORIGNTIME     OV            P             PASSWD        PLAYBACK
-   RANLK         RE            RECONNECT     RELOAD        REMBK
-   REMCHAN       REMF          REMFCHAN      REMFFLAG      REMLOG
-   REMN          REMS          REMW          REPWORD       S
-   SB            SERVNOTICE    SETAWAY       SETBACK       SETTINGS
-   SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK      SHOWUSER
-   SINFO         SPING         STAMP         SVE           T
-   TBAN          TERMINATE     TKILL         UMODE         UNBAN
-   UNFLASH       URL           URLCATCH      VER           W
-   WALL          WHOLEFT       WI            WII           WKILL
-   WW            
+   CDCC          CHANST        CHAT          CHPASS        CHSIGNOFF
+   CLEARTAB      COLOR         COMPRESS      CSCAN         CTCPCLOAK
+   CYCLE         DEOPS         DEOPT         DIRLM         DIRLMK
+   DIRLN         DIRLNK        DIRLSM        DIRLSN        DOBANS
+   DOP           DPROT         DUMP          EGO           ENCRMSG
+   EXTMES        FAKE          FBK           FINGER        FK
+   FKLINE        FLOODP        FRLIST        IDLEKICK      IDLETIME
+   IG            IGTIME        INV           J             K
+   KEYS          KICKONBAN     KICKONFLOOD   KICKOPS       KICKS
+   KICKT         KPROT         L             LEVELS        LISTBK
+   LISTF         LISTN         LISTS         LISTW         LK
+   LLOOK         LLOOKUP       LOGON         LS            M
+   MAP           MASSDV        MASSV         MC            MDOP
+   MIRC          MK            MKILL         MODELOCK      MODEUNLOCK
+   MOP           MREOP         MSAY          MULTK         N
+   NET           NEWHOST       NEWUSER       NHPROT        NICKS
+   NICKT         NOCHAT        NOIG          NOKEY         NOTEPAD
+   NPROT         NSLOOKUP      NTFYMODE      NWHOIS        OP
+   ORIGNICK      ORIGNTIME     OV            P             PASSWD
+   PLAYBACK      RANLK         RE            RECONNECT     RELOAD
+   REMBK         REMCHAN       REMF          REMFCHAN      REMFFLAG
+   REMLOG        REMN          REMS          REMW          REPWORD
+   S             SB            SERVNOTICE    SETAWAY       SETBACK
+   SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK
+   SHOWUSER      SINFO         SPING         STAMP         SVE
+   T             TBAN          TERMINATE     TKILL         UMODE
+   UNBAN         UNFLASH       URL           URLCATCH      VER
+   W             WALL          WHOLEFT       WI            WII
+   WKILL         WW            
