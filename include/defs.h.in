@@ -335,6 +335,9 @@
 #undef HAVE_LIBSUN
 
 /**************************** PATCHED by Flier ******************************/
+/* Define this if you have OpenSSL */
+#undef HAVE_SSL
+
 /* Define this if you have gettimeofday(), most systems do */
 #undef HAVETIMEOFDAY
 
@@ -409,7 +412,4 @@
 
 /* Define this if you want client w/o certain functionality */
 #undef LITE
-
-/* Define this if you have OpenSSL */
-#undef HAVE_SSL
 /****************************************************************************/
