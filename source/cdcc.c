@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.30 2000-10-30 17:17:20 f Exp $
+ * $Id: cdcc.c,v 1.31 2000-10-30 17:43:44 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2924,11 +2924,11 @@ void CdccTimeWarning() {
     say("increased to one hour. If you want those values to remain as they");
     say("were before please execute the following:");
     if (PlistTime<3600) {
-        say("/CDCC PLIST %d",PlistTime);
+        say("/CDCC PTIME %d",PlistTime);
         PlistTime=3600;
     }
     if (NlistTime<3600) {
-        say("/CDCC NLIST %d",NlistTime);
+        say("/CDCC NTIME %d",NlistTime);
         NlistTime=3600;
     }
 }
