@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.25 2000-08-10 17:50:04 f Exp $
+ * $Id: operv.c,v 1.26 2000-08-15 16:57:59 f Exp $
  */
 
 #include "irc.h"
@@ -1137,7 +1137,6 @@ char *from;
     else put_it("[%s%s%s] %s",
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
 }
-#endif
 
 void OperVisionReinit(void) {
     int ovwinref;
@@ -1161,3 +1160,4 @@ void OperVisionReinit(void) {
     windowcmd(NULL,tmpbuf,NULL);
     window_display=display;
 }
+#endif
