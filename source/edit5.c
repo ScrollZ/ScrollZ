@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.67 2001-08-21 19:23:36 f Exp $
+ * $Id: edit5.c,v 1.68 2001-08-22 18:55:59 f Exp $
  */
 
 #include "irc.h"
@@ -1152,8 +1152,8 @@ char *channel;
 #ifdef GENX
     if (!my_stricmp(word,"is")) word="address";
     else word="was";
-    put_it("%sÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",ScrollZstr);
-    sprintf(tmpbuf2, "%s³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s", ScrollZstr,
+    put_it("%s ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",banner);
+    sprintf(tmpbuf2, "%s ³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
             CmdsColors[COLWHOIS].color5,word,Colors[COLOFF],
             CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
@@ -1161,16 +1161,16 @@ char *channel;
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
     put_it("%s", tmpbuf2);
-    put_it("%s³ %sirc name%s ³ %s",ScrollZstr,
-            CmdsColors[COLWHOIS].color5,Colors[COLOFF], name);
+    put_it("%s ³ %sirc name%s ³ %s",banner,
+           CmdsColors[COLWHOIS].color5,Colors[COLOFF], name);
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s³   %sfriend%s ³ filt: %s%s%s",ScrollZstr,
+        sprintf(tmpbuf1,"%s ³   %sfriend%s ³ filt: %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF]);
         sprintf(tmpbuf2,"  acs: %s",CmdsColors[COLWHOIS].color4);
         BuildPrivs(tmpfriend,tmpbuf2);
         put_it("%s%s%s  chnl: %s%s%s",tmpbuf1,tmpbuf2,Colors[COLOFF],
-                CmdsColors[COLWHOIS].color5,tmpfriend->channels,Colors[COLOFF]);
+               CmdsColors[COLWHOIS].color5,tmpfriend->channels,Colors[COLOFF]);
     }
 #elif defined(CELECOSM)
     sprintf(tmpbuf1,"%s%s%s%s@%s%s%s%s",
@@ -1223,8 +1223,7 @@ char *channel;
         BuildPrivs(tmpfriend,tmpbuf1);
         put_it("%s  [Chnl] %s",tmpbuf1,tmpfriend->channels);
     }
-    if (channel && *channel)
-        put_it("%s Channels  : %s",banner,channel);
+    if (channel && *channel) put_it("%s Channels  : %s",banner,channel);
 #endif /* WANTANSI */
 }
 
@@ -1235,8 +1234,8 @@ char *channels;
 {
 #ifdef WANTANSI
 #ifdef GENX
-    put_it("%s³ %schannels%s ³ %s%s%s",ScrollZstr,
-    	   CmdsColors[COLWHOIS].color5,Colors[COLOFF],
+    put_it("%s ³ %schannels%s ³ %s%s%s",banner,
+           CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
 #elif defined(CELECOSM)
     put_it("%s %schannels%s:   %s%s%s",banner,
@@ -1272,10 +1271,10 @@ char *line;
         sprintf(tmpbuf,"%c:%c%s%s%s",bold,bold,
                 CmdsColors[COLWHOIS].color4,uplink,Colors[COLOFF]);
     }
-    if (uplink) put_it("%s³   %sserver%s ³ %s%s%s UpLink%s",ScrollZstr,
+    if (uplink) put_it("%s ³   %sserver%s ³ %s%s%s UpLink%s",banner,
                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                        CmdsColors[COLWHOIS].color3,server,Colors[COLOFF],tmpbuf);
-    else put_it("%s³   %sserver%s ³ %s%s%s",ScrollZstr,
+    else put_it("%s ³   %sserver%s ³ %s%s%s",banner,
                 CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                 CmdsColors[COLWHOIS].color3,server,Colors[COLOFF]);
 #elif defined(CELECOSM)
