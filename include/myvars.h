@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.5 1998-10-31 18:26:03 f Exp $
+ * $Id: myvars.h,v 1.6 1998-11-15 20:15:53 f Exp $
  */
 
 #include "mystructs.h"
@@ -100,6 +100,7 @@ extern struct splitstr *splitlist,*splitlist1;
 extern struct list *nickwatchlist,*tmpnickwatch;
 #endif
 extern struct spingstr *spinglist;
+extern struct encrstr *encrlist;
 #ifdef WANTANSI
 extern struct colorstr CmdsColors[NUMCMDCOLORS];
 extern char   *Colors[NUMCOLORS];
