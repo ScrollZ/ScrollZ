@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.11 1999-02-17 17:55:06 f Exp $
+ * $Id: parse.c,v 1.12 1999-02-24 20:01:37 f Exp $
  */
 
 #include "irc.h"
@@ -277,6 +277,16 @@ topic(from, ArgList)
 
         if (!from)
 		return;
+/**************************** PATCHED by Flier ******************************/
+        if (ArgList[0] && ArgList[1] && (chan=lookup_channel(ArgList[0],from_server,0))) {
+            chan->topic++;
+            if (*ArgList[1]) malloc_strcpy(&(chan->topicstr),ArgList[1]);
+            else new_free(&(chan->topicstr));
+            malloc_strcpy(&(chan->topicwho),from);
+            chan->topicwhen=timenow;
+        }
+        if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) return;
+/****************************************************************************/				
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 	if (flag == IGNORED)
 		return;
@@ -297,16 +307,6 @@ topic(from, ArgList)
 	else
 	{
 		message_from(ArgList[0], LOG_CRAP);
-/**************************** PATCHED by Flier ******************************/
-                if ((chan=lookup_channel(ArgList[0],from_server,0))) {
-                    chan->topic++;
-                    if (*ArgList[1]) malloc_strcpy(&(chan->topicstr),ArgList[1]);
-                    else new_free(&(chan->topicstr));
-                    malloc_strcpy(&(chan->topicwho),from);
-                    chan->topicwhen=timenow;
-                }
-                if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) goto out;
-/****************************************************************************/				
 		if (do_hook(TOPIC_LIST, "%s %s %s", from, ArgList[0], ArgList[1]))
 /**************************** PATCHED by Flier ******************************/
 			/*say("%s has changed the topic on channel %s to %s",
@@ -320,7 +320,6 @@ topic(from, ArgList)
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
-    out:
         update_all_status();
 /****************************************************************************/
  	restore_message_from();
