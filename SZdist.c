@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.19 1999-08-15 10:19:11 f Exp $
+ * $Id: SZdist.c,v 1.20 1999-10-12 19:44:13 f Exp $
  */
 
 #include <stdio.h>
@@ -95,7 +95,7 @@ char *SZ32files="edit.o help.o ircaux.o scandir.o server.o term.o window.o";
 char *SZNCURSESfiles="edit.o edit4.o input.o menu.o output.o parse.o screen.o\
  status.o term.o";
 char *IPCHECKINGfiles="edit2.o edit3.o edit6.o files.o parse.o";
-char *OPERfiles="edit.o edit5.o edit6.o numbers.o parse.o";
+char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
 
 char format[mybufsize];
 
