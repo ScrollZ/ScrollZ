@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.139 2003-01-09 20:12:32 f Exp $
+ * $Id: edit6.c,v 1.140 2003-01-15 18:11:03 f Exp $
  */
 
 #include "irc.h"
@@ -2183,7 +2183,7 @@ char *subargs;
     char tmpbuf[mybufsize / 4 + 1];
 
     if (!EncryptPassword) {
-        if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = "/";
+        if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
         say("Set master password first with %cPASSWD", *cmdchars);
         return;
     }
