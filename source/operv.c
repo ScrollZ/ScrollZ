@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.39 2001-05-29 19:49:50 f Exp $
+ * $Id: operv.c,v 1.40 2002-01-13 16:16:47 f Exp $
  */
 
 #include "irc.h"
@@ -835,19 +835,22 @@ char *from;
     else if (!strncmp(tmpline,"Received SERVER",15)) {
 	strcpy(word1,OVgetword(0,3,tmpline));  /* server */
 	strcpy(word2,OVgetword(0,5,tmpline));  /* remote */
+	strcpy(word4,OVgetword(7,0,tmpline));  /* IP & server name */
+        if (*word4) sprintf(word3,"(%s",word4);
+        else *word3='\0';
 #ifdef CELECOSM
-        sprintf(tmpbuf,"link/%sserver%s  %s%s%s from %s",
+        sprintf(tmpbuf,"link/%sserver%s  %s%s%s from %s %s %s",
                 CmdsColors[COLOV].color3,Colors[COLOFF],
-                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2,word3);
 #elif defined(OGRE)
-        sprintf(tmpbuf,"[      %slink%s] %sserver%s %s%s%s from %s",
+        sprintf(tmpbuf,"[      %slink%s] %sserver%s %s%s%s from %s %s",
                 CmdsColors[COLOV].color5,Colors[COLOFF],
                 CmdsColors[COLOV].color6,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2,word3);
 #else
-	sprintf(tmpbuf,"Link: %s%s%s recieved %sSERVER%s from %s",
+	sprintf(tmpbuf,"Link: %s%s%s recieved %sSERVER%s from %s %s",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],
-                CmdsColors[COLOV].color4,Colors[COLOFF],word2);
+                CmdsColors[COLOV].color4,Colors[COLOFF],word2,word3);
 #endif
     }
     else if (!strncmp(tmpline,"Possible Eggdrop:",17)) {
