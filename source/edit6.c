@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.49 1999-08-25 20:09:04 f Exp $
+ * $Id: edit6.c,v 1.50 1999-09-04 20:54:42 f Exp $
  */
 
 #include "irc.h"
@@ -771,7 +771,7 @@ void CheckTimeMinute() {
     if (LastServer+117<timenow) {
         found=0;
         for (i=0;i<number_of_servers;i++) found|=server_list[i].connected;
-        if (!found) {
+        if (!found && number_of_servers>0) {
             say("None of the servers is connected, connecting to next server in list");
             FServer(NULL,"+",NULL);
         }
