@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.12 1999-01-11 18:50:49 f Exp $
+ * $Id: cdcc.c,v 1.13 1999-01-22 18:20:59 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1638,7 +1638,7 @@ char *line;
             window_display=0;
             for (tmp=files;tmp;tmp=tmp->next) {
                 if (TotalSendDcc()<CdccLimit) {
-                    sprintf(tmpbuf1,"%s %s/%s",nick,tmp->path,tmp->file);
+                    sprintf(tmpbuf1,"%s \"%s/%s\"",nick,tmp->path,tmp->file);
                     dcc_filesend(tmpbuf1);
                     count++;
                     total+=tmp->size;
@@ -1761,7 +1761,7 @@ char *line;
             display=window_display;
             window_display=0;
             for (tmp=files;tmp;tmp=tmp->next) {
-                sprintf(tmpbuf1,"%s %s/%s",nick,tmp->path,tmp->file);
+                sprintf(tmpbuf1,"%s \"%s/%s\"",nick,tmp->path,tmp->file);
                 dcc_resend(tmpbuf1);
                 count++;
                 total=total+tmp->size;
@@ -2444,7 +2444,7 @@ int  resend;
 
                             packsent=1;
                             sprintf(tmpbuf2,"%s/%s",tmp1->path,tmp1->file);
-                            sprintf(tmpbuf1,"%s %s",from,tmpbuf2);
+                            sprintf(tmpbuf1,"%s \"%s\"",from,tmpbuf2);
                             if (resend) {
                                 dccflag=DCC_RESENDOFFER;
                                 dcc_resend(tmpbuf1);
@@ -2819,7 +2819,7 @@ int removed;
 
     while (tmp && active<CdccLimit) {
         queuelist=queuelist->next;
-        sprintf(tmpbuf,"%s %s",tmp->nick,tmp->file);
+        sprintf(tmpbuf,"%s \"%s\"",tmp->nick,tmp->file);
         display=window_display;
         window_display=0;
         oldserver=from_server;
