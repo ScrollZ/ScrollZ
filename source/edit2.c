@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.14 1998-11-02 21:20:48 f Exp $
+ * $Id: edit2.c,v 1.15 1998-11-19 21:10:03 f Exp $
  */
 
 #include "irc.h"
@@ -1853,7 +1853,8 @@ char *subargs;
     else fprintf(usfile,"OFF\n");
 #ifdef WANTANSI
     fprintf(usfile,"MIRCCOLORS      ");
-    if (DisplaymIRC) fprintf(usfile,"ON\n");
+    if (DisplaymIRC==2) fprintf(usfile,"STRIP\n");
+    else if (DisplaymIRC) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
 #endif
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
