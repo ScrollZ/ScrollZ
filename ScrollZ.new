@@ -229,6 +229,8 @@ web page.
       servers when connect to new server was issued while the connect to
       previous server was still in progress (reported by enkil)
     + BKLIST to enable shit list only for certain channels (requested by Zig)
+    + time stamping in OperVision, read help on OV how to disable it
+      (requested by Anton)
 
 Here's Zakath's list for Celerity:
     + STATUS_LOADAVG (%Z) for system load (works on Linux & BSD, Solaris
