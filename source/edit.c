@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.2 1998-09-10 17:44:44 f Exp $
+ * $Id: edit.c,v 1.3 1998-09-14 17:12:40 f Exp $
  */
 
 #include "irc.h"
@@ -1482,6 +1482,20 @@ do_channel(chan)
 	return (char *) 0;
 }
 
+/* fix_channel: add # in front of channel if necessary */
+static char *fix_channel(channel)
+char *channel;
+{
+    static char chanbuf[mybufsize/4+2];
+
+    if (!is_channel(channel)) {
+        strcpy(chanbuf,"#");
+        strmcat(chanbuf,channel,mybufsize/4);
+    }
+    else strmcpy(chanbuf,channel,mybufsize/4);
+    return(chanbuf);
+}
+
 /*
  * e_channel: does the channel command.  I just added displaying your current
  * channel if none is given 
@@ -1499,10 +1513,6 @@ e_channel(command, args, subargs)
 	int	len;
 	char	*chanstr = (char *) 0,
 		*ptr;
-/**************************** PATCHED by Flier ******************************/
-        char    tmpbuf[mybufsize/4+2];
-/****************************************************************************/
-
 
 	if (get_server_version(from_server) == Server2_5)
 		command = "CHANNEL";
@@ -1531,25 +1541,27 @@ e_channel(command, args, subargs)
 		}
 		else
 		{
-/**************************** PATCHED by Flier ******************************/
-                        if (!is_channel(chan)) {
-                            strcpy(tmpbuf,"#");
-                            strmcat(tmpbuf,chan,mybufsize/4);
-                        }
-                        else strmcpy(tmpbuf,chan,mybufsize/4);
-                        chan=tmpbuf;
-/****************************************************************************/
 			malloc_strcpy(&chanstr, chan);
 
 			if (get_int_var(NOVICE_VAR))
 				chanstr = strtok(chanstr, ",");
 
 			ptr = strtok(chanstr, ",");
+/**************************** PATCHED by Flier ******************************/
+                        ptr=fix_channel(ptr);
+/****************************************************************************/
                         if ((ptr = do_channel(ptr)))
 				send_to_server("%s %s %s", command, ptr, args);
 			while ((ptr = strtok(NULL, ",")))
-				if ((ptr = do_channel(ptr)))
-					send_to_server("%s %s %s", command, ptr, args);
+/**************************** PATCHED by Flier ******************************/
+				/*if ((ptr = do_channel(ptr)))
+					send_to_server("%s %s %s", command, ptr, args);*/
+                        {
+                                ptr=fix_channel(ptr);
+				if ((ptr=do_channel(ptr)))
+                                        send_to_server("%s %s %s",command,ptr,args);
+                        }
+/****************************************************************************/
 
 			new_free(&chanstr);
 		}
