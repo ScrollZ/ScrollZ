@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.50 1999-09-04 20:54:42 f Exp $
+ * $Id: edit6.c,v 1.51 1999-09-19 17:02:28 f Exp $
  */
 
 #include "irc.h"
@@ -121,6 +121,7 @@ extern void CleanUpVars _((void));
 extern void Dump _((char *, char *, char *));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern void DecryptString _((char *, char *, char *, int, int));
+extern void queuemcommand _((char *));
 /* Patched by Zakath */
 extern void CeleAway _((int));
 
@@ -668,6 +669,7 @@ void CheckTimeMinute() {
     char tmpbuf2[mybufsize/4];
 #endif
     time_t timenow=time((time_t *) 0);
+    static time_t lastqueuechk=0;
     struct wholeftch  *tmpch;
     struct wholeftch  *wholch;
     struct wholeftstr *wholeft;
@@ -775,6 +777,11 @@ void CheckTimeMinute() {
             say("None of the servers is connected, connecting to next server in list");
             FServer(NULL,"+",NULL);
         }
+    }
+    if (lastqueuechk+300<timenow) {
+        strcpy(tmpbuf,"queue flush");
+        queuemcommand(tmpbuf);
+        lastqueuechk=timenow;
     }
     clean_whowas_list();
     clean_whowas_chan_list();
