@@ -4,8 +4,10 @@
 /*
  * Routines for Cdcc
  *
- * $Id: cdcc.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: cdcc.h,v 1.2 2001-07-01 09:11:31 f Exp $
  */
+
+#define CDCC_VERSION "1.8"
 
 /* This Mess, is the struct lists for cdcc.c */
 
