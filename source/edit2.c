@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.32 1999-08-18 19:58:59 f Exp $
+ * $Id: edit2.c,v 1.33 1999-08-22 12:34:29 f Exp $
  */
 
 #include "irc.h"
@@ -1783,6 +1783,11 @@ char *subargs;
 #if defined(EXTRAS) || defined(FLIER)
     fprintf(usfile,"AUTOINV         ");
     if (AutoInv) fprintf(usfile,"ON %s\n",AutoInvChannels);
+    else fprintf(usfile,"OFF\n");
+#endif
+#ifdef ACID
+    fprintf(usfile,"FORCEJOIN       ");
+    if (ForceJoin) fprintf(usfile,"ON %s\n",ForceJoinChannels);
     else fprintf(usfile,"OFF\n");
 #endif
     fprintf(usfile,"FLOODPROT       ");
