@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.2 1998-09-10 17:44:49 f Exp $
+ * $Id: edit3.c,v 1.3 1998-09-20 14:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1349,6 +1349,55 @@ char *chanlist;
             }
             else tmpstr1=tmpbuf1;
             if (wild_match(tmpstr2,tmpstr1) || wild_match(tmpstr1,tmpstr2)) {
+                if (minus) found=0;
+                else found=1;
+            }
+            if (*tmpchan1==',') tmpchan1++;
+        }
+    }
+    return(found);
+}
+
+/* Same as above except that channels is used for matching and chanlist is not */
+int CheckChannel2(channels,chanlist)
+char *channels;
+char *chanlist;
+{
+    int found=0;
+    int minus=0;
+    char *tmpstr1;
+    char *tmpstr2;
+    char *tmpchan1;
+    char *tmpchan2;
+    char tmpbuf1[mybufsize];
+    char tmpbuf2[mybufsize];
+
+    if (!channels || !chanlist) return(0);
+    tmpchan2=chanlist;
+    while (*tmpchan2) {
+        tmpstr2=tmpbuf2;
+        while (*tmpchan2 && *tmpchan2!=',') *tmpstr2++=*tmpchan2++;
+        *tmpstr2='\0';
+        if (*tmpchan2==',') tmpchan2++;
+        tmpchan1=channels;
+        while (*tmpchan1) {
+            tmpstr1=tmpbuf1;
+            while (*tmpchan1 && *tmpchan1!=',') *tmpstr1++=*tmpchan1++;
+            *tmpstr1='\0';
+            if (*tmpbuf2=='-') {
+                tmpstr2=&tmpbuf2[1];
+                minus=1;
+            }
+            else {
+                tmpstr2=tmpbuf2;
+                minus=0;
+            }
+            if (*tmpbuf1=='-') {
+                tmpstr1=&tmpbuf1[1];
+                minus=1;
+            }
+            else tmpstr1=tmpbuf1;
+            if (wild_match(tmpstr1,tmpstr2)) {
                 if (minus) found=0;
                 else found=1;
             }
