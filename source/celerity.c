@@ -4,7 +4,7 @@
  *  code:      jeremy roethel [xanth@3sheep.COM]
  *  cosmetics: sasha eysymontt [sage@3Sheep.COM]
  *
- *  $Id: celerity.c,v 1.2 1999-06-14 17:40:29 f Exp $
+ *  $Id: celerity.c,v 1.3 2000-08-15 16:03:07 f Exp $
  */
 /*
  * Cstatusbar()		- /set STATUSBAR #
@@ -30,8 +30,8 @@ void Cstatusbar _((int));
 void Cquickstat _((char *,char *,char *));
 extern void Cquick_status _((char *, int));
 
-char *CelerityVersion="celerity v1.0 gamma";
-char *CelerityL="\002/\002cy\002/\002";
+char *CelerityVersion=" celerity v1.1";
+char *CelerityL="\002/cy/\002";
 
 int Cqstat=0; /* Status of QuickStat: 1=on, 0=off */
 

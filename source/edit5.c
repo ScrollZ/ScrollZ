@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.41 2000-08-14 20:45:50 f Exp $
+ * $Id: edit5.c,v 1.42 2000-08-15 16:03:07 f Exp $
  */
 
 #include "irc.h"
@@ -870,10 +870,11 @@ int  netsplit;
         server=new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
 #ifdef CELECOSM
-        sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s]%s - ",
+        sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s%s%s]%s - ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color3,CmdsColors[COLNETSPLIT].color2,
-                update_clock(0,0,GET_TIME),CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
+                CmdsColors[COLNETSPLIT].color3,Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
 #else  /* CELECOSM */
         sprintf(tmpbuf2,"%sNetsplit detected%s at %s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
@@ -3860,9 +3861,11 @@ void InitKeysColors() {
 #ifdef CELECOSM
     /* Celerity Colors - Used in cosmetics */
     /* Color of (msg) */
-    malloc_strcat(&CmdsColors[COLCELE].color1,Colors[COLRED]);
+    malloc_strcpy(&CmdsColors[COLCELE].color1,Colors[COLRED]);
     /* Color of (notice) */
-    malloc_strcat(&CmdsColors[COLCELE].color2,Colors[COLRED]);
+    malloc_strcpy(&CmdsColors[COLCELE].color2,Colors[COLRED]);
+    /* Color of Mail Notice */
+    malloc_strcpy(&CmdsColors[COLCELE].color3,Colors[COLPURPLE]);
 #endif
 
 #ifdef OPERVISION

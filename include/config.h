@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.9 2000-08-14 20:38:13 f Exp $
+ * $Id: config.h,v 1.10 2000-08-15 16:03:07 f Exp $
  */
 
 #ifndef __config_h_
@@ -114,6 +114,7 @@
 #define DEFAULT_AUTO_WHOWAS 0
 #define DEFAULT_BEEP 1
 #define DEFAULT_BEEP_MAX 3
+#define DEFAULT_BEEP_ON_MAIL 0
 #define DEFAULT_BEEP_ON_MSG "NONE"
 #define DEFAULT_BEEP_WHEN_AWAY 0
 #define DEFAULT_BOLD_VIDEO 1
@@ -257,9 +258,11 @@
 #ifdef CELE
 
 #undef DEFAULT_BEEP_ON_MSG
+#undef DEFAULT_BEEP_ON_MAIL
 #undef DEFAULT_INPUT_PROMPT
 #undef DEFAULT_SHOW_STATUS_ALL
 #undef DEFAULT_STATUS_USER
+#undef DEFAULT_STATUS_USER1
 
 #elif defined(WANTANSI)
 
@@ -276,24 +279,26 @@
 
 #define DEFAULT_SHOW_STATUS_ALL 1
 #define DEFAULT_BEEP_ON_MSG "MSG"
-#define DEFAULT_STATUS_AWAY "%y6[%y5dead:%y4%A%y6]"
-#define DEFAULT_STATUS_CHANNELCOUNT "%y6[%y5O:%y4%o %y5N:%y4%n %y5T:%y4%t%y6]"
-#define DEFAULT_STATUS_CHANNEL "%y6Chnl:%y3%C"
+#define DEFAULT_BEEP_ON_MAIL 1
+#define DEFAULT_STATUS_AWAY "%y6(%y7zZz:%y4%A%y6)"
+#define DEFAULT_STATUS_CHANNELCOUNT "%y6|%y7O:%y5%o %y7N:%y5%n %y7T:%y5%t%y6| "
+#define DEFAULT_STATUS_CHANNEL "%y7Ch:%y3%C "
 #define DEFAULT_STATUS_CLOCK "%y6[%y5%T%y6]"
-#define DEFAULT_STATUS_HOLD "%y6.o %y5please hit enter %y6o."
-#define DEFAULT_STATUS_LOADAVG "%y5load/%y4%Z"
+#define DEFAULT_STATUS_HOLD "%y6.o %y7please hit enter %y6o."
+#define DEFAULT_STATUS_LOADAVG "%y7load/%y4%Z"
 #define DEFAULT_STATUS_WINDOW "~~~"
-#define DEFAULT_STATUS_MAIL "%y6[%y5M:%y4%M%y6]"
-#define DEFAULT_STATUS_MODE "%y6[%y5+%y4%+%y6]"
-#define DEFAULT_STATUS_QUERY "%y6[%y5Q:%y4%Q%y6]"
-#define DEFAULT_STATUS_UMODE "%y6[%y5+%y3%#%y6]"
-#define DEFAULT_STATUS_UPTIME "%y6[%y5Up:%y4 %dd %hh %mm%y6]"
-#define DEFAULT_STATUS_USER "%y4/%y5cy%y4/"
-#define DEFAULT_INPUT_PROMPT "[cy] "
-#define DEFAULT_STATUS_FORMAT "%y1 %y6[%y5OperVision%y6] %> %y4%!S "
-#define DEFAULT_STATUS_FORMAT1 "%y1 %T %y4%*%@%y3%N %#%A %Q %> %M %1 "
-#define DEFAULT_STATUS_FORMAT2 "%y1 %C %+ %U %> %S%H%B%I%O%F %y5%W %Z %y5l/%y4%2 "
-#define DEFAULT_STATUS_FORMAT3 "%y1 %y5QuickStat %> %y6[%y5lj:%y4%3%y6] %y6[%y5DCC:%y4s%6%y5:%y4r%5%y5:%y4o%4%y6] "
+#define DEFAULT_STATUS_MAIL "%y6(%y7M:%y5%M%y6)"
+#define DEFAULT_STATUS_MODE "%y6(%y5+%y4%+%y6)"
+#define DEFAULT_STATUS_QUERY "%y6(%y7Q:%y5%Q%y6)"
+#define DEFAULT_STATUS_UMODE "%y6(%y5+%y4%#%y6)"
+#define DEFAULT_STATUS_UPTIME "%y6|%y7Up:%y5 %dd %hh %mm%y6|"
+#define DEFAULT_STATUS_USER "?.??"
+#define DEFAULT_STATUS_USER1 "no cele.sz!"
+#define DEFAULT_INPUT_PROMPT "%y3${N}%y6:%y3${C}%y6> "
+#define DEFAULT_STATUS_FORMAT "%y1 %y6[%y7OperVision%y6] %> %y5!S "
+#define DEFAULT_STATUS_FORMAT1 "%y1 %T %y4%*%@%y3%N %# %A%Q %>%M %1 "
+#define DEFAULT_STATUS_FORMAT2 "%y1 %C%+%y6|%y7lj:%y5%3%y6| %U %> %S%H%B%I%O%F %y5%W %y6|%y7load:%y5%!0%y6| %y6|%y3%!1%y6| "
+#define DEFAULT_STATUS_FORMAT3 "%y1 %y5QuickStat %> %y5lag/%y4%2 %y6[%y5DCC:%y4s%6%y5:%y4r%5%y5:%y4o%4%y6] "
 
 #elif defined(WANTANSI)
 

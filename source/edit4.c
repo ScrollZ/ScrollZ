@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.41 2000-08-14 20:45:50 f Exp $
+ * $Id: edit4.c,v 1.42 2000-08-15 16:03:07 f Exp $
  */
 
 #include "irc.h"
@@ -2429,22 +2429,28 @@ ChannelList *tmpchan;
 /* Random signoff generator */
 char *CeleSignoff()
 {
-    return("we need some random signoff messages");
-/*
- *   int num;
- *
- *   srand(time(0));
- *   num=rand()%9;
- *   if (num==0) return("What do you have in your Toolie Box?");
- *   else if (num==1) return("It's got less backdoors than iNFiNiTY...");
- *   else if (num==2) return("Hope it makes ya feel warm & safe");
- *   else if ((num==3) || (num==8)) return("Complete with new Nerf Jackhammer (c)");
- *   else if ((num==4) || (num==9)) return("Accepteth No Substitutes");
- *   else if (num==5) return("Now available in fire engine red!");
- *   else if (num==6) return("Now includes \"101 ways to BBQ a bison\"");
- *   else if (num==7) return("mmm... toolie, i love you");
- *   else return(NULL);
-*/
+    int num;
+    int count;
+    static char tmpbuf[mybufsize/8];
+    char *reasons[]={
+        "I will not hide behind the Fifth Amendment",
+        "They are laughing at me, not with me",
+        "I am not delightfully saucy",
+        "I am not the new Dalai Lama",
+        "I will not obey the voices in my head",
+        "I was not touched \"there\" by an angel",
+        "I will not sell my kidney on eBay",
+        "The truth is not out there",
+        "I will not celebrate meaningless milestones",
+        "The Good Humor man can only be pushed so far",
+        NULL
+    };
+
+    srand(time(0));
+    for (count=0;reasons[count];count++);
+    num=rand()%count;
+    sprintf(tmpbuf,"%s %s",reasons[num],CelerityL);
+    return(tmpbuf);
 }
 #else
 /* Randomly picks sign off message */

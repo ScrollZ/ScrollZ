@@ -31,11 +31,20 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.5 2000-08-14 20:38:13 f Exp $
+ * $Id: mail.c,v 1.6 2000-08-15 16:03:07 f Exp $
  */
 
 #include "irc.h"
 #include "newio.h"
+/**************************** PATCHED by Flier *****************************/
+#include "myvars.h"
+#include "mystructs.h"
+#include "parse.h"
+#include "ircaux.h"
+#include "screen.h"
+#include "vars.h"
+#include "ircterm.h"
+/***************************************************************************/
 
 #if defined(HAVE_DIRENT_H) || defined(_POSIX_SOURCE)
 # include <dirent.h>
@@ -305,7 +314,19 @@ check_mail()
                         sprintf(tmp, "%d", new_cnt - cnt);
                         sprintf(buffer, "%d", new_cnt);
 			if (do_hook(MAIL_LIST, "%s %s", tmp, buffer) && get_int_var(MAIL_VAR) == 1)
-				say("You have new email.");
+/**************************** PATCHED by Flier *****************************/
+				/*say("You have new email.");*/
+                        {
+#ifdef CELECOSM
+                            say("%sYou have %s new email(s) - %s total.%s",
+                                CmdsColors[COLCELE].color3,tmp,buffer,Colors[COLOFF]);
+#else
+                            say("You have new email.");
+#endif
+                            if (get_int_var(BEEP_ON_MAIL_VAR))
+                                term_beep();
+                        }
+/***************************************************************************/
 		}
 		cnt = new_cnt;
 	}

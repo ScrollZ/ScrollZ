@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.43 2000-08-14 20:38:13 f Exp $
+ * $Id: edit3.c,v 1.44 2000-08-15 16:03:07 f Exp $
  */
 
 #include "irc.h"
@@ -179,9 +179,9 @@ char *subargs;
     put_it("        `^ ~~`` :: `~**`'*/`/*~`  :$$$$$$$ ``^''^`///$$ $$$ MYDKNIGHT> $$$");
     put_it("                             `                            ~*/.");
     put_it("                            .                                    `");
-    put_it("    coding  : flier (flier@globecom.net)");
-    put_it("    patches : Zakath (xanth@3Sheep.COM)");
-    put_it("    patches : acidflash (acid@hostu.net)");
+    put_it("    coding   : flier (flier@globecom.net)");
+    put_it("    celerity : Zakath (jeremy@3Sheep.COM)");
+    put_it("    patches  : acidflash (acid@hostu.net)");
     put_it("    type /SZINFO for more information");
     put_it("");
     put_it("");

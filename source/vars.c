@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.9 2000-08-14 20:38:14 f Exp $
+ * $Id: vars.c,v 1.10 2000-08-15 16:03:07 f Exp $
  */
 
 #include "irc.h"
@@ -129,6 +129,9 @@ static	IrcVariable irc_variable[] =
 	{ "AUTO_WHOWAS",		BOOL_TYPE_VAR,	DEFAULT_AUTO_WHOWAS, NULL, NULL, 0, 0 },
 	{ "BEEP",			BOOL_TYPE_VAR,	DEFAULT_BEEP, NULL, NULL, 0, 0 },
 	{ "BEEP_MAX",			INT_TYPE_VAR,	DEFAULT_BEEP_MAX, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "BEEP_ON_MAIL",		BOOL_TYPE_VAR,	DEFAULT_BEEP_ON_MAIL, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "BEEP_ON_MSG",		STR_TYPE_VAR,	0, NULL, set_beep_on_msg, 0, 0 },
 	{ "BEEP_WHEN_AWAY",		INT_TYPE_VAR,	DEFAULT_BEEP_WHEN_AWAY, NULL, NULL, 0, 0 },
 	{ "BOLD_VIDEO",			BOOL_TYPE_VAR,	DEFAULT_BOLD_VIDEO, NULL, NULL, 0, 0 },
