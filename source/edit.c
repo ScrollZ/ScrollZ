@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.27 1999-08-18 20:21:50 f Exp $
+ * $Id: edit.c,v 1.28 1999-08-22 12:32:54 f Exp $
  */
 
 #include "irc.h"
@@ -530,6 +530,9 @@ static	IrcCommand FAR irc_command[] =
   { "FLOODP", 		NULL, 		FloodProtToggle, 	0 },
  	{ "FLUSH",	NULL,		flush,			SERVERREQ },
 	{ "FOR",	NULL,		foreach_handler,	0 },
+#ifdef ACID
+  { "FORCEJOIN",	"FORCEJOIN",	ChannelCommand,		SERVERREQ },
+#endif
 	{ "FOREACH",	NULL,		foreach_handler,	0 },
   { "FRLIST", 		"FRLIST", 	ChannelCommand, 	0 },
 #ifdef OPER
