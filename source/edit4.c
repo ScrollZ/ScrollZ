@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.97 2002-01-24 19:59:04 f Exp $
+ * $Id: edit4.c,v 1.98 2002-02-24 10:28:11 f Exp $
  */
 
 #include "irc.h"
@@ -1164,7 +1164,7 @@ char *to;
     }
     if (!foundchan
 #ifndef LITE
-        || (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,
+        || (foundchan && do_hook(CHANNEL_WALLOP_LIST,"%s %s %s",foundchan->channel,
                                  nick,(wallchan==to+2)?notice:notice+(wallop-tmpbuf+1)))
 #endif
        ) {

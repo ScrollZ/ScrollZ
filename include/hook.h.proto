@@ -33,7 +33,7 @@
 /*
  * Generated from hook.h.proto automatically by the Makefile
  *
- * $Id: hook.h.proto,v 1.6 2002-01-21 21:37:35 f Exp $
+ * $Id: hook.h.proto,v 1.7 2002-02-24 10:27:46 f Exp $
  */
 
 #ifndef __hook_h_
@@ -104,7 +104,7 @@ typedef struct numericlist_stru
 #define CHANNEL_SIGNOFF_LIST $
 /**************************** PATCHED by Flier ******************************/
 #define CHANNEL_SYNCH_LIST $
-#define CHANNEL_WALLOP $
+#define CHANNEL_WALLOP_LIST $
 /****************************************************************************/
 #define CONNECT_LIST $
 #define CTCP_LIST $
