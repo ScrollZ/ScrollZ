@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.7 2002-02-19 20:53:02 f Exp $
+  $Id: ScrollZ.doc,v 1.8 2002-02-20 20:34:14 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -46,6 +46,7 @@
 
   8.  Miscellaneous stuff
   8.1.  How to enable DCCs if you are behind a firewall
+  8.2.  How to connect via bouncer to multiple IRC networks
 
 
   1.  Introduction
@@ -668,3 +669,32 @@
   3. We tell the client to only use ports 50000-50010 for the DCC stuff:
      /set dcc_ports 50000-50010 (or 50000:50010)
 
+  8.2.  How to connect via bouncer to multiple IRC networks
+
+  Suppose you have a shell account where you run IRC bouncer (a better name
+  would be IRC proxy I guess) and connect to multiple IRC networks via it
+  from your home machine. The problem is you can't connect to more than one
+  IRC network from within the same client (it is an ircII limitation where
+  you can't connect twice to the same server:port combination). You can work
+  around this limitation, however. Here is what you have to do (on Linux
+  at least, should work also on Solaris and HP-UX):
+
+  1. The IRC bouncer is running on shell.domain.com
+
+  2. Edit /etc/hosts on your home machine and add the following entries:
+     shell_ip<tab>efnet.domain.com
+     shell_ip<tab>ircnet.domain.com
+     shell_ip<tab>undernet.domain.com
+     Insert the IP address of your shell in place of shell_ip. Where it
+     says <tab> press TAB key. Change efnet/ircnet/undernet to whatever
+     you prefer.
+
+  3. Edit /etc/nsswitch.conf on your home machine and make sure the
+     entry for hosts looks like this:
+     hosts: files dns
+
+  4. Run ScrollZ and do /server efnet.domain.com:bouncer_port
+     Additionally do /net ircnet.domain.com:bouncer_port
+
+     Now it works fine - you can connect through IRC bouncer to more than
+     one IRC network from within the same client.
