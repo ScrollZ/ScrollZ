@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.59 2003-05-11 17:16:38 f Exp $
+ * $Id: operv.c,v 1.60 2003-05-11 17:24:22 f Exp $
  */
 
 #include "irc.h"
@@ -1258,12 +1258,14 @@ char *from;
                 CmdsColors[COLOV].color2,word4,Colors[COLOFF],word3);
 #endif
     }
-    else if (strstr(tmpline,"is now operator")) {
+    else if (strstr(tmpline,"is now operator") ||
+             strstr(tmpline,"is now an operator")) {
         int opertype;
         char *operstr;
 
 	strcpy(word1,OVgetword(0,1,tmpline));  /* Nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
+        strcpy(word4,OVgetword(0,5,tmpline));
         strcpy(word3,OVgetword(0,6,tmpline));  /* o/O */
         tmp=word3;
         if (*tmp) tmp++;
@@ -1272,19 +1274,20 @@ char *from;
         }
         else {
             opertype=*tmp?(*tmp=='O'?2:1):0;
+            if (!strcmp(word4,"an")) opertype=0;
         }
-        operstr=opertype?(opertype==2?"global":"local"):"";
+        operstr=opertype?(opertype==2?"global ":"local "):"";
 #ifdef CELECOSM
         snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is an IRC warrior %s%s%s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 *operstr?"(":"",operstr,operstr?")":"");
 #elif defined(OGRE)
-        snprintf(tmpbuf,sizeof(tmpbuf),"[      %soper%s] %s%s%s %s is now a %s oper",
+        snprintf(tmpbuf,sizeof(tmpbuf),"[      %soper%s] %s%s%s %s is now a%s %soper",
                 CmdsColors[COLOV].color1,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
-                operstr);
+                *operstr?"":"n",operstr);
 #else
-	snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is now %s IRC Operator.",
+	snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s is now %sIRC Operator.",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
                 operstr);
 #endif
