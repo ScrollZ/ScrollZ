@@ -168,7 +168,8 @@ The nickname is limited to 9 characters on many IRC networks.
 The server list is a whitespace-separated list of server names.
 .PP
 .B ScrollZ
-does NOT have the ICB support that is available in ircII.
+does NOT have the ICB support nor the DCC TALK support that are
+available in ircII.
 .SH AUTHORS
 This manual page was written by Mike Markley <mike@markley.org>,
 for the Debian GNU/Linux system (but may be used by others).
