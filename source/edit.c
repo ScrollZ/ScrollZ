@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.74 2002-01-09 16:34:00 f Exp $
+ * $Id: edit.c,v 1.75 2002-01-09 16:41:59 f Exp $
  */
 
 #include "irc.h"
@@ -4356,6 +4356,18 @@ static	void
 send_action(target, text)
 	char	*target, *text;
 {
+/**************************** Patched by Flier ******************************/
+        if (ChanLog && is_channel(target)) {
+            char tmpbuf[mybufsize];
+            ChannelList *chan;
+
+            chan = lookup_channel(target, parsing_server_index, 0);
+            if (chan && chan->ChanLog) {
+                sprintf(tmpbuf, "* %s %s", get_server_nickname(parsing_server_index), text);
+                ChannelLogSave(tmpbuf, chan);
+            }
+        }
+/****************************************************************************/
 	send_ctcp(ctcp_type[CTCP_PRIVMSG], target, "ACTION", "%s", text);
 }
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.36 2001-08-25 18:25:15 f Exp $
+ * $Id: ctcp.c,v 1.37 2002-01-09 16:41:59 f Exp $
  */
 
 #include "irc.h"
@@ -90,6 +90,7 @@ extern void CheckCdcc _((char *, char *, char *, int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
 extern void EncryptString _((char *, char *, char *, int, int));
+extern void ChannelLogSave _((char *, ChannelList *));
 /****************************************************************************/
 
 static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
@@ -1419,14 +1420,15 @@ do_atmosphere(ctcp, from, to, cmd)
 /**************************** PATCHED by Flier ******************************/
         char    thing;
 #ifdef WANTANSI
-        char    tmpbuf1[mybufsize/2];
+        char    tmpbuf1[mybufsize / 2];
 #endif
         void    (*func)();
+        ChannelList *chan;
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing='ì';
-        else thing='*';
-        if (Stamp==2) func=(void(*)())say;
-        else func=(void(*)())put_it;
+        if (get_int_var(HIGH_ASCII_VAR)) thing = 'ì';
+        else thing = '*';
+        if (Stamp == 2) func = (void(*)()) say;
+        else func = (void(*)()) put_it;
 /****************************************************************************/
         if (cmd && *cmd)
 	{
@@ -1444,29 +1446,40 @@ do_atmosphere(ctcp, from, to, cmd)
 					put_it("* %s %s", from, cmd);
 				else
 					put_it("* %s:%s %s", from, to, cmd);*/
-				if (is_current_channel(to,parsing_server_index,0))
+				if (is_current_channel(to, parsing_server_index, 0))
 #ifdef WANTANSI
                                     func("%s%c%s %s%s%s %s%s%s",
-                                          CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                                          CmdsColors[COLME].color3,from,Colors[COLOFF],
-                                          CmdsColors[COLME].color5,cmd,Colors[COLOFF]);
+                                          CmdsColors[COLME].color1, thing, Colors[COLOFF],
+                                          CmdsColors[COLME].color3, from, Colors[COLOFF],
+                                          CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
                                     func("%c %s %s", thing, from, cmd);
 #endif
                                 else {
 #ifdef WANTANSI
                                     sprintf(tmpbuf1,"<%s%s%s> %s%c%s %s%s%s",
-                                           CmdsColors[COLME].color4,to,Colors[COLOFF],
-                                           CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                                           CmdsColors[COLME].color3,from,Colors[COLOFF]);
+                                           CmdsColors[COLME].color4, to,Colors[COLOFF],
+                                           CmdsColors[COLME].color1, thing,Colors[COLOFF],
+                                           CmdsColors[COLME].color3, from,Colors[COLOFF]);
                                     func("%s %s%s%s",tmpbuf1,
-                                          CmdsColors[COLME].color5,cmd,Colors[COLOFF]);
+                                          CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
 #else
                                     func("<%s> %c %s %s", to, thing, from, cmd);
 #endif
                                 }
 /****************************************************************************/
 			}
+/**************************** Patched by Flier ******************************/
+                        if (ChanLog) {
+                            char tmpbuf2[mybufsize];
+
+                            chan = lookup_channel(to, parsing_server_index, 0);
+                            if (chan && chan->ChanLog) {
+                                sprintf(tmpbuf2, "* %s %s", from, cmd);
+                                ChannelLogSave(tmpbuf2, chan);
+                            }
+                        }
+/****************************************************************************/
 		}
 		else
 		{
@@ -1482,11 +1495,11 @@ do_atmosphere(ctcp, from, to, cmd)
 				/*put_it("*> %s %s", from, cmd);*/
 #ifdef WANTANSI
                                 func("%s%c%s> %s%s%s %s%s%s",
-                                      CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                                      CmdsColors[COLME].color3,from,Colors[COLOFF],
-                                      CmdsColors[COLME].color5,cmd,Colors[COLOFF]);
+                                      CmdsColors[COLME].color1, thing, Colors[COLOFF],
+                                      CmdsColors[COLME].color3, from, Colors[COLOFF],
+                                      CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-				func("%c> %s %s", thing, from, cmd);
+				func("%c> %s %s", thing, from,  cmd);
 #endif
 /****************************************************************************/
 		}
