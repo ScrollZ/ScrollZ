@@ -1,0 +1,12 @@
+!	 $Id: fdline,v 1.1 2003-04-20 18:53:36 f Exp $
+!
+! Copyright (c) 1994-2003 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: FDLINE [-TEMP] filter [server]
+  Does STATS D with filter
+
+  When -TEMP is specified STATS d is sent instead of usual STATS D.
+  On some servers STATS d returns only temporary D: lines.
