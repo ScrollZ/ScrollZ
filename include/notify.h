@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: notify.h,v 1.2 1999-09-29 19:27:08 f Exp $
  */
 
 #ifndef __notify_h_
@@ -52,6 +52,7 @@ typedef	struct	notify_stru
 	struct	notify_stru	*next;	/* pointer to next notify person */
 	char	*nick;			/* nickname of person to notify about */
 /**************************** PATCHED by Flier ******************************/
+        int     server;                 /* server number so we can update u@h */
         int     isfriend;               /* 1 if friend, 0 otherwise */
         char    *userhost;              /* their userhost */
         char    *mask;                  /* nick!user@host for user@host based notify */
