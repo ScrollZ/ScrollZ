@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.30 2000-08-27 10:09:05 f Exp $
+ * $Id: operv.c,v 1.31 2000-08-29 17:49:03 f Exp $
  */
 
 #include "irc.h"
@@ -35,9 +35,10 @@
 extern void PrintUsage _((char *));
 
 /* Variables needed for caching */
-static  int  NewNotice;   /* 1 if we are parsing new notice, 0 otherwise */
-static  int  OldWord;     /* holds number  for previous word, if NewNotice is 0 */
-static  char *OldPtr;     /* holds pointer for previous word, if NewNotice is 0 */
+static  int  NewNotice; /* 1 if we are parsing new notice, 0 otherwise */
+static  int  OldWord;   /* holds number  for previous word, if NewNotice is 0 */
+static  int  OVTS=1;    /* 1 if time stamping is enabled */
+static  char *OldPtr;   /* holds pointer for previous word, if NewNotice is 0 */
 
 void CreateMode(tmpbuf,sizeofbuf)
 char *tmpbuf;
@@ -57,13 +58,17 @@ char *subargs;
 {
     int incurwin=0;
     char *tmp=(char *) 0;
+    char *ovts=(char *) 0;
     char tmpbuf[mybufsize/4+1];
     unsigned int display;
 
     tmp=next_arg(args,&args);
+    ovts=next_arg(args,&args);
     if (tmp) {
 	if (!my_stricmp("ON",tmp) || !my_stricmp("HERE",tmp)) {
             if (!my_stricmp("HERE",tmp)) incurwin=1;
+            if (!my_stricmp("NOTS",ovts)) OVTS=0;
+            else OVTS=1;
 	    if (OperV && !incurwin)
                 say("OperVision is already turned on");
             else {
@@ -82,9 +87,10 @@ char *subargs;
                 window_display=0;
                 windowcmd(NULL,tmpbuf,NULL);
                 window_display=display;
-                say("OperVision is now enabled%s",
-                    incurwin?" in current window":"");
 	    }
+            say("OperVision is now enabled%s, time stamping is %sabled",
+                incurwin?" in current window":"",
+                OVTS?"en":"dis");
 	}
 	else if (!my_stricmp("OFF",tmp)) {
 	    if (!OperV) say("OperVision is not currently active");
@@ -103,9 +109,9 @@ char *subargs;
 		say("OperVision is now disabled");
 	    }
 	}
-	else PrintUsage("OV on/here/off");
+	else PrintUsage("OV on [nots]/here [nots]/off");
     }
-    else PrintUsage("OV on/here/off");
+    else PrintUsage("OV on [nots]/here [nots]/off");
 }
 
 /* Takes (u@h), removes (), colorizes, returns u@h */
@@ -1126,14 +1132,17 @@ char *from;
     }
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
-    curtime=update_clock(0,0,GET_TIME);
+    if (OVTS) curtime=update_clock(0,0,GET_TIME);
+    else curtime=empty_string;
     if (from)
-        put_it("[%s|%s%s%s] Opermsg from %s%s%s: %s",
-                curtime,
+        put_it("[%s%s%s%s%s%s%s] Opermsg from %s%s%s: %s",
+                CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
+                OVTS?"|":empty_string,
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
                 CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
-    else put_it("[%s|%s%s%s] %s",
-                curtime,
+    else put_it("[%s%s%s%s%s%s%s] %s",
+                CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
+                OVTS?"|":empty_string,
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
 }
 
