@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.16 1999-02-15 21:19:08 f Exp $
+ * $Id: edit2.c,v 1.17 1999-02-21 18:03:19 f Exp $
  */
 
 #include "irc.h"
@@ -2452,6 +2452,7 @@ char *args;
 char *subargs;
 {
     int  count=0;
+    int  timediff;
     char *channel=(char *) 0;
     char tmpbuf[mybufsize/4];
     ChannelList *chan;
@@ -2470,9 +2471,11 @@ char *subargs;
     chan=lookup_channel(channel,from_server,0);
     if (chan) {
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
-            if (tmpban->who && tmpban->when)
-                say("%s %-29s %s on %.19s",chan->channel,tmpban->ban,tmpban->who,
-                    ctime(&(tmpban->when)));
+            if (tmpban->who && tmpban->when) {
+                timediff=time((time_t *) 0)-tmpban->when;
+                say("%s %-30s %s %dd%dh%dm%ds",chan->channel,tmpban->ban,tmpban->who,
+                    timediff/86400,(timediff/3600)%24,(timediff/60)%60,timediff%60);
+            }
             else say("%s %s",chan->channel,tmpban->ban);
             count++;
         }
@@ -2769,11 +2772,12 @@ char *channel;
 void OnBans(args)
 char **args;
 {
+    int  server;
+    int  timediff;
     char *chan;
     char *daban;
     char *who;
     time_t when;
-    int  server;
 
     if (unban>=2) {
         chan=*args;
@@ -2798,7 +2802,9 @@ char **args;
             who=*args;
             args++;
             when=atoi(*args);
-            say("%s %s by %s on %.19s",chan,daban,who,ctime(&when));
+            timediff=time((time_t *) 0)-when;
+            say("%s %-30s %s %dd%dh%dm%ds",chan,daban,who,
+                timediff/86400,(timediff/3600)%24,(timediff/60)%60,timediff%60);
         }
         else say("%s %s",chan,daban);
     }
