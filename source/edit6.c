@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.97 2001-09-10 21:39:17 f Exp $
+ * $Id: edit6.c,v 1.98 2001-09-17 15:34:22 f Exp $
  */
 
 #include "irc.h"
@@ -1643,7 +1643,7 @@ int HashFunc(nick)
 char *nick;
 {
     int  sum=0;
-    char *tmp;
+    unsigned char *tmp;
 
     for (tmp=nick;*tmp;tmp++)
         sum+=(*tmp>='a' && *tmp<='z'?*tmp-' ':*tmp);
