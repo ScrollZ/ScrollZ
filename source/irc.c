@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.34 2000-08-19 16:35:48 f Exp $
+ * $Id: irc.c,v 1.35 2000-08-20 16:34:46 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -225,7 +225,8 @@ static	char	FAR switch_help[] =
    -p <port>\tdefault server connection port (usually 6667)\n\
    -f\t\tyour terminal uses flow controls (^S/^Q), so IRCII shouldn't\n\
    -F\t\tyour terminal doesn't use flow control (default)\n\
-   -H <hostname>\tuse the following host for virtual hosting\n\
+   -h <host>\tuse the following host for virtual hosting\n\
+   -H <host>\tuse the following host for virtual hosting\n\
    -C <name>\tused to cloak process as name\n\
    -s\t\tdon't use separate server processes (ircio)\n\
    -S\t\tuse separate server processes (ircio)\n\
