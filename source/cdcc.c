@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.53 2004-06-18 17:07:12 f Exp $
+ * $Id: cdcc.c,v 1.54 2004-10-14 18:44:04 f Exp $
  */
 
 #include "irc.h"
@@ -2334,32 +2334,33 @@ char *line;
 * get2mcommand:          This will parse your dcc list, and get files *
 *                        Specified by your filter.                    *
 ***********************************************************************/
-static void get2mcommand(data,line)
+static void get2mcommand(data, line)
 char *data;
 char *line;
 {
-    int  count=0;
+    int  count = 0;
     int  mode;
-    char *tmp=(char *) 0;
-    char  tmpbuf[mybufsize/4];
+    char *tmp = NULL;
+    char  tmpbuf[mybufsize / 4];
     DCC_list *Client;
     unsigned flags;
 
-    if (!(tmp=new_next_arg(line,&line))) {
+    if (!(tmp = new_next_arg(line, &line))) {
         say("You must specify what to get");
         return;
     }
-    for (Client=ClientList;Client;Client=Client->next) {
-        flags=Client->flags;
-        if ((flags&DCC_OFFER)==DCC_OFFER) {
-            mode=0;
-            if ((flags&DCC_TYPES)==DCC_FILEREAD) mode=1;
-            else if ((flags&DCC_TYPES)==DCC_FILEREGET) mode=2;
+    for (Client = ClientList; Client; Client = Client->next) {
+        flags = Client->flags;
+        if ((flags & DCC_OFFER) == DCC_OFFER) {
+            mode = 0;
+            if ((flags & DCC_TYPES) == DCC_FILEREAD) mode = 1;
+            else if ((flags & DCC_TYPES) == DCC_FILEREGET) mode = 2;
             count++;
-            if (matchmcommand(tmp,count)) {
-                snprintf(tmpbuf,sizeof(tmpbuf),"%s %s",Client->user,Client->description);
-                if (mode==1) dcc_getfile(tmpbuf);
-                else if (mode==2) dcc_regetfile(tmpbuf);
+            if (matchmcommand(tmp, count)) {
+                snprintf(tmpbuf, sizeof(tmpbuf), "%s \"%s\"",
+                         Client->user, Client->description);
+                if (mode == 1) dcc_getfile(tmpbuf);
+                else if (mode == 2) dcc_regetfile(tmpbuf);
             }
         }
     }
