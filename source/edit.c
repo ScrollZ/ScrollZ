@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.84 2002-02-04 17:47:22 f Exp $
+ * $Id: edit.c,v 1.85 2002-02-20 20:17:06 f Exp $
  */
 
 #include "irc.h"
@@ -1669,8 +1669,9 @@ do_channel(chan, force)
                    channel creation */
                 if (*chan=='!' && (get_server_version(serv_ind))==Server2_10)
                     return(chan);
+		/*add_channel(chan, serv_ind, CHAN_JOINING, (ChannelList *) 0);*/
+		add_channel(chan, serv_ind, CHAN_JOINING, NULL, NULL);
 /****************************************************************************/
-		add_channel(chan, serv_ind, CHAN_JOINING, (ChannelList *) 0);
 		force = 1;
 	}
 	if (force)

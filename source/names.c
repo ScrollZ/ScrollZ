@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.37 2002-02-02 10:32:46 f Exp $
+ * $Id: names.c,v 1.38 2002-02-20 20:17:07 f Exp $
  */
 
 #include "irc.h"
@@ -196,11 +196,17 @@ lookup_channel(channel, server, do_unlink)
  * connected and copy parameters.
  */
 void
-add_channel(channel, server, connected, copy)
+/**************************** Patched by Flier ******************************/
+/*add_channel(channel, server, connected, copy)*/
+add_channel(channel, server, connected, copy, key)
+/****************************************************************************/
 	char	*channel;
 	int	server;
 	int	connected;
 	ChannelList *copy;
+/**************************** Patched by Flier ******************************/
+	char	*key;
+/****************************************************************************/
 {
 	ChannelList *new;
 	int	do_add = 0;
@@ -333,6 +339,9 @@ add_channel(channel, server, connected, copy)
 		malloc_strcpy(&new->key, copy->key);
 	}
 	new->connected = connected;
+/**************************** Patched by Flier ******************************/
+        if (key && *key) malloc_strcpy(&new->key, key);
+/****************************************************************************/
 	if ((connected == CHAN_JOINED) && !is_current_channel(channel, server, 0))
 	{
 		int	flag = 1;

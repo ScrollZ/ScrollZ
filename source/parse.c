@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.60 2002-01-28 16:23:40 f Exp $
+ * $Id: parse.c,v 1.61 2002-02-20 20:17:07 f Exp $
  */
 
 #include "irc.h"
@@ -1212,9 +1212,10 @@ p_channel(from, ArgList)
 	{
 		if (join)
 		{
-			add_channel(channel, parsing_server_index, CHAN_JOINED, (ChannelList *) 0);
 /***************************** PATCHED by Flier **************************/	
-			/*send_to_server("MODE %s", channel);*/
+			/*add_channel(channel, parsing_server_index, CHAN_JOINED, (ChannelList *) 0);
+			send_to_server("MODE %s", channel);*/
+			add_channel(channel, parsing_server_index, CHAN_JOINED, NULL, NULL);
                         if ((get_server_version(from_server) == Server2_9 || 
                              get_server_version(from_server) == Server2_10) &&
                             IsIrcNetOperChannel(channel)) {

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.37 2002-01-21 22:37:05 f Exp $
+ * $Id: window.c,v 1.38 2002-02-20 20:17:07 f Exp $
  */
 
 #include "irc.h"
@@ -2077,7 +2077,10 @@ window_set_server(refnum, server, misc)
 					moved++;
 					clear_channel_list(server);
 				}
-				add_channel(tmp->channel, server, CHAN_LIMBO, tmp);
+/**************************** Patched by Flier ******************************/
+				/*add_channel(tmp->channel, server, CHAN_LIMBO, tmp);*/
+				add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL);
+/****************************************************************************/
 			}
 #ifdef NON_BLOCKING_CONNECTS
 			if (server_list[old_serv].flags & CLOSE_PENDING)
@@ -2147,7 +2150,10 @@ window_set_server(refnum, server, misc)
 						moved++;
 						clear_channel_list(server);
 					}
-					add_channel(tmp->channel, server, CHAN_LIMBO, tmp); /* Copy it -Sol */
+/**************************** Patched by Flier ******************************/
+					/*add_channel(tmp->channel, server, CHAN_LIMBO, tmp);*/ /* Copy it -Sol */
+					add_channel(tmp->channel, server, CHAN_LIMBO, tmp, NULL);
+/****************************************************************************/
 					from_server = old_serv; /* On old_serv,
 								   leave it
 								   -Sol */
@@ -3120,10 +3126,11 @@ windowcmd(command, args, subargs)
 							send_to_server("JOIN %s%s%s", arg, key ? " " : empty_string, key);
 						}
 /**************************** PATCHED by Flier ******************************/
-                                                /* from_server can be -1 here */
+                                                /* from_server can be -1 here
+ 						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0,);*/
                                                 if (from_server >= 0)
+                                                    add_channel(arg, from_server, CHAN_JOINING, NULL, key);
 /****************************************************************************/
- 						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
  						from_server = server;
  					}
 				}

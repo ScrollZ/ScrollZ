@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.5 2002-01-21 21:37:35 f Exp $
+ * $Id: names.h,v 1.6 2002-02-20 20:17:06 f Exp $
  */
 
 #ifndef __names_h_
@@ -80,9 +80,10 @@
 #ifdef	INCLUDE_UNUSED_FUNCTIONS
 	void	set_channel_mode _((char *, int, char *));
 #endif /* INCLUDE_UNUSED_FUNCTIONS */
-	void	add_channel _((char *, int, int, ChannelList *));
 /**************************** PATCHED by Flier ******************************/
-	/*void	add_to_channel _((char *, char *, int, int, int));*/
+	/*void	add_channel _((char *, int, int, ChannelList *));
+	void	add_to_channel _((char *, char *, int, int, int));*/
+	void	add_channel _((char *, int, int, ChannelList *, char *));
         ChannelList *add_to_channel _((char *, char *, int, int, int, int, char *, ChannelList *));
 /****************************************************************************/
 	void	remove_channel _((char *, int));
