@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.10 1998-11-21 15:47:22 f Exp $
+ * $Id: irc.c,v 1.11 1998-11-23 16:54:56 f Exp $
  */
 
 #define IRCII_VERSION	"4.4B"
@@ -316,7 +316,7 @@ char  *OrigNick=(char *) 0;
 /****** Coded by Zakath ******/
 /* patched by acidflash */
 #ifdef ACID
-char *AcidVersion="AcidMods v1.0b1";
+char *AcidVersion="AcidMods v2.0";
 #endif
 char  *VirtualHost=(char *) 0;
 char  *HelpPathVar=(char *) 0;
