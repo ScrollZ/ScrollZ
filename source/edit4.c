@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.9 1998-11-08 11:19:43 f Exp $
+ * $Id: edit4.c,v 1.10 1998-11-18 20:03:43 f Exp $
  */
 
 #include "irc.h"
@@ -1652,29 +1652,28 @@ char *args;
 char *subargs;
 {
     int  found=0;
-    char *tmpnick=(char *) 0;
+    char *tmpnick;
     NickList *joiner;
     ChannelList *chan;
 
-    if (*args) {
-        tmpnick=new_next_arg(args,&args);
+    if ((tmpnick=new_next_arg(args,&args))) {
         for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
-            joiner=find_in_hash(chan,tmpnick);
-            if (joiner) {
-                if (!found) {
-                    say("Current statistics for %s :",joiner->nick);
-                    say("Channel               +o    -o    +b    -b   kicks  nicks   pub");
-                    found=1;
+            for (joiner=chan->nicks;joiner;joiner=joiner->next) {
+                if (wild_match(tmpnick,joiner->nick)) {
+                    if (!found) {
+                        say("Nick      Channel             +o    -o    +b    -b   kicks  nicks   pub");
+                        found=1;
+                    }
+                    say("%-9.9s %-17.17s %4d  %4d  %4d  %4d   %5d  %5d  %4d",
+                        joiner->nick,chan->channel,joiner->pluso,joiner->minuso,
+                        joiner->plusb,joiner->minusb,joiner->kick,
+                        joiner->nickc,joiner->publics);
                 }
-                say("%-19.19s %4d  %4d  %4d  %4d   %5d  %5d  %4d",
-                    chan->channel,joiner->pluso,joiner->minuso,
-                    joiner->plusb,joiner->minusb,joiner->kick,
-                    joiner->nickc,joiner->publics);
             }
         }
-        if (!found) say("%s not found on channels you are on",tmpnick);
+        if (!found) say("No nicks matched %s",tmpnick);
     }
-    else PrintUsage("NWHOIS nick");
+    else PrintUsage("NWHOIS filter");
 }
 
 /* Adds nick to notify list */
