@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.114 2001-12-12 21:09:20 f Exp $
+ * $Id: edit6.c,v 1.115 2001-12-18 20:29:29 f Exp $
  */
 
 #include "irc.h"
@@ -2210,39 +2210,51 @@ char *command;
 char *args;
 char *subargs;
 {
-    int delit=REMOVE_FROM_LIST;
+    int show_keys = 0;
+    int clear_all = 0;
+    int delit = REMOVE_FROM_LIST;
     char *user;
     char *key;
-    struct encrstr *tmp;
+    struct encrstr *tmp, *tmpnext;
 
-    user=new_next_arg(args,&args);
-    key=new_next_arg(args,&args);
+    user = new_next_arg(args,&args);
+    if (user && !my_stricmp(user, "-SHOW")) {
+        show_keys = 1;
+        user = new_next_arg(args,&args);
+    }
+    if (user && !my_stricmp(user, "-CLEAR")) {
+        clear_all = 1;
+        user = (char *) 0;
+    }
+    key = new_next_arg(args,&args);
     if (user) {
-        if (key) delit=!REMOVE_FROM_LIST;
-        tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,delit);
+        if (key) delit = !REMOVE_FROM_LIST;
+        tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, delit);
         if (key) {
-            if (tmp) malloc_strcpy(&(tmp->key),key);
+            if (tmp) malloc_strcpy(&(tmp->key), key);
             else {
                 tmp=(struct encrstr *) new_malloc(sizeof(struct encrstr));
-                tmp->next=(struct encrstr *) 0;
-                tmp->user=(char *) 0;
-                tmp->key=(char *) 0;
-                malloc_strcpy(&(tmp->user),user);
-                malloc_strcpy(&(tmp->key),key);
-                add_to_list((List **) &encrlist,(List *) tmp);
+                tmp->next = (struct encrstr *) 0;
+                tmp->user = (char *) 0;
+                tmp->key = (char *) 0;
+                malloc_strcpy(&(tmp->user), user);
+                malloc_strcpy(&(tmp->key), key);
+                add_to_list((List **) &encrlist, (List *) tmp);
             }
-            say("Communication with %s will be encrypted using key %s",
-                user,key);
+            if (show_keys)
+                say("Communication with %s will be encrypted using key %s", user, key);
+            else
+                say("Communication with %s will be encrypted", user);
         }
         else {
             if (!tmp) {
-                say("User %s not found in encryption list",user);
+                say("User %s not found in encryption list", user);
                 return;
             }
             new_free(&(tmp->user));
             new_free(&(tmp->key));
             new_free(&tmp);
-            say("Communication with %s will no longer be encrypted",user);
+            say("Communication with %s will no longer be encrypted", user);
         }
     }
     else {
@@ -2250,8 +2262,21 @@ char *subargs;
             say("No users in encryption list");
             return;
         }
-        for (tmp=encrlist;tmp;tmp=tmp->next)
-            say("User %s with key %s",tmp->user,tmp->key);
+        for (tmp = encrlist; tmp;) {
+            tmpnext = tmp->next;
+            if (clear_all) {
+                say("Communication with %s will no longer be encrypted", tmp->user);
+                new_free(&(tmp->user));
+                new_free(&(tmp->key));
+                new_free(&tmp);
+            }
+            else {
+                if (show_keys) say("User %s with key %s", tmp->user, tmp->key);
+                else say("User %s", tmp->user);
+            }
+            tmp = tmpnext;
+        }
+        if (clear_all) encrlist = (struct encrstr *) 0;
     }
 }
 
