@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.137 2002-05-28 15:07:01 f Exp $
+ * $Id: edit6.c,v 1.138 2002-11-03 18:06:59 f Exp $
  */
 
 #include "irc.h"
@@ -3116,7 +3116,7 @@ ChannelList *chan;
     char *filepath = NULL;
     char *channame = NULL;
 
-    if (!chan || !chan->ChanLog) return;
+    if (!chan) return;
     if (ChanLogPrefix) malloc_strcpy(&filename, ChanLogPrefix);
     malloc_strcpy(&channame, chan->channel);
     lower(channame);
