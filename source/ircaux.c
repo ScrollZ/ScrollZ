@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.13 2001-02-01 19:31:16 f Exp $
+ * $Id: ircaux.c,v 1.14 2001-11-10 10:04:54 f Exp $
  */
 
 #include "irc.h"
@@ -1409,19 +1409,8 @@ path_search(name, path)
  			strmcat(lbuf, my_path, BIG_BUFFER_SIZE);
 			path++;
 		}
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZ32
-                /* do not use path if it is just . (current dir)
-                   because it breaks with CygWin */
-                if (strcmp(path,".") || *name!='/')
-#endif
-                {
-/****************************************************************************/
  		strmcat(lbuf, path, BIG_BUFFER_SIZE);
  		strmcat(lbuf, "/", BIG_BUFFER_SIZE);
-/**************************** PATCHED by Flier ******************************/
-                }
-/****************************************************************************/
  		strmcat(lbuf, name, BIG_BUFFER_SIZE);
  		if (access(lbuf, F_OK) == 0)
 			break;

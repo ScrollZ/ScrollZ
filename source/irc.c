@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.68 2001-10-15 15:50:56 f Exp $
+ * $Id: irc.c,v 1.69 2001-11-10 10:04:54 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -101,11 +101,6 @@
 /************************ PATCHED by Flier **************************/
 #include "myvars.h"
 #include "cdcc.h"
-
-#ifdef SZ32
-#undef IRCPATH
-#define IRCPATH "."
-#endif
 /****************************************************************************/
 
 int	irc_port = IRC_PORT,			/* port of ircd */

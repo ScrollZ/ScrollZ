@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: irc_std.h,v 1.5 2001-11-10 10:04:53 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -203,9 +203,7 @@ sigfunc *my_signal _((int, sigfunc *, int));
 # endif /* STDC_HEADERS || HAVE_STRING_H */
 #endif /* !NeXT */
 
-/**************************** PATCHED by Flier ******************************/
-#if defined(_Windows) || defined(SZ32)
-/****************************************************************************/
+#if defined(_Windows)
 # define IS_ABSOLUTE_PATH(file) ((file)[0] == '/' || (file)[0] == '\\' || ((file)[0] && (file)[1] == ':'))
 #else
 # define IS_ABSOLUTE_PATH(file) ((file)[0] == '/')

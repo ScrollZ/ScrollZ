@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.10 2001-08-25 18:25:15 f Exp $
+ * $Id: irc.h,v 1.11 2001-11-10 10:04:53 f Exp $
  */
 
 #ifndef __irc_h
@@ -414,9 +414,7 @@ extern char *get_path(int iVal);
 #define	free_big_buffer(x)	(0)
 #endif
 
-/**************************** PATCHED by Flier ******************************/
-#if defined(_Windows) || defined(SZ32)
-/****************************************************************************/
+#if defined(_Windows)
 #define IS_FULL_PATH(x) (x[0] == '/' || x[0] == '\\' || (x[0] && x[1] == ':'))
 #else
 #define IS_FULL_PATH(x) (x[0] == '/')

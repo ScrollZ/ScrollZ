@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.6 2000-08-18 17:21:49 f Exp $
+ * $Id: newio.c,v 1.7 2001-11-10 10:04:54 f Exp $
  */
 
 #include "irc.h"
@@ -58,28 +58,31 @@
 #define	WAIT_NL ((unsigned) 0x0001)
 
 /**************************** Patched by Flier ******************************/
-/*#ifdef FDSETSIZE
-# define IO_ARRAYLEN FDSETSIZE
-#else
-# ifdef FD_SETSIZE
-#  define IO_ARRAYLEN FD_SETSIZE
-# else
-#  define IO_ARRAYLEN NFDBITS
-# endif
-#endif*/
-#ifdef OPEN_MAX
-# define IO_ARRAYLEN OPEN_MAX
-# else
+#ifdef SZ32
 # ifdef FDSETSIZE
 #  define IO_ARRAYLEN FDSETSIZE
-# else
+# else  /* FDSETSIZE */
 #  ifdef FD_SETSIZE
 #   define IO_ARRAYLEN FD_SETSIZE
-#  else
+#  else /* FD_SETSIZE */
 #   define IO_ARRAYLEN NFDBITS
 #  endif /* FD_SETSIZE */
 # endif /* FDSETSIZE */
-#endif /* OPEN_MAX */
+#else /* SZ32 */
+# ifdef OPEN_MAX
+#  define IO_ARRAYLEN OPEN_MAX
+#  else /* OPEN_MAX */
+#  ifdef FDSETSIZE
+#   define IO_ARRAYLEN FDSETSIZE
+#  else /* FDSETSIZE */
+#   ifdef FD_SETSIZE
+#    define IO_ARRAYLEN FD_SETSIZE
+#   else /* FD_SETSIZE */
+#    define IO_ARRAYLEN NFDBITS
+#   endif /* FD_SETSIZE */
+#  endif /* FDSETSIZE */
+# endif /* OPEN_MAX */
+#endif /* SZ32 */
 
 #ifdef BNCCRYPT
 extern void DecryptBNC _((char *, int));
