@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.9 2002-03-03 11:00:03 f Exp $
+  $Id: ScrollZ.doc,v 1.10 2002-03-09 18:04:56 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -23,6 +23,7 @@
   3.3.  Coexistence with other IRC clients
   3.4.  Choosing compile time options
   3.5.  Setting up environment variables
+  3.6.  Setting up things under Windows
 
   4.  ScrollZ features
   4.1.  'ScrollZ.save' file
@@ -224,6 +225,35 @@
 
      b) csh and tcsh users :
         setenv IRCNICK "Nick"
+
+  3.6.  Setting up things under Windows
+
+  It is possible to compile and run ScrollZ under Windows using
+  excellent CygWin product which is available for free from Cygnus.
+  The compile process is exactly the same as under any U*IX platform
+  using the configure script (see above for details). Once you
+  have compiled the binary, create a directory that will hold
+  ScrollZ :
+
+  d:
+  cd \
+  mkdir ScrollZ
+
+  and copy scrollz.exe to this newly created directory. Optionally
+  you can also copy the help directory to this directory.
+  Now create a batch file called scrollz.bat that will be used to
+  run the client with the following content :
+
+  set HOME=/cygdrive/d/ScrollZ
+  set IRCPATH=/cygdrive/d/ScrollZ
+  set IRCHELP=/cygdrive/d/ScrollZ/help
+  set IRCNICK=myircnick
+  set IRCSERVER=irc.server.com:port
+  scrollz.exe
+
+  Note that you should replace d in the batch file above with the
+  drive letter that holds your ScrollZ directory. Now you should
+  be able to run ScrollZ by executing scrollz.bat.
 
   4.  ScrollZ features
 
