@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.8 1998-11-07 17:31:45 f Exp $
+ * $Id: edit4.c,v 1.9 1998-11-08 11:19:43 f Exp $
  */
 
 #include "irc.h"
@@ -748,7 +748,27 @@ void HandleTabNext() {
         while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
         if (*tmpstr) {
             tmpstr++;
-            if (*tmpstr && (channel=get_channel_by_refnum(0)))
+            /* option to complete channel name */
+            if (*tmpstr=='#') {
+                for (nickstr=tmpbuf;*tmpstr;) *nickstr++=*tmpstr++;
+                *nickstr=0;
+                len=strlen(tmpbuf);
+                chan=server_list[curr_scr_win->server].chan_list;
+                while (chan && my_strnicmp(tmpbuf,chan->channel,len)) chan=chan->next;
+                if (chan && !my_strnicmp(tmpbuf,chan->channel,len)) {
+                    input_clear_line(0,(char *) 0);
+                    if (!(cmdchars=get_string_var(CMDCHARS_VAR)))
+                        cmdchars=DEFAULT_CMDCHARS;
+                    input_add_character(*cmdchars,NULL);
+                    input_add_character('m',NULL);
+                    input_add_character(' ',NULL);
+                    for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
+                        input_add_character(*tmpstr,NULL);
+                    input_add_character(' ',NULL);
+                    return;
+                }
+            }
+            else if (*tmpstr && (channel=get_channel_by_refnum(0))) {
                 if ((chan=lookup_channel(channel,from_server,0))) {
                     if (tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
@@ -769,7 +789,8 @@ void HandleTabNext() {
                     }
                     if (tmpnick) {
                         input_clear_line(0,(char *) 0);
-                        if (!(cmdchars=get_string_var(CMDCHARS_VAR))) cmdchars=DEFAULT_CMDCHARS;
+                        if (!(cmdchars=get_string_var(CMDCHARS_VAR)))
+                            cmdchars=DEFAULT_CMDCHARS;
                         input_add_character(*cmdchars,NULL);
                         input_add_character('m',NULL);
                         input_add_character(' ',NULL);
@@ -780,6 +801,7 @@ void HandleTabNext() {
                         return;
                     }
                 }
+            }
         }
     }
     new_free(&tabnick);
