@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.21 2000-08-14 20:38:14 f Exp $
+ * $Id: numbers.c,v 1.22 2000-08-15 15:42:48 f Exp $
  */
 
 #include "irc.h"
@@ -595,7 +595,10 @@ not_valid_channel(from, ArgList)
 	if (!(channel = ArgList[0]) || !ArgList[1])
 		return;
 	PasteArgs(ArgList, 1);
-	s = get_server_name(parsing_server_index);
+/**************************** PATCHED by Flier ******************************/
+	/*s = get_server_name(parsing_server_index);*/
+        s=get_server_itsname(parsing_server_index);
+/****************************************************************************/
 	if (0 == my_strnicmp(s, from, strlen(s)))
 	{
 		remove_channel(channel, parsing_server_index);
