@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.11 1998-10-25 18:36:59 f Exp $
+ * $Id: edit2.c,v 1.12 1998-10-27 17:27:25 f Exp $
  */
 
 #include "irc.h"
@@ -600,7 +600,6 @@ char *subargs;
         sprintf(tmpbuf,"%d %d",servernum,port);
         close_server(servernum,"reconnecting to server");
         clean_whois_queue();
-        window_check_servers();
         server(NULL,tmpbuf,NULL);
     }
     else say("You are not connected to a server");
