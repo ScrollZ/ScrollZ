@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.51 2003-03-25 17:31:52 f Exp $
+ * $Id: cdcc.c,v 1.52 2004-04-27 09:13:16 f Exp $
  */
 
 #include "irc.h"
@@ -1606,19 +1606,25 @@ char *desc;
 static void sendmcommand(line)
 char *line;
 {
-    char *comma;
+    char *x = line, *comma = NULL;
 
     if (line && *line) {
-        comma=strchr(line,',');
+        while (x) {
+            x = strchr(x, ',');
+            if (x) {
+                comma = x;
+                x++;
+            }
+        }
         if (!comma) {
             PrintUsage("CDCC SEND pattern1 pattern2 , nick1 nick2");
             return;
         }
-        *comma='\0';
+        *comma = '\0';
         comma++;
-        if (AddFiles2List(line)) send3mcommand(NULL,comma);
+        if (AddFiles2List(line)) send3mcommand(NULL, comma);
     }
-    else add_wait_prompt("Files to send ? ",send2mcommand,line,WAIT_PROMPT_LINE);
+    else add_wait_prompt("Files to send ? ", send2mcommand, line, WAIT_PROMPT_LINE);
 }
 
 /**********************************************************************
@@ -1736,10 +1742,16 @@ char *line;
 static void fsendmcommand(line)
 char *line;
 {
-    char *comma;
+    char *x = line, *comma = NULL;
 
     if (line && *line) {
-        comma=strchr(line,',');
+        while (x) {
+            x = strchr(x, ',');
+            if (x) {
+                comma = x;
+                x++;
+            }
+        }
         if (!comma) {
             PrintUsage("CDCC FSEND pattern1 pattern2 , nick1 nick2");
             return;
@@ -1833,10 +1845,16 @@ char *line;
 static void resendmcommand(line)
 char *line;
 {
-    char *comma;
+    char *x = line, *comma = NULL;
 
     if (line && *line) {
-        comma=strchr(line,',');
+        while (x) {
+            x = strchr(x, ',');
+            if (x) {
+                comma = x;
+                x++;
+            }
+        }
         if (!comma) {
             PrintUsage("CDCC RESEND pattern1 pattern2 , nick1 nick2");
             return;
@@ -1928,11 +1946,17 @@ char *line;
 static void psendmcommand(line)
 char *line;
 {
-    char *comma;
+    char *x = line, *comma = NULL;
 
     if (packs) {
         if (line && *line) {
-            comma=strchr(line,',');
+            while (x) {
+                x = strchr(x, ',');
+                if (x) {
+                    comma = x;
+                    x++;
+                }
+            }
             if (!comma) {
                 PrintUsage("CDCC PSEND pattern , nick1 nick2");
                 return;
