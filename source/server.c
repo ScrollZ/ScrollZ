@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.19 2000-08-09 19:31:21 f Exp $
+ * $Id: server.c,v 1.20 2000-08-10 18:06:27 f Exp $
  */
 
 #include "irc.h"
@@ -174,12 +174,13 @@ close_server(server_index, message)
 				server_list[i].read = -1;
 			server_list[i].write = -1;
 /**************************** PATCHED by Flier ******************************/
-                        if (inScrollZWho) {
+                        if (inScrollZWho || unban) {
                             for (chan=server_list[i].chan_list;chan;chan=chan->next) {
-                                if (!(chan->gotwho) || !(chan->gotbans))
-                                {
+                                if (!(chan->gotwho))
                                     inScrollZWho--;
-                                    if (!inScrollZWho) break;
+                                if (!(chan->gotbans)) {
+                                    if (unban>2) unban--;
+                                    else unban=0;
                                 }
                             }
                         }
