@@ -96,8 +96,8 @@ In that case, ignore will last $4time$0 seconds.
 Other types are : $3MSGS,NOTICES,PUBLIC,INVITES,WALLOPS,$0
                   $3NOTES,CTCP,CRAP,ALL,NONE$0.
 Also look at $2NOIG$0 and $2IGTIME$0
-:J             Joins channel
-Usage $3J$0 [$3#$0]$3channel$0
+:J             Joins channels
+Usage $3J$0 [$3#$0]$3channel$0[,[$3#$0]$3channel2$0,[$3#$0]$3channel3...$0]
 Also look at $2L$0
 :KEYS          List of default ScrollZ key binds
 $3Cursor left/right$0 moves cursor in input line left and right
@@ -117,8 +117,8 @@ $3F1$0 this help
 $3F2$0 will join last channel you have been invited to
 :KNOCK         Asks for an invite to channel
 Usage $3KNOCK$0 [$3#$0]$3channel$0
-:L             Leaves channel
-Usage $3L$0 [$3#channel$0] [reason] 
+:L             Leaves channels
+Usage $3L$0 [$3#channel$0[,[$3#$0]$3channel2$0,[$3#$0]$3channel3...$0]] [$3reason$0] 
 If no channel is given it will leave current channel. Note that
 specifying reason only works for some servers (notably 2.9).
 Also look at $2J$0
@@ -244,6 +244,10 @@ effect is the same as having $2SHOWAWAY$0 set to $3OFF$0. If no message is
 given default message (from ScrollZ.save) is used.
 Also look at $2AWAYT$0, $2PLAYBACK$0, $2REMLOG$0, $2SETAWAY$0 and $2SHOWAWAY$0
 :SHOWKILL      Shows the last person that killed you
+:SHOWWALLOP    Toggles showing included/excluded nicks with wallops
+Usage $3SHOWWALLOP$0 $3on$0|$3off$0
+If set to on show a list of included/excluded nicks with each wallop
+Also look at $2WALL$0
 :SINFO         Nicely formatted server info
 :SPING         Pings specified server
 Usage $3SPING$0 $3server$0
@@ -291,8 +295,7 @@ and if matched, those nicks will be excluded from wall-op notice.
 The same is true for words starting with $3+$0 except that those
 nicks will be included in wall-op notice. If channel is omitted,
 current channel is used.
-Also look at $4SET MAX_WALLOP_NICKS$0 and $4SHOWWALLOP$0 setting in
-ScrollZ.save file.
+Also look at $2SET MAX_WALLOP_NICKS$0 and $2SHOWWALLOP$0
 :WHOLEFT       Prints all the users that left with netsplit
 :WI            Like whois
 Usage $3WI nick$0
@@ -1059,9 +1062,9 @@ Also look at $2CDCC DLDIR$0
 :   REMFFLAG      REMLOG        REMN          REMS          REMW
 :   REPWORD       S             SB            SERVNOTICE    SETAWAY
 :   SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL
-:   SHOWNICK      SHOWSIGN      SHOWUSER      SINFO         SPING
-:   STAMP         SVE           T             TBAN          TERMINATE
-:   TKILL         TOPICLOCK     TOPICUNLOCK   UMODE         UNBAN
-:   UNFLASH       URL           URLCATCH      VER           W
-:   WALL          WHOLEFT       WI            WII           WKILL
-:   WW            
+:   SHOWNICK      SHOWSIGN      SHOWUSER      SHOWWALLOP    SINFO
+:   SPING         STAMP         SVE           T             TBAN
+:   TERMINATE     TKILL         TOPICLOCK     TOPICUNLOCK   UMODE
+:   UNBAN         UNFLASH       URL           URLCATCH      VER
+:   W             WALL          WHOLEFT       WI            WII
+:   WKILL         WW

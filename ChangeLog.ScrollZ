@@ -22,8 +22,18 @@ Meaning of flags:
       at the other end when IRC server cuts the message (reported by [2am])
     + all mass commands (MDOP, MOP etc) now support -A flag to operate on
       all users (requested by ogre)
-    + server connect time information (it is displayed in SERVER for all
-      servers and in SZINFO for current server, suggested by ogre)
+    + server connect time information (it is displayed with SERVER for all
+      servers and with SZINFO for current server, suggested by ogre)
+    ! LASTLOG -TIME which was broken after SET STAMP_FORMAT was introduced
+    ~ better SET STAMP_FORMAT handling, should save us some CPU cycles
+      as it is processed only once per minute
+    ! crash in CHANUSERS() without channel as argument (fix by braneded,
+      now returns info for current channel if none is given)
+    + L now accepts list of channels separated by comma (coded by braneded)
+    + tabkey completion now cycles through channels as well (coded by
+      braneded, many thanks)
+    + SHOWWALLOP to toggle whether to show included/excluded nicks with
+      channel wallops
 
 ------------------------------------------------------------------------------
 
