@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.15 2000-09-24 17:10:34 f Exp $
+ * $Id: screen.c,v 1.16 2000-10-30 17:09:24 f Exp $
  */
 
 #include "irc.h"
@@ -1406,9 +1406,18 @@ split_up_line(str)
 		{
 			if (indent == -1)
 				indent = pos - nd_cnt;
-			lbuf[pos++] = *ptr;
 /**************************** PATCHED by Flier ******************************/
-			/*col++;*/
+			/*lbuf[pos++] = *ptr;
+			col++;*/
+                        if (*ptr==(u_char) 'õ' || *ptr==(u_char) 'Ñ' ||
+                            *ptr==(u_char) 'Ö' || *ptr==(u_char) 'ç') {
+                            lbuf[pos++]=REV_TOG;
+                            lbuf[pos++]=(*ptr&127)|64;
+                            lbuf[pos++]=REV_TOG;
+                            nd_cnt+=2;
+
+                        }
+                        else lbuf[pos++]=*ptr;
 #ifdef WANTANSI
                         if (vt100Decode(*ptr)) nd_cnt++;
                         else col++;
