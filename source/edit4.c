@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.46 2000-11-01 10:13:46 f Exp $
+ * $Id: edit4.c,v 1.47 2001-01-15 17:16:49 f Exp $
  */
 
 #include "irc.h"
@@ -171,11 +171,12 @@ extern char *chars;
 extern NickList *tabnickcompl;
 
 /* Prints received message */
-void PrintMessage(nick,userhost,msg,print)
+void PrintMessage(nick,userhost,msg,print,iscrypted)
 char *nick;
 char *userhost;
 char *msg;
 int  print;
+int  iscrypted;
 {
     int  numurl=0;
     char thing;
@@ -229,7 +230,7 @@ int  print;
     if (ExtMes && userhost) sprintf(tmpbuf3,"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
     else *tmpbuf3='\0';
 #endif /* WANTANSI */
-    if (print) put_it("%s%s",tmpbuf1,tmpbuf3);
+    if (print) put_it("%s%s%s",iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
     StripAnsi(message,tmpbuf3,2);
     if (!(userhost && *userhost)) userhost=empty_string;
     sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(0,0,GET_TIME));

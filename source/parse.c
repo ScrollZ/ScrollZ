@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.32 2000-12-04 19:51:22 f Exp $
+ * $Id: parse.c,v 1.33 2001-01-15 17:16:49 f Exp $
  */
 
 #include "irc.h"
@@ -63,7 +63,7 @@
 #include "myvars.h"
 
 extern void OnWho _((char *, char *, char *, char *, char *));
-extern void PrintMessage _((char *, char *, char *, int));
+extern void PrintMessage _((char *, char *, char *, int, int));
 extern void HandleSplit _((char *, char *, char *, int *));
 extern NickList *ChannelJoin _((char *, char *, ChannelList *));
 extern NickList *CheckJoin _((char *, char *, char *, int, ChannelList *));
@@ -83,7 +83,7 @@ extern void ModePrint _((char *, char *, char *, char *, char *, char *));
 extern void KickPrint _((char *, char *, char *, char *, char *, int, int));
 extern void PrintWho _((char *, char *, char *, char *, char *, char *, char *,
                         int));
-extern void PrintPublic _((char *, char *, char *, char *, int));
+extern void PrintPublic _((char *, char *, char *, char *, int, int));
 extern void DoKill _((char *, char *, char *));
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 #if defined(OPERVISION) && defined(WANTANSI)
@@ -620,6 +620,7 @@ p_privmsg(from, Args)
 	char	*high;
 	int	no_flood;
 /**************************** PATCHED by Flier ******************************/
+        int     iscrypted;
         char    tmpbuf[mybufsize/8];
         time_t  timenow=time((time_t *) 0);
         struct  friends *tmpfriend;
@@ -753,7 +754,7 @@ p_privmsg(from, Args)
 			if (away_set)
 				beep_em(get_int_var(BEEP_WHEN_AWAY_VAR));
 /**************************** PATCHED by Flier ******************************/
-                        DecryptMessage(ptr,from);
+                        iscrypted=DecryptMessage(ptr,from);
 /****************************************************************************/
 			if (do_hook(list_type, "%s %s", from, ptr))
 			{
@@ -771,25 +772,25 @@ p_privmsg(from, Args)
 			    }
 			    else
 				put_it("%s*%s*%s %s", high, from, high, ptr);*/
-                            PrintMessage(from,FromUserHost,ptr,1);
+                            PrintMessage(from,FromUserHost,ptr,1,iscrypted);
 /****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
-                        else PrintMessage(from,FromUserHost,ptr,0);
+                        else PrintMessage(from,FromUserHost,ptr,0,iscrypted);
 /****************************************************************************/
 			break;
 		case PUBLIC_LIST:
 			if (get_int_var(MAKE_NOTICE_MSG_VAR))
 				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
-                        DecryptMessage(ptr,to);
+                        iscrypted=DecryptMessage(ptr,to);
 /****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from, 
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s<%s>%s %s", high, from, high, ptr);*/
-                                PrintPublic(from,NULL,to,ptr,1);
-                        else PrintPublic(from,NULL,to,ptr,0);
+                                PrintPublic(from,NULL,to,ptr,1,iscrypted);
+                        else PrintPublic(from,NULL,to,ptr,0,iscrypted);
 /****************************************************************************/
 			doing_privmsg = 0;
 			break;
@@ -797,15 +798,15 @@ p_privmsg(from, Args)
 			if (get_int_var(MAKE_NOTICE_MSG_VAR))
 				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
-                        DecryptMessage(ptr,to);
+                        iscrypted=DecryptMessage(ptr,to);
 /****************************************************************************/
 			if (no_flood && do_hook(list_type, "%s %s %s", from,
 			    to, ptr))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s<%s:%s>%s %s", high, from, to, high,
 					ptr);*/
-                                PrintPublic(from,":",to,ptr,1);
-                        else PrintPublic(from,":",to,ptr,0);
+                                PrintPublic(from,":",to,ptr,1,iscrypted);
+                        else PrintPublic(from,":",to,ptr,0,iscrypted);
 /****************************************************************************/
 			doing_privmsg = 0;
 			break;
