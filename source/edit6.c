@@ -57,7 +57,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.41 1999-08-07 13:00:33 f Exp $
+ * $Id: edit6.c,v 1.42 1999-08-07 17:09:21 f Exp $
  */
 
 #include "irc.h"
@@ -2565,20 +2565,24 @@ char *channel;
 void TryChannelJoin() {
     int  found;
     int  wildcards;
+    int  lasttimer=0;
     char *tmpstr;
     char *tmpstr1;
-    char tmpbuf[mybufsize/2];
+    char tmpbuf[mybufsize/2+2];
+    void (*func)()=(void(*)()) TryChannelJoin;
+    TimerList *tmptimer;
     WhowasList *whowas;
     ChannelList *tmpchan;
 
     if (curr_scr_win->server!=-1 && AutoJoinOnInv==2 && AutoJoinChannels) {
-        strcpy(tmpbuf,AutoJoinChannels);
+        strmcpy(tmpbuf,AutoJoinChannels,mybufsize/2);
         tmpstr=tmpbuf;
         tmpstr1=tmpbuf;
         wildcards=0;
-        while (*tmpstr) {
+        while (1) {
             if (*tmpstr=='?' || *tmpstr=='*') wildcards=1;
-            if (*tmpstr==',') {
+            if (*tmpstr==',' || !(*tmpstr)) {
+                if (!(*tmpstr)) *(tmpstr+1)='\0';
                 *tmpstr='\0';
                 if (!wildcards) {
                     for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
@@ -2604,28 +2608,27 @@ void TryChannelJoin() {
                 tmpstr1=tmpstr+1;
                 wildcards=0;
             }
+            if (!(*(tmpstr+1))) break;
             tmpstr++;
         }
-        if (!wildcards) {
-            for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
-                    tmpchan=tmpchan->next)
-                if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
-            /* 
-             * ask up to 5 users with +z flag set to open the channel for us
-             */
-            if (!tmpchan) {
-                found=0;
-                for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
-                    if (whowas->nicklist && whowas->nicklist->frlist &&
-                            ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
-                            !my_stricmp(whowas->channel,tmpstr1)) {
-                        found++;
-                        if (found>5) break;
-                        send_to_server("PRIVMSG %s :OPEN %sINVITE %s",
-                                whowas->nicklist->nick,tmpstr1,tmpstr1);
-                    }
-                }
+        /*
+         * if there is one or less entries for TryChannelJoin() in
+         * the timer list, add one
+         */
+        found=0;
+        for (tmptimer=PendingTimers;tmptimer;tmptimer=tmptimer->next) {
+            if (tmptimer->command && tmptimer->func==func &&
+                !strcmp(tmptimer->command,"rejoin")) {
+                found++;
+                lasttimer=tmptimer->time;
             }
+        }
+        if (found<2) {
+            lasttimer-=time((time_t *) 0);
+            lasttimer+=30;
+            if (lasttimer<=0) lasttimer=30;
+            sprintf(tmpbuf,"-INV %d rejoin",lasttimer);
+            timercmd("FTIMER",tmpbuf,(char *) func);
         }
     }
 }
