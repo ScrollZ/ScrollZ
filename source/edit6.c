@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.136 2002-04-08 15:43:26 f Exp $
+ * $Id: edit6.c,v 1.137 2002-05-28 15:07:01 f Exp $
  */
 
 #include "irc.h"
@@ -119,6 +119,7 @@ void EncryptMasterList _((char *, char *));
 void EncryptList _((char *));
 void UpdateChanLogFName _((ChannelList *));
 void ChannelLogReport _((char *, ChannelList *));
+int CheckServer _((int));
 
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
@@ -1648,9 +1649,11 @@ char *subargs;
     *tmpstr1 = '\0';
     say("This is ScrollZ %s (client base ircII %s)", szver, irc_version);
     say("Client uptime: %dd %02dh %02dm", timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
-    timediff = time(NULL) - server_list[from_server].ConnectTime;
-    say("Connected to the current server (%s): %dd %02dh %02dm",
-        get_server_name(from_server), timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
+    if (CheckServer(from_server)) {
+        timediff = time(NULL) - server_list[from_server].ConnectTime;
+        say("Connected to the current server (%s): %dd %02dh %02dm",
+                get_server_name(from_server), timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
+    }
     say("Support channel: #ScrollZ on Efnet");
     say("Mailing list: scrollz@ahnberg.pp.se");
     say("Home page: http://www.scrollz.com/");
