@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.47 2000-08-28 20:25:47 f Exp $
+ * $Id: edit3.c,v 1.48 2000-08-31 16:36:10 f Exp $
  */
 
 #include "irc.h"
@@ -161,6 +161,8 @@ char *command;
 char *args;
 char *subargs;
 {
+    char tmpbuf[mybufsize/32];
+
     put_it("");
     put_it("");
     put_it("                                                            :");
@@ -177,8 +179,11 @@ char *subargs;
     put_it("`\\$$$$$S#/  :$$$$$::i    ////: $$$i   d$$:i$$$$$$(  ,d+ : $$$,) $$(");
     put_it("  `'*$$( .,d$$$7`,dl:.  )$$$) $$$l: i$$$(`*/$$$$$\\`,d$ $$$7 d$$$b,..  yyy");
     put_it("        `^ ~~`` :: `~**`'*/`/*~`  :$$$$$$$ ``^''^`///$$ $$$ MYDKNIGHT> $$$");
-    put_it("                             `                            ~*/.");
-    put_it("                            .                                    `");
+    bzero(tmpbuf,sizeof(tmpbuf));
+    memset(tmpbuf,' ',16-strlen(ScrollZver1));
+    put_it("           %s%s`                            ~*/.",
+           ScrollZver1,tmpbuf);
+    put_it("                                                            `");
     put_it("    coding   : flier (flier@globecom.net)");
     put_it("    celerity : Zakath (jeremy@3Sheep.COM)");
     put_it("    patches  : acidflash (acid@hostu.net)");
