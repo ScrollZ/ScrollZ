@@ -1,7 +1,7 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
   Updated by Flier
-  $Id: ScrollZ.doc,v 1.8 2002-02-20 20:34:14 f Exp $
+  $Id: ScrollZ.doc,v 1.9 2002-03-03 11:00:03 f Exp $
 
   This document describes how to install and use ScrollZ IRC client.
   It is the first document which a new ScrollZ user should read to
@@ -121,15 +121,15 @@
 
   3.1.  Setting up ScrollZ directory
 
-  First of all you'll have to decide where do you want to keep various
-  files needed by ScrollZ. Default is '~/.ScrollZ' but you can choose any
-  other directory as well. Make sure that the chosen directory exists
-  as you may run in trouble otherwise. So 'mkdir ~/.ScrollZ' will do the
-  job. I also recommend you to disallow other users to browse that
-  directory - so 'chmod 700 ~/.ScrollZ'. You should put files like
-  ScrollZ.help, ScrollZ.addon and/or your scripts in there. Scripts can
-  be placed in any other directory as well but that will require path
-  to script to be supplied in '/load' command.
+  By default the first time you run the client it will create directory
+  named '~/.ScrollZ' in your home directory together with an empty
+  ScrollZ.save file. You can use another directory if you wish so,
+  make sure you 'set load_path' in that case. The default mode for
+  newly created '~/.ScrollZ' directory is 700 so other users can not
+  read your ScrollZ files.
+  You should put files like ScrollZ.addon and/or your scripts in there.
+  Scripts can be placed in any other directory as well but that will
+  require path to script to be supplied in '/load' command.
 
   3.2.  Setting up '~/.scrollzrc'
 
@@ -140,7 +140,7 @@
   because the client itself will do that for them.
   Of course one has to type in another directory if they opted to use
   another directory for ScrollZ stuff in step 3.1. If you want to use
-  ircII help files and keep them in directory other than
+  ScrollZ help files and keep them in directory other than
   /usr/local/share/scrollz/help/ be sure to add something like
   'set help_path /home/user/irc/help/'.
 
@@ -232,13 +232,13 @@
   Best way to learn all of its options is (like always) to use it for
   real - that way you will learn all about it. We will only deal with
   ScrollZ commands in this document and little or none attention will be
-  payed to regular ircII commands. And remember '/shelp' is your friend.
+  payed to regular ircII commands. And remember, '/help' is your friend.
 
   4.1.  'ScrollZ.save' file
 
   When you first start ScrollZ you should type '/sve' which will save all
   current options to 'ScrollZ.save' file located in first directory
-  found in load_path variable. 'ScrollZ.save' file is plain text file -
+  found in load_path variable. 'ScrollZ.save' file is a plain text file -
   thus it can be edited with every editor. But you will hardly ever need
   to edit it by hand, most of the settings can be changed via ScrollZ
   commands.
@@ -292,7 +292,7 @@
      listbk    - list people on shit list
      rembk     - remove person from shit list
 
-  Also be sure to read '/shelp levels' for more info on flags.
+  Also be sure to read '/help levels' for more info on flags.
 
   4.3.  Notify list
 
@@ -327,7 +327,7 @@
   4.5.  Netsplits, nethacks and netjoins
 
   This is one of the features where ScrollZ really excels. It is entirely
-  controlled via '/nhprot' command - so '/shelp nhprot' for more info. If
+  controlled via '/nhprot' command - so '/help nhprot' for more info. If
   you have this option turned on you better make sure your userlist is
   pretty complete (most of regular channel ops should be on it) or else
   you will not be very popular channel op.
@@ -339,7 +339,7 @@
   command which is by far more powerful and user friendly. So I suggest
   you to forget about '/dcc' and use only '/cdcc' + '/chat' and '/nochat'.
   Again everything is explained in help, so let me just remind you of
-  '/shelp cdcc get' which will show you examples on how to use that
+  '/help cdcc get' which will show you examples on how to use that
   fancy filter for selecting dccs. And be careful with '/cdcc autoget'
   being turned on! Oh yeah, some people don't like to see others flooding
   channels with their offer lists - so better set '/cdcc channels' and
@@ -348,7 +348,7 @@
   4.7.  Logging
 
   Apart from ircII logging ScrollZ has logging on its own too. For more
-  info try '/shelp awaysave'. Normally ScrollZ would log events to
+  info try '/help awaysave'. Normally ScrollZ would log events to
   'ScrollZ.away' only if you're set away - but you can change this with
   '/logon' command. You can set the file to log to by modifying the
   AWAY_FILE variable (example: '/set away_file ~/.away.log').
@@ -462,10 +462,10 @@
      * CursorDown is bound to forward_history
      * CursorLeft is bound to backward_character
      * CursorRight is bound to forward_character
-     * F1 is bound to 'shelp keys'
+     * F1 is bound to 'help keys'
      * F2 is bound to 'join -invite'
      * ^W is bound to META3
-     * ^W? is bound to 'shelp net'
+     * ^W? is bound to 'help net'
      * ^Wh is bound to 'window hide'
      * ^Wn is bound to 'window next'
      * ^Wp is bound to 'window previous'
