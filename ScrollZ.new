@@ -215,7 +215,7 @@ web page.
     ! crash when joining channels with %s on some OSes (no it is not the same
       as BitchX bug and it only happened if you actually joined such channel)
     + added FILINE to filter I-lines to -DOPER (requested by ogre)
-small changes for CygWin build
+    ~ small changes for CygWin build
     + ARINWIN which replaces -DSTEFY, read help for more information
       (requested by Ahnberg)
     + LLOOKUP now also reports new servers in links info (requested by Ahnberg)
@@ -225,3 +225,21 @@ small changes for CygWin build
     ! fixed bug in URL catcher where endless loop could be created and client
       would use all available CPU (found out by about 30+ Alternet clients)
     ! fixed couple of OperVision bugs, mainly related to windows (hi doxx)
+
+Here's Zakath's list for Celerity:
+    + STATUS_LOADAVG (%Z) for system load (works on Linux & BSD, Solaris
+      support is being worked on)
+    + random signoff messages
+    + cele.sz script
+    + COLOR CELE
+    + SET TRUNCATE_PUBLIC_CHANNEL variable. When set to on, it limits the 
+      length of the channel shown in publics. For example:
+      *** Wizner (w@blah.somehost.com) has joined channel #reallylongchannel
+      <Wizner:#real> hi
+      *** Value of TRUNCATE_PUBLIC_CHANNEL set to OFF
+      <Wizner:#reallylongchannel> hi
+    + QUICKSTAT command, which uses STATUS_FORMAT3. Default bind is F6.
+      This should be considered work in progress.
+    + SET BEEP_ON_MAIL - beeps when you receive new mail (this has been
+      moved to general client, it is ON for Celerity and OFF otherwise)
+    ~ updated cosmetics
