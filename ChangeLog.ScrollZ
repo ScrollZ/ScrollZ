@@ -84,8 +84,8 @@ Meaning of flags:
       ircII's SET SHOW_STARS and SET STAR_PREFIX in favour of my, more
       complete code, there is no support for %v (voice status) in status
       bar as ScrollZ already uses %@ for that)
-    + ARINWIN BOTH to display public both in current window and in window
-      with level USERLOG4 (requested by fox)
+    + ARINWIN BOTH to always display public in window with level USERLOG4
+      (even when public's channel is current channel, requested by fox)
     - checks for "/etc/" or "passwd" in DCC SEND/RESEND
     + BKT [-T unban time] to specify unban time (requested by poorboy)
     + support for uppercase usermodes (requested by a few users)
@@ -100,6 +100,8 @@ Meaning of flags:
       WARNING: SHELP is gone, use HELP from now on!
     + REPWORD is now taken in consideration on actions, we use COLOR ME
       color number 6 for this (requested by )
+    + NICKCHAN to display nick change in all user's channels (only once per
+      window though, much like SHOWSIGN for signoffs, requested by fox)
 
 ------------------------------------------------------------------------------
 
