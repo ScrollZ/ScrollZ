@@ -1,0 +1,16 @@
+$id$
+
+These are some ScrollZ related tools that were sitting on my hard
+disk for last couple of years.
+
+SZsetup is ANSI based colour setup utility for ScrollZ. Compile it
+with: cc -o SZsetup SZsetup.c
+xSZsetup is Tcl/Tk based colour utility for ScrollZ. It is ready
+for use as long as you have working Tcl/Tk installation.
+
+Thanks and stuff (jm_'s comment):
+   Well actually thanks go to all people that will use xSZsetup (and those
+   that will just give it a try).
+   Big thanks to Frank Pilhofer (author of uudeview) for letting me use stuff
+   from xdeview (tk_SelectFiles, CompressSlashes, CanonPattern and MFSSelect-
+   Show). xdeview also served me as an example to learn Tcl/Tk.
