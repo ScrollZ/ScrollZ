@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.43 2001-12-22 18:13:43 f Exp $
+ * $Id: server.c,v 1.44 2001-12-22 18:32:27 f Exp $
  */
 
 #include "irc.h"
@@ -601,6 +601,11 @@ add_to_server_list(server, port, password, nick, overwrite)
 #ifdef HAVE_SSL
                 server_list[from_server].enable_ssl = 0;
                 server_list[from_server].ssl_fd = (SSL *) 0;
+                /* this is true only when adding server(s) from a command line */
+                if (*server == '!') {
+                    server++;
+                    server_list[from_server].enable_ssl = 1;
+                }
 #endif
                 server_list[from_server].umodeflags=0;
                 server_list[from_server].LastMessage=(char *) 0;
@@ -1348,7 +1353,7 @@ connect_to_server(server_name, port, nick, c_server)
 		}
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (SSLconnect || *server_name == '!') {
+                if (SSLconnect || *server_name == '!' || server_list[from_server].enable_ssl) {
                     server_list[from_server].enable_ssl = 1;
                     server_list[from_server].flags |= SSL_CONNECT;
                 }
