@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.56 2003-05-02 18:36:09 f Exp $
+ * $Id: operv.c,v 1.57 2003-05-06 16:15:32 f Exp $
  */
 
 #include "irc.h"
@@ -1502,40 +1502,50 @@ char *from;
     if (OVTS) curtime=update_clock(0,0,GET_TIME);
     else curtime=TimeStamp(2);
     if (from) {
+        tmp=index(tmpline,'-');
+        if (!tmp) tmp=tmpline;
+        else if (*(tmp+1)==' ') tmp+=2;
+#ifdef OGRE
+        if (!strncmp(tmpline,"LOCOPS -",8)) strcpy(word2,"locopermsg");
+        else strcpy(word2,"   opermsg");
+#else
+        if (!strncmp(tmpline,"LOCOPS -",8)) strcpy(word2,"Locopermsg");
+        else strcpy(word2,"Opermsg");
+#endif
         if (OVTS) {
 #ifdef OGRE
-            snprintf(word1,sizeof(word1),"[   %sopermsg%s] %s%s%s: %s",
-                    CmdsColors[COLOV].color2,Colors[COLOFF],
+            snprintf(word1,sizeof(word1),"[%s%s%s] %s%s%s: %s",
+                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],
                     CmdsColors[COLOV].color1,from,Colors[COLOFF],
-                    tmp);
+                    tmpline);
             put_it("[%s%s%s%s%s%s%s] %s",
                     CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
                     OVTS?"|":empty_string,
                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
                     word1);
 #else  /* OGRE */
-            put_it("[%s%s%s%s%s%s%s] Opermsg from %s%s%s: %s",
+            put_it("[%s%s%s%s%s%s%s] %s from %s%s%s: %s",
                     CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
                     OVTS?"|":empty_string,
                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
-                    CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+                    word2,CmdsColors[COLOV].color1,from,Colors[COLOFF],tmp);
 #endif /* OGRE */
         }
         else {
 #ifdef OGRE
-            snprintf(word1,sizeof(word1),"[   %sopermsg%s] %s%s%s: %s",
-                    CmdsColors[COLOV].color2,Colors[COLOFF],
+            snprintf(word1,sizeof(word1),"[%s%s%s] %s%s%s: %s",
+                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],
                     CmdsColors[COLOV].color1,from,Colors[COLOFF],
                     tmp);
             put_it("%s[%s%s%s] %s",
                     curtime,
                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
-                    tmpbuf);
+                    word1);
 #else  /* OGRE */
-            put_it("%s[%s%s%s] Opermsg from %s%s%s: %s",
+            put_it("%s[%s%s%s] %s from %s%s%s: %s",
                     curtime,
                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
-                    CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+                    word2,CmdsColors[COLOV].color1,from,Colors[COLOFF],tmp);
 #endif /* OGRE */
         }
     }
