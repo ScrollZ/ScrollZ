@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.14 1999-08-07 12:59:33 f Exp $
+ * $Id: numbers.c,v 1.15 1999-08-07 17:06:35 f Exp $
  */
 
 #include "irc.h"
@@ -115,11 +115,6 @@ static	void	not_valid_channel _((char *, char **));
 static	void	cannot_join_channel _((char *, char **));
 static	void	version _((char *, char **));
 static	void	invite _((char *, char **));
-/**************************** PATCHED by Flier ******************************/
-#ifdef ACID
-extern  void    timercmd _((char *, char *, char *));
-#endif
-/****************************************************************************/
 
 static	int	already_doing_reset_nickname = 0;
 
@@ -626,7 +621,6 @@ cannot_join_channel(from, ArgList)
         int     tryjoin=0;
         char    *tmpchan;
         char    tmpbuf[mybufsize/4+1];
-        void    (*func)()=(void(*)()) TryChannelJoin;
 #endif
 /****************************************************************************/
 
@@ -714,9 +708,6 @@ cannot_join_channel(from, ArgList)
                 whowaschan->channellist->TryRejoin==0) {
                 whowaschan->channellist->TryRejoin=1;
                 TryChannelJoin();
-                /* set 30s timer */
-                strcpy(tmpbuf,"-INV 30 rejoin");
-                timercmd("FTIMER",tmpbuf,(char *) func);
             }
         }
 #endif
