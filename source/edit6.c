@@ -54,7 +54,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.26 1999-02-24 20:04:43 f Exp $
+ * $Id: edit6.c,v 1.27 1999-03-09 20:37:48 f Exp $
  */
 
 #include "irc.h"
@@ -236,6 +236,7 @@ char *buffer;
         if ((user->privs)&FLGOD) strcat(buffer,"G");
         if ((user->privs)&FLJOIN) strcat(buffer,"J");
         if ((user->privs)&FLNOFLOOD) strcat(buffer,"F");
+        if ((user->privs)&FLINSTANT) strcat(buffer,"X");
     }
 }
 
@@ -837,6 +838,7 @@ char *subargs;
             else if (*flags=='G' || *flags=='g') privs=FLGOD;
             else if (*flags=='J' || *flags=='j') privs=FLJOIN;
             else if (*flags=='F' || *flags=='f') privs=FLNOFLOOD;
+            else if (*flags=='X' || *flags=='x') privs=FLINSTANT;
             if (privs) {
                 for (i=1,tmpfriend=frlist;tmpfriend;i++,tmpfriend=tmpfriend->next)
                     if ((*filter=='#' && matchmcommand(filter,i)) ||
