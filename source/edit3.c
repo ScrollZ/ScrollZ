@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.12 1998-11-02 21:20:49 f Exp $
+ * $Id: edit3.c,v 1.13 1998-11-15 20:20:44 f Exp $
  */
 
 #include "irc.h"
@@ -2413,6 +2413,7 @@ void InitVars() {
     nickwatchlist=NULL;
 #endif
     spinglist=NULL;
+    encrlist=NULL;
     MDopTimer=30;
     KickTimer=30;
     NickTimer=30;
