@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.35 2001-01-16 17:36:59 f Exp $
+ * $Id: operv.c,v 1.36 2001-01-17 17:31:42 f Exp $
  */
 
 #include "irc.h"
@@ -268,6 +268,7 @@ char *from;
     char *tmp;
     char *tmpline;
     char *curtime;
+    char *origfrom;
     char *servername;
     char word1[mybufsize];
     char word2[mybufsize];
@@ -284,6 +285,7 @@ char *from;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
+    origfrom=from;
     if (from && index(from,'.')) from=(char *) 0;
     /* We got new notice, needed for caching */
     NewNotice=1;
@@ -984,6 +986,22 @@ char *from;
 #else
         sprintf(tmpbuf,"Rejecting connection from %s%s%s",
                 CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpline,"Remote CONNECT",14)) {
+        strcpy(word1,OVgetword(0,3,tmpline)); /* target */
+        strcpy(word2,OVgetword(0,4,tmpline)); /* port */
+        strcpy(word3,OVgetword(0,6,tmpline)); /* nick */
+#ifdef OGRE
+        sprintf(tmpbuf,"[      %slink%s] %sconnect%s %s%s%s %s <- %s from %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color6,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],word2,origfrom,
+                CmdsColors[COLOV].color3,word2,Colors[COLOFF]);
+#else
+        sprintf(tmpbuf,"Remote connect %s%s%s %s <- %s from %s%s%s",
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],word2,origfrom,
+                CmdsColors[COLOV].color3,word2,Colors[COLOFF]);
 #endif
     }
     else if (strstr(tmpline,"whois on you") ||
