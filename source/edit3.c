@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.22 1999-02-17 17:29:53 f Exp $
+ * $Id: edit3.c,v 1.23 1999-03-01 19:01:20 f Exp $
  */
 
 #include "irc.h"
@@ -66,6 +66,8 @@
 #include "struct.h"
 #include "myvars.h"
 #include "whowas.h"
+
+#include <sys/stat.h> /* for umask() */
 
 void ShowSZHelpPage _((char *));
 void ShowSZHelp _((char *, char *));
@@ -214,6 +216,7 @@ void AwaySave(message,type)
 char *message;
 int  type;
 {
+    int  oldumask;
     char *filepath;
     char tmpbuf1[mybufsize];
     char tmpbuf2[mybufsize];
@@ -221,6 +224,7 @@ int  type;
     time_t now;
 
     if (type && !(type&AwaySaveSet)) return;
+    oldumask=umask(0177);
     filepath=OpenCreateFile("ScrollZ.away",1);
     if (filepath && (awayfile=fopen(filepath,"a"))!=NULL) {
         now=time((time_t *) 0);
@@ -251,6 +255,7 @@ int  type;
         fprintf(awayfile,"%s\n",tmpbuf2);
         fclose(awayfile);
     }
+    umask(oldumask);
 }
 
 #if !defined(WANTANSI) || defined(MGS)

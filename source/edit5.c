@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.19 1999-02-17 17:55:04 f Exp $
+ * $Id: edit5.c,v 1.20 1999-03-01 19:01:21 f Exp $
  */
 
 #include "irc.h"
@@ -106,6 +106,8 @@
 #include "struct.h"
 #include "myvars.h" 
 #include "whowas.h"
+
+#include <sys/stat.h> /* for umask() */
 
 void PlayBack2 _((char *, char *));
 void AddNick2AutoReply _((char *));
@@ -2831,6 +2833,7 @@ char *command;
 char *args;
 char *subargs;
 {
+    int  oldumask=umask(0177);
     char *filepath;
     FILE *notefile;
     time_t now;
@@ -2846,6 +2849,7 @@ char *subargs;
             say("Successful addition to NotePad (%c%s%c)",bold,filepath,bold);
         }
     } else PrintUsage("NOTEPAD <Text to NotePad>");
+    umask(oldumask);
 }
 
 /* Insert next nick completion */
@@ -3042,6 +3046,7 @@ void URLSave3(blah,args)
 char *blah;
 char *args;
 {
+    int  oldumask=umask(0177);
     char *filepath;
     char tmpbuf[mybufsize/4];
     FILE *notefile;
@@ -3060,6 +3065,7 @@ char *args;
         say("Added URL (%c%s%c) to ScrollZ NotePad.",bold,urlbuf,bold);
     }
     new_free(&urlbuf);
+    umask(oldumask);
 }
 
 #ifdef WANTANSI
@@ -3206,12 +3212,15 @@ char *filepath;
                                     (int (*) _((List *, List *))) AddLast);
                     /* if URL Catcher is set to auto... */
                     if (URLCatch>=2 && filepath) {
+                        int oldumask=umask(0177);
+
                         if ((notefile=fopen(filepath,"a"))!=NULL) {
                             now=time((time_t *) 0);
                             fprintf(notefile,"## %s [%.24s]\n",urllist->urls,ctime(&now));
                             fclose(notefile);
                             urlnum++;
                         }
+                        umask(oldumask);
                     }
                 }
             }

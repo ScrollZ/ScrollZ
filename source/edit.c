@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.15 1999-02-24 20:03:10 f Exp $
+ * $Id: edit.c,v 1.16 1999-03-01 19:01:18 f Exp $
  */
 
 #include "irc.h"
@@ -1331,10 +1331,16 @@ really_save(file, line)
 	char	*file;
 	char	*line;
 {
+/**************************** PATCHED by Flier ******************************/
+        int     oldumask;
+/****************************************************************************/
 	FILE	*fp;
 
 	if (*line != 'y' && *line != 'Y')
 		return;
+/**************************** PATCHED by Flier ******************************/
+        oldumask=umask(0177);
+/****************************************************************************/
 	if ((fp = fopen(file, "w")) != NULL)
 	{
 		if (save_which & SFLAG_BIND)
@@ -1354,6 +1360,9 @@ really_save(file, line)
 	}
 	else
 		say("Error opening %s: %s", file, strerror(errno));
+/**************************** PATCHED by Flier ******************************/
+        umask(oldumask);
+/****************************************************************************/
 }
 
 /* save_settings: saves the current state of IRCII to a file */

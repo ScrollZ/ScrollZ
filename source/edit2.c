@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.19 1999-03-01 18:40:34 f Exp $
+ * $Id: edit2.c,v 1.20 1999-03-01 19:01:19 f Exp $
  */
 
 #include "irc.h"
@@ -98,6 +98,8 @@
 #include "struct.h"
 #include "myvars.h"
 #include "whowas.h"
+
+#include <sys/stat.h> /* for umask() */
 
 #ifdef JIMMIE
 #include <sys/utsname.h>
@@ -1626,6 +1628,7 @@ char *subargs;
     int  slistcount;
     int  nlistcount;
     int  wlistcount;
+    int  oldumask=umask(0177);
     char *filepath;
     char *filebak;
     char tmpbuf1[mybufsize/4];
@@ -1640,6 +1643,7 @@ char *subargs;
     if (!(filepath=OpenCreateFile("ScrollZ.save",1)) ||
         (usfile=fopen(filepath,"w"))==NULL) {
         say("Can't open file ScrollZ.save for writing !");
+        umask(oldumask);
         return;
     }
     say("Saving all ScrollZ related stuff into ScrollZ.save");
@@ -1928,6 +1932,7 @@ char *subargs;
 #endif
     fclose(usfile);
     say("ScrollZ.save succesfully saved !");
+    umask(oldumask);
 }
 
 /* Returns friend's privilege (if it finds him/her on your friends list, else 0 */
@@ -3023,6 +3028,7 @@ char *subargs;
     int  modify=1;
     int  showit=1;
     int  oldserver;
+    int  oldumask=umask(0177);
     char *tmpstr;
     char *awaystr=(char *) 0;
     char *filepath;
@@ -3084,6 +3090,7 @@ char *subargs;
         AwaySave("SetAway",0);
         update_all_status();
     }
+    umask(oldumask);
 }
 
 /* Marks you as not being away */
@@ -3740,6 +3747,7 @@ char *subargs;
     /* for ioctl -> linux only */
 #ifdef __linux__
     int tmpsock;
+    int oldumask;
     struct ifreq ifr;
 #endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
@@ -3766,9 +3774,11 @@ char *subargs;
     sprintf(filename,"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
+    oldumask=umask(0177);
     if ((fp=fopen(filename,"w"))==NULL) {
         say("Error, can't open temporary file for writing");
         unlink(filename);
+        umask(oldumask);
         return;
     }
     /* we need open socket for ioctl() to work */
@@ -3776,6 +3786,7 @@ char *subargs;
         say("Error obtaining socket, aborting");
         fclose(fp);
         unlink(filename);
+        umask(oldumask);
         return;
     }
     /* probe eth0 through eth3 */
@@ -3792,6 +3803,7 @@ char *subargs;
             fclose(fp);
             unlink(filename);
             close(tmpsock);
+            umask(oldumask);
             return;
         }
         if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
@@ -3808,6 +3820,7 @@ char *subargs;
     }
     close(tmpsock);
     fclose(fp);
+    umask(oldumask);
 #else
     /* run /sbin/ifconfig
        we use -m -a on BSD */

@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.15 1999-02-24 20:02:51 f Exp $
+ * $Id: cdcc.c,v 1.16 1999-03-01 19:01:17 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1375,6 +1375,7 @@ static void savemcommand(line)
 char *line;
 {
     int   count=0;
+    int   oldumask=umask(0177);
     char  *file;
     char  *filepath;
     FILE  *fp;
@@ -1391,6 +1392,7 @@ char *line;
 #else
             say("Can't open file %s",file);
 #endif
+            umask(oldumask);
             return;
         }
         for (tmp=packs;tmp;tmp=tmp->next) {
@@ -1405,6 +1407,7 @@ char *line;
         say("Saved %d pack%s to %s",count,count==1?empty_string:"s",file);
     }
     else say("No packs created");
+    umask(oldumask);
 }
 
 /***********************************************************************
