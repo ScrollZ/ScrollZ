@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.26 2000-08-15 16:57:59 f Exp $
+ * $Id: operv.c,v 1.27 2000-08-22 16:53:04 f Exp $
  */
 
 #include "irc.h"
@@ -184,8 +184,8 @@ int b;
 char *string;
 {
     int  i=1;
-    static char tmpbuf1[mybufsize/4+1];
-    static char tmpbuf2[mybufsize/4+1];
+    static char tmpbuf1[mybufsize/2+1];
+    static char tmpbuf2[mybufsize/2+1];
     char *tmpstr=tmpbuf1;
     char *tmpbuf=tmpbuf1;
 
@@ -195,16 +195,16 @@ char *string;
        This should speed things up and reduce CPU usage.
        First check if this is new notice, and if it is copy entire string to buffer.
        Else, copy old pointer and work from there on, using new indexes   -Flier */
-    if (NewNotice) strmcpy(tmpbuf1,string,mybufsize/4);
+    if (NewNotice) strmcpy(tmpbuf1,string,mybufsize/2);
     else {
-        strmcpy(tmpbuf1,OldPtr,mybufsize/4);
+        strmcpy(tmpbuf1,OldPtr,mybufsize/2);
         i=OldWord+1;
     }
     /* If a=0, find and return word #b */
     if ((a==0) && (b>0)) {
 	for(;i<=b;i++) tmpstr=next_arg(tmpbuf,&tmpbuf);
         /* Made it crash proof since my ircd formats some messages differently */
-        if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/4);
+        if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/2);
         /* so if there is no word #b we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -219,7 +219,7 @@ char *string;
             if (tmpstr) tmpstr++;
         }
         /* Made it crash proof since my ircd formats some messages differently */
-	if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/4);
+	if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/2);
         /* so if there is no word #a we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -254,10 +254,10 @@ char *from;
     char *tmp;
     char *tmpline;
     char *servername;
-    char word1[mybufsize/4];
-    char word2[mybufsize/4];
-    char word3[mybufsize/2];
-    char word4[mybufsize/4];
+    char word1[mybufsize];
+    char word2[mybufsize];
+    char word3[mybufsize];
+    char word4[mybufsize];
     char tmpbuf[mybufsize];
 
     /* Set up tmpline to be just the message to parse */
@@ -691,19 +691,24 @@ char *from;
             word1[strlen(word1)-1]='\0';
         strcpy(word2,OVgetword(0,7,tmpline));  /* killer  */
         strcpy(word3,OVgetword(0,9,tmpline));  /* path  */
-        strcpy(word4,OVgetword(10,0));         /* reason */
+        strcpy(word4,OVgetword(0,10,tmpline)); /* reason  */
         /* check for server kill first */
         if (index(word2,'.')) {
+            tmp=word4;
+            if (*tmp=='(') {
+                tmp++;
+            }
+            else tmp=empty_string;
 #ifdef OGRE 
             sprintf(tmpbuf,"[      %skill%s] %sserver%s: %s%s%s from %s%s%s (%s)",
                     CmdsColors[COLOV].color2,Colors[COLOFF],
                     CmdsColors[COLOV].color6,Colors[COLOFF],
                     CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],word4);
+                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],tmp);
 #else
             sprintf(tmpbuf,"Server kill received for %s%s%s from %s%s%s (%s)",
                     CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],word4);
+                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],tmp);
 #endif
         }
         else {
@@ -949,7 +954,8 @@ char *from;
                 CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
 #endif
     }
-    else if (strstr(tmpline,"whois on you")) {
+    else if (strstr(tmpline,"whois on you") ||
+             strstr(tmpline,"WHOIS on YOU")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
 #ifdef OGRE
@@ -989,11 +995,6 @@ char *from;
         strcpy(word3,OVgetword(0,6,tmpline));  /* o/O */
         tmp=word3;
         if (*tmp) tmp++;
-        if (get_server_version(from_server)==Server2_9 || 
-            get_server_version(from_server)==Server2_10) {
-            if (*tmp=='o') *tmp='O';
-            else *tmp='o';
-        }
 #ifdef CELECOSM
         sprintf(tmpbuf,"%s%s%s %s is an IRC warrior %s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
