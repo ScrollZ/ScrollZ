@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.3 1998-09-28 16:43:38 f Exp $
+ * $Id: status.c,v 1.4 1998-10-21 19:44:38 f Exp $
  */
 
 #include "irc.h"
@@ -60,6 +60,7 @@ extern int vt100Decode _((char));
 #endif
 extern int  CheckChannel _((char *, char *));
 extern void StripAnsi _((char *, char *, int));
+extern int  CheckServer _((int));
 
 extern time_t  start_time;
 /****************************************************************************/
@@ -1922,9 +1923,9 @@ Window	*window;
 {
     char *ptr=(char *) 0;
 
-    if (LastJoin &&
+    if (CheckServer(curr_scr_win->server) && server_list[curr_scr_win->server].LastJoin &&
         (get_int_var(SHOW_STATUS_ALL_VAR) || current_screen->current_window==window))
-        malloc_strcpy(&ptr,LastJoin);
+        malloc_strcpy(&ptr,server_list[curr_scr_win->server].LastJoin);
     else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
