@@ -817,6 +817,15 @@ Usage $3TBAN$0 [[$3#$0]$3channel$0]
 You can use following format: * for all bans or -2,4,6-8,10- (this
 would remove bans 1,2,4,6,7,8 and all bans from 10 and on)
 Also look at $2BAN$0, $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, $2CDBAN$0 and $2DOBANS$0
+:TOPICLOCK     Sets channel's topic lock
+Usage $3TOPICLOCK$0 [$3#channel mode$0]
+Several channels can be specified at once, separate them with comma.
+Every channel's name must start with #. Stored topic locks for all
+channels are shown if no arguments are given.
+Also look at $2TOPICUNLOCK$0
+:TOPICUNLOCK   Resets channel's topic lock
+Usage $TOPICUNLOCK$0 [[$3#$0]$3channel$0]
+Also look at $2TOPICLOCK$0
 :UNBAN         Unbans user on your current channel
 Usage $3UNBAN nick$0
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2TBAN$0, $2CDBANS$0 and $2DOBANS$0
@@ -1029,7 +1038,7 @@ Also look at $2CDCC DLDIR$0
 :   SB            SERVNOTICE    SETAWAY       SETBACK       SETTINGS
 :   SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK      SHOWSIGN
 :   SHOWUSER      SINFO         SPING         STAMP         SVE
-:   T             TBAN          TERMINATE     TKILL         UMODE
-:   UNBAN         UNFLASH       URL           URLCATCH      VER
-:   W             WALL          WHOLEFT       WI            WII
-:   WKILL         WW            
+:   T             TBAN          TERMINATE     TKILL         TOPICLOCK
+:   TOPICUNLOCK   UMODE         UNBAN         UNFLASH       URL
+:   URLCATCH      VER           W             WALL          WHOLEFT
+:   WI            WII           WKILL         WW            

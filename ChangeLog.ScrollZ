@@ -62,6 +62,12 @@ Meaning of flags:
     ~ index is now a section in ScrollZ.help (idea by braneded)
     + handle numeric 263 (load too high). it resets internal links flag so
       we can do another /links et al. as soon as we like (coded by braneded)
+    - Cdcc handling via messages
+    + timestamp to DCC chat (requested by ogre)
+    + TOPICLOCK and TOPICUNLOCK to lock/unlock topic (requested by acidflash)
+      only available if compiled with -DEXTRAS
+    ! don't lose mode lock when we part a channel
+    ! don't lose mode lock when we have joined too many channels
 
 ------------------------------------------------------------------------------
 
