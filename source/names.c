@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.22 2001-03-05 17:13:41 f Exp $
+ * $Id: names.c,v 1.23 2001-07-24 15:42:01 f Exp $
  */
 
 #include "irc.h"
@@ -257,6 +257,9 @@ add_channel(channel, server, connected, copy)
 	}
         else
         {
+/**************************** Patched by Flier ******************************/
+                if (!(new->nicks)) resetchan=1;
+/****************************************************************************/
 		if (new->connected != CHAN_LIMBO && new->connected != CHAN_JOINING)
 			yell("--- add_channel: add_channel found channel not CHAN_LIMBO/JOINING: %s", new->channel);
         }
