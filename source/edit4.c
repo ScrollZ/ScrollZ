@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.67 2001-08-02 18:48:30 f Exp $
+ * $Id: edit4.c,v 1.68 2001-08-05 16:00:22 f Exp $
  */
 
 #include "irc.h"
@@ -2386,9 +2386,10 @@ ChannelList *chan;
 #ifdef EXTRAS
         CheckLock(chan->channel,from_server,chan);
 #endif
-        if (chan && ((chan->mode)&MODE_ANONYMOUS)) {
-            /* request topic when we get opped on anonymous channel
-               to show correct topic info on hybrid7 ircd */
+        /* request topic when we get opped on anonymous channel
+           to show correct topic info on hybrid7 ircd */
+        if (chan && ((chan->mode)&MODE_ANONYMOUS) &&
+            (get_server_version(from_server)==Server2_11)) {
             send_to_server("TOPIC %s",chan->channel);
         }
     }
