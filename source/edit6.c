@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.8 1998-10-27 17:09:24 f Exp $
+ * $Id: edit6.c,v 1.9 1998-10-30 22:14:51 f Exp $
  */
 
 #include "irc.h"
@@ -500,12 +500,20 @@ char *command;
 char *args;
 char *subargs;
 {
+    char *server;
+    char servbuf[mybufsize/16+4];
     time_t timenow=time((time_t *) 0);
 
     if (timenow-LastLinks>=120 || !inFlierLinks) {
+        server=new_next_arg(args,&args);
         LastLinks=timenow;
         inFlierLinks=4;
-        send_to_server("LINKS");
+        strcpy(servbuf,"LINKS ");
+        if (server) {
+            strmcat(servbuf,server,mybufsize/16);
+            strmcat(servbuf," *",mybufsize/16+3);
+        }
+        send_to_server("%s",servbuf);
         say("Generating map of IRC servers");
     }
     else say("Wait till previous LINKS, LLOOK, LLOOKUP or MAP completes");
