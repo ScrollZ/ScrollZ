@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.3 1998-09-14 16:47:52 f Exp $
+ * $Id: edit2.c,v 1.4 1998-09-16 20:10:14 f Exp $
  */
 
 #include "irc.h"
@@ -120,7 +120,7 @@ void ListFriendsPage _((char *));
 void ListFriendsKey _((char *, char *));
 void ListABKsPage _((char *));
 void ListABKsKey _((char *, char *));
-void AddNick2List _((char *));
+void AddNick2List _((char *, int));
 struct words *CheckLine _((char *, char *));
 void NotChanOp _((char *));
 void NoWindowChannel _((void));
@@ -2000,7 +2000,7 @@ char *subargs;
         else {
             tmparg=new_next_arg(args,&args);
             send_text(tmparg,message,"PRIVMSG");
-            AddNick2List(tmparg);
+            AddNick2List(tmparg,from_server);
         }
     }
     else say("You haven't received any %s so far",msg?"message":"notice");
@@ -3328,11 +3328,12 @@ void AddJoinChannel() {
 #endif
 
 /* Adds nick to list of people who have messaged you */
-void AddNick2List(nick)
+void AddNick2List(nick,server)
 char *nick;
+int server;
 {
     int count;
-    int curserv=curr_scr_win->server;
+    int curserv=server;
     struct nicks *nickstr;
     struct nicks *nicktmp;
 
