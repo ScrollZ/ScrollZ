@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: menu.c,v 1.5 2000-08-21 18:41:40 f Exp $
+ * $Id: menu.c,v 1.6 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -44,6 +44,8 @@
 #include "input.h"
 #include "vars.h"
 #include "output.h"
+
+#ifndef LITE
 
 #ifdef lines
 #undef lines
@@ -444,3 +446,5 @@ menu_command(args)
 {
 	parse_line((char *) 0, args, empty_string, 0, 0);
 }
+
+#endif /* LITE */

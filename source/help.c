@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.7 2000-08-21 18:41:40 f Exp $
+ * $Id: help.c,v 1.8 2000-09-24 17:10:34 f Exp $
  */
 
 /*
@@ -48,6 +48,8 @@
  */
 
 #include "irc.h"
+
+#ifndef LITE
 
 /* stuff from gnu autoconf docs */
 
@@ -910,3 +912,5 @@ set_help_screen(screen)
 		update_all_windows();
 	}
 }
+
+#endif /* LITE */

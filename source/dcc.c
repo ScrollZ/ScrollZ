@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.24 2000-08-21 18:41:40 f Exp $
+ * $Id: dcc.c,v 1.25 2000-09-24 17:10:33 f Exp $
  */
 
 #include "irc.h"
@@ -71,7 +71,9 @@
 /*static	void	dcc_chat _((char *));*/
 void	dcc_chat _((char *));
 /****************************************************************************/
+#ifndef LITE
 static	void	dcc_chat_rename _((char *));
+#endif
 /**************************** PATCHED by Flier ******************************/
 /*static	void	dcc_filesend _((char *));
 static	void	dcc_getfile _((char *));
@@ -82,11 +84,15 @@ void	dcc_close _((char *));
 /*static	void	dcc_talk _((char *));
 static	void	dcc_tmsg _((char *));*/
 /****************************************************************************/
+#ifndef LITE
 static	void	dcc_rename _((char *));
+#endif
 /**************************** PATCHED by Flier ******************************/
 /*static	void	dcc_summon _((char *));*/
 /****************************************************************************/
+#ifndef LITE
 static	void	dcc_send_raw _((char *));
+#endif
 static	void	process_incoming_chat _((DCC_list *));
 /**************************** PATCHED by Flier ******************************/
 /*static	void	process_outgoing_file _((DCC_list *));*/
@@ -100,8 +106,10 @@ static	void	process_incoming_file _((DCC_list *));
 /**************************** PATCHED by Flier ******************************/
 /*static	void	process_incoming_talk _((DCC_list *));*/
 /****************************************************************************/
+#ifndef LITE
 static	void	process_incoming_raw _((DCC_list *));
 static	void	process_incoming_listen _((DCC_list *));
+#endif
 /**************************** PATCHED by Flier ******************************/
 void	dcc_resend _((char *));
 void	dcc_regetfile _((char *));
@@ -151,10 +159,14 @@ struct
 	/*{ "TALK",	2, dcc_talk },
 	{ "TMSG",	2, dcc_tmsg },
 	{ "RENAME",	2, dcc_rename },*/
+#ifndef LITE
 	{ "RENAME",	3, dcc_rename },
+#endif
 	/*{ "SUMMON",	2, dcc_summon },*/
 /****************************************************************************/
+#ifndef LITE
 	{ "RAW",	2, dcc_send_raw },
+#endif
 /**************************** PATCHED by Flier ******************************/
 	{ "RESEND",	3, dcc_resend },
 	{ "REGET",	3, dcc_regetfile },
@@ -172,8 +184,10 @@ struct
 	/*"TALK",
 	"SUMMON",*/
 /****************************************************************************/
+#ifndef LITE
 	"RAW_LISTEN",
 	"RAW",
+#endif
 /**************************** PATCHED by Flier ******************************/
 	"RESEND",
 	"REGET", 
@@ -618,12 +632,14 @@ dcc_check(rd, wd)
 			case DCC_CHAT:
 				process_incoming_chat(*Client);
 				break;
+#ifndef LITE
 			case DCC_RAW_LISTEN:
 				process_incoming_listen(*Client);
 				break;
 			case DCC_RAW:
 				process_incoming_raw(*Client);
 				break;
+#endif
 			case DCC_FILEOFFER:
 /**************************** PATCHED by Flier ******************************/
 			case DCC_RESENDOFFER:
@@ -886,6 +902,7 @@ dcc_chat(args)
 	dcc_open(Client);
 }
 
+#ifndef LITE
 char	*
 dcc_raw_listen(iport)
  	u_int	iport;
@@ -993,6 +1010,7 @@ dcc_raw_connect(host, iport)
 	(void) set_lastlog_msg_level(lastlog_level);
 	return RetName;
 }
+#endif /* LITE */
 
 /*char    *talk_errors[] =
 {
@@ -2005,7 +2023,9 @@ process_incoming_chat(Client)
                         sprintf(tmpbuf,"=%s",Client->user);
                         iscrypted=DecryptMessage(s,tmpbuf);
 /****************************************************************************/
+#ifndef LITE
 			if (do_hook(DCC_CHAT_LIST, "%s %s", Client->user, s))
+#endif
                         {
 /**************************** PATCHED by Flier ******************************/
 	                        /*if (away_set)
@@ -2034,6 +2054,7 @@ out:
 	restore_message_from();
 }
 
+#ifndef LITE
 static	void
 process_incoming_listen(Client)
 	DCC_list	*Client;
@@ -2142,6 +2163,7 @@ process_incoming_raw(Client)
 	}
  	restore_message_from();
 }
+#endif /* LITE */
 
 /**************************** PATCHED by Flier ******************************/
 /*static	void
@@ -2501,10 +2523,14 @@ dcc_message_transmit(user, text, type, flag)
 {
 	DCC_list	*Client;
 	char	tmp[BIG_BUFFER_SIZE+1];
+#ifndef LITE
  	char	nickbuf[128];
+#endif
 	char	thing = '\0';
 	char	*host = (char *) 0;
+#ifndef LITE
  	crypt_key	*key;
+#endif
  	char	*line;
 	int	lastlog_level;
 	int	list = 0;
@@ -2530,6 +2556,7 @@ dcc_message_transmit(user, text, type, flag)
 		thing = '=';
 		list = SEND_DCC_CHAT_LIST;
 		break;
+#ifndef LITE
 	case DCC_RAW:
 		host = next_arg(text, &text);
 		if (!host)
@@ -2538,6 +2565,7 @@ dcc_message_transmit(user, text, type, flag)
 			goto out1;
 		}
 		break;
+#endif
 	}
  	save_message_from();
  	message_from(user, LOG_DCC);
@@ -2565,11 +2593,15 @@ dcc_message_transmit(user, text, type, flag)
         }
 /****************************************************************************/
 	if (type == DCC_CHAT) {
+#ifndef LITE
 		nickbuf[0] = '=';
 		strmcpy(nickbuf+1, user, sizeof(nickbuf) - 2);
 
 		if ((key = is_crypted(nickbuf)) == 0 || (line = crypt_msg(tmp, key, 1)) == 0)
 			line = tmp;
+#else
+                line=tmp;
+#endif
 	}
 	else
 		line = tmp;
@@ -2593,7 +2625,9 @@ dcc_message_transmit(user, text, type, flag)
 #endif
 	Client->bytes_sent += len;
 	if (flag && type != DCC_RAW) {
+#ifndef LITE
                 if (do_hook(list, "%s %s", Client->user, text))
+#endif
 /**************************** PATCHED by Flier *****************************/
                         /*put_it("=> %c%s%c %s", thing, Client->user, thing, text);*/
                     PrintMyChatMsg(Client->user,text,iscrypted);
@@ -2601,7 +2635,9 @@ dcc_message_transmit(user, text, type, flag)
 	}
 out:
  	restore_message_from();
+#ifndef LITE
 out1:
+#endif
 	set_lastlog_msg_level(lastlog_level);
 	return;
 }
@@ -2630,6 +2666,7 @@ dcc_tmsg(args)
 }*/
 /****************************************************************************/
 
+#ifndef LITE
 static	void
 dcc_send_raw(args)
 	char	*args;
@@ -2647,6 +2684,7 @@ dcc_send_raw(args)
 	}
 	dcc_message_transmit(name, args, DCC_RAW, 1);
 }
+#endif
 
 /*
  * dcc_time: Given a time value, it returns a string that is in the
@@ -2790,6 +2828,7 @@ out:
 }
 
 /* this depends on dcc_rename() setting loglevel */
+#ifndef LITE
 static void
 dcc_chat_rename(args)
 	char	*args;
@@ -2883,6 +2922,7 @@ dcc_rename(args)
 out:
  	(void) set_lastlog_msg_level(lastlog_level);
 }
+#endif /* LITE */
 
 /*
  * close_all_dcc:  We call this when we create a new process so that

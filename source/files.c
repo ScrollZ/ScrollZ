@@ -4,7 +4,7 @@
  *
  * Written by Flier
  *
- * $Id: files.c,v 1.11 2000-08-21 18:41:40 f Exp $
+ * $Id: files.c,v 1.12 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -26,6 +26,8 @@ char    global_track[256]={102,56,53,112,108,118,52,115,32,112,37,75,108,53,106,
         0,0,0,0,0,0,0,0,0
         };
 #endif
+
+#ifndef LITE
 
 /*
    open(FILENAME <type>)
@@ -183,3 +185,5 @@ int fd;
     else RemoveFile(ptr);
     return(0);
 }
+
+#endif /* LITE */

@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.47 2000-08-30 18:15:56 f Exp $
+ * $Id: edit5.c,v 1.48 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -1892,6 +1892,7 @@ char *subargs;
 void NslookupNew();
 
 /* Looks up DNS entry */
+#ifndef LITE
 void Nslookup(command,args,subargs)
 char *command;
 char *args;
@@ -1956,6 +1957,7 @@ char *host;
     else say("%s is %s (%s)",host,hostaddr->h_name,
              inet_ntoa(*(struct in_addr *) hostaddr->h_addr));
 }
+#endif /* LITE */
 
 /* Inserts nickname of the person that triggered auto reply */
 void InsertAutoReply() {
@@ -2834,6 +2836,7 @@ char *subargs;
 }
 
 /* Notepad - in case you don't have pen & paper handy... */
+#ifndef LITE
 void NotePad(command,args,subargs)
 char *command;
 char *args;
@@ -2857,6 +2860,7 @@ char *subargs;
     } else PrintUsage("NOTEPAD <Text to NotePad>");
     umask(oldumask);
 }
+#endif
 
 /* Insert next nick completion */
 void InsertNick() {
@@ -3893,6 +3897,7 @@ void InitKeysColors() {
 }
 
 /* Kicks nick from multiple channel */
+#ifndef LITE
 void MultiKick(command,args,subargs)
 char *command;
 char *args;
@@ -3928,6 +3933,7 @@ char *subargs;
     }
     else PrintUsage("MULTK [#channels] nick [comment]");
 }
+#endif
 
 /* Kills users matching filter with WHO */
 #ifdef OPER

@@ -406,4 +406,7 @@
 
 /* Define this if you want ogre's cosmetics in OperVision */
 #undef OGRE
+
+/* Define this if you want client w/o certain functionality */
+#undef LITE
 /****************************************************************************/

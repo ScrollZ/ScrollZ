@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.44 2000-08-30 18:15:56 f Exp $
+ * $Id: edit4.c,v 1.45 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -923,9 +923,12 @@ int  print;
         else if (!strncmp(notice,"Ctcp-inviting you to ",22)) AddJoinKey(4,notice);
         else if (!strncmp(notice,"The channel ",12)) AddJoinKey(5,notice);
     }
-    if (!foundchan ||
-        (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,nick,
-                              notice+(wallop-tmpbuf+1)))) {
+    if (!foundchan
+#ifndef LITE
+        || (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,
+                                 nick,notice+(wallop-tmpbuf+1)))
+#endif
+       ) {
         if (foundchan || (!foundchan && !print)) hooked=0;
         if (print) {
 #ifdef WANTANSI
@@ -1809,7 +1812,10 @@ char *text;
             if (!wild_match(tmpbuf3,tmpbuf4)) return;
         }
     }
-    if (do_hook(NOTIFY_SIGNON_UH_LIST,"%s %s %s",wistuff->nick,wistuff->user,wistuff->host)) {
+#ifndef LITE
+    if (do_hook(NOTIFY_SIGNON_UH_LIST,"%s %s %s",wistuff->nick,wistuff->user,wistuff->host))
+#endif
+    {
 #ifdef WANTANSI
         sprintf(tmpbuf2,"%s!%s",wistuff->nick,tmpbuf1);
         if (CheckUsers(tmpbuf2,NULL)) {
@@ -2322,6 +2328,7 @@ char *nick;
 }
 
 /* Adds given server to server list */
+#ifndef LITE
 void AddServer(command,args,subargs)
 char *command;
 char *args;
@@ -2411,6 +2418,7 @@ char *subargs;
         else say("#%-2d %c%s%c  %d",i,bold,server,bold,server_list[i].port);
     }
 }
+#endif /* LITE */
 
 /* Returns 1 if user is banned on channel, else 0 */
 int IsBanned(userhost,channel,server,tmpchan)

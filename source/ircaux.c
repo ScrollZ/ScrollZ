@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.8 2000-08-14 20:38:13 f Exp $
+ * $Id: ircaux.c,v 1.9 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -67,7 +67,9 @@ extern	struct	in_addr	MyHostAddr;
 #endif
 extern  char *source_host;
 
+#ifdef INET6
 static int bind_local_addr _((char *, char *, int, int));
+#endif
 
 #ifdef	ALLOC_DEBUG
 # ifdef  _IBMR2

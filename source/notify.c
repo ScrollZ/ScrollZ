@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.8 2000-08-27 18:01:56 f Exp $
+ * $Id: notify.c,v 1.9 2000-09-24 17:10:34 f Exp $
  */
 
 /*
@@ -347,7 +347,11 @@ notify_mark(nick, flag, doit)
 /****************************************************************************/
 			if (tmp->flag != 1)
 			{
-				if (tmp->flag != -1 && doit && do_hook(NOTIFY_SIGNON_LIST, "%s", nick))
+				if (tmp->flag != -1 && doit
+#ifndef LITE
+                                    && do_hook(NOTIFY_SIGNON_LIST, "%s", nick)
+#endif
+                                   )
 /**************************** PATCHED by Flier ******************************/
 					/*say("Signon by %s detected", nick);*/
 					if (flag!=2) HandleNotifyOn(nick,tmp->server);
@@ -372,12 +376,19 @@ notify_mark(nick, flag, doit)
                             strcpy(tmpbuf,tmp->userhost);
                             host=index(tmpbuf,'@');
                             if (host) host++;
-                            if (tmp->flag == 1 && host && tmpbuf[0] && doit &&
-                                do_hook(NOTIFY_SIGNOFF_UH_LIST, "%s %s %s", nick,tmpbuf,host))
+                            if (tmp->flag == 1 && host && tmpbuf[0] && doit 
+#ifndef LITE
+                                && do_hook(NOTIFY_SIGNOFF_UH_LIST, "%s %s %s", nick,tmpbuf,host)
+#endif
+                               )
                                 HandleNotifyOffUh(tmp->nick,tmp->userhost,tmp->mask,
                                                   timenow,tmp->isfriend);
                         }
-                        else if (tmp->flag == 1 && doit && do_hook(NOTIFY_SIGNOFF_LIST, "%s", nick))
+                        else if (tmp->flag == 1 && doit
+#ifndef LITE
+                                 && do_hook(NOTIFY_SIGNOFF_LIST, "%s", nick)
+#endif
+                                )
                             HandleNotifyOff(tmp->nick,timenow);
                         if (OrigNickChange && OrigNick && !my_stricmp(OrigNick,nick)) {
                             int changenick=1;

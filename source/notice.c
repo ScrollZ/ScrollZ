@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.17 2000-09-01 18:01:31 f Exp $
+ * $Id: notice.c,v 1.18 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -62,7 +62,9 @@ extern void OVformat _((char *, char *));
 #endif
 /*********************************************************************/
 
+#ifndef LITE
 static	void	parse_note _((char *, char *));
+#endif
 static	void	parse_server_notice _((char *, char *, char *));
 
 /*
@@ -70,6 +72,7 @@ static	void	parse_server_notice _((char *, char *, char *));
  * NOTICES.  The notice() function determines which notices are note messages
  * and send that info to parse_note() 
  */
+#ifndef LITE
 static	void
 parse_note(server, line)
 	char	*server;
@@ -113,6 +116,7 @@ parse_note(server, line)
 		beep_em(1);
 	set_lastlog_msg_level(level);
 }
+#endif
 
 static	void
 parse_server_notice(from, to, line)
@@ -287,11 +291,13 @@ parse_notice(from, Args)
 		 * a 'dot' in it..  - phone, jan 1993.
 		 */
 					not_from_server = 0;
+#ifndef LITE
 					if (strncmp(line, "*/", 2) == 0)
 					{
 						parse_note(from, line + 1);
  						goto out;
 					}
+#endif
 				}
 				if (not_from_server && (flag != DONT_IGNORE) && !FromUserHost &&
 							(ignore_usernames & IGNORE_NOTICES))

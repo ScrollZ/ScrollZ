@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.30 2000-08-21 18:41:40 f Exp $
+ * $Id: ctcp.c,v 1.31 2000-09-24 17:10:33 f Exp $
  */
 
 #include "irc.h"
@@ -104,7 +104,9 @@ static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
 static	void	do_new_notice_ctcp _((char *, char *, char **, char *));
 
 /* forward declarations for the built in CTCP functions */
+#ifndef LITE
 static	char	*do_crypto _((CtcpEntry *, char *, char *, char *));
+#endif
 static	char	*do_version _((CtcpEntry *, char *, char *, char *));
 static	char	*do_clientinfo _((CtcpEntry *, char *, char *, char *));
 static	char	*do_echo _((CtcpEntry *, char *, char *, char *));
@@ -158,7 +160,9 @@ static CtcpEntry ctcp_cmd[] =
 		CTCP_VERBOSE, do_echo },
         { "ECHO", 	"returns the arguments it receives",
                 CTCP_VERBOSE, do_echo },
+#ifndef LITE
  	CRYPTO_CTCP_ENTRIES
+#endif
 /**************************** PATCHED by Flier ******************************/
 #define CTCP_INVITE
         { "INVITE",     "invites user to a channel",
@@ -1062,6 +1066,7 @@ char *args;
  * malloc string the decryped message (if a key is set for that user) or the
  * text "[ENCRYPTED MESSAGE]" 
  */
+#ifndef LITE
 static	char	*
 do_crypto(ctcp, from, to, args)
 	CtcpEntry	*ctcp;
@@ -1099,6 +1104,7 @@ do_crypto(ctcp, from, to, args)
 		malloc_strcpy(&ret, "[ENCRYPTED MESSAGE]");
 	return (ret);
 }
+#endif
 
 /*
  * do_clientinfo: performs the CLIENTINFO CTCP.  If cmd is empty, returns the

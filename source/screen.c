@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.14 2000-09-10 10:12:01 f Exp $
+ * $Id: screen.c,v 1.15 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -1187,8 +1187,10 @@ redraw_window(window, just_one, backscroll)
 			display_lastlog_lines(window->scrolled_lines - window->display_size,
 			    window->scrolled_lines, window);
 	}
+#ifndef LITE
 	if (window->menu.menu)
 		ShowMenuByWindow(window, just_one ? SMF_ERASE : 0);
+#endif
 	if (window->scrolled_lines + StartPoint < window->display_size)
 		yScr = window->scrolled_lines + StartPoint;
 	else
@@ -2506,7 +2508,9 @@ scrollback_start(key, ptr)
 	char *	ptr;
 {
 	Window	*window;
-	Display	*Disp;
+/**************************** PATCHED by Flier ******************************/
+	/*Display	*Disp;*/
+/****************************************************************************/
 	int	num_lines;
 
 	window = curr_scr_win;

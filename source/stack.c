@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stack.c,v 1.4 2000-08-14 20:38:14 f Exp $
+ * $Id: stack.c,v 1.5 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -40,6 +40,8 @@
 #include "ircaux.h"
 #include "output.h"
 #include "list.h"
+
+#ifndef LITE
 
 static	OnStack	*on_stack = NULL;
 static  AliasStack *alias_stack = NULL;
@@ -392,3 +394,5 @@ stackcmd(command, args, subargs)
 		return;
 	}
 }
+
+#endif /* LITE */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.25 2000-09-14 15:39:46 f Exp $
+ * $Id: window.c,v 1.26 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -131,9 +131,11 @@ void	irc_goto_window _((int));
 static	void	list_a_window _((Window *, int, int));
 static	void	list_windows _((void));
 static	void	show_window _((Window *));
+#ifndef LITE
 static	void	push_window_by_refnum _((u_int));
 static	void	pop_window _((void));
 static	void	show_stack _((void));
+#endif
 static	int	is_window_name_unique _((char *));
 static	void	add_nicks_by_refnum _((u_int, char *, int));
 static	Window	*get_window _((char *, char **));
@@ -2442,6 +2444,7 @@ show_window(window)
 }
 
 /* push_window_by_refnum:  This pushes the given refnum onto the window stack */
+#ifndef LITE
 static	void
 push_window_by_refnum(refnum)
 	u_int	refnum;
@@ -2538,6 +2541,7 @@ show_stack()
 		}
 	}
 }
+#endif
 
 /*
  * is_window_name_unique: checks the given name vs the names of all the
@@ -2893,6 +2897,7 @@ windowcmd(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 /*#if defined(_Windows)*/
 /****************************************************************************/
+#ifndef LITE
 		else if (my_strnicmp("TITLE", arg, len) == 0)
 		{
 /**************************** PATCHED by Flier ******************************/
@@ -2925,6 +2930,7 @@ windowcmd(command, args, subargs)
 				say("You must specify a name for the window!");
 			}
 		}
+#endif
 /**************************** PATCHED by Flier ******************************/
 /*#endif*/ /* _Windows */
 /****************************************************************************/
@@ -2972,10 +2978,12 @@ windowcmd(command, args, subargs)
 		}
                 else if (strncmp("HIDE", cmd, len) == 0)
 			hide_window(window);
+#ifndef LITE
 		else if (strncmp("PUSH", cmd, len) == 0)
 			push_window_by_refnum(window->refnum);
 		else if (strncmp("POP", cmd, len) == 0)
 			pop_window();
+#endif
 		else if (strncmp("ADD", cmd, len) == 0)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
@@ -2990,8 +2998,10 @@ windowcmd(command, args, subargs)
 			else
 				say("REMOVE: Do something!  Geez!");
 		}
+#ifndef LITE
 		else if (strncmp("STACK", cmd, len) == 0)
 			show_stack();
+#endif
 		else if (strncmp("LIST", cmd, len) == 0)
 			list_windows();
 		else if (strncmp("SERVER", cmd, len) == 0)

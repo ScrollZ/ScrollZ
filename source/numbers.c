@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.26 2000-08-28 22:43:33 f Exp $
+ * $Id: numbers.c,v 1.27 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -1348,7 +1348,9 @@ numbered_command(from, comm, ArgList)
 				put_it("%s %-20s %-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1], ArgList[2]);*/
                                 if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],ArgList[2]);
+#ifndef LITE
                                 else if (inSZLinks==4) AddToMap(ArgList[0],ArgList[2]);
+#endif
 #ifdef EXTRAS
                                 else if (inSZLinks) {
                                     sprintf(tmpbuf,"%-20s %-20s",ArgList[0],ArgList[1]);
@@ -1366,7 +1368,9 @@ numbered_command(from, comm, ArgList)
 				put_it("%s %-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1]);*/
                                 if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],"");
+#ifndef LITE
                                 else if (inSZLinks==4) AddToMap(ArgList[0],"");
+#endif
 #ifdef EXTRAS
                                 else if (inSZLinks) {
                                     sprintf(tmpbuf,"%-20s",ArgList[0]);
@@ -1486,8 +1490,11 @@ numbered_command(from, comm, ArgList)
                             else if (inSZLinks==2) ListSplitedServers();
                             else
 #endif
+#ifndef LITE
                             if (inSZLinks==4) PrintMap();
-                            else if (LinksNumber) {
+                            else
+#endif
+                            if (LinksNumber) {
 
 /****** Coded by Zakath ******/
 #ifdef WANTANSI

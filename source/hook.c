@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.9 2000-08-14 20:38:13 f Exp $
+ * $Id: hook.c,v 1.10 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -164,10 +164,8 @@ extern	int	load_depth;
 	{ "SEND_MSG",		(Hook *) 0,	2,	0,	0 },
 	{ "SEND_NOTICE",	(Hook *) 0,	2,	0,	0 },
 	{ "SEND_PUBLIC",	(Hook *) 0,	2,	0,	0 },
-	{ "SEND_TALK",		(Hook *) 0,	2,	0,	0 },
 	{ "SERVER_NOTICE",	(Hook *) 0,	1,	0,	0 },
 	{ "SIGNOFF",		(Hook *) 0,	1,	0,	0 },
-	{ "TALK",		(Hook *) 0,	2,	0,	0 },
 	{ "TIMER",		(Hook *) 0,	1,	0,	0 },
 	{ "TOPIC",		(Hook *) 0,	2,	0,	0 },
 	{ "WALL",		(Hook *) 0,	2,	0,	HF_LOOKONLY },

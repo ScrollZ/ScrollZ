@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.11 2000-08-28 20:25:47 f Exp $
+ * $Id: alias.c,v 1.12 2000-09-24 17:10:33 f Exp $
  */
 
 #include "irc.h"
@@ -112,7 +112,9 @@ static	char	*alias_special_char _((char *, char *, char *, char *, char *, int *
 static	u_char	*alias_detected _((void));
 static	u_char	*alias_sent_nick _((void));
 static	u_char	*alias_recv_nick _((void));
+#ifndef LITE
 static	u_char	*alias_msg_body _((void));
+#endif
 static	u_char	*alias_joined_nick _((void));
 static	u_char	*alias_public_nick _((void));
 static	u_char	*alias_dollar _((void));
@@ -123,7 +125,9 @@ static	u_char	*alias_target _((void));
 static	u_char	*alias_nick _((void));
 static	u_char	*alias_invite _((void));
 static	u_char	*alias_cmdchar _((void));
+#ifndef LITE
 static	u_char	*alias_line _((void));
+#endif
 static	u_char	*alias_away _((void));
 static	u_char	*alias_oper _((void));
 static	u_char	*alias_chanop _((void));
@@ -145,8 +149,6 @@ static	char	*function_chnops _((void));*/
 static	u_char	*alias_Celerity_version _((void));
 #endif
 /* ***************** */
-
-static char locbuf[2*mybufsize];
 /****************************************************************************/
 
 typedef struct
@@ -163,7 +165,9 @@ static	FAR BuiltIns built_in[] =
 	{ ';',		alias_public_nick },
 	{ '$',		alias_dollar },
 	{ 'A',		alias_away },
+#ifndef LITE
 	{ 'B',		alias_msg_body },
+#endif
 	{ 'C',		alias_channel },
 	{ 'D',		alias_detected },
 /*
@@ -180,7 +184,9 @@ static	FAR BuiltIns built_in[] =
         { 'J',          alias_ScrollZ_version },
 /****************************************************************************/
 	{ 'K',		alias_cmdchar },
+#ifndef LITE
 	{ 'L',		alias_line },
+#endif
 	{ 'M',		alias_modes },
 	{ 'N',		alias_nick },
 	{ 'O',		alias_oper },
@@ -316,19 +322,23 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "RAND",		function_rand },
 	{ "SRAND",		function_srand },
 	{ "TIME",		function_time },
+#ifndef LITE
 	{ "TDIFF",		function_tdiff },
 	{ "STIME",		function_stime },
+#endif
 	{ "INDEX",		function_index },
 	{ "RINDEX",		function_rindex },
 	{ "MATCH",		function_match },
+#ifndef LITE
 	{ "RMATCH",		function_rmatch },
+#endif
 	{ "USERHOST",		function_userhost },
 	{ "STRIP",		function_strip },
 	{ "ENCODE",		function_encode },
 	{ "DECODE",		function_decode },
 /**************************** Patched by Flier ******************************/
 	{ "STRIPANSI",          function_stripansi },
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
 	{ "STRSTR",             function_strstr },
 	{ "STRLEN",             function_strlen },
 	{ "STRNUM",             function_strnum },
@@ -340,40 +350,50 @@ static BuiltInFunctions	FAR built_in_functions[] =
 /****************************************************************************/
 	{ "ISCHANNEL",		function_ischannel },
 	{ "ISCHANOP",		function_ischanop },
-#ifdef HAVE_CRYPT
+#if defined(HAVE_CRYPT) && !defined(LITE)
 	{ "CRYPT",		function_crypt },
 #endif /* HAVE_CRYPT */
 /**************************** PATCHED by Flier ******************************/
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
  	{ "HASVOICE",		function_hasvoice },
 #endif
 /****************************************************************************/
+#ifndef LITE
  	{ "DCCLIST",		function_dcclist },
  	{ "CHATPEERS",		function_chatpeers },
+#endif
 	{ "WORD",		function_word },
+#ifndef LITE
 	{ "WINNUM",		function_winnum },
 	{ "WINNAM",		function_winnam },
  	{ "WINVIS",		function_winvisible },
 	{ "WINROWS",		function_winrows },
 	{ "WINCOLS",		function_wincols },
  	{ "WINSERVER",		function_winserver },
+#endif
  	{ "WINSERVERGROUP",	function_winservergroup },
+#ifndef LITE
 	{ "CONNECT",		function_connect },
 	{ "LISTEN",		function_listen },
+#endif
 	{ "TOUPPER",		function_toupper },
 	{ "TOLOWER",		function_tolower },
 	{ "MYCHANNELS",		function_channels },
+#ifndef LITE
 	{ "MYSERVERS",		function_servers },
 	{ "SERVERTYPE",		function_servertype },
 	{ "CURPOS",		function_curpos },
+#endif
 /**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
+#if defined(WANTANSI) && !defined(LITE)
         { "COLOR",              function_color },
 #endif
 /****************************************************************************/
 	{ "ONCHANNEL",		function_onchannel },
+#ifndef LITE
 	{ "PID",		function_pid },
 	{ "PPID",		function_ppid },
+#endif
 /**************************** PATCHED by Flier ******************************/
 #ifndef CELESCRP
         { "CHANUSERS",		function_chanusers },
@@ -388,7 +408,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	/*{ "PATTERN",            function_pattern },
 	{ "CHOPS",              function_chops },
 	{ "CHNOPS",             function_chnops },*/
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
         { "SZVAR",              function_szvar },
         { "TOPIC",              function_topic },
         { "SAR",                function_sar },
@@ -396,11 +416,12 @@ static BuiltInFunctions	FAR built_in_functions[] =
 #ifdef COUNTRY
         { "COUNTRY",            function_country },
 #endif
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
         { "URL",                function_url },
         { "CDCCSLOTS",          function_cdccslots },
         { "CDCCQSLOTS",         function_cdccqslots },
 #endif
+#ifndef LITE
         { "OPEN",               function_open },
         { "FSIZE",              function_fsize },
 	{ "CLOSE",              function_close },
@@ -408,6 +429,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "WRITE",              function_write },
         { "EOF",                function_eof },
         { "RENAME",             function_rename },
+#endif
 /****************************************************************************/
 	{ (char *) 0,		NULL }
 };
@@ -2254,11 +2276,13 @@ save_aliases(fp, do_all)
 }
 
 /* The Built-In Alias expando functions */
+#ifndef LITE
 static	u_char	*
 alias_line()
 {
 	return ((u_char *) get_input());
 }
+#endif
 
 static	u_char	*
 alias_buffer()
@@ -2310,11 +2334,13 @@ alias_recv_nick()
 	return (recv_nick) ? recv_nick : (u_char *) empty_string;
 }
 
+#ifndef LITE
 static	u_char	*
 alias_msg_body()
 {
 	return (sent_body) ? sent_body : (u_char *) empty_string;
 }
+#endif
 
 static	u_char	*
 alias_joined_nick()
@@ -2706,6 +2732,7 @@ function_time(input)
 	return (result);
 }
 
+#ifndef LITE
 u_char	*
 function_stime(input)
 	u_char	*input;
@@ -2763,6 +2790,7 @@ function_tdiff(input)
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
+#endif
 
 u_char	*
 function_index(input)
@@ -2831,6 +2859,7 @@ function_match(input)
 	return (result);
 }
 
+#ifndef LITE
 u_char	*
 function_rmatch(input)
 	u_char	*input;
@@ -2861,6 +2890,7 @@ function_rmatch(input)
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
+#endif
 
 /*ARGSUSED*/
 u_char	*
@@ -2969,6 +2999,7 @@ function_ischanop(input)
 	return (result);
 }
 
+#ifndef LITE
 #ifdef HAVE_CRYPT
 #if 0
 extern char *crypt(const char *key, const char *salt);
@@ -3085,6 +3116,7 @@ function_chatpeers(dummy)
 
 	return (result);
 }
+#endif /* LITE */
 
 u_char	*
 function_word(input)
@@ -3127,6 +3159,7 @@ function_querynick(input)
 	return (result);
 }
 
+#ifndef LITE
 u_char	*
 function_winserver(input)
 	u_char	*input;
@@ -3143,6 +3176,7 @@ function_winserver(input)
 	malloc_strcpy((char **) &result, tmp);
 	return (result);
 }
+#endif
 
 u_char	*
 function_winservergroup(input)
@@ -3161,6 +3195,7 @@ function_winservergroup(input)
 	return (result);
 }
 
+#ifndef LITE
 u_char	*
 function_winvisible(input)
 	u_char	*input;
@@ -3281,6 +3316,7 @@ function_listen(input)
 		result = (u_char *) dcc_raw_listen((u_int) atoi((char *) input));
 	return (result);
 }
+#endif /* LITE */
 
 u_char	*
 function_toupper(input)
@@ -3312,6 +3348,7 @@ function_tolower(input)
 	return new;
 }
 
+#ifndef LITE
 u_char	*
 function_curpos(input)
 	u_char	*input;
@@ -3323,6 +3360,7 @@ function_curpos(input)
 	malloc_strcpy((char **) &new, (char *) pos);
 	return new;
 }
+#endif
 
 u_char	*
 function_channels(input)
@@ -3339,6 +3377,7 @@ function_channels(input)
 	return (u_char *) create_channel_list(window);
 }
 
+#ifndef LITE
 u_char	*
 function_servers(input)
 	u_char	*input;
@@ -3388,6 +3427,7 @@ function_servertype(input)
 	malloc_strcpy((char **) &result, s);
 	return (result);
 }
+#endif /* LITE */
 
 u_char	*
 function_onchannel(input)
@@ -3405,6 +3445,7 @@ function_onchannel(input)
 	return (result);
 }
 
+#ifndef LITE
 u_char	*
 function_pid(input)
 	u_char	*input;
@@ -3428,6 +3469,7 @@ function_ppid(input)
 	malloc_strcpy((char **) &result, lbuf);
 	return (result);
 }
+#endif /* LITE */
 
 /**************************** PATCHED by Flier ******************************/
 /* Modified so if you call it $chanusers(#blah 1) it will return
@@ -3549,11 +3591,13 @@ function_idle(input)
 }
 
 /**************************** Patched by Flier ******************************/
+#ifndef LITE
 u_char *function_open(words)
 u_char *words;
 {
     u_char *result=(char *) 0;
     char *filename=(char *) 0;
+    char locbuf[mybufsize/64];
 
     filename=next_arg((char *) words,(char **) &words);
     if (words && *words) {
@@ -3573,6 +3617,7 @@ u_char *words;
 {
     char *args=(char *) 0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
@@ -3602,6 +3647,7 @@ u_char *words;
 {
     char *args=(char *) 0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
@@ -3618,6 +3664,7 @@ u_char *words;
 {
     char *args=(char *) 0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
@@ -3634,6 +3681,7 @@ u_char *words;
     char *oldname=(char *) 0;
     char *newname=(char *) 0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     if (words && *words) {
         oldname=next_arg((char *) words,(char **) &words);
@@ -3647,12 +3695,14 @@ u_char *words;
     else malloc_strcpy((char **) &result,"-1");
     return(result);
 }	
+#endif
 
 u_char *function_intuhost(words)
 u_char *words;
 {
     u_char *result=(char *) 0;
     char *args=(char *) 0;
+    char locbuf[mybufsize/2];
     NickList *joiner;
 
     if (words && *words) {
@@ -3671,6 +3721,7 @@ u_char *words;
 {
     u_char *result=(char *) 0;
     char *args=(char *) 0;
+    char locbuf[2*mybufsize];
     struct friends *tmpfriend;
 
     if (words && *words) {
@@ -3697,6 +3748,7 @@ u_char *words;
 {
     u_char *result=(char *) 0;
     char *args=(char *) 0;
+    char locbuf[2*mybufsize];
     struct autobankicks *abk;
 
     if (words && *words) {
@@ -3729,6 +3781,7 @@ u_char *function_stripansi(words)
 u_char *words;
 {
     u_char *result=(char *) 0;
+    char locbuf[2*mybufsize];
 
     if (words && *words) {
         StripAnsi(words,locbuf,0);
@@ -3848,6 +3901,7 @@ u_char *words;
     return(nicks);
 }*/
 
+#ifndef LITE
 u_char *function_color(words)
 u_char *words;
 {
@@ -3857,6 +3911,7 @@ u_char *words;
     int  eventnum=0;
     char *tmp=(char *) 0;
     char *tmpstr=(char *) 0;
+    char locbuf[2*mybufsize];
     
     if (words && *words) {
         tmp=next_arg((char *) words,(char **) &words);
@@ -3907,8 +3962,9 @@ u_char *words;
     return(result);
 #endif
 }
+#endif /* LITE */
 
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
 u_char *function_uhost(input)
 u_char *input;
 {
@@ -3936,6 +3992,7 @@ u_char *input;
 {
     u_char *result=(char *) 0;
     char *channel;
+    char locbuf[2*mybufsize];
     ChannelList *chan;
 
     if ((channel=next_arg((char *) input,(char **) &channel)) &&
@@ -3953,6 +4010,7 @@ u_char *function_strlen(input)
 u_char *input;
 {
     u_char *result=(char *) 0;
+    char locbuf[2*mybufsize];
 
     if (input && *input) {
         sprintf(locbuf,"%d",strlen(input));
@@ -3968,6 +4026,7 @@ u_char *input;
     int  count=0;
     char *tmp=input;
     u_char *result=(char *) 0;
+    char locbuf[2*mybufsize];
 
     if (tmp && *tmp) {
         while (*tmp) {
@@ -3984,14 +4043,16 @@ u_char *input;
     else malloc_strcpy((char **) &result,"0");
     return(result);
 }
-#endif /* CELESCRP */
+#endif /* !CELESCRP && !LITE */
 
+#ifndef LITE
 u_char *function_fsize(input)
 u_char *input;
 {
     int  fexists;
     char *filename=(char *) 0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
     struct stat statbuf;
 
     if (input && *input) {
@@ -4094,6 +4155,7 @@ u_char *word;
     return(result);
 }
 #endif /* CELESCRP */
+#endif /* LITE */
 
 #ifdef COUNTRY
 u_char *function_country(input)
@@ -4101,6 +4163,7 @@ u_char *input;
 {
     int i;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64+1];
     struct domain_str {
         char *id;
         char *description;
@@ -4363,7 +4426,7 @@ u_char *input;
     };
 
     if (input && *input) {
-        strcpy(locbuf,input);
+        strmcpy(locbuf,input,mybufsize/64);
         upper(locbuf);
         for (i=0;domain[i].id;i++)
             if (!strcmp(domain[i].id,locbuf)) {
@@ -4376,12 +4439,13 @@ u_char *input;
 }
 #endif
 
-#ifndef CELESCRP
+#if !defined(CELESCRP) && !defined(LITE)
 u_char *function_cdccslots(input)
 u_char *input;
 {
     int  slots=0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     slots=CdccLimit-TotalSendDcc();
     if (slots<0) slots=0;
@@ -4395,6 +4459,7 @@ u_char *input;
 {
     int  slots=0;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize/64];
 
     if (CdccQueueLimit) slots=CdccQueueLimit-TotalQueue();
     else slots=10;
@@ -4426,9 +4491,10 @@ u_char *input;
     u_char *result=(char *) 0;
     char *tmpstr=(char *) 0;
     char *findstr=(char *) 0;
+    char locbuf[2*mybufsize+1];
 
     if (input && *input) {
-        strcpy(locbuf,&input[1]);
+        strmcpy(locbuf,&input[1],2*mybufsize);
         if ((tmpstr=index(locbuf,*input))) {
             *tmpstr++='\0';
             if (*tmpstr) tmpstr++;
@@ -4446,6 +4512,7 @@ u_char *input;
 {
     int  i;
     u_char *result=(char *) 0;
+    char locbuf[mybufsize+1];
     struct commands {
         char *command;
         int  type;  /* 1=numeric   2=string   3=on channels/off */
@@ -4524,7 +4591,7 @@ u_char *input;
     };
 
     if (input && *input) {
-        strcpy(locbuf,(char *) input);
+        strmcpy(locbuf,(char *) input,mybufsize);
         upper(locbuf);
         for (i=0;command_list[i].command;i++)
             if (!strcmp(command_list[i].command,locbuf)) break;
@@ -4566,7 +4633,7 @@ u_char *input;
     malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
-#endif /* CELESCRP */
+#endif /* !CELESCRP && !LITE */
 
 /* Removes all aliases */
 void DumpAliases(type)
@@ -4591,6 +4658,7 @@ char *name;
 {
     int found=0;
     int namelen;
+    char locbuf[mybufsize];
     Alias *tmp;
     Alias *tmprem;
 
@@ -4612,6 +4680,7 @@ char *name;
 }
 
 /* Clears assigned structure */
+#ifndef LITE
 void Purge(command,args,subargs)
 char *command;
 char *args;
@@ -4627,4 +4696,5 @@ char *subargs;
     upper(name);
     DumpAssign(name);
 }
+#endif
 /****************************************************************************/

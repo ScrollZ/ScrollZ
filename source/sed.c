@@ -32,6 +32,8 @@
  * SUCH DAMAGE.
  */
 
+#ifndef LITE
+
 static	void	sed_encrypt_str _((char **, int *, crypt_key *));
 static	void	sed_decrypt_str _((char **, int *, crypt_key *));
 
@@ -88,3 +90,5 @@ sed_decrypt_str(str, len, key)
 	}
 	(*str)[i] = (char) 0;
 }
+
+#endif /* LITE */

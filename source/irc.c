@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.39 2000-08-28 22:43:33 f Exp $
+ * $Id: irc.c,v 1.40 2000-09-24 17:10:34 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -511,6 +511,11 @@ char VersionInfo[] = {
     'Y',
 #else
     'y',
+#endif
+#ifdef LITE
+    'L',
+#else
+    'l',
 #endif
 #if defined(OPERVISION) && defined(WANTANSI)
     ' ',

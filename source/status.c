@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.15 2000-08-21 18:41:40 f Exp $
+ * $Id: status.c,v 1.16 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -102,12 +102,14 @@ static	char	*status_user00 _((Window *));
 static	char	*status_user01 _((Window *));
 static	char	*status_user02 _((Window *));
 static	char	*status_user03 _((Window *));
+#ifndef LITE
 static	char	*status_user04 _((Window *));
 static	char	*status_user05 _((Window *));
 static	char	*status_user06 _((Window *));
 static	char	*status_user07 _((Window *));
 static	char	*status_user08 _((Window *));
 static	char	*status_user09 _((Window *));
+#endif
 static  char    *status_uptime _((Window *));
 static  char    *status_lag _((Window *));
 static  char    *status_lastjoin _((Window *));
@@ -971,6 +973,7 @@ convert_format(format, k)
                                             status_func[k][(*cp)++] =
                                                 status_user03;
                                             break;
+#ifndef LITE
                                         case '4' :
                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
@@ -1001,6 +1004,7 @@ convert_format(format, k)
                                             status_func[k][(*cp)++] =
                                                 status_user09;
                                             break;
+#endif
                                         case 'S' :
                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
@@ -2040,6 +2044,7 @@ Window *window;
     return(ptr);
 }
 
+#ifndef LITE
 static char *status_user04(window)
 Window *window;
 {
@@ -2123,6 +2128,7 @@ Window *window;
     else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
+#endif
 
 static char *status_lag(window)
 Window	*window;

@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.7 2000-08-09 19:31:20 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.8 2000-09-24 17:10:33 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -46,6 +46,8 @@ IRCII_RCSID("@(#)$Id: crypt.c,v 1.7 2000-08-09 19:31:20 f Exp $");
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif /* HAVE_SYS_WAIT_H */
+
+#ifndef LITE
 
 static	void	add_to_crypt _((char *, char *, CryptFunc, CryptFunc, char *));
 static	int	remove_crypt _((char *));
@@ -461,3 +463,5 @@ do_random_instead:
 	return (random() & 255);
 }
 #endif
+
+#endif /* LITE */

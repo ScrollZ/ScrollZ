@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.46 2000-08-31 17:11:52 f Exp $
+ * $Id: edit.c,v 1.47 2000-09-24 17:10:33 f Exp $
  */
 
 #include "irc.h"
@@ -139,13 +139,19 @@ static	WaitCmd	*start_wait_list = NULL,
 	char	lame_wait_nick[] = "1#LAME";
 
 /* a few advance declarations */
+#ifndef LITE
 static	void	sendlinecmd _((char *, char *, char *));
+#endif
 static	void	do_send_text _((char *, char *, char *));
 static	void	funny_stuff _((char *, char *, char *));
+#ifndef LITE
 static	void	catter _((char *, char *, char *));
+#endif
 static	void	cd _((char *, char *, char *));
+#ifndef LITE
 static	void	e_wall _((char *, char *, char *));
 static	void	send_squery _((char *, char *, char *));
+#endif
 static	void	send_2comm _((char *, char *, char *));
 static	void	send_comm _((char *, char *, char *));
 static	void	send_topic _((char *, char *, char *));
@@ -172,7 +178,9 @@ static	void	ison _((char *, char *, char *));
 /*static	void	userhost _((char *, char *, char *));*/
 void	userhost _((char *, char *, char *));
 /****************************************************************************/
+#ifndef LITE
 static	void	info _((char *, char *, char *));
+#endif
 /**************************** PATCHED by Flier ******************************/
 /*static	void	e_nick _((char *, char *, char *));*/
 void	e_nick _((char *, char *, char *));
@@ -194,19 +202,25 @@ void	describe _((char *, char *, char *));
 /*static	void	me _((char *, char *, char *));*/
 void	me _((char *, char *, char *));
 /****************************************************************************/
+#ifndef LITE
 static	void	mload _((char *, char *, char *));
 static	void	mlist _((char *, char *, char *));
+#endif
 static	void	evalcmd _((char *, char *, char *));
 static	void	hook _((char *, char *, char *));
 /**************************** PATCHED by Flier ******************************/
 /*static	void	timercmd _((char *, char *, char *));*/
 void	timercmd _((char *, char *, char *));
 /****************************************************************************/
+#ifndef LITE
 static	void	inputcmd _((char *, char *, char *));
+#endif
 static	void	pingcmd _((char *, char *, char *));
+#ifndef LITE
 static	void	xtypecmd _((char *, char *, char *));
 static	void	beepcmd _((char *, char *, char *));
 static	void	abortcmd _((char *, char *, char *));
+#endif
 static	void	really_save _((char *, char *));
 
 /**************************** PATCHED by Flier ******************************/
@@ -422,16 +436,22 @@ static	IrcCommand FAR irc_command[] =
 	 */
 	{ "#",		NULL,		commentcmd, 		0 },
 	{ ":",		NULL,		commentcmd, 		0 },
+#ifndef LITE
         { "ABORT",      NULL,           abortcmd,               0 },
+#endif
   { "ADDBK", 		NULL, 		AddAutoBanKick, 	0 },
   { "ADDCHAN", 		"ADD", 		AddChannel, 		0 },
   { "ADDF", 		NULL, 		AddFriend, 		0 },
   { "ADDFCHAN", 	"ADD", 		AddFriendChannel, 	0 },
   { "ADDFFLAG", 	"ADD", 		AddFriendPrivs, 	0 },
   { "ADDN", 		NULL, 		AddNotify, 		SERVERREQ },
+#ifndef LITE
   { "ADDS", 		NULL, 		AddServer, 		0 },
+#endif
   { "ADDW", 		NULL, 		AddWord, 		0 },
+#ifndef LITE
  	{ "ADMIN",	"ADMIN",	send_comm, 		SERVERREQ },
+#endif
   { "AJOIN", 		NULL, 		AutoJoinOnInvToggle, 	0 },
 	{ "ALIAS",	"0",		alias,			0 },
 #ifdef ALLOC_DEBUG
@@ -450,7 +470,9 @@ static	IrcCommand FAR irc_command[] =
   { "AWAYT", 		"AWAYT", 	NumberCommand, 		0 },
   { "BAN", 		NULL,  		Ban,      		SERVERREQ },
   { "BANTYPE", 		NULL,  		BanType, 		0 },
+#ifndef LITE
 	{ "BEEP",	0,		beepcmd,		0 },
+#endif
 	{ "BIND",	NULL,		bindcmd,		0 },
   { "BITCH",  		"BITCH", 	ChannelCommand, 	0 },
   { "BK",  		"BK", 		BanKick, 		SERVERREQ },
@@ -463,7 +485,9 @@ static	IrcCommand FAR irc_command[] =
 #endif
  	{ "BYE",	"QUIT",		e_quit,			NONOVICEABBREV },
   { "C", 		NULL, 		CurrentChanMode, 	SERVERREQ },
+#ifndef LITE
 	{ "CAT",	NULL,		catter,			0 },
+#endif
 	{ "CD",		NULL,		cd,			0 },
   { "CDBAN", 		NULL, 		CdBan, 			SERVERREQ },
   { "CDCC", 		NULL, 		Cdcc, 			0 },
@@ -482,7 +506,9 @@ static	IrcCommand FAR irc_command[] =
 #ifdef WANTANSI
   { "COLOR", 		NULL, 		SetColor, 		0 },
 #endif
+#ifndef LITE
 	{ "COMMENT",	NULL,		commentcmd,		0 },
+#endif
   { "COMPRESS",		"COMPRESS", 	ChannelCommand, 	0 },
  	{ "CONNECT",	"CONNECT",	send_comm,		SERVERREQ },
   { "CSCAN", 		NULL, 		ChannelScan, 		SERVERREQ },
@@ -496,7 +522,9 @@ static	IrcCommand FAR irc_command[] =
   { "DEOPS", 		"DEOPS", 	NumberCommand, 		0 },
   { "DEOPT", 		"DEOPT", 	NumberCommand, 		0 },
  	{ "DESCRIBE",	NULL,		describe,		SERVERREQ },
+#ifndef LITE
  	{ "DIE",	"DIE",		send_comm,		SERVERREQ },
+#endif
 	{ "DIGRAPH",	NULL,		digraph,		0 },
   { "DIRLM", 		"DIRLM", 	DirLM, 			SERVERREQ },
 #ifdef EXTRAS
@@ -518,7 +546,9 @@ static	IrcCommand FAR irc_command[] =
 	{ "ECHO",	NULL,		my_echo,		0 },
   { "EGO", 		"EGO", 		OnOffCommand, 		0 },
   { "ENCRMSG",		NULL, 		EncryptMsg, 		0 },
+#ifndef LITE
 	{ "ENCRYPT",	NULL,		encrypt_cmd,		0 },
+#endif
 	{ "EVAL",	NULL,		evalcmd,		0 },
 	{ "EXEC",	NULL,		execcmd,		0 },
  	{ "EXIT",	"QUIT",		e_quit,			NONOVICEABBREV },
@@ -533,7 +563,9 @@ static	IrcCommand FAR irc_command[] =
 #ifdef CELE
   { "FING", 		NULL, 		CTCPFing, 		SERVERREQ },
 #endif
+#ifndef LITE
   { "FINGER", 		NULL, 		Finger, 		0 },
+#endif
   { "FK", 		"FK", 		FilterKick, 		SERVERREQ },
 #ifdef OPER
   { "FKLINE", 		NULL, 		StatsKFilter, 		SERVERREQ },
@@ -549,11 +581,15 @@ static	IrcCommand FAR irc_command[] =
 #ifdef OPER
   { "FTRACE", 		NULL,		FilterTrace,		0 },
 #endif
+#ifndef LITE
  	{ "HASH",	"HASH",		send_comm,		SERVERREQ },
 	{ "HELP",	NULL,		help,			0 },
+#endif
 	{ "HISTORY",	NULL,		history,		0 },
 	{ "HOOK",	NULL,		hook,			0 },
+#ifndef LITE
  	{ "HOST",	"USERHOST",	userhost,		SERVERREQ },
+#endif
 #ifdef EXTRAS
   { "IDLEKICK",		NULL,		SetIdleKick,	 	0 },
   { "IDLETIME",		"IDLETIME", 	NumberCommand, 		0 },
@@ -565,8 +601,10 @@ static	IrcCommand FAR irc_command[] =
         { "IGNORE",	"IGNORE",	ignore,			0 },
 /****************************************************************************/
   { "IGTIME", 		"IGTIME", 	NumberCommand, 		0 },
+#ifndef LITE
  	{ "INFO",	"INFO",		info,			SERVERREQ },
 	{ "INPUT",	NULL,		inputcmd,		0 },
+#endif
   { "INV", 		NULL, 		Invite, 		SERVERREQ },
  	{ "INVITE",	"INVITE",	send_comm,		SERVERREQ },
  	{ "ISON",	"ISON",		ison,			SERVERREQ },
@@ -589,7 +627,9 @@ static	IrcCommand FAR irc_command[] =
   { "LISTBK", 		NULL, 		ListAutoBanKicks, 	0 },
   { "LISTF", 		NULL, 		ListFriends, 		0 },
   { "LISTN", 		NULL, 		ListNotify, 		0 },
+#ifndef LITE
   { "LISTS", 		NULL, 		ListServers, 		0 },
+#endif
   { "LISTW", 		NULL, 		ListWords, 		0 },
   { "LK", 		NULL, 		LameKick, 		SERVERREQ },
 #ifdef EXTRAS
@@ -598,10 +638,14 @@ static	IrcCommand FAR irc_command[] =
 #endif
 	{ "LOAD",	"LOAD",		load,			0 },
   { "LOGON", 		"LOGON", 	OnOffCommand, 		0 },
+#ifndef LITE
   { "LS", 		NULL, 		Ls, 			0 },
+#endif
  	{ "LUSERS",	"LUSERS",	send_comm,		SERVERREQ },
   { "M", 		"PRIVMSG", 	e_privmsg, 		0 },
+#ifndef LITE
   { "MAP", 		NULL, 		Map, 			SERVERREQ },
+#endif
 #ifdef EXTRAS
   { "MASSDV", 		"MASSDV",	MegaDeVoice,		SERVERREQ },
   { "MASSV", 		"MASSV",	MegaVoice,		SERVERREQ },
@@ -616,8 +660,10 @@ static	IrcCommand FAR irc_command[] =
 #ifdef OPER
   { "MKILL",            NULL,           MassKill,               SERVERREQ },
 #endif
+#ifndef LITE
 	{ "MLIST",	NULL,		mlist,			0 },
 	{ "MLOAD",	NULL,		mload,			0 },
+#endif
  	{ "MODE",	"MODE",		send_channel_nargs,	SERVERREQ },
 #ifdef EXTRAS
   { "MODELOCK", 	NULL, 		ModeLocked, 		0 },
@@ -632,7 +678,9 @@ static	IrcCommand FAR irc_command[] =
   { "MSAY", 		NULL, 		MSay, 			SERVERREQ },
 #endif
  	{ "MSG",	"PRIVMSG",	e_privmsg,		0 },
+#ifndef LITE
   { "MULTK", 		NULL, 		MultiKick, 		0 },
+#endif
   { "N", 		"NOTICE", 	e_privmsg, 		SERVERREQ },
  	{ "NAMES",	"NAMES",	funny_stuff,		SERVERREQ },
   { "NET", 		NULL, 		Net, 			0 },
@@ -645,12 +693,16 @@ static	IrcCommand FAR irc_command[] =
   { "NOCHAT", 		NULL, 		NoChat, 		0 },
   { "NOIG", 		NULL, 		NoIgnore, 		0 },
   { "NOKEY", 		NULL, 		ClearKey, 		SERVERREQ },
+#ifndef LITE
  	{ "NOTE",	"NOTE",		send_comm,		SERVERREQ },
   { "NOTEPAD", 		NULL, 		NotePad, 		0 },
+#endif
  	{ "NOTICE",	"NOTICE",	e_privmsg,		SERVERREQ },
  	{ "NOTIFY",	NULL,		notify,			SERVERREQ },
   { "NPROT", 		"NPROT", 	ChannelCommand, 	0 },
+#ifndef LITE
   { "NSLOOKUP", 	NULL, 		Nslookup, 		0 },
+#endif
   { "NTFYMODE", 	NULL, 		NotifyModeToggle, 	0 },
   { "NWHOIS", 		NULL, 		NickStat, 		0 },
 	{ "ON",		NULL,		on,			0 },
@@ -662,15 +714,21 @@ static	IrcCommand FAR irc_command[] =
   { "OV", 		NULL, 		OperVision, 		0 },
 #endif
   { "P", 		NULL, 		pingcmd, 		SERVERREQ },
+#ifndef LITE
 	{ "PARSEKEY",	NULL,		parsekeycmd,		0 },
+#endif
  	{ "PART",	"PART",		send_channel_1arg,	SERVERREQ },
   { "PASSWD", 		NULL, 		Password, 		0 },
  	{ "PING",	NULL, 		pingcmd,		SERVERREQ },
   { "PINGME", 		NULL, 		PingMe, 		SERVERREQ },
   { "PLAYBACK", 	"PLAYBACK", 	PlayBack, 		0 },
+#ifndef LITE
   { "PURGE", 		NULL, 		Purge, 			0 },
+#endif
 	{ "QUERY",	NULL,		query,			0 },
+#ifndef LITE
 	{ "QUEUE",      NULL,           queuecmd,               0 },
+#endif
 #ifdef CELE
   { "QUICKSTAT",	NULL,           Cquickstat,		0 },
 #endif
@@ -682,7 +740,9 @@ static	IrcCommand FAR irc_command[] =
 #ifdef SCKICKS
   { "RANSK", 		NULL, 		RandomScatterKick, 	SERVERREQ },
 #endif
+#ifndef LITE
 	{ "RBIND",	0,		rbindcmd,		0 },
+#endif
   { "RE", 		NULL, 		redirect, 		0 },
   { "RECONNECT",  	NULL,   	ReconnectServer,  	SERVERREQ },
 	{ "REDIRECT",	NULL,		redirect,		0 },
@@ -699,12 +759,18 @@ static	IrcCommand FAR irc_command[] =
   { "REMFFLAG",		"REM", 		AddFriendPrivs,		0 },
   { "REMLOG", 		NULL, 		RemoveLog, 		0 },
   { "REMN", 		NULL, 		RemoveNotify, 		0 },
+#ifndef LITE
   { "REMS", 		NULL, 		RemoveServer, 		0 },
+#endif
   { "REMW", 		NULL, 		RemoveWord, 		0 },
+#ifndef LITE
   { "REPEAT", 		NULL, 		repeatcmd, 		0 },
+#endif
   { "REPWORD", 		NULL, 		ReplyWord, 		0 },
+#ifndef LITE
  	{ "REQUEST",	NULL,		ctcp,			SERVERREQ },
  	{ "RESTART",	"RESTART",	send_comm,		SERVERREQ },
+#endif
   { "S", 		NULL, 		FServer, 		0 },
 	{ "SAVE",	NULL,		save_settings,		0 },
  	{ "SAY",	empty_string,	do_send_text,		SERVERREQ },
@@ -713,14 +779,20 @@ static	IrcCommand FAR irc_command[] =
   { "SC", 		NULL, 		ChannelScan, 		SERVERREQ },
 #endif
  	{ "SEND",	NULL,		do_send_text,		SERVERREQ },
+#ifndef LITE
 	{ "SENDLINE",	empty_string,	sendlinecmd,		0 },
+#endif
 	{ "SERVER",	NULL,		servercmd,     		0 },
+#ifndef LITE
  	{ "SERVLIST",	"SERVLIST",	send_comm,		SERVERREQ },
+#endif
   { "SERVNOTICE", 	"SERVNOTICE", 	OnOffCommand, 		0 },
 	{ "SET",	NULL,		set_variable,		0 },
   { "SETAWAY", 		NULL, 		SetAway, 		SERVERREQ },
   { "SETBACK", 		NULL, 		SetBack, 		SERVERREQ },
+#ifndef LITE
   { "SETTINGS", 	NULL, 		Settings, 		0 },
+#endif
   { "SHELP", 		NULL, 		SZHelp,			0 },
   { "SHOWAWAY", 	"SHOWAWAY", 	ChannelCommand, 	0 },
 #ifdef EXTRAS
@@ -738,17 +810,25 @@ static	IrcCommand FAR irc_command[] =
 #endif
 	{ "SLEEP",	NULL,		sleepcmd,		0 },
   { "SPING", 		NULL, 		ServerPing, 		SERVERREQ },
+#ifndef LITE
  	{ "SQUERY",	"SQUERY",	send_squery,		SERVERREQ },
+#endif
  	{ "SQUIT",	"SQUIT",	send_2comm,		SERVERREQ },
+#ifndef LITE
 	{ "STACK",	NULL,		stackcmd,		0 },
+#endif
   { "STAMP",		"STAMP", 	ChannelCommand, 	0 },
  	{ "STATS",	"STATS",	send_comm,		SERVERREQ },
 #ifdef CELE
   { "STATUS", 		NULL, 		Cstatusbar, 		SERVERREQ },
 #endif
+#ifndef LITE
  	{ "SUMMON",	"SUMMON",	send_comm,		SERVERREQ },
+#endif
   { "SVE", 		NULL, 		ScrollZSave, 		0 },
+#ifndef LITE
   { "SWITCH", 		NULL, 		switchcmd, 		0 },
+#endif
   { "SZINFO", 		NULL, 		ScrollZInfo, 		0 },
   { "T", 		NULL, 		Topic, 			SERVERREQ },
 #ifdef ACID
@@ -773,7 +853,9 @@ static	IrcCommand FAR irc_command[] =
  	{ "TRACE",	"TRACE",	send_comm,		SERVERREQ },
 #endif
 /****************************************************************************/
+#ifndef LITE
 	{ "TYPE",	NULL,		type,			0 },
+#endif
   { "UMODE", 		NULL, 		UserMode, 		SERVERREQ },
   { "UNBAN", 		NULL, 		Unban, 			SERVERREQ },
   { "UNFLASH", 		NULL, 		UnFlash, 		0 },
@@ -794,14 +876,18 @@ static	IrcCommand FAR irc_command[] =
 /**************************** PATCHED by Flier ******************************/
  	/*{ "WALL",	"WALL",		e_wall,			SERVERREQ },*/
   { "WALL",  		NULL, 		ChanWallOp, 		SERVERREQ },
+#ifndef LITE
         { "WALLMSG",	"WALL",		e_wall,			SERVERREQ },
 /****************************************************************************/
  	{ "WALLOPS",	"WALLOPS",	e_wall,			SERVERREQ },
+#endif
 #ifdef ACID
   { "WHEREIS", 		NULL, 		WhereIs,		SERVERREQ },
   { "WHERELIST",	NULL, 		WhereList,		0 },
 #endif
+#ifndef LITE
 	{ "WHICH",	"WHICH",	load,			0 },
+#endif
 	{ "WHILE",	NULL,		whilecmd,		0 },
  	{ "WHO",	"WHO",		who,			SERVERREQ },
  	{ "WHOIS",	"WHOIS",	whois,			SERVERREQ },
@@ -814,9 +900,11 @@ static	IrcCommand FAR irc_command[] =
   { "WKILL", 		NULL, 		WhoKill, 		SERVERREQ },
 #endif
   { "WW", 		"WHOWAS", 	whois, 			SERVERREQ },
+#ifndef LITE
 	{ "XECHO",	"XECHO",	my_echo,		0 },
  	{ "XTRA",	"XTRA",		e_privmsg,		SERVERREQ },
 	{ "XTYPE",	NULL,		xtypecmd,		0 },
+#endif
 	{ NULL,		NULL,		commentcmd,		0 }
 };
 
@@ -997,8 +1085,7 @@ funny_stuff(command, args, subargs)
 
 /*************************** PATCHED by Flier ****************************/
         if (!(args && *args)) {
-            say("I wouldn't do that if I were you. Type %s -YES if you really mean it",
-                command);
+            say("Type %s -YES if you really mean it",command);
             return;
         }
 /*************************************************************************/
@@ -1342,6 +1429,7 @@ oper(command, args, subargs)
 
 /* Full scale abort.  Does a "save" into the filename in line, and
         then does a coredump */
+#ifndef LITE
 static  void   
 abortcmd(command, args, subargs)
 	char    *command,
@@ -1360,6 +1448,7 @@ abortcmd(command, args, subargs)
 #endif
         abort();
 }
+#endif /* LITE */
         
 /* This generates a file of your ircII setup */
 static	void
@@ -1754,6 +1843,7 @@ version(command, args, subargs)
  * info: does the /INFO command.  I just added some credits
  * I updated most of the text -phone, feb 1993.
  */
+#ifndef LITE
 static	void
 info(command, args, subargs)
 	char	*command,
@@ -1790,6 +1880,7 @@ info(command, args, subargs)
 	}
 	send_to_server("%s %s", command, args);
 }
+#endif
 
 void
 /**************************** PATCHED by Flier ******************************/
@@ -2311,6 +2402,7 @@ flush(command, args, subargs)
 }
 
 /* e_wall: used for WALL and WALLOPS */
+#ifndef LITE
 static	void
 e_wall(command, args, subargs)
 	char	*command,
@@ -2337,6 +2429,7 @@ e_wall(command, args, subargs)
 		send_to_server("%s :%s", command, args);
  	restore_message_from();
 }
+#endif
 
 /*
  * e_privmsg: The MSG command, displaying a message on the screen indicating
@@ -2503,6 +2596,7 @@ send_topic(command, args, subargs)
 		say("You aren't on a channel in this window");
 }
 
+#ifndef LITE
 static void
 send_squery(command, args, subargs)
 	char	*command,
@@ -2512,6 +2606,7 @@ send_squery(command, args, subargs)
 	put_it("*** Sent to service %s: %s", command, args);
 	send_2comm(command, args, subargs);
 }
+#endif
 
 /*
  * send_2comm: Sends a command to the server with one arg and
@@ -2655,7 +2750,9 @@ send_text(org_nick, line, command)
 	char	*line;
 	char	*command;
 {
+#ifndef LITE
  	crypt_key	*key;
+#endif
  	char 	*ptr,
 		*free_nick,
 		*nick = NULL;
@@ -2809,6 +2906,7 @@ send_text(org_nick, line, command)
                         }
 /****************************************************************************/
 			set_lastlog_msg_level(lastlog_level);
+#ifndef LITE
 			if ((key = is_crypted(nick)) != 0)
 			{
 				char	*crypt_line;
@@ -2817,6 +2915,7 @@ send_text(org_nick, line, command)
 					send_to_server("%s %s :%s", command, nick, crypt_line);
 				continue;
 			}
+#endif
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf,line,mybufsize);
                         if (EncryptMessage(tmpbuf,nick)) {
@@ -2913,6 +3012,7 @@ send_text(org_nick, line, command)
                             if (away_set || LogOn) AwaySave(tmpbuf,SAVESENTMSG);
                         }
 /****************************************************************************/
+#ifndef LITE
 			if ((key = is_crypted(nick)) != NULL)
 			{
 				char	*crypt_line;
@@ -2921,6 +3021,7 @@ send_text(org_nick, line, command)
 					send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, crypt_line);
 				continue;
 			}
+#endif
 			set_lastlog_msg_level(lastlog_level);
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf,line,mybufsize);
@@ -3822,6 +3923,7 @@ send_line(key, ptr)
 }
 
 /* The SENDLINE command.. */
+#ifndef LITE
 static	void
 sendlinecmd(command, args, subargs)
 	char	*command,
@@ -3842,8 +3944,10 @@ sendlinecmd(command, args, subargs)
 	window_display = display;
 	from_server = server;
 }
+#endif
 
 /*ARGSUSED*/
+#ifndef LITE
 void
 meta8_char(key, ptr)
 	u_int	key;
@@ -3869,6 +3973,7 @@ meta6_char(key, ptr)
 {
 	current_screen->meta6_hit = 1;
 }
+#endif /* LITE */
 
 /*ARGSUSED*/
 void
@@ -4025,6 +4130,7 @@ edit_char(ikey)
 		current_screen->meta5_hit=0;
 /****************************************************************************/
 	}
+#ifndef LITE
 	else if (current_screen->meta6_hit)
 	{
 		func = key_names[meta6_keys[key].index].func;
@@ -4040,6 +4146,7 @@ edit_char(ikey)
 		func = key_names[meta8_keys[key].index].func;
 		str = meta8_keys[key].stuff;
 	}
+#endif
 	else
 	{
 		func = key_names[keys[key].index].func;
@@ -4052,9 +4159,12 @@ edit_char(ikey)
 			!current_screen->meta3_hit && !current_screen->meta5_hit)
 /****************************************************************************/
 	{
+#ifndef LITE
 		if (current_screen->inside_menu == 1)
  			menu_key((u_int)key);
-		else if (current_screen->digraph_hit)
+                else
+#endif
+		if (current_screen->digraph_hit)
 		{
 			if (extended_key == 0x08 || extended_key == 0x7f)
 				current_screen->digraph_hit = 0;
@@ -4101,6 +4211,7 @@ edit_char(ikey)
 }
 
 /*ARGSUSED*/
+#ifndef LITE
 static	void
 catter(command, args, subargs)
 	char *command;
@@ -4130,6 +4241,7 @@ catter(command, args, subargs)
 	else
 		say("Usage: /CAT <destfile> <line>");
 }
+#endif
 
 /*ARGSUSED*/
 static	void
@@ -4358,6 +4470,7 @@ me(command, args, subargs)
 		say("Usage: /ME <action description>");
 }
 
+#ifndef LITE
 static	void
 mload(command, args, subargs)
 	char	*command,
@@ -4381,6 +4494,7 @@ mlist(command, args, subargs)
 	while ((menu = new_next_arg(args, &args)) != NULL)
 		(void) ShowMenu(menu);
 }
+#endif /* LITE */
 
 static	void
 evalcmd(command, args, subargs)
@@ -4793,6 +4907,7 @@ void CleanUpTimer() {
  * the user...  -phone, jan 1993.
  */
 
+#ifndef LITE
 static	void
 inputcmd(command, args, subargs)
 	char	*command,
@@ -4824,6 +4939,7 @@ inputcmd(command, args, subargs)
 
 	add_wait_prompt(prompt, eval_inputlist, args, WAIT_PROMPT_LINE);
 }
+#endif
 
 /*
  * eval_inputlist:  Cute little wrapper that calls parse_line() when we
@@ -4871,6 +4987,7 @@ pingcmd(command, args, subargs)
 	ctcp(command, buffer, empty_string);
 }
 
+#ifndef LITE
 static	void
 xtypecmd(command, args, subargs)
 	char	*command,
@@ -4917,3 +5034,4 @@ beepcmd(command, args, subargs)
 {
 	term_beep();
 }
+#endif /* LITE */

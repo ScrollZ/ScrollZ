@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.c,v 1.4 2000-08-14 20:38:13 f Exp $
+ * $Id: if.c,v 1.5 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -570,6 +570,7 @@ fec(command, args, subargs)
  only the *first* pair found to be matching is actually executed,
  and the others are ignored, so placement of your switches are
  rather important:  Put your most general ones last. */
+#ifndef LITE
 void switchcmd(command,args,subargs)
 char *command;
 char *args;
@@ -656,4 +657,5 @@ char *subargs;
     if (value<=0) return;
     while (value--) parse_line(NULL,args,subargs,0,0);
 }
+#endif /* LITE */
 /****************************************************************************/

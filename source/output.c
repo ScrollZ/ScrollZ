@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.7 2000-08-18 20:20:31 f Exp $
+ * $Id: output.c,v 1.8 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -87,7 +87,10 @@ if (vasprintf(&putbuf, f, v) == -1)			\
 #define PUTBUF_INIT
 
 /* make this buffer *much* bigger than needed */
-static	char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
+/**************************** PATCHED by Flier ******************************/
+/*static	char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";*/
+static char *putbuf=(char *) 0;
+/****************************************************************************/
 
 # if defined(HAVE_VSNPRINTF)
 #  define PUTBUF_SPRINTF(f, v) vsnprintf(putbuf, sizeof putbuf, f, v);
@@ -122,6 +125,12 @@ refresh_screen(key, ptr)
 void
 init_screen()
 {
+#ifndef LITE
+        if (!putbuf) {
+            putbuf=(char *) malloc(4*BIG_BUFFER_SIZE+1);
+            *putbuf='\0';
+        }
+#endif
 	term_init();
 	term_clear_screen();
 	term_resize();
@@ -297,6 +306,7 @@ yell(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 }
 
 
+#ifndef LITE
 /* help_put_it: works just like put_it, but is specially used by help */
 void
 #ifdef HAVE_STDARG_H
@@ -343,3 +353,4 @@ help_put_it(topic, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
 	in_help = 0;
 	PUTBUF_END
 }
+#endif /* LITE */

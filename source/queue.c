@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.6 2000-08-19 15:57:02 f Exp $
+ * $Id: queue.c,v 1.7 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -45,6 +45,8 @@
 #include "edit.h"
 #include "if.h"
 #include "queue.h"
+
+#ifndef LITE
 
 typedef	struct CmdListT
 {
@@ -438,3 +440,5 @@ num_entries(queue)
 	}
 	return x;
 }
+
+#endif /* LITE */

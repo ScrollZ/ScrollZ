@@ -60,7 +60,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.67 2000-08-28 20:25:47 f Exp $
+ * $Id: edit6.c,v 1.68 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -293,14 +293,9 @@ ChannelList *tmpchan;
     NickList *tmpnick;
 
     strcpy(result,line);
-#ifdef JM
-#define COMPLCHAR ';'
-#else
-#define COMPLCHAR ':'
-#endif
-    if (*tmpstr==COMPLCHAR) return;
-    while (*tmpstr && *tmpstr>' ' && *tmpstr!=COMPLCHAR) tmpstr++;
-    if (*tmpstr==COMPLCHAR) {
+    if (*tmpstr==':') return;
+    while (*tmpstr && *tmpstr>' ' && *tmpstr!=':') tmpstr++;
+    if (*tmpstr==':') {
         *tmpstr='\0';
         tmpstr++;
         len=strlen(result);
@@ -552,6 +547,7 @@ void HandleEndOfTraceKill() {
 #endif /* OPER */
 
 /* Generates map of IRC servers */
+#ifndef LITE
 void Map(command,args,subargs)
 char *command;
 char *args;
@@ -643,6 +639,7 @@ void PrintMap() {
         new_free(&tmpmap);
     }
 }
+#endif
 
 /* Updates pointer to shit list */
 struct autobankicks *FindShit(userhost,channel)
@@ -1756,51 +1753,18 @@ char *subargs;
     char *szver;
     char *tmpstr1;
     char tmpbuf[mybufsize/4];
-    /* XXX - Remove this, Flier */
-    int i;
-    int count;
-    char tmpbufhash[mybufsize];
-    struct hashstr *tmp;
-    ChannelList *chan;
-    /* XXX - End remove */
 
-    /* XXX - Remove this if but leave body intact, Flier */
-    if (!(args && *args)) {
-        strcpy(tmpbuf,ScrollZver);
-        tmpstr1=index(tmpbuf,' ');
-        szver=index(tmpstr1+1,' ')+1;
-        tmpstr1=index(szver,' ');
-        *tmpstr1='\0';
-        say("This is ScrollZ %s (client base ircII %s, version %s)",
+    strcpy(tmpbuf,ScrollZver);
+    tmpstr1=index(tmpbuf,' ');
+    szver=index(tmpstr1+1,' ')+1;
+    tmpstr1=index(szver,' ');
+    *tmpstr1='\0';
+    say("This is ScrollZ %s (client base ircII %s, version %s)",
             szver,irc_version,internal_version);
-        say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
+    say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,
             (timediff/60)%60);
-        /*say("Home page:   http://ecover.globecom.net/~flier");
-        say("Alternative: http://bibendum.3sheep.com/~flier");
- 	say("Mailing List: scrollz@listserv.sonn.com");
- 	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");*/
-        say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: acidflash, bighead, arc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke, synergy and code_zero");
-	/*say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");*/
-    /* XXX - Remove this, Flier */
-    }
-    else if ((chan=lookup_channel(get_channel_by_refnum(0),curr_scr_win->server,0))) {
-        put_it("Hash stats for %s",chan->channel);
-        for (i=0;i<HASHTABLESIZE;i++) {
-            for (tmp=chan->nickshash[i],count=0;tmp;tmp=tmp->next) count++;
-            if (count) {
-                *tmpbufhash='\0';
-                for (tmp=chan->nickshash[i];tmp;tmp=tmp->next) {
-                    strcat(tmpbufhash," ");
-                    strcat(tmpbufhash,tmp->nick->nick);
-                    strcat(tmpbufhash,"!");
-                    strcat(tmpbufhash,tmp->nick->userhost);
-                }
-                put_it("[%2d]:%s",i,tmpbufhash);
-            }
-        }
-    }
-    /* XXX - End remove */
+    say("Support channel: #ScrollZ on Efnet");
+    say("Distribution: acidflash, bighead, arc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke, synergy and code_zero");
 }
 
 /* Handles reply number 329 from server */

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.48 2000-08-31 16:36:10 f Exp $
+ * $Id: edit3.c,v 1.49 2000-09-24 17:10:33 f Exp $
  */
 
 #include "irc.h"
@@ -496,6 +496,7 @@ char *subargs;
 }
 
 /* Does the ls command */
+#ifndef LITE
 void Ls(command,args,subargs)
 char *command;
 char *args;
@@ -507,6 +508,7 @@ char *subargs;
     if (args && *args) strmcat(tmpbuf,args,mybufsize/2);
     execcmd(NULL,tmpbuf,NULL);
 }
+#endif
 
 /* Prints out ScrollZ help */
 void SZHelp(command,args,subargs)
@@ -704,6 +706,7 @@ char *subargs;
 }
 
 /* Launches finger on nick */
+#ifndef LITE
 void Finger(command,args,subargs)
 char *command;
 char *args;
@@ -760,6 +763,7 @@ char *tmpnick;
     execcmd(NULL,tmpbuf2,NULL);
     say("Launching finger on %s",tmpbuf1);
 }
+#endif /* LITE */
 
 /* Checks for fake netsplit */
 int Check4Fake(splitserver)
@@ -842,6 +846,7 @@ char *subargs;
 }
 
 /* Prints all ScrollZ related settings */
+#ifndef LITE
 void Settings(command,args,subargs)
 char *command;
 char *args;
@@ -1271,6 +1276,7 @@ char *subargs;
 #endif /* EXTRAS */
 #endif /* WANTANSI */
 }
+#endif
 
 /* Sets flood protection toggle */
 void FloodProtToggle(command,args,subargs)

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: keys.c,v 1.7 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -170,6 +170,7 @@ show_binding(c, meta)
 		map = meta5_keys;
 		meta_str = "META5-";
 		break;
+#ifndef LITE
 	case 6:
 		map = meta6_keys;
 		meta_str = "META6-";
@@ -182,6 +183,7 @@ show_binding(c, meta)
 		map = meta8_keys;
 		meta_str = "META8-";
 		break;
+#endif
 	default:
 		map = keys;
 		meta_str = empty_string;
@@ -374,6 +376,7 @@ bind_it(function, string, key, meta)
 	case 5:
 		km = meta5_keys;
 		break;
+#ifndef LITE
 	case 6:
 		km = meta6_keys;
 		break;
@@ -383,6 +386,7 @@ bind_it(function, string, key, meta)
 	case 8:
 		km = meta8_keys;
 		break;
+#endif
 	default:
 		km = keys;
 	}
@@ -424,6 +428,7 @@ bind_it(function, string, key, meta)
 }
 
 /* parsekeycmd: does the PARSEKEY command.  */
+#ifndef LITE
 void
 parsekeycmd(command, args, subargs)
 	char	*command,
@@ -449,6 +454,7 @@ parsekeycmd(command, args, subargs)
 		}
 	}
 }
+#endif
 
 /*
  * bindcmd: the bind command, takes a key sequence followed by a function
@@ -575,6 +581,7 @@ bindcmd(command, args, subargs)
 					(meta5_keys[i].index != SELF_INSERT))
 				show_binding(i, 5);
 		}
+#ifndef LITE
 		for (i = 0; i < charsize; i++)
 		{
 			if ((meta6_keys[i].index != NOTHING) &&
@@ -593,6 +600,7 @@ bindcmd(command, args, subargs)
 					(meta8_keys[i].index != SELF_INSERT))
 				show_binding(i, 8);
 		}
+#endif
 	}
 }
 
@@ -601,6 +609,7 @@ bindcmd(command, args, subargs)
  * is bound to and it tells you all the things that are bound to that
  * functions
  */
+#ifndef LITE
 void
 rbindcmd(command, args, subargs)
 	char	*command,
@@ -647,6 +656,7 @@ rbindcmd(command, args, subargs)
 		for (i = 0; i < charsize; i++)
 			if (f == meta5_keys[i].index)
 				show_binding(i, 5);
+#ifndef LITE
 		for (i = 0; i < charsize; i++)
 			if (f == meta6_keys[i].index)
 				show_binding(i, 6);
@@ -656,8 +666,10 @@ rbindcmd(command, args, subargs)
 		for (i = 0; i < charsize; i++)
 			if (f == meta8_keys[i].index)
 				show_binding(i, 8);
+#endif
 	}
 }
+#endif
 
 void (*
 get_send_line _((void))) _((u_int, char *))
@@ -690,6 +702,7 @@ change_send_line(func)
  * cursor backward one character.
  */
 /*ARGSUSED*/
+#ifndef LITE
 void
 type(command, args, subargs)
 	char	*command,
@@ -732,6 +745,7 @@ type(command, args, subargs)
  		edit_char((u_int)key);
 	}
 }
+#endif
 
 /* The string values for these *MUST* be in ALL CAPITALS */
 KeyMapNames FAR key_names[] =
@@ -748,7 +762,11 @@ KeyMapNames FAR key_names[] =
 	{ "DELETE_PREVIOUS_WORD",	input_delete_previous_word },
 	{ "END_OF_LINE",		input_end_of_line },
 	{ "ENTER_DIGRAPH",		enter_digraph },
+#ifdef LITE
+	{ "ENTER_MENU",			NULL },
+#else
 	{ "ENTER_MENU",			enter_menu },
+#endif
 	{ "ERASE_LINE",			input_clear_line },
 	{ "ERASE_TO_BEG_OF_LINE",	input_clear_to_bol },
 	{ "ERASE_TO_END_OF_LINE",	input_clear_to_eol },
@@ -760,9 +778,15 @@ KeyMapNames FAR key_names[] =
 	{ "META3_CHARACTER",		meta3_char },
 	{ "META4_CHARACTER",		meta4_char },
 	{ "META5_CHARACTER",		meta5_char },
+#ifdef LITE
+	{ "META6_CHARACTER",		NULL },
+	{ "META7_CHARACTER",		NULL },
+	{ "META8_CHARACTER",		NULL },
+#else
 	{ "META6_CHARACTER",		meta6_char },
 	{ "META7_CHARACTER",		meta7_char },
 	{ "META8_CHARACTER",		meta8_char },
+#endif
 	{ "NEXT_WINDOW",		next_window },
 	{ "NOTHING",			NULL },
 	{ "PARSE_COMMAND",		parse_text },
@@ -2611,6 +2635,7 @@ KeyMap	FAR meta5_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
+#ifndef LITE
 KeyMap	FAR meta6_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
@@ -3483,6 +3508,7 @@ KeyMap	FAR meta8_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 },
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
+#endif /* LITE */
 /****************************************************************************/
 
 /*
@@ -3524,6 +3550,7 @@ write_binding(c, meta, fp, do_all)
 		map = meta5_keys;
 		meta_str = "META5-";
 		break;
+#ifndef LITE
 	case 6:
 		map = meta6_keys;
 		meta_str = "META6-";
@@ -3536,6 +3563,7 @@ write_binding(c, meta, fp, do_all)
 		map = meta8_keys;
 		meta_str = "META8-";
 		break;
+#endif
 	default:
 		map = keys;
 		meta_str = empty_string;

@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.28 2000-08-14 20:38:13 f Exp $
+ * $Id: cdcc.c,v 1.29 2000-09-24 17:10:33 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -31,7 +31,7 @@
 #include "edit.h"
 #include "dcc.h"
 #include "parse.h"
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
 #include "hook.h"
 #endif
 #include "cdcc.h"
@@ -72,9 +72,11 @@ static void listcommand _((char *, char *));
 static void helpcommand _((char *, char *));
 static void sendcommand _((char *, char *, int));
 static void versioncommand _((char *, char *));
+#ifndef LITE
 static void psendmcommand _((char *));
 static void psend2mcommand _((char *, char *));
 static void psend3mcommand _((char *, char *));
+#endif
 static void autogetmcommand _((char *));
 static void securemcommand _((char *));
 static void closemcommand _((char *));
@@ -84,7 +86,9 @@ static void emcommand _((char *));
 static void mmcommand _((char *));
 #endif
 /****** Coded by Zakath ******/
+#ifndef LITE
 static void requestmcommand _((char *));
+#endif
 /*****************************/
 static void idlemcommand _((char *));
 static void limitmcommand _((char *));
@@ -96,8 +100,10 @@ static void overwritemcommand _((char *));
 static void uldirmcommand _((char *));
 static void dldirmcommand _((char *));
 static void showdccsmcommand _((int));
+#ifndef LITE
 static void loadmcommand _((char *));
 static void savemcommand _((char *));
+#endif
 static void statusmcommand _((char *));
 static void statsmcommand _((char *));
 static void warningmcommand _((char *));
@@ -146,8 +152,10 @@ static int c_entry_size;
 static char *CdccString="[S+Z]";
 static time_t LastIdleCheck=0;
 /****** Coded by Zakath ******/
+#ifndef LITE
 static int  CdccReqTog=0;
 static char *CdccRequest=(char *) 0;
+#endif
 /*****************************/
 
 static CdccCom CdccCommands[]={
@@ -165,18 +173,24 @@ static CdccCom CdccCommands[]={
     { "RENPACK",     renamepackmcommand },
 #endif
 /****** Coded by Zakath ******/
+#ifndef LITE
     { "REQUEST",     requestmcommand },
+#endif
 /*****************************/
     { "QUEUE",       queuemcommand },
+#ifndef LITE
     { "LOAD",        loadmcommand },
     { "SAVE",        savemcommand },
+#endif
     { "LIMIT",       limitmcommand },
     { "CHANNELS",    channelsmcommand },
     { "PTIME",       ptimemcommand },
     { "NTIME",       ntimemcommand },
     { "LONGSTATUS",  longstatusmcommand },
     { "OVERWRITE",   overwritemcommand },
+#ifndef LITE
     { "PSEND",       psendmcommand },
+#endif
     { "IDLE",        idlemcommand },
     { "AUTOGET",     autogetmcommand },
     { "SECURE",      securemcommand },
@@ -532,14 +546,13 @@ int type;
 
     if (LongStatus) format="%s %-6.6s %-9.9s %c %7.7s %s %s";
     else format="%-2s %-6.6s %-9.9s %c %7.7s %s %s %s";
-#ifndef CELEHOOK
-    if (do_hook(DCC_LIST_HEADER,"%d",LongStatus)) {
+#if !defined(CELEHOOK) && !defined(LITE)
+    if (do_hook(DCC_LIST_HEADER,"%d",LongStatus))
 #endif
+    {
         if (LongStatus) say(format,"# ","Type","Nick",'S',"kb/s","   ETA ","Arguments");
         else say(format,"# ","Type","Nick",'S',"kb/s","Completed    ","     ETA ","Arguments");
-#ifndef CELEHOOK
     }
-#endif
     for (Client=ClientList;Client;Client=Client->next) {
         flags=Client->flags;
         if (type==15 || (flags&type)==type) {
@@ -574,12 +587,13 @@ int type;
                 rate=0.0;
                 etatime=0;
             }
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
             sprintf(tmpbuf1,"%.2f",rate);
             if (do_hook(DCC_LIST,"%d %s %s %c %s %ld %s %d %ld",count,
                         dcc_types[flags],Client->user,dccstatus(Client->flags),
-                        tmpbuf1,etatime,filename,fills,(long) Client->filesize)) {
+                        tmpbuf1,etatime,filename,fills,(long) Client->filesize))
 #endif
+            {
                 if (completed) {
                     if (LongStatus) {
                         strcpy(tmpbuf1,"\026    ");
@@ -661,13 +675,11 @@ int type;
                     say(format,tmpbuf4,dcc_types[flags&DCC_TYPES],Client->user,
                         dccstatus(flags),tmpbuf2,tmpbuf1,tmpbuf3,filename);
                 }
-#ifndef CELEHOOK
             }
-#endif
             count++;
         }
     }
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
     do_hook(DCC_LIST_FOOTER,"%d",count-1);
 #endif
 }
@@ -956,23 +968,23 @@ ChannelList *chan;
         donlist=0;
         if (current || (donlist=CheckCdccChannel(chan->channel,tmpchan))) {
             from_server=chan->server;
-#ifndef CELEHOOK
-            if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",chan->channel,count,mynick)) {
+#if !defined(CELEHOOK) && !defined(LITE)
+            if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",chan->channel,count,mynick))
 #endif
+            {
                 sprintf(tmpbuf1,"%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
                         CdccString,count,count==1?empty_string:"S",mynick);
                 send_text(chan->channel,tmpbuf1,"PRIVMSG");
-#ifndef CELEHOOK
             }
-#endif
             if (donlist==2) continue;
             number=1;
             for (tmp=packs;tmp;tmp=tmp->next) {
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
                 sprintf(tmpbuf2,"%.2f",tmp->minspeed);
                 if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",number,tmp->totalfiles,
-                            tmp->totalbytes,tmpbuf2,tmp->gets,tmp->description)) {
+                            tmp->totalbytes,tmpbuf2,tmp->gets,tmp->description))
 #endif
+                {
                     if (delay==-1) delay=0;
                     sprintf(tmpbuf2,"%d/%dx",number,tmp->gets);
                     if (tmp->totalbytes>1048575) {
@@ -994,15 +1006,14 @@ ChannelList *chan;
                     strcat(tmpbuf1,"]");
                     timercmd("FTIMER",tmpbuf1,(char *) func);
                     if ((tmp->next || chan->next) && !(number%3)) delay+=LIST_DELAY;
-#ifndef CELEHOOK
                 }
-#endif
                 number++;
             }
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
             sprintf(tmpbuf2,"%.0f %.0f",BytesReceived,BytesSent);
-            if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf2)) {
+            if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf2))
 #endif
+            {
                 if (CdccStats) {
                     formatstats(tmpbuf2,1);
                     if (delay==-1) send_text(chan->channel,tmpbuf2,"PRIVMSG");
@@ -1012,9 +1023,7 @@ ChannelList *chan;
                         timercmd("FTIMER",tmpbuf1,(char *) func);
                     }
                 }
-#ifndef CELEHOOK
             }
-#endif
             from_server=oldserver;
         }
         if (current) break;
@@ -1225,6 +1234,7 @@ char *line;
 /**********************************************************************
 * loadmcommand: loads packs from file                                 *
 ***********************************************************************/
+#ifndef LITE
 static void loadmcommand(line)
 char *line;
 {
@@ -1430,10 +1440,12 @@ char *line;
         }
         else malloc_strcpy(&CdccRequest,line);    /* It works */
     }
-    if (!CdccReqTog) PrintSetting("Cdcc request","OFF",empty_string,empty_string);
+    if (!CdccReqTog) PrintSetting("Cdcc request","OFF",empty_string,
+                                  empty_string);
     else if (CdccRequest && CdccReqTog) PrintSetting("Cdcc request",CdccRequest,
                                                      empty_string,empty_string);
 }
+#endif /* LITE */
 
 /**********************************************************************
 * offermcommand: Prompt User for files                                *
@@ -1812,6 +1824,7 @@ char *line;
 /**********************************************************************
 * psendmcommand: Prompt User for pack                                 *
 ***********************************************************************/
+#ifndef LITE
 static void psendmcommand(line)
 char *line;
 {
@@ -1879,6 +1892,7 @@ char *line;
     else say("You must specify nicks(s) to send pack(s) to");
     DeleteSend();
 }
+#endif /* LITE */
 
 /**********************************************************************
 * SeedFiles: Gets Users Line of Files with path, and rips em apart    *
@@ -2361,7 +2375,7 @@ char *args;
 
     if (packs) {
         for (tmp=packs;tmp;tmp=tmp->next) count++;
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
         if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",from,count,mynick)) 
 #endif
             send_to_server("NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
@@ -2384,32 +2398,31 @@ char *args;
             sprintf(tmpbuf3,"%d/%dx",packcount,tmp->gets);
 
             sprintf(tmpbuf1,"%.2f",tmp->minspeed);
-#ifndef CELEHOOK
-            if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",packcount,tmp->totalfiles,
-                        tmp->totalbytes,tmpbuf1,tmp->gets,tmp->description)) {
+#if !defined(CELEHOOK) && !defined(LITE)
+            if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",packcount,
+                        tmp->totalfiles,tmp->totalbytes,tmpbuf1,tmp->gets,
+                        tmp->description))
 #endif
+            {
                 sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
                         tmp->description,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
                 if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
-#ifndef CELEHOOK
             }
-#endif
 
             packcount++;
         }
-#ifndef CELEHOOK
+#if !defined(CELEHOOK) && !defined(LITE)
         sprintf(tmpbuf1,"%.0f %.0f",BytesReceived,BytesSent);
-        if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf1)) {
+        if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf1))
 #endif
+        {
             if (CdccStats) {
                 formatstats(tmpbuf2,1);
                 sprintf(tmpbuf1,"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
             }
-#ifndef CELEHOOK
         }
-#endif
     }
     else if (!CTCPCloaking)
         send_to_server("NOTICE %s :Sorry, there are no files offered",from);
@@ -2542,8 +2555,10 @@ int  resend;
                 }
 #endif
 /****** Coded by Zakath ******/
+#ifndef LITE
                 if (CdccReqTog && CdccRequest)
-                    send_to_server("NOTICE %s :I need : %s",from,CdccRequest);
+                    send_to_server("NOTICE %s :I need %s",from,CdccRequest);
+#endif
 /*****************************/
             }
             if (queuesay && CdccVerbose==1)

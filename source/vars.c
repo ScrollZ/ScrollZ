@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.10 2000-08-15 16:03:07 f Exp $
+ * $Id: vars.c,v 1.11 2000-09-24 17:10:34 f Exp $
  */
 
 #include "irc.h"
@@ -205,7 +205,11 @@ static	IrcVariable irc_variable[] =
 /**************************** PATCHED by Flier ******************************/
         { "MAX_WALLOP_NICKS",           INT_TYPE_VAR,   DEFAULT_MAX_WALLOP_NICKS, NULL, SetMaxWallopNicks, 0, 0 },
 /****************************************************************************/
+#ifdef LITE
+	{ "MENU",			STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+#else
 	{ "MENU",			STR_TYPE_VAR,	0, NULL, set_menu, 0, 0 },
+#endif
 	{ "MINIMUM_SERVERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_SERVERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "MINIMUM_USERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_USERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "NO_ASK_NICKNAME",		BOOL_TYPE_VAR,	DEFAULT_NO_ASK_NICKNAME, NULL, NULL, 0, 0 },
@@ -764,6 +768,7 @@ set_int_var(var, value)
 	int	var;
 	unsigned int	value;
 {
+#ifndef LITE
 	if (var == NOVICE_VAR && !load_depth && !value)
 	{
 say("WARNING: Setting NOVICE to OFF enables commands in your client which");
@@ -775,6 +780,7 @@ say("         immediately /SET NOVICE ON and ask the IRC operators about");
 say("         the commands you have been asked to enter on channel");
 say("         #Twilight_Zone.");
 	}
+#endif
 	irc_variable[var].integer = value;
 }
 
@@ -866,22 +872,26 @@ static	void
 exec_warning(value)
 	int	value;
 {
+#ifndef LITE
 	if (value == OFF)
 	{
 		say("Warning!  You have turned EXEC_PROTECTION off");
 		say("Please read the /HELP SET EXEC_PROTECTION documentation");
 	}
+#endif
 }
 
 static	void
 input_warning(value)
 	int	value;
 {
+#ifndef LITE
 	if (value == OFF)
 	{
 		say("Warning!  You have turned INPUT_PROTECTION off");
 		say("Please read the /HELP ON INPUT, and /HELP SET INPUT_PROTECTION documentation");
 	}
+#endif
 }
 
 /* returns the size of the character set */
