@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.5 1998-10-21 19:42:09 f Exp $
+ * $Id: edit6.c,v 1.6 1998-10-24 09:44:22 f Exp $
  */
 
 #include "irc.h"
@@ -1720,7 +1720,8 @@ char *subargs;
  	say("Mailing List: scrollz@listserv.sonn.com");
  	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");
         say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: bighead, zuez, arc, JMnemonic, myc, mathe, frash, ogre, lotbd, TrN, kali and Psylocke");
+        say("Distribution: bighead, zuez, arc, JMnemonic, myc, mathe, frash, ogre, lotbd, TrN, kali and Psylocke");
+	say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");
     /* XXX - Remove this, Flier */
     }
     else if ((chan=lookup_channel(get_channel_by_refnum(0),curr_scr_win->server,0))) {
