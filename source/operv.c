@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.14 1999-10-20 19:39:41 f Exp $
+ * $Id: operv.c,v 1.15 1999-10-20 19:40:47 f Exp $
  */
 
 #include "irc.h"
@@ -603,7 +603,6 @@ char *from;
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],word2);
     }
     else if (!strncmp(tmpline,"Added K-Line [",14)) return;
-    else if (!strncmp(tmpline,"Added kline for ",16)) return;
     else if (!strncmp(tmpline,"Bogus server name",17)) {
 	strcpy(word1,OVgetword(0,4,tmpline));  /* Bogus name */
 	strcpy(word2,OVgetword(0,6,tmpline));  /* Nick */
