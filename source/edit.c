@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.19 1999-03-23 17:30:03 f Exp $
+ * $Id: edit.c,v 1.20 1999-04-28 15:53:15 f Exp $
  */
 
 #include "irc.h"
@@ -1220,6 +1220,9 @@ my_echo(command, args, subargs)
 	char	*flag_arg;
 	int	temp;
 	Window *old_to_window;
+/**************************** PATCHED by Flier ******************************/
+        int     old_who_level=who_level;
+/****************************************************************************/
 
  	save_message_from();
 	old_to_window = to_window;
@@ -1237,6 +1240,9 @@ my_echo(command, args, subargs)
 				if ((temp = parse_lastlog_level(flag_arg)) != 0)
 				{
 					lastlog_level = set_lastlog_msg_level(temp);
+/**************************** PATCHED by Flier ******************************/
+                                        who_level=temp;
+/****************************************************************************/
 				}
 				break;
 			case 'W':
@@ -1260,6 +1266,9 @@ my_echo(command, args, subargs)
 	window_display = display;
 	if (lastlog_level)
 		set_lastlog_msg_level(lastlog_level);
+/**************************** PATCHED by Flier ******************************/
+        who_level=old_who_level;
+/****************************************************************************/
  	restore_message_from();
 	to_window = old_to_window;
 }
