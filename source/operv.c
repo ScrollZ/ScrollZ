@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.66 2003-07-06 09:43:55 f Exp $
+ * $Id: operv.c,v 1.67 2003-07-06 09:57:57 f Exp $
  */
 
 #include "irc.h"
@@ -1317,6 +1317,21 @@ char *from;
                 word3,word4);
 #endif
     }
+    else if (!strncmp(tmpline,"K-Line for ",11)) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* pattern */
+        tmp=word1;
+        if (*tmp=='[') tmp++;
+        if (strlen(word1)>0 && word1[strlen(word1)-1]==']')
+            word1[strlen(word1)-1]='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] removed %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,tmp,Colors[COLOFF]);
+#else
+        snprintf(tmpbuf,sizeof(tmpbuf),"K-Line removed for %s%s%s",
+                CmdsColors[COLOV].color1,tmp,Colors[COLOFF]);
+#endif
+    }
     else if (strstr(tmpline,"whois on you")) {
         strcpy(word1,OVgetword(0,1,tmpline));  /* nick */
         strcpy(word2,OVgetword(0,2,tmpline));  /* user@host */
@@ -1686,6 +1701,30 @@ char *from;
                 CmdsColors[COLOV].color5,tmp1,Colors[COLOFF],
                 CmdsColors[COLOV].color5,tmp2,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," has removed the K-Line for: ")) {
+        char *tmp1=word3;
+
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+	strcpy(word2,word1);
+        tmp=index(word1,'!');
+        if (tmp) *tmp++='\0';
+        tmp=index(word2,'{');
+        if (tmp) *tmp++='\0';
+	strcpy(word3,OVgetword(0,7,tmpline));  /* pattern */
+        if (*tmp1=='[') tmp1++;
+        if (strlen(word3)>0 && word3[strlen(word3)-1]==']')
+            word3[strlen(word3)-1]='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] %s%s%s removed by %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color4,tmp1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s kline removed by %s%s%s %s",
+                CmdsColors[COLOV].color4,tmp1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     servername=server_list[from_server].itsname;
