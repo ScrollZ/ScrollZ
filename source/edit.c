@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.72 2001-12-12 21:09:20 f Exp $
+ * $Id: edit.c,v 1.73 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -381,6 +381,8 @@ extern  void  Terminate _((char *, char *, char *));
 #endif
 extern  void  ARinWindowToggle _((char *, char *, char *));
 extern  void  CJoin _((char *, char *, char *));
+extern  void  ChanLogCommand _((char *, char *, char *));
+extern  void  ChannelLogSave _((char *, ChannelList *));
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -491,7 +493,7 @@ static	IrcCommand FAR irc_command[] =
 #ifdef EXTRAS
   { "BKI", 		"BKI", 		BanKick, 		SERVERREQ },
 #endif
-  { "BKLIST", 		"BKLIST", 	ChannelCommand,		SERVERREQ },
+  { "BKLIST", 		"BKLIST", 	ChannelCommand,		0 },
 #ifdef EXTRAS
   { "BKT", 		"BKT", 		BanKick, 		SERVERREQ },
 #endif
@@ -506,6 +508,9 @@ static	IrcCommand FAR irc_command[] =
 #ifdef CELE
   { "CH", 		NULL, 		CurrentChanMode, 	SERVERREQ },
 #endif
+  { "CHANLOG", 		"CHANLOG",	ChannelCommand, 	0 },
+  { "CHANLOGDIR", 	"CHANLOGDIR",	ChanLogCommand, 	0 },
+  { "CHANLOGPREFIX", 	"CHANLOGPREFIX",ChanLogCommand, 	0 },
  	{ "CHANNEL",	"JOIN",		e_channel,		SERVERREQ },
   { "CHANST", 		NULL, 		ChanStat, 		SERVERREQ },
   { "CHAT", 		NULL, 		Chat, 			SERVERREQ },
@@ -593,7 +598,7 @@ static	IrcCommand FAR irc_command[] =
  	{ "FLUSH",	NULL,		flush,			SERVERREQ },
 	{ "FOR",	NULL,		foreach_handler,	0 },
 #ifdef ACID
-  { "FORCEJOIN",	"FORCEJOIN",	ChannelCommand,		SERVERREQ },
+  { "FORCEJOIN",	"FORCEJOIN",	ChannelCommand,		0 },
 #endif
 	{ "FOREACH",	NULL,		foreach_handler,	0 },
   { "FRLIST", 		"FRLIST", 	ChannelCommand, 	0 },
@@ -2826,12 +2831,13 @@ send_text(org_nick, line, command)
 /**************************** PATCHED by Flier ******************************/
         int     iscrypted;
         char    thing;
-        char    *mynick=get_server_nickname(from_server);
-        char    tmpbuf[BIG_BUFFER_SIZE+1];
-        char    *stampbuf=TimeStamp(2);
+        char    *mynick = get_server_nickname(from_server);
+        char    tmpbuf[BIG_BUFFER_SIZE + 1];
+        char    *stampbuf = TimeStamp(2);
+        ChannelList *chan;
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
-        else thing='-';
+        if (get_int_var(HIGH_ASCII_VAR)) thing = 'ù';
+        else thing = '-';
 /****************************************************************************/
 	if (dumb && translation)
 	{
@@ -2918,8 +2924,8 @@ send_text(org_nick, line, command)
 			goto out;
 		}
 /**************************** PATCHED by Flier ******************************/
-                *tmpbuf='\0';
-                iscrypted=EncryptMessage(tmpbuf,nick);
+                *tmpbuf = '\0';
+                iscrypted = EncryptMessage(tmpbuf,nick);
 /****************************************************************************/
                 if (is_channel(nick))
 		{
@@ -2951,22 +2957,27 @@ send_text(org_nick, line, command)
 					put_it("%c%s> %s", the_thing, nick,
 						line);*/
                                 if (current) {
-                                    if (!my_stricmp(command,"NOTICE")) put_it("%s-%s- %s",stampbuf,nick,line);
-                                    else PrintPublic(mynick,NULL,nick,line,1,iscrypted);
+                                    if (!my_stricmp(command, "NOTICE")) put_it("%s-%s- %s", stampbuf, nick, line);
+                                    else PrintPublic(mynick, NULL, nick, line, 1, iscrypted);
                                 }
                                 else {
-                                    if (!my_stricmp(command,"NOTICE")) put_it("%s-%s- %s",stampbuf,nick,line);
-                                    else PrintPublic(mynick,":",nick,line,1,iscrypted);
+                                    if (!my_stricmp(command, "NOTICE")) put_it("%s-%s- %s", stampbuf, nick, line);
+                                    else PrintPublic(mynick, ":", nick, line, 1, iscrypted);
                                 }
-                                tabnickcompl=NULL;
+                                tabnickcompl = NULL;
 /****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
-                        else if (my_stricmp(command,"NOTICE")) 
-                            PrintPublic(mynick,NULL,nick,line,0,iscrypted);
-                        if ((away_set || LogOn) && my_stricmp(command,"NOTICE")) {
-                            sprintf(tmpbuf,"<%s:%s> %s",mynick,nick,line);
-                            AwaySave(tmpbuf,SAVESENTMSG);
+                        else if (my_stricmp(command, "NOTICE")) 
+                            PrintPublic(mynick, NULL, nick, line, 0, iscrypted);
+                        chan = lookup_channel(nick, parsing_server_index, 0);
+                        if (chan && chan->ChanLog && list_type == SEND_NOTICE_LIST) {
+                            sprintf(tmpbuf, "-%s:%s- %s", mynick, nick, line);
+                            ChannelLogSave(tmpbuf, chan);
+                        }
+                        if ((away_set || LogOn) && my_stricmp(command, "NOTICE")) {
+                            sprintf(tmpbuf, "<%s:%s> %s", mynick, nick, line);
+                            AwaySave(tmpbuf, SAVESENTMSG);
                         }
 /****************************************************************************/
 			set_lastlog_msg_level(lastlog_level);
@@ -2981,9 +2992,9 @@ send_text(org_nick, line, command)
 			}
 #endif
 /**************************** PATCHED by Flier ******************************/
-                        strmcpy(tmpbuf,line,mybufsize);
-                        if (EncryptMessage(tmpbuf,nick)) {
-                            send_to_server("%s %s :%s",command,nick,tmpbuf);
+                        strmcpy(tmpbuf, line, mybufsize);
+                        if (EncryptMessage(tmpbuf, nick)) {
+                            send_to_server("%s %s :%s", command, nick, tmpbuf);
                             continue;
                         }
 /****************************************************************************/
@@ -3021,61 +3032,60 @@ send_text(org_nick, line, command)
                         /*if (window_display && do_hook(list_type, "%s %s", nick, line))
 				put_it("-> %c%s%c %s", the_thing, nick, the_thing, line);*/
                         if (window_display && do_hook(list_type, "%s %s", nick, line)) {
-                            if (!my_stricmp(command,"NOTICE")) {
+                            if (!my_stricmp(command, "NOTICE")) {
 #ifdef WANTANSI
 #ifdef CELECOSM
-                                sprintf(tmpbuf,"%s[%s%s(notice)%s%s%s%s%s]%s",
-                                          CmdsColors[COLNOTICE].color4,Colors[COLOFF],
-                                          CmdsColors[COLCELE].color2,Colors[COLOFF],
-                                          CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
-                                          CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
+                                sprintf(tmpbuf, "%s[%s%s(notice)%s%s%s%s%s]%s",
+                                        CmdsColors[COLNOTICE].color4, Colors[COLOFF],
+                                        CmdsColors[COLCELE].color2, Colors[COLOFF],
+                                        CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
+                                        CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #else  /* CELECOSM */
-                                sprintf(tmpbuf,"%s<%s-%s%s%s-%s>%s",
-                                        CmdsColors[COLNOTICE].color4,Colors[COLOFF],
-                                        CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
-                                        CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
+                                sprintf(tmpbuf, "%s<%s-%s%s%s-%s>%s",
+                                        CmdsColors[COLNOTICE].color4, Colors[COLOFF],
+                                        CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
+                                        CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s%s %s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf,
-                                       CmdsColors[COLNOTICE].color3,line,Colors[COLOFF]);
+                                put_it("%s%s%s %s%s%s", iscrypted ? "[!]" : "", stampbuf, tmpbuf,
+                                        CmdsColors[COLNOTICE].color3, line, Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s%s<-%s-> %s",iscrypted?"[!]":"",stampbuf,nick,line);
+                                put_it("%s%s<-%s-> %s", iscrypted ? "[!]" : "", stampbuf, nick, line);
 #endif /* WANTANSI */
                             }
                             else {
 #ifdef WANTANSI
 #ifdef CELECOSM
                                 sprintf(tmpbuf,"%s[%s%s(msg)%s%s%s%s%s]%s",
-                                        CmdsColors[COLMSG].color5,Colors[COLOFF],
-                                        CmdsColors[COLCELE].color1,Colors[COLOFF],
-                                        CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
-                                        CmdsColors[COLMSG].color5,Colors[COLOFF]);
+                                        CmdsColors[COLMSG].color5, Colors[COLOFF],
+                                        CmdsColors[COLCELE].color1, Colors[COLOFF],
+                                        CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
+                                        CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #else  /* CELECOSM */
                                 sprintf(tmpbuf,"%s[%s%c%s%s%s%c%s]%s",
-					CmdsColors[COLMSG].color5,Colors[COLOFF],thing,
-					CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
-                                        thing,CmdsColors[COLMSG].color5,Colors[COLOFF]);
+					CmdsColors[COLMSG].color5, Colors[COLOFF], thing,
+					CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
+                                        thing, CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s%s %s%s%s",stampbuf,iscrypted?"[!]":"",tmpbuf,
-					CmdsColors[COLMSG].color3,line,Colors[COLOFF]);
+                                put_it("%s%s%s %s%s%s", stampbuf, iscrypted ? "[!]" : "", tmpbuf,
+				       CmdsColors[COLMSG].color3, line, Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s%s[%c%s%c] %s",stampbuf,iscrypted?"[!]":"",thing,nick,thing,line);
+                                put_it("%s%s[%c%s%c] %s", stampbuf, iscrypted ? "[!]" : "",
+                                       thing, nick, thing, line);
 #endif /* WANTANSI */
                             }
                         }
-                        if (line!=server_list[from_server].LastMessageSent &&
-                            line!=server_list[from_server].LastNoticeSent) {
-                            if (!my_stricmp(command,"NOTICE")) {
-                                sprintf(tmpbuf,"-> -%s- %s",nick,line);
+                        if (line != server_list[from_server].LastMessageSent &&
+                            line != server_list[from_server].LastNoticeSent) {
+                            if (!my_stricmp(command, "NOTICE")) {
+                                sprintf(tmpbuf, "-> -%s- %s", nick, line);
                                 if (CheckServer(from_server))
-                                    malloc_strcpy(&(server_list[from_server].LastNoticeSent),
-                                            tmpbuf);
+                                    malloc_strcpy(&(server_list[from_server].LastNoticeSent), tmpbuf);
                             }
                             else {
-                                sprintf(tmpbuf,"-> [-%s-] %s",nick,line);
+                                sprintf(tmpbuf,"-> [-%s-] %s", nick, line);
                                 if (CheckServer(from_server))
-                                    malloc_strcpy(&(server_list[from_server].LastMessageSent),
-                                            tmpbuf);
-                                if (away_set || LogOn) AwaySave(tmpbuf,SAVESENTMSG);
+                                    malloc_strcpy(&(server_list[from_server].LastMessageSent), tmpbuf);
+                                if (away_set || LogOn) AwaySave(tmpbuf, SAVESENTMSG);
                             }
                         }
 /****************************************************************************/
@@ -3091,10 +3101,9 @@ send_text(org_nick, line, command)
 #endif
 			set_lastlog_msg_level(lastlog_level);
 /**************************** PATCHED by Flier ******************************/
-                        strmcpy(tmpbuf,line,mybufsize);
-                        if (EncryptMessage(tmpbuf,nick)) {
-                            send_to_server("%s %s :%s",command?command:"PRIVMSG",nick,
-                                           tmpbuf);
+                        strmcpy(tmpbuf, line, mybufsize);
+                        if (EncryptMessage(tmpbuf, nick)) {
+                            send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, tmpbuf);
                             continue;
                         }
 /****************************************************************************/

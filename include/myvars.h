@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.28 2001-09-17 14:35:14 f Exp $
+ * $Id: myvars.h,v 1.29 2002-01-07 19:18:16 f Exp $
  */
 
 #include "mystructs.h"
@@ -180,6 +180,9 @@ extern char   *ForceJoinChannels;
 #endif
 extern char   *PermUserMode;
 extern char   *AutoReplyString;
+extern char   *ChanLogChannels;
+extern char   *ChanLogDir;
+extern char   *ChanLogPrefix;
 extern int    usersloaded;
 extern int    inSZNotify;
 extern int    inSZLinks;
@@ -273,6 +276,7 @@ extern int    OrigNickNumber;
 extern int    ShowSignAllChan;
 #endif
 extern int    ExtPub;
+extern int    ChanLog;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

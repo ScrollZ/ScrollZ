@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.72 2001-12-18 20:30:57 f Exp $
+ * $Id: irc.c,v 1.73 2002-01-07 19:18:16 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -360,6 +360,9 @@ char  *AutoReplyString=(char *) 0;
 char  *ForceJoinChannels=(char *) 0;
 #endif
 char  *TimeStampString=(char *) 0;
+char  *ChanLogChannels=(char *) 0;
+char  *ChanLogDir=(char *) 0;
+char  *ChanLogPrefix=(char *) 0;
 int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;
@@ -462,6 +465,7 @@ int   OrigNickNumber;
 int   ShowSignAllChan;
 #endif
 int   ExtPub;
+int   ChanLog;
 struct in_addr DCCHost;
 #ifdef ACID
 int   ForceJoin;

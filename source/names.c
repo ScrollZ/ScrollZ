@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.28 2001-09-25 20:09:34 f Exp $
+ * $Id: names.c,v 1.29 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -73,6 +73,9 @@ extern int  SortedCmp _((List *, List *));
 extern int  HashFunc _((char *));
 extern NickList *find_in_hash _((ChannelList *, char *));
 extern Window *FindWindowByPtr _((Window *));
+extern void UpdateChanLogFName _((ChannelList *));
+extern void ChannelLogReport _((char *, ChannelList *));
+extern void ChannelLogSave _((char *, ChannelList *));
 
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -255,6 +258,7 @@ add_channel(channel, server, connected, copy)
                 new->creationtime=time((time_t *) 0);
                 new->modelock=(char *) 0;
                 new->topiclock=(char *) 0;
+                new->chanlogfpath=(char *) 0;
                 resetchan=1;
 /****************************************************************************/
 	}
@@ -315,6 +319,8 @@ add_channel(channel, server, connected, copy)
 #endif
                     new->CompressModes=CompressModes?CheckChannel(channel,CompressModesChannels):0;
                     new->BKList=BKList?CheckChannel(channel,BKChannels):0;
+                    new->ChanLog=ChanLog?CheckChannel(channel,ChanLogChannels):0;
+                    if (new->ChanLog) UpdateChanLogFName(new);
                     new->TryRejoin=0;
                     new->banlist=NULL;
                     new->topicstr=NULL;
@@ -949,7 +955,7 @@ char    *servmodes;
                                     if ((privs&(FLPROT | FLGOD)) && (privs&FLOP) && my_stricmp(from,ThisNick->nick)
                                         && !CheckChannel(lastdeop,ThisNick->nick)
                                         && !(!(privs&FLGOD) && (isprot&FLGOD))) {
-                                        if (away_set || LogOn) {
+                                        if (away_set || LogOn || (chan && chan->ChanLog)) {
                                             sprintf(tmpbuf,"%s (%s) has been deopped on channel %s by %s",
                                                     ThisNick->nick,ThisNick->userhost,
                                                     chan->channel,from);
@@ -958,7 +964,8 @@ char    *servmodes;
                                                 strcat(tmpbuf,userhost);
                                                 strcat(tmpbuf,")");
                                             }
-                                            AwaySave(tmpbuf,SAVEPROT);
+                                            if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
+                                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                                         }
                                         if (*chop&CHAN_CHOP) {
                                             if (!isserver && (privs&FLGOD) && !(isprot&FLGOD)) {
@@ -1141,7 +1148,7 @@ char    *servmodes;
                                                         strcat(tmpbufmode,person);
                                                     }
                                                 }
-                                                if (away_set || LogOn) {
+                                                if (away_set || LogOn || (chan && chan->ChanLog)) {
                                                     sprintf(tmpbuf,"%cBan%c on mask %s on channel %s by %s",
                                                             bold,bold,person,
                                                             chan->channel,from);
@@ -1150,7 +1157,8 @@ char    *servmodes;
                                                         strcat(tmpbuf,userhost);
                                                         strcat(tmpbuf,")");
                                                     }
-                                                    AwaySave(tmpbuf,SAVEPROT);
+                                                    if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
+                                                    if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                                                 }
                                                 break;
                                             }
@@ -1207,7 +1215,7 @@ char    *servmodes;
                                                             }
                                                             deopped=1;
                                                         }
-                                                        if (away_set || LogOn) {
+                                                        if (away_set || LogOn || (chan && chan->ChanLog)) {
                                                             sprintf(tmpbuf,"%cBan%c on mask %s on channel %s by %s",
                                                                     bold,bold,person,
                                                                     chan->channel,from);
@@ -1216,7 +1224,8 @@ char    *servmodes;
                                                                 strcat(tmpbuf,userhost);
                                                                 strcat(tmpbuf,")");
                                                             }
-                                                            AwaySave(tmpbuf,SAVEPROT);
+                                                            if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
+                                                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                                                         }
                                                         break;
                                                     }
@@ -1295,13 +1304,14 @@ char    *servmodes;
                             bold,bold,chan->channel,from);
 #endif
                     say("%s",tmpbuf);
-                    if (away_set || LogOn) {
+                    if (away_set || LogOn || (chan && chan->ChanLog)) {
                         if (!isserver) {
                             strcat(tmpbuf," (");
                             strcat(tmpbuf,userhost);
                             strcat(tmpbuf,")");
                         }
-                        AwaySave(tmpbuf,SAVEMASS);
+                        if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
+                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                     }
                 }
                 tmpjoiner->deopp=1;
@@ -1322,7 +1332,7 @@ char    *servmodes;
                             bold,bold,chan->channel,from);
 #endif
                     say("%s",tmpbuf);
-                    if (away_set || LogOn) {
+                    if (away_set || LogOn || (chan && chan->ChanLog)) {
                         sprintf(tmpbuf,"%cDeop flood%c detected on %s by %s",
                                 bold,bold,chan->channel,from);
                         if (!isserver) {
@@ -1330,7 +1340,8 @@ char    *servmodes;
                             strcat(tmpbuf,userhost);
                             strcat(tmpbuf,")");
                         }
-                        AwaySave(tmpbuf,SAVEMASS);
+                        if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
+                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                     }
                 }
                 tmpjoiner->deopp=2;
@@ -1454,6 +1465,7 @@ free_channel(channel)
 
         NickList *nick,*tmpnick;
 
+        ChannelLogReport("ended", *channel);
         (*channel)->mode=0;
         (*channel)->limit=0;
         new_free(&((*channel)->key));

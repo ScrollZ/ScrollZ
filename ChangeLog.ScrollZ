@@ -44,6 +44,23 @@ Meaning of flags:
       indicated with a ! in the server list (thanks to Sharky and Darkie for
       permission to use their code from BitchX SSL port)
     ~ changed ENCRMSG, see help for new usage (requested by ogre)
+    ! core dump on page up on very long lines (thanks to braneded)
+    ! core dump on long lines when logging was enabled
+    + time stamping to wallops (coded by braneded)
+    + merged CAST encrypt stuff from ircII to ensure compatibility
+      (you need to obtain cast_sbox.h and cast.c, run configure --with-cast,
+      requested by Anton)
+    + -COUNT option to FTRACE to only count matches and not report them
+      (requested by ogre)
+    ! WHOLEFT formatting which broke with SET STAMP_FORMAT when STAMP was
+      set to MAX (reported by jm_)
+    ~ upon netsplit we don't display 'Press Control-F to see who split away'
+      notice anymore to save screen space
+    + per channel logging, check help for commands CHANLOG, CHANLOGDIR,
+      and CHANLOGPREFIX (requested by Ahnberg and his gang)
+    ! PONG notice being displayed on servers without dot in the server name
+      (reported by Ahnberg)
+    + decrypter for log files to tools subdir
 
 ------------------------------------------------------------------------------
 

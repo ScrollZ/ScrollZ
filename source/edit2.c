@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.71 2001-12-30 12:25:00 f Exp $
+ * $Id: edit2.c,v 1.72 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -1922,6 +1922,9 @@ char *subargs;
     if (ForceJoin) fprintf(usfile,"ON %s\n",ForceJoinChannels);
     else fprintf(usfile,"OFF\n");
 #endif
+    fprintf(usfile,"CHANLOG         ");
+    if (ChanLog) fprintf(usfile,"ON %s\n",ChanLogChannels);
+    else fprintf(usfile,"OFF\n");
     fprintf(usfile,"FLOODPROT       ");
     if (FloodProt>1) fprintf(usfile,"MAX %d %d\n",FloodMessages,FloodSeconds);
     else if (FloodProt) fprintf(usfile,"ON\n");
@@ -2058,6 +2061,8 @@ char *subargs;
     fprintf(usfile,"SCROLLZSTR      %s\n",ScrollZstr);
 #endif
     fprintf(usfile,"NOTIFYSTR       %s\n",CelerityNtfy);
+    if (ChanLogDir) fprintf(usfile,"CHANLOGDIR      %s\n",ChanLogDir);
+    if (ChanLogPrefix) fprintf(usfile,"CHANLOGPREFIX   %s\n",ChanLogPrefix);
     fprintf(usfile,"#\n");
 #ifdef CELE
     fprintf(usfile,"TRUNCATE        %d\n",get_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR));

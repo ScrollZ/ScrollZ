@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.45 2001-12-23 16:45:46 f Exp $
+ * $Id: server.c,v 1.46 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -65,6 +65,7 @@ int	connect_to_unix _((int, char *));
 
 extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
+extern void ChannelLogReportAll _((char *, ChannelList *));
 
 /*#define BNCCRYPT 1*/
 
@@ -172,6 +173,7 @@ close_server(server_index, message)
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
                     server_list[i].ConnectTime = 0;
+                    ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
 /****************************************************************************/
 		if (-1 != server_list[i].write)

@@ -89,7 +89,8 @@ Usage $3FLLINE$0 [$3-NAME$0] $3filter$0
 When $3-NAME$0 is specified $4STATS l$0 is sent instead of usual $4STATS L$0.
 STATS l returns hostnames instead of IP addresses.
 :FTRACE        Does TRACE with filter
-Usage $3FTRACE filter$0 [$3server$0]
+With -COUNT only number of matches is reported.
+Usage $3FTRACE$0 [$3-COUNT$0] $3filter$0 [$3server$0]
 :IG            Ignores user
 Usage $3IG$0 [$3-T time$0] $3nick$0 [$3type$0]
 This will ignore by user@domain. If no type is given it will ignore $4ALL$0.
@@ -540,6 +541,17 @@ Usage $3BITCH on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).
 When set to on, only people from userlist with OP or AUTOOP access are
 allowed to be channel operators on such channels.
+:CHANLOG       Toggles per channel logging on/off
+Usage $3CHANLOG on channels$0|$3off$0
+Also look at $2CHANLOGDIR$0 and $2CHANLOGPREFIX$0
+:CHANLOGDIR    Sets the path to a directory with logfiles
+Usage $3CHANLOGDIR path$0
+If $3path$0 is a minus ('-') first directory from $3SET LOAD_PATH$0 is used.
+Also look at $2CHANLOG$0 and $2CHANLOGPREFIX$0
+:CHANLOGPREFIX Sets a string to prefix the logfiles with
+Usage $3CHANLOGPREFIX prefix$0
+If $3prefix$0 is a minus ('-') the prefix is removed.
+Also look at $2CHANLOG$0 and $2CHANLOGDIR$0
 :CHSIGNOFF     Toggles channels display on signoff on/off
 Usage $3CHSIGNOFF on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).

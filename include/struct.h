@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.10 2001-08-27 16:45:27 f Exp $
+ * $Id: struct.h,v 1.11 2002-01-07 19:18:16 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -378,7 +378,7 @@ typedef	struct	channel_stru
         int servplush,servminush,servpluso,servminuso,servplusb,servminusb;
         int AutoRejoin,MDopWatch,ShowFakes,KickOnFlood,KickWatch,IdleKick;
         int NHProt,NickWatch,ShowAway,KickOps,KickOnBan,Bitch,FriendList;
-        int CompressModes,TryRejoin,BKList;
+        int CompressModes,TryRejoin,BKList,ChanLog;
         int gotbans,gotwho;
         char *topicstr;
         char *topicwho;
@@ -393,6 +393,7 @@ typedef	struct	channel_stru
         struct hashstr *nickshash[HASHTABLESIZE];
         char *modelock;
         char *topiclock;
+        char *chanlogfpath;
 /****************************************************************************/
 }	ChannelList;
 

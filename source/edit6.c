@@ -61,10 +61,16 @@
  CompareAddr         Compare two List pointers (for list.c)
  TopicLocked         Topic locking
  TimeStamp           Returns time stamp in static buffer
+ CJoin               CJOIN and KNOCK commands
+ ChanLogCommand      Configures per channel logging
+ UpdateChanLogFName  Update channel logging filename
+ ChannelLogReport    Report channel logging event (start, stop)
+ ChannelLogReportAll Report channel logging event for all channels
+ ChannelLogSave      Save channel logging event (join, kick, ...)
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.118 2001-12-30 12:20:25 f Exp $
+ * $Id: edit6.c,v 1.119 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -98,6 +104,8 @@
 #include "myvars.h" 
 #include "whowas.h"
 
+#include <sys/stat.h> /* for umask() */
+
 #define SZMAXCRYPTSIZE 304
 
 void PrintUsage _((char *));
@@ -105,6 +113,8 @@ void PrintUsage _((char *));
 void CheckTopic _((char *, int, ChannelList *));
 #endif
 void EncryptAdd _((char *, char *));
+void UpdateChanLogFName _((ChannelList *));
+void ChannelLogReport _((char *, ChannelList *));
 
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
@@ -137,6 +147,8 @@ extern void queuemcommand _((char *));
 extern void CheckDCCSpeed _((DCC_list *, time_t));
 /* Patched by Zakath */
 extern void CeleAway _((int));
+extern char *OpenCreateFile _((char *, int));
+extern void StripAnsi _((char *, char *, int));
 
 extern void e_channel _((char *, char *, char *));
 extern void e_nick _((char *, char *, char *));
@@ -190,6 +202,7 @@ static struct commands {
     { "SHOWAWAY"    , &ShowAway       , &ShowAwayChannels      , "Notifying on away/back"     , NULL },
     { "COMPRESS"    , &CompressModes  , &CompressModesChannels , "Compress modes"             , NULL },
     { "BKLIST"      , &BKList         , &BKChannels            , "Shit list"                  , NULL },
+    { "CHANLOG"     , &ChanLog        , &ChanLogChannels       , "Per channel logging"        , NULL },
 #ifdef EXTRAS
     { "CHSIGNOFF"   , &ShowSignoffChan, &SignoffChannels       , "Show channels in signoff"   , NULL },
 #endif
@@ -1203,6 +1216,7 @@ void SetChannels(setting)
 int setting;
 {
     int i;
+    int oldlog;
     ChannelList *chan;
     WhowasChanList *whowas;
 
@@ -1248,11 +1262,19 @@ int setting;
                 case 15: chan->BKList=
                     BKList?CheckChannel(chan->channel,BKChannels):0;
                     break;
+                case 16:
+                    oldlog=chan->ChanLog;
+                    chan->ChanLog=ChanLog?CheckChannel(chan->channel,ChanLogChannels):0;
+                    if (!oldlog && chan->ChanLog) ChannelLogReport("started",chan);
+                    break;
 #ifdef EXTRAS
                 case 99: chan->IdleKick=
                     IdleKick?CheckChannel(chan->channel,IdleKickChannels):0;
-                break;
+                    break;
 #endif
+                case 100:
+                    UpdateChanLogFName(chan);
+                    break;
             }
 #ifdef EXTRAS
             if (chan->IdleKick) chan->IdleKick=IdleKick;
@@ -1299,11 +1321,17 @@ int setting;
             case 15: whowas->channellist->BKList=
                 BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
                 break;
+            case 16: chan->ChanLog=
+                ChanLog?CheckChannel(whowas->channellist->channel,ChanLogChannels):0;
+                break;
 #ifdef EXTRAS
             case 99: whowas->channellist->IdleKick=
                 IdleKick?CheckChannel(whowas->channellist->channel,IdleKickChannels):0;
                 break;
 #endif
+            case 100:
+                UpdateChanLogFName(whowas->channellist);
+                break;
         }
 #ifdef EXTRAS
         if (whowas->channellist->IdleKick) whowas->channellist->IdleKick=IdleKick;
@@ -1449,6 +1477,8 @@ char *subargs;
     if (*(command_list[i].var)) PrintSetting(command_list[i].setting,"ON",tmpstr,
                                              *(command_list[i].strvar));
     else PrintSetting(command_list[i].setting,"OFF",empty_string,empty_string);
+    /* first update channel log filepath */
+    if (!strcmp(command_list[i].command,"CHANLOG")) SetChannels(100);
     SetChannels(i);
 }
 
@@ -2058,6 +2088,10 @@ void CleanUpScrollZVars() {
 #endif
     new_free(&PermUserMode);
     new_free(&AutoReplyString);
+#ifdef ACID
+    new_free(&ForceJoinChannels);
+#endif
+    new_free(&ChanLogChannels);
 }
 
 /* Clean up all stuff from memory on exit */
@@ -2976,4 +3010,128 @@ char *subargs;
         return;
     }
     send_to_server("%s %s %s",command,tmpchan,args);
+}
+
+/* Configures per channel logging */
+void ChanLogCommand(command, args, subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *setting = (char *) 0;
+
+    setting = new_next_arg(args,&args);
+    if (setting) {
+        if (!strcmp(command, "CHANLOGDIR")) {
+            if (!strcmp(setting, "-")) new_free(&ChanLogDir);
+            else {
+                char *path = expand_twiddle(setting);
+
+                malloc_strcpy(&ChanLogDir, path);
+                new_free(&path);
+                SetChannels(100);
+            }
+        }
+        else if (!strcmp(command, "CHANLOGPREFIX")) {
+            if (!strcmp(setting, "-")) new_free(&ChanLogPrefix);
+            else {
+                malloc_strcpy(&ChanLogPrefix, setting);
+                SetChannels(100);
+            }
+        }
+    }
+    if (!strcmp(command, "CHANLOGDIR")) {
+        if (ChanLogDir) PrintSetting("Channel logging directory", ChanLogDir, empty_string, empty_string);
+        else PrintSetting("Channel logging directory", OpenCreateFile("", 0), empty_string, empty_string);
+    }
+    else if (!strcmp(command, "CHANLOGPREFIX")) {
+        if (ChanLogPrefix) PrintSetting("Channel logging prefix", ChanLogPrefix, empty_string, empty_string);
+        else PrintSetting("Channel logging prefix", "OFF", empty_string, empty_string);
+    }
+}
+
+/* Update channel logging filename */
+void UpdateChanLogFName(chan)
+ChannelList *chan;
+{
+    char *filename = (char *) 0;
+    char *filepath = (char *) 0;
+
+    if (!chan || !chan->ChanLog) return;
+    if (ChanLogPrefix) malloc_strcpy(&filename, ChanLogPrefix);
+    malloc_strcat(&filename, chan->channel);
+    if (ChanLogDir) malloc_strcpy(&filepath, ChanLogDir);
+    else {
+        char *path;
+
+        path = OpenCreateFile(filename, 1);
+        if (path) malloc_strcpy(&filepath, path);
+    }
+    malloc_strcpy(&(chan->chanlogfpath), filepath);
+    malloc_strcat(&(chan->chanlogfpath), "/");
+    malloc_strcat(&(chan->chanlogfpath), filename);
+    new_free(&filename);
+    new_free(&filepath);
+}
+
+/* Report channel logging event (start, stop) */
+void ChannelLogReport(event, chan)
+char *event;
+ChannelList *chan;
+{
+    char *tmpbuf = (char *) 0;
+    char tmpbuf2[mybufsize / 16];
+    FILE *fp;
+    time_t timenow = time(NULL);
+
+    if (!chan || !chan->ChanLog) return;
+    fp = fopen(chan->chanlogfpath, "a");
+    if (fp) {
+        sprintf(tmpbuf2, "[%.24s] ", ctime(&timenow));
+        malloc_strcpy(&tmpbuf, tmpbuf2);
+        malloc_strcat(&tmpbuf, "Log for ");
+        malloc_strcat(&tmpbuf, chan->channel);
+        malloc_strcat(&tmpbuf, " ");
+        malloc_strcat(&tmpbuf, event);
+        fprintf(fp, "%s\n", tmpbuf);
+        fclose(fp);
+        new_free(&tmpbuf);
+    }
+}
+
+/* Report channel logging event for all channels */
+void ChannelLogReportAll(event, chan)
+char *event;
+ChannelList *chan;
+{
+    ChannelList *tmpchan;
+
+    for (tmpchan = chan; tmpchan; tmpchan = tmpchan->next) {
+        if (tmpchan->ChanLog) ChannelLogReport(event, tmpchan);
+    }
+}
+
+/* Save channel logging event (join, kick, ...) */
+void ChannelLogSave(message, chan)
+char *message;
+ChannelList *chan;
+{
+    int  oldumask;
+    char tmpbuf1[2 * mybufsize];
+    char tmpbuf2[2 * mybufsize];
+    FILE *logfile;
+    time_t now;
+
+    if (!chan || !chan->chanlogfpath) return;
+    oldumask = umask(0177);
+    if ((logfile = fopen(chan->chanlogfpath, "a")) != NULL) {
+        now = time((time_t *) 0);
+        sprintf(tmpbuf2, "[%.24s] %s", ctime(&now), message);
+        StripAnsi(tmpbuf2, tmpbuf1, 2);
+        if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        else strcpy(tmpbuf2, tmpbuf1);
+        fprintf(logfile, "%s\n", tmpbuf2);
+        fclose(logfile);
+    }
+    umask(oldumask);
 }

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.76 2001-12-30 12:24:33 f Exp $
+ * $Id: edit5.c,v 1.77 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -147,6 +147,7 @@ extern NickList *find_in_hash _((ChannelList *, char *));
 extern int  AddLast _((List *, List *)); /* needed for GrabURL, by Zakath */
 extern int  CheckServer _((int));
 extern char *TimeStamp _((int));
+extern void ChannelLogSave _((char *, ChannelList *));
 
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
@@ -916,8 +917,10 @@ char *servmode;
 #ifdef WANTANSI
     char tmpbuf1[mybufsize/2];
 #endif
-    char tmpbuf2[mybufsize/2];
+    char tmpbuf2[mybufsize];
+    ChannelList *chan = NULL;
 
+    if (ChanLog) chan = lookup_channel(channel, parsing_server_index, 0);
     isitserver=index(nick,'.')?1:0;
     if (isitserver) {
         if (NHDisp==2 && nethacks[0]) {
@@ -942,6 +945,7 @@ char *servmode;
 #endif /* WANTANSI */
             say("%s",tmpbuf2);
             if (away_set || LogOn) AwaySave(tmpbuf2,SAVEHACK);
+            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf2, chan);
         }
         if (servmode[0]) {
 #ifdef WANTANSI
@@ -964,6 +968,7 @@ char *servmode;
 #endif /* WANTANSI */
             say("%s",tmpbuf2);
             if (away_set || LogOn) AwaySave(tmpbuf2,SAVESRVM);
+            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf2, chan);
         }
     }
     else {
@@ -983,6 +988,10 @@ char *servmode;
 #else  /* WANTANSI */
         say("Mode change \"%s\" on channel %s by %s",line, channel, nick);
 #endif /* WANTANSI */
+        if (chan && chan->ChanLog) {
+            sprintf(tmpbuf2, "Mode change \"%s\" on channel %s by %s",line, channel, nick);
+            ChannelLogSave(tmpbuf2, chan);
+        }
     }
 }
 
@@ -1542,6 +1551,10 @@ int  iscrypted;
             bold);
     if (foundar) AddNick2AutoReply(nick);
     if (!isitme) Check4WordKick(line,joiner,isfriend,chan);
+    if (chan && chan->ChanLog) {
+        sprintf(tmpbuf3,"<%s:%s> %s", nick, channel, line);
+        ChannelLogSave(tmpbuf3, chan);
+    }
 }
 
 /* Returns path to filename */

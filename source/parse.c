@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.51 2002-01-03 21:52:59 f Exp $
+ * $Id: parse.c,v 1.52 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -69,7 +69,7 @@ extern void HandleSplit _((char *, char *, char *, int *));
 extern NickList *ChannelJoin _((char *, char *, ChannelList *));
 extern NickList *CheckJoin _((char *, char *, char *, int, ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
-extern int  HandleJoin _((NickList *, char *, char *, char *));
+extern int  HandleJoin _((NickList *, char *, char *, char *, ChannelList *));
 extern void HandleInvite _((char *, char *, char *));
 extern void HandleKills _((int, char *, char *, char *));
 extern void ReconnectOnKill _((int));
@@ -100,6 +100,7 @@ extern int  IsIrcNetOperChannel _((char *));
 extern int  CompareAddr _((List *, char *));
 extern int  AddLast _((List *, List *));
 extern char *TimeStamp _((int));
+extern void ChannelLogSave _((char *, ChannelList *));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -1297,6 +1298,7 @@ p_channel(from, ArgList)
 #endif
                             say("%s",tmpbuf2);
                             if (away_set || LogOn) AwaySave(tmpbuf2,SAVEHACK);
+                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf2,chan);
                             restore_message_from();
                         }
                 }
@@ -1331,7 +1333,7 @@ p_channel(from, ArgList)
 				else
 					say("%s has joined channel %s", from, channel);*/
                         if (FromUserHost) {
-                            if (HandleJoin(joiner,from,FromUserHost,channel) && !donelj) {
+                            if (HandleJoin(joiner,from,FromUserHost,channel,chan) && !donelj) {
                                 strmcpy(tmpbuf,from,mybufsize/4);
                                 strmcat(tmpbuf,"/",mybufsize/4);
                                 if (ov && *ov) strmcat(tmpbuf,"+",mybufsize/4);
@@ -1722,6 +1724,7 @@ p_part(from, ArgList)
         char    *colnick;
         NickList *joiner;
 #endif
+        ChannelList *chan;
 /****************************************************************************/
 
 	if (!from)
@@ -1766,6 +1769,16 @@ p_part(from, ArgList)
                         say("%s has left channel %s (%s)",from,channel,comment);
                     else say("%s has left channel %s",from,channel);
 #endif
+                    if (ChanLog) {
+                        chan = lookup_channel(channel, parsing_server_index, 0);
+                        if (chan->ChanLog) {
+                            char tmpbuf2[mybufsize];
+
+                            sprintf(tmpbuf2, "%s has left channel %s", from, channel);
+                            if (comment && *comment) sprintf(&tmpbuf2[strlen(tmpbuf2)], "(%s)", comment);
+                            ChannelLogSave(tmpbuf2, chan);
+                        }
+                    }
 /****************************************************************************/
                 }
  		restore_message_from();

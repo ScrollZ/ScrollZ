@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.86 2001-12-23 16:51:50 f Exp $
+ * $Id: edit4.c,v 1.87 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -165,6 +165,8 @@ extern void CheckTopic _((char *, int, ChannelList *));
 #endif
 extern char *TimeStamp _((int));
 extern struct autobankicks *FindShit _((char *, char *));
+extern void ChannelLogReport _((char *, ChannelList *));
+extern void ChannelLogSave _((char *, ChannelList *));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -377,11 +379,12 @@ ChannelList *tmpchan;
 }
 
 /* Handles net joins */
-int HandleJoin(tmpnick,nick,userhost,channel)
+int HandleJoin(tmpnick,nick,userhost,channel,chan)
 NickList *tmpnick;
 char *nick;
 char *userhost;
 char *channel;
+ChannelList *chan;
 {
     char *servername;
     char *tmpstr;
@@ -410,6 +413,12 @@ char *channel;
 #else
         say("%s (%s) has joined channel %s",nick,userhost,channel);
 #endif
+        if (chan->ChanLog) {
+            char tmpbuf2[mybufsize];
+
+            sprintf(tmpbuf2, "%s (%s) has joined channel %s", nick, userhost, channel);
+            ChannelLogSave(tmpbuf2, chan);
+        }
         return(1);
     }
     else if (strcmp(servername,"111")) {
@@ -443,27 +452,28 @@ char *nick;
 char *channel;
 ChannelList *chan;
 {
-    char tmpbuf[mybufsize/4+1];
-    NickList *tmpjoiner;
+    char tmpbuf[mybufsize / 4 + 1];
+    NickList *tmpjoiner; 
 
-    if (server_list[from_server].SZUnban<2)
-        server_list[from_server].SZUnban=2;
+    if (server_list[from_server].SZUnban < 2)
+        server_list[from_server].SZUnban = 2;
     else server_list[from_server].SZUnban++;
     server_list[from_server].SZWho++;
-    tmpjoiner=CheckJoiners(nick,channel,from_server,chan);
-    strmcpy(tmpbuf,nick,mybufsize/4);
-    strmcat(tmpbuf,"/",mybufsize/4);
-    strmcat(tmpbuf,channel,mybufsize/4);
+    tmpjoiner = CheckJoiners(nick, channel, from_server, chan);
+    strmcpy(tmpbuf, nick, mybufsize / 4);
+    strmcat(tmpbuf, "/", mybufsize/4);
+    strmcat(tmpbuf, channel, mybufsize/4);
 #ifdef WANTANSI
     FixColorAnsi(tmpbuf);
 #endif
-    malloc_strcpy(&(server_list[from_server].LastJoin),tmpbuf);
+    malloc_strcpy(&(server_list[from_server].LastJoin), tmpbuf);
 #ifndef CELEHOOK
-    do_hook(JOIN_ME_LIST,"%s",channel);
+    do_hook(JOIN_ME_LIST, "%s", channel);
 #endif
 #ifdef ACID
-    chan->TryRejoin=0;
+    chan->TryRejoin = 0;
 #endif
+    ChannelLogReport("started", chan);
     return(tmpjoiner);
 }
 
@@ -503,11 +513,13 @@ char *channel;
     sprintf(tmpbuf1,"%s (%s) invites you to channel %s",nick,userhost,channel);
     if (isfake) strcat(tmpbuf1," - fake");
 #endif
-    if (CompressModes && AutoJoinOnInv && (chan=lookup_channel(channel,from_server,0))) {
+    chan=lookup_channel(channel,from_server,0);
+    if (CompressModes && AutoJoinOnInv && chan) {
         if (chan->connected==CHAN_JOINING) printinv=0;
     }
     if (printinv) say("%s",tmpbuf1);
     if (away_set || LogOn) AwaySave(tmpbuf1,SAVEINVITE);
+    if (chan && chan->ChanLog) ChannelLogSave(tmpbuf1,chan);
     if (isfake) return;
     sprintf(tmpbuf1,"%s!%s",nick,userhost);
     tmpfriend=CheckUsers(tmpbuf1,NULL);
@@ -639,13 +651,15 @@ char *channel;
 char *comment;
 int  *frkick;
 {
+    ChannelList *chan = NULL;
     char tmpbuf[mybufsize/2];
 
-    if (away_set || LogOn) {
-        sprintf(tmpbuf,"You have been kicked off channel %s by %s (%s)",
-                channel,nick,userhost);
-        AddComment(tmpbuf,comment);
-        AwaySave(tmpbuf,SAVEKICK);
+    if (ChanLog) chan = lookup_channel(channel, parsing_server_index, 0);
+    if (away_set || LogOn || (chan && chan->ChanLog)) {
+        sprintf(tmpbuf, "You have been kicked off channel %s by %s (%s)", channel, nick, userhost);
+        AddComment(tmpbuf, comment);
+        if (away_set || LogOn) AwaySave(tmpbuf, SAVEKICK);
+        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
     }
 }
 
@@ -705,10 +719,11 @@ int  *frkick;
                             say("%cMass kick%c detected on %s by %s",bold,bold,channel,
                                 nick);
 #endif /* WANTANSI */
-                            if (away_set || LogOn) {
+                            if (away_set || LogOn || (chan && chan->ChanLog)) {
                                 sprintf(tmpbuf,"Mass kick detected on %s by %s (%s)",
                                         channel,nick,userhost);
-                                AwaySave(tmpbuf,SAVEMASS);
+                                if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
+                                if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                             }
                         }
                         joiner->kickp=1;
@@ -732,10 +747,11 @@ int  *frkick;
                             say("%cKick flood%c detected on %s by %s",bold,bold,channel,
                                 nick);
 #endif /* WANTANSI */
-                            if (away_set || LogOn) {
+                            if (away_set || LogOn || (chan && chan->ChanLog)) {
                                 sprintf(tmpbuf,"Kick flood detected on %s by %s (%s)",
                                         channel,nick,userhost);
-                                AwaySave(tmpbuf,SAVEMASS);
+                                if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
+                                if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                             }
                         }
                         joiner->kickp=2;
@@ -750,11 +766,12 @@ int  *frkick;
                                          ((tmplevel&FLPROT) && !(privs&FLGOD))))
                         send_to_server("INVITE %s %s",who,channel);
                 }
-                if (away_set || LogOn) {
+                if (away_set || LogOn || (chan && chan->ChanLog)) {
                     sprintf(tmpbuf,"%s (%s) has been kicked off channel %s by %s (%s)",
                             who,userh,channel,nick,userhost);
                     AddComment(tmpbuf,comment);
-                    AwaySave(tmpbuf,SAVEPROT);
+                    if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
+                    if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
                 }
             }
         }
@@ -1671,7 +1688,10 @@ int  server;
                     bold,bold,tmpnick,tmpchan,tmpwhat,from);
 #endif
             say("%s",tmpbuf1);
-            if (away_set || LogOn) AwaySave(tmpbuf1,SAVEFAKE);
+            if (away_set || LogOn || (chan && chan->ChanLog)) {
+                if (away_set || LogOn) AwaySave(tmpbuf1,SAVEFAKE);
+                if (chan && chan->ChanLog) ChannelLogSave(tmpbuf1,chan);
+            }
             return;
         }
 }

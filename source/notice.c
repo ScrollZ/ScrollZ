@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.24 2001-09-26 16:09:51 f Exp $
+ * $Id: notice.c,v 1.25 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -63,6 +63,7 @@ extern int  IsIrcNetOperChannel _((char *));
 extern void OVformat _((char *, char *));
 #endif
 extern char *TimeStamp _((int));
+extern void ChannelLogSave _((char *, ChannelList *));
 /*********************************************************************/
 
 #ifndef LITE
@@ -254,7 +255,7 @@ parse_notice(from, Args)
 		not_from_server = 1;
 	char	*line;
 /**************************** Patched by Flier ******************************/
-        char    *stampbuf=TimeStamp(2);
+        char    *stampbuf = TimeStamp(2);
 /****************************************************************************/
 
 	PasteArgs(Args, 1);
@@ -319,12 +320,12 @@ parse_notice(from, Args)
 						if (type == NOTICE_LIST && no_flooding)
 						{
 /**************************** PATCHED by Flier ******************************/
-                                                        if (HandleNotice(from,line,FromUserHost,0,to))
+                                                        if (HandleNotice(from, line, FromUserHost, 0, to))
 /****************************************************************************/
 							if (do_hook(type, "%s %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 								/*put_it("%s-%s-%s %s", high, from, high, line);*/
-                                                                HandleNotice(from,line,FromUserHost,1,to);
+                                                                HandleNotice(from, line, FromUserHost, 1, to);
 /****************************************************************************/
 						}
 						else
@@ -332,8 +333,19 @@ parse_notice(from, Args)
 							if (do_hook(type, "%s %s %s", from, to, line))
 /**************************** Patched by Flier ******************************/
 								/*put_it("%s-%s:%s-%s %s", high, from, to, high, line);*/
-                                                            put_it("%s%s-%s:%s-%s %s",stampbuf,
-                                                                   high,from,to,high,line);
+                                                            put_it("%s%s-%s:%s-%s %s", stampbuf,
+                                                                   high, from, to, high, line);
+                                                        if (ChanLog) {
+                                                            ChannelList *chan;
+
+                                                            chan = lookup_channel(to, parsing_server_index, 0);
+                                                            if (chan && chan->ChanLog) {
+                                                                char tmpbuf3[mybufsize];
+
+                                                                sprintf(tmpbuf3, "-%s:%s- %s", from, to, line);
+                                                                ChannelLogSave(tmpbuf3, chan);
+                                                            }
+    }
 /****************************************************************************/
 						}
 						if (beep_on_level & LOG_NOTICE)

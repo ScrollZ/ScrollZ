@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.71 2001-11-01 20:31:46 f Exp $
+ * $Id: edit3.c,v 1.72 2002-01-07 19:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -192,43 +192,43 @@ int  type;
     int  oldumask;
     char *filepath;
     char *filename;
-    char tmpbuf1[2*mybufsize];
-    char tmpbuf2[2*mybufsize];
+    char tmpbuf1[2 * mybufsize];
+    char tmpbuf2[2 * mybufsize];
     FILE *awayfile;
     time_t now;
 
-    if (type && !(type&AwaySaveSet)) return;
-    oldumask=umask(0177);
-    filename=get_string_var(AWAY_FILE_VAR);
-    filepath=OpenCreateFile(filename,1);
-    if (filepath && (awayfile=fopen(filepath,"a"))!=NULL) {
-        now=time((time_t *) 0);
-        if (type&SAVEMSG)          sprintf(tmpbuf1,"%cMSG   %c",REV_TOG,REV_TOG);
-        else if (type&SAVENOTICE)  strcpy(tmpbuf1,"NOTICE");
-        else if (type&SAVEMASS)    strcpy(tmpbuf1,"MASS  ");
-        else if (type&SAVECOLL)    strcpy(tmpbuf1,"COLL  ");
-        else if (type&SAVECDCC)    strcpy(tmpbuf1,"CDCC  ");
-        else if (type&SAVEDCC)     strcpy(tmpbuf1,"DCC   ");
-        else if (type&SAVEPROT)    strcpy(tmpbuf1,"PROT  ");
-        else if (type&SAVEHACK)    strcpy(tmpbuf1,"HACK  ");
-        else if (type&SAVESRVM)    strcpy(tmpbuf1,"SRVM  ");
-        else if (type&SAVECTCP)    strcpy(tmpbuf1,"CTCP  ");
-        else if (type&SAVEFLOOD)   strcpy(tmpbuf1,"FLOOD ");
-        else if (type&SAVEINVITE)  strcpy(tmpbuf1,"INVITE");
-        else if (type&SAVEKILL)    strcpy(tmpbuf1,"KILL  ");
-        else if (type&SAVEKICK)    strcpy(tmpbuf1,"KICK  ");
-        else if (type&SAVESERVER)  strcpy(tmpbuf1,"SERVER");
-        else if (type&SAVEFAKE)    strcpy(tmpbuf1,"FAKE  ");
-        else if (type&SAVEAREPLY)  strcpy(tmpbuf1,"AREPLY");
-        else if (type&SAVENOTIFY)  strcpy(tmpbuf1,"NOTIFY");
-        else if (type&SAVESENTMSG) strcpy(tmpbuf1,"SENTMSG");
-        else *tmpbuf1='\0';
-        if (*tmpbuf1) sprintf(tmpbuf2,"[%.24s] %s: %s",ctime(&now),tmpbuf1,message);
-        else sprintf(tmpbuf2,"[%.24s] %s",ctime(&now),message);
-        StripAnsi(tmpbuf2,tmpbuf1,2);
-        if (EncryptPassword) EncryptString(tmpbuf2,tmpbuf1,EncryptPassword,mybufsize,0);
-        else strcpy(tmpbuf2,tmpbuf1);
-        fprintf(awayfile,"%s\n",tmpbuf2);
+    if (type && !(type & AwaySaveSet)) return;
+    oldumask = umask(0177);
+    filename = get_string_var(AWAY_FILE_VAR);
+    filepath = OpenCreateFile(filename, 1);
+    if (filepath && (awayfile = fopen(filepath, "a")) != NULL) {
+        now = time((time_t *) 0);
+        if (type & SAVEMSG)          sprintf(tmpbuf1, "%cMSG   %c", REV_TOG, REV_TOG);
+        else if (type & SAVENOTICE)  strcpy(tmpbuf1, "NOTICE");
+        else if (type & SAVEMASS)    strcpy(tmpbuf1 ,"MASS  ");
+        else if (type & SAVECOLL)    strcpy(tmpbuf1, "COLL  ");
+        else if (type & SAVECDCC)    strcpy(tmpbuf1, "CDCC  ");
+        else if (type & SAVEDCC)     strcpy(tmpbuf1, "DCC   ");
+        else if (type & SAVEPROT)    strcpy(tmpbuf1, "PROT  ");
+        else if (type & SAVEHACK)    strcpy(tmpbuf1, "HACK  ");
+        else if (type & SAVESRVM)    strcpy(tmpbuf1, "SRVM  ");
+        else if (type & SAVECTCP)    strcpy(tmpbuf1, "CTCP  ");
+        else if (type & SAVEFLOOD)   strcpy(tmpbuf1, "FLOOD ");
+        else if (type & SAVEINVITE)  strcpy(tmpbuf1, "INVITE");
+        else if (type & SAVEKILL)    strcpy(tmpbuf1, "KILL  ");
+        else if (type & SAVEKICK)    strcpy(tmpbuf1, "KICK  ");
+        else if (type & SAVESERVER)  strcpy(tmpbuf1, "SERVER");
+        else if (type & SAVEFAKE)    strcpy(tmpbuf1, "FAKE  ");
+        else if (type & SAVEAREPLY)  strcpy(tmpbuf1, "AREPLY");
+        else if (type & SAVENOTIFY)  strcpy(tmpbuf1, "NOTIFY");
+        else if (type & SAVESENTMSG) strcpy(tmpbuf1, "SENTMSG");
+        else *tmpbuf1 = '\0';
+        if (*tmpbuf1) sprintf(tmpbuf2, "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
+        else sprintf(tmpbuf2, "[%.24s] %s", ctime(&now), message);
+        StripAnsi(tmpbuf2, tmpbuf1, 2);
+        if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        else strcpy(tmpbuf2, tmpbuf1);
+        fprintf(awayfile, "%s\n", tmpbuf2);
         fclose(awayfile);
     }
     umask(oldumask);
@@ -601,6 +601,7 @@ char *line;
                 *helpcmd='\0';
                 helpcmd=&tmpbuf[1];
                 tmpstr=&tmpbuf[14];
+                if (!(*tmpstr)) tmpstr++;
                 while (*tmpstr && isspace(*tmpstr)) tmpstr++;
             }
             incommand=0;
@@ -2071,6 +2072,8 @@ int ScrollZLoad()
         else if (!strcmp("FORCEJOIN",tmpbuf3))
             ChannelsSet(&pointer,&ForceJoin,&ForceJoinChannels,&loaderror,lineno,"FORCEJOIN",NULL);
 #endif
+        else if (!strcmp("CHANLOG",tmpbuf3))
+            ChannelsSet(&pointer,&ChanLog,&ChanLogChannels,&loaderror,lineno,"CHANLOG",NULL);
         else if (!strcmp("FLOODPROT",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"MAX")) {
@@ -2249,6 +2252,10 @@ int ScrollZLoad()
             StringSet(pointer,&CelerityNtfy,&loaderror,lineno,"NOTIFYSTR");
             set_string_var(NOTIFY_STRING_VAR,CelerityNtfy);
         }
+        else if (!strcmp("CHANLOGDIR",tmpbuf3))
+            StringSet(pointer,&ChanLogDir,&loaderror,lineno,"CHANLOGDIR");
+        else if (!strcmp("CHANLOGPREFIX",tmpbuf3))
+            StringSet(pointer,&ChanLogPrefix,&loaderror,lineno,"CHANLOGPREFIX");
         else if (!strcmp("ORIGNICKTIME",tmpbuf3))
             NumberSet(&pointer,&OrigNickDelay,&loaderror,lineno,"ORIGNICKTIME");
         else if (!strcmp("LOGON",tmpbuf3))
@@ -2440,6 +2447,7 @@ char *subargs;
 #endif
             tmpchan->CompressModes=CompressModes?CheckChannel(tmpchan->channel,CompressModesChannels):0;
             tmpchan->BKList=BKList?CheckChannel(tmpchan->channel,BKChannels):0;
+            tmpchan->ChanLog=ChanLog?CheckChannel(tmpchan->channel,ChanLogChannels):0;
         }
     for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
         whowas->channellist->AutoRejoin=
@@ -2475,6 +2483,8 @@ char *subargs;
             CompressModes?CheckChannel(whowas->channellist->channel,CompressModesChannels):0;
         whowas->channellist->BKList=
             BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
+        whowas->channellist->ChanLog=
+            ChanLog?CheckChannel(whowas->channellist->channel,ChanLogChannels):0;
     }
 }
 
@@ -2662,6 +2672,7 @@ void InitVars() {
     ShowSignAllChan=0;
 #endif
     ExtPub=1;
+    ChanLog=0;
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
