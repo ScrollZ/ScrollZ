@@ -1,0 +1,13 @@
+!	 $Id: channel_wallop,v 1.1 2002-02-24 11:00:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CHANNEL_WALLOP [-|^]<count> [action]
+  This is activated whenever notice was sent to channel operators.
+  The parameters for this function are:
+    $0    The channel name
+    $1    User that sent the notice
+    $2-   The notice itself

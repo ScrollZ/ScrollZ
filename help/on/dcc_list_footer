@@ -1,0 +1,12 @@
+!	 $Id: dcc_list_footer,v 1.1 2002-02-24 11:00:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]DCC_LIST_FOOTER [-|^]<count> [action]
+  This is activated after DCC connections are listed.
+  The parameters for this function are:
+    $0   Total number of DCC connections listed
+  You can use this hook to redefine the DCC LIST look.

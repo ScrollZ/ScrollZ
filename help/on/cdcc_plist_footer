@@ -1,0 +1,15 @@
+!	 $Id: cdcc_plist_footer,v 1.1 2002-02-24 11:00:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CDCC_PLIST_FOOTER [-|^]<count> [action]
+  This is activated after Cdcc pack is listed.  The parameters
+  for this function are:
+    $0   Total number of packs
+    $2   Value of CdccStats
+    $4   Total number of bytes received
+    $3   Total number of bytes sent
+  You can use this hook to redefine the CDCC PLIST look.

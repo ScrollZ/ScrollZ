@@ -1,0 +1,21 @@
+!	 $Id: dcc_list,v 1.1 2002-02-24 11:00:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]DCC_LIST [-|^]<count> [action]
+  This is activated whenever DCC connection is listed.
+  The parameters for this function are:
+    $0   The DCC connection number
+    $1   DCC type: CHAT, SEND, GET, RAW_LISTEN, RAW, RESEND, REGET
+    $2   The target for the DCC connection
+    $3   The DCC status: O=offered, D=deleted, A=active, W=wait,
+                         C=connection pending, U=unknown
+    $4   Current transfer rate
+    $5   ETA in seconds
+    $6   The filename
+    $7   Percent completed
+    $8   The filesize
+  You can use this hook to redefine the CDCC PLIST look.

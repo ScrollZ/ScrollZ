@@ -1,0 +1,15 @@
+!	 $Id: notify_signon_uh,v 1.1 2002-02-24 11:00:10 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]NOTIFY_SIGNON_UH [-|^]<parameters> [action]
+  This is activated when someone on your notify list (see
+  NOTIFY) signs onto irc and the username and the
+  hostname of person who signed on are known.
+  The parameters to the action are:
+    $0  Nickname of person who signed on
+    $1  Username of person who signed on
+    $2  Hostname of person who signed on
