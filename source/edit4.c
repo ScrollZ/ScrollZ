@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.58 2001-03-22 21:21:22 f Exp $
+ * $Id: edit4.c,v 1.59 2001-03-22 21:29:13 f Exp $
  */
 
 #include "irc.h"
@@ -807,11 +807,9 @@ void HandleTabNext() {
                 chan=server_list[curr_scr_win->server].chan_list;
                 while (chan && my_strnicmp(tmpbuf,chan->channel,len)) chan=chan->next;
                 if (chan && !my_strnicmp(tmpbuf,chan->channel,len)) {
-                    /* A little optimization: insert only missing characters
-                       instead of erasing everything and inserting all over.
-                       This works because we only look for first match. */
-                    len=strlen(chan->channel)-len-1;
-                    for (tmpstr=chan->channel+len;tmpstr && *tmpstr;tmpstr++)
+                    /* Insert channel name. */
+                    for (i=0;i<len;i++) input_backspace(' ',NULL);
+                    for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
                         input_add_character(*tmpstr,NULL);
                 }
                 return;
@@ -865,8 +863,7 @@ void HandleTabNext() {
                            else it is first attempt at completion */
                         if (oldtabnick) len=strlen(oldtabnick);
                         else len=nicklen;
-                        for (i=0;i<len;i++)
-                            input_backspace(' ',NULL);
+                        for (i=0;i<len;i++) input_backspace(' ',NULL);
                         for (tmpstr=tmpnick->nick;tmpstr && *tmpstr;tmpstr++)
                             input_add_character(*tmpstr,NULL);
                         malloc_strcpy(&oldtabnick,tmpnick->nick);
