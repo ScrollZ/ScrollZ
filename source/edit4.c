@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.11 1998-12-09 20:54:40 f Exp $
+ * $Id: edit4.c,v 1.12 1998-12-13 17:45:28 f Exp $
  */
 
 #include "irc.h"
@@ -1096,11 +1096,11 @@ int  server;
 {
     ChannelList *chan;
 
-    chan=lookup_channel(channel,server,0);
-    if (!chan) return;
+    if (!(chan=lookup_channel(channel,server,0))) return;
     if (!chan->gotwho) {
         chan->gotwho=1;
-        if (chan->gotbans) PrintSynch(chan);
+        if (*channel!='+') send_to_server("MODE %s b",channel);
+        else PrintSynch(chan);
     }
 }
 
