@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.94 2003-07-06 10:11:06 f Exp $
+ * $Id: edit2.c,v 1.95 2003-12-24 11:27:07 f Exp $
  */
 
 #include "irc.h"
@@ -599,81 +599,85 @@ char *chops;
 char *channel;
 int type;
 {
-    int  send=0;
-    int  count=0;
-    int  max=get_int_var(MAX_MODES_VAR);
-    char sign=' ';
-    char *tmp=(char *) 0;
-    char *modetype="";
+    int  send = 0;
+    int  count = 0;
+    int  max = get_int_var(MAX_MODES_VAR);
+    char sign = ' ';
+    char *tmp = NULL;
+    char *modetype = "";
     char tmpbuf1[mybufsize];
-    char tmpbuf2[mybufsize/4];
-    char tmpbuf3[mybufsize/4];
+    char tmpbuf2[mybufsize / 4];
+    char tmpbuf3[mybufsize / 4];
 
-    *tmpbuf1='\0';
-    *tmpbuf2='\0';
-    *tmpbuf3='\0';
+    *tmpbuf1 = '\0';
+    *tmpbuf2 = '\0';
+    *tmpbuf3 = '\0';
     switch (type) {
 #ifdef EXTRAS
 	case 0: /* devoice */
-	    sign='-';
-	    modetype="v";
+	    sign = '-';
+	    modetype = "v";
 	    break;
 	case 1:	/* voice */
-	    sign='+';
-	    modetype="v";
+	    sign = '+';
+	    modetype = "v";
 	    break;
 #endif
 	case 2:	/* dehalfop */
-	    sign='-';
-	    modetype="h";
+	    sign = '-';
+	    modetype = "h";
 	    break;
 	case 3:	/* halfop */
-	    sign='+';
-	    modetype="h";
+	    sign = '+';
+	    modetype = "h";
 	    break;
 	case 4:	/* deop */
-	    sign='-';
-	    modetype="o";
+	    sign = '-';
+	    modetype = "o";
 	    break;
 	case 5:	/* op */
-	    sign='+';
-	    modetype="o";
+	    sign = '+';
+	    modetype = "o";
 	    break;
 	case 6:	/* reop */
-	    sign='+';
-	    modetype="o";
+	    sign = '+';
+	    modetype = "o";
 	    break;
+        case 7:	/* unban */
+            sign = '-';
+            modetype = "b";
+            break;
     }
-    snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
-    for (tmp=new_next_arg(chops,&chops);tmp;tmp=new_next_arg(chops,&chops)) {
+    snprintf(tmpbuf2, sizeof(tmpbuf2), "MODE %s %c", channel, sign);
+    for (tmp = new_next_arg(chops, &chops); tmp; tmp = new_next_arg(chops, &chops)) {
         count++;
-        strmcat(tmpbuf2,modetype,sizeof(tmpbuf2));
-	strmcat(tmpbuf3," ",sizeof(tmpbuf3));
-        strmcat(tmpbuf3,tmp,sizeof(tmpbuf3));
-        send=1;
-        if (count==max) {
-            strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
-            strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
-            strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
-            *tmpbuf3='\0';
-            count=0;
+        strmcat(tmpbuf2, modetype, sizeof(tmpbuf2));
+	strmcat(tmpbuf3, " ", sizeof(tmpbuf3));
+        strmcat(tmpbuf3, tmp, sizeof(tmpbuf3));
+        send = 1;
+        if (count == max) {
+            strmcat(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
+            strmcat(tmpbuf1, tmpbuf3, sizeof(tmpbuf1));
+            strmcat(tmpbuf1, "\r\n", sizeof(tmpbuf1));
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "MODE %s %c", channel, sign);
+            *tmpbuf3 = '\0';
+            count = 0;
         }
-        if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
-            send_to_server("%s",tmpbuf1);
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
-            *tmpbuf1='\0';
-            *tmpbuf3='\0';
-            send=0;
+        if (strlen(tmpbuf1) >= IRCD_BUFFER_SIZE - 150) {
+            send_to_server("%s", tmpbuf1);
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "MODE %s %c", channel, sign);
+            *tmpbuf1 = '\0';
+            *tmpbuf3 ='\0';
+            send = 0;
         }
     }
     if (count) {
-        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
-        strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
-        strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
-        send=1;
+        strmcat(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
+        strmcat(tmpbuf1, tmpbuf3, sizeof(tmpbuf1));
+        strmcat(tmpbuf1, "\r\n", sizeof(tmpbuf1));
+        send = 1;
     }
-    if (send) send_to_server("%s",tmpbuf1);
+    if (send) send_to_server("%s", tmpbuf1);
 }
 
 /* Newuser, stolen from Hendrix, and fixed up */
@@ -3107,62 +3111,32 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  count=0;
-    int  send=0;
-    int  max=get_int_var(MAX_MODES_VAR);
-    char *tmpchan=(char *) 0;
+    char *tmpchan = NULL;
     char tmpbuf1[mybufsize];
-    char tmpbuf2[mybufsize];
-    char tmpbuf3[mybufsize/4];
-    char tmpbuf4[mybufsize];
+    char tmpbuf2[mybufsize / 4];
     ChannelList *chan;
     struct bans *tmpban;
 
     if (*args) {
-        tmpchan=new_next_arg(args,&args);
-        if (is_channel(tmpchan)) strmcpy(tmpbuf3,tmpchan,sizeof(tmpbuf3));
-        else snprintf(tmpbuf3,sizeof(tmpbuf3),"#%s",tmpchan);
-        tmpchan=tmpbuf3;
+        tmpchan = new_next_arg(args, &args);
+        if (is_channel(tmpchan)) strmcpy(tmpbuf2, tmpchan, sizeof(tmpbuf2));
+        else snprintf(tmpbuf2, sizeof(tmpbuf2), "#%s", tmpchan);
+        tmpchan = tmpbuf2;
     }
-    else if ((tmpchan=get_channel_by_refnum(0))==NULL) {
+    else if ((tmpchan = get_channel_by_refnum(0)) == NULL) {
         NoWindowChannel();
         return;
     }
-    chan=lookup_channel(tmpchan,from_server,0);
+    chan = lookup_channel(tmpchan, from_server, 0);
     if (!chan) return;
     if (HAS_OPS(chan->status)) {
-        *tmpbuf1='\0';
-        *tmpbuf2='\0';
-        *tmpbuf4='\0';
-        snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s -",chan->channel);
-        for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+        *tmpbuf1 = '\0';
+        for (tmpban = chan->banlist; tmpban; tmpban = tmpban->next) {
             if (tmpban->exception) continue;
-            strmcat(tmpbuf2,"b",sizeof(tmpbuf2));
-            strmcat(tmpbuf4," ",sizeof(tmpbuf2));
-            strmcat(tmpbuf4,tmpban->ban,sizeof(tmpbuf2));
-            count++;
-            send=1;
-            if (count==max) {
-                strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
-                strmcat(tmpbuf1,tmpbuf4,sizeof(tmpbuf1));
-                strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
-                snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s -",chan->channel);
-                *tmpbuf4='\0';
-                count=0;
-            }
-            if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
-                send_to_server("%s",tmpbuf1);
-                *tmpbuf1='\0';
-                send=0;
-            }
+            strmcat(tmpbuf1, tmpban->ban, sizeof(tmpbuf2));
+            strmcat(tmpbuf1, " ", sizeof(tmpbuf2));
         }
-        if (count) {
-            strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
-            strmcat(tmpbuf1,tmpbuf4,sizeof(tmpbuf1));
-            strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
-            send=1;
-        }
-        if (send) send_to_server("%s",tmpbuf1);
+        DoDops(tmpbuf1, tmpchan, 7);
     }
     else NotChanOp(tmpchan);
 }
