@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.5 1999-10-03 09:24:25 f Exp $
+ * $Id: flood.c,v 1.6 1999-10-03 09:30:57 f Exp $
  */
 
 #include "irc.h"
@@ -164,7 +164,9 @@ void CleanUpFlood() {
     int i,users;
 
     users=get_int_var(FLOOD_USERS_VAR);
-    for (i=0;i<users;i++) new_free(&(flood[i].nick));
+    if (flood) {
+        for (i=0;i<users;i++) new_free(&(flood[i].nick));
+    }
     new_free(&flood);
 }
 /****************************************************************************/
