@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.29 1999-07-24 12:42:42 f Exp $
+ * $Id: edit3.c,v 1.30 1999-08-15 10:20:10 f Exp $
  */
 
 #include "irc.h"
@@ -260,7 +260,7 @@ int  type;
 }
 
 #if !defined(WANTANSI) || defined(MGS)
-/* Returns user@domain if user@host given */
+/* Returns user@domain if user@host given 
 void UserDomain(userhost)
 char *userhost;
 {
@@ -289,7 +289,7 @@ char *userhost;
         }
         strcpy(afna,string);
     }
-}
+}*/
 #endif
 
 /* Returns user@domain useful for list */
