@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.52 2000-12-10 10:12:35 f Exp $
+ * $Id: edit2.c,v 1.53 2001-01-06 19:17:13 f Exp $
  */
 
 #include "irc.h"
@@ -625,6 +625,7 @@ int servernum;
     Window *tmp=(Window *) 0;
     Window *oldwindow;
 
+    if (!AutoRecon) return;
     oldwindow=curr_scr_win;
     if (curr_scr_win->server!=servernum) {
         change=1;
@@ -840,66 +841,70 @@ char *subargs;
     NickList *joiner;
     ChannelList *chan;
 
-    channel=get_channel_by_refnum(0);
-    if (channel) {
+    tmpnick=new_next_arg(args,&args);
+    if (tmpnick) {
+        if (args && is_channel(args)) channel=new_next_arg(args,&args);
+        else {
+            channel=get_channel_by_refnum(0);
+            if (!channel) {
+                NoWindowChannel();
+                return;
+            }
+        }
         chan=lookup_channel(channel,curr_scr_win->server,0);
         if (!chan) return;
-        if (*args && args) {
-            if ((chan->status)&CHAN_CHOP) {
-                tmpnick=new_next_arg(args,&args);
-                if (args && *args) comment=args;
-                else {
-                    if (!my_stricmp(command,"BK")) comment=DefaultBK;
+        if ((chan->status)&CHAN_CHOP) {
+            if (args && *args) comment=args;
+            else {
+                if (!my_stricmp(command,"BK")) comment=DefaultBK;
 #ifdef EXTRAS
-                    else if (!my_stricmp(command,"BKI")) comment=DefaultBKI;
-                    else comment=DefaultBKT;
-#endif
-                }
-                joiner=CheckJoiners(tmpnick,channel,from_server,chan);
-                if (joiner) {
-                    BanIt(channel,joiner->nick,joiner->userhost,1,chan);
-#ifdef CELE
-                    send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
-                                   comment,CelerityL);
-#else  /* CELE */
-                    send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
-#endif /* CELE */
-                }
-                else {
-                    joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
-                    if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
-                    else {
-                        func=(void(*)())BanKickNew;
-                        server_list[from_server].SZWI++;
-                        add_to_whois_queue(tmpnick,func,"%s %s",command,channel);
-                    }
-                }
-#ifdef EXTRAS
-                if (joiner) {
-                    if (index(command,'I')) {
-                        send_text(joiner->nick,"You're now being ignored","NOTICE");
-                        sprintf(tmpbuf1,"%s ALL",joiner->userhost);
-                        sprintf(tmpbuf2,"%d",IgnoreTime);
-                        ignore(NULL,tmpbuf1,tmpbuf2);
-                        sprintf(tmpbuf1,"-INV %d IGNORE %s NONE",IgnoreTime,joiner->userhost);
-                        timercmd("TIMER",tmpbuf1,NULL);
-                    }
-                    else if (index(command,'T')) {
-                        CreateBan(joiner->nick,joiner->userhost,tmpbuf2);
-                        sprintf(tmpbuf1,"-INV 6 MODE %s -b %s",channel,tmpbuf2);
-                        timercmd("TIMER",tmpbuf1,NULL);
-                    }
-                }
+                else if (!my_stricmp(command,"BKI")) comment=DefaultBKI;
+                else comment=DefaultBKT;
 #endif
             }
-            else NotChanOp(channel);
+            joiner=CheckJoiners(tmpnick,channel,from_server,chan);
+            if (joiner) {
+                BanIt(channel,joiner->nick,joiner->userhost,1,chan);
+#ifdef CELE
+                send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
+                        comment,CelerityL);
+#else  /* CELE */
+                send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
+#endif /* CELE */
+            }
+            else {
+                joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
+                if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
+                else {
+                    func=(void(*)())BanKickNew;
+                    server_list[from_server].SZWI++;
+                    add_to_whois_queue(tmpnick,func,"%s %s",command,channel);
+                }
+            }
+#ifdef EXTRAS
+            if (joiner) {
+                if (index(command,'I')) {
+                    send_text(joiner->nick,"You're now being ignored","NOTICE");
+                    sprintf(tmpbuf1,"%s ALL",joiner->userhost);
+                    sprintf(tmpbuf2,"%d",IgnoreTime);
+                    ignore(NULL,tmpbuf1,tmpbuf2);
+                    sprintf(tmpbuf1,"-INV %d IGNORE %s NONE",IgnoreTime,joiner->userhost);
+                    timercmd("TIMER",tmpbuf1,NULL);
+                }
+                else if (index(command,'T')) {
+                    CreateBan(joiner->nick,joiner->userhost,tmpbuf2);
+                    sprintf(tmpbuf1,"-INV 6 MODE %s -b %s",channel,tmpbuf2);
+                    timercmd("TIMER",tmpbuf1,NULL);
+                }
+            }
+#endif
         }
-        else {
-            sprintf(tmpbuf1,"%s nick [reason]",command);
-            PrintUsage(tmpbuf1);
-        }
+        else NotChanOp(channel);
     }
-    else NoWindowChannel();
+    else {
+        sprintf(tmpbuf1,"%s nick [#channel] [reason]",command);
+        PrintUsage(tmpbuf1);
+    }
 }
 
 /* Bans & kicks user if he/she is not on joinlist */
@@ -1920,6 +1925,9 @@ char *subargs;
     fprintf(usfile,"ARINWINDOW      ");
     if (ARinWindow==1) fprintf(usfile,"ON\n");
     else if (ARinWindow==2) fprintf(usfile,"USER\n");
+    else fprintf(usfile,"OFF\n");
+    fprintf(usfile,"AUTORECONNECT   ");
+    if (AutoRecon) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
     fprintf(usfile,"#\n");
