@@ -48,7 +48,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.10 1998-10-31 18:27:34 f Exp $
+ * $Id: edit6.c,v 1.11 1998-11-02 21:20:53 f Exp $
  */
 
 #include "irc.h"
@@ -637,7 +637,7 @@ void CheckTimeMinute() {
             SetAway(NULL,tmpbuf,NULL);
             idle_time=timenow;
         }
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
         else if (away_set) CeleAway(1); /* Updates idle counter in away */
 #endif /* CELE */
         if (away_set && AutoJoinOnInv==2 && timenow-LastCheck>500 && AutoJoinChannels) {
@@ -682,11 +682,7 @@ void CheckTimeMinute() {
                         CreateBan(tmpnick->nick,tmpnick->userhost,tmpbuf);
                         send_to_server("MODE %s -o+b %s %s",tmpchan->channel,tmpnick->nick,
                                        tmpbuf);
-#if defined(VILAS) || defined(CELE)
                         send_to_server("KICK %s %s :Idle user",tmpchan->channel,tmpnick->nick);
-#else /* CELE */
-                        send_to_server("KICK %s %s :<ScrollZ-IK> Idle user",tmpchan->channel,tmpnick->nick);
-#endif /* VILAS */
                         sprintf(tmpbuf2,"30 MODE %s -b %s",tmpchan->channel,tmpbuf);
                         timercmd("TIMER",tmpbuf2,NULL);
                     }
@@ -1044,12 +1040,7 @@ char *subargs;
             if (chan && ((chan->status)&CHAN_CHOP)) {
                 while ((tmpnick=new_next_arg(args,&args))) {
                     joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
-#if defined(VILAS)
                     if (joiner) send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
-#else
-                    if (joiner) send_to_server("KICK %s %s :<ScrollZ-MK> %s",channel,
-                                               tmpnick,comment);
-#endif /* VILAS */
                     else say("Can't find %s on %s",tmpnick,channel);
                 }
             }
@@ -2011,12 +2002,7 @@ char *subargs;
         else *comment++='\0';
         if (args && *args) {
             while ((tmpnick=new_next_arg(args,&args))) {
-#if defined(VILAS)
                 send_to_server("KILL %s :%s (%d)",tmpnick,comment,meep);
-#else
-                send_to_server("KILL %s :<ScrollZ-KILL> %s (%d)",
-                               tmpnick,comment,meep);
-#endif
                 meep++;
             }
         }

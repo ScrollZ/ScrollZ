@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.4 1998-10-12 17:52:01 f Exp $
+ * $Id: names.c,v 1.5 1998-11-02 21:20:55 f Exp $
  */
 
 #include "irc.h"
@@ -1145,13 +1145,8 @@ char    *servmodes;
             else if (tmpjoiner->curo>=DeopSensor*2) {
                 if (tmpjoiner->deopp<2) {
                     if (!deopped && !isserver && chan->KickOnFlood && (*chop&CHAN_CHOP))
-#if defined(VILAS)
                         send_to_server("KICK %s %s :Deop flood detected",
                                        chan->channel,from);
-#else
-                        send_to_server("KICK %s %s :<ScrollZ-MK> Deop flood detected",
-                                       chan->channel,from);
-#endif
                     deopped=1;
 #ifdef WANTANSI
                     sprintf(tmpbuf,"%sDeop flood%s detected on %s%s%s by %s%s%s",

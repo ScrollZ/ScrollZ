@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.7 1998-10-31 18:27:32 f Exp $
+ * $Id: edit5.c,v 1.8 1998-11-02 21:20:51 f Exp $
  */
 
 #include "irc.h"
@@ -3767,13 +3767,8 @@ char *subargs;
              tmpchan=tmpchan->next)
             if (((tmpchan->status)&CHAN_CHOP) && CheckChannel(tmpchan->channel,channels)) {
                 tmpnick=find_in_hash(tmpchan,nick);
-#if defined(VILAS)
                 if (tmpnick) send_to_server("KICK %s %s :%s",
                                             tmpchan->channel,nick,comment);
-#else
-                if (tmpnick) send_to_server("KICK %s %s :<ScrollZ-K> %s",
-                                            tmpchan->channel,nick,comment);
-#endif /* VILAS */
             }
     }
     else PrintUsage("MULTK [#channels] nick [comment]");

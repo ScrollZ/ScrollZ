@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.11 1998-10-31 18:27:31 f Exp $
+ * $Id: edit3.c,v 1.12 1998-11-02 21:20:49 f Exp $
  */
 
 #include "irc.h"
@@ -2601,20 +2601,15 @@ char *subargs;
                 tmpnick=new_next_arg(args,&args);
                 tmp=find_in_hash(chan,tmpnick);
                 if (tmp) {
-#if defined(VILAS)
-                    if (message) send_to_server("KICK %s %s :%s",channel,tmpnick,message);
-                    else send_to_server("KICK %s %s :%s",channel,tmpnick,DefaultK);
-#elif defined(CELE)
+#ifdef CELE
                     if (message) send_to_server("KICK %s %s :%s %s",channel,tmpnick,
                                                 message,CelerityL);
                     else send_to_server("KICK %s %s :%s %s",channel,tmpnick,
                                         DefaultK,CelerityL);
 #else  /* CELE */
-                    if (message) send_to_server("KICK %s %s :<ScrollZ-LMK> %s",
-                                                channel,tmpnick,message);
-                    else send_to_server("KICK %s %s :<ScrollZ-K> %s",channel,tmpnick,
-                                       DefaultK);
-#endif /* VILAS */
+                    if (message) send_to_server("KICK %s %s :%s",channel,tmpnick,message);
+                    else send_to_server("KICK %s %s :%s",channel,tmpnick,DefaultK);
+#endif /* CELE */
                 } 
                 else say("Can't find %s on %s",tmpnick,channel);
             }
@@ -2653,13 +2648,12 @@ char *subargs;
                     if (found==random) break;
                 }
                 if (tmp) {
-#if defined(VILAS)
-                    send_to_server("KICK %s %s :%s",channel,tmp->nick,comment);
-#elif defined(CELE)
-                    send_to_server("KICK %s %s :%s %s",channel,tmp->nick,comment,CelerityL);
+#ifdef CELE
+                    send_to_server("KICK %s %s :%s %s",channel,tmp->nick,comment,
+                                   CelerityL);
 #else  /* CELE */
-                    send_to_server("KICK %s %s :<ScrollZ-RLK> %s",channel,tmp->nick,comment);
-#endif /* VILAS */
+                    send_to_server("KICK %s %s :%s",channel,tmp->nick,comment);
+#endif /* CELE */
                 }
             }
             else say("No lamers (?) in %s",channel);

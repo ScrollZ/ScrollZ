@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.2 1998-09-10 17:45:56 f Exp $
+ * $Id: numbers.c,v 1.3 1998-11-02 21:20:56 f Exp $
  */
 
 #include "irc.h"
@@ -892,7 +892,7 @@ numbered_command(from, comm, ArgList)
 
 /**************************** PATCHED by Flier ******************************/
 /* Patched by Zakath */
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
         case 306:		/* #define RPL_SETAWAY */
                 if (!SentAway) say("%s",ArgList[0]);
                 else SentAway--;

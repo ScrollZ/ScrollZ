@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.6 1998-10-31 18:27:37 f Exp $
+ * $Id: irc.c,v 1.7 1998-11-02 21:20:54 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -329,7 +329,7 @@ int   CdccRecvNum=0;
 #if defined(EXTRAS) || defined(FLIER)
 int   AutoInv;
 #endif
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
 int   SentAway=0;
 #endif
 char  *URLBuffer=(char *) 0;

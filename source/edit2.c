@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.13 1998-10-31 18:27:30 f Exp $
+ * $Id: edit2.c,v 1.14 1998-11-02 21:20:48 f Exp $
  */
 
 #include "irc.h"
@@ -178,7 +178,7 @@ static struct friends *tmpfriendlist;
 static struct autobankicks *tmpabklist;
 /* Patched by Zakath */
 static char timereturn[mybufsize/16];
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
 static char *celeawaystr=(char *) 0;
 static time_t CeleAwayTime;
 #endif
@@ -213,15 +213,12 @@ char *subargs;
             for (tmp=chan->nicks;tmp;tmp=tmp->next) {
                 if (tmp->chanop) continue;
                 if (tmp->voice && !all) continue;
-#if defined(VILAS)
-                sprintf(tmpbuf2,"KICK %s %s :%s\r\n",channel,tmp->nick,comment);
-#elif defined(CELE)
+#ifdef CELE
                 sprintf(tmpbuf2,"KICK %s %s :%s %s\r\n",channel,tmp->nick,
                         comment,CelerityL);
 #else  /* CELE */
-                sprintf(tmpbuf2,"KICK %s %s :<ScrollZ-LK> %s\r\n",channel,tmp->nick,
-                        comment);
-#endif /* VILAS */
+                sprintf(tmpbuf2,"KICK %s %s :%s\r\n",channel,tmp->nick,comment);
+#endif /* CELE */
                 if (strlen(tmpbuf1)+strlen(tmpbuf2)>=IRCD_BUFFER_SIZE-150) {
                     send_to_server("%s",tmpbuf1);
                     *tmpbuf1='\0';
@@ -651,15 +648,12 @@ char *subargs;
                 if (args && *args) comment=args;
                 else comment=DefaultK;
                 joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
-#if defined(VILAS)
-                if (joiner) send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
-#elif defined(CELE)
+#ifdef CELE
                 if (joiner) send_to_server("KICK %s %s :%s %s",channel,tmpnick,
                                            comment,CelerityL);
 #else  /* CELE */
-                if (joiner) send_to_server("KICK %s %s :<ScrollZ-K> %s",channel,tmpnick,
-                                           comment);
-#endif /* VILAS */
+                if (joiner) send_to_server("KICK %s %s :%s",channel,tmpnick,comment);
+#endif /* CELE */
                 else say("Can't find %s on %s",tmpnick,channel);
             }
             else NotChanOp(channel);
@@ -845,15 +839,12 @@ char *subargs;
                 joiner=CheckJoiners(tmpnick,channel,from_server,chan);
                 if (joiner) {
                     BanIt(channel,joiner->nick,joiner->userhost,1,chan);
-#if defined(VILAS)
-                    send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
-#elif defined(CELE)
+#ifdef CELE
                     send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
                                    comment,CelerityL);
 #else  /* CELE */
-                    send_to_server("KICK %s %s :<ScrollZ-%s> %s",channel,joiner->nick,
-                                   command,comment);
-#endif /* VILAS */
+                    send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
+#endif /* CELE */
                 }
                 else {
                     joiner=CheckJoiners(tmpnick,NULL,from_server,NULL);
@@ -2996,7 +2987,7 @@ time_t timediff;
     return(timereturn);
 }
 
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
 /* Sets away with Celerity idle timer, also updates timer */
 void CeleAway(modify)
 int modify;
@@ -3013,7 +3004,7 @@ int modify;
     SentAway=1;
     away("AWAY",tmpbuf2,NULL);
 }
-#endif /* CELE && !VILAS */
+#endif /* CELE */
 
 /* Marks you as being away */
 void SetAway(command,args,subargs)
@@ -3030,9 +3021,9 @@ char *subargs;
     char tmpbuf1[mybufsize/4+1];
     char tmpbuf2[mybufsize/2];
     FILE *awayfile;
-#if !defined(CELE) || defined(VILAS)
+#ifndef CELE
     time_t timenow=time((time_t *) 0);
-#endif /* !CELE || VILAS */
+#endif /* !CELE */
     ChannelList *tmpchan;
 
     if (args && *args) {
@@ -3045,7 +3036,7 @@ char *subargs;
     }
     if (!(awaystr && *awaystr)) awaystr=DefaultSetAway;
     strmcpy(tmpbuf1,awaystr,mybufsize/4);
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
     malloc_strcpy(&celeawaystr,awaystr);
     CeleAwayTime=time((time_t *) 0);
     SentAway=0;
@@ -3062,7 +3053,7 @@ char *subargs;
          tmpchan=tmpchan->next) {
         from_server=tmpchan->server;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
             if (modify)
                 sprintf(tmpbuf2,"%s is away. %s %s",tmpchan->channel,tmpbuf1,CelerityL);
             else sprintf(tmpbuf2,"%s %s",tmpchan->channel,tmpbuf1);
@@ -3137,7 +3128,7 @@ char *line;
     if (!stuff) return;
     strcpy(tmpbuf,"-ALL");
     away("AWAY",tmpbuf,NULL);
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
     new_free(&celeawaystr);
 #endif
     if (*stuff) {
@@ -3638,15 +3629,12 @@ char *subargs;
                     sprintf(tmpbuf,"%s!%s",joiner->nick,joiner->userhost);
                     if ((!(joiner->chanop) || chan->KickOps) &&
                         my_stricmp(joiner->nick,mynick) && wild_match(filter,tmpbuf))
-#if defined(VILAS)
-                        send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
-#elif defined(CELE)
+#ifdef CELE
                         send_to_server("KICK %s %s :%s %s",channel,joiner->nick,
                                        comment,CelerityL);
 #else  /* CELE */
-                        send_to_server("KICK %s %s :<ScrollZ-FK> %s",channel,joiner->nick,
-                                       comment);
-#endif /* VILAS */
+                        send_to_server("KICK %s %s :%s",channel,joiner->nick,comment);
+#endif /* CELE */
                 }
             }
             else NotChanOp(channel);

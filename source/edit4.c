@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.6 1998-10-21 19:39:03 f Exp $
+ * $Id: edit4.c,v 1.7 1998-11-02 21:20:50 f Exp $
  */
 
 #include "irc.h"
@@ -289,26 +289,22 @@ ChannelList *tmpchan;
     ischanop=(chan->status)&CHAN_CHOP;
     sprintf(tmpbuf,"%s!%s",nick,userhost);
     if (!privs && ischanop && chan->KickOnBan && IsBanned(tmpbuf,channel,server,chan))
-#if defined(VILAS)
-        send_to_server("KICK %s %s :Banned",channel,nick);
-#elif defined(CELE)
+#ifdef CELE
         send_to_server("KICK %s %s :Banned %s",channel,nick,CelerityL);
 #else  /* CELE */
-        send_to_server("KICK %s %s :<ScrollZ-K> Banned",channel,nick);
-#endif /* VILAS */
+        send_to_server("KICK %s %s :Banned",channel,nick);
+#endif /* CELE */
     else if (ischanop && (tmpabk=tmpjoiner->shitlist)) {
         if ((tmpabk->shit)&SLBAN)
             send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
         if ((tmpabk->shit)&SLKICK) {
             if (tmpabk->reason[0]) comment=tmpabk->reason;
             else comment=DefaultABK;
-#if defined(VILAS)
-            send_to_server("KICK %s %s :%s",channel,nick,comment);
-#elif defined(CELE)
+#ifdef CELE
             send_to_server("KICK %s %s :%s %s>",channel,nick,comment,CelerityL);
 #else  /* CELE */
-            send_to_server("KICK %s %s :<ScrollZ-ABK> %s",channel,nick,comment);
-#endif /* VILAS */
+            send_to_server("KICK %s %s :%s",channel,nick,comment);
+#endif /* CELE */
         }
         if ((tmpabk->shit)&SLIGNORE) {
             tmpignore=index(tmpabk->userhost,'!');
@@ -511,13 +507,13 @@ int  server;
                         }
                         else tmp->curn++;
                         if (!tmp->nickp && tmp->curn>=NickSensor && ((chan->status)&CHAN_CHOP)) {
-#if defined(VILAS)
-                            send_to_server("KICK %s %s :Nick flood detected",chan->channel,oldnick);
-#elif defined(CELE)
-                            send_to_server("KICK %s %s :Nick flood detected %s",chan->channel,oldnick,CelerityL);
+#ifdef CELE
+                            send_to_server("KICK %s %s :Nick flood detected %s",
+                                           chan->channel,oldnick,CelerityL);
 #else  /* CELE */
-                            send_to_server("KICK %s %s :<ScrollZ-MK> Nick flood detected",chan->channel,oldnick);
-#endif /* VILAS */
+                            send_to_server("KICK %s %s :Nick flood detected",
+                                           chan->channel,oldnick);
+#endif /* CELE */
 #ifdef WANTANSI
                             if (!printed) {
                                 say("%sNick flood%s detected by %s%s%s",
@@ -669,13 +665,13 @@ int  *frkick;
                     if (joiner->curk>=KickSensor*2) {
                         if (joiner->kickp<2 && chan->KickWatch && chan->KickOnFlood) {
                             if ((chan->status)&CHAN_CHOP)
-#if defined(VILAS)
-                                send_to_server("KICK %s %s :Kick flood detected",channel,nick);
-#elif defined(CELE)
-                                send_to_server("KICK %s %s :Kick flood detected %s",channel,nick,CelerityL);
+#ifdef CELE
+                                send_to_server("KICK %s %s :Kick flood detected %s",
+                                               channel,nick,CelerityL);
 #else  /* CELE */
-                                send_to_server("KICK %s %s :<ScrollZ-MK> Kick flood detected",channel,nick);
-#endif /* VILAS */
+                                send_to_server("KICK %s %s :Kick flood detected",
+                                               channel,nick);
+#endif /* CELE */
 #ifdef WANTANSI
                             say("%sKick flood%s detected on %s%s%s by %s%s%s",
                                 CmdsColors[COLWARNING].color1,Colors[COLOFF],
@@ -1122,13 +1118,11 @@ ChannelList *chan;
             reason++;
             BanIt(chan->channel,joiner->nick,joiner->userhost,1,chan);
         }
-#if defined(VILAS)
-        send_to_server("KICK %s %s :%s",chan->channel,joiner->nick,reason);
-#elif defined(CELE)
+#ifdef CELE
         send_to_server("KICK %s %s :%s %s",chan->channel,joiner->nick,reason,CelerityL);
 #else  /* CELE */
-        send_to_server("KICK %s %s :<ScrollZ-WK> %s",chan->channel,joiner->nick,reason);
-#endif /* VILAS */
+        send_to_server("KICK %s %s :%s",chan->channel,joiner->nick,reason);
+#endif /* CELE */
     }
 }
 
@@ -1529,16 +1523,13 @@ char *subargs;
                                     while (tmpbuf2[strlen(tmpbuf2)-1]==' ') tmpbuf2[strlen(tmpbuf2)-1]=0;
                                     if (tmpbuf2[0]) comment=tmpbuf2;
                                     else comment=DefaultSK;
-#if defined(VILAS)
-                                    send_to_server("KICK %s %s :%s",channel,
-                                                   joiner->nick,comment);
-#elif defined(CELE)
+#ifdef CELE
                                     send_to_server("KICK %s %s :%s %s",channel,
                                                    joiner->nick,comment,CelerityL);
 #else  /* CELE */
-                                    send_to_server("KICK %s %s :<ScrollZ-SK> %s",channel,
+                                    send_to_server("KICK %s %s :%s",channel,
                                                    joiner->nick,comment);
-#endif /* VILAS */
+#endif /* CELE */
                                     kicked=1;
                                 }
                             }
@@ -1613,16 +1604,15 @@ char *subargs;
                 tmpnick=new_next_arg(args,&args);
                 joiner=CheckJoiners(tmpnick,channel,curr_scr_win->server,chan);
                 if (joiner) {
-#if defined(VILAS)
+#ifdef CELE
+                    if (notice) send_to_server("KICK %s %s :%s %s",
+                                               channel,tmpnick,notice,CelerityL);
+                    else send_to_server("KICK %s %s :%s %s",
+                                        channel,tmpnick,DefaultK,CelerityL);
+#else  /* CELE */
                     if (notice) send_to_server("KICK %s %s :%s",channel,tmpnick,notice);
                     else send_to_server("KICK %s %s :%s",channel,tmpnick,DefaultK);
-#elif defined(CELE)
-                    if (notice) send_to_server("KICK %s %s :%s %s",channel,tmpnick,notice,CelerityL);
-                    else send_to_server("KICK %s %s :%s %s",channel,tmpnick,DefaultK,CelerityL);
-#else  /* CELE */
-                    if (notice) send_to_server("KICK %s %s :<ScrollZ-LNK> %s",channel,tmpnick,notice);
-                    else send_to_server("KICK %s %s :<ScrollZ-K> %s",channel,tmpnick,DefaultK);
-#endif /* VILAS */
+#endif /* CELE */
                 }
                 else say("Can't find %s on %s.",tmpnick,channel);
             }
@@ -2106,14 +2096,12 @@ ChannelList *chan;
                 if ((tmp->shitlist->shit)&SLKICK) {
                     if (tmp->shitlist->reason[0]) reason=tmp->shitlist->reason;
                     else reason=DefaultABK;
-#if defined(VILAS)
-                    send_to_server("KICK %s %s :%s",chan->channel,tmp->nick,reason);
-#elif defined(CELE)
-                    send_to_server("KICK %s %s :%s %s",chan->channel,tmp->nick,reason,CelerityL);
+#ifdef CELE
+                    send_to_server("KICK %s %s :%s %s",chan->channel,tmp->nick,reason,
+                                   CelerityL);
 #else  /* CELE */
-                    send_to_server("KICK %s %s :<ScrollZ-ABK> %s",chan->channel,
-                                   tmp->nick,reason);
-#endif /* VILAS */
+                    send_to_server("KICK %s %s :%s",chan->channel,tmp->nick,reason);
+#endif /* CELE */
                 }
                 if ((tmp->shitlist->shit)&SLBAN)
                     send_to_server("MODE %s -o+b %s %s",chan->channel,

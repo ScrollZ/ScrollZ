@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.6 1998-10-23 14:19:09 f Exp $
+ * $Id: server.c,v 1.7 1998-11-02 21:20:57 f Exp $
  */
 
 #include "irc.h"
@@ -1366,7 +1366,7 @@ MarkAllAway(command, message)
                     malloc_strcpy(&(server_list[from_server].away),message);
                     if (server_list[from_server].connected) {
                         send_to_server("%s :%s", command, message);
-#if defined(CELE) && !defined(VILAS)
+#ifdef CELE
                         SentAway++;
 #endif
                     }
