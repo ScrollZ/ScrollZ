@@ -412,4 +412,7 @@
 
 /* Define this if you want client w/o certain functionality */
 #undef LITE
+
+/* Define this if you want mIRC compatible DCC resume */
+/* #undef BROKEN_MIRC_RESUME */
 /****************************************************************************/

@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.37 2001-10-18 20:19:29 f Exp $
+ * $Id: SZdist.c,v 1.38 2002-01-17 19:17:12 f Exp $
  */
 
 #include <stdio.h>
@@ -57,12 +57,11 @@
 #define SZ32           (1<<18)
 #define LITE           (1<<19)
 #define ALTPUBLICS     (1<<20)
-#define NUMDEFS        (ALTPUBLICS)
+#define MIRCRESUME     (1<<21)
+#define NUMDEFS        (MIRCRESUME)
 
 #define mybufsize 1024
 
-char *int_ver="20010122";
-char *ver="ircII 4.4Z+ScrollZ v1.8k (22.1.2000)+Cdcc v1.8";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";
 
@@ -92,6 +91,7 @@ char *OPERfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o parse.o";
 char *OGREfiles="operv.o";
 char *LITEfiles="*.o";
 char *ALTPUBLICSfiles="edit5.o";
+char *MIRCRESUMEfiles="cdcc.o dcc.o";
 
 char format[mybufsize];
 
@@ -191,6 +191,7 @@ char **argv;
 	    else if (strstr(buf,"OGRE")) choice|=OGRE;
 	    else if (strstr(buf,"LITE")) choice|=LITE;
 	    else if (strstr(buf,"ALTERNATIVE_PUBLICS")) choice|=ALTPUBLICS;
+	    else if (strstr(buf,"BROKEN_MIRC_RESUME")) choice|=MIRCRESUME;
         }
     fclose(fpin);
     oldchoice=choice;
@@ -218,6 +219,8 @@ char **argv;
             else if (*tmp1=='n') choice&=~SORTEDNICKS;
             if (*tmp1=='U') choice|=ALTPUBLICS;
             else if (*tmp1=='u') choice&=~ALTPUBLICS;
+            if (*tmp1=='M') choice|=MIRCRESUME;
+            else if (*tmp1=='m') choice&=~MIRCRESUME;
         }
         if (*tmp1==' ' && *(tmp1+1)=='O' && *(tmp1+2)=='V') {
             choice|=OPERVISION;
@@ -306,6 +309,8 @@ char **argv;
 	       onoffstr(choice&OPER,onoffbuf));
 	printf(" [1mZ[0m - OGRE          %s - compile with ogre's OperVision cosmetics\n",
 	       onoffstr(choice&OGRE,onoffbuf));
+	printf(" [1mT[0m - MIRCRESUME    %s - enable support for broken mIRC DCC resume\n",
+	       onoffstr(choice&MIRCRESUME,onoffbuf));
         printf(" [1mQ[0m - QUIT          [1mW[0m - SAVE & QUIT\n");
         printf("Enter your choice: ");
         c=getchar();
@@ -377,7 +382,9 @@ char **argv;
 		case 'Z': if ((choice&OGRE)) choice&=~OGRE;
 			  else choice|=OGRE;
 			  break;
-
+		case 'T': if ((choice&MIRCRESUME)) choice&=~MIRCRESUME;
+			  else choice|=MIRCRESUME;
+			  break;
             }
         }
         if (!(choice&WANTANSI)) choice&=~OPERVISION;
@@ -409,6 +416,7 @@ char **argv;
 	    else if (i==OGRE) addtobuf(OGREfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==LITE) addtobuf(LITEfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==ALTPUBLICS) addtobuf(ALTPUBLICSfiles,tmpbuf,choice,oldchoice,i);
+	    else if (i==MIRCRESUME) addtobuf(MIRCRESUMEfiles,tmpbuf,choice,oldchoice,i);
         }
         if (rename(defsfile,defsoldfile)<0) {
             printf("Error, couldn't rename %s to %s\n",defsfile,defsoldfile);
@@ -501,6 +509,9 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want client w/o certain functionality */\n");
 	if (choice&LITE) fprintf(fpout,"#define LITE\n");
 	else fprintf(fpout,"#undef LITE\n");
+        fprintf(fpout,"\n/* Define this if you want mIRC compatible DCC resume */\n");
+	if (choice&MIRCRESUME) fprintf(fpout,"#define BROKEN_MIRC_RESUME\n");
+	else fprintf(fpout,"#undef BROKEN_MIRC_RESUME\n");
         fprintf(fpout,"/****************************************************************************/\n");
         fclose(fpin);
         fclose(fpout);

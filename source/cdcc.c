@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.41 2002-01-09 16:30:19 f Exp $
+ * $Id: cdcc.c,v 1.42 2002-01-17 19:17:12 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -137,6 +137,9 @@ extern int  CheckServer _((int));
 
 extern void dcc_close _((char *));
 extern void dcc_getfile _((char *));
+#ifdef BROKEN_MIRC_RESUME
+extern void dcc_getfile_resume _((char *));
+#endif /* BROKEN_MIRC_RESUME */
 extern void dcc_regetfile _((char *));
 extern void dcc_filesend _((char *));
 extern void dcc_resend _((char *));
@@ -2680,7 +2683,10 @@ char *type;
     }
     sprintf(tmpbuf,"%s \"%s\"",nick,file);
     if (!my_stricmp(type,"SEND")) dcc_getfile(tmpbuf);
-    if (!my_stricmp(type,"RESEND")) dcc_regetfile(tmpbuf);
+    else if (!my_stricmp(type,"RESEND")) dcc_regetfile(tmpbuf);
+#ifdef BROKEN_MIRC_RESUME
+    else if (!my_stricmp(type,"RESUME")) dcc_getfile_resume(tmpbuf);
+#endif /* BROKEN_MIRC_RESUME */
 }
 
 

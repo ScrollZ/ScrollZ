@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.30 2001-11-01 20:31:46 f Exp $
+ * $Id: dcc.c,v 1.31 2002-01-17 19:17:12 f Exp $
  */
 
 #include "irc.h"
@@ -138,6 +138,12 @@ extern int  CheckServer _((int));
 extern int  DecryptMessage _((char *, char *));
 extern int  EncryptMessage _((char *, char *));
 
+#ifdef BROKEN_MIRC_RESUME
+void dcc_getfile_resume _((char *));
+static void dcc_getfile_resume_demanded _((char *, char *, char *, char *));
+static void dcc_getfile_resume_start _((char *, char *, char *, char *));
+#endif /* BROKEN_MIRC_RESUME */
+
 extern struct in_addr DCCHost;
 /****************************************************************************/
 
@@ -172,6 +178,9 @@ struct
 /**************************** PATCHED by Flier ******************************/
 	{ "RESEND",	3, dcc_resend },
 	{ "REGET",	3, dcc_regetfile },
+#ifdef BROKEN_MIRC_RESUME
+	{ "RESUME",	4, dcc_getfile_resume },
+#endif /* BROKEN_MIRC_RESUME */
 /****************************************************************************/
 	{ NULL,		0, (void (*) _((char *))) NULL }
 };
@@ -317,20 +326,19 @@ DCC_list *Client;
     time_t xtime=time((time_t *) 0)-Client->starttime;
     double sent,oldsent;
 
-    if (flags==DCC_FILEREAD) sent=(double) Client->bytes_read;
-    else if (flags==DCC_FILEREGET)
-        sent=(double) Client->bytes_read+(double) Client->resendoffset;
-    else if (flags==DCC_FILEOFFER) {
-        sent=(double) Client->bytes_sent;
+    if (flags==DCC_FILEREAD || flags==DCC_FILEREGET)
+        sent=Client->bytes_read-Client->resendoffset;
+    else if (flags==DCC_FILEOFFER || flags==DCC_RESENDOFFER) {
+        sent=Client->bytes_sent-Client->resendoffset;
         tmpstr="to";
     }
     else {
-        sent=(double) Client->bytes_sent+(double) Client->resendoffset;
+        sent=Client->bytes_sent;
         tmpstr="to";
     }
     if (sent<=0) sent=1;
     oldsent=sent;
-    premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize);
+    premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize-Client->resendoffset);
     sent/=(double)1024.0;
     if (xtime<=0) xtime=1;
 #ifdef WANTANSI
@@ -595,7 +603,7 @@ dcc_check(rd, wd)
 							dcc_types[(*Client)->flags&DCC_TYPES], (*Client)->user,
 							inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                                             PrintEstablish(dcc_types[(*Client)->flags&DCC_TYPES],
-                                                           *Client,remaddr,0L);
+                                                           *Client,remaddr,(*Client)->bytes_read);
  					restore_message_from();
 /****** Coded by Zakath ******/
                                         if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
@@ -733,6 +741,7 @@ dcc_open(Client)
 #ifndef NON_BLOCKING_CONNECTS
         char tmpbuf[mybufsize/32];
 #endif
+	char tmpbuf1[mybufsize/32];
 /****************************************************************************/
 
 	user = Client->user;
@@ -880,6 +889,8 @@ dcc_open(Client)
                         new_free(&nopath);
 /****************************************************************************/
 		}
+		sprintf(tmpbuf1, "%d", ntohs(localaddr.sin_port));
+		malloc_strcpy(&Client->othername, tmpbuf1);
 		/*
 		 * Is this where dcc times are fucked up??  - phone
 		 * Yes, it was..  and they are all hunky dory now..
@@ -1578,6 +1589,113 @@ dcc_getfile(args)
 		close(Client->file);
 }
 
+#ifdef BROKEN_MIRC_RESUME
+void
+dcc_getfile_resume(args)
+	char	*args;
+{
+	char		*user;
+	char		*filename;
+	char		*fullname;
+	DCC_list	*Client;
+	struct stat	sb;
+
+	if (!(user = next_arg(args, &args))) {
+		say("You must supply a nickname for DCC RESUME");
+		return;
+	}
+
+	filename = new_next_arg(args, &args);
+
+	if (!(Client = dcc_searchlist(filename, user, DCC_FILEREAD, 0, 0))) {
+		if (filename)
+			say("No file (%s) offered in SEND mode by %s",
+				filename, user);
+		else
+			say("No file offered in SEND mode by %s", user);
+		return;
+	}
+
+	if (CdccDlDir) {
+		malloc_strcpy(&fullname, CdccDlDir);
+		malloc_strcat(&fullname, "/");
+	}
+	malloc_strcat(&fullname, Client->description);
+
+	if (stat(fullname, &sb) == -1) {
+		say("DCC RESUME: Can't resume if the file doesn't exist.");
+		new_free(&fullname);
+		return;
+	}
+
+	if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT)) {
+		if (filename)
+			say("A previous DCC GET:%s to %s exists", filename, user);
+		else
+			say("A previous DCC GET to %s exists", user);
+		return;
+	}
+
+	Client->file = open(fullname, O_BINARY | O_WRONLY, 0644);
+	new_free(&fullname);
+	if (-1 == Client->file) {
+		say("Unable to open %s: %s", Client->description,
+			errno ? strerror(errno) : "<No Error>");
+		return;
+	}
+
+	lseek(Client->file, sb.st_size, SEEK_SET);
+	Client->bytes_sent = 0;
+	Client->bytes_read = Client->resendoffset = sb.st_size;
+
+	send_ctcp(ctcp_type[CTCP_PRIVMSG], user, "DCC", "RESUME %s %d %d",
+		Client->description, Client->remport, sb.st_size);
+}
+
+void
+dcc_getfile_resume_demanded(user, filename, port, offset)
+	char	*user,
+		*filename,
+		*port,
+		*offset;
+{
+	DCC_list	*Client;
+
+	if (!(Client = dcc_searchlist(filename, user, DCC_FILEOFFER, 0, port)))
+		return;	/* fake */
+
+	Client->bytes_sent = Client->resendoffset = atoi(offset);
+	Client->bytes_read = 0;
+
+	lseek(Client->file, Client->bytes_sent, SEEK_SET);
+
+	send_ctcp(ctcp_type[CTCP_PRIVMSG], user, "DCC", "ACCEPT %s %s %s",
+		filename, port, offset);
+}
+
+void
+dcc_getfile_resume_start(user, filename, port, offset)
+	char	*user,
+		*filename,
+		*port,
+		*offset;
+{
+	DCC_list	*Client;
+
+	if (!strcmp(filename, "file.ext"))
+		filename = NULL;
+
+	if (!(Client = dcc_searchlist(filename, user, DCC_FILEREAD, 0, port)))
+		return;	/* fake */
+
+	Client->flags |= DCC_TWOCLIENTS;
+	if (!dcc_open(Client))
+		close(Client->file);
+
+	Client->bytes_read = atoi(offset);
+}
+#endif /* BROKEN_MIRC_RESUME */
+
 /**************************** PATCHED by Flier ******************************/
 void
 dcc_regetfile(args)
@@ -1734,6 +1852,16 @@ register_dcc_offer(user, type, description, address, port, size)
 	else if(!strcmp(type, "RESEND") && DAEMON_UID != getuid())
 #endif /* DAEMON_UID */
 		CType = DCC_FILEREGET;
+#ifdef BROKEN_MIRC_RESUME
+	else if (!strcmp(type, "RESUME")) {
+		dcc_getfile_resume_demanded(user, description, address, port);
+		goto out;
+	}
+	else if (!strcmp(type, "ACCEPT")) {
+		dcc_getfile_resume_start(user, description, address, port);
+		goto out;
+	}
+#endif /* BROKEN_MIRC_RESUME */
 /****************************************************************************/
 	else
 	{
@@ -1893,7 +2021,23 @@ register_dcc_offer(user, type, description, address, port, size)
                     else if (warning==2) strcat(tmpbuf1,", fake DCC handshake detected");
                     AwaySave(tmpbuf1,SAVEDCC);
                 }
-                if ((AutoGet>1) || (!warning && AutoGet)) CheckAutoGet(user,FromUserHost,description,type);
+                if ((AutoGet>1) || (!warning && AutoGet)) {
+#ifdef BROKEN_MIRC_RESUME
+			char *fullpath = NULL;
+			struct stat sb;
+
+			malloc_strcpy(&fullpath, CdccDlDir);
+			malloc_strcat(&fullpath, "/");
+			malloc_strcat(&fullpath, description);
+			if (!stat(fullpath, &sb) && sb.st_size)
+				CheckAutoGet(user,FromUserHost,description,"RESUME");
+			else
+#endif /* BROKEN_MIRC_RESUME */
+				CheckAutoGet(user,FromUserHost,description,type);
+#ifdef BROKEN_MIRC_RESUME
+			new_free(&fullpath);
+#endif /* BROKEN_MIRC_RESUME */
+		}
 	}
         else {
 #ifdef WANTANSI
@@ -1937,7 +2081,23 @@ register_dcc_offer(user, type, description, address, port, size)
                 }
                 if (((Client->flags)&DCC_TYPES)==DCC_FILEREAD ||
                     ((Client->flags)&DCC_TYPES)==DCC_FILEREGET) {
-                    if (AutoGet>1) CheckAutoGet(user,FromUserHost,description,type);
+                    if (AutoGet>1) {
+#ifdef BROKEN_MIRC_RESUME
+			char *fullpath = NULL;
+			struct stat sb;
+
+			malloc_strcpy(&fullpath, CdccDlDir);
+			malloc_strcat(&fullpath, "/");
+			malloc_strcat(&fullpath, description);
+			if (!stat(fullpath, &sb) && sb.st_size)
+				CheckAutoGet(user,FromUserHost,description,"RESUME");
+			else
+#endif /* BROKEN_MIRC_RESUME */
+				CheckAutoGet(user,FromUserHost,description,type);
+#ifdef BROKEN_MIRC_RESUME
+			new_free(&fullpath);
+#endif /* BROKEN_MIRC_RESUME */
+		    }
                 }
         }
 /****************************************************************************/
@@ -2316,7 +2476,6 @@ DCC_list *Client;
 #endif
 		Client->flags &= ~DCC_WAIT;
 		Client->flags |= DCC_ACTIVE;
-		Client->bytes_sent = 0L;
 #if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
                 Client->eof=0;
 #endif
@@ -2326,7 +2485,7 @@ DCC_list *Client;
 			inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                 if ((Client->flags&DCC_TYPES)==DCC_RESENDOFFER)
                     PrintEstablish("RESEND",Client,remaddr,orders.byteoffset);
-                else PrintEstablish("SEND",Client,remaddr,0L);
+                else PrintEstablish("SEND",Client,remaddr,Client->bytes_sent);
                 if ((Client->flags&DCC_TYPES)==DCC_RESENDOFFER) {
 			lseek(Client->file,orders.byteoffset,SEEK_SET);
 			Client->resendoffset=orders.byteoffset;
@@ -2792,7 +2951,7 @@ dcc_close(args)
  	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if (!(Type = next_arg(args, &args)) || !(user=next_arg(args, &args)))
 	{
-		say("you must specify a type and nick for DCC CLOSE");
+		say("You must specify a type and nick for DCC CLOSE");
 		goto out;
 	}
 /**************************** PATCHED by Flier ******************************/
@@ -2861,7 +3020,7 @@ dcc_chat_rename(args)
 
 	if (!(user = next_arg(args, &args)) || !(temp = next_arg(args, &args)))
 	{
-		say("you must specify a current DCC CHAT connection, and a new name for it");
+		say("You must specify a current DCC CHAT connection, and a new name for it");
 		return;
 	}
 	if (dcc_searchlist("chat", temp, DCC_CHAT, 0, (char *) 0))
@@ -2911,7 +3070,7 @@ dcc_rename(args)
 	}
 	if (!user || !(temp = next_arg(args, &args)))
 	{
-		say("you must specify a nick and new filename for DCC RENAME");
+		say("You must specify a nick and new filename for DCC RENAME");
 		goto out;
 	}
 	if ((newdesc = next_arg(args, &args)) != NULL)
