@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.17 1999-03-23 17:30:04 f Exp $
+ * $Id: irc.c,v 1.18 1999-03-26 17:01:07 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -775,9 +775,9 @@ parse_args(argv, argc)
 /* Patched by Zakath */
 /* Moved here by Flier so we can override environment variable with -H */
 	if ((ptr=getenv("IRCHOST"))) malloc_strcpy(&VirtualHost,ptr);
+/* ***************** */
         /* for Da_P */
         if ((ptr=getenv("VIRTIP"))) malloc_strcpy(&VirtualHost,ptr);
-/* ***************** */
 /****************************************************************************/
 	while ((arg = argv[ac++]) != (char *) NULL)
 	{
