@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.108 2003-05-04 19:37:49 f Exp $
+ * $Id: irc.c,v 1.109 2003-12-28 16:24:53 f Exp $
  */
 
 #define IRCII_VERSION	"20030505"	/* YYYYMMDD */
@@ -198,8 +198,8 @@ static	int	cntl_c_hit = 0;
 static	char	FAR switch_help[] =
 /**************************** Patched by Flier ******************************/
 /*"Usage: irc [switches] [nickname] [server list] \n\*/
-"Usage: scrollz [switches] [nickname] [server list] \n\
 /****************************************************************************/
+"Usage: scrollz [switches] [nickname] [server list] \n\
   The [nickname] can be at most 9 characters long on some server\n\
   The [server list] is a whitespace separated list of server names\n\
   The [switches] may be any or all of the following:\n\
