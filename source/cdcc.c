@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.48 2002-05-04 15:01:48 f Exp $
+ * $Id: cdcc.c,v 1.49 2002-05-08 18:12:28 f Exp $
  */
 
 #include "irc.h"
@@ -1736,6 +1736,7 @@ char *line;
 /**********************************************************************
 * fsendmcommand: Prompt User for files                                 *
 ***********************************************************************/
+#ifdef EXTRAS
 static void fsendmcommand(line)
 char *line;
 {
@@ -1828,6 +1829,7 @@ char *line;
     else say("You must specify nick(s) to send file(s) to");
     DeleteSend();
 }
+#endif /* EXTRAS */
 
 /**********************************************************************
 * resendmcommand: Prompt User for files                               *
