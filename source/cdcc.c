@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.24 1999-09-19 17:01:39 f Exp $
+ * $Id: cdcc.c,v 1.25 2000-02-29 16:58:30 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -575,15 +575,16 @@ int type;
                 etatime=0;
             }
 #ifndef CELEHOOK
-            if (do_hook(DCC_LIST,"%d %s %s %c %.2f %ld %s %d %d",count,
+            if (do_hook(DCC_LIST,"%d %s %s %c %.2f %ld %s %d %ld",count,
                         dcc_types[flags],Client->user,dccstatus(Client->flags),
-                        rate,etatime,filename,fills,Client->filesize)) {
+                        rate,etatime,filename,fills,(long) Client->filesize)) {
 #endif
                 if (completed) {
                     if (LongStatus) {
                         strcpy(tmpbuf1,"\026    ");
                         for (i=1;i<7;i++) strcat(tmpbuf1,"          ");
-                        sprintf(tmpbuf2,"%3d%%  (%ld of %ld bytes)",fills,completed,Client->filesize);
+                        sprintf(tmpbuf2,"%3d%%  (%ld of %ld bytes)",fills,completed,
+                                (long) Client->filesize);
                         fills=(fills+1)*63/100;
                         for (i=0,j=0;i<=fills;i++)
                             if (tmpbuf2[j] && i>14) {

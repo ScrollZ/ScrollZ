@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.19 1999-10-04 19:21:37 f Exp $
+ * $Id: dcc.c,v 1.20 2000-02-29 16:58:30 f Exp $
  */
 
 #include "irc.h"
@@ -1803,7 +1803,8 @@ register_dcc_offer(user, type, description, address, port, size)
                 sprintf(tmpbuf1,"%sDCC%s %s%s%s (%s%s %ld%s) request ",
                         CmdsColors[COLDCC].color5,Colors[COLOFF],
                         CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-                        CmdsColors[COLDCC].color4,description,Client->filesize,Colors[COLOFF]);
+                        CmdsColors[COLDCC].color4,description,
+                        (long) Client->filesize,Colors[COLOFF]);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
                 sprintf(tmpbuf2,"%s%sreceived%s from %s%s%s %s [%s:%s]",tmpbuf1,
                         CmdsColors[COLDCC].color4,Colors[COLOFF],
@@ -1811,8 +1812,8 @@ register_dcc_offer(user, type, description, address, port, size)
                         inet_ntoa(Client->remote), port);
 #else
                 sprintf(tmpbuf2,"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
-                        type,description,Client->filesize,user,FromUserHost,
-                        inet_ntoa(Client->remote),port);
+                        type,description,(long) Client->filesize,user,
+                        FromUserHost,inet_ntoa(Client->remote),port);
 #endif
                 if (DCCWarning) {
                     strcpy(tmpbuf1,FromUserHost);
@@ -1852,8 +1853,8 @@ register_dcc_offer(user, type, description, address, port, size)
                 say("%s",tmpbuf2);
                 if (away_set || LogOn) {
                     sprintf(tmpbuf1,"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
-                            type,description,Client->filesize,user,FromUserHost,
-                            inet_ntoa(Client->remote), port);
+                            type,description,(long) Client->filesize,user,
+                            FromUserHost,inet_ntoa(Client->remote), port);
                     if (warning==1) strcat(tmpbuf1,", address couldn't be figured out");
                     else if (warning==2) strcat(tmpbuf1,", fake DCC handshake detected");
                     AwaySave(tmpbuf1,SAVEDCC);
