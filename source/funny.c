@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.4 1999-03-22 17:33:45 f Exp $
+ * $Id: funny.c,v 1.5 1999-10-31 11:01:53 f Exp $
  */
 
 #include "irc.h"
@@ -52,6 +52,7 @@
 #include "myvars.h"
 
 extern void PrintNames _((char *, char *));
+extern void PrintSynch _((ChannelList *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OperVision _((char *, char *, char *));
 #endif
@@ -393,6 +394,20 @@ funny_mode(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 		/*update_channel_mode(channel, parsing_server_index, mode);*/
 		update_channel_mode(channel,parsing_server_index,mode,NULL,NULL,NULL,NULL,tmp);
+                if ((get_server_version(from_server)==Server2_9 || 
+                   get_server_version(from_server)==Server2_10) &&
+                   (!my_stricmp(channel,"&servers")  ||
+                    !my_stricmp(channel,"&errors")   ||
+                    !my_stricmp(channel,"&notices")  ||
+                    !my_stricmp(channel,"&local")    ||
+                    !my_stricmp(channel,"&channel")  ||
+                    !my_stricmp(channel,"&numerics") ||
+                    !my_stricmp(channel,"&kills")    ||
+                    !my_stricmp(channel,"&clients"))) {
+                    tmp->gotbans=1;
+                    tmp->gotwho=1;
+                    PrintSynch(tmp);
+                }
 /****************************************************************************/
 		tmp->status |= CHAN_MODE;
 		update_all_status();
