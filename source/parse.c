@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.35 2001-02-26 20:08:57 f Exp $
+ * $Id: parse.c,v 1.36 2001-04-17 17:57:47 f Exp $
  */
 
 #include "irc.h"
@@ -691,6 +691,8 @@ p_privmsg(from, Args)
 	}
 /**************************** Patched by Flier ******************************/
         if (ignore_type==IGNORE_PUBLIC && double_ignore(to,NULL,IGNORE_PUBLIC)==IGNORED)
+            goto out;
+        if (ignore_type==IGNORE_PUBLIC && is_channel(to) && double_ignore(from,to,IGNORE_PUBLIC)==IGNORED)
             goto out;
         if (FloodProt>1 && flood_type==MSG_FLOOD) {
             sprintf(tmpbuf,"%s!%s",from,FromUserHost);
