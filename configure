@@ -549,7 +549,7 @@ else
 fi
 
 
-VERSION=`sed -n -e 's/char.*ScrollZver.*ScrollZ v\(.\...\) .*/\1/p' < ${srcdir}/source/irc.c` 
+VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*SCROLLZ_VERSION[ 	]*"/s///p' -e '/#define SCROLLZ_VERSION/q' < ${srcdir}/source/irc.c`
 echo this is ScrollZ version $VERSION
 echo
 
@@ -557,7 +557,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.16 2001-05-09 19:33:56 f Exp $' > /dev/null
+echo '$Id: configure,v 1.17 2001-07-01 09:11:14 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
