@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.89 2002-01-14 18:43:28 f Exp $
+ * $Id: edit4.c,v 1.90 2002-01-16 17:24:14 f Exp $
  */
 
 #include "irc.h"
@@ -812,6 +812,11 @@ ChannelList *chan;
     return(0);
 }
 
+/* XXX: fix me */
+#ifndef alphasort
+#define alphasort NULL
+#endif
+
 void HandleTabNext(u_int key, char *ptr)
 {
     int i;
@@ -892,13 +897,6 @@ get_begin:
         struct dirent **dir_list;
 
 send_begin:
-        if (*completing == '~') {
-            p = expand_twiddle(completing);
-            if (p) {
-                strmcpy(completing, p, sizeof(completing) - 1);
-                new_free(&p);
-            }
-        }
         p = strrchr(completing, '/');
         if (p) {
             if (p == completing) *dir = '/';
@@ -916,7 +914,15 @@ send_begin:
                 if (!(*dir)) strcpy(dir, ".");
             }
         }
-        n = scandir(dir, &dir_list, NULL, alphasort);
+        if (*dir == '~') {
+            p = expand_twiddle(dir);
+            if (p) {
+                n = scandir(p, &dir_list, NULL, alphasort);
+                new_free(&p);
+            }
+            else n = scandir(dir, &dir_list, NULL, alphasort);
+        }
+        else n = scandir(dir, &dir_list, NULL, alphasort);
         if (n < 0) return;
         j = 2;		/* skip . and .. */
         if (last_completion) {
