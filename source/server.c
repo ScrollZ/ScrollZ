@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.12 1999-03-09 22:26:58 f Exp $
+ * $Id: server.c,v 1.13 1999-03-25 20:22:51 f Exp $
  */
 
 #include "irc.h"
@@ -2047,12 +2047,12 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
- 		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
 #ifdef BNCCRYPT
                 EncryptBNC(lbuf,strlen(lbuf));
 #endif
 /****************************************************************************/
+ 		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
  		send(des, lbuf, strlen(lbuf), 0);
 	}
 /**************************** PATCHED by Flier ******************************/
