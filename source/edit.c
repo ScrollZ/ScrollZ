@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.39 2000-08-16 15:19:04 f Exp $
+ * $Id: edit.c,v 1.40 2000-08-17 19:22:59 f Exp $
  */
 
 #include "irc.h"
@@ -4232,6 +4232,7 @@ describe(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
 			/*put_it("* -> %s: %s %s", target,
 				get_server_nickname(from_server), message);*/
+                {
                     if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target))
 #ifdef WANTANSI
                         put_it("%s%c%s %s%s%s %s%s%s",
@@ -4255,6 +4256,7 @@ describe(command, args, subargs)
                                get_server_nickname(from_server),message);
 #endif
                     }
+                }
 /****************************************************************************/
 		set_lastlog_msg_level(old);
  		restore_message_from();
