@@ -1,10 +1,10 @@
-$Id: README.ScrollZ,v 1.1 2001-05-09 18:10:31 f Exp $
+$Id: README.ScrollZ,v 1.2 2001-07-01 09:24:42 f Exp $
 
 This is the readme file for ScrollZ IRC client.
 ScrollZ is copyright (C) 1995-2001 by Flier (flier@scrollz.com).
 Please read the COPYRIGHT file for licensing information.
 
-For list of changes please read the ScrollZ.new file.
+For list of changes please see the ChangeLog.ScrollZ file.
 
 Hopefully further documentation will be available soon.
 
