@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.2 1998-09-10 17:44:28 f Exp $
+ * $Id: alias.c,v 1.3 1998-10-11 12:31:03 f Exp $
  */
 
 #include "irc.h"
@@ -4164,10 +4164,10 @@ unsigned char *input;
                     *buffer=defban;
                     *(buffer+1)='\0';
                 }
-                else strcpy(buffer,*(command_list[i].svar));
+                else if (*(command_list[i].svar)) strcpy(buffer,*(command_list[i].svar));
                 break;
             case 3:
-                if (*(command_list[i].ivar))
+                if (*(command_list[i].ivar) && *(command_list[i].svar))
                     sprintf(buffer,"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
                 else strcpy(buffer,"0");
                 break;
