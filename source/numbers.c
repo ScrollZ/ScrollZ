@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.72 2004-01-03 18:07:26 f Exp $
+ * $Id: numbers.c,v 1.73 2004-03-01 20:49:27 f Exp $
  */
 
 #include "irc.h"
@@ -1025,6 +1025,8 @@ numbered_command(from, comm, ArgList)
         char    *tmpnick; /* userhost() on 433 by Zakath */
         char    tmpbuf[(mybufsize/4)+1];
         ChannelList *chan;
+
+	if (!*ArgList) return;
 /****************************************************************************/
 
 	if (!from || !*from)
