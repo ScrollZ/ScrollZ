@@ -63,7 +63,8 @@ Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
 Usage $3ENCRMSG$0 [$3-CLEAR$0] [$3-SHOW$0] [$3nick$0|$3#channel$0 [$3key$0]]
 Communication with nick/channel will be encrypted using key. Both
 parties have to use the same key for encryption/decryption to work.
-If only nick is specified encrypted communication with nick/channel
+If only nick is specified you will be prompted for a password. If
+nick is prepended with a '-' encrypted communication with that nick
 is ended. If neither user nor key are given all users in encryption
 list are listed. DCC CHAT sessions can be encrypted if nick starts
 with '='. Use '-' as first character in key if you want to communicate
@@ -124,6 +125,7 @@ If no channel is given it will leave current channel. Note that
 specifying reason only works for some servers (notably 2.9).
 Also look at $2J$0
 :LISTS         Lists all servers on server list
+SSL connections have ! in front of a server number.
 Also look at $2ADDS$0 and $2REMS$0
 :LLOOK         This will store LINKS info internally
 Usage $3LLOOK$0 [$3-LOAD filename$0|$3-SAVE filename$0]
