@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.73 2001-08-27 16:45:28 f Exp $
+ * $Id: edit4.c,v 1.74 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -158,6 +158,7 @@ extern int  DecryptMessage _((char *, char *));
 #ifdef EXTRAS
 extern void CheckTopic _((char *, int, ChannelList *));
 #endif
+extern char *TimeStamp _((int));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -191,10 +192,8 @@ int  iscrypted;
 #endif
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
-    char stampbuf[mybufsize/64];
+    char *stampbuf=TimeStamp(2);
 
-    *stampbuf='\0';
-    if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
     if (!(userhost && *userhost)) userhost=(char *) 0;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
     else thing='*';
@@ -1021,10 +1020,8 @@ char *to;
        ) {
         if (foundchan || (!foundchan && !print)) hooked=0;
         if (print) {
-            char stampbuf[mybufsize/64];
+            char *stampbuf=TimeStamp(2);
 
-            *stampbuf='\0';
-            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 #ifdef WANTANSI
 #ifdef CELECOSM
             if (ExtMes && userhost)

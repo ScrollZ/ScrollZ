@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.68 2001-08-30 17:46:43 f Exp $
+ * $Id: edit.c,v 1.69 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -232,6 +232,7 @@ extern  void  ReconnectServer _((char *, char *, char *));
 extern  void  MegaDeop _((char *, char *, char *));
 /***********************************************************************/
 extern  void  MegaDehalfop _((char *, char *, char *));
+extern  char  *TimeStamp _((int));
 
 #ifdef OPER
 extern  int   StatskNumber;
@@ -1925,7 +1926,10 @@ ison_now(notused,notused2,nicklist)
 			*notused2;
 {
 	if (do_hook(current_numeric, "%s", nicklist))
-		put_it("%s Currently online: %s", numeric_banner(), nicklist);
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s Currently online: %s", numeric_banner(), nicklist);*/
+		put_it("%sCurrently online: %s", numeric_banner(), nicklist);
+/****************************************************************************/
 }
 
 static	void
@@ -2820,10 +2824,8 @@ send_text(org_nick, line, command)
         char    thing;
         char    *mynick=get_server_nickname(from_server);
         char    tmpbuf[mybufsize+1];
-        char    stampbuf[mybufsize/64];
+        char    *stampbuf=TimeStamp(2);
 
-        *stampbuf='\0';
-        if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
         else thing='-';
 /****************************************************************************/
@@ -4415,10 +4417,8 @@ describe(command, args, subargs)
 			/*put_it("* -> %s: %s %s", target,
 				get_server_nickname(from_server), message);*/
                 {
-                    char stampbuf[mybufsize/64];
+                    char *stampbuf=TimeStamp(2);
 
-                    *stampbuf='\0';
-                    if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
                     if ((curchan=get_channel_by_refnum(0)) && !my_stricmp(curchan,target)) {
 #ifdef WANTANSI
                         char *tmpstr=(char *) 0;
@@ -4520,10 +4520,8 @@ me(command, args, subargs)
 #ifdef WANTANSI
                             char *tmpstr=(char *) 0;
 #endif
-                            char stampbuf[mybufsize/64];
+                            char *stampbuf=TimeStamp(2);
 
-                            *stampbuf='\0';
-                            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 #ifdef WANTANSI
                             malloc_strcpy(&tmpstr,stampbuf);
                             malloc_strcat(&tmpstr,CmdsColors[COLME].color1);

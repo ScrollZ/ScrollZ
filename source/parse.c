@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.46 2001-08-29 16:06:07 f Exp $
+ * $Id: parse.c,v 1.47 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -99,6 +99,7 @@ extern int  DecryptMessage _((char *, char *));
 extern int  IsIrcNetOperChannel _((char *));
 extern int  CompareAddr _((List *, char *));
 extern int  AddLast _((List *, List *));
+extern char *TimeStamp _((int));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -752,10 +753,8 @@ p_privmsg(from, Args)
 /**************************** Patched by Flier ******************************/
                         {
 			    /*put_it("%s-%s:%s-%s %s", high, from, to, high, ptr);*/
-                            char stampbuf[mybufsize/64];
+                            char *stampbuf=TimeStamp(2);
 
-                            *stampbuf='\0';
-                            if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
 			    put_it("%s-%s:%s- %s",stampbuf,from,to,ptr);
                         }
 /****************************************************************************/

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.72 2001-08-30 17:46:43 f Exp $
+ * $Id: edit5.c,v 1.73 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -146,6 +146,7 @@ extern void ColorUserHost _((char *, char *, char *, int));
 extern NickList *find_in_hash _((ChannelList *, char *));
 extern int  AddLast _((List *, List *)); /* needed for GrabURL, by Zakath */
 extern int  CheckServer _((int));
+extern char *TimeStamp _((int));
 
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
@@ -221,7 +222,7 @@ char **ArgList;
             malloc_strcpy(&(chan->topicwho),ArgList[1]);
             save_message_from();
             message_from(channel, LOG_CRAP);
-            put_it("%s Set by %s on %.19s",numeric_banner(),chan->topicwho,
+            put_it("%sSet by %s on %.19s",numeric_banner(),chan->topicwho,
                    ctime(&(chan->topicwhen)));
             restore_message_from();
         }
@@ -1152,8 +1153,8 @@ char *channel;
 #ifdef GENX
     if (!my_stricmp(word,"is")) word="address";
     else word="was";
-    put_it("%s ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",banner);
-    sprintf(tmpbuf2, "%s ³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
+    put_it("%sÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",banner);
+    sprintf(tmpbuf2, "%s³ %s%8s%s ³ %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
             CmdsColors[COLWHOIS].color5,word,Colors[COLOFF],
             CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
@@ -1161,10 +1162,10 @@ char *channel;
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
     put_it("%s", tmpbuf2);
-    put_it("%s ³ %sirc name%s ³ %s",banner,
+    put_it("%s³ %sirc name%s ³ %s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF], name);
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s ³   %sfriend%s ³ filt: %s%s%s",banner,
+        sprintf(tmpbuf1,"%s³   %sfriend%s ³ filt: %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF]);
         sprintf(tmpbuf2,"  acs: %s",CmdsColors[COLWHOIS].color4);
@@ -1177,14 +1178,14 @@ char *channel;
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
-    put_it("%s %s%s%s is %s",banner,
+    put_it("%s%s%s%s is %s",banner,
            CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1);
-    put_it("%s %sircname%s:    %s%s%s",banner,
+    put_it("%s%sircname%s:    %s%s%s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,name,Colors[COLOFF]);
     whoisfriend=tmpfriend;
     if (channel && *channel)
-        put_it("%s %schannels%s:   %s%s%s",banner,
+        put_it("%s%schannels%s:   %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color3,channel,Colors[COLOFF]);
 #else /* GENX & CELE */
@@ -1192,13 +1193,13 @@ char *channel;
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
-    put_it("%s %s%-9s%s : %s (%s)%s",banner,
+    put_it("%s%s%-9s%s : %s (%s)%s",banner,
            CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1,name,country);
 #ifdef COUNTRY
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s %sFriend%s    : [Filt] #%d %s%s%s  [Acs] %s",
+        sprintf(tmpbuf1,"%s%sFriend%s    : [Filt] #%d %s%s%s  [Acs] %s",
                 banner,CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                 tmpfriend->number,
                 CmdsColors[COLWHOIS].color4,tmpfriend->userhost,Colors[COLOFF],
@@ -1208,22 +1209,22 @@ char *channel;
                CmdsColors[COLWHOIS].color6,tmpfriend->channels,Colors[COLOFF]);
     }
     if (channel && *channel)
-        put_it("%s %sChannels%s  : %s%s%s",banner,
+        put_it("%s%sChannels%s  : %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                CmdsColors[COLWHOIS].color3,channel,Colors[COLOFF]);
 #endif /* GENX */
 #else  /* WANTANSI */
-    put_it("%s %-9s : %s@%s (%s)%s",banner,nick,user,host,name,country);
+    put_it("%s%-9s : %s@%s (%s)%s",banner,nick,user,host,name,country);
 #ifdef COUNTRY
     new_free(&country);
 #endif /* COUNTRY */
     if (tmpfriend && tmpfriend->privs) {
-        sprintf(tmpbuf1,"%s Friend    : [Filt] #%d %s  [Acs] ",
+        sprintf(tmpbuf1,"%sFriend    : [Filt] #%d %s  [Acs] ",
                 banner,tmpfriend->number,tmpfriend->userhost);
         BuildPrivs(tmpfriend,tmpbuf1);
         put_it("%s  [Chnl] %s",tmpbuf1,tmpfriend->channels);
     }
-    if (channel && *channel) put_it("%s Channels  : %s",banner,channel);
+    if (channel && *channel) put_it("%sChannels  : %s",banner,channel);
 #endif /* WANTANSI */
 }
 
@@ -1234,20 +1235,20 @@ char *channels;
 {
 #ifdef WANTANSI
 #ifdef GENX
-    put_it("%s ³ %schannels%s ³ %s%s%s",banner,
+    put_it("%s³ %schannels%s ³ %s%s%s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
 #elif defined(CELECOSM)
-    put_it("%s %schannels%s:   %s%s%s",banner,
+    put_it("%s%schannels%s:   %s%s%s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
 #else
-    put_it("%s %sChannels%s  : %s%s%s",banner,
+    put_it("%s%sChannels%s  : %s%s%s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,channels,Colors[COLOFF]);
 #endif /* GENX */
 #else  /* WANTANSI */
-    put_it("%s Channels  : %s",banner,channels);
+    put_it("%sChannels  : %s",banner,channels);
 #endif /* WANTANSI */
 }
 
@@ -1271,23 +1272,23 @@ char *line;
         sprintf(tmpbuf,"%c:%c%s%s%s",bold,bold,
                 CmdsColors[COLWHOIS].color4,uplink,Colors[COLOFF]);
     }
-    if (uplink) put_it("%s ³   %sserver%s ³ %s%s%s UpLink%s",banner,
+    if (uplink) put_it("%s³   %sserver%s ³ %s%s%s UpLink%s",banner,
                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                        CmdsColors[COLWHOIS].color3,server,Colors[COLOFF],tmpbuf);
-    else put_it("%s ³   %sserver%s ³ %s%s%s",banner,
+    else put_it("%s³   %sserver%s ³ %s%s%s",banner,
                 CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                 CmdsColors[COLWHOIS].color3,server,Colors[COLOFF]);
 #elif defined(CELECOSM)
-    put_it("%s %sserver%s:     %s%s%s (%s)",banner,
+    put_it("%s%sserver%s:     %s%s%s (%s)",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,server,Colors[COLOFF],line);
 #else
-    put_it("%s %sServer%s    : %s%s%s (%s)",banner,
+    put_it("%s%sServer%s    : %s%s%s (%s)",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,server,Colors[COLOFF],line);
 #endif /* GENX */
 #else  /* WANTANSI */
-    put_it("%s Server    : %s (%s)",banner,server,line);
+    put_it("%sServer    : %s (%s)",banner,server,line);
 #endif /* WANTANSI */
 }
 
@@ -1324,7 +1325,7 @@ int  iscrypted;
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
 #endif
-    char stampbuf[mybufsize/64];
+    char *stampbuf=TimeStamp(1);
 #ifdef WANTANSI
     Window *oldwin;
 #endif
@@ -1343,10 +1344,8 @@ int  iscrypted;
 #endif
 
     chan=lookup_channel(channel,from_server,0);
-    *stampbuf='\0';
     if (chan) {
         chan->pub++;
-        if (Stamp) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
     }
     joiner=CheckJoiners(nick,channel,from_server,chan);
     if (joiner) {
@@ -1900,7 +1899,7 @@ char *rest;
     }
     sprintf(tmpbuf1,format,username,kline);
     if ((StatskFilter && wild_match(StatskFilter,tmpbuf1)) || !StatskFilter)
-        put_it("%s %-30s %s",numeric_banner(),tmpbuf1,comment);
+        put_it("%s%-30s %s",numeric_banner(),tmpbuf1,comment);
     StatskNumber++;
 }
 #endif /* OPER */

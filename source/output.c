@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.13 2001-08-21 19:23:36 f Exp $
+ * $Id: output.c,v 1.14 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -105,6 +105,10 @@ static char *putbuf=(char *) 0;
 # define PUTBUF_END
 
 #endif /* HAVE_VASPRINTF && HAVE_STDARG_H */
+
+/**************************** Patched by Flier ******************************/
+extern char *TimeStamp _((int));
+/****************************************************************************/
 
 /*
  * refresh_screen: Whenever the REFRESH_SCREEN function is activated, this
@@ -247,7 +251,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	va_list vl;
 #endif /* HAVE_STDARG_H */
 /**************************** PATCHED by Flier ******************************/
-        char stampbuf[mybufsize/64];
+        char *stampbuf=TimeStamp(2);
 /****************************************************************************/
 
 	if (window_display)
@@ -256,11 +260,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		PUTBUF_INIT
 
 /**************************** PATCHED by Flier ******************************/
-                if (Stamp==2) {
-                    sprintf(stampbuf,"%s",update_clock(0,0,GET_TIME));
-                    malloc_strcpy(&fmt,stampbuf);
-                    malloc_strcat(&fmt," ");
-                }
+                if (Stamp==2) malloc_strcpy(&fmt,stampbuf);
                 else if (ScrollZstr && *ScrollZstr) {
                     malloc_strcpy(&fmt,ScrollZstr);
                     malloc_strcat(&fmt," ");

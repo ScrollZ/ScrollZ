@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.9 2001-08-22 18:55:59 f Exp $
+ * $Id: whois.c,v 1.10 2001-08-31 15:37:56 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -340,7 +340,10 @@ userhost_returned(from, ArgList)
 		{
 			if (do_hook(current_numeric, "%s %s %s %s %s", nick,
 			    isoper ? "+" : "-", ishere ? "+" : "-", user, host))
-				put_it("%s %s is %s@%s%s%s", numeric_banner(),
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s is %s@%s%s%s", numeric_banner(),*/
+				put_it("%s%s is %s@%s%s%s", numeric_banner(),
+/****************************************************************************/
 					nick, user, host, isoper ?
 					" (Is an IRC operator)" : empty_string,
 					ishere ? empty_string : " (away)");
@@ -595,20 +598,20 @@ whois_oper(from, ArgList)
 						   : " (is an IRC operator)");*/
 #ifdef WANTANSI
 #ifdef GENX
-                                put_it("%s ³    %sircop%s ³ %s %s",numeric_banner(),
+                                put_it("%s³    %sircop%s ³ %s %s",numeric_banner(),
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],nick,
                                        ArgList[1]);
 #elif defined(CELECOSM)
-                                put_it("%s %sircop%s:      %s %s",
+                                put_it("%s%sircop%s:      %s %s",
                                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                                        Colors[COLOFF],nick,ArgList[1]);
 #else
-                                put_it("%s %sIrcOp%s     : %s %s",
+                                put_it("%s%sIrcOp%s     : %s %s",
                                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                                        Colors[COLOFF],nick,ArgList[1]);
 #endif
 #else
-                                put_it("%s IrcOp     : %s %s",
+                                put_it("%sIrcOp     : %s %s",
                                        numeric_banner(),nick,ArgList[1]);
 #endif
 /****************************************************************************/
@@ -634,16 +637,16 @@ char **ArgList;
                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF],nick,ArgList[1]);
 #elif defined(CELECOSM)
-                put_it("%s %sadmin%s:      %s %s",
+                put_it("%s%sadmin%s:      %s %s",
                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF],nick,ArgList[1]);
 #else  /* CELECOSM */
-                put_it("%s %sAdmin%s     : %s %s",
+                put_it("%s%sAdmin%s     : %s %s",
                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                        Colors[COLOFF],nick,ArgList[1]);
 #endif /* GENX */
 #else  /* WANTANSI */
-                put_it("%s Admin     : %s %s",
+                put_it("%sAdmin     : %s %s",
                        numeric_banner(),nick,ArgList[1]);
 #endif /* WANTANSI */
             }
@@ -677,19 +680,19 @@ whois_lastcom(from, ArgList)
                     signontime=atoi(ArgList[2]);
 #ifdef WANTANSI
 #ifdef GENX
-                    sprintf(tmpbuf,"%s signed on: %.16s",
+                    sprintf(tmpbuf,"%ssigned on: %.16s",
                             numeric_banner(),ctime(&signontime));
 #elif defined(CELECOSM)
-                    sprintf(tmpbuf,"%s %ssignon%s:     %.24s",
+                    sprintf(tmpbuf,"%s%ssignon%s:     %.24s",
                             numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                             ctime(&signontime));
 #else  /* CELE */
-                    sprintf(tmpbuf,"%s %sSignOn%s    : %.24s",
+                    sprintf(tmpbuf,"%s%sSignOn%s    : %.24s",
                             numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                             ctime(&signontime));
 #endif /* GENX */
 #else  /* WANTANSI */
-                    sprintf(tmpbuf,"%s SignOn    : %.24s",
+                    sprintf(tmpbuf,"%sSignOn    : %.24s",
                             numeric_banner(),ctime(&signontime));
 #endif /* WANTANSI */
                 }
@@ -724,11 +727,11 @@ whois_lastcom(from, ArgList)
 #ifdef WANTANSI
 #ifdef GENX
                         if (signedon)
-                            put_it("%s ³     %sidle%s ³ %dd %dh %dm %ds (%s)",
+                            put_it("%s³     %sidle%s ³ %dd %dh %dm %ds (%s)",
                                    numeric_banner(),
                                    CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                    days,hours,mins,secs,tmpbuf);
-                        else put_it("%s ³     %sidle%s ³ %dd %dh %dm %ds",
+                        else put_it("%s³     %sidle%s ³ %dd %dh %dm %ds",
                                     numeric_banner(),
                                     CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                     days,hours,mins,secs);
@@ -737,7 +740,7 @@ whois_lastcom(from, ArgList)
                             put_it("%s    %sidle%s: %dd %dh %dm %ds",
                                    tmpbuf,CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                    days,hours,mins,secs);
-                        else put_it("%s %sdead%s:       %dd %dh %dm %ds",
+                        else put_it("%s%sdead%s:       %dd %dh %dm %ds",
                                     numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                     days,hours,mins,secs);
 #else  /* CELECOSM */
@@ -745,14 +748,14 @@ whois_lastcom(from, ArgList)
                             put_it("%s    %sIdle%s : %dd %dh %dm %ds",
                                    tmpbuf,CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                    days,hours,mins,secs);
-                        else put_it("%s %sIdle%s      : %dd %dh %dm %ds",
+                        else put_it("%s%sIdle%s      : %dd %dh %dm %ds",
                                     numeric_banner(),CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                     days,hours,mins,secs);
 #endif /* GENX */
 #else  /* WANTANSI */
                         if (signedon) put_it("%s    Idle : %dd %dh %dm %ds",
                                              tmpbuf,days,hours,mins,secs);
-                        else put_it("%s Idle      : %dd %dh %dm %ds",
+                        else put_it("%sIdle      : %dd %dh %dm %ds",
                                     numeric_banner(),days,hours,mins,secs);
 #endif /* WANTANSI */
 /****************************************************************************/
@@ -784,7 +787,10 @@ whois_chop(from, ArgList)
 		{
 			if (do_hook(current_numeric, "%s %s %s",from, nick,
 					ArgList[1]))
-				put_it("%s %s (is a channel operator)",
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s (is a channel operator)",*/
+				put_it("%s%s (is a channel operator)",
+/****************************************************************************/
 					numeric_banner(), nick, ArgList[1]);
 		}
 	}
@@ -933,7 +939,10 @@ no_such_nickname(from,ArgList,dontshow)
         else {
 /****************************************************************************/
 	    if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1]))
-		put_it("%s %s: %s", numeric_banner(), nick, ArgList[1]);
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s %s: %s", numeric_banner(), nick, ArgList[1]);*/
+		put_it("%s%s: %s", numeric_banner(), nick, ArgList[1]);
+/****************************************************************************/
 	    if ((get_server_version(parsing_server_index) > Server2_5) &&
 	        get_int_var(AUTO_WHOWAS_VAR))
 		    send_to_server("WHOWAS %s", nick);
@@ -987,22 +996,22 @@ if (!from)
 					who, message);*/
 #ifdef WANTANSI
 #ifdef GENX
-                                put_it("%s ³     %saway%s ³ (%s) %s",numeric_banner(),
+                                put_it("%s³     %saway%s ³ (%s) %s",numeric_banner(),
                                         CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                         who,message);
 #elif defined(CELECOSM)
-                                put_it("%s %saway%s:       (%s) %s",
+                                put_it("%s%saway%s:       (%s) %s",
                                        numeric_banner(),
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                        who,message);
 #else  /* CELECOSM */
-                                put_it("%s %sSetAway%s   : (%s) %s",
+                                put_it("%s%sSetAway%s   : (%s) %s",
                                        numeric_banner(),
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
                                        who,message);
 #endif /* GENX */
 #else  /* WANTANSI */
-                                put_it("%s SetAway   : (%s) %s",
+                                put_it("%sSetAway   : (%s) %s",
                                        numeric_banner(),who,message);
 #endif /* WANTANSI */
 /***************************************************************************/		

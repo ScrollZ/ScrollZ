@@ -60,10 +60,11 @@
  RedrawAll           Force redraw of status bars and input prompt
  CompareAddr         Compare two List pointers (for list.c)
  TopicLocked         Topic locking
+ TimeStamp           Returns time stamp in static buffer
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.90 2001-08-30 17:46:43 f Exp $
+ * $Id: edit6.c,v 1.91 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -1508,12 +1509,12 @@ char *arg3;
 char *arg4;
 {
     if ((TraceOper || TraceAll) && trnum==204)
-        put_it("%s Oper: %c%s%c (%s)",numeric_banner(),bold,arg1,bold,sclass);
+        put_it("%sOper: %c%s%c (%s)",numeric_banner(),bold,arg1,bold,sclass);
     else if ((TraceUser || TraceAll) && trnum==205)
-        put_it("%s User: %c%s%c (%s)",numeric_banner(),bold,arg1,bold,sclass);
+        put_it("%sUser: %c%s%c (%s)",numeric_banner(),bold,arg1,bold,sclass);
     else if ((TraceServer || TraceAll) && trnum==206)
-        put_it("%s Serv: %c%s%c - by %s (%s)",numeric_banner(),bold,arg3,bold,arg4,sclass);
-    else if (TraceAll) put_it("%s %c%s%c %s %s",numeric_banner(),bold,type,bold,sclass,arg1);
+        put_it("%sServ: %c%s%c - by %s (%s)",numeric_banner(),bold,arg3,bold,arg4,sclass);
+    else if (TraceAll) put_it("%s%c%s%c %s %s",numeric_banner(),bold,type,bold,sclass,arg1);
 }
 
 /* Sends TRACE command, allows for switches - by Zakath */
@@ -1687,20 +1688,20 @@ char **ArgList;
         message_from(channel,LOG_CRAP);
         if (createtime) {
 #ifdef WANTANSI
-            put_it("%s Channel %s%s%s created on %s%.24s%s",numeric_banner(),
+            put_it("%sChannel %s%s%s created on %s%.24s%s",numeric_banner(),
                     CmdsColors[COLJOIN].color3,channel,Colors[COLOFF],
                     CmdsColors[COLJOIN].color4,ctime(&createtime),Colors[COLOFF]);
 #else
-            put_it("%s Channel %s created on %.24s",numeric_banner(),channel,
+            put_it("%sChannel %s created on %.24s",numeric_banner(),channel,
                     ctime(&createtime));
 #endif
         }
         else {
 #ifdef WANTANSI
-            put_it("%s Time stamping is off for channel %s%s%s",numeric_banner(),
+            put_it("%sTime stamping is off for channel %s%s%s",numeric_banner(),
                     CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
 #else
-            put_it("%s Time stamping is off for channel %s",numeric_banner(),channel);
+            put_it("%sTime stamping is off for channel %s",numeric_banner(),channel);
 #endif
         }
         restore_message_from();
@@ -1756,7 +1757,7 @@ char **ArgList;
         say("No such server to ping: %s",server);
 #endif
     }
-    else if (server && ArgList[1]) put_it("%s %s %s",numeric_banner(),server,ArgList[1]);
+    else if (server && ArgList[1]) put_it("%s%s %s",numeric_banner(),server,ArgList[1]);
 }
 
 /* Returns server from netsplit info */
@@ -2830,3 +2831,14 @@ ChannelList *tmpchan;
     }
 }
 #endif
+
+/* Return time stamp in static buffer */
+char *TimeStamp(when)
+int when;
+{
+    static char stampbuf[mybufsize/64];
+
+    *stampbuf='\0';
+    if (Stamp>=when) sprintf(stampbuf,"%s|",update_clock(0,0,GET_TIME));
+    return(stampbuf);
+}

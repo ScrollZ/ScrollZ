@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.44 2001-08-30 17:46:43 f Exp $
+ * $Id: numbers.c,v 1.45 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -86,6 +86,7 @@ extern void CdccTimeWarning _((void));
 #ifdef ACID
 extern void TryChannelJoin _((void));
 #endif
+extern char *TimeStamp _((int));
 #ifdef OPER
 extern void DoFilterTrace _((char *));
 extern void HandleStatsK _((char *, char *));
@@ -136,13 +137,16 @@ numeric_banner()
 /****************************************************************************/
 
 	if (get_int_var(SHOW_NUMERICS_VAR))
-		sprintf(thing, "%3.3u", -current_numeric);
+/**************************** Patched by Flier ******************************/
+		/*sprintf(thing, "%3.3u", -current_numeric);*/
+		sprintf(thing, "%3.3u ",-current_numeric);
+/****************************************************************************/
 	else
 /************************* PATCHED by Flier ***************************/
 		/*strcpy(thing, "***");*/
         {
-            if (Stamp==2) sprintf(thing,"%s",update_clock(0,0,GET_TIME));
-            else if (ScrollZstr && *ScrollZstr) strcpy(thing,ScrollZstr);
+            if (Stamp==2) strcpy(thing,TimeStamp(2));
+            else if (ScrollZstr && *ScrollZstr) sprintf(thing,"%s ",ScrollZstr);
             else *thing='\0';
         }
 /**********************************************************************/
@@ -173,19 +177,31 @@ display_msg(from, ArgList)
 		if (strlen(rest))
 		{
 			if (from)
-				put_it("%s %s: %s (from %s)", numeric_banner(),
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s: %s (from %s)", numeric_banner(),*/
+				put_it("%s%s: %s (from %s)", numeric_banner(),
+/****************************************************************************/
 					rest, ptr, from);
 			else
-				put_it("%s %s: %s", numeric_banner(), rest,
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s: %s", numeric_banner(), rest,*/
+				put_it("%s%s: %s", numeric_banner(), rest,
+/****************************************************************************/
 					ptr);
 		}
 		else
 		{
 			if (from)
-				put_it("%s %s (from %s)", numeric_banner(),
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s (from %s)", numeric_banner(),*/
+				put_it("%s%s (from %s)", numeric_banner(),
+/****************************************************************************/
 					ptr, from);
 			else
-				put_it("%s %s", numeric_banner(), ptr);
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s", numeric_banner(), ptr);*/
+				put_it("%s%s", numeric_banner(), ptr);
+/****************************************************************************/
 		}
 	}
 	else
@@ -194,9 +210,15 @@ display_msg(from, ArgList)
                 if (!strncmp(rest,"***",3)) rest+=4;
 /****************************************************************************/
 		if (from)
-			put_it("%s %s (from %s)", numeric_banner(), rest, from);
+/**************************** Patched by Flier ******************************/
+			/*put_it("%s %s (from %s)", numeric_banner(), rest, from);*/
+			put_it("%s%s (from %s)", numeric_banner(), rest, from);
+/****************************************************************************/
 		else
-			put_it("%s %s", numeric_banner(), rest);
+/**************************** Patched by Flier ******************************/
+			/*put_it("%s %s", numeric_banner(), rest);*/
+			put_it("%s%s", numeric_banner(), rest);
+/****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
         if (wild_match("*nick*coll*",rest)) HandleNickCollision();
@@ -247,7 +269,7 @@ char **ArgList;
 	if (sscanf(rest,"There are %d users and %d invisible on %d servers",
                    &usernum,&invnum,&servernum)==3) {
             totalnum=usernum+invnum;
-	    sprintf(tmpbuf,"%s There are %s%d%s users (%d + %d invisible) on %s%d%s servers",
+	    sprintf(tmpbuf,"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -258,7 +280,7 @@ char **ArgList;
         else if (sscanf(rest,"There are %d users plus %d invisible on %d servers",
                         &usernum,&invnum,&servernum)==3) {
             totalnum=usernum+invnum;
-            sprintf(tmpbuf,"%s There are %s%d%s users (%d + %d invisible) on %s%d%s servers",
+            sprintf(tmpbuf,"%sThere are %s%d%s users (%d + %d invisible) on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -269,7 +291,7 @@ char **ArgList;
 	else if (sscanf(rest,"There are %d users and %d services on %d servers",
                         &usernum,&servicenum,&servernum)==3) {
             totalnum=usernum;
-	    sprintf(tmpbuf,"%s There are %s%d%s users and %s%d%s services on %s%d%s servers",
+	    sprintf(tmpbuf,"%sThere are %s%d%s users and %s%d%s services on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,usernum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
@@ -281,7 +303,7 @@ char **ArgList;
                         &totalnum,&servernum)==2) {
 	    usernum=totalnum;
 	    invnum=0;
-            sprintf(tmpbuf,"%s There are %s%d%s users on %s%d%s servers",
+            sprintf(tmpbuf,"%sThere are %s%d%s users on %s%d%s servers",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
@@ -291,14 +313,14 @@ char **ArgList;
     }
     else if (comm==252) {
         if (sscanf(rest,"%d IRC Operators online",&opernum)==1) {
-            sprintf(tmpbuf,"%s There are %s%d%s IRC Operator(s) online",
+            sprintf(tmpbuf,"%sThere are %s%d%s IRC Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
-            sprintf(tmpbuf,"%s There are %s%d%s Operator(s) online",
+            sprintf(tmpbuf,"%sThere are %s%d%s Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
@@ -308,7 +330,7 @@ char **ArgList;
     else if (comm==254) {
 	if (sscanf(rest,"%d channels formed",&channelnum)==1)
 	{
-            sprintf(tmpbuf,"%s Currently, %s%d%s channels have been formed",
+            sprintf(tmpbuf,"%sCurrently, %s%d%s channels have been formed",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,channelnum,Colors[COLOFF]);
             if (from) strcat(tmpbuf,tmpbuf2);
@@ -320,7 +342,7 @@ char **ArgList;
                    &clientnum,&connectnum)==2) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) and %s%d%s users (apx. %c%.1f%%%c of total users)",
+            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) and %s%d%s users (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -333,7 +355,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
+            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -347,7 +369,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
+            sprintf(tmpbuf,"%sConnected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
@@ -363,7 +385,7 @@ char **ArgList;
 	if (sscanf(rest,"There are %d users and %d invisible on %d servers",
                    &usernum,&invnum,&servernum)==3) {
 	    totalnum=usernum+invnum;
-            sprintf(tmpbuf,"%s There are %d users (%d + %d invisible) on %d servers",
+            sprintf(tmpbuf,"%sThere are %d users (%d + %d invisible) on %d servers",
                     numeric_banner(),totalnum,usernum,invnum,servernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -372,7 +394,7 @@ char **ArgList;
 	else if (sscanf(rest,"There are %d users and %d services on %d servers",
                         &usernum,&servicenum,&servernum)==3) {
             totalnum=usernum;
-	    sprintf(tmpbuf,"%s There are %d users and %d services on %d servers",
+	    sprintf(tmpbuf,"%sThere are %d users and %d services on %d servers",
                     numeric_banner(),usernum,servicenum,servernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -380,7 +402,7 @@ char **ArgList;
         else if (sscanf(rest,"There are %d users on %d servers",&totalnum,&servernum)==2) {
 	    usernum=totalnum;
 	    invnum=0;
-            sprintf(tmpbuf,"%s There are %c%d%c users on %c%d%c servers",
+            sprintf(tmpbuf,"%sThere are %c%d%c users on %c%d%c servers",
                    numeric_banner(),bold,totalnum,bold,bold,servernum,bold);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -388,20 +410,20 @@ char **ArgList;
     }
     else if (comm==252) {
         if (sscanf(rest,"%d IRC Operators online",&opernum)==1) {
-            sprintf(tmpbuf,"%s There are %d IRC Operator(s) online",numeric_banner(),
+            sprintf(tmpbuf,"%sThere are %d IRC Operator(s) online",numeric_banner(),
                     opernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
-            sprintf(tmpbuf,"%s There are %d Operator(s) online",numeric_banner(),opernum);
+            sprintf(tmpbuf,"%sThere are %d Operator(s) online",numeric_banner(),opernum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
     }
     else if (comm==254) {
         if (sscanf(rest,"%d channels formed",&channelnum)==1) {
-            sprintf(tmpbuf,"%s Currently, %d channels have been formed",
+            sprintf(tmpbuf,"%sCurrently, %d channels have been formed",
                    numeric_banner(),channelnum);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -411,7 +433,7 @@ char **ArgList;
         if (sscanf(rest,"I have %d clients and %d servers",&clientnum,&connectnum)==2) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %d server(s) and %d users (apx. %.1f%% of total users)",
+            sprintf(tmpbuf,"%sConnected are: %d server(s) and %d users (apx. %.1f%% of total users)",
                    numeric_banner(),connectnum,clientnum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -421,7 +443,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
+            sprintf(tmpbuf,"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -431,7 +453,7 @@ char **ArgList;
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
-            sprintf(tmpbuf,"%s Connected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
+            sprintf(tmpbuf,"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
@@ -442,14 +464,14 @@ char **ArgList;
 *    else if (comm=265) {
 *	if (!sscanf(rest,"Current local  users:  %d  Max: %d",&clientnum,&maxlnum)==2) 
 *		put_it("%s %s",numeric_banner(),rest);
-*	else put_it("%s %s",numeric_banner(),rest);
+*	else put_it("%s%s",numeric_banner(),rest);
 *    }
 *    else if (comm=266) {
 *	if (sscanf(rest,"Current global users:  %d  Max: %d",&totalnum,&maxgnum)==2) 
 *        put_it("%s Maximum users:  %d local and %d global",numeric_banner(),
 *		maxlnum,maxgnum);
 *	else
-*		put_it("%s %s",numeric_banner(),rest);
+*		put_it("%s%s",numeric_banner(),rest);
 *    }
 */
 }
@@ -579,14 +601,20 @@ channel_topic(from, ArgList)
 		topic = ArgList[1];
 		channel = ArgList[0];
 		message_from(channel, LOG_CRAP);
-		put_it("%s Topic for %s: %s", numeric_banner(), channel,
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s Topic for %s: %s", numeric_banner(), channel,*/
+		put_it("%sTopic for %s: %s", numeric_banner(), channel,
+/****************************************************************************/
 			topic);
 	}
 	else
 	{
 		message_from((char *) 0, LOG_CURRENT);	/* XXX should remove this */
 		PasteArgs(ArgList, 0);
-		put_it("%s Topic: %s", numeric_banner(), ArgList[0]);
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s Topic: %s", numeric_banner(), ArgList[0]);*/
+		put_it("%sTopic: %s", numeric_banner(), ArgList[0]);
+/****************************************************************************/
 	}
  	restore_message_from();
 }
@@ -651,7 +679,10 @@ not_valid_channel(from, ArgList)
 	if (0 == my_strnicmp(s, from, strlen(s)))
 	{
 		remove_channel(channel, parsing_server_index);
-		put_it("%s %s %s", numeric_banner(), channel, ArgList[1]);
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s %s %s", numeric_banner(), channel, ArgList[1]);*/
+		put_it("%s%s %s", numeric_banner(), channel, ArgList[1]);
+/****************************************************************************/
 	}
 }
 
@@ -691,7 +722,7 @@ cannot_join_channel(from, ArgList)
             (get_server_version(from_server)==Server2_10))) {
             PasteArgs(ArgList,0);
             if (do_hook(current_numeric, "%s %s",from,*ArgList))
-                put_it("%s %s",numeric_banner(),ArgList[0]);
+                put_it("%s%s",numeric_banner(),ArgList[0]);
             return;
         }
 /****************************************************************************/
@@ -768,7 +799,10 @@ cannot_join_channel(from, ArgList)
                         break;
 /****************************************************************************/
 		}
-        	put_it("%s %s", numeric_banner(), buffer);
+/**************************** Patched by Flier ******************************/
+        	/*put_it("%s %s", numeric_banner(), buffer);*/
+        	put_it("%s%s", numeric_banner(), buffer);
+/****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
@@ -795,13 +829,19 @@ version(from, ArgList)
 	if (ArgList[2])
 	{
 		PasteArgs(ArgList, 2);
-		put_it("%s Server %s: %s %s", numeric_banner(), ArgList[1],
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s Server %s: %s %s", numeric_banner(), ArgList[1],*/
+		put_it("%sServer %s: %s %s", numeric_banner(), ArgList[1],
+/****************************************************************************/
 			ArgList[0], ArgList[2]);
 	}
 	else
 	{
 		PasteArgs(ArgList, 1);
-		put_it("%s Server %s: %s", numeric_banner(), ArgList[1],
+/**************************** Patched by Flier ******************************/
+		/*put_it("%s Server %s: %s", numeric_banner(), ArgList[1],*/
+		put_it("%sServer %s: %s", numeric_banner(), ArgList[1],
+/****************************************************************************/
 			ArgList[0]);
 	}
 }
@@ -896,7 +936,10 @@ invite(from, ArgList)
  		save_message_from();
 		message_from(channel, LOG_CRAP);
 		if (do_hook(current_numeric, "%s %s %s", from, who, channel))
-			put_it("%s Inviting %s to channel %s",
+/**************************** Patched by Flier ******************************/
+			/*put_it("%s Inviting %s to channel %s",*/
+			put_it("%sInviting %s to channel %s",
+/****************************************************************************/
 					numeric_banner(), who, channel);
  		restore_message_from();
 	}
@@ -1359,7 +1402,10 @@ numbered_command(from, comm, ArgList)
 		switch (comm)
 		{
 		case 221: 		/* #define RPL_UMODEIS          221 */
-			put_it("%s Your user mode is \"%s\"", numeric_banner(),
+/**************************** Patched by Flier ******************************/
+			/*put_it("%s Your user mode is \"%s\"", numeric_banner(),*/
+			put_it("%sYour user mode is \"%s\"", numeric_banner(),
+/****************************************************************************/
 				ArgList[0]);
 			break;
 
@@ -1369,10 +1415,16 @@ numbered_command(from, comm, ArgList)
 			    from, strlen(get_server_itsname(parsing_server_index))))
 				from = NULL;
 			if (from)
-				put_it("%s %s from (%s)", numeric_banner(),
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s from (%s)", numeric_banner(),*/
+				put_it("%s%s from (%s)", numeric_banner(),
+/****************************************************************************/
 					*ArgList, from);
 			else
-				put_it("%s %s", numeric_banner(), *ArgList);
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s", numeric_banner(), *ArgList);*/
+				put_it("%s%s", numeric_banner(), *ArgList);
+/****************************************************************************/
 			break;
 
 		case 332:		/* #define RPL_TOPIC            332 */
@@ -1423,7 +1475,7 @@ numbered_command(from, comm, ArgList)
 			{
 /**************************** PATCHED by Flier ******************************/
 				/*PasteArgs(ArgList, 2);
-				put_it("%s %-20s %-20s %s", numeric_banner(),
+				put_it("%s%-20s %-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1], ArgList[2]);*/
                                 if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],ArgList[2]);
 #ifndef LITE
@@ -1435,7 +1487,7 @@ numbered_command(from, comm, ArgList)
                                     HandleLinks(tmpbuf);
                                 }
 #endif
-                                else put_it("%s %-20s %-20s %s", numeric_banner(),
+                                else put_it("%s%-20s %-20s %s", numeric_banner(),
                                             ArgList[0], ArgList[1], ArgList[2]);
 /****************************************************************************/
 			}
@@ -1443,7 +1495,7 @@ numbered_command(from, comm, ArgList)
 			{
 /**************************** PATCHED by Flier ******************************/
 				/*PasteArgs(ArgList, 1);
-				put_it("%s %-20s %s", numeric_banner(),
+				put_it("%s%-20s %s", numeric_banner(),
 					ArgList[0], ArgList[1]);*/
                                 if (inSZLinks==3) PrintLinks(ArgList[0],ArgList[1],"");
 #ifndef LITE
@@ -1455,7 +1507,7 @@ numbered_command(from, comm, ArgList)
                                     HandleLinks(tmpbuf);
                                 }
 #endif
-                                else put_it("%s %-20s %s", numeric_banner(),
+                                else put_it("%s%-20s %s", numeric_banner(),
                                             ArgList[0], ArgList[1]);
 /****************************************************************************/
 			}
@@ -1468,7 +1520,10 @@ numbered_command(from, comm, ArgList)
 			    !get_server_motd(parsing_server_index))
 			{
 				PasteArgs(ArgList, 0);
-				put_it("%s %s", numeric_banner(), ArgList[0]);
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s", numeric_banner(), ArgList[0]);*/
+				put_it("%s%s", numeric_banner(), ArgList[0]);
+/****************************************************************************/
 			}
 			break;
 
@@ -1477,7 +1532,10 @@ numbered_command(from, comm, ArgList)
 			    !get_server_motd(parsing_server_index))
 			{
 				PasteArgs(ArgList, 0);
-				put_it("%s %s", numeric_banner(), ArgList[0]);
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s", numeric_banner(), ArgList[0]);*/
+				put_it("%s%s", numeric_banner(), ArgList[0]);
+/****************************************************************************/
 			}
 			break;
 
@@ -1489,7 +1547,10 @@ numbered_command(from, comm, ArgList)
 			    !get_server_motd(parsing_server_index)))
 			{
 				PasteArgs(ArgList, 0);
-				put_it("%s %s", numeric_banner(), ArgList[0]);
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s %s", numeric_banner(), ArgList[0]);*/
+				put_it("%s%s", numeric_banner(), ArgList[0]);
+/****************************************************************************/
 			}
 			set_server_motd(parsing_server_index, 0);
 /**************************** PATCHED by Flier ******************************/
@@ -1503,7 +1564,10 @@ numbered_command(from, comm, ArgList)
 
 		case 384:		/* #define RPL_MYPORTIS         384 */
 			PasteArgs(ArgList, 0);
-			put_it("%s %s %s", numeric_banner(), ArgList[0], user);
+/**************************** Patched by Flier ******************************/
+			/*put_it("%s %s %s", numeric_banner(), ArgList[0], user);*/
+			put_it("%s%s %s", numeric_banner(), ArgList[0], user);
+/****************************************************************************/
 			break;
 
 		case 385:		/* #define RPL_NOTOPERANYMORE   385 */

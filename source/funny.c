@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.12 2001-08-25 18:25:15 f Exp $
+ * $Id: funny.c,v 1.13 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -418,13 +418,19 @@ funny_mode(from, ArgList)
 		{
 			if (do_hook(current_numeric, "%s %s %s", from,
 					channel, mode))
-				put_it("%s Mode for channel %s is \"%s\"",
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s Mode for channel %s is \"%s\"",*/
+				put_it("%sMode for channel %s is \"%s\"",
+/****************************************************************************/
 					numeric_banner(), channel, mode);
 		}
 		else
 		{
 			if (do_hook(current_numeric, "%s %s", from, mode))
-				put_it("%s Channel mode is \"%s\"",
+/**************************** Patched by Flier ******************************/
+				/*put_it("%s Channel mode is \"%s\"",*/
+				put_it("%sChannel mode is \"%s\"",
+/****************************************************************************/
 					numeric_banner(), mode);
 		}
  		restore_message_from();

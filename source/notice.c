@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.22 2001-08-21 19:23:36 f Exp $
+ * $Id: notice.c,v 1.23 2001-08-31 15:37:55 f Exp $
  */
 
 #include "irc.h"
@@ -62,6 +62,7 @@ extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OVformat _((char *, char *));
 #endif
+extern char *TimeStamp _((int));
 /*********************************************************************/
 
 #ifndef LITE
@@ -253,11 +254,9 @@ parse_notice(from, Args)
 		not_from_server = 1;
 	char	*line;
 /**************************** Patched by Flier ******************************/
-        char stampbuf[mybufsize/64];
-
-        *stampbuf='\0';
-        if (Stamp==2) sprintf(stampbuf,"%s ",update_clock(0,0,GET_TIME));
+        char    *stampbuf=TimeStamp(2);
 /****************************************************************************/
+
 	PasteArgs(Args, 1);
 	to = Args[0];
 	line = Args[1];
