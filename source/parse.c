@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.19 1999-09-26 16:26:59 f Exp $
+ * $Id: parse.c,v 1.20 1999-10-31 10:28:48 f Exp $
  */
 
 #include "irc.h"
@@ -1542,11 +1542,8 @@ kick(from, ArgList)
                         chan=lookup_channel(channel,parsing_server_index,0);
                         if (chan) {
                             if (chan->AutoRejoin) {
-                                sprintf(tmpbuf,"%s",chan->channel);
-                                if (chan->key) {
-                                    strcat(tmpbuf," :");
-                                    strcat(tmpbuf,chan->key);
-                                }
+                                sprintf(tmpbuf,"%s ",chan->channel);
+                                if (chan->key) strcat(tmpbuf,chan->key);
                                 rejoin=1;
                             }
                             chan->kick++;
