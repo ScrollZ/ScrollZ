@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.2 1998-09-10 17:45:23 f Exp $
+ * $Id: irc.c,v 1.3 1998-10-21 18:18:50 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -277,8 +277,6 @@ char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
 char  *ScrollZlame="ircII 4.4A+ScrollZ v1.8i2 (12.09.98)+Cdcc v1.7";
 char  *ScrollZlame1=(char *) 0;
-char  *LastMessage=(char *) 0;
-char  *LastNotice=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
 #endif
@@ -315,8 +313,6 @@ char  *StatsFilter=(char *) 0;
 char  *LastJoin=(char *) 0;
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
-char  *LastMessageSent=(char *) 0;
-char  *LastNoticeSent=(char *) 0;
 /****** Coded by Zakath ******/
 #ifdef CELE
 char  *CelerityVersion="Celerity Script 1.0";
