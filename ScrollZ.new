@@ -8,13 +8,14 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ v1.8l
+ScrollZ v1.8l, 3.7.2001
 
     ! TOPIC ircII bug (reported by Tero)
     ! MOP/MDOP/MASSV/MASSDV bug in huge channels (reported by ogre)
     ! ORIGNICK saving to ScrollZ.save (reported by Tero)
     ~ new logo by juice
-    + parsing of @#te so it is recognized as channel wallop (requested by fox)
+    + parsing of @#channel so it is recognised as channel wallop
+      (requested by fox)
     + time stamping to notice display (thanks to fox for reminding me)
     ! crash when kicked from a channel during TBAN (reported by ogre)
     ~ MODELOCK w/o args now shows stored mode locks for all channels
@@ -42,14 +43,24 @@ ScrollZ v1.8l
     ~ ^T is back to TRANSPOSE_CHARACTERS
     ! DIRLSM now sends encrypted message to a user if encrypted communication
       with that user is established (reported by Tero)
-    ! use current channel for SHOW_SERVER if none specified
+    ! use current channel for WHO SHOW_SERVER if none specified
     ~ FKLINE now accepts optional -TEMP argument, read shelp for more info
       (requested by ogre)
-    + SET AWAY_FILE to specify away file (requsted by Ahnberg)
+    + SET AWAY_FILE to specify away file (requested by Ahnberg)
+    + user's publics can now be ignored for specific channel only (example:
+      IGNORE nick!#channel PUBLIC, requested by blazini)
+    + SHOWSIGN to show signoff in all channels user was in (requested by
+      Ahnberg and fox)
+    + quarantined nicks, full I: line and X: line warning parsing to OV
+      (requested by ogre)
+    ! crash in input line history search (ircII bug)
+    + TIME option to LASTLOG (example: LASTLOG -TIME 19:00-20:00 would only
+      print lastlog entries between 19:00 and 20:00), it works only with
+      STAMP enabled, lines without time stamp are exempt from matching
 
 ------------------------------------------------------------------------------
 
-ScrollZ v1.8k
+ScrollZ v1.8k, 22.1.2001
 
     + multiple channels can now be bound to one window (requested by Ahnberg)
     + WINDOW BIND #chan1,#chan2,... is now possible (requested by Ahnberg)
