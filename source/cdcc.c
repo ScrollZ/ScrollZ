@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.5 1998-10-10 20:20:37 f Exp $
+ * $Id: cdcc.c,v 1.6 1998-10-11 14:19:27 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1857,12 +1857,12 @@ int  error;
     int  i=0;
     int  size=0;
     int  count=0;
-    char *string=(char *) 0;
-    char *file=(char *) 0;
-    char *fullname=(char *) 0;
-    char *rest=(char *) 0;
-    char  tmpbuf1[mybufsize/2];
-    char  tmpbuf2[mybufsize/8];
+    char *file;
+    char *rest;
+    char *string;
+    char *fullname;
+    char  tmpbuf1[mybufsize/2+1];
+    char  tmpbuf2[mybufsize/4+1];
     struct stat tmpstat;
 
     file=line;
@@ -1884,16 +1884,9 @@ int  error;
         strcat(tmpbuf1,"/");
         strcat(tmpbuf1,file);
     }
-    tmpstat.st_mode=0;
-    stat_file(tmpbuf1,&tmpstat);
-    if (tmpstat.st_mode & S_IFDIR) {
-        if (error) say("You tried to send a dir, please do a /* to send a whole dir");
-        return(0);
-    }
     rest=rindex(tmpbuf1,'/');
     if (rest==tmpbuf1) rest++;
-    *rest='\0';
-    rest++;
+    if (rest) *rest++='\0';
     if (access(tmpbuf1, R_OK)!=0) {
         if (error) say("Can't access %s",tmpbuf1);
         return(0);
@@ -1906,11 +1899,25 @@ int  error;
         string=string-2;
         if (string[0]=='.') continue;
 #endif
-        if (wild_match(rest,string))
+        if (wild_match(rest,string)) {
+            char tmpbuf3[mybufsize/2+1];
+
+            strmcpy(tmpbuf3,tmpbuf1,mybufsize/2);
+            strmcat(tmpbuf3,"/",mybufsize/2);
+            strmcat(tmpbuf3,tmpbuf2,mybufsize/2);
+            tmpstat.st_mode=0;
+            size=stat_file(tmpbuf3,&tmpstat);
+            if (tmpstat.st_mode & S_IFDIR) {
+                if (error)
+                    say("You tried to send a dir %s, please do a %s/* to send a whole dir",
+                        tmpbuf2,tmpbuf2);
+                continue;
+            }
             if ((size=GetSize(tmpbuf1,string))!=-1) {
                 AddFileToList(tmpbuf1,string,size);
                 count++;
             }
+        }
     }
     return(count);
 }
