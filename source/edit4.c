@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.78 2001-12-11 18:14:29 f Exp $
+ * $Id: edit4.c,v 1.79 2001-12-17 20:39:37 f Exp $
  */
 
 #include "irc.h"
@@ -91,6 +91,11 @@
 #include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
+#include "defs.h"
+
+#ifdef HAVE_DIRENT_H
+#include <dirent.h>	/* else? we need to figure this out.. */
+#endif
 
 void   ListBansPage _((char *));
 void   ListBansPrompt _((char *, char *));
@@ -174,6 +179,8 @@ static int listcount;
 extern NotifyList *notify_list;
 
 extern NickList *tabnickcompl;
+
+extern DCC_list *ClientList;
 
 /* Prints received message */
 void PrintMessage(nick,userhost,msg,print,iscrypted)
@@ -790,11 +797,10 @@ void HandleTabNext(u_int key, char *ptr)
 {
     int i;
     int length;
-    static int channel_count;
-    static int our_count;       /* how many we've checked */
+    int spaces;
     char *p;
     char *cur_pos, *min_pos;
-    static char completing[mybufsize / 8 + 1];
+    static char completing[mybufsize / 2 + 1];
     static char *last_completion;
     static void *next_p;        /* where to start */
     static NickList *nick_p;
@@ -802,8 +808,7 @@ void HandleTabNext(u_int key, char *ptr)
 
     cur_pos = &current_screen->input_buffer[current_screen->buffer_pos];
     min_pos = &current_screen->input_buffer[current_screen->buffer_min_pos];
-    p = min_pos;    /* beginning of line */
-    if (!*p || (!my_strnicmp(p, "/msg ", 5) && key != 20)) {
+    if (!*min_pos || (!my_strnicmp(min_pos, "/msg ", 5) && key != 20)) {
         if (CheckServer(from_server)) {
             if (!server_list[from_server].nickcur)
                 server_list[from_server].nickcur = server_list[from_server].nicklist;
@@ -813,12 +818,11 @@ void HandleTabNext(u_int key, char *ptr)
         return;
     }
     p = cur_pos - 1;    /* at string to complete */
-    length = 0;
+    length = spaces = 0;
     while (!isspace(*p) && p >= min_pos) {   
         p--;            /* walk left until white-space or beginning of line */
         length++;
     }
-    if (!length) return;
     p++;                /* back to beginning */
     if (length > sizeof completing) length = sizeof completing;
     if (!last_completion || my_stricmp(last_completion, p)) {
@@ -826,11 +830,103 @@ void HandleTabNext(u_int key, char *ptr)
         last_completion = 0;
         next_p = 0;
     }
+    p--;
+    while (p >= min_pos) {
+        if (*p-- == ' ') spaces++;
+    }
+    if (!my_strnicmp(min_pos, "/dcc get ", 9) && spaces == 3) {
+        char buffer[mybufsize / 8 + 1];
+        DCC_list *dcc_p;
+
+get_begin:
+        strmcpy(buffer, min_pos, sizeof buffer);
+        if (next_p) dcc_p = next_p;
+        else dcc_p = ClientList;
+        p = strtok(buffer + 9, " ");
+        while (dcc_p) {
+            if (!my_stricmp(p, dcc_p->user) && (dcc_p->flags & DCC_TYPES) == DCC_FILEREAD && !my_strnicmp(dcc_p->description, completing, strlen(completing)))
+                break;
+            dcc_p = dcc_p->next;
+        }
+        if (!dcc_p) {
+            if (last_completion) {
+                last_completion = 0;
+                next_p = 0;
+                goto get_begin;
+            }
+            else return;
+        }
+        for (i = 0; i < length; i++) input_backspace(' ', NULL);
+        for (p = dcc_p->description; *p; p++) input_add_character(*p, NULL);
+        last_completion = dcc_p->description;
+        if (dcc_p->next) next_p = dcc_p->next;
+        else next_p = 0;
+    }
+    else
+    if (!my_strnicmp(min_pos, "/dcc send ", 10) && spaces == 3) {
+        char dir[256] = "", file[256] = "";
+        int j, n;
+        struct dirent **dir_list;
+
+send_begin:
+        if (*completing == '~') {
+            p = expand_twiddle(completing);
+            if (p) strncpy(completing, p, sizeof completing);
+        }
+        p = strrchr(completing, '/');
+        if (p) {
+            if (p == completing) *dir = '/';
+            else strncpy(dir, completing, p - completing);
+            strncpy(file, p + 1, sizeof file);
+        }
+        else strncpy(file, completing, sizeof file);
+        if (!*dir) {
+            if (CdccUlDir) strncpy(dir, CdccUlDir, sizeof dir);
+            else {
+                getcwd(dir, sizeof dir);
+                if (!*dir) strcpy(dir, ".");
+            }
+        }
+        n = scandir(dir, &dir_list, NULL, alphasort);
+        if (n < 0) return;
+        j = 2;		/* skip . and .. */
+        if (last_completion) {
+            p = strrchr(last_completion, '/');
+            if (p) p++;
+            else p = last_completion;
+            while (strcmp(dir_list[j]->d_name, p)) j++;
+            j++;
+        }
+        while (j < n) {
+            if (!strncmp(dir_list[j]->d_name, file, strlen(file))) {
+                for (i = 0; i < length; i++) input_backspace(' ', NULL);
+                for (p = dir; *p; p++) input_add_character(*p, NULL);
+                malloc_strcpy(&last_completion, dir);
+                if (*--p != '/') {
+                    input_add_character('/', NULL);
+                    malloc_strcat(&last_completion, "/");
+                }
+                for (p = dir_list[j]->d_name; *p; p++) input_add_character(*p, NULL);
+                malloc_strcat(&last_completion, dir_list[j]->d_name);
+                break;
+            }
+            j++;
+        }
+        for (i = 0; i < n; i++) free(dir_list[i]);
+        if (j == n) {
+            if (last_completion) {
+                new_free(&last_completion);
+                goto send_begin;
+            }
+        }
+    }
+    else
     if (is_channel(completing)) {
 channel_begin:
+        if (!CheckServer(curr_scr_win->server)) return;
         if (next_p) channel_p = next_p;
         else channel_p = server_list[curr_scr_win->server].chan_list;
-        while (channel_p && my_strnicmp(p, channel_p->channel, strlen(completing)))
+        while (channel_p && my_strnicmp(completing, channel_p->channel, strlen(completing)))
             channel_p = channel_p->next;
         if (!channel_p) {
             if (last_completion) {
@@ -847,7 +943,10 @@ channel_begin:
         else next_p = 0;            /* start over */
     }
     else {
+        static int channel_count;
+        static int our_count;		/* how many we've checked */
 nick_begin:
+        if (!CheckServer(curr_scr_win->server)) return;
         if (!last_completion) {
             channel_p = server_list[curr_scr_win->server].chan_list;
             channel_count = 0;
