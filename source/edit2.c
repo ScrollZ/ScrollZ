@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.92 2003-04-29 18:05:49 f Exp $
+ * $Id: edit2.c,v 1.93 2003-05-03 18:30:04 f Exp $
  */
 
 #include "irc.h"
@@ -2285,6 +2285,7 @@ char *command;
 char *args;
 char *subargs;
 {
+    int quiet=0;
     char *tmpnick=(char *) 0;
     char *tmpchan=(char *) 0;
     char tmpbuf1[mybufsize/4];
@@ -2294,12 +2295,16 @@ char *subargs;
     NickList *joiner;
 
     tmpnick=new_next_arg(args,&args);
+    if (tmpnick && !my_stricmp(tmpnick,"-QUIET")) {
+        quiet=1;
+        tmpnick=new_next_arg(args,&args);
+    }
     tmpchan=new_next_arg(args,&args);
     if (!(args && *args)) {
         PrintUsage("ADDF nick/filter channels privileges [password]");
         return;
     }
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s",tmpchan,args);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s %s %d",tmpchan,args,quiet);
     if (strchr(tmpnick,'!') || strchr(tmpnick,'@') || strchr(tmpnick,'*') ||
         strchr(tmpnick,'.') || strchr(tmpnick,'?'))
         AddFriend2List(NULL,tmpnick,tmpbuf1);
@@ -2446,11 +2451,13 @@ char *userhost;
 char *buffer;
 {
     int  i=0;
+    int  domsg=1;
     int  number=1;
     char *tmpstr=(char *) 0;
     char *chanlist=(char *) 0;
     char *privs=(char *) 0;
     char *passwd=(char *) 0;
+    char *quiet=(char *) 0;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
     NickList *tmp;
@@ -2462,6 +2469,12 @@ char *buffer;
     chanlist=new_next_arg(tmpstr,&tmpstr);
     privs=new_next_arg(tmpstr,&tmpstr);
     passwd=new_next_arg(tmpstr,&tmpstr);
+    quiet=new_next_arg(tmpstr,&tmpstr);
+    if (!quiet && passwd && *passwd=='') {
+        quiet=passwd;
+        passwd=NULL;
+    }
+    if (quiet && *quiet=='' && *(quiet+1)=='1') domsg=0;
     i=CheckPrivs(privs,tmpbuf2);
     if (i) {
         if (CheckUsers(userhost,chanlist)) {
@@ -2506,7 +2519,7 @@ char *buffer;
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Auto:%s  Prot:%s  No flood:%s  God:%s",
                 YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
                 YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
-        if (nick) {
+        if (nick && domsg) {
             send_to_server("NOTICE %s :-ScrollZ- You have been added to my friends list with",nick);
             send_to_server("NOTICE %s :-ScrollZ- CTCP access of : %s",nick,tmpbuf2);
             send_to_server("NOTICE %s :-ScrollZ- Commands are valid on channel(s) : %s",nick,chanlist);
