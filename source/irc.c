@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.28 2000-05-14 07:57:56 f Exp $
+ * $Id: irc.c,v 1.29 2000-07-09 09:31:28 f Exp $
  */
 
 #define IRCII_VERSION	"4.4J"
@@ -311,7 +311,10 @@ char  *StampChannels=(char *) 0;
 char  *AutoInvChannels;
 #endif
 char  *EncryptPassword=(char *) 0;
+#ifdef OPER
 char  *StatsFilter=(char *) 0;
+char  *StatsiFilter=(char *) 0;
+#endif
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
 /* patched by acidflash */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.32 2000-05-14 07:57:56 f Exp $
+ * $Id: edit.c,v 1.33 2000-07-09 09:31:14 f Exp $
  */
 
 #include "irc.h"
@@ -217,7 +217,10 @@ extern  void  ReconnectServer _((char *, char *, char *));
 extern  void  MegaDeop _((char *, char *, char *));
 /***********************************************************************/
 
+#ifdef OPER
 extern  int   StatsKNumber;
+extern  int   StatsiNumber;
+#endif
 extern  char  *chars;
 extern  NickList *tabnickcompl;
 /* Patched by Zakath */
@@ -312,6 +315,7 @@ extern  void  AwaySaveToggle _((char *, char *, char *));
 extern  void  MassKill _((char *, char *, char *));
 extern  void  FilterTrace _((char *, char *, char *));
 extern  void  StatsKFilter _((char *, char *, char *));
+extern  void  StatsIFilter _((char *, char *, char *));
 extern	void  WhoKill _((char *, char *, char *));
 extern	void  TraceKill _((char *, char *, char *));
 #endif
@@ -519,6 +523,9 @@ static	IrcCommand FAR irc_command[] =
   { "FBK", 		"FBK", 		FilterKick, 		SERVERREQ },
 	{ "FE",		NULL,		foreach_handler,	0 },
 	{ "FEC",	NULL,		fec,			0 },
+#ifdef OPER
+  { "FILINE", 		NULL, 		StatsIFilter, 		SERVERREQ },
+#endif
 #ifdef CELE
   { "FING", 		NULL, 		CTCPFing, 		SERVERREQ },
 #endif
@@ -2430,7 +2437,9 @@ send_comm(command, args, subargs)
             else if (!my_stricmp(command,"STATS")) {
 #ifdef OPER
                 StatsKNumber=0;
+                StatsiNumber=0;
                 new_free(&StatsFilter);
+                new_free(&StatsiFilter);
 #endif
             }
         }
