@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.106 2001-10-05 18:44:14 f Exp $
+ * $Id: edit6.c,v 1.107 2001-10-11 20:41:41 f Exp $
  */
 
 #include "irc.h"
@@ -2307,7 +2307,6 @@ char *stuff;
         *host++='\0';
         if ((tmpstr=index(host,']'))) *tmpstr='\0';
         else host=NULL;
-        if (!my_stricmp(nick,get_server_nickname(from_server))) return;
         sprintf(tmpbuf,"%s!%s",nick,host);
         if (wild_match(ftpattern,tmpbuf)) {
             mattcount++;
