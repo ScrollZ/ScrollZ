@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.32 2000-11-01 09:43:32 f Exp $
+ * $Id: cdcc.c,v 1.33 2000-12-05 18:38:36 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -151,6 +151,7 @@ static int CdccEntries;
 static int c_entry_size;
 static char *CdccString="[S+Z]";
 static time_t LastIdleCheck=0;
+static time_t LastList=0;
 /****** Coded by Zakath ******/
 #ifndef LITE
 static int  CdccReqTog=0;
@@ -2362,7 +2363,7 @@ char *from;
 char *args;
 {
     int   count=0;
-    int   delay=0;
+    int   multdelay;
     int   packcount=1;
     char  byteschar;
     char  *mynick=get_server_nickname(from_server);
@@ -2372,14 +2373,25 @@ char *args;
     float mult;
     Packs *tmp;
     void (*func)()=(void(*)()) sendlist;
+    time_t timenow=time((time_t *) 0);
+    static int delay=0;
 
     if (packs) {
         for (tmp=packs;tmp;tmp=tmp->next) count++;
+        multdelay=count/3*LIST_DELAY;
+        if (timenow>LastList+multdelay+10) delay=0;
+        else delay+=5;
+        LastList=timenow;
 #if !defined(CELEHOOK) && !defined(LITE)
         if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",from,count,mynick)) 
 #endif
-            send_to_server("NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
-                           from,CdccString,count,count==1?empty_string:"S",mynick);
+        {
+            sprintf(tmpbuf1,"-INV %d NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+                    delay,from,CdccString,count,count==1?empty_string:"S",
+                    mynick);
+            timercmd("FTIMER",tmpbuf1,(char *) func);
+            if (delay) delay++;
+        }
         for (tmp=packs;tmp;tmp=tmp->next) {
             if (tmp->minspeed>0.0)
                 sprintf(tmpbuf1,"/min %.2f kB/s]",tmp->minspeed);
@@ -2404,8 +2416,8 @@ char *args;
                         tmp->description))
 #endif
             {
-                sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
-                        tmp->description,tmpbuf2);
+                sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,
+                        from,tmpbuf3,tmp->description,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
                 if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
             }
@@ -2421,6 +2433,7 @@ char *args;
                 formatstats(tmpbuf2,1);
                 sprintf(tmpbuf1,"-INV %d NOTICE %s :%s",delay,from,tmpbuf2);
                 timercmd("FTIMER",tmpbuf1,(char *) func);
+                if (delay) delay++;
             }
         }
     }
