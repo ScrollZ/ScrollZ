@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.8 1998-11-02 21:22:43 f Exp $
+ * $Id: SZdist.c,v 1.9 1998-11-16 21:15:14 f Exp $
  */
 
 #include <stdio.h>
@@ -77,7 +77,7 @@ char *EXTRASfiles="alias.o cdcc.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o
 char *BETTERTIMERfiles="edit.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
-char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o";
+char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o numbers.o";
 char *MGSfiles="edit.o edit3.o edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
