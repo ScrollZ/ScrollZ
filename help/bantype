@@ -1,3 +1,10 @@
+!	 $Id: bantype,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: BANTYPE [N|B|E|H|S]
   Available types are : N=Normal, B=Better, E=Elite, H=Host and S=Screw
   Normal : nick!user@host       Better : *!user@host

@@ -1,3 +1,10 @@
+!	 $Id: bitch,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: BITCH on channels|off
   Channels is a list of channels separated by , (like : #te,#chan*).
   When set to on, only people from userlist with OP or AUTOOP access are

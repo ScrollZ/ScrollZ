@@ -1,3 +1,10 @@
+!	 $Id: fkline,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: FKLINE [-TEMP] filter [server]
   When -TEMP is specified STATS k is sent instead of usual STATS K.
   On some servers STATS k returns only temporary K: lines.

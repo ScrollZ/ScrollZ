@@ -1,3 +1,10 @@
+!	 $Id: queue,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: CDCC QUEUE [LIST [filter]]|[REMOVE filter]|[FLUSH]
   Without arguments it will list number of files in queue. If you pass it
   LIST it will show you detailed list with filename and who is it sending

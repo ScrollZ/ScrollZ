@@ -1,3 +1,10 @@
+!	 $Id: setaway,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: SETAWAY [-C] [-H] [away message]
   If -C is given, no text will be added to your message. If -H is given,
   effect is the same as having SHOWAWAY set to OFF. If no message is

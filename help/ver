@@ -1,3 +1,10 @@
+!	 $Id: ver,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: VER nick|#channel
   If no arguments are given, current channel will be versioned.
   

@@ -1,3 +1,10 @@
+!	 $Id: flline,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: FLLINE [-NAME] filter
   When -NAME is specified STATS l is sent instead of usual STATS L.
   STATS l returns hostnames instead of IP addresses.

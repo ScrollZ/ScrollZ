@@ -1,3 +1,10 @@
+!	 $Id: chanlogdir,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: CHANLOGDIR path
   If path is a minus ('-') first directory from SET LOAD_PATH is used.
   

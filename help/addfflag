@@ -1,3 +1,10 @@
+!	 $Id: addfflag,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: ADDFFLAG filter|#number flaglist
   Number is the same as in TBAN or CDCC GET. Example :
   #-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries

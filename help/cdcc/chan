@@ -1,3 +1,10 @@
+!	 $Id: chan,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: CDCC CHAN channels
   Channels is a list of channels separated by , you can include * and ?
   (example : #test,#c*,-#boo). When set to current, PLIST will go to

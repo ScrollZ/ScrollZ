@@ -1,3 +1,10 @@
+!	 $Id: tban,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: TBAN [[#]channel]
   You can use following format: * for all bans or -2,4,6-8,10- (this
   would remove bans 1,2,4,6,7,8 and all bans from 10 and on)

@@ -1,3 +1,10 @@
+!	 $Id: arinwin,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: ARINWIN on|user|both|off
   If set to on auto-reply is also shown in current window.
   If set to user auto-reply is shown in window with level USERLOG4.

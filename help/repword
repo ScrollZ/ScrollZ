@@ -1,3 +1,10 @@
+!	 $Id: repword,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: REPWORD reply_trigger
   Considered a good idea to set this to first few letters of your nick.
   You can set multiple strings that will trigger auto reply, separate

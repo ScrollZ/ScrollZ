@@ -1,3 +1,10 @@
+!	 $Id: shownick,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: SHOWNICK on|off
   If set to on, client will show your nick when sending out public messages
   like it does for other people. When set to off, it will act like plain

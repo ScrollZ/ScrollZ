@@ -1,3 +1,10 @@
+!	 $Id: t,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: T [#channel] [topic]
   If no arguments are given it will display current channel's topic,
   otherwise it will set topic on channel you have specified.

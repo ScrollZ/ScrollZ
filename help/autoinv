@@ -1,3 +1,10 @@
+!	 $Id: autoinv,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: AUTOINV on channels|off
   If set to on, client will automatically invite users who have access to
   INVITE, CHOPS, OP and UNBAN when sign-on is detected for them. Note that

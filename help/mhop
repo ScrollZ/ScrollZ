@@ -1,3 +1,10 @@
+!	 $Id: mhop,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: MHOP [-F] [-A] [#channel]
   If passed -F only friends with the H flag set will be halfopped.
   -A will halfop all users.

@@ -1,3 +1,10 @@
+!	 $Id: psend,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: CDCC PSEND [pattern , nick1 nick2]
   First you have to create pack(s) with CDCC OFFER. Then you
   enter nick(s) to send pack(s) to (like : nick1 nick2 nick3).

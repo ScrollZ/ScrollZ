@@ -1,3 +1,10 @@
+!	 $Id: nhprot,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: NHPROT on channels|off quiet|medium|full
   When set to OFF, no action will be taken on netsplit hacks. If ON,
   it will deop people that are not on your friends list. Display type

@@ -1,3 +1,10 @@
+!	 $Id: playback,v 1.2 2002-02-19 20:23:29 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: PLAYBACK [-R] [pattern]
   Plays back stored messages without marking you as not being away.
   If -R is passed as an argument, messages will be played in

@@ -1,3 +1,10 @@
+!	 $Id: remf,v 1.2 2002-02-19 20:23:30 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
 Usage: REMF nick|filter
   Filter can include * and ? or start with #. If it starts with
   #, you can use filters like in Cdcc and TBAN. Example :
