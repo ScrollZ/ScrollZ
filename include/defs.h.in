@@ -1,9 +1,5 @@
 /* include/defs.h.in.  Generated automatically from configure.in by autoheader.  */
 
-/*
- * $Id
- */
-
 /* Define if on AIX 3.
    System headers sometimes define this.
    We just want to avoid a redefinition error message.  */
@@ -174,6 +170,10 @@
 /* define this if you have SYSV (FIONBIO) non-blocking */
 #undef NBLOCK_SYSV
 
+/* define this if you have writev(2) and <sys/uio.h> */
+#undef HAVE_WRITEV
+#undef HAVE_SYS_UIO_H
+
 /* Define this if compiling with SOCKS (the firewall traversal library).
    Also, you must define connect, getsockname, bind, accept, listen, and
    select to their R-versions. */
@@ -193,6 +193,20 @@
 	!defined(SOCKS)
 # define NON_BLOCKING_CONNECTS
 #endif
+
+/*
+ * define USE_CAST if you want to use CAST-128 encryption rather than
+ * the broken original ircII encryption.  note that cast.c is not
+ * distributed with ircII and must be obtained separately.
+ */
+#undef USE_CAST
+
+/*
+ * define HAVE_DEV_RANDOM if you have /dev/random (*BSD/LINUX).
+ * the CAST code uses this if present instead of random(3).
+ */
+#undef HAVE_DEV_RANDOM
+#undef DEV_RANDOM_PATH
 
 /* Define if you have the <dirent.h> header file.  */
 #undef HAVE_DIRENT_H
@@ -250,6 +264,9 @@
 
 /* Define if you have the <sys/twg_config.h> header file.  */
 #undef HAVE_SYS_TWG_CONFIG_H
+
+/* Define if you have the <sys/uio.h> header file.  */
+#undef HAVE_SYS_UIO_H
 
 /* Define if you have the <sys/un.h> header file.  */
 #undef HAVE_SYS_UN_H

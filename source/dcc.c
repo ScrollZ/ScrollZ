@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.18 1999-07-18 13:27:26 f Exp $
+ * $Id: dcc.c,v 1.19 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -841,7 +841,11 @@ dcc_open(Client)
  					 (unsigned) ntohs(localaddr.sin_port));
  			save_message_from();
 			message_from(user, LOG_DCC);
-			say("Sent DCC %s request to %s", Type, user);
+			say("Sent DCC %s [%s:%u] request to %s",
+			    Type,
+			    inet_ntoa(myip),
+			    (unsigned) ntohs(localaddr.sin_port),
+			    user);
  			restore_message_from();
 /**************************** PATCHED by Flier ******************************/
                         new_free(&nopath);
@@ -2226,7 +2230,7 @@ DCC_list *Client;
 	struct	sockaddr_in	remaddr;
 	int	sra;
 	char	tmp[BIG_BUFFER_SIZE+1];
-	u_32int_t	bytesrecvd;
+	u_32int	bytesrecvd;
 	int	bytesread;
 	int	BlockSize;
 /**************************** Patched by Flier ******************************/
@@ -2303,7 +2307,7 @@ DCC_list *Client;
 #endif
 /****************************************************************************/
 	{
- 		if ((bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int_t), 0)) < sizeof(u_32int_t))
+ 		if ((bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int), 0)) < sizeof(u_32int))
 		{
 #ifdef _Windows
                     int	recv_error;
@@ -2417,7 +2421,7 @@ process_incoming_file(Client)
 	DCC_list	*Client;
 {
 	char	tmp[BIG_BUFFER_SIZE+1];
-	u_32int_t	bytestemp;
+	u_32int	bytestemp;
 	int	bytesread;
 
         if ((bytesread = recv(Client->read, tmp, BIG_BUFFER_SIZE, 0)) <= 0)
@@ -2480,7 +2484,7 @@ process_incoming_file(Client)
  	write(Client->file, tmp, (size_t)bytesread);
 	Client->bytes_read += bytesread;
 	bytestemp = htonl(Client->bytes_read);
-	send(Client->write, (char *) &bytestemp, sizeof(u_32int_t), 0);
+	send(Client->write, (char *) &bytestemp, sizeof(u_32int), 0);
 /**************************** PATCHED by Flier ******************************/
         if (ShowDCCStatus && StatusDCC(Client)) update_all_status();
 /****************************************************************************/

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.34 1999-10-03 09:31:22 f Exp $
+ * $Id: edit4.c,v 1.35 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -2371,7 +2371,7 @@ char *subargs;
         }
     }
     old_server=from_server;
-    if ((servernum=find_in_server_list(server,port))==-1)
+    if ((servernum=find_in_server_list(server,port,get_server_nickname(from_server)))==-1)
         say("Couldn't find %s %d",server,port);
     else {
         server=server_list[servernum].name;

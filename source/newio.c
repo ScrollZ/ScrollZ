@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.3 1999-02-15 21:19:55 f Exp $
+ * $Id: newio.c,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -287,51 +287,42 @@ dgets(str, len, des, specials, decrypt)
 				if (WantNewLine && specials)
 				{
 					ptr = io_rec[des]->buffer;
-					for (i = io_rec[des]->write_pos;
-					    i < io_rec[des]->write_pos+c;i++)
-	/* This section re-indented - phone, jan 1993 */
-			{
-				if((ch = ptr[i]) == specials[0])
-				{
-					if (i > 0)
+					for (i = io_rec[des]->write_pos; i < io_rec[des]->write_pos + c; i++)
 					{
-						bcopy(ptr + i - 1, ptr + i + 1,
-						    io_rec[des]->write_pos +
-						    c - i - 1);
-						i -= 2;
-						c -= 2;
+						if ((ch = ptr[i]) == specials[0])
+						{
+							if (i > 0)
+							{
+								bcopy(ptr + i - 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
+								i -= 2;
+								c -= 2;
+							}
+							else
+							{
+								bcopy(ptr, ptr + 1, io_rec[des]->write_pos + c - 1);
+								i--;
+								c--;
+							}
+						}
+						else if (ch == specials[2])
+						{
+							for (j = i - 1; j >= 0 && isspace(ptr[j]); j--)
+								;
+							for (; j >= 0 && !isspace(ptr[j]); j--)
+								;
+							bcopy(ptr + j + 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
+							c -= i - j;
+							i = j;
+						}
+						else if (ch == specials[1])
+						{
+							for (j = i - 1; j >= 0 && ptr[j] != '\n'; j--)
+								;
+							bcopy(ptr + j + 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
+							c -= i - j;
+							i = j;
+						}
 					}
-					else
-					{
-						bcopy(ptr, ptr + 1,
-						    io_rec[des]->write_pos +
-						    c - 1);
-						i--;
-						c--;
-					}
-				}
-				else if (ch == specials[2])
-				{
-					for (j = i - 1; j >= 0 &&
-							isspace(ptr[j]); j--)
-						;
-					for (;j >= 0 && !isspace(ptr[j]); j--)
-						;
-					bcopy(ptr + j + 1, ptr + i + 1,
-					    io_rec[des]->write_pos + c - i - 1);
-					c -= (i - j);
-					i = j;
-				}
-				else if (ch == specials[1])
-				{
-					for (j = i - 1;
-						j >= 0 && ptr[j] != '\n'; j--);
-					bcopy(ptr + j + 1, ptr + i + 1,
-					    io_rec[des]->write_pos + c - i - 1);
-					c -= (i-j);
-					i = j;
-				}
-			}
 				}
 				io_rec[des]->write_pos += c;
 				break;
@@ -340,13 +331,13 @@ dgets(str, len, des, specials, decrypt)
 		ptr = io_rec[des]->buffer;
 		if (WantNewLine)
 		{
-			for (cnt = io_rec[des]->write_pos; cnt > 0;cnt--,ptr++)
+			for (cnt = io_rec[des]->write_pos; cnt > 0;cnt--, ptr++)
 			{
 				if (*ptr == '\n' || cnt == len-1)
 				{
 					*ptr = '\0';
 					(void) strcpy(str, io_rec[des]->buffer);
-					io_rec[des]->write_pos=cnt-1;
+					io_rec[des]->write_pos = cnt-1;
 					bcopy(io_rec[des]->buffer, ptr, cnt);
 					dgets_errno = 0;
 					return 1;
@@ -356,8 +347,7 @@ dgets(str, len, des, specials, decrypt)
 		}
 		while (io_rec[des]->read_pos < io_rec[des]->write_pos)
 		{
-			if (((str[cnt++] = ptr[(io_rec[des]->read_pos)++])
-				== '\n') || (cnt == len))
+			if (((str[cnt++] = ptr[(io_rec[des]->read_pos)++]) == '\n') || (cnt == len))
 			{
 				dgets_errno = 0;
 				str[cnt] = (char) 0;

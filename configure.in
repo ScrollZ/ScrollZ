@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.4 1999-03-04 22:07:22 f Exp $
+dnl @(#)$Id: configure.in,v 1.5 1999-10-04 19:21:37 f Exp $
 
-AC_REVISION($Revision: 1.4 $)dnl
+AC_REVISION($Revision: 1.5 $)dnl
 AC_INIT(source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -50,7 +50,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.4 1999-03-04 22:07:22 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.5 1999-10-04 19:21:37 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -554,7 +554,7 @@ main()
 postcode=') != -1)) {
 		signal(SIGALRM, alarmed);
 		alarm(3);
-		recvfrom(f, b, 12, 0, (void *) x, &l);
+		recvfrom(f, b, 12, 0, (struct sockaddr *) x, &l);
 		alarm(0);
 		exit(0);
 	}
@@ -701,7 +701,7 @@ AC_ARG_WITH(paranoid,
   AC_MSG_RESULT(none)
 )
 
-AC_MSG_CHECKING(CAST for support)
+AC_MSG_CHECKING(for CAST support)
 AC_ARG_WITH(cast,
 [  --with-cast             Use CAST-128 bit encryption (requires cast.c)],
 [ case "$withval" in
@@ -722,6 +722,23 @@ AC_ARG_WITH(cast,
     AC_MSG_RESULT(no)
   fi
 )
+
+AC_MSG_CHECKING(for /dev/urandom)
+if test -c /dev/urandom; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE_UNQUOTED(HAVE_DEV_RANDOM, 1)
+  AC_DEFINE_UNQUOTED(DEV_RANDOM_PATH, "/dev/urandom")
+else
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING(for /dev/random)
+  if test -c /dev/random; then
+    AC_MSG_RESULT(yes)
+    AC_DEFINE_UNQUOTED(HAVE_DEV_RANDOM, 1)
+    AC_DEFINE_UNQUOTED(DEV_RANDOM_PATH, "/dev/random")
+  else
+    AC_MSG_RESULT(no)
+  fi
+fi
 
 AC_MSG_CHECKING(for default server)
 AC_ARG_WITH(default-server,

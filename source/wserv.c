@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.2 1998-09-10 17:46:33 f Exp $
+ * $Id: wserv.c,v 1.3 1999-10-04 19:21:38 f Exp $
  */
 
 /*
@@ -110,8 +110,8 @@ main(argc, argv)
 	addr->sun_family = AF_UNIX;
 	strcpy(addr->sun_path, argv[1]);
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (0 > connect(s, (struct sockaddr *) addr, sizeof(addr->sun_family) +
-						strlen(addr->sun_path)))
+	if (0 > connect(s, (struct sockaddr *) addr, (int)(2 +
+						strlen(addr->sun_path))))
  		return 0;
 
 	/*

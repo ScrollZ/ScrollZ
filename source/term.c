@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.5 1999-04-25 14:41:28 f Exp $
+ * $Id: term.c,v 1.6 1999-10-04 19:21:38 f Exp $
  */
 
 #include "irc.h"
@@ -287,11 +287,7 @@ void
 term_putchar(i)
  	u_int	i;
 {
-/**************************** PATCHED by Flier ******************************/
- 	/*char	c = (char)i;*/
-        /* We need this for high ascii characters */
- 	u_char c=i;
-/****************************************************************************/
+	unsigned char	c = (unsigned char)i;
 
 	if (term_echo_flag)
 	{
@@ -319,7 +315,7 @@ term_putchar(i)
 /****************************************************************************/
 			term_standout_off();
 		}
-		else if (c == '\177')
+		else if ((c & 0x7f) == '\177')
 		{
 			term_standout_on();
 			c = '?';

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#)$Id: crypt.h,v 1.2 1999-03-04 22:06:01 f Exp $
+ * @(#)$Id: crypt.h,v 1.3 1999-10-04 19:21:37 f Exp $
  */
 
 #ifndef __crypt_h_
@@ -79,8 +79,8 @@ crypt_key	*is_crypted _((char *));
  * for to be the default.
  */
 #ifdef USE_CAST
-# define CAST_STRING	"CAST128ED"
-# define CAST_CTCP_ENTRY { CAST_STRING, "contains CAST-128 strongly encrypted data", \
+# define CAST_STRING	"CAST128-CBC"
+# define CAST_CTCP_ENTRY { CAST_STRING, "contains CAST-128 strongly encrypted data, CBC mode", \
 		CTCP_SHUTUP | CTCP_NOREPLY, do_crypto },
 # ifndef DEFAULT_CRYPTER
 #  define DEFAULT_CRYPTER cast_encrypt_str

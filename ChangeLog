@@ -8,8 +8,168 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.4 1999-03-04 22:05:59 f Exp $
+ * @(#)$Id: ChangeLog,v 1.5 1999-10-04 19:21:36 f Exp $
  */
+
+4.4J
+Thu Jul 15 12:18:44 EST 1999 - matthew green <mrg@eterna.com.au>
+	help/load/icb, script/icb:
+		add `/register'
+	include/config.h*, include/server.h, include/icb.h,
+	source/irc.c, source/server.c, doc/ircII.1:
+		add -P switch to set deafult ICB port.  have a
+		define `ICB_PORT' (that is 7326) for the default.
+	source/cast.c, source/dcc.c, include/irc_std.h,
+	include/cast_sbox.h:
+		replace 'cast_t' with 'castkey' and 'u_32int_t'
+		with 'u_32int' as _t is not my name space.
+	source/cast.c:
+		fix several bugs noted by Michael Katzenmayer
+		<katzenmayer@erfnet.com>:  castkey had u_char instead
+		of u_int, and some packaging problems introduced since
+		the CBC changes.
+
+Thu Jun 17 16:38:34 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/alias.c, help/alias/functions:
+		new $SERVERTYPE() function that returns either
+		`IRC2.X' (X between 5 and 11 so far), or `ICB'.
+		idea from tristan@ethereal.net.
+
+4.4I
+Sat May 22 00:00:11 EST 1999 - matthew green <mrg@eterna.com.au>
+	include/crypt.h:
+		rename CAST128ED to CAST128ED-CBC so that newer
+		implementations will fail to operate with prior
+		versions, rather than attempt to work and lose.
+
+Fri May 21 18:29:15 EST 1999 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, acconfig.h, include/defs.h.in,
+	source/crypt.c:
+		use /dev/urandom if possible.  avoid using the
+		implementation namespace a bit...
+	source/wserv.c:
+		fix this for unix domain 4.4BSD machines.
+	source/term.c:
+		ensure we catch all ESC aliases...
+	source/parse.c:
+		let older /on join's work again.
+	source/icb.c:
+		make sure we properly disconnect a server.  for
+		public and private messages, be sure not to overflow
+		the 255 byte ICB limit.
+	source/exec.c:
+		for /exec's that have output elsewhere, make sure
+		that they go to the right server.
+	source/cast.c:
+		change CAST-128 implmentation from EBC mode to CBC
+		mode.  this is incompatible with previous versions
+		but as EBC is less secure, too bad.
+
+Mon Mar  8 14:13:54 EST 1999 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, acconfig.h, include/defs.h.in,
+	source/cast.c, source/crypt.c:
+		look for and, if we find it, use /dev/random as
+		a source of randomness for crypto code.
+	source/icb.c, source/edit.c, include/icb.h:
+		add a new icb_put_funny_stuff() that handles doing
+		irc-like /names and /list.
+	script/global:
+		load tabkey & icb by default.
+
+Fri Mar  5 15:24:11 EST 1999 - matthew green <mrg@eterna.com.au>
+	include/server.h, script/icb, source/edit.c, source/icb.c,
+	source/irc.c, source/parse.c, source/server.c,
+	source/whois.c source/window.c:
+		add an extra argument to the parse_server_info()
+		stuff, that returns anything beyond the nick.
+		this is used by the ICB code to set default group
+		and mode.  you can specify that a server is ICB
+		in the IRCSERVER and related lists by prepending
+		it with IRC/.  eg set IRCSERVER to:
+		`ICB/icb.network.net:7326::mynick:channel'.
+
+4.4H
+Thu Mar  4 19:42:31 EST 1999 - matthew green <mrg@eterna.com.au>
+	include/server.h, source/numbers.c, source/server.c,
+	source/window.c:
+		connect_to_server() and find_in_server_list() both
+		take a "nick" argument now.  server lists are unique
+		now only if the nickname is the same.
+	source/icb.c:
+		parse status messages for signon/signoff/arrive/depart
+		and convert them to join/leave hooks.
+	source/screen.c:
+		deal with no current_screen.  helps with output
+		functions run during client startup not dumping core.
+		update fwrite() tests to be consistent.
+
+Thu Mar  4 18:54:08 EST 1999 - matthew green <mrg@eterna.com.au>
+	include/hook.h, include/hook.h.proto, source/edit.c,
+	source/hook.c, source/icb.c, source/irc.c, source/server.c:
+		add hooks for ICB stuff.  implement two new hooks
+		for ICB only stuff: ICB_STATUS and ICB_ERROR, for
+		icb status and error messages.  all others go via
+		server_notice, msg, public, send_msg, send_public
+		which exist.  more to come.
+
+Thu Mar  4 17:56:26 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/irc.c, source/icb.c, source/server.c, 
+	include/server.h:
+		fix -irc/-icb args to skip the rc/cb bit.  add
+		a icb group concept, separate to the irc channels.
+
+Thu Mar  4 14:24:25 EST 1999 - matthew green <mrg@eterna.com.au>
+	include/irc.h, include/server.h, source/irc.c,
+	source/server.c, source/window.c:
+		if run as "icb", default to icb.  add -irc/-icb
+		switch to the command line, and -irc to both
+		/window server and /server.
+
+Thu Mar  4 13:10:41 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c:
+		dcc actions to the right window. from forcer.
+	configure, configure.in:
+		cast recv() address argument to (struct sockaddr *)
+		to let it compile, and let the nonblock test have a
+		chance at working.  from forcer.
+	source/numbers.c:
+		print a channel not available message even if we
+		don't understand it properly, so that the user gets
+		the message anyway.
+	contrib/README, (removed contrib/colour and contrib/colour.orig),
+	include/config.h*, include/irc.h include/vars.h.proto,
+	include/vars.h, source/screen.c, source/vars.c:
+		add a /set colour to mimic mIRC-style colours.  it
+		does not use termcap colour stuff, as no one uses
+		those anyway.  at least on IRC.  this is sarayans
+		original patch as maintained by forcer, and what
+		was originally in the contrib directory.
+	source/dcc.c:
+		print ip:port for dcc send.  from forcer.
+
+Wed Mar  3 18:06:17 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/newio.c, include/newio.h:
+		add a "dgets_separator" that lets you change the
+		"end of line" charater. this is useful for ICB
+		where it is a nul, not a newline.
+	help/icb, include/icb.h, include/server.h, script/icb,
+	source/Makefile.in, source/edit.c, source/icb.c, source/irc.c,
+	source/notify.c, source/server.c, source/window.c:
+		add elementary ICB support.  /server -icb host port
+		should do the right thing, and let you join channels,
+		see messages, send then.  a new /icb command lets you
+		have access to all the icb commands, and most IRC
+		commands that make sense in this context (/nick,
+		/topic, /version, /msg, /join, etc) have been modified
+		to know the are talking to an ICB server and pass the
+		users request off to the icb code to handle.  this
+		uses the new dgets_separator() for ICB server
+		connection processing.
+		this is missing hooks and stuff, but it should be at
+		least usable for now.  i expect to add hooks and stuff
+		shortly.  the script adds aliases for icb commands
+		(/group, /boot, /pass, etc.), and the help file is
+		fairly useless...
 
 4.4G
 Sun Feb 28 13:37:48 EST 1999 - matthew green <mrg@eterna.com.au>

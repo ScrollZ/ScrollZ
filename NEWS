@@ -1,7 +1,17 @@
-@(#)$Id: NEWS,v 1.2 1999-02-15 21:18:07 f Exp $
+@(#)$Id: NEWS,v 1.3 1999-10-04 19:21:37 f Exp $
 
 Changes since ircII 4.4:
 
+  o  ICB support had been added.
+  o  CAST-128 support has been changed from EBC mode to CBC mode,
+     which make sit incompatible with interium releases of 4.4-Lite.
+  o  bugs fixed all over the place
+  o  colour support added
+  o  bugs in crypto code fixed.  now works without crashing.
+  o  /exec -target ($T) works
+  o  "window query" works
+  o  new functions winvis() and querynick()
+  o  allow "window channel #chan,key" to work
   o  various flash-style attacks have been fixed.
   o  /timer, and several variables are now aware of the current
      server context.

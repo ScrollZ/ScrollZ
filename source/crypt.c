@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.5 1999-03-04 22:06:05 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.6 1999-10-04 19:21:37 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -50,6 +50,14 @@ IRCII_RCSID("@(#)$Id: crypt.c,v 1.5 1999-03-04 22:06:05 f Exp $");
 static	void	add_to_crypt _((char *, char *, CryptFunc, CryptFunc, char *));
 static	int	remove_crypt _((char *));
 static	char	*do_crypt _((char *, crypt_key *, int, char **));
+
+#ifdef HAVE_DEV_RANDOM
+static	int	crypt_dev_random_byte _((void));
+#define GET_RANDOM_BYTE	crypt_dev_random_byte()
+#else
+/* gotta use the sucky one */
+#define GET_RANDOM_BYTE	(random() & 255)
+#endif
 
 #ifdef USE_CAST
 #include "cast.c"
@@ -393,3 +401,60 @@ crypt_msg(str, key, flag)
 	}
 	return (lbuf);
 }
+
+#ifdef HAVE_DEV_RANDOM
+static RETSIGTYPE alarmer _((void));
+
+static RETSIGTYPE
+alarmer()
+{
+
+}
+
+static int
+crypt_dev_random_byte()
+{
+	static	int	devrndfd = -1;
+	char	c;
+
+	if (devrndfd == -1)
+	{
+		devrndfd = open(DEV_RANDOM_PATH, O_RDONLY);
+
+		if (devrndfd == -1)
+		{
+			yell("--- HELP!!!!rypt_dev_random_byte: can not open %s: %s",
+			    DEV_RANDOM_PATH, strerror(errno));
+			yell("--- using random()");
+			devrndfd = -2;
+		}
+	}
+	if (devrndfd == -2)
+		goto do_random_instead;
+
+	alarm(2);
+	(void)MY_SIGNAL(SIGALRM, (sigfunc *) alarmer, 0);
+	if (read(devrndfd, &c, 1) != 1)
+	{
+		alarm(0);
+		(void)MY_SIGNAL(SIGALRM, (sigfunc *) SIG_DFL, 0);
+		/* if we were just interrupted, don't bail on /dev/random */
+		if (errno == EINTR)
+		{
+			yell("--- crypt_dev_random_byte: timeout, using random()");
+			goto do_random_instead;
+		}
+		yell("--- HELP!  crypt_dev_random_byte: read of one byte on %s failed: %s",
+		    DEV_RANDOM_PATH, strerror(errno));
+		yell("--- using random()");
+		devrndfd = -2;
+		goto do_random_instead;
+	}
+	alarm(0);
+	(void)MY_SIGNAL(SIGALRM, (sigfunc *) SIG_DFL, 0);
+	return ((int)c);
+
+do_random_instead:
+	return (random() & 255);
+}
+#endif

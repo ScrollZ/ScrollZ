@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.2 1998-10-31 18:27:26 f Exp $
+# @(#)$Id: Makefile.in,v 1.3 1999-10-04 19:21:37 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -39,7 +39,7 @@ IRCIO_SOURCES = ircio.c
 
 WSERV_OBJECTS = wserv.o wterm.o
 
-WSERV_SOURCES = wserv.c term.c
+WSERV_SOURCES = wserv.c wterm.c
 
 INCLUDES = -I../include
 
@@ -102,20 +102,29 @@ clean::
 # extra junk
 
 clean::
-	$(RM) core a.out debug.log
+	$(RM) core a.out debug.log depend.mk
 
 
 # dependencies
+
+# use this to generate something to include below.
+makedepend: $(SOURCES) $(IRCIO_SOURCES) $(WSERV_SOURCES)
+	$(RM) -f depend.mk
+	$(CC) -MM $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) $(SOURCES) $(IRCIO_SOURCES) $(WSERV_SOURCES) | sed 's/^ /      /' > depend.mk
 
 wterm.c: term.c
 	$(RM) wterm.c
 	$(LN) term.c wterm.c
 
+wterm.o:
+	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -DSTTY_ONLY -c wterm.c
+
+# this is the "depend.mk" file created above.
+# --- ALL BELOW IS AUTOMATICALLY GENERATED ---
 wterm.o : wterm.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
   ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/translat.h \
   ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
   ../include/menu.h ../include/screen.h 
-	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -DSTTY_ONLY -c wterm.c
 
 alias.o : alias.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
   ../include/debug.h ../include/struct.h ../include/alias.h ../include/dcc.h ../include/status.h \
@@ -133,7 +142,6 @@ ctcp.o : ctcp.c ../include/irc.h ../include/defs.h ../include/config.h ../includ
   ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
   ../include/menu.h ../include/status.h ../include/ignore.h ../include/output.h \
   ../include/dcc.h ../include/parse.h 
-celerity.o : celerity.c ../include/irc.h ../include/myvars.h ../include/screen.h ../include/ircaux.h
 dcc.o : dcc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
   ../include/debug.h ../include/struct.h ../include/server.h \
   ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \

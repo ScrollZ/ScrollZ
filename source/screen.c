@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.8 1999-06-14 17:47:26 f Exp $
+ * $Id: screen.c,v 1.9 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -1576,6 +1576,13 @@ add_to_screen(incoming)
 #endif
 /****************************************************************************/
 
+	/* eek! */
+	if (!current_screen)
+	{
+		puts(incoming);
+		fflush(stdout);
+		return;
+	}
 	/* Handles output redirection first */
 	if (!in_redirect && current_screen->redirect_name &&
 	    from_server == current_screen->redirect_server)

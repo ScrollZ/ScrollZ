@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.5 1999-07-18 12:50:08 f Exp $
+ * $Id: alias.c,v 1.6 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -224,6 +224,7 @@ static	FAR BuiltIns built_in[] =
 	char	*function_tolower _((unsigned char *));
 	char	*function_channels _((unsigned char *));
 	char	*function_servers _((unsigned char *));
+	char    *function_servertype _((unsigned char *));
 	char	*function_curpos _((unsigned char *));
 	char	*function_onchannel _((unsigned char *));
 	char	*function_pid _((unsigned char *));
@@ -335,6 +336,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "TOLOWER",		function_tolower },
 	{ "MYCHANNELS",		function_channels },
 	{ "MYSERVERS",		function_servers },
+	{ "SERVERTYPE",		function_servertype },
 	{ "CURPOS",		function_curpos },
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
@@ -3067,6 +3069,48 @@ function_servers(input)
 	unsigned char	*input;
 {
 	return create_server_list();
+}
+
+char	*
+function_servertype(input)
+	unsigned char	*input;
+{
+	int server;
+	char *s, *result = NULL;
+
+	if (from_server < 0)
+		server = primary_server;
+	else
+		server = from_server;
+	if (server < 0)
+		s = empty_string;
+	else	
+		switch (server_list[server].version) {
+		case Server2_5:
+			s = "IRC2.5";
+			break;
+		case Server2_6:
+			s = "IRC2.6";
+			break;
+		case Server2_7:
+			s = "IRC2.7";
+			break;
+		case Server2_8:
+			s = "IRC2.8";
+			break;
+		case Server2_9:
+			s = "IRC2.9";
+			break;
+		case Server2_10:
+			s = "IRC2.10";
+			break;
+		case Server2_11:
+			s = "IRC2.11";
+			break;
+		}
+
+	malloc_strcpy(&result, s);
+	return result;
 }
 
 char	*

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.3 1999-02-15 21:19:16 f Exp $
+ * $Id: exec.c,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -702,7 +702,10 @@ add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refn
 			if (redirect)
 				malloc_strcpy(&(proc->redirect),
 					redirect);
-			proc->server = curr_scr_win->server;
+			if (parsing_server_index != -1)
+				proc->server = parsing_server_index;
+			else
+				proc->server = curr_scr_win->server;
 			proc->counter = 0;
 			proc->exited = 0;
 			proc->termsig = 0;

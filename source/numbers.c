@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.16 1999-09-14 18:06:00 f Exp $
+ * $Id: numbers.c,v 1.17 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -434,7 +434,7 @@ password_sendline(data, line)
 	new_server = atoi(line);
 	set_server_password(new_server, line);
 	connect_to_server(get_server_name(new_server),
-		get_server_port(new_server), -1);
+		get_server_port(new_server), get_server_nickname(new_server), -1);
 }
 
 /*
@@ -1454,8 +1454,7 @@ numbered_command(from, comm, ArgList)
 			break;
 
 		case 462:		/* #define ERR_ALREADYREGISTRED 462 */
-			send_to_server("NICK %s",
-				get_server_nickname(parsing_server_index));
+			display_msg(from, ArgList);
 			break;
 
 #define RPL_CLOSEEND         363

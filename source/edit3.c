@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.34 1999-09-18 10:03:38 f Exp $
+ * $Id: edit3.c,v 1.35 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -1466,15 +1466,15 @@ char *subargs;
         if ((port=index(server,':'))) *port++='\0';
         else port=new_next_arg(args,&args);
         if (!port) port="6667";
-        servid=find_in_server_list(server,atoi(port));
-        if (servid>-1 && is_server_connected(servid)) {
-            say("Already connected to server %s port %s",server,port);
-            return;
-        }
         newnick=new_next_arg(args,&args);
         newuser=new_next_arg(args,&args);
         newreal=new_next_arg(args,&args);
         if (!newnick) newnick=get_server_nickname(from_server);
+        servid=find_in_server_list(server,atoi(port),newnick);
+        if (servid>-1 && is_server_connected(servid)) {
+            say("Already connected to server %s port %s",server,port);
+            return;
+        }
         if (newuser) strmcpy(username,newuser,NAME_LEN);
         if (newreal) strmcpy(realname,newreal,REALNAME_LEN);
         say("Creating new window on server %s port %s",server,port);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.2 1999-02-15 21:18:56 f Exp $
+ * $Id: window.h,v 1.3 1999-10-04 19:21:37 f Exp $
  */
 
 #ifndef __window_h_
@@ -84,6 +84,7 @@
 	void	window_get_connected _((Window *, char *, int, int, char *));
 	void	erase_display _((Window *));
 	int	unhold_windows _((void));
+	Window	*window_traverse _((int *, Window **, Screen **, int *));
 	Window	*traverse_all_windows _((int *));
 	void	add_to_invisible_list _((Window *));
 	void	delete_window _((Window *));

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.3 1999-02-15 21:20:04 f Exp $
+ * $Id: output.c,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -178,8 +178,6 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 void
 #ifdef HAVE_STDARG_H
 say(char *format, ...)
-{				/* } */
-	va_list vl;
 #else
 say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	char	*format;
@@ -193,8 +191,11 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		*arg8,
 		*arg9,
 		*arg10;
-{
 #endif
+{
+#ifdef HAVE_STDARG_H
+	va_list vl;
+#endif /* HAVE_STDARG_H */
 	if (window_display)
 	{
 /**************************** PATCHED by Flier ******************************/

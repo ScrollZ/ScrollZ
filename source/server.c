@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.14 1999-09-04 20:55:40 f Exp $
+ * $Id: server.c,v 1.15 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -76,8 +76,9 @@ static char dectablebnc[256];
 
 static	void	add_to_server_buffer _((int, char *));
 static	void	login_to_server _((int));
-static	int	connect_to_server_direct _((char *, int));
-static	int	connect_to_server_process _((char *, int));
+static	int	connect_to_server_direct _((char *, int, char *));
+static	int	connect_to_server_process _((char *, int, char *));
+static	void	irc2_login_to_server _((int));
 
 /*
  * Don't want to start ircio by default...
@@ -109,7 +110,7 @@ extern	WhoisQueue	*WQ_tail;
 
 extern	int	dgets_errno;
 
-#define DEFAULT_SERVER_VERSION Server2_8
+#define DEFAULT_SERVER_VER Server2_8
 
 /*
  * close_server: Given an index into the server list, this closes the
@@ -275,6 +276,7 @@ do_server(rd, wd)
 			char 	*bufptr;
 			char	*s;
 			int	i = j;
+			size_t	len;
 
 			from_server = i;
 			old_timeout = dgets_timeout(1);
@@ -282,11 +284,14 @@ do_server(rd, wd)
  			bufptr = lbuf;
 			if (s && *s)
 			{
- 				size_t	len = strlen(s);
-
+				len = strlen(s);
  				strncpy(lbuf, s, len);
 				bufptr += len;
 			}
+			else
+				len = 0;
+			if (len >= BIG_BUFFER_SIZE)
+				goto buffer_is_full_hack;	/* XXX? */
 /**************************** PATCHED by Flier ******************************/
 			/*junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0);*/
 #ifdef BNCCRYPT
@@ -300,7 +305,7 @@ do_server(rd, wd)
 			{
 			case -1:
  				add_to_server_buffer(from_server, lbuf);
-				continue;
+				goto real_continue;
 			case 0:
 			{
 #ifdef NON_BLOCKING_CONNECTS
@@ -348,7 +353,7 @@ do_server(rd, wd)
  						/* get_connected(old_serv, 1);
 						   should be used only for
 						   primary_server -Sol */
-						/* connect_to_server(server_list[old_serv].name, server_list[old_serv].port, -1);
+						/* connect_to_server(server_list[old_serv].name, server_list[old_serv].port, server_list[server].nickname, -1);
 						   actually, do we have to
 						   reconnect at all ? -Sol */
 						{ /* Reassign windows ? -Sol */
@@ -360,7 +365,7 @@ do_server(rd, wd)
 							{
 								set_window_server(tmp->refnum, old_serv, WIN_ALL);
 								break;
-					}
+							}
 						}
 #endif /* 1 */
 					}
@@ -406,7 +411,7 @@ a_hack:
 					clean_whois_queue();
 					window_check_servers();
 				}
-				else if (connect_to_server(server_list[i].name, server_list[i].port, -1))
+				else if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1))
 				{
 					say("Connection to server %s lost.", server_list[i].name);
 					clean_whois_queue();
@@ -416,6 +421,7 @@ a_hack:
 				break;
 			}
 			default:
+buffer_is_full_hack:
  				{
  					int	old_psi = parsing_server_index;
 
@@ -426,6 +432,7 @@ a_hack:
   					break;
   				}
                         }
+real_continue:
 			from_server = primary_server;
 		}
 	}
@@ -437,25 +444,38 @@ a_hack:
  * -1 if not found 
  */
 extern	int
-find_in_server_list(server, port)
+find_in_server_list(server, port, nick)
 	char	*server;
 	int	port;
+	char	*nick;
 {
- 	int	i;
- 	size_t	len,
-		len2;
+	int	i, maybe = -1;
+	size_t	len;
 
 	len = strlen(server);
 	for (i = 0; i < number_of_servers; i++)
 	{
 		if (port && server_list[i].port &&
-		    port != server_list[i].port && port != -1)
+		    port != server_list[i].port)
 			continue;
- 		len2 = strlen(server_list[i].name);	/* XXX XXX unused ?? */
- 		if (!my_strnicmp(server, server_list[i].name, len))
-			return (i);
+
+		if (my_strnicmp(server, server_list[i].name, len) != 0)
+			continue;
+
+		if (nick)
+		{
+			if (server_list[i].nickname == NULL)
+			{
+				maybe = i;
+				continue;
+			}
+			if (my_stricmp(server_list[i].nickname, nick))
+				continue;
+		}
+		maybe = i;
+		break;
 	}
-	return (-1);
+	return (maybe);
 }
 
 /*
@@ -512,7 +532,7 @@ add_to_server_list(server, port, password, nick, overwrite)
         for (i=65;i<123;i++) enctablebnc[i+133]=i;
 #endif
 /****************************************************************************/
-	if ((from_server = find_in_server_list(server, port)) == -1)
+	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
 		from_server = number_of_servers++;
 		if (server_list)
@@ -528,7 +548,7 @@ add_to_server_list(server, port, password, nick, overwrite)
 		server_list[from_server].read = -1;
 		server_list[from_server].write = -1;
 		server_list[from_server].pid = -1;
-		server_list[from_server].version = Server2_8;	/* default */
+		server_list[from_server].version = DEFAULT_SERVER_VER;	/* default */
 		server_list[from_server].whois = 0;
 		server_list[from_server].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
@@ -596,6 +616,8 @@ add_to_server_list(server, port, password, nick, overwrite)
 				else
 					new_free(&(server_list[from_server].password));
 			}
+			if (nick && *nick)
+				malloc_strcpy(&(server_list[from_server].nickname), nick);
 		}
 		if ((int) strlen(server) > (int) strlen(server_list[from_server].name))
 			malloc_strcpy(&(server_list[from_server].name), server);
@@ -723,19 +745,24 @@ remove_from_server_list(i)
  * portion and password to the password portion.  This chews up the original
  * string, so * upon return, name will only point the the name.  If portnum
  * or password are missing or empty,  their respective returned value will
- * point to null. 
+ * point to null.  if extra is non NULL, it is set to anything after the
+ * final : after the nickname..
+ *
+ * Note:  this will set connect_next_as_irc/connect_next_as_icb if it sees
+ * the IRC/ or ICB/ at the start of the "name".
  */
 void
-parse_server_info(name, port, password, nick)
-	char	*name,
+parse_server_info(name, port, password, nick, extra)
+	char	**name,
 		**port,
 		**password,
-		**nick;
+		**nick,
+		**extra;
 {
 	char *ptr;
 
 	*port = *password = *nick = NULL;
-	if ((ptr = (char *) index(name, ':')) != NULL)
+	if ((ptr = (char *) index(*name, ':')) != NULL)
 	{
 		*(ptr++) = (char) 0;
 		if (strlen(ptr) == 0)
@@ -758,7 +785,18 @@ parse_server_info(name, port, password, nick)
 						if (!strlen(ptr))
 							*nick = NULL;
 						else
+						{
 							*nick = ptr;
+							if (extra && (ptr = (char *) index(ptr, ':'))
+									!= NULL)
+							{
+								*(ptr++) = '\0';
+								if (!strlen(ptr))
+									*extra = NULL;
+								else
+									*extra = ptr;
+							}
+						}
 					}
 				}
 			}
@@ -782,7 +820,20 @@ parse_server_info(name, port, password, nick)
  * servername::password 
  *
  * Note also that this routine mucks around with the server string passed to it,
- * so make sure this is ok 
+ * so make sure this is ok .
+ *
+ * A new format for ICB and more support is:
+ *
+ *	type/<type-specifc-format>
+ *
+ * eg:
+ *	IRC/server:port:pass:nick:#foo:#bar:&baz
+ * means connect to server on port port with pass and nick, and then to join
+ * channels #foo, #bar and &baz.  this is not implemented beyond the nick...
+ *
+ * or
+ *	ICB/server:port:pass:nick:group:mode
+ * which is all the things needed at connection startup.  this is done.
  */
 void
 build_server_list(servers)
@@ -790,6 +841,7 @@ build_server_list(servers)
 {
 	char	*host,
 		*rest,
+		*extra,
 		*password = (char *) 0,
 		*port = (char *) 0,
 		*nick = (char *) 0;
@@ -797,14 +849,13 @@ build_server_list(servers)
 
 	if (servers == (char *) 0)
 		return;
-	/* port_num = irc_port; */
 	while (servers)
 	{
 		if ((rest = (char *) index(servers, '\n')) != NULL)
 			*rest++ = '\0';
 		while ((host = next_arg(servers, &servers)) != NULL)
 		{
-			parse_server_info(host, &port, &password, &nick);
+			parse_server_info(&host, &port, &password, &nick, &extra);
 			if (port && *port)
 			{
 				port_num = atoi(port);
@@ -814,6 +865,10 @@ build_server_list(servers)
 			else
 				port_num = irc_port;
 			add_to_server_list(host, port_num, password, nick, 0);
+			if (extra)
+			{
+				/* nothing yet */
+			}
 		}
 		servers = rest;
 	}
@@ -830,9 +885,10 @@ build_server_list(servers)
  * This version of connect_to_server() connects directly to a server 
  */
 static	int
-connect_to_server_direct(server_name, port)
+connect_to_server_direct(server_name, port, nick)
 	char	*server_name;
 	int	port;
+	char	*nick;
 {
 	int	new_des;
 	struct sockaddr_in localaddr;
@@ -866,7 +922,7 @@ connect_to_server_direct(server_name, port)
 				&address_len);
 	}
 	update_all_status();
-	add_to_server_list(server_name, port, (char *) 0, (char *) 0, 1);
+	add_to_server_list(server_name, port, (char *) 0, nick, 1);
 	if (port)
 	{
 		server_list[from_server].read = new_des;
@@ -891,9 +947,10 @@ connect_to_server_direct(server_name, port)
  * server 
  */
 static	int
-connect_to_server_process(server_name, port)
+connect_to_server_process(server_name, port, nick)
 	char	*server_name;
 	int	port;
+	char	*nick;
 {
 #ifdef _Windows
 	return -1;
@@ -913,7 +970,7 @@ connect_to_server_process(server_name, port)
 	if (!name)
 		name = path;
 	if (*path == '\0')
-		return (connect_to_server_direct(server_name, port));
+		return (connect_to_server_direct(server_name, port, nick));
 	using_server_process = 1;
 	oper_command = 0;
 	write_des[0] = -1;
@@ -926,7 +983,7 @@ connect_to_server_process(server_name, port)
 			new_close(write_des[1]);
 		}
 		say("Couldn't start new process: %s", strerror(errno));
-		return (connect_to_server_direct(server_name, port));
+		return (connect_to_server_direct(server_name, port, nick));
 	}
 	switch (pid = fork())
 	{
@@ -965,7 +1022,7 @@ connect_to_server_process(server_name, port)
 	if ((c == 0) || ((c = atoi(buffer)) != 0))
 	{
 		if (c == -5)
-			return (connect_to_server_direct(server_name, port));
+			return (connect_to_server_direct(server_name, port, nick));
 		else
 		{
 			char *ptr;
@@ -993,7 +1050,7 @@ connect_to_server_process(server_name, port)
 		}
 	}
 	update_all_status();
-	add_to_server_list(server_name, port, (char *) 0, (char *) 0, 1);
+	add_to_server_list(server_name, port, (char *) 0, nick, 1);
 	server_list[from_server].read = read_des[0];
 	server_list[from_server].write = write_des[1];
 	server_list[from_server].pid = pid;
@@ -1014,9 +1071,10 @@ connect_to_server_process(server_name, port)
  * successful (and not closed immediately by the server). 
  */
 int
-connect_to_server(server_name, port, c_server)
+connect_to_server(server_name, port, nick, c_server)
 	char	*server_name;
 	int	port;
+	char	*nick;
 	int	c_server;
 {
 	int	server_index;
@@ -1028,7 +1086,7 @@ connect_to_server(server_name, port, c_server)
 /****************************************************************************/
  	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
-	server_index = find_in_server_list(server_name, port);
+	server_index = find_in_server_list(server_name, port, nick);
 	attempting_to_connect++;
 	/*
 	 * check if the server doesn't exist, or that we're not already
@@ -1089,9 +1147,9 @@ connect_to_server(server_name, port, c_server)
                 }
 /****************************************************************************/
 		if (using_server_process)
-			server_index = connect_to_server_process(server_name, port);
+			server_index = connect_to_server_process(server_name, port, nick);
 		else
-			server_index = connect_to_server_direct(server_name, port);
+			server_index = connect_to_server_direct(server_name, port, nick);
 		if (server_index)
 		{
 			attempting_to_connect--;
@@ -1124,14 +1182,15 @@ connect_to_server(server_name, port, c_server)
 		{
 			server_list[from_server].close_serv = -1;
 		}
-		if (connect_next_nick && *connect_next_nick)
+		if (connect_next_nick)
 		{
-			malloc_strcpy(&(server_list[from_server].nickname),
-					connect_next_nick);
+			if (*connect_next_nick)
+				malloc_strcpy(&(server_list[from_server].nickname), connect_next_nick);
 			new_free(&connect_next_nick);
 		}
-		if (connect_next_password && *connect_next_password)
+		if (connect_next_password)
 		{
+			if (*connect_next_password)
 			malloc_strcpy(&(server_list[from_server].password),
 					connect_next_password);
 			new_free(&connect_next_password);
@@ -1203,6 +1262,14 @@ login_to_server(server)
 	}
 #endif
 #endif /* NON_BLOCKING_CONNECTS */
+	irc2_login_to_server(server);
+}
+
+static	void
+irc2_login_to_server(server)
+	int	server;
+{
+
 	send_to_server("NICK %s", server_list[server].nickname);
 	if (server_list[server].password)
 		send_to_server("PASS %s", server_list[server].password);
@@ -1239,7 +1306,7 @@ get_connected(server, oldconn)
 		else if (server < 0)
 			server = number_of_servers - 1;
 		s = server;
-		if (connect_to_server(server_list[server].name, server_list[server].port, primary_server))
+		if (connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, primary_server))
 		{
 			while (server_list[server].read == -1)
 			{
@@ -1254,7 +1321,7 @@ get_connected(server, oldconn)
 				}
 				from_server = server;
 				already_connected = is_server_connected(server);
-				ret = connect_to_server(server_list[server].name, server_list[server].port, primary_server);
+				ret = connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, primary_server);
 			}
 			if (!ret)
 				from_server = server;
@@ -1425,6 +1492,7 @@ servercmd(command, args, subargs)
 {
 	char	*server,
 		*port,
+		*extra,
 		*password = (char *) 0,
 		*nick = (char *) 0;
 	int	port_num,
@@ -1457,7 +1525,7 @@ servercmd(command, args, subargs)
 				{
 					if ((i = parse_server_index(server)) == -1)
 					{
-						if (-1 == (i = find_in_server_list(server, 0)))
+						if (-1 == (i = find_in_server_list(server, 0, 0)))
 						{
 							say("No such server in list");
 							return;
@@ -1479,28 +1547,27 @@ servercmd(command, args, subargs)
 				say("SERVER: %s is an unknown flag", server);
 				return;
 			}
-	/* while there are no other cases, this code is not needed -mrg */
-#if 0
 			if ((server = next_arg(args, &args)) == NULL)
 			{
 				say("SERVER: need a server name");
 				return;
 			}
-#endif
-		/* NOTREACHED */
 		}
 
 		if (index(server, ':') != NULL)
 		{
-			parse_server_info(server, &port, &password, &nick);
+			parse_server_info(&server, &port, &password, &nick, &extra);
 			if (!strlen(server))
 			{
 				say("Server name required");
 				return;
 			}
-			port_num = atoi(port);
-			if (!port_num)
-				port_num = -1;
+			if (port && *port) {
+				port_num = atoi(port);
+				if (!port_num)
+					port_num = irc_port;
+			} else
+				port_num = irc_port;
 		}
 		else
 		{
@@ -1575,15 +1642,19 @@ servercmd(command, args, subargs)
 			server = server_list[i].name;
 			if (server_list[i].port != -1)
 				port_num = server_list[i].port;
+			if (server_list[i].nickname && !nick)
+				nick = server_list[i].nickname;
 		}
-		if (((i = find_in_server_list(server, port_num)) != -1) && is_server_connected(i))
+		else
+			i = find_in_server_list(server, port_num, nick);
+		if (i != -1 && is_server_connected(i))
 		{
 			new_server_flags &= ~WIN_TRANSFER;
 			/* We reset the log level only if the "new" server
 			   already has windows associated with it : here it's
 			   equivalent to its already being connected. -Sol */
 		}
-		if (connect_to_server(server, port_num, primary_server) != -1)
+		if (connect_to_server(server, port_num, nick, primary_server) != -1)
 		{
 			if (primary_server > -1 && from_server != primary_server &&
 			    !server_list[from_server].away && server_list[primary_server].away)
@@ -1750,6 +1821,18 @@ char flag;
 /****************************************************************************/
 
 /*
+ * get_server_password: get the passwor for this server.
+ */
+char *
+get_server_password(server_index)
+	int	server_index;
+{
+	if (server_index == -1)
+		server_index = primary_server;
+	return (server_list[server_index].password);
+}
+
+/*
  * set_server_version: Sets the server version for the given server type.  A
  * zero version means pre 2.6, a one version means 2.6 aso. (look server.h
  * for typedef)
@@ -1775,7 +1858,7 @@ get_server_version(server_index)
 	if (server_index == -1)
 		server_index = primary_server;
 	if (server_index == -1)
-		return DEFAULT_SERVER_VERSION;
+		return DEFAULT_SERVER_VER;
 	else
 		return (server_list[server_index].version);
 }
@@ -2021,8 +2104,8 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 	char	lbuf[BIG_BUFFER_SIZE + 1];	/* make this buffer *much*
 						 * bigger than needed */
 	char	*buf = lbuf;
-	int	len,
-		des;
+	int	des;
+	size_t	len;
 	int	server = from_server;
 #ifdef HAVE_STDARG_H
 	va_list vlist;
@@ -2032,6 +2115,7 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 
 	if (in_send_to_server)
 		return;
+	bzero(lbuf, sizeof(lbuf));
 	in_send_to_server = 1;
 	if (server == -1)
 		server = primary_server;
@@ -2131,7 +2215,7 @@ create_server_list()
 	for (i = 0; i < number_of_servers; i++)
 		if (server_list[i].read != -1)
 		{
-			strcat(buffer, server_list[i].itsname);
+			strcat(buffer, get_server_itsname(i));
 			strcat(buffer, " ");
 		}
 	malloc_strcpy(&value, buffer);

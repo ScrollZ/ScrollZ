@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.4 1999-02-15 21:18:52 f Exp $
+ * $Id: server.h,v 1.5 1999-10-04 19:21:37 f Exp $
  */
 
 #ifndef __server_h_
@@ -115,7 +115,7 @@ typedef	unsigned	short	ServerType;
 	char *	find_server_group_name _((int));
 	void	add_to_server_list _((char *, int, char *, char *, int));
 	void	build_server_list _((char *));
-	int	connect_to_server _((char *, int, int));
+	int	connect_to_server _((char *, int, char *, int));
 	void	get_connected _((int, int));
 	int	read_server_file _((void));
 	void	display_server_list _((void));
@@ -151,7 +151,7 @@ extern	SGroup	*server_group_list;
 	char	*get_server_name _((int));
 	char	*get_server_itsname _((int));
 	void	set_server_flag _((int, int, int));
-	int	find_in_server_list _((char *, int));
+	int	find_in_server_list _((char *, int, char *));
 	char	*create_server_list _((void));
 	void	remove_from_server_list _((int));
 	void	set_server_motd _((int, int));
@@ -159,6 +159,7 @@ extern	SGroup	*server_group_list;
 	int	get_server_operator _((int));
 	int	get_server_2_6_2 _((int));
 	int	get_server_version _((int));
+	char	*get_server_password _((int));
 	void	close_server _((int, char *));
 	void	MarkAllAway _((char *, char *));
 	int	is_server_connected _((int));
@@ -171,7 +172,7 @@ extern	SGroup	*server_group_list;
 	void	set_server_operator _((int, int));
 	void	server_is_connected _((int, int));
 	int	parse_server_index _((char *));
-	void	parse_server_info _((char *, char **, char **, char **));
+	void	parse_server_info _((char **, char **, char **, char **, char **));
 	void	set_server_bits _((fd_set *, fd_set *));
 	void	set_server_itsname _((int, char *));
 	void	set_server_version _((int, int));

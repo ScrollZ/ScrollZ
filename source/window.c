@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.8 1999-04-13 16:40:20 f Exp $
+ * $Id: window.c,v 1.9 1999-10-04 19:21:38 f Exp $
  */
 
 #include "irc.h"
@@ -216,6 +216,91 @@ traverse_all_windows(flag)
 		visible = 0;
 		which = invisible_list;
 		return (which);
+	}
+	return ((Window *) 0);
+}
+
+/*
+ * window_traverse: This will do as the name implies, traverse every
+ * window (visible and invisible) and return a pointer to each window on
+ * subsequent calls.  If flag points to a non-zero value, then the traversal
+ * in started from the beginning again, and flag is set to point to 0.  This
+ * returns all visible windows first, then all invisible windows.  It returns
+ * null after all windows have been returned.  It should generally be used as
+ * follows: 
+ *
+ * int flag = 1;
+ * int visible = 1;
+ * Screen *screen;
+ * Window *which;
+ * while(tmp = window_traverse(&flag, &which, &screen, &visible))
+ *	{ code here } 
+ *
+ * this version is recursive.
+ */
+Window	*
+window_traverse(flag, which, screen, visible)
+	int	*flag;
+	Window	**which;
+	Screen	**screen;
+	int	*visible;
+{
+	int	foo = 1;
+
+	/* First call, return the current window basically */
+	if (*flag)
+	{
+		*flag = 0;
+		*visible = 1;
+		if (!screen_list)
+			return (Window *) 0;
+		*screen = screen_list;
+		*which = (*screen)->window_list;
+		if (*which)
+			return (*which);
+		else
+			foo = 0;
+	}
+
+	/*
+	 * foo is used to indicate the the current screen has no windows.
+	 * This happens when we create a new screen..  either way, we want
+	 * to go on to the next screen, so if foo isn't set, then if which
+	 * is already null, return it again (this should never happen, if
+	 * traverse_all_windows()'s is called properly), else move on to
+	 * the next window
+	 */
+	if (foo) {
+		if (!*which)
+			return (Window *) 0;
+		else
+			*which = (*which)->next;
+	}
+
+	if (!*which)
+	{
+		while (*screen)
+		{
+			*screen = (*screen)->next;
+			if (*screen && (*screen)->alive)
+				break;
+		}
+		if (*screen)
+			*which = (*screen)->window_list;
+	}
+
+	if (*which)
+		return (*which);
+	/* 
+	 * Got to the end of the visible list..  so we do the invisible list..
+	 * Should also mean, that we've got to the end of all the visible
+	 * screen..
+	 */
+	if (*visible)
+	{
+		*visible = 0;
+		*which = invisible_list;
+		return (*which);
 	}
 	return ((Window *) 0);
 }
@@ -1990,12 +2075,20 @@ set_channel_by_refnum(refnum, channel)
 	char	*channel;
 {
 	Window	*tmp;
+	int flag = 1;
+	int visible = 1;
+	Screen *screen;
+	Window *tmp2, *window;
 
 	if ((tmp = get_window_by_refnum(refnum)) == (Window *) 0)
 		tmp = curr_scr_win;
-	if (channel)
-		if (strcmp(channel, zero) == 0)
-			channel = (char *) 0;
+	if (channel && strcmp(channel, zero) == 0)
+		channel = (char *) 0;
+
+	while ((tmp2 = window_traverse(&flag, &window, &screen, &visible)))
+		if (tmp2->server == tmp->server && my_stricmp(tmp2->current_channel, channel) == 0)
+			new_free(&tmp2->current_channel);
+
 	malloc_strcpy(&tmp->current_channel, channel);
 	tmp->update |= UPDATE_STATUS;
 	set_channel_window(tmp, channel, tmp->server);
@@ -3151,7 +3244,8 @@ window_get_connected(window, arg, narg, preserve, args)
 		new_server_flags = WIN_TRANSFER;
 	char	*port,
 		*password,
-		*nick;
+		*nick = NULL,
+		*extra = NULL;
 
 	if (arg)
 	{
@@ -3165,7 +3259,7 @@ window_get_connected(window, arg, narg, preserve, args)
 			new_server_flags |= WIN_FORCE;
 			arg++;
 		}
-		parse_server_info(arg, &port, &password, &nick);
+		parse_server_info(&arg, &port, &password, &nick, &extra);
 		if (port)
 		{
 			port_num = atoi(port);
@@ -3174,14 +3268,19 @@ window_get_connected(window, arg, narg, preserve, args)
 		}
 		else
 			port_num = -1;
+		if (extra)
+		{
+			/* nothing yet */ ;
+		}
 		/* relies on parse_server_info putting a null in */
-		if ((i = parse_server_index(arg)) != -1)
 		/* This comes first for "/serv +1" -Sol */
+		if ((i = parse_server_index(arg)) != -1)
 		{
 			if (port_num == -1) /* Could be "/serv +1:6664" -Sol */
 				port_num = server_list[i].port;
 		}
-		else if ((i = find_in_server_list(arg, port_num)) != -1)
+		else
+		if ((i = find_in_server_list(arg, port_num, nick)) != -1)
 			port_num = server_list[i].port;
 	}
 	else
@@ -3212,11 +3311,8 @@ window_get_connected(window, arg, narg, preserve, args)
 			malloc_strcpy(&connect_next_nick, nick);
 		if (password && *password)
 			malloc_strcpy(&connect_next_password, password);
-		/* Does the following ever occur ? -Sol */
-		if (((i = find_in_server_list(arg, port_num)) != -1) && is_server_connected(i))
-			new_server_flags &= ~WIN_TRANSFER;
 
-		if (!connect_to_server(arg, port_num, (new_server_flags & WIN_ALL) ? window->server : -1))
+		if (!connect_to_server(arg, port_num, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
  			set_window_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */
@@ -3229,14 +3325,14 @@ window_get_connected(window, arg, narg, preserve, args)
 	else
 	{
 		if (nick && *nick)
-			malloc_strcpy(&(server_list[i].nickname), nick);
+			set_server_nickname(i, nick);
 		if (password && *password)
-			malloc_strcpy(&(server_list[i].password), password);
+			set_server_password(i, password);
 
-		if (((i = find_in_server_list(get_server_name(i), port_num)) != -1) && is_server_connected(i))
+		if (((i = find_in_server_list(get_server_name(i), port_num, nick)) != -1) && is_server_connected(i))
 			new_server_flags &= ~WIN_TRANSFER;
 
-		if (!connect_to_server(get_server_name(i), server_list[i].port, (new_server_flags & WIN_ALL) ? window->server : -1))
+		if (!connect_to_server(get_server_name(i), server_list[i].port, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
  			set_window_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */

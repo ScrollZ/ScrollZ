@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.24 1999-09-04 20:55:21 f Exp $
+ * $Id: irc.c,v 1.25 1999-10-04 19:21:37 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -1049,10 +1049,8 @@ parse_args(argv, argc)
 		else
 			strmcpy(username, "Unknown", NAME_LEN);
 	}
-/**************************** PATCHED by Flier ******************************/
 	if ((char *) 0 != (ptr = getenv("IRCUSER")))
-		strmcpy(username, ptr, NAME_LEN);
-/****************************************************************************/
+		strmcpy(username, ptr, REALNAME_LEN);
 	gethostname(MyHostName, sizeof(MyHostName));
 	if ((hp = gethostbyname(MyHostName)) != NULL)
 		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
@@ -1223,7 +1221,6 @@ irc_io(prompt, func, my_use_input, loop)
 	irc_io_loop = loop;
 
 			/*
-	if (level++ > 20)
 			 * irc_io has been recursive to date.
 			 * with multiple xterms and screen
 			 * windows, this has to change

@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.3 1999-03-04 22:06:03 f Exp $
+ * $Id: irc_std.h,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -230,16 +230,16 @@ extern char FAR * FAR winsock_errors[];
 
 #ifdef UNSIGNED_LONG32
 
-typedef		unsigned long		u_32int_t;
+typedef		unsigned long		u_32int;
 
 #else
 # ifdef UNSIGNED_INT32
 
-typedef		unsigned int		u_32int_t;
+typedef		unsigned int		u_32int;
 
 # else
 
-typedef		unsigned long		u_32int_t;
+typedef		unsigned long		u_32int;
 
 # endif /* UNSIGNED_INT32 */
 #endif /* UNSIGNED_LONG32 */

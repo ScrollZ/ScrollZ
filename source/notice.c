@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.7 1999-09-26 10:41:17 f Exp $
+ * $Id: notice.c,v 1.8 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -451,6 +451,18 @@ got_initial_version(line)
 	set_server_itsname(parsing_server_index, server);
 	reconnect_all_channels(parsing_server_index);
 	reinstate_user_modes(/* parsing_server_index */); /* XXX */
+	maybe_load_ircrc();
+	if (server_list[parsing_server_index].away)
+		send_to_server("AWAY :%s",
+			server_list[parsing_server_index].away);
+	update_all_status();
+	do_hook(CONNECT_LIST, "%s %d", get_server_name(parsing_server_index),
+		get_server_port(parsing_server_index));
+}
+
+void
+maybe_load_ircrc()
+{
 	if (never_connected)
 	{
 		never_connected = 0;
@@ -464,10 +476,4 @@ got_initial_version(line)
 		if (!qflag)
 			load_ircrc();
 	}
-	else if (server_list[parsing_server_index].away)
-		send_to_server("AWAY :%s",
-			server_list[parsing_server_index].away);
-	update_all_status();
-	do_hook(CONNECT_LIST, "%s %d", get_server_name(parsing_server_index),
-		get_server_port(parsing_server_index));
 }

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.3 1999-02-15 21:18:33 f Exp $
+ * $Id: irc.h,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 #ifndef __irc_h
@@ -350,6 +350,7 @@ extern	struct	in_addr	local_ip_address;
 /****************************************************************************/
 	void	beep_em _((int));
 	void	got_initial_version _((char *));
+	void	maybe_load_ircrc _((void));
 	void	load_ircrc _((void));
 	void	parse_notice _((char *, char **));
  	void	irc_quit _((u_int, char *));

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.24 1999-08-25 20:09:04 f Exp $
+ * $Id: ctcp.c,v 1.25 1999-10-04 19:21:37 f Exp $
  */
 
 #include "irc.h"
@@ -1435,13 +1435,13 @@ do_atmosphere(ctcp, from, to, cmd)
 		}
 		else
 		{
-/**************************** PATCHED by Flier ******************************/
-                        /*message_from(from, LOG_ACTION);*/
-                        /* Make ACTION that came through DCC go to window
-                           with query on that nick */
-                        if (*from=='=') message_from(from+1,LOG_DCC);
-			else message_from(from,LOG_ACTION);
-/****************************************************************************/
+			if ('=' == *from)
+			{
+				set_lastlog_msg_level(LOG_DCC);
+				message_from(from+1, LOG_DCC);
+			}
+			else
+				message_from(from, LOG_ACTION);
 			if (do_hook(ACTION_LIST, "%s %s %s", from, to, cmd))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("*> %s %s", from, cmd);*/
@@ -1681,6 +1681,14 @@ do_ctcp(from, to, str)
 		in_ctcp_flag = 0;
 	if (CTCP_Reply_Buffer && *CTCP_Reply_Buffer)
 	{
+#ifdef PARANOID
+		/*
+		 * paranoid users don't want to send ctcp replies to
+		 * requests send to channels, probably...
+		 */
+		if (is_channel(to))
+			goto clear_ctcp_reply_buffer;
+#endif
 		/*
 		 * Newave ctcp flood protection : each time you are requested to send
 		 * more than CTCP_REPLY_FLOOD_SIZE bytes in CTCP_REPLY_BACKLOG_SECONDS
@@ -1740,6 +1748,9 @@ do_ctcp(from, to, str)
 				send_ctcp(ctcp_type[CTCP_NOTICE], from, NULL, "%s", CTCP_Reply_Buffer);
 			}
                 }
+#ifdef PARANOID
+clear_ctcp_reply_buffer:
+#endif
 		*CTCP_Reply_Buffer = '\0';
 	}
 	if (*str)

@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.3 1999-03-04 22:06:00 f Exp $
+ * $Id: acconfig.h,v 1.4 1999-10-04 19:21:37 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -216,6 +216,20 @@
 #undef ZCAT
 #undef ZSUFFIX
 #undef ZARGS
+
+/*
+ * define USE_CAST if you want to use CAST-128 encryption rather than
+ * the broken original ircII encryption.  note that cast.c is not
+ * distributed with ircII and must be obtained separately.
+ */
+#undef USE_CAST
+
+/*
+ * define HAVE_DEV_RANDOM if you have /dev/random (*BSD/LINUX).
+ * the CAST code uses this if present instead of random(3).
+ */
+#undef HAVE_DEV_RANDOM
+#undef DEV_RANDOM_PATH
 
 /**************************** PATCHED by Flier ******************************/
 /* define this if you have gettimeofday() */
