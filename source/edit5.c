@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.89 2002-02-21 17:25:04 f Exp $
+ * $Id: edit5.c,v 1.90 2002-02-23 10:08:57 f Exp $
  */
 
 #include "irc.h"
@@ -1504,7 +1504,7 @@ int  iscrypted;
                         to_window=curr_scr_win;
                 }
 #ifdef CELE
-                if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,sizeof(channel1));
+                if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,5);
                 else strmcpy(channel1,channel,sizeof(channel1));
 #endif
                 *tmpbuf3='\0';
@@ -1540,7 +1540,7 @@ int  iscrypted;
         }
         if (print) {
 #ifdef CELE
-            if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,sizeof(channel1));
+            if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,5);
             else strmcpy(channel1,newchan,sizeof(channel1));
 #endif
             snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s%s%s%s",tmpbuf1,
