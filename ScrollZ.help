@@ -752,8 +752,10 @@ Also look at $2BANTYPE$0, $2BAN$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBA
 :BKI           Like BK but also ignores user
 Usage $3BKI nick$0 [$3#channel$0] [$3comment$0]
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
-:BKT           Like BK with unban after 5 seconds
-Usage $3BKT nick$0 [$3#channel$0] [$3comment$0]
+:BKT           Like BK with unban after 6 seconds
+Usage $3BKT$0 [$3-T unban time$0] $3nick$0 [$3#channel$0] [$3comment$0]
+By default user will be unbanned after 6 seconds. You can override
+the default setting with $4-T$0 option.
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :CDBAN         Clears bans on current channel
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2SB$0 and $2DOBANS$0
