@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.94 2002-08-13 19:48:34 f Exp $
+ * $Id: irc.c,v 1.95 2002-09-12 21:36:02 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1233,6 +1233,7 @@ TimerTimeout(struct timeval *tv)
 		/*tv->tv_sec = 70;*/ /* Just larger than the maximum of 60 */
                 if (nickt - current.tv_sec < 70) DoOrigNick = 1;
                 tv->tv_sec = nickt - current.tv_sec > 70 ? 70 : nickt - current.tv_sec;
+                if (DoOrigNick && tv->tv_sec <= 0) tv->tv_sec = 70;
 /****************************************************************************/
 		return;
 	}
@@ -1417,6 +1418,7 @@ irc_io(prompt, func, my_use_input, loop)
 		}
 #endif /* _Windows */
 		TimerTimeout(&timer);
+                put_it("timer:%d",timer.tv_sec);
 		if (timer.tv_sec <= timeptr->tv_sec)
 			timeptr = &timer;
 		if ((hold_over = unhold_windows()) != 0)
@@ -1681,7 +1683,6 @@ irc_io(prompt, func, my_use_input, loop)
 
                         if (curnick && !CheckChannel2(OrigNick,curnick)) SwitchNick();
                     }
-                    LastNick=time((time_t *) 0);
                 }
 /****************************************************************************/
 	}
