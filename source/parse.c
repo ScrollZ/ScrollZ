@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.30 2000-09-01 18:01:31 f Exp $
+ * $Id: parse.c,v 1.31 2000-10-12 18:16:12 f Exp $
  */
 
 #include "irc.h"
@@ -94,6 +94,7 @@ extern char *GetNetsplitServer _((char *, char *));
 extern void CheckCdcc _((char *, char *, char *, int));
 extern int  CheckChannel _((char *, char *));
 extern int  DecryptMessage _((char *, char *));
+extern int  IsIrcNetOperChannel _((char *));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -1142,16 +1143,8 @@ p_channel(from, ArgList)
 /***************************** PATCHED by Flier **************************/	
 			/*send_to_server("MODE %s", channel);*/
                         if ((get_server_version(from_server)==Server2_9 || 
-                            get_server_version(from_server)==Server2_10) &&
-                            (!my_stricmp(channel,"&servers")  ||
-                             !my_stricmp(channel,"&errors")   ||
-                             !my_stricmp(channel,"&notices")  ||
-                             !my_stricmp(channel,"&local")    ||
-                             !my_stricmp(channel,"&channel")  ||
-                             !my_stricmp(channel,"&numerics") ||
-                             !my_stricmp(channel,"&kills")    ||
-                             !my_stricmp(channel,"&clients")  ||
-                             !my_stricmp(channel,"&oper"))) {
+                             get_server_version(from_server)==Server2_10) &&
+                            IsIrcNetOperChannel(channel)) {
                             sprintf(tmpbuf,"MODE %s",channel);
                         }
                         else {

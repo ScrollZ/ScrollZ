@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.18 2000-09-24 17:10:34 f Exp $
+ * $Id: notice.c,v 1.19 2000-10-12 18:16:12 f Exp $
  */
 
 #include "irc.h"
@@ -56,7 +56,8 @@
 #include "myvars.h"
 
 extern void HandleFakes _((char *, char *, int));
-extern int HandleNotice _((char *, char *, char *, int));
+extern int  HandleNotice _((char *, char *, char *, int));
+extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OVformat _((char *, char *));
 #endif
@@ -174,11 +175,7 @@ parse_server_notice(from, to, line)
                         if (OperV &&
                            (get_server_version(from_server)==Server2_9 || 
                             get_server_version(from_server)==Server2_10) &&
-                           (!my_stricmp(to,"&servers") || !my_stricmp(to,"&errors")   ||
-                            !my_stricmp(to,"&notices") || !my_stricmp(to,"&local")    ||
-                            !my_stricmp(to,"&channel") || !my_stricmp(to,"&numerics") ||
-                            !my_stricmp(to,"&kills")   || !my_stricmp(to,"&oper")     ||
-                            !my_stricmp(to,"&clients")))
+                           IsIrcNetOperChannel(to))
                             OVformat(line,NULL);
                         else
 #endif

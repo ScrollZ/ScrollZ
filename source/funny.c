@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.9 2000-09-01 18:01:31 f Exp $
+ * $Id: funny.c,v 1.10 2000-10-12 18:16:12 f Exp $
  */
 
 #include "irc.h"
@@ -53,6 +53,7 @@
 
 extern void PrintNames _((char *, char *));
 extern void PrintSynch _((ChannelList *));
+extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OperVisionReinit _((void));
 #endif
@@ -395,16 +396,8 @@ funny_mode(from, ArgList)
 		/*update_channel_mode(channel, parsing_server_index, mode);*/
 		update_channel_mode(channel,parsing_server_index,mode,NULL,NULL,NULL,NULL,tmp);
                 if ((get_server_version(from_server)==Server2_9 || 
-                   get_server_version(from_server)==Server2_10) &&
-                   (!my_stricmp(channel,"&servers")  ||
-                    !my_stricmp(channel,"&errors")   ||
-                    !my_stricmp(channel,"&notices")  ||
-                    !my_stricmp(channel,"&local")    ||
-                    !my_stricmp(channel,"&channel")  ||
-                    !my_stricmp(channel,"&numerics") ||
-                    !my_stricmp(channel,"&kills")    ||
-                    !my_stricmp(channel,"&clients")  ||
-                    !my_stricmp(channel,"&oper"))) {
+                     get_server_version(from_server)==Server2_10) &&
+                    IsIrcNetOperChannel(channel)) {
                     tmp->gotbans=1;
                     tmp->gotwho=1;
                     PrintSynch(tmp);
