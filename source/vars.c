@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.22 2003-01-08 20:00:54 f Exp $
+ * $Id: vars.c,v 1.23 2003-04-15 20:11:34 f Exp $
  */
 
 #include "irc.h"
@@ -1025,10 +1025,24 @@ char *file;
 void SetStampFormat(tsformat)
 char *tsformat;
 {
-    int flag=0;
-    char *format=get_string_var(STAMP_FORMAT);
+    int flag = 0;
+    char *format = get_string_var(STAMP_FORMAT);
+#ifdef HAVE_STRFTIME
+    char tmpstr[mybufsize / 2 + 1];
+    struct tm *tm;
+    time_t timenow;
+#endif /* HAVE_STRFTIME */
 
     new_free(&TimeStampString);
-    TimeStampString=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
+#ifdef HAVE_STRFTIME
+    timenow = time(NULL);
+    tm = localtime(&timenow);
+    strftime(tmpstr, sizeof(tmpstr) - 1, format ? format : empty_string, tm);
+    TimeStampString = expand_alias(NULL, tmpstr, empty_string, &flag, NULL);
+#else  /* HAVE_STRFTIME */
+    TimeStampString = expand_alias(NULL,
+                                   format ? format : empty_string,
+                                   empty_string, &flag, NULL);
+#endif /* HAVE_STRFTIME */
 }
 /****************************************************************************/

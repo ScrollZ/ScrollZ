@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.17 2002-02-01 18:47:37 f Exp $
+ * $Id: config.h,v 1.18 2003-04-15 20:11:34 f Exp $
  */
 
 #ifndef __config_h_
@@ -190,7 +190,11 @@
 #define DEFAULT_SHOW_NUMERICS 0
 #define DEFAULT_SHOW_STATUS_ALL 0
 #define DEFAULT_SHOW_WHO_HOPCOUNT 0
+#ifdef HAVE_STRFTIME
+#define DEFAULT_STAMP_FORMAT "%H:%M|"
+#else
 #define DEFAULT_STAMP_FORMAT "${Z}|"
+#endif
 #define DEFAULT_STATUS_AWAY " (zZzZ: %A)"
 #define DEFAULT_STATUS_CHANNEL " on %C"
 #define DEFAULT_STATUS_CHANOP "@"
@@ -287,7 +291,11 @@
 #define DEFAULT_SHOW_STATUS_ALL 1
 #define DEFAULT_BEEP_ON_MSG "MSG"
 #define DEFAULT_BEEP_ON_MAIL 1
+#ifdef HAVE_STRFTIME
+#define DEFAULT_STAMP_FORMAT "%H:%M$color(cyan)|$color(off)"
+#else
 #define DEFAULT_STAMP_FORMAT "$Z$color(cyan)|$color(off)"
+#endif
 #define DEFAULT_STATUS_AWAY "%y6(%y7zZz:%y4%A%y6)"
 #define DEFAULT_STATUS_CHANNELCOUNT "%y6|%y7O:%y5%o %y7N:%y5%n %y7T:%y5%t%y6| "
 #define DEFAULT_STATUS_CHANNEL "%y7Ch:%y3%C "
@@ -310,7 +318,11 @@
 
 #elif defined(WANTANSI)
 
+#ifdef HAVE_STRFTIME
+#define DEFAULT_STAMP_FORMAT "%H:%M$color(cyan)|$color(off)"
+#else
 #define DEFAULT_STAMP_FORMAT "$Z$color(cyan)|$color(off)"
+#endif
 #define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
 #define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
 #define DEFAULT_STATUS_CHANNELCOUNT "[O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6]"
