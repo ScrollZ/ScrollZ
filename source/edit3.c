@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.78 2002-02-21 17:25:04 f Exp $
+ * $Id: edit3.c,v 1.79 2002-03-03 10:52:38 f Exp $
  */
 
 #include "irc.h"
@@ -1517,7 +1517,7 @@ char *message;
 }
 
 /* Loads ScrollZ.save file */
-int ScrollZLoad()
+void ScrollZLoad()
 {
     int  lineno;
     int  number;
@@ -1536,6 +1536,33 @@ int ScrollZLoad()
     struct words *wordnew;
 
     if (!OrigNick) malloc_strcpy(&OrigNick,nickname);
+    /* if this is a new user (indicated by default LOAD_PATH and
+       no ScrollZ.save file) we create .ScrollZ directory for them
+       and empty ScrollZ.save file */
+    filepath=get_string_var(LOAD_PATH_VAR);
+    if (filepath && !strcmp(filepath,IRCPATH)) {
+        filepath=OpenCreateFile("ScrollZ.save",0);
+        if (!filepath || (usfile=fopen(filepath,"r"))==NULL) {
+            say("This seems to be the first time you have run ScrollZ");
+            say("Directory .ScrollZ will now be created in your home directory");
+            snprintf(tmpbuf1,sizeof(tmpbuf1),"%s/.ScrollZ",my_path);
+            if (mkdir(tmpbuf1,0700)<0) {
+#ifdef WANTANSI
+                say("%sError%s: Can't create directory %s: %s!",
+                        CmdsColors[COLWARNING].color1,Colors[COLOFF],tmpbuf1,strerror(errno));
+#else
+                say("Can't create directory %s: %s!",tmpbuf1,strerror(errno));
+#endif
+                return;
+            }
+            else {
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s/.ScrollZ/ScrollZ.save",my_path);
+                usfile=fopen(tmpbuf1,"w");
+                if (usfile) fclose(usfile);
+                return;
+            }
+        }
+    }
     say("Loading ScrollZ.save file...");
     filepath=OpenCreateFile("ScrollZ.save",0);
     if (!filepath || (usfile=fopen(filepath,"r"))==NULL) {
@@ -1546,7 +1573,7 @@ int ScrollZLoad()
         say("Can't open file ScrollZ.save!");
 #endif
         usersloaded=1;
-        return(1);
+        return;
     }
     lineno=0;
     while (readln(usfile,tmpbuf1)) {
@@ -1565,7 +1592,7 @@ int ScrollZLoad()
 #endif
                 fclose(usfile);
                 usersloaded=1;
-                return(1);
+                return;
             }
             friendnew->privs=0;
             friendnew->userhost=(char *) 0;
@@ -1621,7 +1648,7 @@ int ScrollZLoad()
 #endif
                 fclose(usfile);
                 usersloaded=1;
-                return(1);
+                return;
             }
             abknew->shit=0;
             abknew->userhost=(char *) 0;
@@ -1686,7 +1713,7 @@ int ScrollZLoad()
 #endif
                 fclose(usfile);
                 usersloaded=1;
-                return(1);
+                return;
             }
             wordnew->channels=(char *) 0;
             wordnew->word=(char *) 0;
@@ -2174,7 +2201,7 @@ int ScrollZLoad()
     }
     if (PermUserMode) send_to_server("MODE %s %s",get_server_nickname(from_server),
                                      PermUserMode);
-    return(0);
+    return;
 }
 
 /* Lets you change your AutoReply Buffer - by Zakath */
