@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.115 2001-12-18 20:29:29 f Exp $
+ * $Id: edit6.c,v 1.116 2001-12-19 18:41:13 f Exp $
  */
 
 #include "irc.h"
@@ -104,6 +104,7 @@ void PrintUsage _((char *));
 #ifdef EXTRAS
 void CheckTopic _((char *, int, ChannelList *));
 #endif
+void EncryptAdd _((char *, char *));
 
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct friends *CheckUsers _((char *, char *));
@@ -2204,17 +2205,17 @@ void CleanUp() {
 #endif
 }
 
-/* Support for encrypted DCC CHAT sessions */
-void EncryptMsg(command,args,subargs)
+/* Support for encrypted sessions */
+void EncryptMsg(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
     int show_keys = 0;
     int clear_all = 0;
-    int delit = REMOVE_FROM_LIST;
     char *user;
     char *key;
+    char tmpbuf[mybufsize / 4 + 1];
     struct encrstr *tmp, *tmpnext;
 
     user = new_next_arg(args,&args);
@@ -2228,34 +2229,22 @@ char *subargs;
     }
     key = new_next_arg(args,&args);
     if (user) {
-        if (key) delit = !REMOVE_FROM_LIST;
-        tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, delit);
-        if (key) {
-            if (tmp) malloc_strcpy(&(tmp->key), key);
-            else {
-                tmp=(struct encrstr *) new_malloc(sizeof(struct encrstr));
-                tmp->next = (struct encrstr *) 0;
-                tmp->user = (char *) 0;
-                tmp->key = (char *) 0;
-                malloc_strcpy(&(tmp->user), user);
-                malloc_strcpy(&(tmp->key), key);
-                add_to_list((List **) &encrlist, (List *) tmp);
-            }
-            if (show_keys)
-                say("Communication with %s will be encrypted using key %s", user, key);
-            else
-                say("Communication with %s will be encrypted", user);
-        }
-        else {
+        *tmpbuf = '\0';
+        if (show_keys) strmcat(tmpbuf, ":", mybufsize / 4);
+        strmcat(tmpbuf, user, mybufsize / 4);
+        if (key) EncryptAdd(tmpbuf, key);
+        else if (*user == '-') {
+            tmp = (struct encrstr *) list_lookup((List **) &encrlist, user + 1, !USE_WILDCARDS, REMOVE_FROM_LIST);
             if (!tmp) {
-                say("User %s not found in encryption list", user);
+                say("User %s not found in encryption list", user + 1);
                 return;
             }
             new_free(&(tmp->user));
             new_free(&(tmp->key));
             new_free(&tmp);
-            say("Communication with %s will no longer be encrypted", user);
+            say("Communication with %s will no longer be encrypted", user + 1);
         }
+        else add_wait_prompt("Password:", EncryptAdd, tmpbuf, WAIT_PROMPT_LINE);
     }
     else {
         if (!encrlist) {
@@ -2278,6 +2267,33 @@ char *subargs;
         }
         if (clear_all) encrlist = (struct encrstr *) 0;
     }
+}
+
+/* Handle encryption list */
+void EncryptAdd(user, key)
+char *user;
+char *key;
+{
+    int show_keys = 0;
+    struct encrstr *tmp;
+
+    if (*user == ':') {
+        show_keys++;
+        user++;
+    }
+    tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, !REMOVE_FROM_LIST);
+    if (tmp) malloc_strcpy(&(tmp->key), key);
+    else {
+        tmp = (struct encrstr *) new_malloc(sizeof(struct encrstr));
+        tmp->next = (struct encrstr *) 0;
+        tmp->user = (char *) 0;
+        tmp->key = (char *) 0;
+        malloc_strcpy(&(tmp->user), user);
+        malloc_strcpy(&(tmp->key), key);
+        add_to_list((List **) &encrlist, (List *) tmp);
+    }
+    if (show_keys) say("Communication with %s will be encrypted using key %s", tmp->user, tmp->key);
+    else say("Communication with %s will be encrypted", tmp->user);
 }
 
 /* Encrypt message */
