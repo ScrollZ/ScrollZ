@@ -1,0 +1,12 @@
+!	 $Id: insert_tabkey_prev,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> INSERT_TABKEY_PREV
+  Insert the previous entry from the tabkey list.
+  The tabkey list includes all the users you have
+  exchanged messages with - including DCC CHAT and
+  channels (if /MSG #channel was used).

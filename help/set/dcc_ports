@@ -1,0 +1,18 @@
+!	 $Id: dcc_ports,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET DCC_PORTS <low port>[-<high port>]
+  Controls the ports used when exchanging files using
+  DCC SEND or DCC GET.
+
+  The default is to use whatever ports are returned by the
+  underlying operating system. If you are behind a firewall
+  you can control what ports the client will attempt to
+  use for the DCC protocol. Only ports in range 1024 to
+  65500 are allowed. The range is inclusive - meaning that
+  both the low port and the high port will be used. You
+  can also use colon (:) as a separator instead of minus (-).

@@ -1,0 +1,11 @@
+!	 $Id: truncate_public_channel,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET TRUNCATE_PUBLIC_CHANNEL [ON|OFF|TOGGLE]
+  When ON, channel name in public messages is limited cut
+  at 5 characters. This option is only available if client
+  is compiled with Celerity enabled (-DCELE).

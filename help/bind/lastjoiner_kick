@@ -1,0 +1,11 @@
+!	 $Id: lastjoiner_kick,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> LASTJOINER_KICK
+  Ban and kick the last person to join your current channel.
+  This always excludes your client from being banned and
+  kicked.

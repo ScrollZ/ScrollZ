@@ -1,0 +1,17 @@
+!	 $Id: stamp_format,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STAMP_FORMAT <time stamp format>
+  Sets the prefix used for otherwise unadorned messages.  The
+  default is "$Z$color(cyan)|$color(off)" for client compiled
+  with color support and "%Z|" otherwise.  This value
+  undergoes alias expansion before being displayed.  This
+  only works if time stamp is set to ON or MAX.
+
+See Also:
+  SET SCROLLZ_STRING
+  STAMP

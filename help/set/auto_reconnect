@@ -1,0 +1,11 @@
+!	 $Id: auto_reconnect,v 1.1 2002-02-23 11:24:44 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET AUTO_RECONNECT [ON|OFF|TOGGLE]
+  When ON, client will automatically reconnect to a server
+  when disconnected. When OFF no reconnect takes place and
+  client stays offline.
