@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.3 1998-09-16 20:10:52 f Exp $
+ * $Id: edit4.c,v 1.4 1998-09-30 21:23:49 f Exp $
  */
 
 #include "irc.h"
@@ -801,7 +801,7 @@ void HandleTabPrev() {
     int curserv=from_server;
     struct nicks *tmpnick;
 
-    if (CheckServer(curserv)) {
+    if (CheckServer(curserv) && server_list[curserv].nicklist) {
         if (server_list[curserv].nickcur==server_list[curserv].nicklist) {
             for (tmpnick=(server_list[curserv].nicklist)->next;tmpnick && tmpnick->next;)
                 tmpnick=tmpnick->next;
