@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.102 2001-09-28 16:25:36 f Exp $
+ * $Id: edit6.c,v 1.103 2001-10-01 18:41:28 f Exp $
  */
 
 #include "irc.h"
@@ -521,7 +521,7 @@ char *distance;
 
 /* This prints map */
 void PrintMap() {
-    int  prevdist=maplist->distance;
+    int  prevdist=0;
     char *ascii;
     char tmpbuf1[mybufsize/2];
     char tmpbuf2[mybufsize/4];
@@ -529,6 +529,7 @@ void PrintMap() {
 
     if (get_int_var(HIGH_ASCII_VAR)) ascii="юд> ";
     else ascii="`-> ";
+    if (maplist) prevdist=maplist->distance;
     for (tmpmap=maplist;maplist;tmpmap=maplist) {
         maplist=maplist->next;
 #ifdef WANTANSI
