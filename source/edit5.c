@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.34 2000-07-10 15:53:59 f Exp $
+ * $Id: edit5.c,v 1.35 2000-07-12 14:12:51 f Exp $
  */
 
 #include "irc.h"
@@ -3787,12 +3787,14 @@ void InitKeysColors() {
     malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
 #endif
     /* Turn all attributes (bold) off */
+#ifndef SZ32
     malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
-#ifdef SZ32
+#else
+    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
     malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
 #endif
-#else
+#else  /* CELE */
     /* BAR */
     malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
     /* Secondary Bar */
@@ -3810,9 +3812,11 @@ void InitKeysColors() {
     malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLBLUEBG]);
 #endif
     /* Level 3 stuff (info) */
+#ifndef SZ32
     malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLNOBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
-#ifdef SZ32
+#else
+    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
     malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
 #endif
     /* level 4 stuff (brackets) */
@@ -3821,7 +3825,7 @@ void InitKeysColors() {
 #ifdef SZ32
     malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
 #endif
-#endif
+#endif /* CELE */
 
     /* Color2 of the statusbar */
     /* Nickname and time */
