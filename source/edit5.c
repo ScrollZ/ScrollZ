@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.70 2001-08-25 18:25:15 f Exp $
+ * $Id: edit5.c,v 1.71 2001-08-25 18:31:18 f Exp $
  */
 
 #include "irc.h"
@@ -2191,7 +2191,9 @@ int  iscrypted;
 #endif
     char thingleft[mybufsize/128];
     char thingright[mybufsize/128];
+    void (*func)()=(void(*)())put_it;
 
+    if (Stamp==2) func=(void(*)())say;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
     sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
@@ -2205,13 +2207,13 @@ int  iscrypted;
     sprintf(tmpbuf2,"<[%s%s%s]%s%s,%s%s>",
             CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],
             CmdsColors[COLDCC].color4,client->addr,client->port,Colors[COLOFF]);
-    put_it("%s %s%s%s %s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF],
-           tmpbuf2);
+    func("%s %s%s%s %s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF],
+         tmpbuf2);
 #else  /* TDF */
-    put_it("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
+    func("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
 #endif /* TDF */
 #else  /* WANTANSI */
-    put_it("%s%s%s %s",thingleft,client->user,thingright,line);
+    func("%s%s%s %s",thingleft,client->user,thingright,line);
 #endif /* WANTANSI */
     if (bytes>512 && (away_set || LogOn)) {
         sprintf(tmpbuf,"DCC CHAT from %s is %d bytes long",client->user,bytes);
@@ -2231,7 +2233,9 @@ int  iscrypted;
 #endif
     char thingleft[mybufsize/128];
     char thingright[mybufsize/128];
+    void (*func)()=(void(*)())put_it;
 
+    if (Stamp==2) func=(void(*)())say;
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
     sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
@@ -2243,9 +2247,9 @@ int  iscrypted;
             CmdsColors[COLDCCCHAT].color5,nick,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF]);
-    put_it("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
+    func("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
 #else
-    put_it("[%s%s%s] %s",thingleft,nick,thingright,line);
+    func("[%s%s%s] %s",thingleft,nick,thingright,line);
 #endif
 }
 
