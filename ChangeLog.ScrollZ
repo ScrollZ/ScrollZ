@@ -49,6 +49,31 @@ ScrollZ v1.9.1
       (requested by taliz)
     + SET HYPER_DCC which replaces compile time define HYPERDCC
       (suggested by Merlin)
+    ! WINDOW LEVEL +level1,level2,...
+    + URL catcher now also stores the source of the URL (nick if it
+      was in a privmsg, or a channel for publics, requested by poorboy)
+    + $url(number [string]) now returns given url and its source if
+      called with two arguments
+    ~ by default kick/nick/deop floods, showaway, kick on flood and
+      kick on ban are turned off (suggested by b-)
+    ! TIMER -REFNUM crash (ircII bug, reported by Adam Balogh)
+    ! WHO -SHOW_SERVER command line parsing, fixes WHO -SHOW_SERVER
+      -OPER (reported by braneded)
+    ! CDBAN not clearing all bans (reported by enkil)
+    ! crash on switch_channels with empty server list (reported by jups)
+    + @ usermode support
+    + wordkicks in actions (coded by braneded)
+    + CDE to clear ban exceptions (requested by Blaxthos)
+    ! compile with celerity enabled (bugfix by Pier)
+    ! compile on FBSD 5.1+ with IPv6 enabled (patch from ircII by Damm)
+    ! @%+nick support for some ircds
+    + ADDW now support -BAN and -TIME, see help for more info
+      (requested by eviilboy)
+    + client should no longer excess flood when joining a lot of channels
+      at once (when reconnecting on hybrid7/latest ratbox)
+    ! compile using Apple GCC and IBM XLC (fix by TrN)
+    ! crash when orignick kicks in and there are no servers in the
+      list (reported by taliz)
 
 ------------------------------------------------------------------------------
 
