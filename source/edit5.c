@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.104 2003-04-29 18:05:49 f Exp $
+ * $Id: edit5.c,v 1.105 2003-05-08 15:35:31 f Exp $
  */
 
 #include "irc.h"
@@ -1482,9 +1482,9 @@ int  iscrypted;
         if (isfriend && !isshit && isitme) coln=CmdsColors[COLMISC].color4;
         else
 #endif /* CELECOSM */
-	if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
+        if (isitme) coln=CmdsColors[COLMISC].color5;
+        else if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
         else if (isfriend) coln=CmdsColors[COLMISC].color4;
-        else if (isitme) coln=CmdsColors[COLMISC].color5;
         else coln=CmdsColors[COLPUBLIC].color2;
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s",coln,pubschar,Colors[COLOFF]);
         snprintf(tmpbuf5,sizeof(tmpbuf5),"%s%c%s",coln,pubechar,Colors[COLOFF]);
@@ -1565,9 +1565,9 @@ int  iscrypted;
 	}
     }
     else {
-	if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
+        if (isitme) coln=CmdsColors[COLMISC].color5;
+        else if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
         else if (isfriend) coln=CmdsColors[COLMISC].color4;
-        else if (isitme) coln=CmdsColors[COLMISC].color5;
         else coln=CmdsColors[COLPUBLIC].color2;
         if (!col && print)
             put_it("%s%s%s%c%s %s%s%s",iscrypted?"[!]":"",stampbuf,
