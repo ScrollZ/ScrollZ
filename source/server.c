@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.58 2003-10-04 18:15:23 f Exp $
+ * $Id: server.c,v 1.59 2003-12-28 16:47:05 f Exp $
  */
 
 #include "irc.h"
@@ -2182,6 +2182,10 @@ char	*
 get_server_nickname(server_index)
 	int	server_index;
 {
+/**************************** PATCHED by Flier ******************************/
+        if (server_index >= number_of_servers)
+            return(nickname);
+/****************************************************************************/
 	if ((server_index != -1) && server_list[server_index].nickname)
 		return (server_list[server_index].nickname);
 	else
