@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.38 2000-08-09 19:31:20 f Exp $
+ * $Id: edit4.c,v 1.39 2000-08-10 17:08:36 f Exp $
  */
 
 #include "irc.h"
@@ -215,7 +215,7 @@ int  print;
         ColorUserHost(userhost,CmdsColors[COLMSG].color2,tmpbuf2,1);
 #ifdef TDF
         sprintf(tmpbuf3,"  <[%s%s%s]%s>",
-                CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF],tmpbuf2);
+                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
 #else  /* TDF */
         sprintf(tmpbuf3,"  %s [%s%s%s]",tmpbuf2,
                 CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
