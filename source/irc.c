@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.95 2002-09-12 21:36:02 f Exp $
+ * $Id: irc.c,v 1.96 2002-09-12 21:37:49 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1418,7 +1418,6 @@ irc_io(prompt, func, my_use_input, loop)
 		}
 #endif /* _Windows */
 		TimerTimeout(&timer);
-                put_it("timer:%d",timer.tv_sec);
 		if (timer.tv_sec <= timeptr->tv_sec)
 			timeptr = &timer;
 		if ((hold_over = unhold_windows()) != 0)
