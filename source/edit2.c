@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.67 2001-11-01 20:31:46 f Exp $
+ * $Id: edit2.c,v 1.68 2001-11-19 18:37:33 f Exp $
  */
 
 #include "irc.h"
@@ -386,12 +386,15 @@ int type;
     char *me = get_server_nickname(from_server);
     char *users = NULL;
     int limited = 0;
+    int allusers = 0;
     ChannelList *chan;
     NickList *nick;
 
     argument = new_next_arg(args, &args);
-    if (argument && (!my_stricmp(argument, "-F") || !my_stricmp(argument, "-O"))) {
-        limited = 1;
+    if (argument &&
+        (!my_stricmp(argument, "-F") || !my_stricmp(argument, "-O") || !my_stricmp(argument, "-A"))) {
+        if (!my_stricmp(argument, "-A")) allusers = 1;
+        else limited = 1;
         argument = new_next_arg(args, &args);
     }
     if (argument && is_channel(argument)) channel = argument;
@@ -424,8 +427,8 @@ int type;
         case 0:	/* devoice */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (nick->hasvoice) {
-                    if (limited && nick->frlist && nick->frlist->privs&FLVOICE) continue;
+                if (allusers || nick->hasvoice) {
+                    if (!allusers && limited && nick->frlist && nick->frlist->privs&FLVOICE) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -436,8 +439,8 @@ int type;
         case 1:	/* voice */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (!nick->hasvoice && !nick->halfop && !nick->chanop) {
-                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLVOICE))) continue;
+                if (allusers || (!nick->hasvoice && !nick->halfop && !nick->chanop)) {
+                    if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLVOICE))) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -449,8 +452,8 @@ int type;
         case 2:	/* dehalfop */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (nick->halfop) {
-                    if (limited && nick->frlist && nick->frlist->privs&FLHOP) continue;
+                if (allusers || nick->halfop) {
+                    if (!allusers && limited && nick->frlist && nick->frlist->privs&FLHOP) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -461,8 +464,8 @@ int type;
         case 3:	/* halfop */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (!nick->halfop && !nick->chanop) {
-                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLHOP))) continue;
+                if (allusers || (!nick->halfop && !nick->chanop)) {
+                    if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLHOP))) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -473,8 +476,8 @@ int type;
         case 4:	/* deop */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (nick->chanop) {
-                    if (limited && nick->frlist && nick->frlist->privs&FLOP) continue;
+                if (allusers || nick->chanop) {
+                    if (!allusers && limited && nick->frlist && nick->frlist->privs&FLOP) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -485,8 +488,8 @@ int type;
         case 5:	/* op */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (!nick->chanop) {
-                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
+                if (allusers || !nick->chanop) {
+                    if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
@@ -497,8 +500,8 @@ int type;
         case 6:	/* reop */
             for (nick = chan->nicks; nick; nick = nick->next) {
                 if (!my_stricmp(nick->nick, me)) continue;
-                if (nick->chanop) {
-                    if (limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
+                if (allusers || nick->chanop) {
+                    if (!allusers && limited && (!nick->frlist || !(nick->frlist->privs&FLOP))) continue;
                     if (users) malloc_strcat(&users, " ");
                     malloc_strcat(&users, nick->nick);
                 }
