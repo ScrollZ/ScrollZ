@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.36 2003-05-13 18:40:28 f Exp $
+ * $Id: alias.c,v 1.37 2003-09-01 18:19:37 f Exp $
  */
 
 #include "irc.h"
@@ -4721,7 +4721,7 @@ u_char *input;
             urlnum=atoi(tmpstr);
             if (input && *input) showtarget=1;
         }
-        while (tmpurl && tmpurl->next && urlnum--) tmpurl=tmpurl->next;
+        while (tmpurl && urlnum--) tmpurl=tmpurl->next;
         if (tmpurl) {
             malloc_strcpy((char **) &result,tmpurl->urls);
             if (showtarget && tmpurl->source) {
