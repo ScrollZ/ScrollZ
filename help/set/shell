@@ -1,0 +1,17 @@
+!	 $eterna: shell,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SHELL <shell path>
+  Sets the name of the shell to be used by the EXEC command.
+  Normally, this would be a standard csh or sh, but you can make
+  it anything you like.  
+
+See Also: 
+  SET SHELL_FLAGS
+  SET SHELL_LIMIT
+  EXEC

@@ -1,0 +1,14 @@
+!	 $eterna: scroll,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SCROLL [ON|OFF|TOGGLE]
+  Turns ON or OFF screen scrolling.  While OFF, when the cursor
+  reaches the bottom of the screen, it jumps to the top and
+  overwrites its way back down.  This mode is recommended for
+  *extremely* dumb terminals.  When ON, the screen will scroll
+  old information off the top.

@@ -1,0 +1,14 @@
+!	 $eterna: input,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: INPUT "<prompt>" <command> <args>
+  Where it displays "prompt" and then calls command, with args,
+  and with the line prompted for as $*.  The use of this is
+  strongly encouraged over the use of variable $"..". Similar
+  problems that occur in /wait. E.g:
+    ALIAS ex INPUT "Enter shell command >" exec $$*

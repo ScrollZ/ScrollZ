@@ -1,0 +1,11 @@
+!	 $eterna: window_swap,v 1.2 2001/08/12 15:43:26 mrg Exp $
+!
+! Copyright (c) 2000 Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]WINDOW_CHANGE [-|^]<parameters> [action]
+  Whenever a window is swapped, this hook is triggered
+    $0    Refnum or name of the window we came from
+    $1    Refnum or name of the window we swapped to

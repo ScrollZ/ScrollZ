@@ -1,0 +1,12 @@
+!	 $eterna: beep_when_away,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET BEEP_WHEN_AWAY [<value>] 
+  This sets the number of beeps that you will hear when you
+  receive a message while you are AWAY.  Setting the value to 0
+  will not put a limit on the number of beeps.

@@ -1,0 +1,16 @@
+!	 $eterna: window,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]WINDOW [-|^]<parameters> [action]
+  This is activated whenever text is sent to a matching window.
+  This can be used to echo information from one window to a
+  channel.  WARNING!!!  If you aren't careful you can get into some
+  infinite sending loops!  Use with care!
+  Parameters:
+	$0	Refnum or name of window
+	$1-	text of line sent to window

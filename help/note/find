@@ -1,0 +1,18 @@
+!	 $eterna: find,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE FIND [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+		<nick!username@host> <msg>
+  FIND is an alias for USER +FLR (default max 1 day)
+  This command makes the server search for any matching recipient, and
+  send a note message back if this is found. If <msg> field is used, this 
+  should specify the realname of the person to be searched for. Examples:
+    FIND -4 foo*!username@host
+    FIND @host Internet*
+    FIND nicky Annie*	     
+    FIND +7 * Annie*

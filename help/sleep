@@ -1,0 +1,15 @@
+!	 $eterna: sleep,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SLEEP <number of seconds>
+  This suspends IRCII for the number of seconds given.  NOTHING happens
+  during this time.  This is really only useful for automatons.
+  Maybe not even then. Try the TIMER command instead.
+
+See Also:
+  TIMER

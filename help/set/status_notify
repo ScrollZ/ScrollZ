@@ -1,0 +1,15 @@
+!	 $eterna: status_notify,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_NOTIFY <Status line text>
+  The contents of STATUS_NOTIFY are replaced in the STATUS_FORMAT
+  variable for any occurence of %F when there has been activity in
+  a hidden window. STATUS_NOTIFY may contain occurences of %F which
+  will be replaced by the list of windows in which there has been
+  activity. If there has been no activity in hidden windows, %F
+  is replaced by nothing in the STATUS_FORMAT.

@@ -1,0 +1,237 @@
+!	$eterna: news,v 1.7 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+__________________________________________________________________________
+                             ircII 2.9
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+from:  @(#)Id: NEWS,v 1.19 1997/04/14 16:16:23 mrg Exp
+
+Changes since ircII 2.8.2:
+
+  o  tabkey works with nicknames with \'s in them.
+  o  muchly updated /window server and /window channel system.
+  o  more robust autoconfiguration.
+  o  lots of bugs fixed.
+  o  `idle()' functions returns idle time.
+  o  `/dcc rename -chat old new' renames a dcc chat connection
+  o  `/set same_window_only' places channels in windows more often.
+  o  `&' is expanded in GCOS fields, as per BSD.
+  o  ctcp flood handling done in a more sane manner.
+  o  non blocking connects (use -DNON_BLOCKING_CONNECTS).  ircII will
+     attempt to figure out if this is available or not automatically,
+     when configuring.
+  o  new window commands `addgroup', and `delgroup'.  these allow you
+     to define a group of windows, such that they are always connected
+     to the same server.
+  o  new `ircbug' shell command for reporting bugs.
+  o  SOCKS support.
+  o  new `imap' script.
+  o  new log level `BEEP'.
+  o  dcc works with `/server localhost', again.
+  o  `/set HELP_PATH' now works with ~user expansion.
+  o  lots and lots and lots of bug fixes.
+  o  new `undernet' script to make ircII understand undernet.org extras.
+  o  a bunch of general bug fixes.  most of the submitted-via-ircbug (the
+     correct way!) have been fixed, or at least closely analyzed.
+  o  DYNAMIC_SLIP is not longer available, due to ircII simply handling
+     the case properly now.
+  o  `/window create' might be stabler.  really this time.
+  o  removed `/set help_service' support from ircII.
+  o  added `help' script to replace `/set help_service' support.
+  o  almost all gcc -Wall warnings on a sane system fixed.
+  o  help files are once again distributed with ircII.
+  o  windows now default to having level of `NONE'.
+  o  better error reporting in some circumstances.
+  o  renamed `ircserv' to `ircio' due to continued believe that `ircserv'
+     was actually an IRC server.
+  o  `/server .' should reconnect to the server last connected in this
+     window.
+  o  fully prototyped source tree.
+  o  each window can have two status lines, using `/window double', and
+     the new `STATUS_FORMAT1' and `STATUS_FORMAT2' varaibles.
+  o  new variable `SAME_WINDOW_ONLY' that controls how disconnected
+     channels are placed (if at all) in other windows.
+  o  ircII no longer use lex/flex in the build process.
+  o  `/notify' can be more verbose.
+  o  `irc -b' loads the .ircrc before connecting to a server.  beware.
+  o  irc 2.9 support.
+  o  many many new translation tables, polish, russian, etc.
+  o  hopefully more consistant message levels.
+  o  `/window server', `/server', then `IRCSERVER' variable, and command
+     line server lists all support the server:port:password:nickname
+     format.
+  o  `/window sticky <on|off>' to control whether channels follow server
+     changes, etc.
+__________________________________________________________________________
+                     ircII 2.2, 2.2.1, 2.2.2 and 2.2.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        READ THIS    READ THIS    READ THIS    READ THIS    READ THIS
+        =============================================================
+        The most important difference between this version and older
+        ones is that the format for  ON SERVER_NOTICE and
+        ON PUBLIC has changed.
+        Some scripts won't work anymore  (may have strange effects).
+
+	Also, for 2.2.3, the characters ^B ^V and ^_ mean different
+	things - ^B bold, ^_ for underline, and ^V for inverse.
+ 
+Commands that have changed.
+        It is now possible to redirect to a DCC CHAT connection with
+                REDIRECT =nick
+        You can have some command executed on the results of USERHOST with
+                USERHOST -CMD command
+        You can, and should, use WAIT now with
+                WAIT -CMD command
+        You can have ircII create new windows (screen or xterm) with
+                WINDOW CREATE
+        The IF and WHILE commands have changed.
+    New in 2.2.2
+	ON PUBLIC and ON SERVER_NOTICE have changed.
+	IGNORE now has CRAP and CTCP levels.
+	SERVER has now -DELETE flag.
+	news flags -USER and -NAME for LIST -WIDE
+
+New commands
+        WHICH script - returns which script will be loaded with LOAD
+        FOREACH - to iterate over a list.
+        TIMER seconds command - executes `command' after `seconds' seconds.
+        INPUT "prompt" command - executes `command' when input is read from
+                the keyboard.
+        PING nick - uses CTCP PING to work out how many seconds a remote 
+                is from you.
+        PARSEKEY key - acts as though a key bound to `key' was pressed.
+        SENDLINE line - is the same as typing in the line.
+        HOOK line - does an ON HOOK check.
+        EVAL line - passes `line' to the inline parser, to be executed.
+        CTCP UTC - A time CTCP.
+        MLOAD - loads a menu.
+    New in 2.2.1
+        CTCP ECHO - Similar to CTCP ERRMSG.
+        WINDOW LOGFILE - Sets the logfile for that window.
+    New in 2.2.2
+        XTYPE - Similar to TYPE
+	WINDOW NOTIFY_LEVEL
+
+New alias variables:
+        $W $V $H $U $~
+
+New SETable variables
+        NO_CTCP_FLOOD
+        SHOW_STATUS_ALL
+        SCROLL_AFTER_DISPLAY.
+        STATUS_USER1-3
+        MENU
+        HIGHLIGHT_CHAR
+        HELP_PROMPT
+        HELP_SERVICE
+        HELP_PATH
+        DCC_BLOCK_SIZE
+        LOAD_PATH
+        DEBUG
+        VERBOSE_CTCP
+        SCROLL_BACKWARD
+        SCROLL_FORWARD
+        SCROLL_END
+        TRANSLATION
+        BOLD_VIDEO
+    New in 2.2.1
+        SHOW_WHO_HOPCOUNT
+    New in 2.2.2
+        NOTIFY_LEVEL 
+	XTERM_OPTIONS
+	EIGHT_BIT_CHARACTERS
+
+    And STATUS_FORMAT has these new variables
+        %W %X %Y %B %# %@ %>
+
+New/changed on hook's.
+        ON DCC_RAW
+        ON HOOK
+        ON INPUT
+        Several of the numeric ON's have changed.
+    New in 2.2.1
+        ON SERVER_NOTICE   *****  THIS HAS CHANGED  *****
+        ON PUBLIC          *****  THIS HAS CHANGED  *****
+
+New bindable keys.
+        ERASE_TO_BEG_OF_LINE
+        REFRESH_INPUTLINE
+        META3_CHARACTER
+        META4_CHARACTER
+
+New functions.
+        $ENCODE()
+        $DECODE()
+        $TDIFF()
+        $CONNECT()
+        $LISTEN()
+        $ISCHANNEL(word)
+        $ISCHANOP(nick channel)
+        $WORD(number wordlist)
+        $WINNUM()
+        $WINNAM()
+    New in 2.2.2
+	$CURPOS()
+	$MYCHANNELS(refnum)
+	$MYSERVERS()
+
+Other
+        You can no longer use \n in a line to separate commands.
+        Functions are now access with $name().  $%name() is not supported.
+        You can access varibles in structures by using struct[index]
+          as well as struct.index.
+        You can use { } style braces around aliases.
+        You can connected to the server via Unix domain sockets.
+        The display defaults to OFF while loading a script.
+
+__________________________________________________________________________
+                             ircII 2.1.5g.tom2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Internationalization issues:
+  1.  Support for multiple character sets.  See /help SET TRANSLATION.
+  2.  Digraph entries.  See /help BIND ENTER_DIGRAPH and /help DIGRAPH.
+__________________________________________________________________________
+                             ircII 2.1.5      
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> The command /who -h and -s is no more supported.
+> Introduced { and } in scripts, see script/finger for an example.
+See Also: /help load.
+> Behavior of HOLD_MODE has changed, won't hold when you are being active
+  in that window. I like it a lot more, it's not so disturbing anymore.
+> Away messages are displayed only once, when talking to someone who is away
+  unless you /set show_away_once off.
+> You don't get disturbed by cryptic but trivial CTCP requests, unless
+  you /set verbose_ctcp on.
+> Improved handling of process prompts, but INPUT_PROMPT must be set.
+> ircII can now load scripts and help files in compressed form.
+> All the scripts have been updated and many helpfiles written and
+rewritten.  Many bugs have been fixed, support of newer server features
+added, this client is already 2.7-capable.
+
+> There have been major changes in the command parser. Commands are not
+expected to have a leading / unless entered interactively, if you
+experience incompatibilities, you will have to add 'say' and 'send'
+wherever you have made aliases that send to the channel or query.
+See Also: /help ircII programming for this. Also the ';' has a new
+meaning as command separator within ALIAS, BIND and ON. You might have
+to \escape it.
+
+> The good news: Scripts are much more readable and understandable, look
+a lot less ugly now  :)   COMMAND_MODE gives command-oriented freaks the
+chance to use ircII that way. A special script for MUDders has been added
+that emulates an Aber/LPMUD-like environment on irc, without having to
+type / before "smile" and allowing "'<text>" for "say" etc.
+
+> CTCP ACTION has been implemented which permits you to send descriptions
+of actions/'feelings' to other people on channels and even through
+queries.  You can use it with /me and the action script.
+See Also: 
+  LOAD ACTION

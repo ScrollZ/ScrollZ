@@ -1,0 +1,15 @@
+!	 $eterna: public_notice,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]PUBLIC_NOTICE [-|^]<parameters> [action]
+  This is activated whenever you receive a NOTICE to your channel
+  from someone not on that channel.
+  The parameters for the action are as follows:
+    $0    nickname of person who sent the NOTICE
+    $1    the channel to which the NOTICE was sent
+    $2-   the message

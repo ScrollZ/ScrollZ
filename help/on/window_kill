@@ -1,0 +1,13 @@
+!	 $eterna: window_kill,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]WINDOW_KILL [-|^]<parameters> [action]
+  Whenever a window is killed (checked out by parameter * or number
+  for the window (see HELP WINDOW)), action is done.
+  The parameters are:
+    $0    Refnum or name of the window

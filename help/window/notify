@@ -1,0 +1,13 @@
+!	 $eterna: notify,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW NOTIFY
+  Toggles notification for the current window when it is 
+  invisible. If set to ON, the first text written to the window 
+  after it is hidden will cause a line to be displayed in the 
+  current window at that time.

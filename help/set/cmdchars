@@ -1,0 +1,12 @@
+!	 $eterna: cmdchars,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET CMDCHARS <character set>
+  Sets the set of characters which may be used to specify a 
+  command to IRCII.  You can specify as many characters as you
+  wish to be command characters.

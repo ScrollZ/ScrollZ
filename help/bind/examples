@@ -1,0 +1,34 @@
+!	 $eterna: examples,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Examples of the BIND function:
+
+    BIND ^X META2_CHARACTER
+  Makes control X a meta key.
+
+    BIND ^Xl parse LIST
+  Binds the meta sequence control X followed by l to perform a LIST.
+  This binding is only valid if ^X was previously bound
+  to a meta function (as was done in the first example).
+
+    BIND META1-u BACKWARD_HISTORY
+  by default, the escape key is bound to META1_CHARACTER, so this
+  binding makes the escape u key sequence show the last command
+  history entry.  Note that more than one key may be bound to
+  *any* function.
+
+    BIND ! type Bang!
+  This binds the ! (exclamation mark) to type the word "Bang!"
+  into the input line whenever it is hit.
+
+    BIND META1-[ meta2
+    BIND meta2-A BACKWARD_HISTORY
+    BIND meta2-B FORWARD_HISTORY
+    BIND meta2-D BACKWARD_CHARACTER
+    BIND meta2-C FORWARD_CHARACTER
+  This sequence would bind your arrow keys to the functions listed.

@@ -1,0 +1,18 @@
+!	 $eterna: channel_signoff,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CHANNEL_SIGNOFF [-|^]"<channel> [<nick>]" [action]
+  This is activated whenever someone on a channel you are on
+  leaves irc.  Normally, the display would show:
+    *** Signoff: <nickname>
+  but, of course, you can change this.  If <nick> is your own
+  nickname, then the action will be taken when you exit
+  from irc.  The parameters are as follows:
+    $0  The channel from which the person signed off
+    $1  Nickname of person who left irc
+    $2- Text of Signoff message. 

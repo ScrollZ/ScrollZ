@@ -1,0 +1,23 @@
+!	 $eterna: notify_level,v 1.6 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW NOTIFY_LEVEL <l>  
+  Where <l> is the same as for LEVEL, this controls what types of 
+  messages trigger STATUS_NOTIFY.
+
+  NOTIFY_LEVEL understands BEEP as a level.  Any beep occurring in
+  the window will trigger STATUS_NOTIFY.
+
+See also:
+  SET LASTLOG_LEVEL for a complete description of the LEVEL parameters.
+  SET NOTIFY_LEVEL
+  SET STATUS_NOTIFY
+  WINDOW
+  WINDOW HIDE
+  WINDOW SWAP
+  WINDOW SHOW

@@ -1,0 +1,19 @@
+!	 $eterna: bind,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> <function> [<string>]
+  Binds a keystroke sequence to an IRC function.  The
+  QUOTE_CHARACTER key (by default ^Q) may be used to override any
+  key binding and have IRC insert the actual value of the key in
+  the input line.  
+  
+See Also:
+  BIND KEYS         for information on allowable [key] parameters
+  BIND EXAMPLES     for some examples.
+  BIND <function>   for help on individual key binding functions
+  PARSEKEY

@@ -1,0 +1,20 @@
+!	 $eterna: who,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]WHO [-|^]<parameters> [action]
+  This is activated whenever the reply of a /WHO comes in.
+  The parameters for the action are as follows:
+    $0    The channel the user is on, or 'Channel' for the /who header line.
+    $1    Nickname.
+    $2    Status. (Here, Gone, *Operator, [ @ChannelOperator ])
+    $3    Username (login name)
+    $4    Host (host machine)
+    $5-   Full Name or other User Data.
+
+See Also:
+  ON WHO

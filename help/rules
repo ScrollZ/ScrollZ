@@ -1,0 +1,68 @@
+!	 $eterna: rules,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+
+Definitions:
+
+   IRC-ADMIN - Person who have access to all files concerning ircd.
+   IRC-OP    - Person who have privileges given to him by an IRC-ADMIN.
+	       And who is in charge at HIS server.
+   CHAN-OP   - Person who runs a channel and has absolute rights there.
+   USER      - Person who is using IRC.
+
+------------------------------------------------------------------------------
+
+            Users Behavior on the Internet Relay Chat system
+
+
+
+The Internet Relay Network (IRC) is a system for communicating with other
+peoples.
+
+IRC is a free speech system. Users may exchange viewpoints with other
+users. But to protect people from abuse there are certain rules that the 
+user MUST respect.
+
+If a USER doesn't respect the guidelines/rules stated below, then the
+IRC-ADMIN may suspend or reduce the availability for the USER.
+
+These things are prohibited:
+
+   * Using offensive words in channel topics.
+    
+   * Harassing another user. Harassment is defined as behavior towards 
+     another user with the purpose of annoying them. 
+     Harassment is a matter of opinion of the IRC-OP.
+
+   * "Dumping" a lot of text to a channel.
+
+   * Annoying another user or a channel with constant beeping. 
+
+   * Any behavior reducing the functionality of IRC.
+
+What kind of action a user is doing to break these rules are up to the 
+IRC-OP to decide.
+
+Violation should be straighted out via a civilized conversation between
+the IRC-OP and the USER.
+If the USER is not on-line then the USER should be notified by EMail.
+If the USER wont respect what he's been told then it is up to the IRC-ADMIN 
+what to do with the USER.
+
+Many many problems can be avoided all together if the CHAN-OP puts necessary
+restrictions on his/her channel or if the USER learns how to use IGNORE.
+
+If someone finds a USER violating these rules he may contact the USER's
+IRC-ADMIN.
+To find a USERS IRC-ADMIN one may use the /ADMIN <nick-name>.
+
+
+Ove Ruben R Olsen
+IRC-ADMIN for Bergen Edu. College, Norway.
+
+EMail: rubenro@viggo.blh.no

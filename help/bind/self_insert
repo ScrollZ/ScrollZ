@@ -1,0 +1,16 @@
+!	 $eterna: self_insert,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SELF_INSERT
+  Causes the key it is bound to to insert itself into the input
+  buffer.  This is the default binding for the alphabet keys,
+  numbers, etc.  If this is bound to a meta sequence, it will
+  only insert the last key hit in the meta sequence.
+
+Note:
+  This is how you "unbind" a key.  

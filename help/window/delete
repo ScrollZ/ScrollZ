@@ -1,0 +1,16 @@
+!	 $eterna: delete,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW DELETE
+  Destroys a screen or xterm ircII window, depending on the environment.
+  You can't WINDOW DELETE the main screen (the one ircII
+  was started in).
+
+See Also:
+  WINDOW CREATE
+  WINDOW KILL

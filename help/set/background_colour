@@ -1,0 +1,10 @@
+!	 $eterna: background_colour,v 1.2 2001/08/12 15:43:34 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET BACKGROUND_COLOUR [0-15]
+  Set the default background colour for this display to this ANSI
+  colour code.

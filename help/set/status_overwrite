@@ -1,0 +1,12 @@
+!	 $eterna: status_overwrite,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_OVERWRITE <Status line text when in overwrite mode>
+  The content of STATUS_OVERWRITE are replaced in the STATUS_FORMAT
+  variable for any occurence of %O while INSERT_MODE is OFF.  If
+  INSERT_MODE is ON, nothing is displayed for %O.

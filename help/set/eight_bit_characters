@@ -1,0 +1,22 @@
+!	 $eterna: eight_bit_characters,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET EIGHT_BIT_CHARACTERS [ON|OFF|TOGGLE]
+  Allows you, if set, to input 8 bit characters.
+  (such as the Swedish character set)
+
+Notes:
+  On SUN machines, you will have to use `stty pass8' and not
+  `stty cs8' to be able to use this properly.
+
+  By default, M-b M-d M-f M-h and M-^? (del) are bound to the 
+  corresponding emacs keys.
+
+See also:
+  SET TRANSLATION
+  DIGRAPH

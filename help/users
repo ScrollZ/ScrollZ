@@ -1,0 +1,12 @@
+!	 $eterna: users,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: USERS [<server>]
+  Shows the users logged into the machine where the specified
+  server is running.  If no server is given, the current server
+  is used.  Many servers do not have this feature enabled.

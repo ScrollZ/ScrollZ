@@ -1,0 +1,38 @@
+!	 $eterna: userhost,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: USERHOST <nickname> [<nickname> .. ] [-cmd <command>]
+  If only USERHOST nickname is supplied the server will be queried
+  for information about that person.  It will return something in
+  the format:
+    *** Daemon is frechett@spot.Colorado.EDU (Is an IRC operator)
+  If -cmd command   is added then it will parse the returned line
+  just as though it were an ON or an ALIAS.
+  Parameters are:
+    $0  nickname
+    $1  '+' if server operator, '-' otherwise
+    $2  '+' if marked away, '-' if here
+    $3  username
+    $4  hostname
+
+Note:  Something you may run into if you use this command within an
+  ALIAS or ON is the following.  Take the following example.
+    alias bonk userhost $0 -cmd echo \($$*\)
+  When bonk is called, $0 is expanded to a nickname, and $$* changes to
+  $* to be used by userhost -cmd.  However, since the entire expression
+  is parsed twice, the \'s are eaten the first time leaving ($*) which
+  will never expand.  Thsu to make the above alias work, it has to be:
+    alias bonk userhost $0 -cmd echo \\\($$*\\\)
+  On the first pass it becomes   userhost nick -cmd echo \($*\)
+  and on the second pass when the -cmd part is executed it
+  expands and executes   echo (contents of $*)
+  This is NOT a special case or a bug.  It is just an added level of
+  processing...
+
+See Also:
+  expressions  (under Special Cases at the end)

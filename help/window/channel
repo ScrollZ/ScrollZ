@@ -1,0 +1,14 @@
+!	 $eterna: channel,v 1.6 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW CHANNEL <c[,<k>]>  
+  Directs all conversation with channel <c> to the current window. 
+  If you are not current on channel <c>, you will join it. If you 
+  are on channel <c> it will be diverted to the current window, 
+  possibly removing channel <c> from another window.  If you specify
+  <k> it will be used as the channel key to join channel <c>.

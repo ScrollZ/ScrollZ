@@ -1,0 +1,22 @@
+!	 $eterna: type,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: TYPE <keystrokes>
+  The TYPE command simulates keyboard keystrokes.  You can
+  include control characters as well as normal characters and
+  they will respond as they would as if typed at the keyboard.
+  A control key is specified by a ^ before the letter.  For
+  example:
+    TYPE Testing^B^B^B go^E
+  will type the word "Testing", move the cursor left three
+  spaces, then type " go" and move the cursor to the end of the
+  line,  leaving "Test going" on the input line.  This will
+  probably happen too fast to see.  
+
+See also:
+  XTYPE

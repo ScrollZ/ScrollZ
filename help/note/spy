@@ -1,0 +1,31 @@
+!	 $eterna: spy,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE SPY [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+		<nick!username@host> [msg]
+  SPY is an alias for USER +RX (default 1 max day)
+  SPY makes the server tell you if any matching recipient sign(s)
+  on/off IRC or change nick name. No message needs to be specified.
+  However, if a message is specified this is returned to sender including
+  with the message about recipient. Message could for example be one or
+  more Ctrl-G characters to activate the bell on senders machine.
+  As an alternative for using C flag, <msg> field could start with
+  any number of nicks on this format: %nick1 %nick2... %nickn, with
+  no space between % and the nick name you use. Spy messages would be
+  valid for any of the nicks specified.
+  SPY with no argument would tell you what users you have spy on who are 
+  currently on IRC. The system logs last time the last matching person was 
+  on IRC for each SPY request is queued in the server. See NOTE LOG for this.
+  You may use flag +A to see what server matching user is on, 
+  and/or +J flag to see what channel. (Read HELP NOTE USER for more). Example:
+    SPY foobar!username@host <ctrl-G>
+    SPY +10 foobar
+    SPY +aj &secret * <ctrl-G>
+    SPY +365 +e !user nick!*@* <ctrl-G>
+    SPY % +7 foo!user
+    SPY +5 nicky %mynick %meenick

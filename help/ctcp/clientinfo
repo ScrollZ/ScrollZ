@@ -1,0 +1,20 @@
+!	 $eterna: clientinfo,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> CLIENTINFO [<ctcpcommand>]
+  CLIENTINFO returns the known CTCP commands from another client in a list.
+  You can inspect commands further by calling 'CLIENTINFO VERSION' for
+  example. You will (or should) be given a one-line explanation of
+  what this command is supposed to do.
+
+  To find out about your own client services, execute a CLIENTINFO
+  on yourself: CTCP mynick CLIENTINFO
+
+Warning:
+  Some CTCP commands are not supposed to be sent by hand,
+  in particular ERRMSG, DCC, and SED.

@@ -1,0 +1,14 @@
+!	 $eterna: status_clock,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_CLOCK <text of display for status line clock>
+  The value of STATUS_CLOCK is replaced in the STATUS_FORMAT
+  variable for any occurrence of %T if CLOCK is ON.  If CLOCK is
+  OFF, nothing is displayed for %T in STATUS_FORMAT.  Also, the
+  STATUS_CLOCK variable may contain one occurrence of %T which
+  will be replaced with the current time of day in the string.

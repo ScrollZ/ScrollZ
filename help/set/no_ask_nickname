@@ -1,0 +1,10 @@
+!	 $eterna: no_ask_nickname,v 1.2 2001/08/12 15:43:37 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET NO_ASK_NICKNAME [ON|OFF|TOGGLE]
+  When ON, your client will not automatically prompt you for a
+  new nickname when it thinks the current one is invalid.

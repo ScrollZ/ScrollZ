@@ -1,0 +1,27 @@
+!	 $eterna: describe,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DESCRIBE <nickname>|<channel> <action description>
+  This command can be used to send a description of what you are doing
+  or how you are feeling or just about anything concerning you, to the
+  person or channel you pass as first argument.
+
+    DESCRIBE BigCheese takes a flask of whisky out of the fridge.
+  is supposed to produce a line on BigCheese's screen stating:
+     * Lynx takes a flask of whisky out of the fridge.
+
+  This command makes use of CTCP and is not understood by all clients.
+  If you get an error message, your description has not arrived properly.
+
+See Also:
+  ME
+  LOAD ACTION
+  LOAD MUDLIKE
+  CTCP
+  CTCP ACTION
+  CTCP CLIENTINFO

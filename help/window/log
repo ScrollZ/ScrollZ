@@ -1,0 +1,21 @@
+!	 $eterna: log,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW LOG [ON|OFF|TOGGLE]
+  This turns on logging for the current window only.
+  If no logfile name has been set with WINDOW LOGFILE,
+  the logfile name is created from the current setting of the LOGFILE
+  variable and the name of the window channel, query user, or simply
+  the word "Window" with the windows internal reference number added
+  to the end.  For example, if LOGFILE is set to "IrcLog", and you are
+  on channel "#Har", the log file for the window will be "IrcLog.#Har".  
+
+See Also:
+  WINDOW LOGFILE
+  SET LOG
+  SET LOGFILE

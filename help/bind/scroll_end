@@ -1,0 +1,19 @@
+!	 $eterna: scroll_end,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SCROLL_END
+  This binding is absolutely necessary if you plan to use
+  the features found with SCROLL_BACKWARD and SCROLL_FORWARD.
+  It allows you to exit from the viewing of the lastlog.
+  It is the counterpart of SCROLL_START.  Default binding is
+  meta1-e.
+
+See Also:
+  BIND SCROLL_START
+  BIND SCROLL_FORWARD
+  BIND SCROLL_BACKWARD

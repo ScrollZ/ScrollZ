@@ -1,0 +1,19 @@
+!	 $eterna: input_prompt,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET INPUT_PROMPT <input prompt string>
+  Allows you to change the prompt that will be displayed in the
+  input line before any text you type.  Normally, there is no
+  prompt, but you can specify any string.  To turn off a prompt,
+  use /set -INPUT_PROMPT. Using the special variable $T is
+  useful as in INPUT_PROMPT as it shows what the current 
+  destination is for any input, such as a channelname or nickname
+  if you are using query.
+
+See Also:
+  ALIAS Special

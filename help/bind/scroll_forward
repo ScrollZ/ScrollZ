@@ -1,0 +1,22 @@
+!	 $eterna: scroll_forward,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SCROLL_FORWARD
+  When SCROLL is set on, this will allow you to move forward through
+  your lastlog entries 1/2 page at a time.  This is after you have
+  entered the lastlog viewing mode with SCROLL_BACKWARD. The default
+  binding for this is meta1-n  a key must be bound to SCROLL_END to
+  exit this (default meta1-e).  A good way to use this is to use
+  SCROLL_START and then SCROLL_FORWARD to the end of the lastlog.
+  It is suggested that you have HOLD_MODE set on or otherwise when
+  you get out of the history all your new messages will flash by.
+
+See Also: 
+  BIND SCROLL_BACKWARD
+  BIND SCROLL_END
+  BIND SCROLL_START

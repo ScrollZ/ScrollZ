@@ -1,0 +1,16 @@
+!	 $eterna: dcc,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC [<function> [<arguments>]]
+  DCC handles direct connections to remote clients.
+  The behaviour of DCC is determined by the FUNCTION specified.
+  DCC called with no function is the same as DCC LIST
+
+See Also:
+  DMSG
+  ALIAS functions ($connect() and $listen())

@@ -1,0 +1,25 @@
+!	 $eterna: minimum_servers,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET MINIMUM_SERVERS <number of servers>
+  When connecting to a server, this variable is checked versus
+  the number of servers currently connected to the ircnet.  If
+  the number of servers is less than the setting of
+  MINIMUM_SERVERS, you will automatically be disconnected from
+  that server and IRCII will attempt to connect to the next
+  server in you server list (as though you had done SERVER +).
+  This is useful if the net is fragmented to keep you on a more
+  populated portion of the net.  This will be rechecked if you
+  issue a LUSERS.  This will only affect your primary server. 
+  Secondary servers are not checked vs this variable.
+
+See Also:
+  SET MINIMUM_USERS
+  SERVER
+  LUSERS
+  ircII server_list

@@ -1,0 +1,12 @@
+!	 $eterna: nick,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NICK <nickname>
+  Changes your nickname to whatever you like.   The nickname may be at
+  most 9 characters.  If you specify a nickname that is already in
+  use, you will be prompted to enter a new nickname.

@@ -1,0 +1,13 @@
+!	 $eterna: topic,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]TOPIC [-|^]"<nickname> channel" [action]
+  This is activated whenever someone changes the topic    
+    $0    nickname of person who changed the topic
+    $1    The channel on which the topic was changed
+    $2-   The new topic

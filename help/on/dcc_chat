@@ -1,0 +1,18 @@
+!	 $eterna: dcc_chat,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]DCC_CHAT [-|^]<paramters> [action]
+  This is activated whenever you receive a DMSG from someone.
+  The parameters for the action are as follows:
+    $0    nickname of person who sent the DMSG
+    $1-   The message
+
+  Warning: As DMSG is outside the IRC protocol, it allows you to send
+  a DMSG from an ON DCC_CHAT. This has the potential to create loops.
+  If you intend to send a DMSG from DCC_CHAT you are responsible for
+  ensuring that it will not create a loop.

@@ -1,0 +1,15 @@
+!	 $eterna: enter_menu,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> ENTER_MENU
+  Enters the menu what was loaded by MLOAD and set into MENU.
+
+See Also: 
+  MENUS
+  SET MENU
+  MLOAD

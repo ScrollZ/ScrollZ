@@ -1,0 +1,42 @@
+!	 $eterna: kick,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: KICK *|<channel> <user> [<comment>]
+  Kicks specified user off a given channel.  Only channel operators
+  are privileged to use this command.  Channel operator privileges
+  can be given to other users of channel using:
+    MODE <channel> +o <user>
+  and taken away with:
+    MODE <channel> -o <user>
+  KICK * <user> is just like the first usage but it always specifies
+  the current channel.  So 
+    KICK * idiot
+  will kick 'idiot' off your current active channel.
+
+  KICK can be very effective if used in a combination with
+    MODE #channel +i
+  and possibly
+    MODE #channel +b.
+  First line of defense should be IGNORE and KICK then then the
+  channel can be made invite only, and if all else fails a person
+  can be banned from the channel.
+ 
+  The <comment> is to supply some reason for the kick to the user
+  affected as well as to other people on your channel.
+
+IMPORTANT NOTE:
+  Be careful with your use of KICK and MODE #channel -o
+  as they can throw the network permanently out of sync.  This
+  generally occurs when two people are bickering about channel op
+  status and de-op each other.  This generates 'Fake MODE' notices
+  which are an indication that something is wrong.  The best way
+  to avoid this is to not use ON and MODE together.
+
+See Also:
+  MODE
+  IGNORE

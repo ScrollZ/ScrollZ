@@ -1,0 +1,12 @@
+!	 $eterna: star_prefix,v 1.2 2001/08/12 15:43:38 mrg Exp $
+!
+! Copyright (c) 2001  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STAR_PREFIX <prefix>
+  Sets the prefix used for otherwise unadorned messages.  The
+  default is "*** ".  This value undergoes alias expansion before
+  being displayed, so setting it to "$Z *** " will print the time
+  before each message as well.

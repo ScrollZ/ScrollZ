@@ -1,0 +1,15 @@
+!	 $eterna: command_completion,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> COMMAND_COMPLETION
+  The COMMAND_COMPLETION function will cause IRCII to attempt to
+  complete the command you have typed in the input line.  If a
+  match is found, it is expanded to its full length in the input
+  line.  If multiple matches are found, the complete list of
+  matching commands is displayed.  If no match is found, the
+  input line is left unchanged.

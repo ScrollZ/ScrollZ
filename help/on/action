@@ -1,0 +1,14 @@
+!	 $eterna: action,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]ACTION [-|^]<paramters> <action>
+  This is activated whenever you receive an ACTION from someone.
+  The parameters for the action are as follows:
+    $0    nickname of person who sent the ACTION
+    $1    to whom (nickname or channel) the ACTION was sent
+    $2-   The message

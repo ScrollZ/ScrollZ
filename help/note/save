@@ -1,0 +1,14 @@
+!	 $eterna: save,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+*Usage: NOTE SAVE
+*  SAVE saves all messages with the save flag set. Notice that the
+*  messages are automatically saved (see HELP STATS). Each time server is
+*  restarted, the save file is read and messages are restored. If no users
+*  are connected to this server when saving, the ID number for each
+*  message is renumbered.

@@ -1,0 +1,13 @@
+!	 $eterna: stop_irc,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> STOP_IRC
+  Sends a Stop signal to IRC II, returning you to the shell.
+  Normally, you can then return to IRC II by typing fg.  Please
+  read about your shell to find out about this.  The default 
+  binding for stop_irc is meta2-^Z or for most people ^X^Z

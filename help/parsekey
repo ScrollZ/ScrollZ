@@ -1,0 +1,17 @@
+!	 $eterna: parsekey,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: PARSEKEY <key function>
+  The argument is one of the key functions, and the effect is the
+  same as would be if you pressed a key bound to that function.
+  These are the same functions as specififed when using BIND.  E.g.
+    PARSEKEY ERASE_TO_BEG_OF_LINE   will execute that function
+  just as though the key bound to that function had been pressed.
+
+See Also:
+  BIND

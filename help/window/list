@@ -1,0 +1,12 @@
+!	 $eterna: list,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW LIST 
+  Show a list of all windows in the following format...
+    *** Ref  Nick      Name  Channel    Query     Server     Level
+    *** 1    Daemon    <Non  #twilight_ <None>    ucsu.color NONE

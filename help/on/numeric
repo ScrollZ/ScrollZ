@@ -1,0 +1,23 @@
+!	 $eterna: numeric,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]<numeric> [-|^]<parameters> [action]
+  This is activated whenever a numeric message of that number arrives.
+  The legal range of values for <numeric> are from 001 to 999.
+  Numeric messages are special replies send by the server to the client
+  in the raw irc protocol.  They are useful to intercept if you are 
+  writing a service using ircII.  For more details about what numbers
+  represent what messages from the server, please see the irc server
+  source code.  
+  The parameters for the action are as follows:
+    $0    name of the server who sent the message
+    $1    number of numeric message
+    $2-   parameters (depends on the numeric message)
+
+See Also:
+  SET SHOW_NUMERIC

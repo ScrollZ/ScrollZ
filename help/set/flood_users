@@ -1,0 +1,18 @@
+!	 $eterna: flood_users,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET FLOOD_USERS <number of users to monitor>
+  FLOOD_USERS sets the maximum number of users you can have 
+  flood protection from at one time.  If this number is too large, 
+  you may see performance degradations and the flood protection 
+  might not work as well as it should.  
+
+See Also:
+  ON FLOOD
+  SET FLOOD_RATE
+  SET FLOOD_AFTER

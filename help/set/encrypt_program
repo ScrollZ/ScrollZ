@@ -1,0 +1,22 @@
+!	 $eterna: encrypt_program,v 1.6 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET ENCRYPT_PROGRAM <encryption program path>
+  Sets the program used to encrypt and decrypt messages.  The
+  program selected must take an encryption key as the first
+  line written to work with IRCII, with the second and
+  subsequent lines the text to encrypted, which is expected
+  on the programs standard output.
+
+  Note that in ircII 4.4 and previous, this variables program
+  API was different.  Originally the encryption key was they
+  command line argument, and the program a true filter.
+  However, it is not secure from local users snooping the
+  key and being able to decrypt messages, should they obtain
+  them.  Set the OLD_ENCRYPT_PROGRAM variable to ON
+  to obtain this old behaviour.

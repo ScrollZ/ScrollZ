@@ -1,0 +1,12 @@
+!	 $eterna: toggle_stop_screen,v 1.5 2001/08/12 16:23:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> TOGGLE_STOP_SCREEN
+  Stops and starts the screen display if it is scrolling madly
+  out of your control.  The display is also restarted after the
+  SEND_LINE function is executed.

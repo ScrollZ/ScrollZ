@@ -1,0 +1,12 @@
+!	 $eterna: status_oper,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_OPER <text of display for status line operator mode>
+  The value of STATUS_OPER is replaced in the STATUS_FORMAT
+  variable for any occurence of %* if you have operator status.
+  If you are not an operator, %* is replaced with nothing.

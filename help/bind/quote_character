@@ -1,0 +1,16 @@
+!	 $eterna: quote_character,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> QUOTE_CHARACTER
+  This function "quotes" the next key hit.  What this really
+  means is that it overrides the key binding for the next key and
+  forces it to insert itself into the input buffer.  For example,
+  if you have Control D bound to delete character, and you hit
+  the quote character (defaults to Control Q) then Control D, it
+  will insert a Control D (shows up as an inverse video D) and
+  does not delete the character.  Got it?

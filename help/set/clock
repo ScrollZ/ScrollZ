@@ -1,0 +1,13 @@
+!	 $eterna: clock,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET CLOCK [ON|OFF|TOGGLE]
+  Turns ON or OFF the status line clock.  The clock can be set to
+  show 24 hour time as well as 12 hour time (See HELP SET
+  CLOCK_24HOUR).  You can also set an alarm to warn you of the
+  time (See HELP SET CLOCK_ALARM).

@@ -1,0 +1,42 @@
+!	 $eterna: kill,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: KILL <nickname> <comment>
+  Removes a person from irc.  This is an operator command
+  and should be used with extreme caution (if at all). The
+  comment is necessary to let others the reason for the kill.
+  If you don't give a comment, you will probably be bombarded
+  with messages saying "why the kill?"
+
+  Regarding so called 'ghosts'.  These are generated typically when
+  someone accidently does a shell escape out of irc, (see BIND STOP_IRC)
+  and they start a new process.  They think the old one is a 'ghost'.
+  The way to get rid of these ghosts is to QUIT the current session
+  and type 'ps -gx' or 'ps -f' at the unix command prompt.
+  This will generate a listing looking something like.
+    unix> ps -gx
+      PID TT STAT   TIME COMMAND
+    15472 p8 S      1:20 irc Daemon
+  Where all the user has to do now is type 
+    unix> kill -9 15472
+  and the problem is fixed.  This is preferable to the IRC KILL command
+  which is not 100% effective. kill -9 is.
+
+  If you cannot manage to get the above to work, try typing at the unix
+  command prompt:
+    kill -9 -1
+  This will often kill all your processes, then you only have to log in again.
+
+  With the advent of auto-reconnecting clients KILL is almost
+  totally worthless as a tool for punishment.   More effective
+  methods to deal with obnoxious people are the IGNORE, KICK
+  and various MODE's on channels, such as +i and +b.
+
+See Also:
+  MODE
+  IGNORE

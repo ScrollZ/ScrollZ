@@ -1,0 +1,14 @@
+!	 $eterna: channel_nick,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CHANNEL_NICK [-|^]"<channel> [<nick>]" [action]
+  This is activated whenever someone on a channel you are on
+  changes their nickname. The parameters for this function are:
+    $0  The channel from which that person has changed nick
+    $1  Original nickname for that person
+    $2	New nickname for that person

@@ -1,0 +1,15 @@
+!	 $eterna: send_line,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SEND_LINE
+  This "sends" the input buffer to the server.  Well, really it
+  first expands aliases, etc...  but you get the idea.  It is
+  normally bound to the return key or enter key...  or both.
+
+See Also:
+  SENDLINE

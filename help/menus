@@ -1,0 +1,54 @@
+!	 $eterna: menus,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+This describes a feature which allows one to create and use
+menus in any irc session.  The menus are totally user
+configurable and a test menu has been provided at the end
+of this help file.
+To use this menu, copy it to your home directory calling it
+'test', run IRC, and do the following:
+  MLOAD test
+  SET menu Main Menu
+
+Control-R is bound to ENTER_MENU, and while in the menu
+you can use vi-like keys or EMACS-like keys to move
+through the options, and either '.' or SPACE to select
+an option. The format of the menu file is as follows
+
+A line beginning with a '#' represents a comment.
+Blank lines are ignored.
+A line beginning with the word "MENU" starts a new menu
+and gives it a name.
+A line beginning with the word "OPTION" adds a new option
+to the menu, gives it a name and describes what it does.
+It's possible to have one menu OPTION lead you into a new menu with
+  OPTION "Sub Menu" COMMAND set menu Sub Menu
+assuming the Sub Menu has been defined like the following Main Menu.
+
+The following is a test menu to show how it it can be used.
+
+# Cut off this line.. and take everything down to the next Cut line ---
+# Test menu to see how our menu reader works
+
+MENU Main Menu
+	OPTION "This menu" MENU Main Menu
+	OPTION "List Channels" COMMAND LIST
+	OPTION "Join Channel" COMMAND JOIN $"Join Channel: "
+	OPTION "Leave Channel" COMMAND PART *
+	OPTION "Change Name" COMMAND NICK $"New NickName: "
+	OPTION "Private Message" COMMAND MSG $"Person to send message to: " $"Text of message: "
+	OPTION "Say something" COMMAND SAY $"Say: "
+	OPTION "Exit Menu" EXIT
+	OPTION "Exit IRC" COMMAND if ( [$"Really quit? "] == [y] ) { QUIT }
+	OPTION "Kill Menu" COMMAND set -menu
+
+# Cut off this line and take everything up to the previous Cut line ----
+
+See Also:
+  SET MENU
+  MLOAD

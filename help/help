@@ -1,0 +1,39 @@
+!	 $eterna: help,v 1.6 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: HELP [<command> [<subcommands>]]
+  Shows help on the given command.  The help documentation is 
+  set up in a hierarchical fashion.  That means that certain
+  help topics have sub-topics under them.  For example, doing
+    HELP ADMIN
+  gives help on the admin command, while:
+    HELP SET
+  gives help on the set command and also displays a list of
+  sub-topics for SET.  To get help on the subtopics, you would
+  do:
+    HELP SET <subtopic>
+  where <subtopic> is one of the subtopics.  If you are using the 
+  built in help, then you need only type the subtopic name.  The
+  input prompt will indicate what help level you are on.  Hitting
+  return will move you up one level.  
+
+  At any time, you can specify a ? to get a list of subtopics 
+  without the associated help file, for example:
+    HELP ?
+  gives a list of all main help topics.  The following:
+    HELP BIND ?
+  gives the list of all BIND subtopics.  If you use a ? with 
+  a topic that has no subtopics, you will simply get the 
+  standard help file for that topic.
+
+Note:
+  Case is unimportant even when viewing the lower case
+  filenames such as 'newuser' or 'intro'.
+
+See Also:
+  intro

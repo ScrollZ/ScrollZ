@@ -1,0 +1,27 @@
+!	 $eterna: news,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE NEWS [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+		<group!username@host>
+  NEWS with no message is an alias for USER +RS (default max 60 days)
+  This command is for subscribing on a specified newsgroup from any
+  user(s) or host(s). Wildcards may be used anywhere. Example:
+    NEWS irc.note       : Subscribe on irc.note
+*    NEWS irc.note@*.no  : Send to group irc.note, but only for
+*                          users at host *.no
+*    NEWS irc.note       : Send to all for group irc.note
+*    NEWS Users@*.edu Hi : Send Hi to all users using note in your
+*                          server located at host *.edu.
+   (Advanced users may use User +rs <...> <filter> where filter is a 
+   string which must matches with field in received news message)
+-  Only opers can send news as default.
+*  To send news add message and use same format as subscribing, except 
+*  that username field must matches with subscribed group as alt.irc!*.irc - 
+*  everybody subscribing on a*.irc or *.irc or alt.irc... would get the news.
+*  A speciall case is the group Users which everybody using note in the server
+*  are member of.

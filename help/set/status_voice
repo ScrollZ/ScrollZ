@@ -1,0 +1,12 @@
+!	 $eterna: status_voice,v 1.2 2001/08/12 15:43:39 mrg Exp $
+!
+! Copyright (c) 2001 Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_VOICE <text of display for status line operator mode>
+  The value of STATUS_VOICE is replaced in the STATUS_FORMAT
+  variable for any occurence of %v if you have voice status
+  (either mode +v or operator status).  If you are have no
+  voice, %v is replaced with nothing.

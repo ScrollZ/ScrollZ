@@ -1,0 +1,16 @@
+!	 $eterna: say,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SAY <text>
+  This command is to permit aliases, binds, scripts and similar to send
+  a message to the current channel as if it were typed. This is equivalent
+  to typing '/ <text>'.
+
+See Also:
+  SEND
+  ircII programming

@@ -1,0 +1,16 @@
+!	 $eterna: idle,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]IDLE [-|^]<parameters> [action]
+  This is activated when IRCII has been idle for a period of
+  time.  Idleness is in minutes from the last keystroke.
+  Parameters:
+        $0       minutes idletime
+
+  So, ON IDLE 5 /ECHO FINISHED will print out "FINISHED"
+  after a period of 5 minutes without any key pressed.

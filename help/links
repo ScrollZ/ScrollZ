@@ -1,0 +1,17 @@
+!	 $eterna: links,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: LINKS [[<server>] <wildcard>]
+  Shows all of the servers currently connected to the IRC network.
+  If <wildcard> is specified, LINKS shows any servers
+  that match the given expression.
+
+  If a <server> is specified, it's asked for the relevant information.
+    LINKS *.au coombs*
+  will query whatever server is calling itself *.au for a list of
+  servers matching coombs*, then send the information back to you.

@@ -1,0 +1,22 @@
+!	 $eterna: flood_rate,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET FLOOD_RATE <messages per second>
+  FLOOD_RATE can be set to the number of messages per second you 
+  wish to  activate flooding. If messages from a user outpace 
+  FLOOD_RATE for  FLOOD_AFTER number of messages, ON FLOOD is
+  activated.  If FLOOD_RATE is larger then FLOOD_AFTER, then you 
+  will end up seeing at least FLOOD_RATE messages before flood 
+  activation (If FLOOD_RATE is 5 and FLOOD_AFTER is 3 then you must 
+  receive at least 5 messages before the flood rate can be 5
+  messages per second).
+
+See Also:
+  ON FLOOD
+  SET FLOOD_AFTER
+  SET FLOOD_USERS

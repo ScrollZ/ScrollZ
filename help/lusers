@@ -1,0 +1,17 @@
+!	 $eterna: lusers,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: LUSERS [<wildcard> [<server>]]
+  Gives a brief listing of the number of visible users, the
+  number of invisible users (marked UMODE +i), servers and
+  the number of operators.
+
+  Given a wildcard mask such as
+    LUSERS *.edu
+  it will count up the number of servers and users that match.
+  If you add a <server>, it'll be asked for the above information.

@@ -1,0 +1,18 @@
+!	 $eterna: mail,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET MAIL [0|1|2]
+  When non zero, you will be informed when you have new mail.  This
+  is your real unix mail and not irc-mail.  An indicator will light
+  up in your status line and a message will be sent to your screen
+  telling you about the new mail. If set to 2, the more significant
+  headers from the mail are shown.
+
+See Also:
+  ON MAIL_REAL
+  SET STATUS_MAIL

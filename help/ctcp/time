@@ -1,0 +1,13 @@
+!	 $eterna: time,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> TIME
+  TIME will return the current time for the nickname specified.
+  This differs from the /TIME command in that it asks the user's
+  client for the time instead of the user's server, which can 
+  be a long distance away.

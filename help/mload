@@ -1,0 +1,14 @@
+!	 $eterna: mload,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: MLOAD <menu file>
+  MLOAD simply loads a menu file. See menus for more details.
+
+See Also:
+  SET MENU
+  MLOAD

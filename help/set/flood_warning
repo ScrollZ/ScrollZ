@@ -1,0 +1,17 @@
+!	 $eterna: flood_warning,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET FLOOD_WARNING [ON|OFF|TOGGLE]
+  If ON, you will see a warning when flood protection 
+  is activated.  This is used in conjuction with:
+    ON ^FLOOD *
+  which otherwise will simply cut off flooding messages
+  without a warning to you.  
+
+See Also:
+  ON FLOOD

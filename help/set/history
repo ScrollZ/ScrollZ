@@ -1,0 +1,16 @@
+!	 $eterna: history,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HISTORY <value>
+  Sets the size of the command history circular buffer.  Setting
+  HISTORY to zero disables the command history functions unless you
+  have HISTORY_FILE set.  You must disable HISTORY_FILE to completely
+  turn off command history.
+
+See Also:
+  SET HISTORY_FILE

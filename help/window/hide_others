@@ -1,0 +1,10 @@
+!	 $eterna: hide_others,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW HIDE_OTHERS  
+  This hides all visible windows but the current window.

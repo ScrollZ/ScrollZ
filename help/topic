@@ -1,0 +1,13 @@
+!	 $eterna: topic,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: TOPIC [<channel>] [<topic for channel>]
+  Changes the topic for the named channel.
+  You have to be on the channel to change the topic and if
+  the channel mode is +t then only a channel-operator can change
+  the topic.

@@ -1,0 +1,14 @@
+!	 $eterna: disconnect,v 1.2 2001/08/12 15:42:30 mrg Exp $
+!
+! Copyright (c) 2000, Matthew Green
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DISCONNECT [<server-index>]
+  Makes ircII disconnect from server number <server-index> or the current
+  window's server if no index is given.
+
+See Also:
+  SERVER
+  WINDOW SERVER

@@ -1,0 +1,19 @@
+!	 $eterna: novice,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET NOVICE [ON|OFF|TOGGLE]
+  The NOVICE variable causes IRCII to disallow certain actions by the
+  user (such as ON commands) and to show a request to read the NEWUSER
+  help file on startup. It is set to ON by default, and should normally
+  be turned off in your .ircrc file. Additionally, it enforces an
+  automatic LEAVE before JOIN so that novice users are not confused
+  by multiple channels.
+
+See Also:
+  ON
+  NEWUSER

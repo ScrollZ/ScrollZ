@@ -1,0 +1,12 @@
+!	 $eterna: underline_video,v 1.5 2001/08/12 16:24:26 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET UNDERLINE_VIDEO [ON|OFF|TOGGLE]
+  When OFF, underline video sent to your display by using the ^_
+  character will not show up in underline.  This can effect the
+  status line but not the input line.

@@ -1,0 +1,86 @@
+!	 $eterna: status_format,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_FORMAT <format description for status line>
+  Setting the variable allows you to alter the appearance of the
+  status line.  Certain special characters are recognized in
+  this format line and replaced with various bits of status line
+  information.  Each of these special characters is preceeded by
+  a '%'.  Here is a list of these characters:
+       N          Your current nickname.
+       C          Your current channel.
+       R          Current window refnum or name.
+       W          Value of STATUS_WINDOW variable. *
+       +          Value of STATUS_MODE variable. *
+       Q          Value of STATUS_QUERY variable. *
+       I          Value of STATUS_INSERT variable. *
+       S          Value of STATUS_SERVER variable. *
+       F          Value of STATUS_NOTIFY variable. *
+       O          Value of STATUS_OVERWRITE variables. *
+       A          Value of STATUS_AWAY variable. *
+       T          Value of STATUS_CLOCK variable. *
+       U          Value of STATUS_USER variable. *
+       X Y Z      Value of STATUS_USER1,2,3 variables. *
+       H          Value of STATUS_HOLD variable. *
+       *          Value of STATUS_OPER variable. *
+       @          Value of STATUS_CHANOP variable. *
+       M          Value of STATUS_MAIL variable. *
+       #	  Value of STATUS_UMODE variable.
+       B	  Value of STATUS_HOLD_LINES variable. *
+       V          Current IRCII version
+       >          Makes anything beyond it right justified.
+       %          Replaced by %
+
+  Those marked with * are only displayed in the status line when
+  certain conditions are met.  Please get help on the variables
+  mentioned above for specifics about each one.
+
+  For example, the standard default IRCII status line format
+  looks like this:
+
+  %T[%R] %*%@%N %S%H%Q%A%C%+%I%O%M%U %W
+  which when expanded for the nickname Dae on the channel #blue
+  [1] @Dae on #blue (+tn) * type /help for help 
+
+  The window number %R is 1
+  The nickname %N is Dae   and Dae is a channel op %@  @
+  Dae is on channel %C #blue
+  The mode %+ calls up the contents of the STATUS_MODE variable
+      and displays the channel modes, (+ps)
+  The end of the status_format $U expands to the contents of
+      STATUS_USER which contains.. "* type /help for help"
+  
+  Everything else is ignored unless it's needed.
+ 
+  You can now include text modification characters
+  (^B, ^V, ^_ and ^O) in STATUS_FORMAT. If you change
+  the format at the start of STATUS_FORMAT, you will
+  have to do it again after any %C or %U, as these
+  both reset it to reverse video.
+
+See Also:  
+  SET STATUS_AWAY
+  SET STATUS_CHANNEL
+  SET STATUS_CHANOP
+  SET STATUS_CLOCK
+  SET STATUS_DQUERY
+  SET STATUS_FORMAT
+  SET STATUS_HOLD
+  SET STATUS_HOLD_LINES
+  SET STATUS_INSERT
+  SET STATUS_MAIL
+  SET STATUS_MODE
+  SET STATUS_NOTIFY
+  SET STATUS_OPER
+  SET STATUS_OVERWRITE
+  SET STATUS_QUERY
+  SET STATUS_SERVER
+  SET STATUS_UMODE
+  SET STATUS_USER
+  SET STATUS_WINDOW
+  SET CLOCK

@@ -1,0 +1,20 @@
+!	 $eterna: eval,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: EVAL <commands>
+  EVAL passes the commands through the inline parser and executes them.
+  This means that variables are expanded, and ;'s are honored.  
+
+Note:
+  You HAVE to use EVAL in a script if you want it to expand 
+  aliases and vars while it loads. The value of INPUT_ALIASES is
+  ignored when loading scripts.
+
+See Also:
+  LOAD
+  SET INPUT_ALIASES

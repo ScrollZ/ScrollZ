@@ -1,0 +1,16 @@
+!	 $eterna: list,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC LIST
+   DCC LIST lists all the current DCC connections showing the type
+   of connection, the nick of the person on the other end of the
+   connection, the current state of that connection and any other
+   information associated with that connection.
+
+See Also:
+  DCC CLOSE

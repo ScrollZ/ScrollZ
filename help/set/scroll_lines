@@ -1,0 +1,16 @@
+!	 $eterna: scroll_lines,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SCROLL_LINES [<number of screen lines to scroll>]
+  This allows you to set the number of lines the screen will
+  scroll each time the cursor reaches the bottom of the screen.
+  If SCROLL_LINES is set to 0, the SCROLL is turned OFF as well,
+  and must be turned back on before scrolling can be resumed.
+  The maximum number of lines that may be scrolled is the size of
+  the display (the number of lines on the screen minus 2).
+  Negative numbers are automatically changed to positive.

@@ -1,0 +1,13 @@
+!	 $eterna: full_status_line,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET FULL_STATUS_LINE [ON|OFF|TOGGLE]
+  When ON, IRCII will always draw it's status line to fill the 
+  entire width of the screen.  When OFF, the status line will
+  only be as long as it needs to be to accommodate the displayed
+  information.

@@ -1,0 +1,10 @@
+!	 $eterna: sticky,v 1.2 2001/08/12 15:44:00 mrg Exp $
+!
+! Copyright (c) 1993 matthew green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW STICKY [ON|OFF|TOGGLE]
+  If OFF, channels are not kept on windows, and may be
+  lost when disconnected from the server.

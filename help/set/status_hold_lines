@@ -1,0 +1,14 @@
+!	 $eterna: status_hold_lines,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_HOLD_LINES <text of message for status line>
+  The value of STATUS_HOLD_MODE is replaced in the STATUS_FORMAT
+  variable for any occurence of %B if the display is current on 
+  hold.  This shows the number of lines currently being held in
+  the buffer. If the display is not being help, it is replaced 
+  with nothing.

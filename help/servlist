@@ -1,0 +1,24 @@
+!	 $eterna: servlist,v 1.2 2001/08/12 15:42:33 mrg Exp $
+!
+! Copyright (c) 1997 Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SERVLIST [<mask> [<type>]]
+  SERVLIST gives the list of services currently present on the
+  IRC network.  It can take two arguments.
+	<mask> limits the output to the services which names matches
+	  the mask.
+	<type> limits the output to the services of the specified type.
+  
+  The fields returned are:
+	Service name.
+	Server who introduced the service.
+	Distribution mask.
+	Service type.
+	Hop count to the service.
+	A comment.
+
+See Also:
+  SQUERY

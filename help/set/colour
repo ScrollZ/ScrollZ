@@ -1,0 +1,10 @@
+!	 $eterna: colour,v 1.2 2001/08/12 15:43:35 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET COLOUR [ON|OFF|TOGGLE]
+  When OFF, colours sent to your display by using the ^C character
+  will not show up in colour.

@@ -1,0 +1,19 @@
+!	 $eterna: timer,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: TIMER [-refnum <num>] [-delete <num>] <seconds> [<command>]
+  Waits for the given number of seconds and then executes the
+  command.  This is done without hindering normal operation of
+  the client.  Any number of TIMERs can be set at once, and
+  all will activate at the appropriate time.
+    TIMER with arguments will list pending TIMERs.
+    TIMER -refnum <num>
+  will assign a specific number to that action allowing you
+  to delete it later if necessary with
+    TIMER -delete <num>
+  If no refnum is specified, one is automatically assigned.

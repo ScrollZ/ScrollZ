@@ -1,0 +1,14 @@
+!	 $eterna: scroll,v 1.5 2001/08/12 16:24:43 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW SCROLL [ON|OFF|TOGGLE]
+  This controls scrolling for the current window.
+  The settings of the system variable SCROLL is used as are 
+  used as default for new windows created.  If more than one 
+  window exists, then executing a SET SCROLL will change 
+  the settings for the current window only. 

@@ -1,0 +1,26 @@
+!	 $eterna: command_mode,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET COMMAND_MODE [ON|OFF|TOGGLE]
+  This switch was designed for those who are used to MUDs and computer
+  freaks who like command oriented environments. It will disable the
+  command character! Every input of yours will be expected to be a command.
+  If you want to send something to your current channel or query, you'll
+  have to type "send <text>" or "'<text>".
+  "say <text>" will always send to the channel even if you're in a query.
+  With ":<text>" you get the same effect as with "me <text>".
+
+  The "'" and ":" abbreviations are introduced for MUD compatibility and
+  are only available in COMMAND_MODE.
+
+See Also:
+  SAY
+  SEND
+  LOAD ACTION
+  LOAD MUD
+  ME

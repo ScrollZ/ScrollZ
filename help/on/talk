@@ -1,0 +1,13 @@
+!	 $eterna: talk,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]TALK [-|^]<user> [action]
+  This is activated whenever you receive a TALK message from someone.
+  The parameters for the action are as follows:
+    $0    user name of person who sent the TALK message
+    $1-   The message

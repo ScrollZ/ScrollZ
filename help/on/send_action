@@ -1,0 +1,14 @@
+!	 $eterna: send_action,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]ACTION [-|^]<parameters> <action>
+  This is activated whenever you send an action, with ME
+  DESCRIBE or CTCP ACTION.
+  The parameters for the action are as follows:
+    $0    nickname or channel name to which the action was sent
+    $1-   The message

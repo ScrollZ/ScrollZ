@@ -1,0 +1,22 @@
+!	 $eterna: ls,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE LS [&<passwd>] [+|-<flags>] [#<ID>]
+		<nick!username@host> [<date>]
+  Displays requests you have queued. No arguments would show you
+  all requests without the message field.
+  Use flags for matching all messages which have the specified flags set
+  on or off. See HELP NOTE FLAG for more info about flag settings. Time 
+  can be specified on the form day.month.year or only day, or day/month, 
+  and separated with one of the three '.,/' characters. You can also 
+  specify -n for n days ago. Examples: 1.jan-90, 1/1.90, 3, 3/5, 3.may.
+  If only '-' and no number is specified max time is set to all days.
+  The time specified is always the local time on your system. Example:
+    LS !user    would show you all requests to username@*
+    LS +x       would show all your SPY requests.
+    LS #300     would show you only request #300.

@@ -1,0 +1,22 @@
+!	 $eterna: rename,v 1.6 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC RENAME <nick> [<filename1> [<filename2> ...]]
+    or DCC RENAME -chat <connection-name> <new-connection-name>
+
+  In the first form, DCC RENAME renames a file prior to a DCC GET
+  from filename1 to filename2. If filename1 is not specified, the oldest file
+  connection to the given nick is renamed.
+
+  In the second form, DCC RENAME renames an existing DCC CHAT
+  connection from connection-name to new-connection-name.
+
+See Also:
+  DCC GET
+  DCC LIST
+  DCC CHAT

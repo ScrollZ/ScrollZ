@@ -1,0 +1,12 @@
+!	 $eterna: delete_character,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> DELETE_CHARACTER
+  Deletes the character under the cursor.  The cursor is not
+  moved by this operation.  If the cursor is at the end of the
+  input buffer, this function has no effect.

@@ -1,0 +1,20 @@
+!	 $eterna: leave,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: LEAVE <channel>
+  Leave a channel.   This is used to leave a single channel.
+  It no channel is specified your current active channel is 
+  assumed.
+    LEAVE *
+  also assumes your current channel.
+
+  PART and LEAVE are identical.
+
+See Also:
+  JOIN
+  SET NOVICE

@@ -1,0 +1,15 @@
+!	 $eterna: date,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DATE [<server>|<nickname>]
+  Shows the current time of day and date.  If a server is specified,
+  the time of day and date are reported from that server.
+  If a nickname is specified it shows you the above information
+  for that person's current server.
+
+  DATE and TIME are identical.

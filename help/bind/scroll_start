@@ -1,0 +1,18 @@
+!	 $eterna: scroll_start,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SCROLL_START
+  This binding allows you to go to the start of the lastlog
+  buffer immediately, rather than using SCROLL_BACKWARD
+  a heap of times.  It is the opposite of SCROLL_END.
+  Default binding is meta1-<.
+
+See Also:
+  BIND SCROLL_END
+  BIND SCROLL_FORWARD
+  BIND SCROLL_BACKWARD

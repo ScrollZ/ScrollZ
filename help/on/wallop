@@ -1,0 +1,16 @@
+!	 $eterna: wallop,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]WALLOP [-|^]<parameters> [action]
+  This is activated whenever you receive a WALLOP (a message 
+  sent to all operators on irc).
+  The parameters for the action are as follows:
+        $0      Sender
+        $1      + if sender is an oper, - if sender is a normal user, 
+                S if sender is a server
+        $2-     text of message

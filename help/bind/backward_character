@@ -1,0 +1,12 @@
+!	 $eterna: backward_character,v 1.5 2001/08/12 16:23:39 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> BACKWARD_CHARACTER
+  The BACKWARD_CHARACTER function moves the cursor one space to
+  the left.  If the cursor is at the first character in the input
+  buffer, this function has no effect.

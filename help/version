@@ -1,0 +1,12 @@
+!	 $eterna: version,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: VERSION [<server>]
+  Shows the IRCII version number and the version number of the
+  server specified.  If no server name is specifed, the version
+  of your current server is shown.

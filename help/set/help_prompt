@@ -1,0 +1,11 @@
+!	 $eterna: help_prompt,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HELP_PROMPT [ON|OFF|TOGGLE]
+  If SET nothing different happens, but if set OFF, then ircII will
+  not prompt for more help after showing a file.

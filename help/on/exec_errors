@@ -1,0 +1,16 @@
+!	 $eterna: exec_errors,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]EXEC_ERRORS [-|^]<parameters> [action]
+  This is activate whenever an EXEC'd process produces output
+  to its standard error channel.  The process number is the
+  number assigned by EXEC to the process (see HELP EXEC).  The
+  parameters to this function are:
+    $0  The process number that activated the ON
+	This may also use the process name.  (See ON EXEC)
+    $1- The line of output to stderr

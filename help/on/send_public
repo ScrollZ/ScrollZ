@@ -1,0 +1,14 @@
+!	 $eterna: send_public,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]SEND_PUBLIC [-|^]<parameters> [action]
+  This is activated whenever you send a message to a channel you
+  are on.
+  The parameters for the action are as follows:
+    $0    Name of the channel to which the message is going
+    $1-   The message itself

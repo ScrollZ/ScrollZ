@@ -1,0 +1,31 @@
+!	 $eterna: ctcp,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CTCP [-|^]<parameters> [action]
+  This event is activated whenever someone sends a client-to-client
+  protocol (CTCP) request.  Certain CTCP types are have predefined
+  actions that you can't override with the ^, but you can use the
+  to create your own CTCP protocols.  The parameters are:
+        $0      nick of person who send CTCP
+        $1      who the ctcp was to (either your nick or a channel)
+        $2      The CTCP command word
+        $3-     Any additional arguments
+  For example, if you want to set up a new ctcp function called 
+  CHEESE, you  would do:
+    ON -CTCP "* * CHEESE" CTCP $0 $2 Say Cheese!
+  Using the /CTCP in an ON CTCP automatically sends the proper 
+  reply format.  If someone no send you a:
+    CTCP <yournick> CHEESE
+  you will see:
+    *** CTCP CHEESE from <theirnick>:
+  and they will see:
+    *** CTCP REPLY CHEESE from <yournick>: Say Cheese!
+  
+See Also:
+  CTCP
+  ON CTCP_REPLY

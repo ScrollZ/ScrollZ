@@ -1,0 +1,14 @@
+!	 $eterna: wallops,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WALLOPS <message>
+  Sends a message to all operators currently on irc.  
+  This command has deteriorated to the point that it 
+  is no longer useful, and most OPERATORS have removed 
+  it from the server all together.  A classic example
+  of a good idea abused till it's worthless.

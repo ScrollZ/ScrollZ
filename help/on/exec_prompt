@@ -1,0 +1,15 @@
+!	 $eterna: exec_prompt,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]EXEC_PROMPT [-|^]<parameters> [action]
+  This is activated whenever an EXEC'd process displays a 
+  "prompt".  A "prompt" is defined as any line of output from
+  a process that doesn't end in a carriage return - line feed.
+  The parameters are:
+	$0	process number or logical name (if assigned)
+	$1	The prompt string

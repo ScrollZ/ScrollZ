@@ -1,0 +1,14 @@
+!	 $eterna: auto_unmark_away,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET AUTO_UNMARK_AWAY [ON|OFF|TOGGLE]
+  When ON, you will automatically be unmarked as being away (as
+  if you had issued an AWAY with no arguments) if you send a
+  message to a channel or send a private message.  When OFF, your
+  away status will remain unchanged until you issue the AWAY
+  command with no arguments.

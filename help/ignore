@@ -1,0 +1,67 @@
+!	 $eterna: ignore,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: IGNORE [<nick>] [-|+|^][<message type>]
+       IGNORE [<user@host>] [-][<message type>]
+
+  The standard form of IGNORE allows you to specify which type of
+  messages you wish to ignore from a user.  The message type
+  parameter can be one of the following:
+    MSGS            All MSGs received
+    NOTICES         All NOTICEs received
+    PUBLIC          All normal channel conversation
+    INVITES         All INVITEs received
+    WALLOPS         All WALLOPS received
+    NOTES           All NOTEs received
+    CTCP            All CTCPs received
+    CRAP            Anything else
+    ALL             All of the above message types
+    NONE            No message types
+
+  You can ignore by nickname or by specifying a userid@hostname
+  format.  Wildcards may be used in all formats.  You can specify
+  multiple types of messages to ignore on the command line.
+  Preceeding a type with a - indicates removal of ignoring of
+  that type of message.  For example:
+    IGNORE BigCheese MSGS INVITES
+  ignores MSGs and INVITES from BigCheese.  
+    IGNORE *@*.cmu.edu ALL -NOTES
+  ignores all types of messages except NOTES from anyone from CMU.
+
+  You may also specify a + before any message type to cause messages
+  of that type from that user to be displayed with the nickname
+  highlighted.  (See SET HIGHLIGHT_CHAR) For example:
+    IGNORE *Cheese* +MSGS
+  will cause all MSGs from anyone with Cheese in their nickname
+  to appear with their nickname highlighted.  
+    IGNORE * +PUBLIC +NOTES
+  will highlight all PUBLIC messages and NOTES received.  The + has no 
+  effect with the user@host name format.
+
+  If you specify a ^ before a message type, then messages from the
+  matching nicknames will be displayed no matter what.  This allows
+  you to exclude certain nicknames from larger matching lists.  For
+  example:
+    IGNORE * MSG
+    IGNORE BigCheese ^MSG
+  This will ignore private messages from everyone except BigCheese.
+  
+  All forms of IGNORE use the - to remove ignore attributes,
+  and the type NONE will remove the user from the list
+  completely.  
+
+  All forms of IGNORE will match against the nickname with the
+  most true matching characters.  What this means is if you have:
+    IGNORE BigCheese MSGS
+    IGNORE * +ALL
+  Then MSG's from BigCheese will be ignored, and all other types
+  of messages from BigCheese will be unaffected.  All messages
+  of all types from any other user will be highlighted.
+
+See Also:
+  SET HIGHLIGHT_CHAR

@@ -1,0 +1,14 @@
+!	 $eterna: irchost,v 1.2 2001/08/12 15:43:36 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET IRCHOST <hostname>
+  Sets the hostname of the local port.  Useful when it changes
+  dyanamically.
+
+See also:
+  SERVER
+  WINDOW SERVER

@@ -1,0 +1,15 @@
+!	 $eterna: max_recursions,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET MAX_RECURSIONS <A reasonable limit for alias recursions>
+  This will limit the number of times that a particular alias can 
+  call itself recursively.  (default is 10)
+  To see how recursive aliases work take a look at the RECURSION script.
+
+See Also:
+  LOAD RECURSION

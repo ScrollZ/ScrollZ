@@ -1,0 +1,35 @@
+!	 $eterna: input_aliases,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET INPUT_ALIASES [ON|OFF|TOGGLE]
+  Turns ON or OFF the expanding of aliases in the inputline, 
+  If you set INPUT_ALIASES ON and type: ECHO $S
+  you will see your server name echoed to your window.  If it is
+  OFF, you will see $S echoed to your window. INPUT_ALIASES now 
+  has no effect on expansions in the .ircrc and loaded files.  To 
+  Make a line expand when a file is loaded, use EVAL <command>.
+
+  Note also, that when INPUT_ALIASES is ON, text within (..) and {..}
+  are not expanded.  If you want them to be expanded then quote the 
+  leading ( or {.  e.g.   \(  \{ 
+
+  Additionally, You can return to full alias substitution
+  within ${...} by enclosing the substitution text in
+  [...]. Thus  if $0 == test, and $bear == black
+          ${[$0]} expands to "test"
+          ${[$bear]} expands to "black"
+          ${bear} also expands to "black"
+          ${ bear == [black] }  expands to "1",
+          ${ [$0] == [test] } expands to "1"
+          ${ [$0] == [black] } expands to "0"
+          ${ [$0](this) } expands to the return value of $test(this)
+  
+Note:
+  If you do turn on INPUT_ALIASES in the .ircrc then the argument
+  expandos ($*, $0, $1, $3-4, etc) will expand to the command line 
+  arguments passed to IRCII on startup.

@@ -1,0 +1,13 @@
+!	 $eterna: forward_word,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> FORWARD_WORD
+  Moves the cursor to the end of the next word.  If the cursor is
+  in the middle of a word, it is moved to the end of that word.
+  If the cursor is already at the end of a word or on whitespace,
+  it is moved to the end of the next word.

@@ -1,0 +1,16 @@
+!	 $eterna: switch_channels,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> SWITCH_CHANNELS
+  Changes the current channel for the current window.  This will
+  only switch to a channel not currently directed to another
+  window.  That is, if you are on three channels, #Foo, #Bar,
+  and #Cheese, and #Foo and #Bar are currently directed to two
+  windows but #Cheese isn't, then SWITCH_CHANNELS will only
+  toggle between #Cheese and either #Foo or #Bar (depending upon
+  which window this is done in)

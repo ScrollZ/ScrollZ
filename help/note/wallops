@@ -1,0 +1,12 @@
+!	 $eterna: wallops,v 1.5 2001/08/12 16:24:07 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+*Usage: NOTE WALLOPS [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+*		<nick!user@host> <msg>
+*  WALLOPS is an alias for USER +BRW (default max 1 day)
+*  This command is same as WALL, except only opers could receive it.

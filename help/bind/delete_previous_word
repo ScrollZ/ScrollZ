@@ -1,0 +1,14 @@
+!	 $eterna: delete_previous_word,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> DELETE_PREVIOUS_WORD
+  Deletes to the beginning of the previous word.  If the cursor
+  is in the middle of a word, all characters from the left of the
+  cursor to the beginning of the word.  If the cursor is on
+  whitespace, all whitespace through to the beginning of the
+  previous word are deleted.

@@ -1,0 +1,17 @@
+!	 $eterna: names,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]NAMES [-|^]<parameters> [action]
+  When NAMES is activated any outputline will be modified
+  by [action].
+  For example:
+    ON NAMES * /echo $0 $1-
+
+  The parameters are as follows:
+    $0    name of the channel
+    $1    all users on this channel

@@ -1,0 +1,12 @@
+!	 $eterna: clear_screen,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> CLEAR_SCREEN
+  This function will clear the display and restart a screen that 
+  has been stopped by HOLD_MODE or by the TOGGLE_STOP_SCREEN
+  function.

@@ -1,0 +1,13 @@
+!	 $eterna: hold_mode_max,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HOLD_MODE_MAX <number of lines>
+  This specifies the maximum number of lines that will be held
+  in HOLD_MODE before the display is automatically restarted.
+  If HOLD_MODE_MAX is 0, the number of lines held in HOLD_MODE
+  is unlimited.

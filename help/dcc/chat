@@ -1,0 +1,18 @@
+!	 $eterna: chat,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC CHAT NICK
+  DCC CHAT initiates a direct client connection chat to the given
+  nick, who must respond with DCC CHAT. This is the most secure
+  form of communication available on IRC. Messages sent via a DCC
+  CHAT connection are not sent through IRC, but are sent by a direct
+  connection between your client and the remote client. Messages
+  are sent over a DCC CHAT connection with /MSG =nick
+
+See Also:
+  MSG

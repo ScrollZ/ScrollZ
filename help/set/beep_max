@@ -1,0 +1,14 @@
+!	 $eterna: beep_max,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET BEEP_MAX [<number of beeps>]
+  This allows you to limit the maximum number of beeps you will hear
+  for any given messages.  For example, if you set BEEP_MAX to 3,
+  and someone sends a message with more than 10 beeps in it, you
+  will only hear the first three.  Setting BEEP_MAX to 0 means
+  you will hear all beeps in a message.

@@ -1,0 +1,14 @@
+!	 $eterna: ison,v 1.2 2001/08/12 15:42:31 mrg Exp $
+!
+! Copyright (c) 1997 Matthew Green,
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ISON <nick1> [<nick2> ...]
+  The ISON command is typically not used by an IRC user, rather it
+  is used by the IRC client for the NOTIFY command.  It asks the
+  IRC server if the nicknames are present on IRC.
+
+See Also:
+  USERHOST

@@ -1,0 +1,14 @@
+!	 $eterna: join,v 1.6 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]JOIN [-|^]<parameters> [action]
+  This is activated whenever someone joins a channel you are on.  
+  The parameters for the action are as follows:
+    $0    nickname of person who joined the channel
+    $1    the channel which was joined
+    $2    the modes on the channel if this user joined [not portable]

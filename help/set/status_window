@@ -1,0 +1,13 @@
+!	 $eterna: status_window,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_WINDOW <text displayed in current window status line>
+  The value of STATUS_WINDOW is replaced in the STATUS_FORMAT
+  variable for an occurence of %W if the window is the current
+  window.  If the window is not the current window (or if there
+  is only one window visible), then %W is replaced with nothing.

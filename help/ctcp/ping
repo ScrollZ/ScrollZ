@@ -1,0 +1,16 @@
+!	 $eterna: ping,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> PING <current time>
+  Current time is the same as what the function $TIME() returns and
+  represents the number of seconds since Jan 1, 1970.  Other ircII
+  clients will take a CTCP ping and bounce the time back to you.
+  This CTCP function is used by the PING command.
+
+See Also:
+  PING

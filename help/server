@@ -1,0 +1,79 @@
+!	 $eterna: server,v 1.8 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SERVER [<name of server>|<number in server_list> [<port>]]
+       SERVER <name of server>[:<port>[:<password>[:<nickname>]]]
+       SERVER -(IRC|ICB) <args as above>
+       SERVER [+|-]
+       SERVER -DELETE <number in server_list>
+  Switches your primary server to the server specified at the
+  specified port number.   If no port number is given, the default
+  port number is used.   Your channel and AWAY status will remain
+  unchanged.   Occasionally, you can switch servers faster than the
+  irc   network can send out the information that you have left a
+  server.  So don't be surprised if it says your nickname is in 
+  use...  just wait a moment and set it with NICK.  IRCII
+  maintains an internal list of servers you have connected to.
+  To see that list, use SERVER with no arguments.  You may also
+  specify one of the servers in the server list by its number in
+  the list, by issuing:
+    SERVER <number in list>
+  Likewise, you can automatically switch to the next or previous
+  server in the server list by doing:
+    SERVER + 
+  or 
+    SERVER - 
+  to switch to the next and previous server in the list,
+  respectively.  The second form allows you to specify a port,
+  a password and a nickname to be used for this IRC connection.
+  Also, you can set a particular server to be associated with a
+  particular IRCII window.  To do this, set the current window to the
+  window you wish to use and do:
+    SERVER +servername
+  In this case, servername may again be a name, IP address, or number
+  of a server in your server list.
+  This will connect you to the given server as a secondary server in
+  that window.  Doing a /SERVER with no parameters will show you your
+  primary server.  If you kill the last window associated with a
+  server, the connection to that server will close.  If you kill the
+  last window associated with your primary server, a new open server
+  will be chosen as the primary server.  If there are open servers you
+  will not be allowed to close the connection to your primary server.
+  When you create new windows, they will use as their associated
+  server whatever was the server for the current window when the new
+  window was created.  You can therefore have more than one window for
+  any server, but still only one primary server.
+
+  Every time you switch to a new server, it gets
+  added to the server list automatically.  To set up initial
+  servers in the server list, you can specify them on the command
+  line as such:
+    irc <nickname> server1 server2 server3
+  Each host may have it's own port number, password and nickname
+  specified on the command line as well:
+    irc <nickname> server1:6667 server2:7000:blah server3::foo
+  In this case, server1 will use port 6667, server2 will use port
+  7000 with password blah, and server3 will use the default port
+  number with password foo.  The -p switch on the command line
+  allows you to specify the default port number.  Also, if no
+  password is specified and one is needed to connect, you will be
+  prompted to enter a password before you can connect.  You can
+  also specify the default server list in the IRCSERVER
+  environment variable using the same format as above.
+
+Available flags:
+  -IRC <normal arguments>
+  -ICB <normal arguments>
+    Make this connection as an IRC or ICB connection.
+  -DELETE <number in servers list>
+    Allows you to remove servers from the internal server list.
+
+See Also:
+  ircII server_lists
+  ircII command_line_args
+  ircII environment_vars

@@ -1,0 +1,39 @@
+!	 $eterna: flood,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]FLOOD [-|^]<parameters> [action]
+  The FLOOD type is activated whenever someone sends a lot of 
+  information very rapidly to you, your channel, or the system at 
+  large (ie: a wallop).  Usually, this is caused when someone dumps
+  a file to your channel or to you.  The parameters for this are:
+    $0	The nick of the flooder
+    $1	The type of flooding being done 
+    $2- The content of the flooding message
+
+  General use for ON FLOOD is as follows:
+    ON ^FLOOD *
+  This will automatically prevent flooding messages from being 
+  displayed and automatically disable itself when the flooding
+  has stopped.
+
+  If you use services like IRCIIHelp or NickServ, these can appear to
+  IRCII as floods, but if you add to following ON lines:
+    ON FLOOD ^IRCIIHelp
+    ON FLOOD ^NickServ
+  These will not be treated as floods and will let their messages through.
+
+  Warning:  There are occasions where ON FLOOD can be inadvertantly 
+  activated (such as after a net-burp, or after you have ^Z'd for a
+  while).  Therefore, I strongly advise against using KILL or even
+  KICK as the action taken by an ON FLOOD.  
+
+See Also:
+  SET FLOOD_AFTER
+  SET FLOOD_RATE
+  SET FLOOD_USERS
+  SET FLOOD_WARNING

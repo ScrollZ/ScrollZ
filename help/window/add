@@ -1,0 +1,16 @@
+!	 $eterna: add,v 1.5 2001/08/12 16:24:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW ADD [^]<n>  
+  Adds <n> to window namelist, where <n> is either a nick or channel 
+  name.  All communication with <n> will go to that window.  Also, <n>
+  may be a comma separated list (no spaces).  If <n> is prefixed with
+  a ^, the nick is removed
+
+See Also:
+  WINDOW REMOVE

@@ -1,0 +1,12 @@
+!	 $eterna: whowas,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WHOWAS <nickname> [<count>]
+  Shows information about who used the given nickname last, even
+  if no one is currently using it.  If <count> is specificed,
+  then only the last <count> entries are shown.

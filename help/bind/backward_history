@@ -1,0 +1,12 @@
+!	 $eterna: backward_history,v 1.5 2001/08/12 16:23:39 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> BACKWARD_HISTORY
+  Replaces the contents of the input buffer with the previous
+  command in the command history buffer.  The command history
+  buffer is a circular buffer that wraps at the end.

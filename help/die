@@ -1,0 +1,15 @@
+!	 $eterna: die,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DIE
+  Causes your server to exit, die, pack it in, give up the ship,
+  kick the bucket, etc.
+  DIE is a server operator command.
+
+2.8 Servers:
+  DIE may not work anymore on 2.8 servers.

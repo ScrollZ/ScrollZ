@@ -1,0 +1,16 @@
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]RAW_SEND [-|^]<parameters> [action]
+  This is activated whenever a message is sent to a.
+
+IMPORTANT NOTE: ON RAW_SEND can and will seriously impede the operation
+  of the client if not used correctly.  If you use ON ^RAW_SEND to
+  suppress message sending then the client will not send it to the
+  server. Be careful.
+
+See Also:
+  ON RAW_IRC

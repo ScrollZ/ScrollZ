@@ -1,0 +1,13 @@
+!	 $eterna: clock_alarm,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET CLOCK_ALARM [<time>|OFF]
+  Sets an alarm clock that will beep and send you a message when
+  the time arrives.  The time format may be either 12 hour format
+  (with AM or PM) or 24 hour format.  The CLOCK does not have to
+  be ON for the alarm to function.

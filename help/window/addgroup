@@ -1,0 +1,18 @@
+!	 $eterna: addgroup,v 1.5 2001/08/12 16:24:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW ADDGROUP <name>
+  Sets the server group to <name> for the window.  ircII will
+  attempt to always keep windows with the same server group
+  name connected to the same server.  i.e.:  If you set up
+  windows 3, 5 and 6 as being in server group `foo', (with the
+
+  WINDOW ADDGROUP foo
+
+  command) then, when one of these three windows are connected
+  to a server, the other two are also connected to this server.

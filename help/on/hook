@@ -1,0 +1,23 @@
+!	 $eterna: hook,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^]HOOK [-|^]<any pattern> [action]
+  This is activated whenever you receive a HOOK.  HOOKs are generated
+  by the user for one purpose, which is to activate ON HOOK.
+  The parameters for the action are as follows:
+	$0   First word of text
+	$1   Second word of text..
+	$2-  Rest of pattern.   Can use whatever you like.
+  Basically if you have an ON HOOK pattern   and you send a HOOK command
+  that matches the pattern it will be activated.  This is useful for
+  testing ON patterns, and sending commands from within scripts and 
+  aliases which can be either ignored or acted upon (ON HOOK).
+
+See Also:
+  ON
+  HOOK

@@ -1,0 +1,12 @@
+!	 $eterna: forward_history,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> FORWARD_HISTORY
+  Replaces the contents of the input buffer with the next entry
+  in the command history buffer.  The command history buffer is
+  circular and wraps at the end.

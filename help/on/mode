@@ -1,0 +1,15 @@
+!	 $eterna: mode,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]MODE_CHANGE [-|^]<parameters> [action]
+  This is activated whenever someone on a channel you are on
+  changes the mode for that channel (see HELP MODE).  The 
+  parameters for this function are:
+    $0  The nickname of the person who changed the mode
+    $1	The channel on which the mode was changed
+    $2- The new mode settings for that channel

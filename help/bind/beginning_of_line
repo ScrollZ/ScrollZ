@@ -1,0 +1,13 @@
+!	 $eterna: beginning_of_line,v 1.5 2001/08/12 16:23:39 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> BEGINNING_OF_LINE
+  Moves the cursor to the first character in the input buffer.
+  This need not be the first character visible on the screen,
+  since the input buffer wraps when the line gets too long.  This
+  is always the first characters in the input buffer.

@@ -1,0 +1,73 @@
+!	 $eterna: wait,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WAIT [%process] [-cmd <command> <do_command>]
+  There are several forms of this command.  The first, and best is:
+    WAIT -CMD command
+
+  WAIT causes the command to be executed when server output
+  that hasn't yet arrived, finally arrives.  This allows you to
+  take a specific action immediately after receiving output from 
+  the server, or client.
+
+  For example, the following alias:
+    ALIAS BACKWARDS wait -cmd echo hello there;echo hi there
+  will actually display "hi there" before "hello there", because
+  the "hello there" echo is not executed until a WAIT token is
+  received from the server.  If for instance you wanted to make
+  sure to execute some command after the completion of a TRACE
+  of your server, the format would be.
+    TRACE
+    WAIT -CMD command
+  Note: This doesn't work for commands that depend on another server to 
+  send you information. TRACE <remote server> for instance.
+
+  The second form of the command is:
+    WAIT -CMD %process command
+  Where %process is a valid running processes id or name.  This is
+  used to cause IRCII to execute the command after the process has
+  exited.  If the given process doesn't exist, return is immediate.
+  Here is an example of it's use:
+    alias uptime {
+      exec -name uptime uptime
+      wait %uptime -cmd echo The time is $uptime
+    }
+    alias dotime uptime
+    on ^exec uptime assign uptime $1
+  When dotime is called, a request will be sent to get the uptime.
+  The ON EXEC will catch the time and assign it to the variable 
+  'uptime' at the same time that the alias is at the 'wait %uptime'
+  stage, when the process exits, WAIT will continue and execute 
+  echo The time is $uptime, where '$uptime' has been set already.
+
+  If you are echoing output to the screen from within the WAIT -CMD
+  form, it is probably a good idea to record the current window
+  and use XECHO -WINDOW to ensure that output goes where it should.
+
+  The last form of WAIT is no longer recommended.  It can be 
+  used in the form of
+    WAIT
+  or
+    WAIT %process
+
+  This suspends he client until the server has finished output, and 
+  has innumerable problems, among them being:
+
+  - If one WAIT is executed while another is pending,
+    both will be registered as satisfied when the first
+    returns. A warning is now issued when this happens.
+
+  - If you are in a prompted input sequence (such as oper
+    password, confirmation prompts, and $".." input),
+    results can be unpredictable.
+
+  - It is not consistant with the message driven programming
+    model which exists in ircII.
+
+  With multi window enhancements the problems with WAIT become even
+  more prohibitive, unless used in the -CMD form.

@@ -1,0 +1,21 @@
+!	 $eterna: notice,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]NOTICE [-|^]<parameters> [action]
+  This is activated whenever you receive a NOTICE from someone.
+  The parameters for the action are as follows:
+    $0    nickname of person who sent the NOTICE
+    $1-   The message
+
+  Warning: If you attempt to send a MSG from within a MSG
+  action, it will be automatically converted to a NOTICE, as
+  this will prevent MSG loops from being sent between two or
+  more users.  Also, you will not be permitted to send either
+  MSGs or NOTICEs from within a NOTICE action.  The irc protocol
+  states that NOTICEs may not generate automatic replies so this 
+  will prevent loops of automatic messages from flooding the net.

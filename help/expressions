@@ -1,0 +1,192 @@
+!	 $eterna: expressions,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+  This help file describes expresssions available in ${}, and the
+  @, IF, WHILE, and FOREACH commands.
+
+  Variable expressions are used to perform arithmetic, string and
+  boolean operations. Their syntax is similar to the syntax of most
+  computer languages, and is modelled on C syntax. A simple example
+  of this, is that when ${A + 2} is used, and the ASSIGNed variable
+  A has the value '3', the result is 5.
+
+  Brackets can be used in these expressions, so (A+2)*3 would give a
+  value of (3+2)*3 == 15, whereas A+2*3 would give a value of 9, because
+  multiplication is performed before addition.
+
+  The common arithmetic operations (+, -, *, /) are all available.
+  Additionally, there is a string concatenation operator (##).
+  This treats both sides as strings and pastes them together. Thus
+  if A is 3 and B is 7, "A##B" becomes "37", but "A+B" becomes 10.
+
+  You can also assign values to a variable in these expressions
+  using the '=' operator. Thus if you have the expression "C = A+B",
+  it will assign the value 10 to C. This has a number of affects.
+  The most common case is the @ command, where you can enter this expression
+  literally:
+
+    @ C = A + B
+
+  The '=' operator returns the value assigned. Thus you can extend
+  this to:
+
+    @ D = C = A + B
+
+  Which will assign the value 10 to both C and D. In a $ expression,
+  you might want to assign a value to a variable, and display it at the
+  same time. Thus you might do the following:
+
+    echo The value of C is now ${C = A+B}
+
+  which would set C to 10 and display "The value of C is now 10".
+
+  Comparison operations also exist. These return 1 if the comparison is
+  valid (true) and 0 if it is invalid (false). The comparison operations
+  available are:
+
+    == (equal to)
+    >  (greater than)
+    >= (greater than or equal to)
+    <  (less than)
+    <= (less than or equal to)
+    != (not equal to)
+
+  Thus, the following expressions would result in the following results:
+   ( recall A = 3 and B = 7 )
+
+	A == B			FALSE	0
+	A == 3			TRUE	1
+	A > 3			FALSE	0
+	A >= 3			TRUE	1
+	A != 3			TRUE	1
+
+  These expressions can be combined with || (OR), && (AND) and ^^ (XOR).
+  So (A == 3) || (B==3) would be TRUE, and (A == 2) && (B == 7) would be
+  FALSE. You can also negate expressions with ! (NOT), so !(A == 3) would
+  be FALSE. These boolean expressions are used primarily in IF and WHILE.
+
+  A string expression is considered to be true if it is non empty. So
+  if E has the value "word", then E || ( A > 3) is true, because E has
+  a non empty value, and !E is false.
+
+  Functions can also appear in expressions. The arguments to functions
+  are evaluated as normal $ type expressions. Thus the following alias:
+
+    alias test echo ${ MID(3 2 $0) + 5) }
+
+  is executed with /test 123456, would give  34 (Two digits from position 3
+  in $0) + 5, giving 39. If the function returns another function name, that
+  function name can be called with another set of brackets. Thus if you have
+  the following set of aliases:
+
+    alias fptr
+    {
+        if ( [$0] )
+            { @ function_return = func1 }
+            { @ function_return = func2 }
+    }
+    alias func1 @ function_return = this is $0
+    alias func2 @ function_return = that is $0
+    alias check echo ${ fptr($0)($1) }
+
+  then /check 0 1 would print "that is 1", and /check 1 0 would print
+  "this is 0".
+
+  Array expressions can also be used in this way. For example:
+
+    assign A.1.1 One One was a racehorse
+    assign A.1.2 Two Two was one too
+    assign A.2.1 One One won one race
+    assign A.2.2 Two Two won one too
+    alias rhyme echo ${ A[$0][$1] }
+
+  would cause /rhyme 2 1 to print "One One won one race".
+
+  Function and array expressions can be combined to give a form
+  of pointer arithmetic like that seen in C. If a function
+  RhymeNum exists as follows:
+
+    alias RhymeNum @ function_return = [A]
+  and rhyme is changed to:
+    alias rhyme echo ${ RhymeNum()[$0][$1] }
+
+  /rhyme 2 1 still prints "One One won one race". This is because
+  RhymeNum returns A, and the expression then becomes A[$0][$1].
+  The $0 is expanded to 2, so it becomes A.2[$1], and the $1 is
+  expanded to 1, so it becomes A.2.1, which is then substituted as
+  a variable for "One One won one race". The reverse is also possible.
+  For example, a robot might have the following:
+
+     alias thing.0 @ function_return = laughs his silly head off
+     alias thing.1 @ function_return = growls menacingly
+     alias thing.2 @ function_return = smiles like a crocodile
+     alias thing.3 @ function_return = wails uncontrollably
+     alias something SAY WereBot ${ thing[$RANDOM(4)]() }
+
+  Will cause WereBot to say that it's laughing itself silly, growling
+  menacingly, smiling like a crocodile or wailing uncontrollably.
+  Assuming RANDOM(4) results in a value of 2, This expands to
+  thing.2(), which is then considered to be a function and substituted
+  to "smiles like a crocodile", the end result being that WereBot will
+  say "WereBot smiles like a crocodile".
+
+  Finally, there are occasions when you need to get back to the $
+  substitution level. This can be done by enclosing text to be used at
+  this level in [..]. For example, [A] substitutes to a literal 'A', 
+  whereas A on its own substitutes to 3, and [$0] is needed to get
+  argument 0, because 0 on its own is taken to be the number 0.
+  Example:
+
+    alias something SAY WereBot ${ [$0][$RANDOM(4)]() }
+
+  will case /something thing to first expand [$0] to thing, giving
+  thing[$RANDOM(4)](), and if $RANDOM(4) returns 1, this becomes
+  thing.1(), which expands to "growls menacingly", and causes
+  WereBot to say "WereBot growls menacingly".
+
+
+  The following is the parse tree for expressions such as  those
+
+	NU_EXPR = NU_CONJ
+	NU_CONJ = NU_CONJ && NU_CONJ	|
+		  NU_CONJ || NU_CONJ	|
+		  NU_CONJ ^^ NU_CONJ	|
+		  NU_ASSN
+	NU_ASSN = varexp = NU_ASSN	|
+		  NU_COMP
+	NU_COMP = NU_COMP == NU_COMP	|
+		  NU_COMP != NU_COMP	|
+		  NU_COMP >  NU_COMP	|
+		  NU_COMP >= NU_COMP	|
+		  NU_COMP <  NU_COMP	|
+		  NU_COMP <= NU_COMP	|
+		  NU_ADD
+	NU_ADD  = NU_ADD + NU_ADD	|
+		  NU_ADD - NU_ADD	|
+		  NU_ADD ## NU_ADD	|
+		  NU_MULT
+	NU_MULT = NU_MULT * NU_MULT	|
+		  NU_MULT / NU_MULT	|
+		  NU_UNIT
+	NU_UNIT = token NUX_MODIF	|
+		 unaryop token		|
+		( NU_EXPR )		|
+		[ expression ] NUX_MODIF
+
+	NUX_MODIF = ( expression ) NUX_MODIF |
+		    [ expression ] NUX_MODIF
+
+Special cases:
+  If a (...) or {...} construct is quoted with \(...\) or \{...\}
+  then variable expansion will take place on the first available
+  parse run.  However, after parsed, the \'s are eaten. e.g.
+    alias bonk echo ($0)        will return "($*)" regardless of
+  the argument to the alias.  No expansion takes place.  However, in
+    alias bonk echo \($0\)
+  expansion takes place as the special meaning of the () is taken
+  away by \.  This will return "(arguments to bonk)".

@@ -1,0 +1,15 @@
+!	 $eterna: send,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC SEND <nick> <filename>
+  DCC SEND initiates a file transfer by direct client connection.
+  The recipient must accept your offer of a file transfer with
+  DCC GET.
+
+See Also:
+  DCC GET

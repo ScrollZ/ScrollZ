@@ -1,0 +1,11 @@
+!	 $eterna: help_window,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HELP_WINDOW [ON|OFF|TOGGLE]
+  This will cause the HELP function to create a new window for
+  displaying help.  If OFF, the current window will be used.

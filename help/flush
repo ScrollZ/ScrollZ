@@ -1,0 +1,14 @@
+!	 $eterna: flush,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: FLUSH
+  Flushes all pending output from the server.  This has the
+  effect of stopping long lists from the server, such as a LINKS
+  command which can get quite lengthy.  It also flushed any 
+  output pending from the client itself.  It is useful for 
+  wiping away anything pending when you have HOLD_MODE set.

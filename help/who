@@ -1,0 +1,34 @@
+!	 $eterna: who,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WHO [-switch [<arg>]] [<wildcard expression>]
+  Gives a listing of the users on irc.  If no flags are
+  specified, the wildcard expression you supply will 
+  match any field returned by WHO.  However, if the wildcard
+  expression is "*" (an asterisk), the users on the current
+  channel are shown.  Note that WHO * will fail if you 
+  are not on a channel.  If the expression is 0, all users on 
+  irc are shown.  The following switches are also recognized 
+  and used to limit the listing:
+    -OPERATORS            - lists only operators
+    -LUSERS		  - lists only non operators
+    -CHOPS		  - lists only channel operators
+    -NAME <username>      - lists only people with matching 
+                            user-ids
+    -FILE <filename>      - lists only people listed in the
+			    file
+    -HOST		  - Lists users from the specified host.
+    -SERVER		  - Lists users from the specified server.
+    -HERE		  - Lists only those marked as here.
+    -AWAY		  - Lists only those marked away.
+    -NICK 		  - Match only the given nickname
+
+  The switches may be abbreviated unambiguously.  All matching of
+  usernames, hostnames, and servernames may contain wildcards (*).
+  Wildcards in the form "*.edu" are also correctly recognized
+  by the IRC server (so there's no need for ircII to do that).

@@ -1,0 +1,14 @@
+!	 $eterna: show_status_all,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SHOW_STATUS_ALL [ON|OFF|TOGGLE]
+  When set, it shows everything in every (visible) status line.
+  When not set, it only show things that (I think) are relevant
+  to that window, and are not the same as the current window.
+  Things like nickname, usermode, are only shown on one window,
+  if connected to only one server.

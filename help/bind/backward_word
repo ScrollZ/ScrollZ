@@ -1,0 +1,14 @@
+!	 $eterna: backward_word,v 1.5 2001/08/12 16:23:39 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> BACKWARD_WORD
+  Moves the cursor to the first character of the previous word.
+  If the cursor is in the middle of a word, the cursor is moved
+  to the first character of the same word.  If the cursor is on
+  the first character of a word or on whitespace, the cursor is
+  moved to the first character of the previous word.

@@ -1,0 +1,15 @@
+!	 $eterna: shell_limit,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SHELL_LIMIT <value>
+  Sets the maximum number of lines of output from any EXEC'd
+  process.  This is useful to prevent yourself from accidentally
+  starting a process with EXEC that spits out soooo much output
+  that everything you know and love grinds to a halt.  Setting
+  it to 0 puts no limit on the number of output lines from a
+  process.

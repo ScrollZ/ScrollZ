@@ -1,0 +1,31 @@
+!	 $eterna: notify,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTIFY [[-]<nickname> [[-]<nickname> ...]]
+  Use of this command lets you mark certain nicknames such that
+  you will be warned when they signon or off of IRC.  When
+  someone on your notify-list signs on, you will see a message
+    *** Signon by <nickname> detected
+  Likewise, when they signoff, you will see
+    *** Signoff by <nickname> detected
+  Someone will be shown as signed off if they change nicknames as well,
+  so keep this in mind.
+
+  You can modify how the signon and signoff messages are
+  displayed using the ON NOTIFY_SIGNON and ON NOTIFY_SIGNOFF
+  commands.
+
+  Specifying a - before a nickname will remove notification
+  checking for that nickname.  If no parameters are specified,
+  the current status of each user on your notify list is
+  displayed.  If you specify a + without any additional
+  parameters:
+    NOTIFY +
+  you will be shown a list of only those people on your
+  notification list who are currently on irc.  If you specify
+  a - with no additional parameters, all nicks will be removed.

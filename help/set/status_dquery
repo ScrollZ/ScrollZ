@@ -1,0 +1,15 @@
+!	 $eterna: status_dquery,v 1.5 2001/08/12 16:24:25 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_DQUERY <Status line text when DCC querying>
+  This variable is replaced in the STATUS_FORMAT for occurrences of
+  %Q when you are DCC querying someone.  This variable may contain
+  any text, plus it may contain a single occurrence of %D, which
+  is replaced by the name of the user you are DCC querying.  For
+  example, you can set STATUS_DQUERY to "DQuerying %D", where %D
+  is replaced by a the DCC query nickname.

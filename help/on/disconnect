@@ -1,0 +1,16 @@
+!	 $eterna: disconnect,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]DISCONNECT [-|^]<parameters> [action]
+  This is activated whenever you are disconnected from an
+  irc server and IRCII's automatic reconnection techniques
+  can't get you reconnected.  This would be any situation
+  which you would see
+    *** Use /SERVER to connect to a server
+  Parameters:
+	$0	Last server you were connected to

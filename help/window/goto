@@ -1,0 +1,11 @@
+!	 $eterna: goto,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW GOTO <n>
+  Set the current window to the n'th window visible on the screen. 
+  They are numbered from the 1 being the topmost window.

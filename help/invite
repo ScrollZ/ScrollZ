@@ -1,0 +1,16 @@
+!	 $eterna: invite,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: INVITE <nickname> [<channel>]
+  Invites another user to a channel.  If no channel is specified,
+  your current channel is used.  To go to the last channel to
+  which you were INVITEd, use
+    JOIN -invite
+
+See Also:
+  JOIN

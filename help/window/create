@@ -1,0 +1,20 @@
+!	 $eterna: create,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW CREATE
+  Creates a new ircII window by either opening a new 'screen' window
+  or 'xterm' window depending on the environment.  'screen' is a 
+  popular program which allows multiple windows to be recalled under
+  unix and displayed one at a time on even a vt100 terminal.
+  The X environment is a graphical interface for high resolution
+  monitors usually attached to UNIX machines.
+
+  Currently, all xterms must be the same size as each other.
+
+  See also:
+    WINDOW DELETE

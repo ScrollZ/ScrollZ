@@ -1,0 +1,13 @@
+!	 $eterna: send_talk,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]SEND_TALK [-|^]<user[@host]> [action]
+  This is activated whenever you send a TALK MSG to someone else.
+  The parameters for the action are as follows:
+    $0    user[@host] of person to whom you sent the DMSG
+    $1-   The message itself

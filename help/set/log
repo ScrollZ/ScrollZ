@@ -1,0 +1,21 @@
+!	 $eterna: log,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET LOG [ON|OFF|TOGGLE]
+  Turns the session log ON or OFF.  While ON, a record of your
+  IRC session is recorded to file (see HELP SET LOGFILE).  When
+  OFF, no log is made.  This log will contain everything that 
+  appears on your screen, no matter what window, in the order it
+  comes in.  To log an individual window, use the: 
+    WINDOW LOG [ON|OFF|TOGGLE]
+  command.
+
+See Also:
+  SET LOGFILE
+  WINDOW LOG
+  WINDOW LOGFILE

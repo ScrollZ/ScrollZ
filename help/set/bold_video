@@ -1,0 +1,12 @@
+!	 $eterna: bold_video,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET BOLD_VIDEO [ON|OFF|TOGGLE]
+  When OFF, bold video sent to your display by using the ^B
+  character will not show up in bold.  This can effect the
+  status line but not the input line.

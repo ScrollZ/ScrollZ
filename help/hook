@@ -1,0 +1,23 @@
+!	 $eterna: hook,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: HOOK <anything you want>
+  This command sends <anything you want> in such a way that it can
+  be caught by
+    ON HOOK "anything you want"
+  or any regular ON syntax. E.g. if you have
+    ON HOOK * echo one $* three
+  and you send
+    HOOK two
+  it will display "one two three" as the ON is activated.
+  This is useful if you want to put a special hook in a script or 
+  alias that you can act upon with an ON HOOK or ignore at will.
+
+See Also:
+  ON
+  ON HOOK

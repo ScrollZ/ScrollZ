@@ -1,0 +1,17 @@
+!	 $eterna: which,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WHICH <script name>
+
+  WHICH will attempt to find a given script name in your 
+  LOAD_PATH. E.g. WHICH global might return:
+    /usr/local/lib/irc/script/global
+
+See Also:
+  SET LOAD_PATH
+  CD

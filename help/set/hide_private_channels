@@ -1,0 +1,12 @@
+!	 $eterna: hide_private_channels,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HIDE_PRIVATE_CHANNELS [ON|OFF|TOGGLE]
+  When ON, this will suppress display in your status line of channels 
+  whose mode is +s (secret) or +p (private).  When OFF, channels
+  are shown as usual in the status line.

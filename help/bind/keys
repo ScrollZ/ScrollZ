@@ -1,0 +1,25 @@
+!	 $eterna: keys,v 1.6 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Allowable key sequences for use with the BIND function:
+  c          where c is any key (case sensitive)
+  ^c         where c is one of A thru Z or one of
+             the following quoted set '?[]\^@'
+	     (^? == delete key)
+  METAn-c    where n is 1, 2, 3 ... 8 and c is the same as the 
+             first form above
+  METAn-^c   where n is 1, 2, 3 ... 8 and c is the same as the
+             second form above
+  mc         where m has been previously bound to META1_CHARACTER,
+             META2_CHARACTER, META3_CHARACTER, ... META8_CHARACTER 
+	     and c is the same as the first form above.  m may be 
+	     either of the first two forms above (m or ^m).
+  m^c        where m has been previously bound to META1_CHARACTER
+             META2_CHARACTER, META3_CHARACTER, ... META8_CHARACTER
+             and c is the same as the second form above.  m may be
+             either of the first two forms above (m or ^m).

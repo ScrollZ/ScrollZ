@@ -1,0 +1,15 @@
+!	 $eterna: notify_on_termination,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET NOTIFY_ON_TERMINATION [ON|OFF|TOGGLE]
+  When ON, all EXEC'ed processes will inform you when they exit.
+  You will be told which process is exiting and the reason it
+  exited.  If termination was normal, you will receive the exit
+  status code.  If termination was by signal, you will be told
+  which signal.  If OFF, you will not be informed when processes
+  exit.

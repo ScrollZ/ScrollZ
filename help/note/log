@@ -1,0 +1,16 @@
+!	 $eterna: log,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE LOG [&<passwd>] [+|-<flags>] [#<ID>] <nick!username@host>
+  Displays how long time since matching person was on IRC. This works 
+  only after use of NOTE SPY. The log is protected to be seen for other
+  users than the person who queued the SPY request. To get short
+  output, do not specify any arguments. Example:
+    LOG      : Print short log of all
+    LOG *    : Print long log including real names of all
+    LOG nick : Print long log for user nick.

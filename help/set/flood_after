@@ -1,0 +1,17 @@
+!	 $eterna: flood_after,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET FLOOD_AFTER <number of messages>
+  Used in conjunction with ON FLOOD, this lets you specify the
+  number of flooding messages you will see before ON FLOOD
+  is activated.  
+
+See Also:
+  ON FLOOD
+  SET FLOOD_RATE
+  SET FLOOD_USERS

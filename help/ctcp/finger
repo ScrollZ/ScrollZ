@@ -1,0 +1,11 @@
+!	 $eterna: finger,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> FINGER
+  FINGER will attempt to show the real name and idle time for the
+  specified nickname.

@@ -1,0 +1,20 @@
+!	 $eterna: logfile,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW LOGFILE [<filename>]
+  Sets the name of the file to be used for the log of this window.
+  New window logs are appended to the end of this file.
+
+  Nothing is appended to this name, if you use WINDOW LOG.
+  If you don't set a logfile for the window, and call WINDOW LOG,
+  ircII creates a name for you.
+
+See Also:
+  WINDOW LOG
+  SET LOG
+  SET LOGFILE

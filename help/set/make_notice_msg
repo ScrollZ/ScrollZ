@@ -1,0 +1,10 @@
+!	 $eterna: make_notice_msg,v 1.2 2001/08/12 15:43:37 mrg Exp $
+!
+! Copyright (c) 1999 Joel Yliluoma
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET MAKE_NOTICE_MSG [ON|OFF]
+  If ON, then any /MSG commands invoked inside /ON MSG etc
+  hooks are turned into notice commands transparently.

@@ -1,0 +1,66 @@
+!	 $eterna: encrypt,v 1.9 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ENCRYPT [-<type>] [<nickname>|<channel> [<key>]]
+       ENCRYPT [-showkeys]
+  ENCRYPT allows you to hold an encrypted conversations with 
+  a person or a whole channel.  Once a nickname/channel and
+  key is specified, all messages you send to that 
+  nickname/channel will automatically be encrypted using the
+  given key.  Likewise, any messages from that nickname/channel
+  will automatically be decrypted. ircII is smart enough to know
+  if the incoming message isn't encrypted and will not attempt to 
+  decrypt it.  If you received an encrypted message from someone
+  for whom you haven't specified a key, it will be displayed as
+  [ENCRYPTED MESSAGE].
+
+  The <key> can be any text which is to be used an they key 
+  for encryption/decryption of the conversation.  It is up to
+  you and the people you wish to talk to about how to agree upon 
+  a key and how to communicate it to one another.
+
+  If <type> is specified, ircII will use this cryptography
+  method rather than the default.  The current options are
+  -sed and -cast.  If cast support is enabled, it is the
+  default.
+
+  For example, if user CheeseDog wishes to talk encryptedly with
+  user DogCheese, they must first agree on an encryption key
+  (case sensitive), say foo.  Then user CheeseDog must issue a
+    ENCRYPT DogCheese foo
+  and user DogCheese must issue a 
+    ENCRYPT CheeseDog foo
+  Thereafter, all messages sent between CheeseDog and DogCheese
+  will be encrypted and decrypted automatically.  
+
+  If ENCRYPT is given with a nickname but no key, then encrypted
+  conversation is ended with that user.
+
+  If ENCRYPT is given with no arguments, the list of encrypted
+  users and encryption types are displayed.  If the -showkeys
+  option is specified, the keys for each user are also displayed.
+
+  older ircII used a built in encryption method that isn't terribly
+  secure.  After ircII 4.4, CAST-128 support was added and is now
+  the default.  You can use another if you so choose, see
+  ENCRYPT_PROGRAM for information about this.  Note that in
+  releases prior to 4.4B, ircII used a different type of program
+  API for ENCRYPT_PROGRAM.
+ 
+  If you are sending encrypted messages to a user or channel, you
+  can toggle it off and on in a message line by inserting the
+  control-E character in the input line.  This is usually done
+  by hitting control-Q then control-E.  An inverse video E will
+  appear in the input line.  
+
+Note:
+  Control-q is bound (see BIND) to quote_character by default.
+  It is frequently necessary to change this to some other char.
+
+See Also:
+  SET ENCRYPT_PROGRAM

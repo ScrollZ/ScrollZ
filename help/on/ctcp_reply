@@ -1,0 +1,26 @@
+!	 $eterna: ctcp_reply,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CTCP_REPLY [-|^]<parameters> [action]
+  This event is activated when you receive a reply from a CTCP
+  request that you made (with the CTCP command).  For example,
+  if you did:
+    CTCP BigCheese VERSION
+  you would receive a:
+    *** CTCP REPLY VERSION from BigCheese: IRCII 2.1beta2 Unix
+  from BigCheese.  However, if you had:
+    ON ^CTCP_REPLY "* VERSION" /echo $0 is using $2-
+  and did the CTCP show above, you would get something like:
+    BigCheese is using IRCII 2.1beta2 Unix
+  The parameters are:
+	$0	nick of person who sent the reply
+	$1	The CTCP command being replied to
+	$2-	The reply itself (depends on $1)
+  Note: You may NOT use the CTCP command in an ON CTCP_REPLY.  
+  It simply will report an error message to you and not work.  
+  It is illegal to do this and it is not supported.

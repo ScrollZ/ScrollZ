@@ -1,0 +1,16 @@
+!	 $eterna: pause_after_motd,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET PAUSE_AFTER_MOTD [ON|OFF|TOGGLE]
+  When ON, this will cause IRCII to wait for a keystroke after
+  the local IRCII motd is displayed then clear the screen and
+  continue.  If OFF, the local motd will be displayed,
+  immediately followed by the server banners and motds.  If
+  there is no local IRCII motd, this variable has no effect.
+  PAUSE_AFTER_MOTD only works for the IRCII motds and *not* for
+  server motds.

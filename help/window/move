@@ -1,0 +1,12 @@
+!	 $eterna: move,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW MOVE <n>  
+  Moves the current window n positions on the screen.  Eg, MOVE 1 
+  will move the current window down 1 on the screen.  Window 
+  proportions are maintained using MOVE.

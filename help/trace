@@ -1,0 +1,13 @@
+!	 $eterna: trace,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: TRACE [<server>]
+  Without a specified server it shows the current connections on
+  the local server.  If you specify a remote server it will show
+  all servers between your current server and that remote server
+  as well as the connections on that remote server.

@@ -1,0 +1,22 @@
+!	 $eterna: redirect,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: REDIRECT <nick|channel|process|=nick> <cmd>
+  This will send the output from the given command to the
+  specified nickname, channel, or started process.  For 
+  example: 
+    REDIRECT #Har /WHOIS bigcheese
+  This sends the result of "WHOIS bigcheese" to channel #Har.  
+  There is an implicit WAIT built into the REDIRECT command.
+  This means that all output will be redirected until the
+  given command has finished executing.  This can have some
+  unpredictable results, so use it with caution.
+  If you want to redirect output to a DCC CHAT connection
+  then specify the last form REDIRECT =nick command.
+  If the nickname|channel is given as the char "*" output will be
+  redirected to the current channel.

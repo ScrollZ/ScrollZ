@@ -1,0 +1,18 @@
+!	 $eterna: continued_line,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET CONTINUED_LINE <some text>
+  This allows you to change the text which is displayed when a
+  line is greater than than width of the screen.  By default,
+  this text is a +, and each line greater than the screens width
+  will have this prepended to all lines after the first.   You
+  may use CONTINUED_LINE in conjunction with INDENT, or you may
+  disable the CONTINUED_LINE character by setting it to <EMPTY>.
+
+See Also:
+  SET INDENT

@@ -1,0 +1,25 @@
+!	 $eterna: xecho,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: XECHO [<flags>] <text>
+  XECHO is like ECHO, except that it takes flag arguments.
+
+Available flags:
+  -LEVEL <level>  displays the message with the specified lastlog
+                  level. This is useful to change the window some
+                  messages are displayed in. This is the only way
+                  to generate a message with the USERLOG1-4 lastlog
+                  levels.
+  -WINDOW <winname> displays the text in the named window, if it can. 
+		  If the window doesn't exist, then the -WINDOW flag
+ 		  is ignored.
+See Also:
+  ECHO
+  ON
+  SET DISPLAY
+  LASTLOG

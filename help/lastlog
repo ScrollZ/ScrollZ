@@ -1,0 +1,47 @@
+!	 $eterna: lastlog,v 1.6 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: LASTLOG [<flag>] [<pattern>] [<number of entries> [<from entry>]]]
+  Displays the contents of the lastlog.  This is a list of the
+  most recent messages that have appeared on the screen.  LASTLOG
+  is useful to redisplay the screen if you inadvertantly do a
+  CLEAR or miss messages for other reasons.
+
+  If no arguments are given, the entire lastlog is displayed. If a <pattern>
+  argument is given, only with <pattern> in them are displayed.  If the
+  first argument is a number, it determines how many log entries to show,
+  or if searching for a pattern, how many entries to search.  Otherwise it
+  is searched for in every lastlog entry. The second argument determines how
+  many lines back to start display from. Thus
+    LASTLOG 4 8
+  Shows 4 lines of the lastlog, starting at line 8...  lines 8,
+  9, 10, 11 are displayed.  Furthermore:
+    LASTLOG bigcheese
+  displays only those lastlog entries that contain the word "bigcheese".  
+  The following will, starting at line 4 searching for 8 lines, search
+  for lastlog entires that contain the word "phone".
+    LASTLOG phone 8 4
+
+Available flags:
+  You can further limit the display of the lastlog by specifying
+  one of the following flags:
+    -PUBLIC         Normal channel messages
+    -MSG            Private messages
+    -NOTICE         Notices
+    -NOTE           Notes
+    -WALL           Walls
+    -WALLOP         Wallops
+    -CRAP           Anything not included in the other categories
+    -LITERAL        Make the follow a pattern always, not a number
+
+  The lastlog will only display messages of the type specified
+  by the flag.
+  
+See Also:
+  SET LASTLOG
+  SET LASTLOG_LEVEL

@@ -1,0 +1,17 @@
+!	 $eterna: no_ctcp_flood,v 1.6 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET NO_CTCP_FLOOD [ON|OFF|TOGGLE]
+  When ON, your client will protect you against flooding with
+  CTCP replies. See CTCP_REPLY_FLOOD_SIZE for details.
+  When OFF, it will process CTCP replies properly, ie
+    ^AFINGER blah^A^AVERSION^A
+  will work.
+
+See Also:
+  CTCP_REPLY_FLOOD_SIZE

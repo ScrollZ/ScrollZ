@@ -1,0 +1,40 @@
+!	 $eterna: join,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: JOIN [-INVITE|<channel_list> [<key>]]
+  Changes your current channel to the channel specified.
+  If no parameters are given, your current channel is displayed.
+
+  Channel names begin with a # or & and may contain any character
+  except space, carriage return, null and line feed. For example,
+  #My_Channel, # or #!@$%^&* are valid channel names.
+  Channel names beginning with the character '&' are local to your server.
+
+  If the specified channel does not already exist, it will be created.
+  Otherwise, if MODE +k <key> is enabled on the channel, you will have to
+  supply the <key> to complete join.
+
+Available flags:
+  -INVITE
+    If the -INVITE switch is used, you will join the channel that you were
+    last INVITED to.  Or, if we wish to be grammatically correct,
+    you will join the channel to which you were last invited.
+
+Note:
+  Joining a channel does not cause you to leave your previous
+  channel unless NOVICE is set to ON. See SET NOVICE
+  If you have NOVICE off, it is possible to join several channels
+  at the same time.. with
+    JOIN #channel1,#channel2,#channel3
+  You must use commas and no spaces to separate the channel names.
+
+  CHANNEL and JOIN are identical.
+
+See Also:
+  SET NOVICE
+  MODE for information about changing channel characteristics.

@@ -1,0 +1,41 @@
+!	 $eterna: user,v 1.5 2001/08/12 16:24:07 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE USER [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+		<nick!username@host> <msg>
+  With USER you can queue a message in the server, and when the recipient
+  signs on/off IRC, change nick or join any channel, note checks for
+  valid messages. This works even if the sender is not on IRC. See HELP
+  FLAGS for more info. 
+  Password can be up to ten characters long. You may specify password 
+  using the &, % or $ character. & is equal to to $, except working much
+  better cause client use $ for other things...
+  The % character works like &, except it makes the queuing silent. It
+  makess also sense to use this without any following password.
+  If any request queued is equal to any previous except time and maxtime,
+  only maxtime is changed as specified. You then get "Joined" instead of
+  "Queued". 
+  HELP FLAGS for info about flag settings. Username can be specified
+  without @host. Do not use wildcards in username if you know what it
+  is, even if it's possible. Max time before the server automatically
+  remove the message from the queue, is specified with hours with a
+  '-' character first, or days if a '+' character is specified, as
+  -5 hours, or +10 days. Default maxtime is 7 days.
+  Note: The received message is *directly* displayed on the screen,
+  without the need for a read or remove request.
+    NOTE USER &secret +WN +10 Wizible!jarlek@ifi.uio.no Howdy!
+  is an example of a message sent only to the specified recipient if
+  this person is an operator, and after receiving the message, the server
+  sends a note message back to sender to inform about the delivery.
+    NOTE USER +XR -5 Anybody <ctrl-G>
+  is an example which makes the server to tell when Anybody signs
+  on/off irc, change nick etc. This process repeats for 5 hours.
+    NOTE USER +FL @*.edu *account*
+  is an example which makes the server send a message back if any real-
+  name of any user matches *account*. Message is sent back as note from
+  server, or directly as a notice if sender is on IRC at this time.

@@ -1,0 +1,19 @@
+!	 $eterna: sendline,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SENDLINE <line of text>
+  SENDLINE will send a line to the client EXACTLY as though you had
+  typed it at the command line.  However, unlike TYPE it is not
+  displayed in the command line.  All alias expansion or command
+  processing is done after it's sent as it normally would be when you 
+  send a line with RETURN.  It can be used with ON ^INPUT
+  if you're extremely careful.
+
+See Also:
+  ON INPUT
+  SET INPUT_PROTECTION

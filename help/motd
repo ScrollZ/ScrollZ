@@ -1,0 +1,15 @@
+!	 $eterna: motd,v 1.5 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: MOTD [<server>|<nickname>]
+  Gives the message-of-the-day for the named server.  If no
+  server is given, your server is used. If a nickname is 
+  given it queries the server that that person is currently
+  using.  You should be sure to check the MOTD regularly.
+  Ignorance of the law is not a defense in any court in the
+  land.

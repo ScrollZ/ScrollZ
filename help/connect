@@ -1,0 +1,18 @@
+!	 $eterna: connect,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CONNECT <serverX> [[<port>] <serverY>]
+  Tells <serverY> to attempt to connect to <serverX> on port <port>
+  with <port> defaulting to the default port for that server
+  (probably 6667) and <serverY> defaulting to the local server
+
+  CONNECT is a server operator command.
+
+See Also:
+  SQUIT
+  TRACE

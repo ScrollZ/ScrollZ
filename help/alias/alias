@@ -1,0 +1,55 @@
+!	 $eterna: alias,v 1.5 2001/08/12 16:23:38 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ALIAS [[-]<alias> [<commands>]]
+  Creates a command alias for <commands>. Commands do not need to be
+  prefixed with a command character, in fact they shouldn't!
+  If you want an alias to type something to the channel or query
+  use SEND or SAY. You can use ';' to put multiple commands in a row.
+
+  Special character sequences, usually ircII variables, are prefixed
+  with '$'.  There are certain $ sequences built in to IRCII for getting
+  such information as your nickname and current channel, plus you can
+  expand your own variables and system variables using the $ format.  
+  You can also expand functions, substituting their return values.
+  See ASSIGN for more on this.
+
+  Here are some simple alias examples:
+    ALIAS HELLO MSG $0 Hello, $0! $1-
+  This alias can be used by typing:
+    HELLO BigCheese How are you?
+  This would act as though you had typed:
+    MSG BigCheese Hello, BigCheese! How are you?
+  ALIAS with just the <alias> argument shows the current alias
+  for that word.  ALIAS with no argument shows all current
+  aliases. To remove an alias, use ALIAS -<alias>.
+
+  To use more than one command in an alias, separate them by ';'.  
+
+  When using ALIAS in a script it is frequently useful to surround
+  the contents of your alias with { }s when you want to put more than
+  one commands in an alias. E.g:
+    ALIAS loadcommon {
+      LOAD netsplit
+      LOAD troy
+    }
+  is the same as
+    ALIAS loadcommon LOAD netsplit;LOAD troy
+  but lacks the ; and it much easier to read in a script or the .ircrc file.
+
+  For more specific information about the $ uses and more examples,
+  see the specific help files listed below.
+
+See Also:
+  SET
+  INPUT_ALIASES
+  SEND
+  SAY
+  ircII programming
+  ASSIGN
+  expressions  (note also Special Cases at the end)

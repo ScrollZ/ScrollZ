@@ -1,0 +1,20 @@
+!	 $eterna: meta2_character,v 1.5 2001/08/12 16:23:40 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> META2_CHARACTER
+  This function switches to an "alternate" keymap.  That is,
+  after this character is hit, the next key hit can have a new
+  definition.  This is how the Escape sequences are done.  In
+  fact, the escape key's default binding is META1_CHARACTER.  For
+  example:
+    BIND ^X META2_CHARACTER
+  binds this function to ^X.  You may then bind meta key
+  sequences with either of the two following formats:
+    BIND ^X? HELP_CHARACTER
+  or
+    BIND META2-? HELP_CHARACTER

@@ -1,0 +1,17 @@
+!	 $eterna: action,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> ACTION <action description>
+  This command can be used to send a description of what you are doing
+  or how you are feeling or just about anything concerning you, to the
+  current channel or query.  It's just the low-level version of ME and
+  DESCRIBE.
+
+See Also:
+  ME
+  DESCRIBE

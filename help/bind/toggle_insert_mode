@@ -1,0 +1,12 @@
+!	 $eterna: toggle_insert_mode,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> TOGGLE_INSERT_MODE
+  Toggles the INSERT_MODE variable.  This function is equivalent
+  to doing:  
+    SET INSERT_MODE TOGGLE

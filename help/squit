@@ -1,0 +1,26 @@
+!	 $eterna: squit,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SQUIT <servername>
+  Sends a server quit to the named server.
+  This is an operator command and unfortunately if it is 
+  messed up, it can effect MANY people so it's best that
+  one knows EXACTLY what they are doing when they squit
+  a server.  A common mistake is to use a server mask 
+  like if you are on some.server.edu and you typed 
+    SQUIT ircserver.*
+  expecting to break off ircserver.iastate.edu it instead it finds 
+  ircserver.et.tudelft.nl and squits it from it's uplink.
+  IF you're going to use a hostmask then make sure that 
+  you supply enough of the name to keep from messing up
+  the net.  There are more pitfalls, but you should read 
+  the docs in the ircd source for those.
+
+Note:
+  SQUIT SHOULD NEVER EVER BE USED FOR A PERSONAL VENDETA
+  It simply hurts the users.

@@ -1,0 +1,12 @@
+!	 $eterna: same_window_only,v 1.2 2001/08/12 15:43:37 mrg Exp $
+!
+Usage: SET SAME_WINDOW_ONLY [ON|OFF|TOGGLE]
+  Specifies whether or not a channel belonging to a different
+  window can become the current channel of a window that has
+  just lost its current channel.
+  When ON, there is no difference between bound and unbound
+  channels since no channel will be moved between windows.
+  When OFF, the program will try to find a channel in the
+  same window first and, if none is found, then looks for an
+  unbound channel in a different window associated to the
+  same server.

@@ -1,0 +1,25 @@
+!	 $eterna: minimum_users,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET MINIMUM_USERS <number of users>
+  When connecting to a server, this variable is checked versus
+  the number of users currently connected to the ircnet.  If
+  the number of users is less than the setting of
+  MINIMUM_USERS, you will automatically be disconnected from
+  that server and IRCII will attempt to connect to the next
+  server in you server list (as though you had some SERVER +).
+  This is useful if the net is fragmented to keep you on a more
+  populated portion of the net.  This will be rechecked if you
+  issue a LUSERS.  This only affects your primary server.
+  Secondary servers are not affected by this variable.
+
+See Also:
+  SET MINIMUM_SERVERS
+  SERVER
+  LUSERS
+  ircII server_list

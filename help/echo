@@ -1,0 +1,19 @@
+!	 $eterna: echo,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ECHO [<anything you want>]
+  This simply displays all of it's arguments.  However, it's not
+  that simple.  ECHO will work even if DISPLAY is set to OFF,
+  making it useful in your .ircrc file.  Also, ECHO will work in
+  the action portion of an ON command in all modes.  This can be
+  used to redefine the way messages appear.
+
+See Also:
+  ON
+  SET DISPLAY
+  XECHO

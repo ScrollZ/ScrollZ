@@ -1,0 +1,18 @@
+!	 $eterna: server_notice,v 1.6 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]SERVER_NOTICE [-|^]<parameters> [action]
+  This is activated whenever you receive a message from the server
+  as a NOTICE. This is basically anything beginning with "***" which
+  is sent to you by the server, and the MOTD.
+
+  The parameters for the action are as follows:
+    $0    The name of the server which sent you the message
+    $1    The first word of the text sent - probably "***" or "MOTD"
+	  or the name of a channel, eg, "&LOCAL"
+    $2-   The message

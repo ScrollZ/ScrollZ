@@ -1,0 +1,10 @@
+!	 $eterna: transpose_characters,v 1.5 2001/08/12 16:23:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> TRANSPOSE_CHARACTERS
+  Swaps the two characters before the cursor. Thats all.

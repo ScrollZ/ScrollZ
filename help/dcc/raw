@@ -1,0 +1,25 @@
+!	 $eterna: raw,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC RAW <fd> <host> <message>
+  After a connection has been established with the $CONNECT()
+  function DCC RAW is used to talk to that connection.  
+  $CONNECT(HOST PORT)  returns the (fd) of the connection 
+  which is then used by DCC RAW. E.g:
+    ALIAS socktest ECHO $connect(host 7)
+  Which will echo the file descriptor.
+
+  Then send messages to it with:
+    DCC RAW fd host message
+
+  These will be echoed back at you by the remote host.
+  Incoming messages can be intercepted with ON DCC_RAW.
+
+See Also:
+  ON DCC_RAW
+  ALIAS FUNCTIONS

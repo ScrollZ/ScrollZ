@@ -1,0 +1,15 @@
+!	 $eterna: lastlog_level,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW LASTLOG_LEVEL <l>  
+  Where <l> is the same as for LEVEL, this controls what types of 
+  messages displayed in the current window should be saved to the 
+  windows lastlog.
+
+See Also:
+  SET LASTLOG_LEVEL for a complete description of the LEVEL parameters.

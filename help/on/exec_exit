@@ -1,0 +1,14 @@
+!	 $eterna: exec_exit,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]EXEC_EXIT [-|^]<parameters> [action]
+  This is activated when any EXEC'd process exits.  The parameters
+  are:
+	$0	Process number or logical name (if assigned)
+	$1	Signal that killed the process (or 0 if it exited normally)
+	$2	Exit code for process (non-zero only if $1 is 0)

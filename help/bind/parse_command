@@ -1,0 +1,21 @@
+!	 $eterna: parse_command,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> PARSE_COMMAND <string>
+  The PARSE_COMMAND function cause the supplied string to be
+  executed as an ircII command (or alias). It doesn't need to be
+  prefixed by the command character. This function does not disturb
+  the contents of the input line and is not added to the command history.
+  You may also include any of the special $ sequences available in ALIAS
+  and they will be expanded before the line is parsed.  The
+  sequences that deal with command line arguments ($*, $n, $-n)
+  are expanded as though there were no command line arguments.
+
+See Also:
+  ALIAS
+  ircII programming

@@ -1,0 +1,11 @@
+!	 $eterna: icb_error,v 1.2 2001/08/12 15:43:24 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]ICB_STATUS [-|^]<parameters> [action]
+  This is activated whenever you receive a NOTICE from someone.
+  The parameter for the action is as follows:
+    $0-   The error message

@@ -1,0 +1,20 @@
+!	 $eterna: beep_on_msg,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET BEEP_ON_MSG [ALL|NONE|[-]<level> [-] <level> ...]
+  This variable lets you specify certain types of messages
+  which will cause an audible beep when you receive one.
+  The possible message levels are:
+    PUBLIC          Channel conversation only
+    MSG             MSGs only
+    NOTICE          NOTICEs only
+    WALL            WALLs only
+    WALLOP          WALLOPs only
+    NOTE            NOTE only
+    CRAP            Is not used.
+  See SET LASTLOG_LEVEL for more on these levels

@@ -1,0 +1,13 @@
+!	 $eterna: warn_of_ignores,v 1.5 2001/08/12 16:24:26 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET WARN_OF_IGNORES [ON|OFF|TOGGLE]
+  Turns OFF or ON warning messages that occur when you try to
+  send a message to a nickname that you are ignoring.  When ON,
+  you get a warning each time you attempt this.  When OFF, you
+  get no warning.

@@ -1,0 +1,25 @@
+!	 $eterna: ctcp_reply_flood_size,v 1.2 2001/08/12 15:43:35 mrg Exp $
+!
+Usage: SET CTCP_REPLY_FLOOD_SIZE <size in bytes>
+  Used by the CTCP reply flood protection system. Setting
+  NO_CTCP_FLOOD to OFF disables the system entirely.
+
+  Each time you are requested to send more than
+  CTCP_REPLY_FLOOD_SIZE bytes in CTCP_REPLY_BACKLOG_SECONDS
+  no ctcp replies will be done for CTCP_REPLY_IGNORE_SECONDS.
+
+  Known good values are 256 bytes/ 5s/ 10s.
+
+  This is a sliding window, i.e. you can't get caught sending
+  too much because of a 5s boundary, and the checking is still
+  active even if you don't reply anymore, which avoids replying
+  again every 10s if you're under attack.
+
+  If your VERBOSE_CTCP is ON begins and ends of ignore periods
+  will be shown.
+
+See Also:
+  CTCP_REPLY_BACKLOG_SECONDS
+  CTCP_REPLY_IGNORE_SECONDS
+  VERBOSE_CTCP
+  NO_CTCP_FLOOD

@@ -1,0 +1,13 @@
+!	 $eterna: next_window,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> NEXT_WINDOW
+  Switches the "current window" to be the next window in the
+  window list.  This is the window "below" the current window on
+  the screen.  At the bottom of the screen, this will jump to the
+  top most window on the screen.

@@ -1,0 +1,17 @@
+!	 $eterna: xtype,v 1.5 2001/08/12 16:23:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: XTYPE [-LITERAL] <text>
+  XTYPE is like TYPE, except that it takes flag arguments.
+
+Available flags:
+  -LITERAL	Adds text to the input cursor, like /type does,
+		but bindings are ignored.
+
+See also:
+  TYPE

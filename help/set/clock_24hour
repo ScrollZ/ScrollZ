@@ -1,0 +1,12 @@
+!	 $eterna: clock_24hour,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET CLOCK_24HOUR [ON|OFF|TOGGLE]
+  When ON, the status line clock will be displayed in 24 hour
+  format.  When OFF, the status line clock will be displayed in
+  12 hour format with either AM or PM after it.

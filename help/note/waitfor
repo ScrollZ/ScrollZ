@@ -1,0 +1,17 @@
+!	 $eterna: waitfor,v 1.5 2001/08/12 16:24:07 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE WAITFOR [&<pwd>] [+|-<flags>] [+|-<maxtime>]
+		<nick!username@host> [<msg>]
+  WAITFOR is an alias for USER +YD (default max 1 day)
+  Default message is [Waiting]
+  This command is for telling the recipient if this appears on IRC that
+  you are waiting for him/her and notice that this got that message. Example:
+    WAITFOR foobar
+    WAITFOR -2 foobar!username@*
+    WAITFOR foobar Waiting for you until pm3:00..

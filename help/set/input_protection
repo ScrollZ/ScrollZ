@@ -1,0 +1,17 @@
+!	 $eterna: input_protection,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET INPUT_PROTECTION [ON|OFF|TOGGLE]
+  When set this variable will prevent you from using the ON INPUT
+  functionality.  ON INPUT is extremely dangerous in that it can
+  easily disable or throw the client into a loop.  Be sure you
+  know what you're doing if you decide to use this function.
+
+See Also:
+  ON INPUT
+  SENDLINE

@@ -1,0 +1,14 @@
+!	 $eterna: new,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW NEW
+  Creates a new window by splitting either current window, or the 
+  largest window on the screen. 
+
+See Also:
+  SET ALWAYS_SPLIT_BIGGEST.

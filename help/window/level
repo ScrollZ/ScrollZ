@@ -1,0 +1,31 @@
+!	 $eterna: level,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW LEVEL <l>
+  Where <l> is a comma separated list of one of the following: 
+  CRAP, PUBLIC, MSG, NOTICE, WALL, WALLOP, NOTE, ALL, or NONE.  
+  This controls what types of messages will go to the current 
+  window.
+
+  No information is ever lost.  Anything that doesn't otherwise
+  have a specific window to go to (because it is a window's
+  current channel or QUERY user) will either go to the current
+  window, or the window whose LEVEL setting contains an
+  appropriate type for that message. By default, the first
+  window created has a LEVEL of NONE, meaning that no messages
+  will go to that window unless otherwise specified.
+
+  Output from NAMES, LIST, WHO... fall under the CRAP category
+  for LEVEL. If you want, for example, these messages to always go
+  to the current window, you can type this:
+    WINDOW LEVEL CRAP
+  Now, all "crap" will remain in this window, while all private messages,
+  walls, wallops, mail, and notices will go to your current window.
+  
+See Also:
+  SET LASTLOG_LEVEL for a full description of the LEVEL parameters.

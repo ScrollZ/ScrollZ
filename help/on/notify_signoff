@@ -1,0 +1,12 @@
+!	 $eterna: notify_signoff,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]NOTIFY_SIGNOFF [-|^]<parameters> [action]
+  This is activated when someone on your notify list (see
+  NOTIFY) signs off of irc.  The parameters to the action are:
+    $0  Nickname of person who signed off

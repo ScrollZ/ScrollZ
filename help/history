@@ -1,0 +1,14 @@
+!	 $eterna: history,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: HISTORY [<number>]
+  Displays the command history to the screen.  You can specify
+  the number of history entries you wish to view as well.
+
+See Also:
+  SET HISTORY

@@ -1,0 +1,17 @@
+!	 $eterna: note,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]NOTE [-|^]<parameters> [action]
+  This is activated whenever you receive an irc NOTE.
+  The parameters for the action are as follows:
+    $0    nickname of person who sent the note
+    $1    The user@hostname of the person who sent the note
+    $2    The note flags (see HELP NOTE FLAGS)
+    $3-7  The time the note was queued.
+    $8    The server from which the note was queued
+    $9-   The message itself

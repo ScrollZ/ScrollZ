@@ -1,0 +1,25 @@
+!	 $eterna: load_path,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET LOAD_PATH <Path to load scripts from>
+  This path controls where the client finds scripts and menus.
+  A typical example would be.
+    SET LOAD_PATH .:~/.irc:/usr/local/lib/irc/script
+
+  Which will first look in the current directory, and then in the 
+  system's irc script directory.  This can of course be set to 
+  anything you want.  If you want to determine if you have the 
+  default scripts, and where they are, use   /WHICH global
+  and that should show you the location of the 'global' script 
+  file.  The directory it's in is also the location of all the 
+  other scripts.
+
+See Also:
+  LOAD
+  WHICH
+  CD

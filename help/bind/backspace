@@ -1,0 +1,13 @@
+!	 $eterna: backspace,v 1.5 2001/08/12 16:23:39 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> BACKSPACE
+  The BACKSPACE function deletes the character to the left of the
+  cursor and moves the cursor one space to the left.  If the
+  cursor is at the first position in the input line, BACKSPACE
+  has no effect.

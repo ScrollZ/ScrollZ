@@ -1,0 +1,32 @@
+!	 $eterna: save,v 1.6 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SAVE [<options>] [<filename>]
+  This will save all of the settings of IRCII to a file.  It
+  saves all of the Key Bindings, Variables, and Aliases (in that
+  order) in a format such that they can be loaded into IRCII
+  using the LOAD command or the -l switch.  If no filename is
+  given, the your default .ircrc file will be used (unless
+  changed with the -l switch).
+
+  If any of these options are specific, different things occur.
+
+    -ALIAS
+    -ASSIGN
+    -BIND
+    -ON
+    -SET
+    -NOTIFY
+    -DIGRAPH
+
+  only those `types' are saved.  The -ALL option will save all
+  types and the -FORCE option will supress confirmation.
+
+See Also:
+  LOAD
+  ircII command_line_args

@@ -1,0 +1,30 @@
+!	 $eterna: exec_protection,v 1.6 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET EXEC_PROTECTION [ON|OFF|TOGGLE]
+  If you saw a warning message telling you to read this, beware!
+  If  anyone on irc told you that typing "ON ^MSG * $1-" or 
+  "ON ^MSG <nick> $1-" would speed speed things up or otherwise
+  make life better for you, they are lying.  The above commands 
+  allow people to send you MSGs and have them executed as commands
+  by your IRCII.  This can be a major security problem, since the
+  person who told you to do this can then execute any command you 
+  could, including EXEC commands.  This would give them control over
+  your account while you are on irc.
+
+  Anyway, if you did see this warning, it could be that someone is
+  trying to abuse your account.  But, don't worry, the EXEC command
+  that it warned you about was not executed.  If you are unsure about
+  what is going on, please contact your local irc operator for help.
+  
+  If you know what you're doing, you can set EXEC_PROTECTION to OFF
+  and EXEC will be allowed within ON commands.  Only do this if 
+  you are sure you understand what is going on.
+
+See Also: 
+  EXEC

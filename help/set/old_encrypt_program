@@ -1,0 +1,16 @@
+!	 $eterna: old_encrypt_program,v 1.2 2001/08/12 15:43:37 mrg Exp $
+!
+! Copyright (c) 1998  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET OLD_ENCRYPT_PROGRAM <ON|OFF>
+  Use old program API for the encryption program.  Old API
+  passes the key as the command line argument to the program
+  which is insecure.  Users should upgrade their encryption
+  programs to the new API, which write the key as the first
+  line, and the text to be encrypted afterwards.
+
+See Also:
+  SET ENCRYPT_PROGRAM

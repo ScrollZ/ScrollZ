@@ -1,0 +1,13 @@
+!	 $eterna: rm,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE RM [&<passwd>] [+|-<flags>] [#<ID>] <nick!username@host>
+  Deletes any messages sent from your nick and username which matches
+  with nick and username@host. Use flags for matching all messages which
+  have the specified flags set on or off. See HELP FLAG for more info
+  about flag settings, and HELP LS for info about time.

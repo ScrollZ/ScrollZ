@@ -1,0 +1,16 @@
+!	 $eterna: cd,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CD [<path>]
+  If a <path> is specified, this changes ircIIs working directory. 
+  This is the default directory for EXEC's and other things
+  (such as logs) that don't have absolute paths specified.
+  CD with no arguments shows you the current directory.
+
+See Also:
+  WHICH

@@ -1,0 +1,53 @@
+!	 $eterna: load,v 1.5 2001/08/12 16:23:56 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: LOAD [-args] <filename> [<arg0> <arg1> ...]
+  Loads the given file into irc, treating each line as an irc
+  command, just as if it were typed into the command line, but it
+  expects commands to not have leading command characters, for
+  compatibility it is however allowed. LOAD is the command used
+  automatically at irc startup to load the .ircrc file.
+
+  In a LOAD script it is allowed to have leading spaces and tabs
+  before the commands.
+
+  A long line, like a long alias definition, can be split over
+  multiple lines by putting { and } around it like this:
+    alias follow {
+      say sorry folks, got invited away
+      join -i;bow
+      say here i am especially for you
+      grin
+    }
+
+  This format _MUST_ be used, you cannot put the { in the next
+  line and you cannot put the } elsewhere than by itself.
+  It is also not allowed to use { { } } constructs.
+
+  If the -args flag is specified, then each
+  line of the loaded file is alias expanded before it is executed,
+  just as if you had INPUT_ALIASES set to ON.  The optional
+  arguments, arg0 arg1 etc, are then used to expand the argument
+  expandos ($*, $1, $2, etc) for each line.  The -args switch
+  takes precedent over any changes of the setting of INPUT_ALIASES
+  in the loaded file.  If you only want to expand certain lines
+  and not others, use EVAL to evaluate the given line expanding 
+  variables.  The default value for INPUT_ALIASES is now OFF
+  when loading a script.
+  Note also that the default value for DISPLAY is OFF as well.
+
+  Commands separated by ';' are not recognized by LOAD, that syntax
+  is for ALIAS, BIND and ON only.
+  
+  The location of scripts should be shown in your LOAD_PATH variable
+  which can be changed to point to your own scripts if needed.  
+
+See Also:
+  SET INPUT_ALIASES
+  SET LOAD_PATH
+  CD

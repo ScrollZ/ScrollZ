@@ -1,0 +1,14 @@
+!	 $eterna: display,v 1.5 2001/08/12 16:24:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET DISPLAY [ON|OFF|TOGGLE]
+  Turns ON or OFF all output.  When DISPLAY is off ECHO can still
+  produce a message on your screen.
+  DISPLAY is set OFF by default in scripts now, including the .ircrc
+  file.  It is automatically turned back on when the script is done
+  loading.

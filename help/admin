@@ -1,0 +1,13 @@
+!	 $eterna: admin,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ADMIN [<server>|<nickname>]
+  Displays the administrative details about the given server. If
+  no server is specified, the server you are connected to is
+  used. If a nickname is supplied then it gives the administrative 
+  information for that person's current server.

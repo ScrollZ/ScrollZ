@@ -1,0 +1,13 @@
+!	 $eterna: comment,v 1.5 2001/08/12 16:23:19 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: COMMENT [<anything you want>]
+  This is a comment, it does nothing.
+  Useful in .ircrc files.
+
+  COMMENT, : and # are identical in operation.

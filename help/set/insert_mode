@@ -1,0 +1,17 @@
+!	 $eterna: insert_mode,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET INSERT_MODE [ON|OFF|TOGGLE]
+  Turns ON or OFF insert mode.  While on, characters typed are
+  inserted into already existing text.  When off, new characters
+  overwrite existing ones.  Whichever key is bound to the function
+  TOGGLE_INSERT_MODE will toggle this setting on and off. The TAB 
+  key (or ^I) is the default binding.
+
+See Also:
+  BIND TOGGLE_INSERT_MODE

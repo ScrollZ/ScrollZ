@@ -1,0 +1,17 @@
+!	 $eterna: get,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC GET <nick> <filename>
+  DCC GET accepts a file transfer by direct client connection.
+  If the filename is not supplied then it defaults to the first
+  file offered by that nickname.
+  The sender must first have offered the file with DCC SEND.
+
+See Also:
+  DCC RENAME
+  DCC SEND

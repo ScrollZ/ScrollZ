@@ -1,0 +1,13 @@
+!	 $eterna: connect,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]CONNECT [-|^]<server> <port> [action]
+  This is activated whenever you receive a connect to a server.
+  The parameters for the action are as follows:
+    $0    The name of the server you connected to.
+    $1    The port number you connected to.

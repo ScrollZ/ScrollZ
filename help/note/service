@@ -1,0 +1,10 @@
+!	 $eterna: service,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+*Usage: NOTE SERVICE <nick> <note command>
+*  Useful in robots. Note will take the requests as if from <nick>

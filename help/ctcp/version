@@ -1,0 +1,14 @@
+!	 $eterna: version,v 1.5 2001/08/12 16:23:51 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: CTCP <nick> VERSION
+  VERSION will show you the version of the client that a particular
+  person is using.
+
+Note:
+  SL0 means Script Level 0

@@ -1,0 +1,16 @@
+!	 $eterna: shell_flags,v 1.5 2001/08/12 16:24:24 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET SHELL_FLAGS <flags>
+  Sets any additional flags that the shell (set with SET SHELL)
+  might need. For most shells the -c flag is needed.  This tells
+  the shell to take the command line as a command to be parsed
+  rather than a filename.  The flag -f is also added sometimes, and
+  with csh and tcsh this means to ignore the .cshrc file when a 
+  command is executed.  This means aliases will not be available but
+  the command will execute faster.

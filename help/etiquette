@@ -1,0 +1,83 @@
+!	 $eterna: etiquette,v 1.5 2001/08/12 16:23:20 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+
+HOW TO BEHAVE ON IRC
+
+Authors:      Lea Viljanen (LadyBug)  viljanen@kreeta.helsinki.fi
+              Ari Husa     (luru)     so-luru@tolsun.oulu.fi 
+Modified by:  Troy Rollo   (Troy)     troy@plod.cbme.unsw.oz.au
+
+
+
+1) Language
+
+   The most widely understood and spoken language on IRC is English. 
+However! As IRC is used in many different countries, English is by
+no means the only language. If you want to speak some other language
+than English (for example with your friends), go to a separate channel
+and set the topic (with /topic) to indicate that. For example
+   /topic Finnish only!
+would mean that this channel would be reserved for Finnish discussion.
+On the other hand, you should check the topic (with /list command) 
+before you move to a channel to see if there are any restrictions about 
+language.
+   On a channel not restricted by /topic, please speak a language
+everybody can understand. If you want to do otherwise, change channels
+and set the topic accordingly.
+
+
+2) Hello/Goodbye
+
+   It's not necessary to greet everybody on a channel personally.
+Usually one "Hello" or equivalent is enough. And don't expect everybody
+to greet you back. On a channel with 20 people that would mean one
+screenful of hellos. It's sensible not to greet, in order not to be rude
+to the rest of the channel. If you must say hello to somebody you know,
+do it with a private /msg. The same applies to goodbyes.
+
+   Also note that using IRCII's /ON facility to automatically say hello
+or goodbye to people is extremely poor etiquette. Nobody wants to receive
+autogreets. They are not only obviously automatic, but even if you think
+you are being polite you are actually sounding insincere and also
+interfering with the personal environment of the recipient when using
+autogreets. If somebody wants to be autogreeted on joining a channel,
+they will autogreet themselves.
+
+
+3) Discussion
+
+   When you come to a new channel it's advised you to listen
+for a while to get an impression of what's discussed. Please feel free
+to join in, but do not try to force your topic into the discussion
+if that doesn't come naturally.
+
+
+4) }{|`~][\@^
+
+   IRC has quite a lot of people from Scandinavian countries,
+the above characters are letters in their alphabet. This
+has been explained on IRC about a thousand and one times, so
+read the following, do not ask it on IRC:
+
+   {     is an A with 2 dots over it (ä)
+   }     is an A with a small circle above it (å)
+   |     is either an O with 2 dots over it or an O with a dash (/)
+         through it (either ö or ø)
+   `     is an e with an accent over it (é)
+   ~     is an u with 2 dots over it (ü)
+   [, ], \, @ and ^ are the preceding five letters in upper case.
+
+Of course (I'm being ironical here), the both the french and the
+german mappings are DIFFERENT.
+
+
+5) ATTENTION!
+
+   Remember, people on IRC form their opinions about you only by 
+your actions, writings and comments on IRC. So think before you type.

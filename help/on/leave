@@ -1,0 +1,14 @@
+!	 $eterna: leave,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]LEAVE [-|^]<parameters> [action]
+  This is activated whenever someone leaves a channel you are on.  
+  The parameters for the action are as follows:
+    $0    nickname of person who left the channel
+    $1    the channel which which was left
+    $2    the optional part message

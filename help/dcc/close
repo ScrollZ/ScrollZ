@@ -1,0 +1,17 @@
+!	 $eterna: close,v 1.5 2001/08/12 16:23:53 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: DCC CLOSE <type> <nick> [<arguments>]
+  DCC CLOSE closes an unwanted DCC connection or offer. The type,
+  nick and arguments are the same as those shown by DCC LIST.
+  If the arguments are not specified, the oldest connection of
+  the specified type is closed.
+
+See Also:
+  DCC LIST
+  DCC RENAME

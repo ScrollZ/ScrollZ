@@ -1,0 +1,9 @@
+!	 $eterna: nostatus,v 1.2 2001/08/12 15:43:59 mrg Exp $
+!
+! Copyright (c) 2000  Matthew Green.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW NOSTATUS [ON|OFF|TOGGLE]
+  If OFF, the status bar for this window is not shown at all.

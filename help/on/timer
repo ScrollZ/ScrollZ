@@ -1,0 +1,24 @@
+!	 $eterna: timer,v 1.5 2001/08/12 16:24:12 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]TIMER [-|^]<time> [action]
+  This is activated whenever the real-time clock is equal to the
+  time specification you gave it.  The time specifications should
+  be one of two forms:
+	HH:MM[AM|PM]	where 1<=HH<=12 and 0<=MM<=59
+	HH:MM		where 0<=HH<=23 and 0<=MM<=59
+  which form you use depends on the current setting of
+  CLOCK_24HOUR.  Time specification may include wildcards as
+  well.  The matching of the real-time clock and the time
+  specification is a pure textual match.  Of course, wildcards
+  may be used in the time specification.
+  The parameters for the action are as follows:
+    $0    The time (format depends on CLOCK_24HOUR variable)
+
+See Also:
+  SET CLOCK_24HOUR

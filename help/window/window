@@ -1,0 +1,35 @@
+!	 $eterna: window,v 1.5 2001/08/12 16:24:43 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW [<argument> [<argument> <argument> ...]]
+  The WINDOW command lets you manipulate multiple "windows" in
+  ircII.  Windows are horizontally divided sections of the
+  screen in which different bits of irc information can be
+  displayed.  WINDOW lets you create, manipulate, and remove
+  such windows.  The <argument> parameters to WINDOW are described
+  in full detail in their own sections.
+  
+  The "current window" is denoted by "^^^^^^^^^^" in the status
+  line for that window. You can switch the current window by
+  activating the key functions PREVIOUS_WINDOW or NEXT_WINDOW.
+  These are bound, by default, to ^Xp and ^Xn, respectively.
+  
+  Each window can have the conversation of a channel going to
+  it, which can be specified by either using WINDOW CHANNEL <c>
+  or by executing the JOIN or CHANNEL commands in a window.
+  Each window can also have its own QUERY user.  When QUERYing
+  someone in a window, all conversation with that person is
+  directed to that window.
+  
+  If you have JOIN or WINDOW CHANNEL commands in a script, like
+  your .ircrc file, you will need to do a WAIT after each JOIN
+  or WINDOW CHANNEL.
+
+See Also:
+  WAIT
+  WINDOW LEVEL

@@ -1,0 +1,15 @@
+!	 $eterna: highlight_char,v 1.5 2001/08/12 16:24:23 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET HIGHLIGHT_CHAR [BOLD|INVERSE|UNDERLINE]
+  When the + option of IGNORE is used it highlights messages
+  from the specific user.  The setting of this variable
+  determines how the name is to be highlighted.
+
+See Also:
+  IGNORE

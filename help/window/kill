@@ -1,0 +1,11 @@
+!	 $eterna: kill,v 1.5 2001/08/12 16:24:42 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW KILL
+  Removes the current window.  This does not remove you from any 
+  channel you were on in that window.

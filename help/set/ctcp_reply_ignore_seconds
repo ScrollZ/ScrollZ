@@ -1,0 +1,9 @@
+!	 $eterna: ctcp_reply_ignore_seconds,v 1.2 2001/08/12 15:43:35 mrg Exp $
+!
+Usage: SET CTCP_REPLY_IGNORE_SECONDS <time in seconds>
+  Used by the CTCP reply flood protection system. See
+  CTCP_REPLY_FLOOD_SIZE for details.
+
+See Also:
+  CTCP_REPLY_FLOOD_SIZE
+  CTCP_REPLY_BACKLOG_SECONDS

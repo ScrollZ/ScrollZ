@@ -1,0 +1,80 @@
+!	 $eterna: mode,v 1.6 2001/08/12 16:23:21 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: MODE *|<channel> [+|-]<modechars> [<parameters>]
+       MODE *|<channel> [+|-]b [<nick>[!<user>[@<host>]]]
+       MODE <nick> [+|-]<umodechars>
+
+  Mode command is quite complicated and it allows channel
+  operators to change channel mode, or any user to change
+  their personal mode. For a channel mode, <modechars> is one of 
+  the following:
+    i                - channel is invite only
+    k <key>          - Adds join key <key> to the channel.  Keys can added or
+		       removed (MODE <channel> -k <key>), but not changed.
+    l <number>       - channel is limited, where <number> is the
+                       maximum number of users allowed
+    m                - channel is moderated (only channel operators talk)
+    n                - No MSGs to the channel are allowed
+		       from someone outside the channel.
+    o <nick>         - Makes <nick> a channel operator
+    p                - channel is private
+    s                - channel is secret
+                       Note: On 2.8 servers you cannot set both +p and +s modes
+    t                - topic limits, only the channel operators may change it
+    v <nick>         - Gives someone a voice to talk on a moderated channel. 
+    b user!nick@host - Adds ban
+    e user!nick@host - Adds ban exception
+    I user!nick@host - Adds need-invite exception (notice uppercase I)
+
+  A + or - sign determines whether the specified mode should be
+  added or deleted.
+  If you supply * as channel name, modes will apply to your current channel.
+
+  The form which takes user!nick@host is special in that
+  it needs specifying a sting of the form nick!user@host.
+  Banning examples:
+    MODE #MyChannel +b *!*@gus.*
+  bans everybody from the channel who is on IRC from any
+  machine whose name is gus.
+    MODE #MyChannel +b netw1z
+  bans anybody using the nickname netw1z.
+    MODE #MyChannel +b *!merklin@*
+  bans anybody whose user name is merklin.
+    MODE #MyChannel +b jerk!tug@boat.edu
+  bans the user tug@boat.edu from the channel whenever he
+  is using the nickname "jerk".
+
+  You can list the bans in effect on a channel:
+    MODE #MyChannel b
+  With the same way, you can list invite-exceptions on a channel:
+    MODE #MyChannel I
+  And ban exceptions:
+    MODE #MyChannel e
+  
+  The third form of the MODE command allows you to modify your
+  personal parameters. You can precede any combination of the
+  following with + or - (+to switch that mode on, - to switch it off).
+
+    o        - IRC operator status. You may not turn this on
+               with mode. To assert operator status, you must use OPER
+    w        - Receive WALLOPS (messages directed at all operators.
+               see WALLOPS.
+    s        - Receive server notices. This includes KILL notices
+               and notices about what is happening with links
+               to the local server.
+    i        - Render yourself invisible. This prevents you from
+               being seen in WHO and WHOIS information, unless
+               somebody specifies your exact nickname with WHOIS.
+               This is quite useful, because it often let's you
+               "idle in peace" without getting harmed by mass
+               advertisers etc.
+
+Note:
+  Attempting to avoid a ban placed on you may result in
+  forcible removal from IRC or being banned from your server.

@@ -1,0 +1,19 @@
+!	 $eterna: meta4_character,v 1.5 2001/08/12 16:23:41 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> META4_CHARACTER
+  The META4_CHARACTER is just like the other meta keys except that it
+  is now sticky. That is, Meta4-C-D-E-F-G invokes the
+  meta4 versions of C, D, E, F and G. This effect lasts until
+  meta4 is invoked again. Additionally, the Meta4 characters
+  ^h, SPACE, h, i, j, k, x, H, I, J, K, L and X have been
+  bound in such a way that BIND ^[ META4_CHARACTER now
+  gives a vi editing mode.
+
+  It will stay 'stuck' until it is unstuck with any key bindings that
+  happen to activate the META4_CHARACTER.

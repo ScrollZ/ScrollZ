@@ -1,0 +1,29 @@
+!	 $eterna: query,v 1.5 2001/08/12 16:23:22 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: QUERY [<nicknames>|%n|/<command>]
+  Starts a private conversation with <nicknames>.  All text you
+  type that would normally be sent to your channel now goes to
+  <nicknames> in the form of MSGs.  To cancel a private
+  conversation, use QUERY with no arguments.  The %n arguments
+  allows you to send the query text to a process number n.  The
+  process must have already been started using a previous call
+  to EXEC.  It's also possible to query someone on a
+  DCC connection with  QUERY =nickname.
+  Another form has been added which allows you to send messages to
+  the specified command with the format QUERY /COMMAND
+  and everything you type will be parsed by that /command.  Can be
+  an alias or anything you like. Note that when querying a command,
+  you may need to use XECHO -WINDOW to ensure output goes to the 
+  right place.
+  If "*" is given as a nickname the output is sent to the current
+  channel.
+
+See Also:
+  EXEC
+  DCC QUERY

@@ -1,0 +1,18 @@
+!	 $eterna: list,v 1.5 2001/08/12 16:24:11 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]LIST [-|^]<parameters> [action]
+  When LIST is activated any outputline will be modified
+  by [action].
+  For example:
+    ON LIST "* 5 *" /ECHO NUMBER OF USERS: 5
+  
+  The parameters are as follows:
+    $0    channel name
+    $1    number of users on channel
+    $2-   topic of channel

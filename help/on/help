@@ -1,0 +1,12 @@
+!	 $eterna: help,v 1.5 2001/08/12 16:24:10 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: ON [#|+|-|^|&|@]HELP [-|^]<parameters> [action]
+  ON HELP is activated for each line of the HELP command 
+  that is displayed.  There is probably no other use 
+  for this except by IRCIIHelp.  So ignore it.

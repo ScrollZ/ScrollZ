@@ -1,0 +1,12 @@
+!	 $eterna: user_information,v 1.5 2001/08/12 16:24:26 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET USER_INFORMATION <Text of message>
+  This message will be displayed any time someone does a
+  CTCP USERINFO on your nickname.
+  It is set to "<None Supplied>" be default.

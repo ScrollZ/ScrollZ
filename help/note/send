@@ -1,0 +1,15 @@
+!	 $eterna: send,v 1.5 2001/08/12 16:24:06 mrg Exp $
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: NOTE SEND [&<passwd>] [+|-<flags>] [+|-<maxtime>]
+		<nick!username@host> <msg>
+  SEND is an alias for USER +D (default max 60 days)
+  This command is for sending a message to recipient, and let the server
+  send a note + a notice to sender if this is on IRC - if message is sent.
+    SEND foobar Hello, this is a test.
+    SEND +7 !username@*.edu Hello again!
