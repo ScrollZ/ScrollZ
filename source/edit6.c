@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.32 1999-05-11 15:33:02 f Exp $
+ * $Id: edit6.c,v 1.33 1999-05-12 18:09:17 f Exp $
  */
 
 #include "irc.h"
@@ -2456,7 +2456,7 @@ char *notice;
             }
             break;
         case 3: /* C-ToolZ */
-            channel=notice+18;
+            channel=notice+17;
             tmpstr=channel;
             while (*tmpstr && *tmpstr!='') tmpstr++;
             if (*tmpstr) {
@@ -2509,7 +2509,7 @@ char *notice;
     malloc_strcpy(&joinkeys[joinkeycount].channel,channel);
     joinkeycount++;
     if (joinkeycount>=NUM_JOIN_KEYS) joinkeycount=0;
-    say("Adding channel %s and key %s to join list",channel,key);
+    say("Added channel %s and key %s to join list",channel,key);
 }
 
 /* Check key for join */
