@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.58 2001-03-20 21:22:33 f Exp $
+ * $Id: edit5.c,v 1.59 2001-03-27 17:19:36 f Exp $
  */
 
 #include "irc.h"
@@ -2400,12 +2400,10 @@ char *args;
 char *subargs;
 {
     int  message=!my_stricmp(command,"DIRLSM");
-    char *nick;
+    char *target;
     char *msgsent=server_list[from_server].LastMessageSent;
     char *ntcsent=server_list[from_server].LastNoticeSent;
-    char *channel=(char *) 0;
 #ifdef WANTANSI
-    char tmpbuf[mybufsize/4];
     char thing;
 
     if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
@@ -2413,30 +2411,16 @@ char *subargs;
 #endif /* WANTANSI */
 
     if ((message && msgsent) || (!message && ntcsent)) {
-        if (!(nick=new_next_arg(args,&args))) {
-            channel=get_channel_by_refnum(0);
-            if (channel) {
-                if (message) send_text(channel,msgsent,"PRIVMSG");
-                else send_text(channel,ntcsent,"PRIVMSG");
+        if (!(target=new_next_arg(args,&args))) {
+            target=get_channel_by_refnum(0);
+            if (!target) {
+                NoWindowChannel();
+                return;
             }
-            else NoWindowChannel();
         }
-        else {
-            if (message) send_to_server("PRIVMSG %s :%s",nick,msgsent);
-            else send_to_server("PRIVMSG %s :%s",nick,ntcsent);
-#ifdef WANTANSI
-            sprintf(tmpbuf,"%s[%s%c%s%s%s%c%s]%s",
-                    CmdsColors[COLMSG].color5,Colors[COLOFF],thing,
-                    CmdsColors[COLMSG].color1,nick,Colors[COLOFF],thing,
-                    CmdsColors[COLMSG].color5,Colors[COLOFF]);
-            put_it("%s %s%s%s",tmpbuf,
-                   CmdsColors[COLMSG].color3,
-                   message?msgsent:ntcsent,Colors[COLOFF]);
-#else
-            put_it("[-%s-] %s",nick,message?msgsent:ntcsent);
-#endif /* WANTANSI */
-            AddNick2List(nick,from_server);
-        }
+        if (message) send_text(target,msgsent,"PRIVMSG");
+        else send_text(target,ntcsent,"PRIVMSG");
+        AddNick2List(target,from_server);
     }
     else say("You haven't sent any %s so far",message?"message":"notice");
 }
