@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.37 2001-12-18 20:17:14 f Exp $
+ * $Id: server.c,v 1.38 2001-12-19 17:37:23 f Exp $
  */
 
 #include "irc.h"
@@ -72,11 +72,9 @@ extern int  CheckServer _((int));
 static char enctablebnc[256];
 static char dectablebnc[256];
 #endif
-/**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
 int SSLconnect = 0;
 #endif
-/****************************************************************************/
 /****************************************************************************/
 
 static	void	add_to_server_buffer _((int, char *));
@@ -1338,7 +1336,10 @@ connect_to_server(server_name, port, nick, c_server)
 		}
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (SSLconnect) server_list[from_server].enable_ssl = 1;
+                if (SSLconnect) {
+                    server_list[from_server].enable_ssl = 1;
+                    server_list[from_server].flags |= SSL_CONNECT;
+                }
                 SSLconnect = 0;
 #endif
 /****************************************************************************/
@@ -1366,30 +1367,7 @@ connect_to_server(server_name, port, nick, c_server)
 		 */
 		if (is_server_open(from_server) &&
 			getpeername(server_list[from_server].read, (struct sockaddr *) &sa, &salen) != -1)
-/**************************** Patched by Flier ******************************/
-			/*login_to_server(from_server);*/
-                {
-#ifdef HAVE_SSL
-                    if (server_list[from_server].enable_ssl) {
-                        int err;
-
-                        say("SSL connect in progress ...");
-                        SSLeay_add_ssl_algorithms();
-                        server_list[from_server].meth = SSLv2_client_method();
-                        SSL_load_error_strings();
-                        server_list[from_server].ctx = SSL_CTX_new(server_list[from_server].meth);
-                        CHK_NULL(server_list[from_server].ctx);
-                        CHK_SSL(err);
-                        server_list[from_server].ssl_fd = SSL_new(server_list[from_server].ctx);
-                        CHK_NULL(server_list[from_server].ssl_fd);
-                        SSL_set_fd(server_list[from_server].ssl_fd, server_list[from_server].read);
-                        err = SSL_connect(server_list[from_server].ssl_fd);
-                        CHK_SSL(err);
-                    }
-#endif
-                    login_to_server(from_server);
-                }
-/****************************************************************************/
+			login_to_server(from_server);
 	}
 	else
 	{
@@ -1451,6 +1429,27 @@ login_to_server(server)
 	}
 #endif
 #endif /* NON_BLOCKING_CONNECTS */
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+        if (server_list[server].enable_ssl && (server_list[server].flags & SSL_CONNECT)) {
+            int err;
+
+            say("SSL connect in progress ...");
+            SSLeay_add_ssl_algorithms();
+            server_list[server].meth = SSLv2_client_method();
+            SSL_load_error_strings();
+            server_list[server].ctx = SSL_CTX_new(server_list[server].meth);
+            CHK_NULL(server_list[server].ctx);
+            CHK_SSL(err);
+            server_list[server].ssl_fd = SSL_new(server_list[server].ctx);
+            CHK_NULL(server_list[server].ssl_fd);
+            SSL_set_fd(server_list[server].ssl_fd, server_list[server].read);
+            err = SSL_connect(server_list[server].ssl_fd);
+            CHK_SSL(err);
+            server_list[server].flags &= ~SSL_CONNECT;
+        }
+#endif
+/****************************************************************************/
 	irc2_login_to_server(server);
 }
 
