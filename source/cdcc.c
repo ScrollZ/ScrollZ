@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.13 1999-01-22 18:20:59 f Exp $
+ * $Id: cdcc.c,v 1.14 1999-01-22 18:46:29 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2619,7 +2619,7 @@ void CheckCdccTimers()
     time_t timenow;
     unsigned flags;
     DCC_list *Client;
-    ChannelList *chan=server_list[curr_scr_win->server].chan_list;
+    ChannelList *chan;
 
     timenow=time((time_t *) 0);
     if (timenow-LastIdleCheck>=60) {
@@ -2679,6 +2679,7 @@ void CheckCdccTimers()
         }
     }
     if (curr_scr_win->server!=-1) {
+        chan=server_list[curr_scr_win->server].chan_list;
         if (packs && CdccChannels && PlistTime && timenow-LastPlist>PlistTime) {
             if (!my_stricmp(CdccChannels,"current")) {
                 channel=get_channel_by_refnum(0);
