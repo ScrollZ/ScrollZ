@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: struct.h,v 1.2 1999-01-31 12:47:20 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -384,6 +384,7 @@ typedef	struct	channel_stru
 #else
         time_t time;
 #endif
+        time_t creationtime;
         struct bans *banlist;
         struct hashstr *nickshash[HASHTABLESIZE];
         char *modelock;
