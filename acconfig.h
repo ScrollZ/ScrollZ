@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.7 2000-08-15 16:55:32 f Exp $
+ * $Id: acconfig.h,v 1.8 2001-12-19 18:01:00 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -280,4 +280,7 @@
 
 /* define this if you have getloadavg() */
 #undef HAVEGETLOADAVG
+
+/* define this if you have OpenSSL */
+#undef HAVE_SSL
 /****************************************************************************/
