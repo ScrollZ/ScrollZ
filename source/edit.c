@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.28 1999-08-22 12:32:54 f Exp $
+ * $Id: edit.c,v 1.29 1999-09-05 08:45:22 f Exp $
  */
 
 #include "irc.h"
@@ -1766,7 +1766,10 @@ info(command, args, subargs)
 }
 
 void
-ison_now(notused, nicklist, notused2)
+/**************************** PATCHED by Flier ******************************/
+/*ison_now(notused, nicklist, notused2)*/
+ison_now(notused,notused2,nicklist)
+/****************************************************************************/
 	WhoisStuff	*notused;
 	char		*nicklist,
 			*notused2;
