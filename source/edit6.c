@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.134 2002-03-05 18:33:08 f Exp $
+ * $Id: edit6.c,v 1.135 2002-03-07 16:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -992,6 +992,7 @@ char *subargs;
         char *setting;
     } command_list[]= {
         { "AUTOGET"     , &AutoGet         , "Cdcc auto-get" },
+        { "AWAYENCR"    , &AwayEncrypt     , "Encryption of ScrollZ.away" },
         { "EGO"         , &Ego             , "Ego" },
         { "EXTMES"      , &ExtMes          , "Extended messages display" },
         { "EXTPUB"      , &ExtPub          , "Extended public messages display" },
@@ -3186,7 +3187,7 @@ ChannelList *chan;
         now = time((time_t *) 0);
         snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
-        if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
         else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(logfile, "%s\n", tmpbuf2);
         fclose(logfile);

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.84 2002-03-05 18:33:08 f Exp $
+ * $Id: edit2.c,v 1.85 2002-03-07 16:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -2014,6 +2014,9 @@ char *subargs;
     if (ShowNickAllChan) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
 #endif
+    fprintf(usfile,"AWAYENCRYPT     ");
+    if (AwayEncrypt) fprintf(usfile,"ON\n");
+    else fprintf(usfile,"OFF\n");
     fprintf(usfile,"DEOPSENSOR      %d\n",DeopSensor);
     fprintf(usfile,"KICKSENSOR      %d\n",KickSensor);
     fprintf(usfile,"NICKSENSOR      %d\n",NickSensor);

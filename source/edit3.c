@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.80 2002-03-05 18:33:08 f Exp $
+ * $Id: edit3.c,v 1.81 2002-03-07 16:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -215,7 +215,7 @@ int  type;
         if (*tmpbuf1) snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
         else snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
-        if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
         else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(awayfile, "%s\n", tmpbuf2);
         fclose(awayfile);
@@ -2130,6 +2130,8 @@ void ScrollZLoad()
 #endif
         else if (!strcmp("EXTPUB",tmpbuf3))
             OnOffSet(&pointer,&ExtPub,&loaderror,lineno,"EXTPUB");
+        else if (!strcmp("AWAYENCRYPT",tmpbuf3))
+            OnOffSet(&pointer,&AwayEncrypt,&loaderror,lineno,"AWAYENCRYPT");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2527,8 +2529,9 @@ void InitVars() {
     ShowSignAllChan=0;
     ShowNickAllChan=0;
 #endif
-    ExtPub=1;
+    ExtPub=0;
     ChanLog=0;
+    AwayEncrypt=0;
     usersloaded=0;
     strmcpy(tmpbuf,ScrollZver,sizeof(tmpbuf));
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;

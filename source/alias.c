@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.31 2002-03-05 18:33:08 f Exp $
+ * $Id: alias.c,v 1.32 2002-03-07 16:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -4832,6 +4832,7 @@ u_char *input;
 #ifdef EXTRAS
         { "NICKCHAN"       , 1, &ShowNickAllChan , NULL                   },
 #endif
+        { "AWAYENCR"       , 1, &AwayEncrypt     , NULL                   },
         { NULL             , 0, NULL             , NULL                   }
     };
 

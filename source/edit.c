@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.87 2002-03-05 18:33:08 f Exp $
+ * $Id: edit.c,v 1.88 2002-03-07 16:53:11 f Exp $
  */
 
 #include "irc.h"
@@ -486,6 +486,7 @@ IrcCommand FAR irc_command[] =
 #endif
   { "AUTOOPDELAY", 	"AUTOOPDELAY", 	NumberCommand, 		0 },
  	{ "AWAY",	"AWAY",		away,			SERVERREQ },
+  { "AWAYENCR", 	"AWAYENCR", 	OnOffCommand, 		0 },
   { "AWAYSAVE", 	NULL, 		AwaySaveToggle, 	0 },
   { "AWAYT", 		"AWAYT", 	NumberCommand, 		0 },
   { "BAN", 		NULL,  		Ban,      		SERVERREQ },
