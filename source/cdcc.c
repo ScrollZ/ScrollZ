@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.10 1998-11-12 19:11:24 f Exp $
+ * $Id: cdcc.c,v 1.11 1998-11-16 17:45:10 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -248,7 +248,7 @@ char *line;
 /***********************************************************************
  * listmcommand: List packs                                            *
  ***********************************************************************/
-void listmcommand(line)
+static void listmcommand(line)
 char *line;
 {
     ShowPacks(line);
