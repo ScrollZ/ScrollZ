@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.15 1999-02-17 17:55:03 f Exp $
+ * $Id: edit4.c,v 1.16 1999-02-24 20:05:32 f Exp $
  */
 
 #include "irc.h"
@@ -153,7 +153,8 @@ extern void BanIt _((char *, char *, char *, int, ChannelList *));
 extern void FixColorAnsi _((char *));
 #endif
 extern int  CheckServer _((int));
-extern void CdccQueueNickChange _((char *, char*));
+extern void CdccQueueNickChange _((char *, char *));
+extern char *FormatTime _((int));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -1300,8 +1301,8 @@ char *line;
         if (!listcount) say("Listing all bans on channel %s",line);
         listcount++;
         if (tmpbanlist->who && tmpbanlist->when)
-            say("#%-2d %s set by %s on %.19s",listcount,tmpbanlist->ban,tmpbanlist->who,
-                ctime(&tmpbanlist->when));
+            say("#%-2d %s by %s %s",listcount,tmpbanlist->ban,tmpbanlist->who,
+                FormatTime(time((time_t *) 0)-tmpbanlist->when));
         else say("#%-2d %s",listcount,tmpbanlist->ban);
         tmpbanlist=tmpbanlist->next;
     }
