@@ -61,13 +61,26 @@ Meaning of flags:
     + halfops stuff in CHANST and improved look (coded by braneded)
     ~ index is now a section in ScrollZ.help (idea by braneded)
     + handle numeric 263 (load too high). it resets internal links flag so
-      we can do another /links et al. as soon as we like (coded by braneded)
+      we can do another LINKS et al. as soon as we like (coded by braneded)
     - Cdcc handling via messages
     + timestamp to DCC chat (requested by ogre)
     + TOPICLOCK and TOPICUNLOCK to lock/unlock topic (requested by acidflash)
       only available if compiled with -DEXTRAS
     ! don't lose mode lock when we part a channel
     ! don't lose mode lock when we have joined too many channels
+    + FCLINE, FLLINE to filter C: and L: lines (requested by ogre)
+    + timestamp to WHO reply
+    ! ORIGNICK losing QUIET setting when ORIGNICK without args was executed
+      (reported by fox)
+    + semi-colon is now allowed in SET DCC_PORTS (a-la iptables or ipchains)
+    + define OLD_TS for people that prefer old time stamping format
+    + netsplit/netjoin messages and signon/signoff messages now use value
+      of timestamp to format the output
+    ! hash function to work with high ASCII nicks (used on Russian servers,
+      reported by Koban)
+    - orignick based on notify signoff
+    + ORIGNICK now allows multiple nicks (separate them with comma, requested
+      by fox)
 
 ------------------------------------------------------------------------------
 
