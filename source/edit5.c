@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.23 1999-04-08 16:19:45 f Exp $
+ * $Id: edit5.c,v 1.24 1999-04-08 17:29:16 f Exp $
  */
 
 #include "irc.h"
@@ -2279,25 +2279,7 @@ char *banstr;
             sprintf(tmpbuf2,"*!*@*%s",tmpstr);
         }
     }
-    found=0; /* replace numbers with * (for ppp folks) */
-    for (tmpstr=tmpbuf2;*tmpstr;tmpstr++) {
-        if (!found && *tmpstr=='@') found=1;
-        if (found && isalpha(*tmpstr)) found=2;
-    }
-    if (found==2) {
-        found=0;
-        for (tmpstr=tmpbuf2,tmpstr2=banstr;*tmpstr;tmpstr++) {
-            if (!found && *tmpstr=='@') found=1;
-            if (found && *tmpstr!='?' && isdigit(*tmpstr)) {
-                *tmpstr2++='*';
-                /* skip rest of numbers */
-                while (*tmpstr && isdigit(*tmpstr)) tmpstr++;
-            }
-            if (*tmpstr) *tmpstr2++=*tmpstr;
-        }
-        *tmpstr2='\0';
-    }
-    else strcpy(banstr,tmpbuf2);
+    strcpy(banstr,tmpbuf2);
 }
 
 #ifdef MGS_
