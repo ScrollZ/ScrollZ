@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.15 2002-01-21 21:37:36 f Exp $
+ * $Id: ircaux.c,v 1.16 2002-02-16 18:35:12 f Exp $
  */
 
 #include "irc.h"
@@ -62,7 +62,7 @@ int DCCHighPort;
 
 #ifdef INET6
 extern	char	FAR MyHostName[];
-static int bind_local_addr _((u_char *, u_char *, int, int));
+static int bind_local_addr _((char *, char *, int, int));
 #else
 extern	struct	in_addr	MyHostAddr;
 #endif
