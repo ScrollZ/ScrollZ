@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.17 2000-04-12 19:14:47 f Exp $
+ * $Id: server.c,v 1.18 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -174,12 +174,12 @@ close_server(server_index, message)
 				server_list[i].read = -1;
 			server_list[i].write = -1;
 /**************************** PATCHED by Flier ******************************/
-                        if (inFlierWho) {
+                        if (inScrollZWho) {
                             for (chan=server_list[i].chan_list;chan;chan=chan->next) {
                                 if (!(chan->gotwho) || !(chan->gotbans))
                                 {
-                                    inFlierWho--;
-                                    if (!inFlierWho) break;
+                                    inScrollZWho--;
+                                    if (!inScrollZWho) break;
                                 }
                             }
                         }
@@ -2170,13 +2170,13 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		say("You are not connected to a server, use /SERVER to connect.");*/
         else if (!in_redirect && !connected_to_server) {
             say("You are not connected to a server, use /SERVER to connect.");
-            inFlierWI=0;
-            inFlierWho=0;
-            inFlierNotify=0;
-            inFlierLinks=0;
-            inFlierFKill=0;
-            inFlierTrace=0;
-            inFlierNickCompl=0;
+            inScrollZWI=0;
+            inScrollZWho=0;
+            inScrollZNotify=0;
+            inScrollZLinks=0;
+            inScrollZFKill=0;
+            inScrollZTrace=0;
+            inScrollZNickCompl=0;
             unban=0;
         }
 /****************************************************************************/

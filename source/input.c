@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.6 1999-02-17 17:31:16 f Exp $
+ * $Id: input.c,v 1.7 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -88,7 +88,7 @@ static void CheckNickCompletion() {
     if ((current_screen->buffer_min_pos==current_screen->buffer_pos) ||
         (current_screen->buffer_pos>current_screen->buffer_min_pos &&
          current_screen->input_buffer[current_screen->buffer_pos-1]==' ')) {
-        if (!inFlierNickCompl) new_free(&CurrentNick);
+        if (!inScrollZNickCompl) new_free(&CurrentNick);
         tabnickcompl=NULL;
     }
 }
@@ -563,7 +563,7 @@ input_delete_previous_word(key, ptr)
 	strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), &(current_screen->input_buffer[old_pos]));
 	update_input(UPDATE_FROM_CURSOR);
 /**************************** PATCHED by Flier ******************************/
-        if (!inFlierNickCompl) new_free(&CurrentNick);
+        if (!inScrollZNickCompl) new_free(&CurrentNick);
         tabnickcompl=NULL;
 /****************************************************************************/
 }

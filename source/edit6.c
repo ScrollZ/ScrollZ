@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.57 2000-04-12 19:16:31 f Exp $
+ * $Id: edit6.c,v 1.58 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -492,7 +492,7 @@ char *subargs;
 {
     char *filter;
 
-    if (inFlierFKill) {
+    if (inScrollZFKill) {
         say("Already doing filter kill or trace kill");
         return;
     }
@@ -502,8 +502,8 @@ char *subargs;
         if (args && *args) malloc_strcpy(&tkillreason,args);
         else new_free(&tkillreason);
         FilterKillNum=0;
-        inFlierFKill=1;
-        inFlierTrace=1;
+        inScrollZFKill=1;
+        inScrollZTrace=1;
         send_to_server("TRACE");
     }
     else PrintUsage("TKILL filter [reason]");
@@ -538,9 +538,9 @@ char *user;
 
 /* Reports statistics for filter kill */
 void HandleEndOfTraceKill() {
-    if (inFlierFKill) {
+    if (inScrollZFKill) {
         say("Total of %d users were killed",FilterKillNum);
-        inFlierFKill=0;
+        inScrollZFKill=0;
         new_free(&tkillreason);
         new_free(&tkillpattern);
     }
@@ -557,10 +557,10 @@ char *subargs;
     char servbuf[mybufsize/16+4];
     time_t timenow=time((time_t *) 0);
 
-    if (timenow-LastLinks>=120 || !inFlierLinks) {
+    if (timenow-LastLinks>=120 || !inScrollZLinks) {
         server=new_next_arg(args,&args);
         LastLinks=timenow;
-        inFlierLinks=4;
+        inScrollZLinks=4;
         strcpy(servbuf,"LINKS ");
         if (server) {
             strmcat(servbuf,server,mybufsize/16);
@@ -1946,8 +1946,8 @@ char *stuff;
     int old_server=from_server;
     void (*func)()=(void(*)()) HandleUserhost;
 
-    if (inFlierNotify) inFlierNotify++;
-    else inFlierNotify=2;
+    if (inScrollZNotify) inScrollZNotify++;
+    else inScrollZNotify=2;
     from_server=primary_server;
     add_userhost_to_whois(stuff,func);
     from_server=old_server;
@@ -2157,7 +2157,7 @@ void CleanUp() {
     CleanUpWindows();
     CleanUpVars();
     CleanUpScrollZVars();
-    inFlierNotify=1;
+    inScrollZNotify=1;
     strcpy(tmpbuf,"-");
     notify(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"ALL");
@@ -2363,7 +2363,7 @@ char *subargs;
         tottcount=0;
         mattcount=0;
         malloc_strcpy(&ftpattern,filter);
-        inFlierTrace=2;
+        inScrollZTrace=2;
         send_to_server("TRACE");
         say("Finding all users matching %s on local server",filter);
     }

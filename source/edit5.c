@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.32 2000-04-13 17:41:30 f Exp $
+ * $Id: edit5.c,v 1.33 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -245,7 +245,7 @@ char *subargs;
     if (*args) {
         tmpnick=new_next_arg(args,&args);
         func=(void(*)())TagNickNew;
-        inFlierWI++;
+        inScrollZWI++;
         add_to_whois_queue(tmpnick,func,"%s",tmpnick);
     }
     else PrintUsage("TAG nick");
@@ -260,7 +260,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
     struct list *tmp;
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -1907,7 +1907,7 @@ char *subargs;
             }
         }
         func=(void(*)())NslookupNew;
-        inFlierWI++;
+        inScrollZWI++;
         add_userhost_to_whois(args,func);
     }
     else PrintUsage("NSLOOKUP entry");
@@ -1919,7 +1919,7 @@ WhoisStuff *wistuff;
 char *tmpnick;
 char *text;
 {
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2878,12 +2878,12 @@ void InsertNick() {
         chan=server_list[curr_scr_win->server].chan_list;
         while (chan && my_strnicmp(CurrentNick,chan->channel,len)) chan=chan->next;
         if (chan && !my_strnicmp(CurrentNick,chan->channel,len)) {
-            inFlierNickCompl=1;
+            inScrollZNickCompl=1;
             while (curscr->buffer_pos>curscr->buffer_min_pos  &&
                    curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
                 input_backspace(0,(char *) 0);
             }
-            inFlierNickCompl=0;
+            inScrollZNickCompl=0;
             for (tmpstr=chan->channel;*tmpstr;tmpstr++) 
                 input_add_character(*tmpstr,NULL);
         }
@@ -2902,12 +2902,12 @@ void InsertNick() {
                 nickcompl=nickcompl->next;
         }
         if (nickcompl && !my_strnicmp(CurrentNick,nickcompl->nick,len)) {
-            inFlierNickCompl=1;
+            inScrollZNickCompl=1;
             while (curscr->buffer_pos>curscr->buffer_min_pos  &&
                    curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
                 input_backspace(0,(char *) 0);
             }
-            inFlierNickCompl=0;
+            inScrollZNickCompl=0;
             for (tmpstr=nickcompl->nick;*tmpstr;tmpstr++) 
                 input_add_character(*tmpstr,NULL);
             nickcompl=nickcompl->next;
@@ -3887,7 +3887,7 @@ char *subargs;
     char *filter=(char *) 0;
     char *pattern=(char *) 0;
 
-    if (inFlierFKill) {
+    if (inScrollZFKill) {
         say("Already doing filter kill or trace kill");
         return;
     }
@@ -3898,8 +3898,8 @@ char *subargs;
         if (args && *args) malloc_strcpy(&wkillreason,args);
         else new_free(&wkillreason);
         WhoKillNum=0;
-        inFlierWho++;
-        inFlierFKill=1;
+        inScrollZWho++;
+        inScrollZFKill=1;
         send_to_server("WHO %s",filter);
     }
     else PrintUsage("WKILL who_filter kill_pattern [reason]");
@@ -3925,7 +3925,7 @@ char *host;
 /* Reports statistics for filter kill */
 void HandleEndOfKill() {
     say("Total of %d users were killed",WhoKillNum);
-    inFlierFKill=0;
+    inScrollZFKill=0;
     new_free(&wkillpattern);
     new_free(&wkillreason);
 }

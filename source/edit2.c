@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.40 2000-04-16 09:33:00 f Exp $
+ * $Id: edit2.c,v 1.41 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -782,7 +782,7 @@ char *subargs;
                         if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
                         else {
                             func=(void(*)())BanNew;
-                            inFlierWI++;
+                            inScrollZWI++;
                             add_to_whois_queue(tmpnick,func,"%s",channel);
                         }
                     }
@@ -803,7 +803,7 @@ char *text;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -860,7 +860,7 @@ char *subargs;
                     if (joiner) BanIt(channel,joiner->nick,joiner->userhost,0,NULL);
                     else {
                         func=(void(*)())BanKickNew;
-                        inFlierWI++;
+                        inScrollZWI++;
                         add_to_whois_queue(tmpnick,func,"%s %s",command,channel);
                     }
                 }
@@ -905,7 +905,7 @@ char *text;
     char tmpbuf2[mybufsize/4];
 #endif
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2112,7 +2112,7 @@ char *subargs;
         }
         else {
             func=(void(*)())AddFriendNew;
-            inFlierWI++;
+            inScrollZWI++;
             add_to_whois_queue(tmpnick,func,"%s",tmpbuf1);
         }
     }
@@ -2127,7 +2127,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2376,7 +2376,7 @@ char *subargs;
         }
         else {
             func=(void(*)())AddBKNew;
-            inFlierWI++;
+            inScrollZWI++;
             sprintf(tmpbuf1,"%s %s %s",tmpshit,tmpchan,args);
             add_to_whois_queue(tmpnick,func,"%s",tmpbuf1);
         }
@@ -2394,7 +2394,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2569,7 +2569,7 @@ char *subargs;
                 return;
             }
             func=(void(*)())RemoveFriendNew;
-            inFlierWI++;
+            inScrollZWI++;
             add_userhost_to_whois(tmpnick,func);
         }
     }
@@ -2582,7 +2582,7 @@ char *tmpnick;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2691,7 +2691,7 @@ char *subargs;
                 return;
             }
             func=(void(*)())RemoveAutoBanKickNew;
-            inFlierWI++;
+            inScrollZWI++;
             add_userhost_to_whois(tmpnick,func);
         }
     }
@@ -2704,7 +2704,7 @@ char *tmpnick;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -2814,7 +2814,7 @@ char *subargs;
                     return;
                 }
                 func=(void(*)())UnbanNew;
-                inFlierWI++;
+                inScrollZWI++;
                 add_to_whois_queue(tmpnick,func,"%s",channel);
             }
             else NotChanOp(channel);
@@ -2832,7 +2832,7 @@ char *channel;
 {
     char tmpbuf[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -3008,7 +3008,7 @@ char *subargs;
             return;
         }
         func=(void(*)())IgnoreNew;
-        inFlierWI++;
+        inScrollZWI++;
         add_to_whois_queue(tmpnick,func,"%d %s",igtime,args);
     }
     else PrintUsage("IG [-t time] nick [type]  default type is ALL");
@@ -3024,7 +3024,7 @@ char *igtype;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;

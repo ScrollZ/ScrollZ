@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.35 1999-10-04 19:21:37 f Exp $
+ * $Id: edit4.c,v 1.36 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -397,7 +397,7 @@ ChannelList *chan;
 
     if (unban<2) unban=2;
     else unban++;
-    inFlierWho++;
+    inScrollZWho++;
     tmpjoiner=CheckJoiners(nick,channel,from_server,chan);
     strmcpy(tmpbuf,nick,mybufsize/4);
     strmcat(tmpbuf,"/",mybufsize/4);
@@ -1785,8 +1785,8 @@ char *text;
 
     timenow=time((time_t *) 0);
 #endif
-    inFlierNotify--;
-    if (inFlierNotify==1) inFlierNotify=0;
+    inScrollZNotify--;
+    if (inScrollZNotify==1) inScrollZNotify=0;
     if (!wistuff->nick) return;
     notify_mark(wistuff->nick,2+wistuff->not_on,0);
     if (wistuff->not_on) return;
@@ -2541,7 +2541,7 @@ char *subargs;
     struct splitstr *tmpsplit;
     time_t timenow=time((time_t *) 0);
 
-    if (timenow-LastLinks>=120 || !inFlierLinks) {
+    if (timenow-LastLinks>=120 || !inScrollZLinks) {
         LastLinks=timenow;
         while (splitlist) {
             tmpsplit=splitlist;
@@ -2549,7 +2549,7 @@ char *subargs;
             new_free(&(tmpsplit->servers));
             new_free(&tmpsplit);
         }
-        inFlierLinks=1;
+        inScrollZLinks=1;
         send_to_server("LINKS");
         say("Gathering links info from server");
     }
@@ -2566,7 +2566,7 @@ char *subargs;
     struct splitstr *tmpsplit;
 
     if (splitlist) {
-        if (timenow-LastLinks>=120 || !inFlierLinks) {
+        if (timenow-LastLinks>=120 || !inScrollZLinks) {
             LastLinks=timenow;
             while (splitlist1) {
                 tmpsplit=splitlist1;
@@ -2574,7 +2574,7 @@ char *subargs;
                 new_free(&(tmpsplit->servers));
                 new_free(&tmpsplit);
             }
-            inFlierLinks=2;
+            inScrollZLinks=2;
             send_to_server("LINKS");
             say("Gathering links info from server");
         }
@@ -2592,7 +2592,7 @@ char *servers;
     char tmpbuf[mybufsize/4];
     struct splitstr *tmp1,*tmp2,*tmpsplit;
 
-    if (inFlierLinks) {
+    if (inScrollZLinks) {
         tmp1=(struct splitstr *) new_malloc(sizeof(struct splitstr));
         tmp2=(struct splitstr *) new_malloc(sizeof(struct splitstr));
         if (tmp1 && tmp2) {
@@ -2605,7 +2605,7 @@ char *servers;
             malloc_strcpy(&(tmp1->servers),tmpbuf);
             NextArg(tmpstr,&tmpstr,tmpbuf);
             malloc_strcat(&(tmp2->servers),tmpbuf);
-            if (inFlierLinks==1) {
+            if (inScrollZLinks==1) {
                 found1=0;
                 found2=0;
                 tmpsplit=splitlist;

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.37 2000-02-24 18:43:52 f Exp $
+ * $Id: edit3.c,v 1.38 2000-05-14 07:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -751,7 +751,7 @@ char *subargs;
             }
             else {
                 func=(void(*)())FingerNew;
-                inFlierWI++;
+                inScrollZWI++;
                 add_userhost_to_whois(tmpnick,func);
             }
         }
@@ -767,7 +767,7 @@ char *tmpnick;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
-    if (inFlierWI) inFlierWI--;
+    if (inScrollZWI) inScrollZWI--;
     if (wistuff->not_on || !wistuff->nick || my_stricmp(wistuff->nick,tmpnick)) {
         say("Can't find %s on IRC",tmpnick);
         return;
@@ -1814,10 +1814,10 @@ int ScrollZLoad()
         else if (!strcmp("ADDN",tmpbuf3)) {
             while (pointer && *pointer && isspace(*pointer)) pointer++;
             if (pointer && *pointer) {
-                inFlierNotify=1;
+                inScrollZNotify=1;
                 strcpy(tmpbuf2,pointer);
                 notify(NULL,tmpbuf2,NULL);
-                inFlierNotify=0;
+                inScrollZNotify=0;
             }
             else {
                 PrintError("missing NICK(s)","in ADDN",lineno);
@@ -2328,10 +2328,10 @@ char *subargs;
     struct friends *tmpfriend;
     struct autobankicks *tmpabk;
 
-    inFlierNotify=1;
+    inScrollZNotify=1;
     strcpy(tmpbuf,"-");
     notify(NULL,tmpbuf,NULL);
-    inFlierNotify=0;
+    inScrollZNotify=0;
     CleanUpLists();
     ScrollZLoad();
     for (i=0;i<number_of_servers;i++)
@@ -2478,13 +2478,13 @@ void InitVars() {
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
     defban='B';
-    inFlierWI=0;
-    inFlierWho=0;
-    inFlierNotify=0;
-    inFlierLinks=0;
-    inFlierFKill=0;
-    inFlierNickCompl=0;
-    inFlierTrace=0;
+    inScrollZWI=0;
+    inScrollZWho=0;
+    inScrollZNotify=0;
+    inScrollZLinks=0;
+    inScrollZFKill=0;
+    inScrollZNickCompl=0;
+    inScrollZTrace=0;
     ExtMes=1;
     NHProt=0;
     NHDisp=2;
