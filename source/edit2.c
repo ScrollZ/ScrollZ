@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.93 2003-05-03 18:30:04 f Exp $
+ * $Id: edit2.c,v 1.94 2003-07-06 10:11:06 f Exp $
  */
 
 #include "irc.h"
@@ -3114,6 +3114,7 @@ char *subargs;
     char tmpbuf1[mybufsize];
     char tmpbuf2[mybufsize];
     char tmpbuf3[mybufsize/4];
+    char tmpbuf4[mybufsize];
     ChannelList *chan;
     struct bans *tmpban;
 
@@ -3132,17 +3133,21 @@ char *subargs;
     if (HAS_OPS(chan->status)) {
         *tmpbuf1='\0';
         *tmpbuf2='\0';
-        snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s",chan->channel);
+        *tmpbuf4='\0';
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s -",chan->channel);
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
             if (tmpban->exception) continue;
-            strmcat(tmpbuf2," -b ",sizeof(tmpbuf2));
-            strmcat(tmpbuf2,tmpban->ban,sizeof(tmpbuf2));
+            strmcat(tmpbuf2,"b",sizeof(tmpbuf2));
+            strmcat(tmpbuf4," ",sizeof(tmpbuf2));
+            strmcat(tmpbuf4,tmpban->ban,sizeof(tmpbuf2));
             count++;
             send=1;
             if (count==max) {
                 strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+                strmcat(tmpbuf1,tmpbuf4,sizeof(tmpbuf1));
                 strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
-                snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s ",chan->channel);
+                snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s -",chan->channel);
+                *tmpbuf4='\0';
                 count=0;
             }
             if (strlen(tmpbuf1)>=IRCD_BUFFER_SIZE-150) {
@@ -3153,6 +3158,7 @@ char *subargs;
         }
         if (count) {
             strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+            strmcat(tmpbuf1,tmpbuf4,sizeof(tmpbuf1));
             strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
             send=1;
         }
