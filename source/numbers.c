@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.4 1998-11-16 20:59:44 f Exp $
+ * $Id: numbers.c,v 1.5 1998-11-16 21:14:32 f Exp $
  */
 
 #include "irc.h"
@@ -1406,8 +1406,11 @@ numbered_command(from, comm, ArgList)
 #endif
                 case 205:
                         if (comm==205 && inFlierTrace) {
+#ifdef ACID
                             if (inFlierTrace==2) DoFilterTrace(ArgList[2]);
-                            else DoTraceKill(ArgList[2]);
+                            else
+#endif
+                                DoTraceKill(ArgList[2]);
                             break;
                         }
 #ifdef CELE
