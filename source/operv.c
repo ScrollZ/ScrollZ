@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.68 2003-07-29 16:37:53 f Exp $
+ * $Id: operv.c,v 1.69 2004-04-20 17:13:50 f Exp $
  */
 
 #include "irc.h"
@@ -316,6 +316,7 @@ char *from;
     NewNotice=1;
     /* Now we got the message, use strstr() to match it up */
     /* OVgetword() and OVgetnick() return max mybufsize/2 so we are safe */
+    if (from) goto havefrom;
     if (!strncmp(tmpline,"Connecting to",12)) {
         strcpy(word1,OVgetword(0,3,tmpline));  /* Server */
 #ifdef OGRE
@@ -1766,6 +1767,7 @@ char *from;
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
+havefrom:
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
     if (OVTS) curtime=update_clock(0,0,GET_TIME);
