@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.23 2001-08-31 15:37:55 f Exp $
+ * $Id: notice.c,v 1.24 2001-09-26 16:09:51 f Exp $
  */
 
 #include "irc.h"
@@ -411,6 +411,9 @@ got_initial_version(line)
  	char	server[256],
 		version[256];
 	char	*s, c;
+/**************************** Patched by Flier ******************************/
+        int     was_connected;
+/****************************************************************************/
 
 	/*
 	 * BROKEN_SCANF crap here provided by Aiken <adrum@u.washington.edu>
@@ -454,10 +457,7 @@ got_initial_version(line)
         /* attempting_to_connect is broken if we are connecting to multiple
            servers simoultaneously -> correct the value apropriately */
         if (attempting_to_connect<0) attempting_to_connect=0;
-        /* read above, we already parsed this so skip it this time since
-           it will corrupt all server information we stored in previous
-           pass */
-        if (server_list[parsing_server_index].connected) return;
+        was_connected=server_list[parsing_server_index].connected;
 /****************************************************************************/
 	set_server_motd(parsing_server_index, 1);
 	server_is_connected(parsing_server_index, 1);
@@ -482,6 +482,16 @@ got_initial_version(line)
 		set_server_version(parsing_server_index, Server2_11);
 	malloc_strcpy(&server_list[parsing_server_index].version_string, version);
 	set_server_itsname(parsing_server_index, server);
+/**************************** Patched by Flier ******************************/
+        /* read above, we already parsed this so skip it this time since
+           it will corrupt all server information we stored in previous
+           pass */
+        if (was_connected) {
+            do_hook(CONNECT_LIST, "%s %d", get_server_name(parsing_server_index),
+                    get_server_port(parsing_server_index));
+            return;
+        }
+/****************************************************************************/
 	reconnect_all_channels(parsing_server_index);
 	reinstate_user_modes(/* parsing_server_index */); /* XXX */
 	maybe_load_ircrc();
