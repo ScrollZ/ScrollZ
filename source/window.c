@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.40 2002-07-13 14:23:51 f Exp $
+ * $Id: window.c,v 1.41 2002-07-27 14:28:29 f Exp $
  */
 
 #include "irc.h"
@@ -1508,6 +1508,15 @@ realloc_channels(window)
 	while ((tmp = traverse_all_windows(&flag)))
 		if (window != tmp && tmp->server == window->server)
 		{
+/**************************** Patched by Flier ******************************/
+                        /* unset IRCSERVER
+                         * scrollz
+                         * /window new
+                         * /window kill
+                         * client dies */
+                        if (window->server < 0)
+                            continue;
+/****************************************************************************/
 			for (chan = server_list[window->server].chan_list; chan; chan = chan->next)
 				if (chan->window == window)
 				{
@@ -1517,6 +1526,10 @@ realloc_channels(window)
 				}
 			return;
 		}
+/**************************** Patched by Flier ******************************/
+        if (window->server < 0)
+            return;
+/****************************************************************************/
 	for (chan = server_list[window->server].chan_list; chan; chan = chan->next)
 	{
 		chan->window = (Window *) 0;
