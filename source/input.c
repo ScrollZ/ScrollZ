@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.12 2001-08-22 19:23:11 f Exp $
+ * $Id: input.c,v 1.13 2002-01-15 19:45:41 f Exp $
  */
 
 #include "irc.h"
@@ -170,6 +170,10 @@ update_input(update)
 			len = strlen(ptr);
 			if (*ptr && ((len == 9 && my_strnicmp(ptr, "Password:", 9) == 0) ||
 				     (len == 18 && my_strnicmp(ptr, "Operator Password:", 18) == 0) ||
+/**************************** Patched by Flier ******************************/
+				     (len == 16 && my_strnicmp(ptr, "Master password:", len) == 0) ||
+				     (len == 20 && my_strnicmp(ptr, "Old master password:", len) == 0) ||
+/****************************************************************************/
 					(len == 16 && my_strnicmp(ptr, "Server Password:", 16) == 0)))
 				term_echo(0);
 			else

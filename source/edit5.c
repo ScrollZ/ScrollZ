@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.79 2002-01-09 16:34:00 f Exp $
+ * $Id: edit5.c,v 1.80 2002-01-15 19:45:41 f Exp $
  */
 
 #include "irc.h"
@@ -119,6 +119,8 @@ void URLSave _((char *, char *, char *)); /* /URL coded by Zakath */
 void URLSave2 _((char *, char *));
 void URLSave3 _((char *, char *));
 int  GrabURL _((char *, char *, char *));
+void MasterPassword _((char *, char *));
+void MasterPasswordOld _((char *, char *));
 
 extern int  CheckChannel _((char *, char *));
 extern void AwaySave _((char *, int));
@@ -148,6 +150,7 @@ extern int  AddLast _((List *, List *)); /* needed for GrabURL, by Zakath */
 extern int  CheckServer _((int));
 extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
+extern int  EncryptString _((char *, char *, char *, int, int));
 
 #ifdef CELE
 /*extern void Cstatusupd _((int, int));
@@ -1054,8 +1057,8 @@ int  frkick;
 #endif
 }
 
-/* Sets password for log file encryption */
-void Password(command,args,subargs)
+/* Sets master password for ENCRMSG and log file encryption */
+void Password(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
@@ -1063,36 +1066,94 @@ char *subargs;
     char *oldpwd;
     char *newpwd;
 
-    newpwd=new_next_arg(args,&args);
+    newpwd = new_next_arg(args, &args);
     if (newpwd) {
+        int pwlen = 2 * strlen(newpwd) + 9;
+        char *newpass = (char *) new_malloc(pwlen + 1);
+
+        /* a-la master password in Mozilla - store encrypted password */
+        EncryptString(newpass, newpwd, newpwd, pwlen, 0);
         if (!(args && *args)) {
             if (EncryptPassword) {
-                if (!strcmp(newpwd,EncryptPassword)) {
-                    say("Password deleted, encryption is now disabled!");
+                if (!strcmp(newpass, EncryptPassword)) {
+                    if (encrlist) {
+                        say("Encryption list not empty - master password NOT deleted!");
+                        return;
+                    }
+                    say("Master password deleted, encryption is now disabled!");
                     new_free(&EncryptPassword);
                 }
-                else say("Incorrect password, not deleted!");
+                else say("Incorrect master password, not deleted!");
             }
             else {
-                malloc_strcpy(&EncryptPassword,newpwd);
-                say("Remember your password!");
+                malloc_strcpy(&EncryptPassword, newpass);
+                say("Remember your master password!");
             }
         }
         else {
-            oldpwd=new_next_arg(args,&args);
+            int oldpwlen;
+            char *oldpass = NULL;
+
+            oldpwd = new_next_arg(args,&args);
+            if (!oldpwd) return;
+            if (oldpwd) {
+                oldpwlen = 2 * strlen(oldpwd) + 9;
+                oldpass = (char *) new_malloc(oldpwlen + 1);
+                EncryptString(oldpass, oldpwd, oldpwd, oldpwlen, 0);
+                bzero(oldpwd, strlen(oldpwd));
+            }
             if (!EncryptPassword)
-                PrintUsage("PASSWD password [old password]");
+                PrintUsage("PASSWD [password [old password]]");
             else {
-                if (strcmp(EncryptPassword,oldpwd))
-                    say("Incorrect password!");
+                if (strcmp(EncryptPassword, newpass))
+                    say("Incorrect master password!");
                 else {
-                    malloc_strcpy(&EncryptPassword,newpwd);
-                    say("Remember your password!");
+                    malloc_strcpy(&EncryptPassword, newpass);
+                    say("Remember your master password!");
                 }
             }
+            new_free(&oldpass);
         }
+        new_free(&newpass);
+        bzero(newpwd, strlen(newpwd));
     }
-    else PrintUsage("PASSWD password [old password]");
+    else {
+        /* no master password - ask for one */
+        if (!EncryptPassword) add_wait_prompt("Master password:", MasterPassword, NULL, WAIT_PROMPT_LINE);
+        else add_wait_prompt("Old master password:", MasterPasswordOld, NULL, WAIT_PROMPT_LINE);
+    }
+}
+
+/* Handle old master password */
+void MasterPasswordOld(char *x, char *pass)
+{
+    int pwlen;
+    char *mastpass;
+
+    pwlen = 2 * strlen(pass) + 9;
+    mastpass = (char *) new_malloc(pwlen + 1);
+    EncryptString(mastpass, pass, pass, pwlen, 0);
+    if (strcmp(EncryptPassword, mastpass)) {
+        say("Incorrect master password!");
+        new_free(&mastpass);
+        return;
+    }
+    new_free(&mastpass);
+    add_wait_prompt("Master password:", MasterPassword, pass, WAIT_PROMPT_LINE);
+}
+
+/* Handle master password */
+void MasterPassword(char *x, char *pass)
+{
+    char tmpbuf[mybufsize / 2 + 1];
+
+    *tmpbuf = '\0';
+    if (x) {
+        strmcpy(tmpbuf, x, mybufsize / 2);
+        strmcat(tmpbuf, " ", mybufsize / 2);
+    }
+    strmcat(tmpbuf, pass, mybufsize / 2);
+    Password(NULL, tmpbuf, NULL);
 }
 
 /* Prints who reply */

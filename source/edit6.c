@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.121 2002-01-08 17:59:48 f Exp $
+ * $Id: edit6.c,v 1.122 2002-01-15 19:45:41 f Exp $
  */
 
 #include "irc.h"
@@ -113,6 +113,11 @@ void PrintUsage _((char *));
 void CheckTopic _((char *, int, ChannelList *));
 #endif
 void EncryptAdd _((char *, char *));
+void EncryptMasterPass _((char *, char *));
+void EncryptMasterDelUser _((char *, char *));
+void EncryptDelUser _((char *));
+void EncryptMasterList _((char *, char *));
+void EncryptList _((char *));
 void UpdateChanLogFName _((ChannelList *));
 void ChannelLogReport _((char *, ChannelList *));
 
@@ -2247,60 +2252,94 @@ char *subargs;
 {
     int show_keys = 0;
     int clear_all = 0;
+    int pwlen;
     char *user;
     char *key;
+    char *pass = NULL;
+    char *mastpass;
+    char *cmdchars;
     char tmpbuf[mybufsize / 4 + 1];
-    struct encrstr *tmp, *tmpnext;
 
+    if (!EncryptPassword) {
+        if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = "/";
+        say("Set master password first with %cPASSWD", *cmdchars);
+        return;
+    }
     user = new_next_arg(args,&args);
+    if (user && !my_stricmp(user, "-PASS")) {
+        pass = new_next_arg(args, &args);
+        if (!pass) {
+            say("No master password given");
+            return;
+        }
+        user = new_next_arg(args, &args);
+    }
     if (user && !my_stricmp(user, "-SHOW")) {
         show_keys = 1;
-        user = new_next_arg(args,&args);
+        user = new_next_arg(args, &args);
     }
     if (user && !my_stricmp(user, "-CLEAR")) {
         clear_all = 1;
-        user = (char *) 0;
+        user = NULL;
     }
-    key = new_next_arg(args,&args);
+    if (!user) user = new_next_arg(args, &args);
+    key = new_next_arg(args, &args);
+    if (pass) {
+        pwlen = 2 * strlen(pass) + 9;
+        mastpass = (char *) new_malloc(pwlen + 1);
+        EncryptString(mastpass, pass, pass, pwlen, 0);
+        if (strcmp(EncryptPassword, mastpass)) {
+            say("Incorrect master password!");
+            new_free(&mastpass);
+            return;
+        }
+        new_free(&mastpass);
+    }
     if (user) {
         *tmpbuf = '\0';
         if (show_keys) strmcat(tmpbuf, ":", mybufsize / 4);
         strmcat(tmpbuf, user, mybufsize / 4);
         if (key) EncryptAdd(tmpbuf, key);
         else if (*user == '-') {
-            tmp = (struct encrstr *) list_lookup((List **) &encrlist, user + 1, !USE_WILDCARDS, REMOVE_FROM_LIST);
-            if (!tmp) {
-                say("User %s not found in encryption list", user + 1);
-                return;
-            }
-            new_free(&(tmp->user));
-            new_free(&(tmp->key));
-            new_free(&tmp);
-            say("Communication with %s will no longer be encrypted", user + 1);
+            if (pass) EncryptDelUser(user + 1);
+            else add_wait_prompt("Master password:", EncryptMasterDelUser, user + 1, WAIT_PROMPT_LINE);
         }
-        else add_wait_prompt("Password:", EncryptAdd, tmpbuf, WAIT_PROMPT_LINE);
+        else {
+            if (pass) add_wait_prompt("Password:", EncryptAdd, tmpbuf, WAIT_PROMPT_LINE);
+            else add_wait_prompt("Master password:", EncryptMasterPass, tmpbuf, WAIT_PROMPT_LINE);
+        }
     }
     else {
         if (!encrlist) {
             say("No users in encryption list");
             return;
         }
-        for (tmp = encrlist; tmp;) {
-            tmpnext = tmp->next;
-            if (clear_all) {
-                say("Communication with %s will no longer be encrypted", tmp->user);
-                new_free(&(tmp->user));
-                new_free(&(tmp->key));
-                new_free(&tmp);
-            }
-            else {
-                if (show_keys) say("User %s with key %s", tmp->user, tmp->key);
-                else say("User %s", tmp->user);
-            }
-            tmp = tmpnext;
-        }
-        if (clear_all) encrlist = (struct encrstr *) 0;
+        if (show_keys) *tmpbuf = '1';
+        else *tmpbuf = '0';
+        if (clear_all) *(tmpbuf + 1) = '1';
+        else *(tmpbuf + 1) = '0';
+        *(tmpbuf + 2) = '\0';
+        if (pass || (!show_keys && !clear_all)) EncryptList(tmpbuf);
+        else add_wait_prompt("Master password:", EncryptMasterList, tmpbuf, WAIT_PROMPT_LINE);
     }
+}
+
+/* Handle master password */
+void EncryptMasterPass(char *user, char *pass)
+{
+    int pwlen;
+    char *mastpass;
+
+    pwlen = 2 * strlen(pass) + 9;
+    mastpass = (char *) new_malloc(pwlen + 1);
+    EncryptString(mastpass, pass, pass, pwlen, 0);
+    if (strcmp(EncryptPassword, mastpass)) {
+        say("Incorrect master password!");
+        new_free(&mastpass);
+        return;
+    }
+    new_free(&mastpass);
+    add_wait_prompt("Password:", EncryptAdd, user, WAIT_PROMPT_LINE);
 }
 
 /* Handle encryption list */
@@ -2328,6 +2367,86 @@ char *key;
     }
     if (show_keys) say("Communication with %s will be encrypted using key %s", tmp->user, tmp->key);
     else say("Communication with %s will be encrypted", tmp->user);
+}
+
+/* Handle master password */
+void EncryptMasterDelUser(char *user, char *pass)
+{
+    int pwlen;
+    char *mastpass;
+
+    pwlen = 2 * strlen(pass) + 9;
+    mastpass = (char *) new_malloc(pwlen + 1);
+    EncryptString(mastpass, pass, pass, pwlen, 0);
+    if (strcmp(EncryptPassword, mastpass)) {
+        say("Incorrect master password!");
+        new_free(&mastpass);
+        return;
+    }
+    new_free(&mastpass);
+    EncryptDelUser(user);
+}
+
+/* Remove user from encryption list */
+void EncryptDelUser(char *user)
+{
+    struct encrstr *tmp;
+
+    tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, REMOVE_FROM_LIST);
+    if (!tmp) {
+        say("User %s not found in encryption list", user);
+        return;
+    }
+    new_free(&(tmp->user));
+    new_free(&(tmp->key));
+    new_free(&tmp);
+    say("Communication with %s will no longer be encrypted", user);
+}
+
+/* Handle master password */
+void EncryptMasterList(char *flags, char *pass)
+{
+    int pwlen;
+    char *mastpass;
+
+    pwlen = 2 * strlen(pass) + 9;
+    mastpass = (char *) new_malloc(pwlen + 1);
+    EncryptString(mastpass, pass, pass, pwlen, 0);
+    if (strcmp(EncryptPassword, mastpass)) {
+        say("Incorrect master password!");
+        new_free(&mastpass);
+        return;
+    }
+    new_free(&mastpass);
+    EncryptList(flags);
+}
+
+/* Display encryption list */
+void EncryptList(char *flags)
+{
+    int show_keys = 0;
+    int clear_all = 0;
+    struct encrstr *tmp, *tmpnext;
+
+    if (*flags == '1') show_keys = 1;
+    if (*(flags + 1) == '1') clear_all = 1;
+    for (tmp = encrlist; tmp;) {
+        tmpnext = tmp->next;
+        if (clear_all) {
+            if (tmp == encrlist) say("Removing all users from encryption list");
+            say("Communication with %s will no longer be encrypted", tmp->user);
+            new_free(&(tmp->user));
+            new_free(&(tmp->key));
+            new_free(&tmp);
+        }
+        else {
+            if (tmp == encrlist) say("Listing all users on encryption list");
+            if (show_keys) say("User %s with key %s", tmp->user, tmp->key);
+            else say("User %s", tmp->user);
+        }
+        tmp = tmpnext;
+    }
+    if (clear_all) encrlist = (struct encrstr *) 0;
 }
 
 /* Encrypt message */
