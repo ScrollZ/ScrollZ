@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.5 2000-08-14 20:38:14 f Exp $
+ * $Id: newio.c,v 1.6 2000-08-18 17:21:49 f Exp $
  */
 
 #include "irc.h"
@@ -58,8 +58,6 @@
 #define	WAIT_NL ((unsigned) 0x0001)
 
 /**************************** Patched by Flier ******************************/
-/*#define BNCCRYPT 1*/
-
 /*#ifdef FDSETSIZE
 # define IO_ARRAYLEN FDSETSIZE
 #else
