@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.73 2001-08-31 15:37:55 f Exp $
+ * $Id: edit5.c,v 1.74 2001-08-31 15:40:58 f Exp $
  */
 
 #include "irc.h"
@@ -1091,8 +1091,9 @@ char *name;
 char *server;
 int  show_server;
 {
-    char format[40];
     int  width=-1;
+    char format[40];
+    char *stampbuf=TimeStamp(2);
 #ifdef WANTANSI
     char tmpbuf1[mybufsize/2];
     char tmpbuf2[mybufsize/2];
@@ -1109,16 +1110,16 @@ int  show_server;
             CmdsColors[COLWHO].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHO].color2,host,Colors[COLOFF]);
-    put_it("%s %c%s%s%s%c",tmpbuf2,
+    put_it("%s%s %c%s%s%s%c",stampbuf,tmpbuf2,
            show_server?'[':'(',
            CmdsColors[COLWHO].color5,show_server?server:name,Colors[COLOFF],
            show_server?']':')');
 #else
     if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
-        sprintf(format,"%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
+        sprintf(format,"%s%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
                 (unsigned char) width,(unsigned char) width);
-    else strcpy(format,"%s\t%-9s %-3s %s@%s (%s)");
-    put_it(format,channel,nick,stat,user,host,show_server?server:name);
+    else strcpy(format,"%s%s\t%-9s %-3s %s@%s (%s)");
+    put_it(format,stampbuf,channel,nick,stat,user,host,show_server?server:name);
 #endif
 }
 
