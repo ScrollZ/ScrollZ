@@ -1,4 +1,4 @@
-!	 $Id: status_user,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: status_user,v 1.4 2002-02-24 09:44:21 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,8 +8,7 @@
 !
 Usage: SET STATUS_USER <text of status line user information>
   The value of STATUS_USER is replaced in the STATUS_FORMAT
-  variable for any occurence of %U. If STATUS_USER is set to 
-  <EMPTY>, nothing will be replaced for %U.
-  Additionally 3 more variables STATUS_USER1, STATUS_USER2,
-  and STATUS_USER3 exist and they correspond to the occurences
-  of %X, %Y, and %Z
+  variable for any occurence of %!00 If STATUS_USER is set to 
+  <EMPTY>, nothing will be replaced for %!00.
+  Additionally 9 more variables STATUS_USER1 to STATUS_USER9,
+  exist and they correspond to the occurences of %!01 to %!09.
