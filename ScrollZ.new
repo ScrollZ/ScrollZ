@@ -42,19 +42,21 @@ added CHSIGNOFF to -DEXTRAS, when set to on it will display list of channels
       when user quit IRC (requested by Merlin)
 added STAMP, when enabled client will show time in front of publics
       (requested by acidflash)
-added if channel in CDCC CHANNELS starts with + it means client will use
-      CDCC NOTICE instead of CDCC PLIST for that channel (requested by Zig)
-when DCC chat is established nick is added to tabkey list on current server
-     (reported by ogre)
+if channel in CDCC CHANNELS starts with + it means client will use
+   CDCC NOTICE instead of CDCC PLIST for that channel (requested by Zig)
+when DCC chat is established nick is added to tabkey list (reported by ogre)
 JOIN 1,2,3 now joins #1, #2 and #3 (reported by Merlin)
 SET DCC_PORTS is only used for DCC CHAT and DCC SEND because of problems
     with other types of connects
-fixed odd bug where channel would be suddenly binded to completely unrelated
-      window, it had to do with the way ircII maintains window list and
-      whowas buffer for channels
+fixed odd bug on join where channel would be suddenly bound to completely
+      unrelated window, it had to do with the way ircII maintains window
+      list and whowas buffer for channels
 fixed crash when user sent large ammounts of files (reported by arc)
 fixed shitlist bug with ident being 10 characters long
 fixed CHSIGNOFF always showing regardless of setting (reported by kali)
+fixed WALL ignoring SHOWWALLOP value from ScrollZ.save
+WALL now accepts optional target channel as first argument (requested
+     by Zero)
 
 
 -------------------------------------------------------------------------------
