@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.31 2000-08-29 17:49:03 f Exp $
+ * $Id: operv.c,v 1.32 2001-01-06 18:26:55 f Exp $
  */
 
 #include "irc.h"
@@ -57,8 +57,10 @@ char *args;
 char *subargs;
 {
     int incurwin=0;
+    int sendmodes=1;
     char *tmp=(char *) 0;
     char *ovts=(char *) 0;
+    char *nomodes=(char *) 0;
     char tmpbuf[mybufsize/4+1];
     unsigned int display;
 
@@ -67,16 +69,21 @@ char *subargs;
     if (tmp) {
 	if (!my_stricmp("ON",tmp) || !my_stricmp("HERE",tmp)) {
             if (!my_stricmp("HERE",tmp)) incurwin=1;
-            if (!my_stricmp("NOTS",ovts)) OVTS=0;
+            if (ovts && !my_stricmp("NOTS",ovts)) OVTS=0;
             else OVTS=1;
+            if (ovts && my_stricmp("NOMODES",ovts)) nomodes=next_arg(args,&args);
+            else nomodes=ovts;
+            if (nomodes && !my_stricmp("NOMODES",nomodes)) sendmodes=0;
 	    if (OperV && !incurwin)
                 say("OperVision is already turned on");
             else {
 		OperV=1;
                 ServerNotice=1;
                 /* turn on additional user modes */
-                CreateMode(tmpbuf,mybufsize/4);
-                send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
+                if (sendmodes) {
+                    CreateMode(tmpbuf,mybufsize/4);
+                    send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
+                }
                 /* made one window command, made it jump back to current window when
                    it's done, all output from /WINDOW command is supressed   -Flier */
                 if (incurwin)
@@ -96,9 +103,13 @@ char *subargs;
 	    if (!OperV) say("OperVision is not currently active");
 	    else {
 		OperV=0;
+                nomodes=ovts;
+                if (nomodes && !my_stricmp("NOMODES",nomodes)) sendmodes=0;
                 /* we need to undo aditional usermodes (-swfuckrn) */
-                CreateMode(tmpbuf,mybufsize/4);
-                send_to_server("MODE %s :-%s",get_server_nickname(from_server),tmpbuf);
+                if (sendmodes) {
+                    CreateMode(tmpbuf,mybufsize/4);
+                    send_to_server("MODE %s :-%s",get_server_nickname(from_server),tmpbuf);
+                }
                 /* made one window command, all output from /WINDOW command is
                    supressed   -Flier */
 		strcpy(tmpbuf,"REFNUM OV KILL");
@@ -109,9 +120,9 @@ char *subargs;
 		say("OperVision is now disabled");
 	    }
 	}
-	else PrintUsage("OV on [nots]/here [nots]/off");
+	else PrintUsage("OV on [nots] [nomodes]/here [nots] [nomodes]/off [nomodes]");
     }
-    else PrintUsage("OV on [nots]/here [nots]/off");
+    else PrintUsage("OV on [nots] [nomodes]/here [nots] [nomodes]/off [nomodes]");
 }
 
 /* Takes (u@h), removes (), colorizes, returns u@h */
