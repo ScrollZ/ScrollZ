@@ -1,4 +1,4 @@
-!	 $Id: join,v 1.4 2002-04-07 16:42:18 f Exp $
+!	 $Id: join,v 1.5 2002-08-20 19:03:08 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -19,12 +19,15 @@ Usage: JOIN [-NOWHO] [-INVITE|<channel_list> [<key>]]
   Otherwise, if MODE +k <key> is enabled on the channel, you will have to
   supply the <key> to complete join.
 
-Available flags:
+Available switches:
   -NOWHO
     If the -NOWHO switch is used, client will not request WHO list from
     the IRC server. Use this if server disconnects you upon joining
     large channels. Using this switch may disable some functionality
-    built into the client.
+    built into the client. Client will store this flag internally and
+    will not request WHO list upon rejoining the channel. To enable
+    requesting WHO list upon join, leave the channel and join it
+    normally, without -NOWHO switch.
   -INVITE
     If the -INVITE switch is used, you will join the channel that you were
     last INVITED to.  Or, if we wish to be grammatically correct,
