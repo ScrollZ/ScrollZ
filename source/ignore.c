@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.14 2003-01-08 20:00:54 f Exp $
+ * $Id: ignore.c,v 1.15 2003-04-16 17:13:44 f Exp $
  */
 
 #include "irc.h"
@@ -49,7 +49,10 @@
 extern int matchmcommand _((char *, int));
 /***************************************************************************/
 
-#define NUMBER_OF_IGNORE_LEVELS 9
+/**************************** Patched by Flier ******************************/
+/*#define NUMBER_OF_IGNORE_LEVELS 9*/
+#define NUMBER_OF_IGNORE_LEVELS 11
+/****************************************************************************/
 
 #define IGNORE_REMOVE 1
 #define IGNORE_DONT 2
@@ -58,7 +61,10 @@ extern int matchmcommand _((char *, int));
 int	ignore_usernames = 0;
 char	highlight_char = '\0';
 static	int	ignore_usernames_sums[NUMBER_OF_IGNORE_LEVELS] =
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+/**************************** Patched by Flier ******************************/
+	/*{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };*/
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+/****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
 /*static	int	remove_ignore _((char *));*/
@@ -270,6 +276,10 @@ ignore_nickname(nick, type, flag, timedignore)
 					strmcat(buffer, " CTCPS", sizeof(buffer));
 				if (type & IGNORE_CRAP)
 					strmcat(buffer, " CRAP", sizeof(buffer));
+				if (type & IGNORE_PART)
+					strmcat(buffer, " PART", sizeof(buffer));
+				if (type & IGNORE_JOIN)
+					strmcat(buffer, " JOIN", sizeof(buffer));
                                 if (timedignore) say("%s from %s for %s seconds", buffer, new->nick, timedignore);
                                 else say("%s from %s", buffer, new->nick);
 /****************************************************************************/
@@ -515,6 +525,30 @@ ignore_list(nick)
 				else if (tmp->dont & IGNORE_CRAP)
 					strmcat(buffer, " DONT-CRAP",
 							BIG_BUFFER_SIZE);
+/**************************** Patched by Flier ******************************/
+                                if (tmp->type & IGNORE_PART)
+                                    strmcat(buffer, " PART", BIG_BUFFER_SIZE);
+                                else if (tmp->high & IGNORE_PART)
+                                {
+                                    snprintf(s, sizeof s, " %cPART%c",
+                                            highlight_char, highlight_char);
+                                    strmcat(buffer, s, BIG_BUFFER_SIZE);
+                                }
+                                else if (tmp->dont & IGNORE_PART)
+                                    strmcat(buffer, " DONT-PART",
+                                            BIG_BUFFER_SIZE);
+                                if (tmp->type & IGNORE_JOIN)
+                                    strmcat(buffer, " JOIN", BIG_BUFFER_SIZE);
+                                else if (tmp->high & IGNORE_JOIN)
+                                {
+                                    snprintf(s, sizeof s, " %cJOIN%c",
+                                            highlight_char, highlight_char);
+                                    strmcat(buffer, s, BIG_BUFFER_SIZE);
+                                }
+                                else if (tmp->dont & IGNORE_JOIN)
+                                    strmcat(buffer, " DONT-JOIN",
+                                            BIG_BUFFER_SIZE);
+/****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
 			/*say("\t%s:\t%s", tmp->nick, buffer);*/
@@ -598,8 +632,12 @@ ignore(command, args, subargs)
 			else
 			{
 				say("You must specify one of the following:");
-				say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
-NOTICES NOTES CTCPS CRAP NONE");
+/**************************** Patched by Flier ******************************/
+				/*say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
+NOTICES NOTES CTCPS CRAP NONE");*/
+                                say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
+NOTICES NOTES CTCPS CRAP PART JOIN NONE");
+/****************************************************************************/
 			}
 		}
 		if (no_flags)
@@ -711,6 +749,12 @@ get_ignore_type(type)
 		rv = IGNORE_CTCPS;
 	else if (my_strnicmp(type, "CRAP", len) == 0)
 		rv = IGNORE_CRAP;
+/**************************** Patched by Flier ******************************/
+        else if (my_strnicmp(type, "PART", len) == 0)
+                rv = IGNORE_PART;
+        else if (my_strnicmp(type, "JOIN", len) == 0)
+                rv = IGNORE_JOIN;
+/****************************************************************************/
 	else if (my_strnicmp(type, "NONE", len) == 0)
 		rv = -1;
 	else
@@ -755,6 +799,8 @@ FILE *fp;
             if (tmp->type & IGNORE_NOTES) strmcat(tmpbuf, ",NOTES", mybufsize / 2);
             if (tmp->type & IGNORE_CTCPS) strmcat(tmpbuf, ",CTCPS", mybufsize / 2);
             if (tmp->type & IGNORE_CRAP) strmcat(tmpbuf, ",CRAP", mybufsize / 2);
+            if (tmp->type & IGNORE_PART) strmcat(tmpbuf, ",PART", mybufsize / 2);
+            if (tmp->type & IGNORE_JOIN) strmcat(tmpbuf, ",JOIN", mybufsize / 2);
         }
         tmpstr = tmpbuf;
         if (*tmpstr == ',') tmpstr++;

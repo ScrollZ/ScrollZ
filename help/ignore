@@ -1,4 +1,4 @@
-!	 $Id: ignore,v 1.4 2002-02-23 11:23:50 f Exp $
+!	 $Id: ignore,v 1.5 2003-04-16 17:13:44 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -20,6 +20,8 @@ Usage: IGNORE [<nick>] [-|+|^][<message type>]
     WALLOPS         All WALLOPS received
     NOTES           All NOTEs received
     CTCP            All CTCPs received
+    PART            All channel PARTs
+    JOIN            All channel JOINs
     CRAP            Anything else
     ALL             All of the above message types
     NONE            No message types

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.h,v 1.4 2003-01-08 20:00:54 f Exp $
+ * $Id: ignore.h,v 1.5 2003-04-16 17:13:44 f Exp $
  */
 
 #ifndef __ignore_h_
@@ -57,9 +57,16 @@ extern	char	highlight_char;
 #define IGNORE_NOTES	0x0040
 #define IGNORE_CTCPS	0x0080
 #define IGNORE_CRAP	0x0100
+/**************************** Patched by Flier ******************************/
+/*#define IGNORE_ALL (IGNORE_MSGS | IGNORE_PUBLIC | IGNORE_WALLS | \
+	IGNORE_WALLOPS | IGNORE_INVITES | IGNORE_NOTICES | IGNORE_NOTES | \
+	IGNORE_CTCPS | IGNORE_CRAP)*/
+#define IGNORE_PART	0x0200
+#define IGNORE_JOIN	0x0400
 #define IGNORE_ALL (IGNORE_MSGS | IGNORE_PUBLIC | IGNORE_WALLS | \
 	IGNORE_WALLOPS | IGNORE_INVITES | IGNORE_NOTICES | IGNORE_NOTES | \
-	IGNORE_CTCPS | IGNORE_CRAP)
+	IGNORE_CTCPS | IGNORE_CRAP | IGNORE_PART | IGNORE_JOIN)
+/****************************************************************************/
 
 #define IGNORED 1
 #define DONT_IGNORE 2
