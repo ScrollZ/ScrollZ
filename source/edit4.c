@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.102 2002-08-20 19:05:26 f Exp $
+ * $Id: edit4.c,v 1.103 2002-08-27 20:25:20 f Exp $
  */
 
 #include "irc.h"
@@ -836,9 +836,9 @@ void HandleTabNext(u_int key, char *ptr)
     }
     p = cur_pos - 1;    /* at string to complete */
     length = argc = 0;
-    while (!isspace(*p) && (*min_pos == '/' ? p >= min_pos + 1 : p >= min_pos)) {   
+    while (!isspace(*p) && *p != ',' && *p != '=' && (*min_pos == '/' ? p >= min_pos + 1 : p >= min_pos)) {   
         p--;            /* walk left until white-space, beginning of line, */
-        length++;	/* or / if it's the first character */
+        length++;	/* comma, or / if it's the first character */
     }
     p++;                /* back to beginning */
     length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
@@ -857,7 +857,32 @@ void HandleTabNext(u_int key, char *ptr)
         else i = 0;
     }
     sscanf(min_pos, "%31s %31s %31s", argv[0], argv[1], argv[2]);
-    if (!my_strnicmp(argv[0], "/dc", 3) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) || !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)) && argc == 3) {
+	if (!my_strnicmp(argv[0], "/m", 2) && *argv[1] == '=') {
+		DCC_list *dcc_p;
+
+chat_begin:
+		if (next_p) dcc_p = next_p;
+		else dcc_p = ClientList;
+		while (dcc_p) {
+			if (!my_strnicmp(argv[1] + 1, dcc_p->user, strlen(completing)) && (dcc_p->flags & DCC_TYPES) == DCC_CHAT)
+				break;
+			dcc_p = dcc_p->next;
+		}
+		if (!dcc_p) {
+			if (last_completion) {
+				last_completion = NULL;
+				next_p = 0;
+				goto chat_begin;
+			}
+			else return;
+		}
+		for (i = 0; i < length; i++) input_backspace(' ', NULL);
+		for (p = dcc_p->user; *p; p++) input_add_character(*p, NULL);
+		last_completion = dcc_p->user;
+		if (dcc_p->next) next_p = dcc_p->next;
+		else next_p = 0;
+	}
+    else if (!my_strnicmp(argv[0], "/dc", 3) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) || !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)) && argc == 3) {
         DCC_list *dcc_p;
 
 get_begin:
