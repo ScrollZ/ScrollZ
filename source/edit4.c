@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.28 1999-06-16 19:44:16 f Exp $
+ * $Id: edit4.c,v 1.29 1999-07-18 12:50:35 f Exp $
  */
 
 #include "irc.h"
@@ -421,12 +421,14 @@ char *userhost;
 char *channel;
 {
     int  isfake=0;
+    int  printinv=1;
     char *tmpstr;
     char tmpbuf1[mybufsize];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize/4];
 #endif
     struct friends *tmpfriend;
+    ChannelList *chan;
 
 #ifdef WANTANSI
     ColorUserHost(userhost,CmdsColors[COLINVITE].color2,tmpbuf2,1);
@@ -448,7 +450,10 @@ char *channel;
     sprintf(tmpbuf1,"%s (%s) invites you to channel %s",nick,userhost,channel);
     if (isfake) strcat(tmpbuf1," - fake");
 #endif
-    say("%s",tmpbuf1);
+    if (CompressModes && AutoJoinOnInv && (chan=lookup_channel(channel,from_server,0))) {
+        if (chan->connected==CHAN_JOINING) printinv=0;
+    }
+    if (printinv) say("%s",tmpbuf1);
     if (away_set || LogOn) AwaySave(tmpbuf1,SAVEINVITE);
     if (isfake) return;
     sprintf(tmpbuf1,"%s!%s",nick,userhost);
@@ -456,11 +461,13 @@ char *channel;
     if ((AutoJoinOnInv && CheckChannel(channel,AutoJoinChannels)) ||
         (tmpfriend && ((tmpfriend->privs)&FLJOIN))) {
         e_channel("JOIN",channel,NULL);
+        if (printinv) {
 #ifdef WANTANSI
-        say("Auto joining %s%s%s",CmdsColors[COLINVITE].color3,channel,Colors[COLOFF]);
+            say("Auto joining %s%s%s",CmdsColors[COLINVITE].color3,channel,Colors[COLOFF]);
 #else
-        say("Auto joining %s",channel);
+            say("Auto joining %s",channel);
 #endif
+        }
     }
 }
 
