@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.26 2001-08-27 16:45:28 f Exp $
+ * $Id: names.c,v 1.27 2001-08-27 17:09:47 f Exp $
  */
 
 #include "irc.h"
@@ -284,8 +284,11 @@ add_channel(channel, server, connected, copy)
                 if (resetchan) {
                     int i;
 
-                    new->modelock=(char *) 0;
-                    new->topiclock=(char *) 0;
+                    /* yay for ircII channel join handling, why is this called twice ? */
+                    if (!connected) {
+                        new->modelock=(char *) 0;
+                        new->topiclock=(char *) 0;
+                    }
                     new->pluso=0;     new->minuso=0;     new->plusb=0;
                     new->minusb=0;    new->topic=0;      new->kick=0;
                     new->pub=0;       new->servpluso=0;  new->servminuso=0;
@@ -1527,8 +1530,6 @@ int  server;
     if ((tmp=lookup_channel(channel,server,CHAN_UNLINK))) {
         new_free(&(tmp->key));
         new_free(&(tmp->s_mode));
-        new_free(&(tmp->modelock));
-        new_free(&(tmp->topiclock));
         new_free(&(tmp->topicstr));
         new_free(&(tmp->topicwho));
         new_free(&(tmp->channel));
