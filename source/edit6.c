@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.84 2001-07-21 19:07:46 f Exp $
+ * $Id: edit6.c,v 1.85 2001-08-01 17:14:24 f Exp $
  */
 
 #include "irc.h"
@@ -1072,8 +1072,9 @@ char *subargs;
     };
 
     upper(command);
-    for (i=0;;i++)
+    for (i=0;command_list[i].command;i++) {
         if (!strcmp(command_list[i].command,command)) break;
+    }
     if (!(command_list[i].command)) return;
     tmpstr=new_next_arg(args,&args);
     if (tmpstr) {
@@ -1147,8 +1148,7 @@ char *subargs;
     };
 
     upper(command);
-    for (i=0;;i++) {
-        if (!command_list[i].command) break;
+    for (i=0;command_list[i].command;i++) {
         if (!strcmp(command_list[i].command,command)) break;
     }
     if (!(command_list[i].command)) return;
