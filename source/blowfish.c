@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.2 1998-09-10 17:44:31 f Exp $
+ * $Id: blowfish.c,v 1.3 1998-11-15 20:18:16 f Exp $
  */
 
 #include "irc.h"
@@ -19,6 +19,8 @@
 #define NUMSBOX      2
 
 static char *base64="./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+static char encrbuf[BIG_BUFFER_SIZE+1];
 
 static unsigned int pbox[NUMPBOX+2];
 static unsigned int sbox[NUMSBOX][256];
@@ -164,6 +166,31 @@ unsigned int *xr;
     *xr=Xr;
 }
 
+static void BlowfishDecipher(xl,xr)
+unsigned int *xl;
+unsigned int *xr;
+{
+    int i;
+    unsigned int Xl,Xr,temp;
+
+    Xl=*xl;
+    Xr=*xr;
+    for (i=NUMPBOX+1;i>1;--i) {
+        Xl=Xl^pbox[i];
+        Xr=F(Xl)^Xr;
+        temp=Xl;
+        Xl=Xr;
+        Xr=temp;
+    }
+    temp=Xl;
+    Xl=Xr;
+    Xr=temp;
+    Xr=Xr^pbox[1];
+    Xl=Xl^pbox[0];
+    *xl=Xl;
+    *xr=Xr;
+}
+
 static void BlowfishInit(key,keybytes)
 char *key;
 int keybytes;
@@ -208,13 +235,12 @@ int  bufsize;
     int i;
     unsigned int l,r;
     char *s,*d;
-    char tmpbuf[mybufsize+8];
 
     BlowfishInit(key,strlen(key));
-    strmcpy(tmpbuf,src,bufsize);
-    s=tmpbuf+strlen(tmpbuf);
+    strmcpy(encrbuf,src,bufsize);
+    s=encrbuf+strlen(encrbuf);
     for (i=0;i<8;i++) *s++='\0';
-    s=tmpbuf;
+    s=encrbuf;
     d=dest;
     while (s && *s) {
         l=((*s++)<<24); l|=((*s++)<<16); l|=((*s++)<<8); l|=*s++;
@@ -228,6 +254,43 @@ int  bufsize;
             *d++=base64[l&0x3F];
             l=(l>>6);
         }
+    }
+    *d=0;
+}
+
+int Base64Decode(c)
+char c;
+{
+    int i;
+
+    for (i=0;i<64;i++) if (base64[i]==c) return(i);
+    return(0);
+}
+
+void DecryptString(dest,src,key,bufsize)
+char *dest;
+char *src;
+char *key;
+int  bufsize;
+{
+    int i;
+    unsigned int l,r;
+    char *s,*d;
+
+    BlowfishInit(key,strlen(key));
+    strmcpy(encrbuf,src,bufsize);
+    s=encrbuf+strlen(encrbuf);
+    for (i=0;i<12;i++) *s++='\0';
+    s=encrbuf;
+    d=dest;
+    while (s && *s) {
+        l=0;
+        r=0;
+        for (i=0;i<6;i++) r|=(Base64Decode(*s++))<<(i*6);
+        for (i=0;i<6;i++) l|=(Base64Decode(*s++))<<(i*6);
+        BlowfishDecipher(&l,&r);
+        for (i=0;i<4;i++) *d++=(l & (0xFF<<((3-i)*8))) >> ((3-i)*8);
+        for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8))) >> ((3-i)*8);
     }
     *d=0;
 }
