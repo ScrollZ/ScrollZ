@@ -1,4 +1,4 @@
-!	 $Id: status_away,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: status_away,v 1.4 2002-02-24 09:46:45 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -9,4 +9,6 @@
 Usage: SET STATUS_AWAY <Status line text when in away>
   The contents of STATUS_AWAY are replaced in the STATUS_FORMAT
   variable for any occurrence of %A while you are away.  If you
-  are not away, %A is replaced by nothing.
+  are not away, %A is replaced by nothing. STATUS_AWAY may
+  contain an %A which is replaced by number of messages you have
+  received since you were set away.
