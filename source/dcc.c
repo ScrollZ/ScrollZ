@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.44 2003-12-24 10:55:25 f Exp $
+ * $Id: dcc.c,v 1.45 2004-06-18 17:02:05 f Exp $
  */
 
 #include "irc.h"
@@ -327,7 +327,7 @@ DCC_list *Client;
     double sent,oldsent;
 
     if (flags==DCC_FILEREAD || flags==DCC_FILEREGET)
-        sent=Client->bytes_read-Client->resendoffset;
+        sent=Client->bytes_read-Client->resendoffset+Client->bytes_read;
     else if (flags==DCC_FILEOFFER || flags==DCC_RESENDOFFER) {
         sent=Client->bytes_sent-Client->resendoffset;
         tmpstr="to";
@@ -1710,7 +1710,7 @@ dcc_regetfile(args)
 	struct stat buf;
 	struct transfer_struct transfer_orders;
 /**************************** PATCHED by Flier ******************************/
-        char *fullname1=(char *) 0;
+        char *fullname1 = NULL;
 /****************************************************************************/
 
 #ifdef  DAEMON_UID
@@ -1757,10 +1757,10 @@ dcc_regetfile(args)
 	if (0 == (fullname1 = expand_twiddle(Client->description)))
 		malloc_strcpy(&fullname1, Client->description);
         if (CdccDlDir) {
-            malloc_strcpy(&fullname,CdccDlDir);
-            malloc_strcat(&fullname,"/");
+            malloc_strcpy(&fullname, CdccDlDir);
+            malloc_strcat(&fullname, "/");
         }
-        malloc_strcat(&fullname,fullname1);
+        malloc_strcat(&fullname, fullname1);
         new_free(&fullname1);
 /****************************************************************************/
 
@@ -1917,6 +1917,7 @@ register_dcc_offer(user, type, description, address, port, size)
 	sscanf(port, "%u", &TempInt);
 	Client->remport = TempInt;
 /**************************** PATCHED by Flier ******************************/
+        Client->resendoffset = 0;
 	/*if (TempInt < 1024)
 	{
 		say("DCC %s (%s) request from %s rejected [port = %d]", type, description, user, TempInt);*/
