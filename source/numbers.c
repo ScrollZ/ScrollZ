@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.57 2002-03-11 20:25:01 f Exp $
+ * $Id: numbers.c,v 1.58 2002-03-13 18:15:37 f Exp $
  */
 
 #include "irc.h"
@@ -141,7 +141,7 @@ numeric_banner()
 	if (get_int_var(SHOW_NUMERICS_VAR))
 /**************************** Patched by Flier ******************************/
 		/*snprintf(thing, sizeof thing, "%3.3u", -current_numeric);*/
-		snprintf(thing, sizeof(thing), "%3.3u", -current_numeric);
+		snprintf(thing, sizeof(thing), "%3.3u ", -current_numeric);
 /****************************************************************************/
 	else
 /************************* PATCHED by Flier ***************************/
