@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.11 1998-11-23 16:54:56 f Exp $
+ * $Id: irc.c,v 1.12 1998-11-26 20:07:48 f Exp $
  */
 
 #define IRCII_VERSION	"4.4B"
@@ -416,7 +416,6 @@ int   NlistTime;
 int   LinksNumber;
 int   AwaySaveSet;
 int   ShowWallop;
-int   AutoReplyEntries;
 int   LongStatus;
 double BytesReceived;
 double BytesSent;

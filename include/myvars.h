@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.6 1998-11-15 20:15:53 f Exp $
+ * $Id: myvars.h,v 1.7 1998-11-26 20:02:36 f Exp $
  */
 
 #include "mystructs.h"
@@ -232,7 +232,6 @@ extern int    NlistTime;
 extern int    LinksNumber;
 extern int    AwaySaveSet;
 extern int    ShowWallop;
-extern int    AutoReplyEntries;
 extern int    LongStatus;
 extern double BytesReceived;
 extern double BytesSent;

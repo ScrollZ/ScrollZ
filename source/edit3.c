@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.14 1998-11-19 21:10:34 f Exp $
+ * $Id: edit3.c,v 1.15 1998-11-26 20:03:46 f Exp $
  */
 
 #include "irc.h"
@@ -2536,7 +2536,6 @@ void InitVars() {
     LinksNumber=0;
     AwaySaveSet=SAVEALL&(~SAVENOTIFY);
     ShowWallop=1;
-    AutoReplyEntries=0;
     LongStatus=0;
     BytesReceived=0.0;
     BytesSent=0.0;
