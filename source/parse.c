@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.3 1998-09-14 16:25:18 f Exp $
+ * $Id: parse.c,v 1.4 1998-09-20 09:25:45 f Exp $
  */
 
 #include "irc.h"
@@ -92,6 +92,7 @@ extern void AutoChangeNick _((char *));
 extern void AwaySave _((char *, int));
 extern char *GetNetsplitServer _((char *, char *));
 extern void CheckCdcc _((char *, char *, char *, int));
+extern int  CheckChannel _((char *, char *));
 
 extern void e_nick _((char *, char *, char *));
 
@@ -879,17 +880,28 @@ p_quit(from, ArgList)
                                 ChannelList *chan;
 
                                 *chanbuf='\0';
-                                for (chan=server_list[parsing_server_index].chan_list;
-                                     chan;chan=chan->next) {
-                                    if (strlen(chan->channel)+strlen(chanbuf)>mybufsize/4)
-                                        break;
-                                    joiner=CheckJoiners(from,chan->channel,
-                                                        parsing_server_index,chan);
-                                    if (joiner) {
-                                        if (*chanbuf) strmcat(chanbuf,",",mybufsize/4);
-                                        strmcat(chanbuf,chan->channel,mybufsize/4);
-                                        chanbuf[mybufsize/4+1]='\0';
+                                if (ShowSignoffChan && SignoffChannels && *SignoffChannels) {
+                                    for (chan=server_list[parsing_server_index].chan_list;
+                                         chan;chan=chan->next) {
+                                        if (!CheckChannel(SignoffChannels,chan->channel))
+                                            continue;
+                                        if (strlen(chan->channel)+strlen(chanbuf)>mybufsize/4)
+                                            break;
+                                        joiner=CheckJoiners(from,chan->channel,
+                                                            parsing_server_index,chan);
+                                        if (joiner) {
+                                            if (*chanbuf) strmcat(chanbuf,",",mybufsize/4);
+                                            else strcpy(chanbuf,"(");
+                                            strmcat(chanbuf,chan->channel,mybufsize/4);
+                                            chanbuf[mybufsize/4+1]='\0';
+                                        }
                                     }
+                                    if (strlen(chanbuf)>=mybufsize-2) {
+                                        chanbuf[mybufsize-2]=')';
+                                        chanbuf[mybufsize-1]=' ';
+                                        chanbuf[mybufsize]='\0';
+                                    }
+                                    else strmcat(chanbuf,") ",mybufsize/4);
                                 }
 #endif /* EXTRAS */
 #ifdef WANTANSI
@@ -900,7 +912,7 @@ p_quit(from, ArgList)
                                     colnick=CmdsColors[COLLEAVE].color4;
                                 else colnick=CmdsColors[COLLEAVE].color1;
 #ifdef EXTRAS
-                                say("Signoff: %s%s%s ((%s) %s%s%s)",
+                                say("Signoff: %s%s%s (%s%s%s%s)",
 #else  /* EXTRAS */
                                 say("Signoff: %s%s%s (%s%s%s)",
 #endif /* EXTRAS */
@@ -911,7 +923,7 @@ p_quit(from, ArgList)
                                     CmdsColors[COLLEAVE].color3,Reason,Colors[COLOFF]);
 #else  /* WANTANSI */
 #ifdef EXTRAS
-                                say("Signoff: %s ((%s) %s)",from,chanbuf,Reason);
+                                say("Signoff: %s (%s%s)",from,chanbuf,Reason);
 #else  /* EXTRAS */
                                 say("Signoff: %s (%s)",from,Reason);
 #endif /* EXTRAS */
