@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.60 2001-03-24 09:16:20 f Exp $
+ * $Id: edit4.c,v 1.61 2001-03-27 19:40:24 f Exp $
  */
 
 #include "irc.h"
@@ -745,6 +745,7 @@ void HandleTabNext() {
     int  len;
     int  curserv=from_server;
     int  domsgtab=0;
+    char *channel;
     char *minpos;
     char *curpos;
     char *tmpstr;
@@ -823,14 +824,28 @@ void HandleTabNext() {
                     new_free(&tabnick);
                     new_free(&oldtabnick);
                     tabnickcompl=NULL;
+                    origchan=NULL;
                 }
                 /* Walk through all channels but first verify the stored
                    channel exists so we don't get core dumps when accessing
                    already freed memory. */
-                if (!ChannelExists(origchan)) origchan=NULL;
+restart:
+                if (origchan && !ChannelExists(origchan)) origchan=NULL;
                 if (origchan) chan=origchan;
-                else chan=server_list[from_server].chan_list;
-                if (!chan) return;
+                else {
+                    /* If we have current channel start there (only on the
+                       first run through the loop) else start with first
+                       channel on this server. */
+                    if (!sameloop && (channel=get_channel_by_refnum(0))) {
+                        chan=lookup_channel(channel,from_server,0);
+                        if (!chan) chan=server_list[from_server].chan_list;
+                    }
+                    else chan=server_list[from_server].chan_list;
+                }
+                /* If chan is NULL there are no channels to examine.
+                   If we passed more than once through the loop return because
+                   we exhausted all the channels. */
+                if (!chan || sameloop>1) return;
                 for (;chan;) {
                     /* Walk through all matching nicks for given channel.
                        If we exchausted current channel check next one. */
@@ -850,17 +865,24 @@ void HandleTabNext() {
                     for (;tmpnick;tmpnick=tmpnick->next)
                         if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
                     if (!tmpnick) {
+                        sameloop++;
                         if (!sameloop && !(chan->next))
                             chan=server_list[from_server].chan_list;
-                        else chan=chan->next;
-                        sameloop=1;
+                        else {
+                            chan=chan->next;
+                            /* If we exhausted all channels start from beginning. */
+                            if (!chan) {
+                                origchan=NULL;
+                                goto restart;
+                            }
+                        }
                         continue;
                     }
                     origchan=chan;
                     nicklen=strlen(tabnick);
                     if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
                         /* oldtabnick holds old nick we used in previous attempt
-                           else it is first attempt at completion */
+                           else it is first attempt at completion. */
                         if (oldtabnick) len=strlen(oldtabnick);
                         else len=nicklen;
                         for (i=0;i<len;i++) input_backspace(' ',NULL);
