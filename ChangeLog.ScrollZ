@@ -8,6 +8,25 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+    + shitlist is now checked upon nick change (requested by Toch)
+    + CJOIN and KNOCK (code submitted by braneded)
+    + CDCC AUTOGET ALWAYS to autoget DCCs regardless of warnings about
+      address mismatch, zero size etc (code submitted by braneded)
+    ! WINDOW TITLE is now case insensitive
+    ! compile under Cygwin now produces working executable (#define SZ32 in
+      defs.h), this is actually quite useful under NT/2000/XP (reported
+      by inf0rmer)
+    ! no such nick/channel error when sending too long encrypted message to
+      a server
+    ! cut encrypted messages at 304 characters to avoid decryption problems
+      at the other end when IRC server cuts the message (reported by [2am])
+    + all mass commands (MDOP, MOP etc) now support -A flag to operate on
+      all users (requested by ogre)
+    + server connect time information (it is displayed in SERVER for all
+      servers and in SZINFO for current server, suggested by ogre)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.8m, 15.10.2001
 
     ~ AUTORECON crash (reported by Tero)
