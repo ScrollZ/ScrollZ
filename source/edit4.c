@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.100 2002-03-11 20:36:31 f Exp $
+ * $Id: edit4.c,v 1.101 2002-05-04 16:43:39 f Exp $
  */
 
 #include "irc.h"
@@ -2228,92 +2228,165 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  count=0;
+    int  i;
+    int  count;
     int  maskmatch;
-    char *on=(char *) 0;
-    char *noton=(char *) 0;
 #ifdef WANTANSI
     char *ncolor;
 #endif
-    char tmpbuf1[mybufsize/4];
+    char *list = (char *) 0;
+    char *msg;
+    char tmpbuf1[mybufsize / 4];
 #ifdef WANTANSI
-    char tmpbuf2[mybufsize/4];
+    char tmpbuf2[mybufsize / 4];
 #endif
-    NotifyList *notify;
+    NotifyList *notify, *tmp;
 
     say("Listing all the people on your notify list");
-    for (notify=notify_list;notify;notify=notify->next) {
-        if (notify->flag && notify->flag!=2) {
-#ifdef WANTANSI
-            ncolor=notify->isfriend?
-                CmdsColors[COLNOTIFY].color6:CmdsColors[COLNOTIFY].color5;
-#endif
-            maskmatch=1;
-            if (notify->mask) {
-                char tmpbuf3[mybufsize/4];
-
-                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",notify->nick,notify->mask);
-                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s!%s",notify->nick,notify->userhost);
-                if (!wild_match(tmpbuf1,tmpbuf3)) maskmatch=0;
-            }
-            if (NotifyMode==2) {
+    for (tmp = notify_list; tmp; tmp = tmp->next)
+        tmp->printed = 0;
+    for (i = 0; i < 2; i++) {
+        if (i == 0) {
 #ifdef CELECOSM
-                if (!count) strmcpy(tmpbuf1,"/present/ ",sizeof(tmpbuf1));
+            msg = "/present/";
 #else
-                if (!count) strmcpy(tmpbuf1,"(Present) ",sizeof(tmpbuf1));
+            msg = "(Present)";
 #endif /* CELECOSM */
-                else strmcpy(tmpbuf1,"          ",sizeof(tmpbuf1));
-#ifdef WANTANSI
-                if (notify->userhost && maskmatch) {
-                    ColorUserHost(notify->userhost,CmdsColors[COLNOTIFY].color2,tmpbuf2,1);
-                    say("%s %s%-13s%s %s",tmpbuf1,
-                        ncolor,notify->nick,Colors[COLOFF],tmpbuf2);
-                }
-                else say("%s %s%-13s%s",tmpbuf1,ncolor,notify->nick,Colors[COLOFF]);
-#else
-                if (notify->userhost && maskmatch)
-                    say("%s %c%-13s%c [%s]",tmpbuf1,bold,notify->nick,bold,
-                        notify->userhost);
-                else say("%s %c%-13s%c",tmpbuf1,bold,notify->nick,bold);
-#endif
-            }
-            else {
-#ifdef CELECOSM
-                if (!on) malloc_strcpy(&on,"/present/ ");
-#else
-                if (!on) malloc_strcpy(&on,"(Present) ");
-#endif /* CELECOSM */
-#ifdef WANTANSI
-                snprintf(tmpbuf1,sizeof(tmpbuf1)," %s%s%s",ncolor,notify->nick,Colors[COLOFF]);
-#else
-                snprintf(tmpbuf1,sizeof(tmpbuf1)," %s",notify->nick);
-#endif
-                malloc_strcat(&on,tmpbuf1);
-            }
-            count++;
         }
         else {
 #ifdef CELECOSM
-            if (!noton) malloc_strcpy(&noton,"/missing/ ");
+            msg = "/missing/";
 #else
-            if (!noton) malloc_strcpy(&noton,"(Absent ) ");
+            msg = "(Absent)";
 #endif /* CELECOSM */
-#ifdef WANTANSI
-            snprintf(tmpbuf1,sizeof(tmpbuf1)," %s%s%s",CmdsColors[COLNOTIFY].color1,
-                    notify->nick,Colors[COLOFF]);
-#else
-            snprintf(tmpbuf1,sizeof(tmpbuf1)," %s",notify->nick);
-#endif
-            malloc_strcat(&noton,tmpbuf1);
         }
-    }
-    if (on) {
-        say("%s",on);
-        new_free(&on);
-    }
-    if (noton) {
-        say("%s",noton);
-        new_free(&noton);
+        for (notify = notify_list; notify; notify = notify->next) {
+            /* skip users not online */
+            if ((i == 0) && (notify->flag != 1)) continue;
+            /* skip online users */
+            if ((i == 1) && (notify->flag == 1)) continue;
+            /* skip already printed entries */
+            if (notify->printed) continue;
+            /* if a group is found print all entries in that group */
+            if (notify->group) {
+                if (NotifyMode == 2)
+                    say("%s [%s]", msg, notify->group);
+                for (tmp = notify; tmp; tmp = tmp->next) {
+                    /* skip entry if group doesn't match */
+                    if (!tmp->group || strcmp(notify->group, tmp->group)) continue;
+                    /* skip users not online */
+                    if ((i == 0) && (tmp->flag != 1)) continue;
+                    /* skip online users */
+                    if ((i == 1) && (tmp->flag == 1)) continue;
+                    tmp->printed = 1;
+#ifdef WANTANSI
+                    if (i == 0)
+                        ncolor = tmp->isfriend ? CmdsColors[COLNOTIFY].color6 : CmdsColors[COLNOTIFY].color5;
+                    else
+                        ncolor = CmdsColors[COLNOTIFY].color1;
+#endif /* WANTANSI */
+                    /* if notify is verbose print entry immediately */
+                    if (NotifyMode == 2) {
+                        if (i == 0) msg = "         ";
+                        else msg = "        ";
+                        maskmatch = 1;
+                        if (notify->mask) {
+                            char tmpbuf3[mybufsize / 4];
+
+                            snprintf(tmpbuf1, sizeof(tmpbuf1), "%s!%s", tmp->nick, tmp->mask);
+                            snprintf(tmpbuf3, sizeof(tmpbuf3), "%s!%s", tmp->nick, tmp->userhost);
+                            if (!wild_match(tmpbuf1, tmpbuf3)) maskmatch = 0;
+                        }
+#ifdef WANTANSI
+                        if (tmp->userhost && maskmatch) {
+                            ColorUserHost(tmp->userhost, CmdsColors[COLNOTIFY].color2, tmpbuf2, 1);
+                            say("%s %s%-13s%s %s", msg, ncolor, tmp->nick, Colors[COLOFF], tmpbuf2);
+                        }
+                        else say("%s %s%-13s%s", msg, ncolor, tmp->nick, Colors[COLOFF]);
+#else
+                        if (tmp->userhost && maskmatch)
+                            say("%s %c%-13s%c [%s]", msg, bold, tmp->nick, bold, notify->userhost);
+                        else say("%s %c%-13s%c", msg, bold, tmp->nick, bold);
+#endif /* WANTANSI */
+                    }
+                    else {
+#ifdef WANTANSI
+                        snprintf(tmpbuf1, sizeof(tmpbuf1), " %s%s%s", ncolor, tmp->nick, Colors[COLOFF]);
+#else
+                        snprintf(tmpbuf1, sizeof(tmpbuf1), " %s", tmp->nick);
+#endif /* WANTANSI */
+                        malloc_strcat(&list, tmpbuf1);
+                    }
+                }
+                if (list) {
+                    say("%s [%s]%s", msg, notify->group, list);
+                    new_free(&list);
+                    if (i == 0) msg = "         ";
+                    else msg = "        ";
+                }
+            }
+        }
+        count = 0;
+        /* print the rest of list */
+        for (notify = notify_list; notify; notify = notify->next) {
+            /* skip users not online */
+            if ((i == 0) && (notify->flag != 1)) continue;
+            /* skip online users */
+            if ((i == 1) && (notify->flag == 1)) continue;
+            /* skip already printed entries */
+            if (notify->printed) continue;
+            if (count == 0) {
+                if (NotifyMode == 2) {
+                    say("%s [no group]", msg);
+                    if (i == 0) msg = "         ";
+                    else msg = "        ";
+                }
+            }
+            count++;
+            notify->printed = 1;
+#ifdef WANTANSI
+            if (i == 0)
+                ncolor = notify->isfriend ? CmdsColors[COLNOTIFY].color6 : CmdsColors[COLNOTIFY].color5;
+            else
+                ncolor = CmdsColors[COLNOTIFY].color1;
+#endif /* WANTANSI */
+            /* if notify is verbose print entry immediately */
+            if (NotifyMode == 2) {
+                maskmatch = 1;
+                if (notify->mask) {
+                    char tmpbuf3[mybufsize / 4];
+
+                    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s!%s", notify->nick, notify->mask);
+                    snprintf(tmpbuf3, sizeof(tmpbuf3), "%s!%s", notify->nick, notify->userhost);
+                    if (!wild_match(tmpbuf1, tmpbuf3)) maskmatch = 0;
+                }
+#ifdef WANTANSI
+                if (notify->userhost && maskmatch) {
+                    ColorUserHost(notify->userhost, CmdsColors[COLNOTIFY].color2, tmpbuf2, 1);
+                    say("%s %s%-13s%s %s", msg, ncolor, notify->nick, Colors[COLOFF], tmpbuf2);
+                }
+                else say("%s %s%-13s%s", msg, ncolor, notify->nick, Colors[COLOFF]);
+#else
+                if (notify->userhost && maskmatch)
+                    say("%s %c%-13s%c [%s]", msg, bold, notify->nick, bold, notify->userhost);
+                else say("%s %c%-13s%c", msg, bold, notify->nick, bold);
+#endif /* WANTANSI */
+                if (i == 0) msg = "         ";
+                else msg = "        ";
+            }
+            else {
+#ifdef WANTANSI
+                snprintf(tmpbuf1, sizeof(tmpbuf1), " %s%s%s", ncolor, notify->nick, Colors[COLOFF]);
+#else
+                snprintf(tmpbuf1, sizeof(tmpbuf1), " %s", tmp->nick);
+#endif /* WANTANSI */
+                malloc_strcat(&list, tmpbuf1);
+            }
+        }
+        if (list) {
+            say("%s%s", msg, list);
+            new_free(&list);
+        }
     }
 }
 

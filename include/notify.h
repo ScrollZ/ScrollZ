@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.h,v 1.3 2002-01-21 21:37:35 f Exp $
+ * $Id: notify.h,v 1.4 2002-05-04 16:43:39 f Exp $
  */
 
 #ifndef __notify_h_
@@ -58,8 +58,10 @@ typedef	struct	notify_stru
 /**************************** PATCHED by Flier ******************************/
         int     server;                 /* server number so we can update u@h */
         int     isfriend;               /* 1 if friend, 0 otherwise */
+        int     printed;                /* used when showing users on notify list */
         char    *userhost;              /* their userhost */
         char    *mask;                  /* nick!user@host for user@host based notify */
+        char    *group;                 /* for grouping users */
 /****************************************************************************/
         int	flag;			/* 1=person on irc, 0=person not on irc */
 }	NotifyList;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.12 2002-01-24 19:59:04 f Exp $
+ * $Id: notify.c,v 1.13 2002-05-04 16:43:39 f Exp $
  */
 
 /*
@@ -98,7 +98,8 @@ void
 show_notify_list(all)
 	int	all;
 {
-	char	*list;
+/**************************** Patched by Flier ******************************/
+	/*char	*list;
 
 	list = get_notify_list(NOTIFY_LIST_HERE);
 	if (*list)
@@ -110,7 +111,59 @@ show_notify_list(all)
 		if (*list)
 			say("Currently absent: %s", list);
 	}
-	new_free(&list);
+	new_free(&list);*/
+        int i;
+        char *list = (char *) 0;
+        NotifyList *tmp, *tmp2;
+
+        /* mark all as not printed */
+        for (tmp = notify_list; tmp; tmp = tmp->next)
+            tmp->printed = 0;
+        for (i = 0; i <= all; i++) {
+            /* first print users by groups */
+            for (tmp = notify_list; tmp; tmp = tmp->next) {
+                /* skip users not online */
+                if ((i == 0) && (tmp->flag != 1)) continue;
+                /* skip online users */
+                if ((i == 1) && (tmp->flag == 1)) continue;
+                /* skip already printed entries */
+                if (tmp->printed) continue;
+                /* if a group is found print all entries in that group */
+                if (tmp->group) {
+                    for (tmp2 = tmp; tmp2; tmp2 = tmp2->next) {
+                        /* skip entry if group doesn't match */
+                        if (!tmp2->group || strcmp(tmp->group, tmp2->group)) continue;
+                        if (strcmp(tmp->group, tmp2->group)) continue;
+                        /* skip users not online */
+                        if ((i == 0) && (tmp2->flag != 1)) continue;
+                        /* skip online users */
+                        if ((i == 1) && (tmp2->flag == 1)) continue;
+                        tmp2->printed = 1;
+                        if (list) malloc_strcat(&list, " ");
+                        malloc_strcat(&list, tmp2->nick);
+                    }
+                    say("Currently %s [%s]: %s", i ? "absent" : "present", tmp->group, list);
+                    new_free(&list);
+                }
+            }
+            /* print the rest of list */
+            for (tmp = notify_list; tmp; tmp = tmp->next) {
+                /* skip users not online */
+                if ((i == 0) && (tmp->flag != 1)) continue;
+                /* skip online users */
+                if ((i == 1) && (tmp->flag == 1)) continue;
+                /* skip already printed entries */
+                if (tmp->printed) continue;
+                tmp->printed = 1;
+                if (list) malloc_strcat(&list, " ");
+                malloc_strcat(&list, tmp->nick);
+            }
+            if (list) {
+                say("Currently %s: %s", i ? "absent" : "present", list);
+                new_free(&list);
+            }
+        }
+/****************************************************************************/
 }
 
 /* notify: the NOTIFY command.  Does the whole ball-o-wax */
@@ -153,6 +206,7 @@ notify(command, args, subargs)
 						/*say("%s removed from notification list", nick);*/
                                                 new_free(&(new->userhost));
                                                 new_free(&(new->mask));
+                                                new_free(&(new->group));
                                                 if (inSZNotify!=1)
                                                     say("%s removed from notification list",nick);
 /****************************************************************************/
@@ -170,6 +224,7 @@ notify(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
                                                 new_free(&(new->userhost));
                                                 new_free(&(new->mask));
+                                                new_free(&(new->group));
 /****************************************************************************/
 						new_free(&new);
 					}
@@ -189,8 +244,11 @@ notify(command, args, subargs)
 				{
 /**************************** PATCHED by Flier ******************************/
                                         char *mask;
+                                        char *group;
 
                                         if ((mask=index(nick,'!'))) *mask++='\0';
+                                        if (mask && (group=index(mask,':'))) *group++='\0';
+                                        else if ((group=index(nick,':'))) *group++='\0';
 /****************************************************************************/
 					do_ison = 1;
 					if (index(nick, '*'))
@@ -203,6 +261,7 @@ notify(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
                                                         new_free(&(new->userhost));
                                                         new_free(&(new->mask));
+                                                        new_free(&(new->group));
 /****************************************************************************/
 							new_free(&new);
 						}
@@ -212,7 +271,9 @@ notify(command, args, subargs)
                                                 new->isfriend=0;
                                                 new->userhost=(char *) 0;
                                                 new->mask=(char *) 0;
+                                                new->group=(char *) 0;
                                                 if (mask) malloc_strcpy(&(new->mask),mask);
+                                                if (group) malloc_strcpy(&(new->group),group);
 /****************************************************************************/
 						malloc_strcpy(&(new->nick), nick);
 						new->flag = 0;
