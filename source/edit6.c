@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.18 1998-11-21 15:47:19 f Exp $
+ * $Id: edit6.c,v 1.19 1998-12-02 20:59:37 f Exp $
  */
 
 #include "irc.h"
@@ -2337,6 +2337,8 @@ char *subargs;
     char *filter;
 
     if ((filter=new_next_arg(args,&args))) {
+        tottcount=0;
+        mattcount=0;
         malloc_strcpy(&ftpattern,filter);
         inFlierTrace=2;
         send_to_server("TRACE");
