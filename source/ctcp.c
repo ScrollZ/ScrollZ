@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.22 1999-08-15 18:23:42 f Exp $
+ * $Id: ctcp.c,v 1.23 1999-08-15 18:38:38 f Exp $
  */
 
 #include "irc.h"
@@ -1863,7 +1863,7 @@ do_new_notice_ctcp(from, to, str, cmd)
                                     timeofday.tv_sec-=atol(tmpstr);
                                     if ((tmpstr=next_arg(args,&args))) {
                                         if (timeofday.tv_usec>=atol(tmpstr))
-                                            timeofday.tv_usec-=atol(args);
+                                            timeofday.tv_usec-=atol(tmpstr);
                                         else {
                                             timeofday.tv_usec=timeofday.tv_usec-
                                                               atol(tmpstr)+1000000;
