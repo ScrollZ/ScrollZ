@@ -79,8 +79,8 @@ Meaning of flags:
       (patch submitted by braneded)
     ~ DCC speed calculation for resend/reget (fixed by braneded)
     ~ merged ircii-20011210 changes (without ISO-2022-JP stuff and mIRC
-      colour stuff - sorry but my screen.c is too different these days
-      from ircII and ircII won't allow for ANSI colour codes, also removed
+      color stuff - sorry but my screen.c is too different these days
+      from ircII and ircII won't allow for ANSI color codes, also removed
       ircII's SET SHOW_STARS and SET STAR_PREFIX in favour of my, more
       complete code, there is no support for %v (voice status) in status
       bar as ScrollZ already uses %@ for that)
@@ -90,6 +90,8 @@ Meaning of flags:
     - checks for "/etc/" or "passwd" in DCC SEND/RESEND
     + BKT [-T unban time] to specify unban time (requested by poorboy)
     + support for uppercase usermodes (requested by a few users)
+    ~ WINDOW SERVER server CHANNEL #chan,key now works (reported by
+      qoreQyaS)
 
 ------------------------------------------------------------------------------
 
