@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.22 2002-01-21 22:12:16 f Exp $
+ * $Id: status.c,v 1.23 2002-01-21 22:36:18 f Exp $
  */
 
 #include "irc.h"
@@ -1446,7 +1446,7 @@ status_query_nick(window)
 /**************************** PATCHED by Flier ******************************/
 		/*snprintf(lbuf, sizeof lbuf, query_format, window->query_nick);*/
 		buflen = buflen > sizeof(lbuf) - 1 ? sizeof(lbuf) : buflen;
-		snprintf(lbuf, buflen, query_format, window->query->nick);
+		snprintf(lbuf, buflen, query_format, window->query_nick);
 /****************************************************************************/
 		malloc_strcpy(&ptr, lbuf);
 	}

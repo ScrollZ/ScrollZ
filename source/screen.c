@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.21 2002-01-21 21:37:36 f Exp $
+ * $Id: screen.c,v 1.22 2002-01-21 22:35:40 f Exp $
  */
 
 #include "irc.h"
@@ -95,7 +95,6 @@ static	void	scrollback_backwards_lines _((int));
 static	void	scrollback_forwards_lines _((int));
 static	char	display_highlight _((int));
 static	char	display_bold _((int));
-static	void	display_colours _((int, int));
 static	void	add_to_window _((Window *, char *));
 static	u_int	create_refnum _((void));
 /**************************** PATCHED by Flier ******************************/
@@ -1475,7 +1474,7 @@ split_up_line(str)
 		}
 		if (pos == BIG_BUFFER_SIZE)
 			*ptr = '\0';
-		if (col >= CO)
+		if (col >= current_screen->co)
 		{
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
@@ -1487,7 +1486,7 @@ split_up_line(str)
 /****************************************************************************/
 			/* one big long line, no word breaks */
 			if (word_break == 0)
-				word_break = pos - (col - CO);
+				word_break = pos - (col - current_screen->co);
 			c = lbuf[word_break];
 			lbuf[word_break] = '\0';
 			if (cont)
@@ -1508,7 +1507,7 @@ split_up_line(str)
 			if (!(cont_ptr = get_string_var(CONTINUED_LINE_VAR)))
 					
 				cont_ptr = empty_string;
-			if (get_int_var(INDENT_VAR) && (indent < CO / 3))
+			if (get_int_var(INDENT_VAR) && (indent < current_screen->co / 3))
 			{
 		/*
 		 * INDENT thanks to Carlo "lynx" v. Loesch

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.73 2002-01-13 16:21:37 f Exp $
+ * $Id: edit2.c,v 1.74 2002-01-21 22:38:59 f Exp $
  */
 
 #include "irc.h"
@@ -3819,7 +3819,7 @@ char *subargs;
         sprintf(tmpbuf2, "[%s <- %s]", tmpstr, server);
         sprintf(tmpbuf4, ": [%s]", tmpbuf3);
 #endif
-        len = CO - ctlen - 29 - strlen(server) - strlen(tmpstr) - strlen(tmpbuf3);
+        len = current_screen->co - ctlen - 29 - strlen(server) - strlen(tmpstr) - strlen(tmpbuf3);
         *tmpbuf3 = '\0';
         for (i = 0; len > 0 && i < len; i++) strcat(tmpbuf3, " ");
 #ifdef WANTANSI

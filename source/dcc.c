@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.33 2002-01-21 22:17:20 f Exp $
+ * $Id: dcc.c,v 1.34 2002-01-21 22:34:20 f Exp $
  */
 
 #include "irc.h"
@@ -143,8 +143,6 @@ void dcc_getfile_resume _((char *));
 static void dcc_getfile_resume_demanded _((char *, char *, char *, char *));
 static void dcc_getfile_resume_start _((char *, char *, char *, char *));
 #endif /* BROKEN_MIRC_RESUME */
-
-extern struct in_addr DCCHost;
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -755,9 +753,6 @@ dcc_open(Client)
 		myip.s_addr = MyHostAddr.s_addr;
 	if (forced_ip_addr.s_addr != 0)
 		myip.s_addr = forced_ip_addr.s_addr;
-/**************************** PATCHED by Flier ******************************/
-        if (DCCHost.s_addr) myip.s_addr=DCCHost.s_addr;
-/****************************************************************************/
 	Type = dcc_types[Client->flags & DCC_TYPES];
 	if (Client->flags & DCC_OFFER)
 	{

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.81 2002-01-21 22:12:15 f Exp $
+ * $Id: edit5.c,v 1.82 2002-01-21 22:38:59 f Exp $
  */
 
 #include "irc.h"
@@ -1774,9 +1774,9 @@ char *line;
         if (readline) {
             if (playpattern && !wild_match(playpattern,tmpbuf)) continue;
 #ifdef WANTANSI
-            count+=(strlen(tmpbuf)-CountAnsi(tmpbuf,-1)+6)/CO+1;
+            count+=(strlen(tmpbuf)-CountAnsi(tmpbuf,-1)+6)/current_screen->co+1;
 #else
-            count+=(strlen(tmpbuf)+6)/CO+1;
+            count+=(strlen(tmpbuf)+6)/current_screen->co+1;
 #endif
             say("%s",tmpbuf);
         }

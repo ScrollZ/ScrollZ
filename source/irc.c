@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.77 2002-01-21 22:12:15 f Exp $
+ * $Id: irc.c,v 1.78 2002-01-21 22:34:20 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -451,7 +451,6 @@ int   ShowSignAllChan;
 #endif
 int   ExtPub;
 int   ChanLog;
-struct in_addr DCCHost;
 #ifdef ACID
 int   ForceJoin;
 #endif
@@ -832,7 +831,7 @@ parse_args(argv, argc)
 #endif
 /**************************** PATCHED by Flier ******************************/
 	/*int	minus_minus = 0;*/
-        char    *CloakCommand=(char *) 0;
+        char    *CloakCommand = NULL;
 /****************************************************************************/
 
 	*realname = '\0';
@@ -847,7 +846,7 @@ parse_args(argv, argc)
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*++arg;*/
-			while (*arg && *arg=='-')
+			while (*arg && *arg == '-')
                             arg++;
 /****************************************************************************/
 			while (*arg)
@@ -856,7 +855,7 @@ parse_args(argv, argc)
 				{
 /**************************** PATCHED by Flier ******************************/
 				case 'C':
-                                        malloc_strcpy(&CloakCommand,get_arg(arg,argv[ac],&ac));
+                                        malloc_strcpy(&CloakCommand, get_arg(arg, argv[ac], &ac));
 					break;
 /****************************************************************************/
 				case 'v':
@@ -889,11 +888,11 @@ parse_args(argv, argc)
 					break;
 				case 'H':
 				{
-					u_char *buf = (u_char *) 0;
+					char *buf = (char *) 0;
 
 					struct hostent *hp;
 					malloc_strcpy(&buf, get_arg(arg, argv[ac], &ac));
-					if ((hp = gethostbyname(CP(buf))) != NULL)
+					if ((hp = gethostbyname(buf)) != NULL)
 						bcopy(hp->h_addr, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
 					free(buf);
 					break;
@@ -996,7 +995,7 @@ parse_args(argv, argc)
 	}
 /**************************** PATCHED by Flier ******************************/
 /* Patched by Zakath */
-	if ((ptr=getenv("IRCHELP"))) malloc_strcpy(&HelpPathVar,ptr);
+	if ((ptr = getenv("IRCHELP"))) malloc_strcpy(&HelpPathVar, ptr);
 /* ***************** */
 /****************************************************************************/
 	if ((char *) 0 != (ptr = (char *) getenv("IRCLIB")))
@@ -1130,14 +1129,14 @@ parse_args(argv, argc)
 		strmcpy(username, ptr, REALNAME_LEN);
 
 /**************************** PATCHED by Flier ******************************/
-        DCCHost.s_addr=0;
-        if ((ptr=getenv("DCCHOST"))) {
+        forced_ip_addr.s_addr = 0;
+        if ((ptr = getenv("DCCHOST"))) {
             struct in_addr inaddr;
 
-            if (inet_aton(ptr,&inaddr)) DCCHost.s_addr=inaddr.s_addr;
+            if (inet_aton(ptr, &inaddr)) forced_ip_addr.s_addr = inaddr.s_addr;
         }
         /* for Da_P */
-        if ((ptr=getenv("VIRTIP"))) malloc_strcpy(&source_host,ptr);
+        if ((ptr = getenv("VIRTIP"))) malloc_strcpy(&source_host, ptr);
 /****************************************************************************/
 
         process_hostname();
@@ -1170,8 +1169,8 @@ parse_args(argv, argc)
 	}
 /**************************** PATCHED by Flier ******************************/
         if (CloakCommand) {
-            for (ac=argc-1;ac>=0;ac--) memset(argv[ac],0,strlen(argv[ac]));
-            strcpy(argv[0],CloakCommand);
+            for (ac = argc - 1; ac >= 0; ac--) memset(argv[ac], 0, strlen(argv[ac]));
+            strcpy(argv[0], CloakCommand);
             new_free(&CloakCommand);
         }
 /****************************************************************************/
@@ -1213,14 +1212,14 @@ TimerTimeout(struct timeval *tv)
 	}
 /**************************** PATCHED by Flier ******************************/
 	/*gettimeofday(&current, NULL);*/
-        if (PendingTimers->time.tv_sec > nickt) {
+        if (PendingTimers->time > nickt) {
             largest.tv_sec = nickt;
             largest.tv_usec = 0;
             DoOrigNick = 1;
         }
         else {
-            largest.tv_sec = PendingTimers->time.tv_sec;
-            largest.tv_usec = PendingTimers->time.tv_usec;
+            largest.tv_sec = PendingTimers->time;
+            largest.tv_usec = PendingTimers->microseconds;
         }
 /****************************************************************************/
 

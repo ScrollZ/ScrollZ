@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.11 2002-01-21 21:37:36 f Exp $
+ * $Id: whois.c,v 1.12 2002-01-21 22:36:39 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -1062,7 +1062,7 @@ whois_ignore_msgs(stuff, nick, text)
 				{
 					time_t	t;
 					char	*msg = (char *) 0;
-					size_t len = my_strlen(text) + 20;
+					size_t len = strlen(text) + 20;
 
 					t = time(0);
 					msg = (char *) new_malloc(len);

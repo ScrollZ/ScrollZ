@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.15 2002-01-21 22:29:15 f Exp $
+ * $Id: input.c,v 1.16 2002-01-21 22:38:59 f Exp $
  */
 
 #include "irc.h"
@@ -252,7 +252,8 @@ update_input(update)
 /**************************** PATCHED by Flier ******************************/
 	/*current_screen->cursor = current_screen->buffer_pos - current_screen->str_start;*/
 #ifdef WANTANSI
-        ansi_count = CountAnsiInput(&(current_screen->input_buffer[str_start]), current_screen->zone);
+        ansi_count = CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
+                                    current_screen->zone);
 #endif
 	current_screen->cursor = current_screen->buffer_pos - current_screen->str_start - ansi_count;
 /****************************************************************************/

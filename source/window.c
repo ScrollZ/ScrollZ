@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.36 2002-01-21 21:37:36 f Exp $
+ * $Id: window.c,v 1.37 2002-01-21 22:37:05 f Exp $
  */
 
 #include "irc.h"
@@ -413,7 +413,7 @@ void
 set_continued_line(value)
 	char	*value;
 {
-	if (value && ((int) my_strlen(value) > (current_screen->co / 2)))
+	if (value && ((int) strlen(value) > (current_screen->co / 2)))
 		value[current_screen->co / 2] = '\0';
 }
 
@@ -3304,7 +3304,7 @@ windowcmd(command, args, subargs)
 
                                 i = atoi(arg);
                                 if (i > 1 && i < 4) {
-                                    error = 0;
+                                    errcmd = 0;
                                     window->double_status = i - 1;
                                 }
                             }
