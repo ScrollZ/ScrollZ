@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.52 2002-02-01 19:03:45 f Exp $
+ * $Id: server.c,v 1.53 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -608,9 +608,9 @@ add_to_server_list(server, port, password, nick, overwrite)
 		if (overwrite)
 		{
 			server_list[from_server].port = port;
-			if (password || !server_list[from_server].password)
+			if (password)
 			{
-				if (password && *password)
+				if (*password)
 					malloc_strcpy(&(server_list[from_server].password), password);
 				else
 					new_free(&(server_list[from_server].password));
@@ -1302,7 +1302,7 @@ connect_to_server(server_name, port, nick, c_server)
 		if (connect_next_password)
 		{
 			if (*connect_next_password)
-			malloc_strcpy(&(server_list[from_server].password),
+				malloc_strcpy(&(server_list[from_server].password),
 					connect_next_password);
 			new_free(&connect_next_password);
 		}

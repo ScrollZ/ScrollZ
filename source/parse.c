@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.63 2002-03-05 18:33:08 f Exp $
+ * $Id: parse.c,v 1.64 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -1875,23 +1875,7 @@ irc2_parse_server(line)
 	 * this should fail on '1xxx'!!!
 	 */
 	if (0 != (numeric = atoi(comm)))
-/**************************** PATCHED by Flier ******************************/
-        {
-                if (numeric == 1) {
-                    char *nickstart, *nickend;
-                    char tmpbuf[mybufsize / 8];
-
-                    if ((nickstart = index(line,' ')) && (nickstart = index(nickstart + 1, ' ')) &&
-                        (nickend = index(nickstart + 1, ' '))) {
-                        strmcpy(tmpbuf, nickstart + 1, nickend - nickstart);
-                        set_server_nickname(parsing_server_index, tmpbuf);
-                    }
-                }
-/****************************************************************************/
 		numbered_command(from, numeric, ArgList);
-/**************************** PATCHED by Flier ******************************/
-        }
-/****************************************************************************/
 	else if (strcmp(comm, "NAMREPLY") == 0)
 		funny_namreply(from, ArgList);
 	else if (strcmp(comm, "WHOREPLY") == 0)

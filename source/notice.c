@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.29 2002-01-23 18:48:10 f Exp $
+ * $Id: notice.c,v 1.30 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -317,12 +317,13 @@ parse_notice(from, Args)
 
  					if (sed == 0 || do_hook(ENCRYPTED_NOTICE_LIST, "%s %s %s", from, to, line))
 					{
-						if (type == NOTICE_LIST && no_flooding)
+						if (type == NOTICE_LIST)
 						{
 /**************************** PATCHED by Flier ******************************/
                                                         if (HandleNotice(from, line, FromUserHost, 0, to))
 /****************************************************************************/
-							if (do_hook(type, "%s %s", from, line))
+							if (no_flooding &&
+							    do_hook(type, "%s %s", from, line))
 /**************************** PATCHED by Flier ******************************/
 								/*put_it("%s-%s-%s %s", high, from, high, line);*/
                                                                 HandleNotice(from, line, FromUserHost, 1, to);
@@ -330,7 +331,8 @@ parse_notice(from, Args)
 						}
 						else
 						{
-							if (do_hook(type, "%s %s %s", from, to, line))
+							if (no_flooding &&
+							    do_hook(type, "%s %s %s", from, to, line))
 /**************************** Patched by Flier ******************************/
 								/*put_it("%s-%s:%s-%s %s", high, from, to, high, line);*/
                                                             put_it("%s%s-%s:%s-%s %s", stampbuf,

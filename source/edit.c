@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.88 2002-03-07 16:53:11 f Exp $
+ * $Id: edit.c,v 1.89 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -4876,13 +4876,9 @@ static	void
 show_timer(command)
 	char	*command;
 {
-	TimerList	*tmp;
-/**************************** Patched by Flier ******************************/
-	/*time_t	current,
-		time_left;*/
-        struct timeval current, time_left;
-        char tmpbuf[mybufsize / 16];
-/****************************************************************************/
+	u_char  lbuf[BIG_BUFFER_SIZE];
+	TimerList *tmp;
+	struct timeval current, time_left;
 
 	if (!PendingTimers)
 	{
@@ -4890,29 +4886,26 @@ show_timer(command)
 		return;
 	}
 
-/**************************** Patched by Flier ******************************/
-	/*time(&current);*/
-        gettimeofday(&current, NULL);
-/****************************************************************************/
+	gettimeofday(&current, NULL);
 	say("Timer Seconds      Command");
 	for (tmp = PendingTimers; tmp; tmp = tmp->next)
 	{
-/**************************** Patched by Flier ******************************/
-		/*time_left = tmp->time - current;
-		if (time_left < 0)
-			time_left = 0;
-		say("%-5d %-10d %s", tmp->ref, time_left, tmp->command);*/
-                time_left.tv_sec = tmp->time;
-                time_left.tv_usec = tmp->microseconds;
-                time_left.tv_sec -= current.tv_sec;
-                if (time_left.tv_usec >= current.tv_usec) time_left.tv_usec -= current.tv_usec;
-                else {
-                    time_left.tv_usec = time_left.tv_usec - current.tv_usec + 1000000;
-                    time_left.tv_sec--;
-                }
-                snprintf(tmpbuf, sizeof(tmpbuf), "%d.%06d", (int) time_left.tv_sec, (int) time_left.tv_usec);
-                say("%-5d %-12s %s", tmp->ref, tmpbuf, tmp->command);
-/****************************************************************************/
+		time_left.tv_sec = tmp->time;
+		time_left.tv_usec = tmp->microseconds;
+		time_left.tv_sec -= current.tv_sec;
+
+		if (time_left.tv_usec >= current.tv_usec)
+			time_left.tv_usec -= current.tv_usec;
+		else
+		{
+			time_left.tv_usec = time_left.tv_usec -
+			    current.tv_usec + 1000000;
+			time_left.tv_sec--;
+		}
+
+		snprintf(lbuf, sizeof(lbuf), "%ld.%06d",
+		    (long)time_left.tv_sec, (int)time_left.tv_usec);
+		say("%-5d %-12s %s", tmp->ref, lbuf, tmp->command);
 	}
 }
 

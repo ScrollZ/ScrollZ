@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.27 2002-03-04 17:47:34 f Exp $
+dnl @(#)$Id: configure.in,v 1.28 2002-03-11 20:25:01 f Exp $
 
-AC_REVISION($Revision: 1.27 $)dnl
+AC_REVISION($Revision: 1.28 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.27 2002-03-04 17:47:34 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.28 2002-03-11 20:25:01 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -115,7 +115,7 @@ AC_PROG_GCC_TRADITIONAL
 AC_CHECK_LIB(sun, getpwnam)
 
 AC_MSG_CHECKING(for qnx)
-case "$(uname -s)" in
+case "`uname -s`" in
 dnl bleck - wish i could ditch this qnx test, but we need to bump the stack
   QNX*)
     AC_MSG_RESULT(yes)
@@ -373,7 +373,7 @@ then
   AC_DEFINE(INCLUDE_CURSES_H)
 else
   olibs="$LIBS"
-  case "$(uname -s)" in
+  case "`uname -s`" in
     Linux*)
       if test -d /usr/include/ncurses; then
 	CFLAGS="-I/usr/include/ncurses $CFLAGS"
@@ -560,7 +560,10 @@ main()
   hp = gethostbyname("`uname -n`");
   exit(0);
 }
-],,LIBS=$olibs, :))
+],,LIBS=$olibs, :),
+  AC_CHECK_LIB(nsl, gethostbyname,
+    olibs=$LIBS
+    LIBS="$LIBS -lnsl"))
 dnl AC_HAVE_LIBRARY(PW, LIBS="$LIBS -lPW",)
 
 dnl

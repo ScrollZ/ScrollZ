@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.56 2002-01-31 18:03:39 f Exp $
+ * $Id: numbers.c,v 1.57 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -490,7 +490,7 @@ password_sendline(data, line)
 {
 	int	new_server;
 
-	new_server = atoi(line);
+	new_server = atoi(data);
 	set_server_password(new_server, line);
 	connect_to_server(get_server_name(new_server),
 		get_server_port(new_server), get_server_nickname(new_server), -1);
@@ -1019,6 +1019,11 @@ numbered_command(from, comm, ArgList)
 	{
 	case 001:	/* #define RPL_WELCOME          001 */
 		PasteArgs(ArgList, 0);
+		if (strcmp(user, get_server_nickname(from_server)) != 0)
+		{
+			yell("=== Setting this servers nickname to \"%s\" from \"%s\"", user, get_server_nickname(from_server));
+			set_server_nickname(from_server, user);
+		}
                 if (do_hook(current_numeric, "%s %s", from, *ArgList)) 
 			display_msg(from, ArgList);
 		clean_whois_queue();

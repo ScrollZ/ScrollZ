@@ -8,8 +8,66 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$eterna: ChangeLog,v 2.319 2002/01/22 09:49:26 mrg Exp $
+ * @(#)$eterna: ChangeLog,v 2.328 2002/03/10 09:30:28 mrg Exp $
  */
+
+20020310
+Sun Mar 10 20:10:51 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/numbers.c:
+		password_sendline: server index is in data not line: PR#547.
+	source/server.c:
+		add_to_server_list: be careful not to clear valid passwords:
+		PR#547.
+
+Sun Mar 10 19:14:11 EST 2002 - matthew green <mrg@eterna.com.au>
+	configure.in, configure:
+		if we don't find gethostbyname in -lresolv, try -lnsl. PR#537.
+
+Sun Mar 10 18:16:23 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/notice.c:
+		fix a bug from 8 years ago: don't send flooded notices as
+		public notices.  fixes PR#549.
+	source/edit.c:	
+		display sub-second timer information, from flier in PR#554.
+	source/numbers.c:
+		add a hack to fix PR#552: set the nick on numeric 001 if
+		it is wrong.
+
+Sun Mar 10 01:55:57 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/hook.c:
+		add fuzzy matching so that, eg, "/on send" will show all the
+		current hooks starting with "send".  idea from poxaV.
+
+20020309
+Sat Mar  9 02:34:44 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c, source/dcc.c:	
+		add some beep support, if beep_on_level has CTCP or
+		DCC.  from dive@endersgame.net.
+	Makefile.in:
+		regen depends.
+
+Sat Mar  9 02:05:25 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/irc.c, source/input.c, source/screen.c:
+		add some debug code.  in input_update() don't overwrite
+		buffer_pos or str_start on resize.  use set_current_screen(),
+		don't set current_screen manually.  clean up
+		screen_wserv_message() some.
+
+20020306
+Wed Mar  6 21:18:30 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		fix a Debug().
+	source/term.c:
+		restructure term_resize() slightly.
+	source/screen.c:
+		add some debugging to create_additional_screen(). clean up unix
+		sockets.  default screen size from the master, not 80x24.
+		call recalculate_windows after getting a wserv message.
+	source/wserv.c:
+		remove ircIIpid and related code, obsolete.  include some more
+		headers so we find TIOCGWINSZ where it can be.  fix got_sigwinch()
+		bugs.  fixed arg checking bugs.  fixed control socket path bug.
+		don't perror with our tty.  call got_sigwinch() at startup.
 
 Tue Jan 22 20:24:56 EST 2002 - matthew green <mrg@eterna.com.au>
 	source/vars.c:

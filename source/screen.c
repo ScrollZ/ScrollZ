@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.27 2002-02-01 19:03:45 f Exp $
+ * $Id: screen.c,v 1.28 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -82,7 +82,7 @@ extern  void StripAnsi _((char *, char *, int));
 	Screen	*main_screen;
 	Screen	*last_input_screen;
 
-extern	int	in_help;	/* Used to suppress holding of help text */
+extern	int	in_help;
 extern	char	*redirect_nick;
 
 /* Our list of screens */
@@ -215,8 +215,8 @@ create_new_screen()
 	new->redirect_name = NULL;
 	new->redirect_token = NULL;
 	new->tty_name = (char *) 0;
-	new->li = 24;
-	new->co = 79;
+	new->li = main_screen ? main_screen->li : 24;
+	new->co = main_screen ? main_screen->co : 79;
 	new->old_input_li = -1;
 	new->old_input_co = -1;
 	new->old_term_li = -1;
@@ -310,9 +310,9 @@ check_screen_redirect(nick)
                 if (!strcmp(nick, screen->redirect_token))
 		{
 			tmp_screen = current_screen;
-			current_screen = screen;
+			set_current_screen(screen);
 			window_redirect(NULL, from_server);
-			current_screen = tmp_screen;
+			set_current_screen(tmp_screen);
 			return 1;
 		}
 	}
@@ -428,6 +428,7 @@ scroll_window(window)
 						update_window_status(window, 1);
 						update_input(UPDATE_ALL);
 						current_screen->cursor_window = tmp;
+						Debug((3, "scroll_window: screen %d cursor_window set to window %d (%d)", current_screen->screennum, window->refnum, window->screen->screennum));
 					}
 					else
 						redraw_window(window, 1, 0);
@@ -842,6 +843,7 @@ rite(window, str, show, redraw, backscroll, logged)
 					!redraw && !backscroll)
 			{
 				current_screen->cursor_window = window;
+				Debug((3, "rite: screen %d cursor_window set to window %d (%d)", current_screen->screennum, window->refnum, window->screen->screennum));
 				term_move_cursor(0, window->cursor +
 					window->top + window->menu.lines);
 			}
@@ -916,7 +918,8 @@ rite(window, str, show, redraw, backscroll, logged)
 			else
 			{
 				scroll_window(window);
-				if (window->cursor == (window->display_size -1))
+				if (window->cursor ==
+				    (window->display_size - 1))
 					window->hold_on_next_rite = 1;
 			}
 		}
@@ -945,6 +948,7 @@ rite(window, str, show, redraw, backscroll, logged)
 void
 cursor_not_in_display()
 {
+	Debug((3, "cursor_not_in_display: screen %d cursor_window set to NULL", current_screen->screennum));
 	current_screen->cursor_window = NULL;
 }
 
@@ -958,6 +962,7 @@ cursor_not_in_display()
 void
 cursor_in_display()
 {
+	Debug((3, "cursor_in_display: screen %d cursor_window set to window %d (%d)", current_screen->screennum, curr_scr_win->refnum, curr_scr_win->screen->screennum));
 	current_screen->cursor_window = curr_scr_win;
 }
 
@@ -2021,10 +2026,11 @@ create_additional_screen()
 	char	*def_xterm = get_string_var(XTERM_PATH_VAR);
 	char	*p, *q;
 	char	buffer[BIG_BUFFER_SIZE+1];
+	pid_t	pid = getpid();
 	int	ircxterm_num;
 	int	i;
 	static int cycle = 0;
-	pid_t	pid = getpid();
+	int	mycycle = cycle++;
 
 #ifdef DAEMON_UID
 	if (DAEMON_UID == getuid())
@@ -2114,7 +2120,7 @@ create_additional_screen()
 		screen_type == ST_XTERM ?  "window" :
 		screen_type == ST_SCREEN ? "screen" :
 					   "wound" );
-	snprintf(sock.sun_path, sizeof sock.sun_path, "/tmp/irc_%08d_%x", (int) pid, cycle);
+	snprintf(sock.sun_path, sizeof sock.sun_path, "/tmp/irc_%08d_%x", (int) pid, mycycle);
 	sock.sun_family = AF_UNIX;
 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
@@ -2131,7 +2137,7 @@ create_additional_screen()
 		say("Can't bind UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;
 	}
-	snprintf(error_sock.sun_path, sizeof error_sock.sun_path, "/tmp/irc_error_%08d_%x", (int) pid, cycle);
+	snprintf(error_sock.sun_path, sizeof error_sock.sun_path, "/tmp/irc_error_%08d_%x", (int) pid, mycycle);
 	error_sock.sun_family = AF_UNIX;
 	if ((es = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
@@ -2148,6 +2154,7 @@ create_additional_screen()
 		say("Can't bind UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;
 	}
+
 	oldscreen = current_screen;
 	set_current_screen(create_new_screen());
 	if (0 == (child = fork()))
@@ -2174,12 +2181,14 @@ create_additional_screen()
 				*t,
 				*opts = NULL;
 
+			Debug((3, "going to execvp screen wserv..."));
 			args[i++] = "screen";
 			if ((ss = get_string_var(SCREEN_OPTIONS_VAR)) != NULL)
 			{
 				malloc_strcpy(&opts, ss);
 				while ((t = (char *) strtok(opts," ")) != NULL)
 				{
+					Debug((3, "added option `%s'", t));
 					args[i++] = t;
 					opts = NULL;
 				}
@@ -2187,6 +2196,7 @@ create_additional_screen()
 			args[i++] = WSERV_PATH;
 			args[i++] = sockaddr->sun_path;
 			args[i++] = error_sockaddr->sun_path;
+			Debug((3, "added: %s %s %s", args[i-3], args[i-2], args[i-1]));
 			args[i++] = NULL;
 			execvp("screen", args);
 		}
@@ -2225,6 +2235,8 @@ create_additional_screen()
 			execvp(xterm, args);
 		}
 		perror("execve");
+		unlink(sockaddr->sun_path);
+		unlink(error_sockaddr->sun_path);
 		exit(errno ? errno : -1);
 	}
 	NsZ = sizeof(NewSock);
@@ -2250,23 +2262,28 @@ create_additional_screen()
 		set_current_screen(oldscreen);
 		yell("child %s with %d", (errno < 1) ? "signaled" : "exited",
 					 (errno < 1) ? -errno : errno);
-		return (Window *) 0;
+		win = (Window *) 0;
+		break;
 	default:
 		current_screen->fdin = current_screen->fdout =
 			accept(s, (struct sockaddr *) &NewSock, &NsZ);
 		if (current_screen->fdin < 0)
-			return (Window *) 0;
+		{
+			win = (Window *) 0;
+			break;
+		}
 		current_screen->wservin = accept(es, (struct sockaddr *) &NewSock,
 					       &NsZ);
 		if (current_screen->wservin < 0)
-			return (Window *) 0;
+		{
+			win = (Window *) 0;
+			break;
+		}
 		current_screen->fpin = current_screen->fpout =
 			fdopen(current_screen->fdin, "r+");
 		term_set_fp(current_screen->fpout);
 		new_close(s);
 		new_close(es);
-		unlink(sockaddr->sun_path);
-		unlink(error_sockaddr->sun_path);
 		old_timeout = dgets_timeout(5);
 		/*
 		 * dgets returns 0 on EOF and -1 on timeout.  both of these are
@@ -2280,7 +2297,8 @@ create_additional_screen()
 			last_input_screen = oldscreen;
 			set_current_screen(oldscreen);
 			(void) dgets_timeout(old_timeout);
-			return (Window *) 0;
+			win = (Window *) 0;
+			break;
 		}
 		else
 			malloc_strcpy(&current_screen->tty_name, buffer);
@@ -2288,9 +2306,10 @@ create_additional_screen()
 		(void) refresh_screen(0, NULL);
 		set_current_screen(oldscreen);
 		(void) dgets_timeout(old_timeout);
-		return win;
 	}
-	/* NOTREACHED */
+	unlink(sockaddr->sun_path);
+	unlink(error_sockaddr->sun_path);
+	return win;
 }
 #endif /* WINDOW_CREATE */
 
@@ -2651,8 +2670,7 @@ screen_wserv_message(screen)
 	Screen *screen;
 {
 	u_char buf[128], *rs, *cs, *comma;
-	int old_timeout;
-	Screen *old_screen;
+	int old_timeout, li, co;
 
 	old_timeout = dgets_timeout(0);
 	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0) < 1)
@@ -2662,6 +2680,7 @@ screen_wserv_message(screen)
 			kill_screen(screen);
 	}
 	(void) dgets_timeout(old_timeout);
+	Debug((3, "screen_wserv_message: %s", buf));
 	/* should have "rows,cols\n" */
 	rs = buf;
 	comma = strchr(buf, ',');
@@ -2675,12 +2694,21 @@ screen_wserv_message(screen)
 	if (comma != NULL)
 		*comma = 0;
 
-	screen->li = atoi(CP(rs)); 
-	screen->co = atoi(CP(cs)); 
+	li = atoi(CP(rs));
+	co = atoi(CP(cs));
 
-	old_screen = current_screen;
-	current_screen = screen;
-	term_resize();
-	current_screen = old_screen;
+	Debug((3, "screen_wserv_message: li %d[%d] co %d[%d]", li, screen->li, co, screen->co));
+
+	if (screen->li != li || screen->co != co)
+	{
+		Screen *old_screen;
+
+		screen->li = li;
+		screen->co = co;
+		old_screen = current_screen;
+		current_screen = screen;
+		refresh_screen(0, 0);
+		current_screen = old_screen;
+	}
 }
 #endif /* WINDOW_CREATE */

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.17 2002-02-27 19:08:23 f Exp $
+ * $Id: input.c,v 1.18 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -47,6 +47,8 @@
 #include "screen.h"
 #include "exec.h"
 #include "output.h"
+
+#include "debug.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -73,15 +75,16 @@ static void ResetNickCompletion() {
 void
 cursor_to_input()
 {
-	Screen *old_current_screen;
+	Screen *old_current_screen, *screen;
 
 	old_current_screen = current_screen;
-	for (current_screen = screen_list; current_screen;
-			current_screen = current_screen->next)
+	for (screen = screen_list; screen; screen = screen->next)
 	{
-		if (current_screen->alive && is_cursor_in_display())
+		set_current_screen(screen);
+		if (screen->alive && is_cursor_in_display())
 		{
-			term_move_cursor(current_screen->cursor, current_screen->input_line);
+			term_move_cursor(screen->cursor, screen->input_line);
+			Debug((3, "cursor_to_input: moving cursor to input for screen %d", screen->screennum));
 			cursor_not_in_display();
 			term_flush();
 		}
@@ -192,8 +195,6 @@ update_input(update)
 		current_screen->lower_mark = WIDTH;
 		current_screen->upper_mark = current_screen->co - WIDTH;
 		current_screen->cursor = current_screen->buffer_min_pos;
-		current_screen->buffer_pos = current_screen->buffer_min_pos;
-		current_screen->str_start = 0;
 		current_screen->old_input_li = current_screen->li;
 		current_screen->old_input_co = current_screen->co;
 	}

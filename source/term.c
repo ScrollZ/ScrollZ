@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.10 2002-02-01 18:47:37 f Exp $
+ * $Id: term.c,v 1.11 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -828,11 +828,6 @@ term_resize()
  	SG = -1; /* what is this ? */
 #else
 /****************************************************************************/
-#ifndef TIOCGWINSZ
-	current_screen->li = li;
-	current_screen->co = co;
-#else
-	struct	winsize window;
 
 	/*
 	 * if we're not the main screen, we've probably arrived here via
@@ -841,6 +836,12 @@ term_resize()
 	 */
 	if (is_main_screen(current_screen))
 	{
+#ifndef TIOCGWINSZ
+		current_screen->li = li;
+		current_screen->co = co;
+#else
+		struct	winsize window;
+
 		if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
 		{
 			current_screen->li = li;
@@ -853,8 +854,8 @@ term_resize()
 			if ((current_screen->co = window.ws_col) == 0)
 				current_screen->co = co;
 		}
-	}
 #endif /* TIOCGWINSZ */
+	}
 
 	current_screen->co--;
 /**************************** PATCHED by Flier ******************************/

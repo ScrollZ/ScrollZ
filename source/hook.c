@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.12 2002-01-21 22:23:51 f Exp $
+ * $Id: hook.c,v 1.13 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -766,7 +766,8 @@ on(command, args, subargs)
 		do_remove,
 		which = 0,
 		cnt,
-		i;
+		i,
+		ambiguous = 0;
  	size_t	len;
 
 	if (get_int_var(NOVICE_VAR) && !load_depth)
@@ -869,10 +870,7 @@ on(command, args, subargs)
 			}
 		}
 		else if (cnt > 1)
-		{
 			say("Ambiguous ON function: %s", func);
-			goto out;
-		}
 		else 
 		{
 			if (get_int_var(INPUT_PROTECTION_VAR) && !my_strnicmp(hook_functions[which].name, "INPUT", 5))
@@ -897,6 +895,11 @@ on(command, args, subargs)
 		}
 		if ((nick = new_next_arg(args, &args)) != NULL)
 		{
+			if (ambiguous)
+			{
+				say("Ambiguous ON function: %s", func);
+				goto out;
+			}
 			if (which < 0)
 				nick = fill_it_out(nick, 1);
 			else
@@ -954,8 +957,15 @@ on(command, args, subargs)
 		else
 		{
 			if (do_remove)
+			{
+				if (ambiguous)
+				{
+					say("Ambiguous ON function: %s", func);
+					goto out;
+				}
 				remove_hook(which, (char *) 0, server,
-					sernum, 0);
+				    sernum, 0);
+			}
 			else
 			{
 				if (which < 0)
@@ -963,6 +973,14 @@ on(command, args, subargs)
 					if (show_numeric_list(-which) == 0)
 						say("The %3.3u list is empty.",
 							-which);
+				}
+				else if (ambiguous)
+				{
+					for (i = 0; i < NUMBER_OF_LISTS; i++)
+						if (!strncmp(cmd,
+						   hook_functions[i].name, len))
+							(void)show_list(i);
+
 				}
 				else if (show_list(which) == 0)
 					say("The %s list is empty.",

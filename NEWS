@@ -1,10 +1,17 @@
-@(#)$eterna: NEWS,v 1.45 2001/12/18 14:23:47 mrg Exp $
+@(#)$eterna: NEWS,v 1.48 2002/03/10 10:17:38 mrg Exp $
 
 Changes since ircII 20011210:
 
-  o  /window create windows now have input buffers that do not interfere
-     with each other.
+  o  fixes for server passwords
+  o  fix for linking on solaris
+  o  don't send notices that are flooding as if they are public notices
+  o  bug fix to keep track of my own nickname
+  o  /on foo will now show fuzzy matches again "foo" instead of complaining
+     about ambiguity
+  o  /window create should work properly now, no i really mean it this time
   o  random bug fixes
+  o  /window create windows now have input buffers that do not interfere
+     with each other
   o  new $filestat() function
   o  /timer is now sub-second aware
   o  raw DCC core dump bug fixes

@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.88 2002-03-07 16:53:11 f Exp $
+ * $Id: irc.c,v 1.89 2002-03-11 20:25:01 f Exp $
  */
 
-#define IRCII_VERSION	"20011210"	/* YYYYMMDD */
+#define IRCII_VERSION	"20020310"	/* YYYYMMDD */
 /**************************** PATCHED by Flier ******************************/
 #define SCROLLZ_VERSION "1.9beta4"
 /****************************************************************************/
@@ -1400,7 +1400,7 @@ irc_io(prompt, func, my_use_input, loop)
 			timeptr = &timer;
 		if ((hold_over = unhold_windows()) != 0)
 			timeptr = &right_away;
-		Debug((7, "irc_io: selecting with %l:%l timeout", timeptr->tv_sec,
+		Debug((7, "irc_io: selecting with %ld:%ld timeout", timeptr->tv_sec,
 			timeptr->tv_usec));
 		switch (new_select(&rd, &wd, timeptr))
 		{
@@ -1437,7 +1437,7 @@ irc_io(prompt, func, my_use_input, loop)
 			if (do_sig_user1)
 			{
 				real_sig_user1();
-				do_sig_user1 =0;
+				do_sig_user1 = 0;
 			}
 			if (!hold_over)
 				cursor_to_input();
@@ -1613,10 +1613,12 @@ irc_io(prompt, func, my_use_input, loop)
 		timeptr = &clock_timeout;
 
 		old_current_screen = current_screen;
-		for (current_screen = screen_list; current_screen;
-				current_screen = current_screen->next)
-			if (current_screen->alive && is_cursor_in_display())
+		for (screen = screen_list; screen; screen = screen->next)
+		{
+			set_current_screen(screen);
+			if (screen->alive && is_cursor_in_display())
 				timeptr = &cursor_timeout;
+		}
 		set_current_screen(old_current_screen);
 
 		if (update_clock(0, 0, 0))

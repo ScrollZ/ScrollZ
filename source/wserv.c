@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.5 2002-02-01 18:47:37 f Exp $
+ * $Id: wserv.c,v 1.6 2002-03-11 20:25:01 f Exp $
  */
 
 /*
@@ -47,12 +47,16 @@
 
 # include <sys/un.h>
 
-/*
- * Holds the parent process id, as taken from the command line arguement.
- * We can't use getppid() here, because the parent for screen is the
- * underlying screen process, and for xterm's, it the xterm itself.
- */
-pid_t	ircIIpid;
+# ifdef __SVR4
+#  include <sys/stat.h>
+#  include <termios.h>
+#  include <sys/ttold.h>
+# endif /* __SVR4 */
+
+# ifdef HAVE_SYS_IOCTL_H
+#  include <sys/ioctl.h>
+# endif /* HAVE_SYS_IOCTL_H */
+
 int	control_sock;
 
 /* declare the signal handler */
@@ -65,7 +69,7 @@ RETSIGTYPE	got_sigwinch _((void));
 # endif /* _RT */
 
 /*
- * ./wserv ppid /path/to/socket /path/to/control
+ * ./wserv /path/to/socket /path/to/control
  */
 int
 main(argc, argv)
@@ -77,35 +81,18 @@ main(argc, argv)
 	int	nread;
 	fd_set	reads;
 	int	s;
-	char	*path,
-		*tmp;
+	char	*tmp;
 
 	/* Set up the signal hander to pass SIGWINCH to ircII */
 # if !defined(_RT) && defined(SIGWINCH)
 	(void) MY_SIGNAL(SIGWINCH, (sigfunc *)got_sigwinch, 0);
 # endif /* _RT */
 
-	if (2 != argc)    /* no socket is passed */
+	if (3 != argc)    /* no socket is passed */
  		return 0;
 #ifdef	SOCKS
 	SOCKSinit(*argv);
 #endif /* SOCKS */
-
-	/*
-	 * First thing we do here is grab the parent pid from the command
-	 * line arguements, because getppid() returns the wrong pid in
-	 * all cases.. is comes in via the command line arguement in the
-	 * for of irc_xxxxxxxx .. as an 8 digit decimal number..  if we
-	 * can't get the pid from the command line arg, then we set it
-	 * to -1, which is used later to ignore them..
-	 */
-
-	path = (char *) malloc(strlen(argv[1]) + 1);
-	strcpy(path, argv[1]);
-	if ((char *) 0 != (tmp = (char *) index(path, '_')))
-		ircIIpid = atoi(++tmp);
-	else
-		ircIIpid = -1;
 
 	/*
 	 * Set up the socket, from the path passed, connect it, etc.
@@ -121,7 +108,7 @@ main(argc, argv)
 	 * Next connect to the control socket.
 	 */
 	esock.sun_family = AF_UNIX;
-	strcpy(esock.sun_path, argv[1]);
+	strcpy(esock.sun_path, argv[2]);
 	control_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (0 > connect(control_sock, (struct sockaddr *)&esock, (int)(2 +
 						strlen(esock.sun_path))))
@@ -135,12 +122,22 @@ main(argc, argv)
 	tmp = ttyname(0);
 	write(s, tmp, strlen(tmp));
 	write(s, "\n", 1);
-	perror(tmp);
 
 	/*
 	 * Initialise with the minimal wterm.c
 	 */
 	term_init();
+
+	/*
+	 * Tell the master our screen size.
+	 */
+#if !defined(_RT) && defined(SIGWINCH)
+#if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE)
+	got_sigwinch(0);
+#else
+	got_sigwinch();
+#endif
+#endif
 
 	/*
 	 * The select call..  reads from the socket, and from the window..
@@ -182,6 +179,7 @@ got_sigwinch(sig)
 #  ifdef TIOCGWINSZ
 	static int old_li = -1, old_co = -1;
 	int li, co;
+	struct	winsize window;
 #  endif
 
 #  ifdef SYSVSIGNALS
@@ -189,9 +187,8 @@ got_sigwinch(sig)
 #  endif
 
 #  ifdef TIOCGWINSZ
-	struct	winsize window;
 
-	if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
+	if (ioctl(STDIN_FILENO, TIOCGWINSZ, &window) < 0)
 	{
 		li = -1;
 		co = -1;
@@ -208,6 +205,8 @@ got_sigwinch(sig)
 	if ((old_li != li) || (old_co != co))
 	{
 		char buf[32];
+		size_t len;
+
 		sprintf(buf, "%d,%d\n", li, co);
 		len = strlen(buf);
 		if (write(control_sock, buf, len) != len)
@@ -222,8 +221,6 @@ got_sigwinch(sig)
 		}
 	}
 #  endif /* TIOCGWINSZ */
-	if (-1 != ircIIpid)
-		kill(ircIIpid, SIGWINCH);
 }
 # endif /* _RT */
 

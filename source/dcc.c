@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.38 2002-02-01 19:03:45 f Exp $
+ * $Id: dcc.c,v 1.39 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -1944,6 +1944,10 @@ register_dcc_offer(user, type, description, address, port, size)
  		say("DCC %s (%s %ld) request received from %s [%s:%s]", type, description, (long)Client->filesize, user,inet_ntoa(Client->remote), port);
 	else
  		say("DCC %s (%s) request received from %s [%s:%s]", type, description, user, inet_ntoa(Client->remote), port);*/
+/****************************************************************************/
+	if (beep_on_level & LOG_CTCP)
+		beep_em(1);
+/**************************** PATCHED by Flier ******************************/
 	else if (Client->filesize) {
 #ifdef WANTANSI
                 snprintf(tmpbuf1,sizeof(tmpbuf1),"%sDCC%s %s%s%s (%s%s %ld%s) request ",
@@ -2195,6 +2199,10 @@ process_incoming_chat(Client)
 					s = tmp;
 				}
         	                put_it("=%s= %s", Client->user, s);*/
+/****************************************************************************/
+				if (beep_on_level & LOG_CTCP)
+					beep_em(1);
+/**************************** PATCHED by Flier ******************************/
                 	        PrintChatMsg(Client,s,bytesread,iscrypted);
 /****************************************************************************/
                         }

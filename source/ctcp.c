@@ -1,7 +1,7 @@
 /*
  * ctcp.c: handles the client-to-client protocol(ctcp).
  *
- * Written By Michael Sandrof 
+ * Written By Michael Sandrof
  *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.42 2002-02-25 18:31:07 f Exp $
+ * $Id: ctcp.c,v 1.43 2002-03-11 20:25:01 f Exp $
  */
 
 #include "irc.h"
@@ -58,6 +58,7 @@
 #include "dcc.h"
 #include "names.h"
 #include "parse.h"
+#include "whois.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -125,7 +126,7 @@ char            *do_cdcc _((CtcpEntry *, char *, char *, char *));
 static  char    *do_open _((CtcpEntry *, char *, char *, char *));
 #endif
 #ifdef CTCPPAGE
-static  char    *do_page _((CtcpEntry *, char *, char*, char *)); 
+static  char    *do_page _((CtcpEntry *, char *, char*, char *));
 #endif
 /**********************/
 /****************************************************************************/
@@ -197,7 +198,7 @@ static CtcpEntry ctcp_cmd[] =
 #ifdef CTCPPAGE
         { "PAGE",       "pages user",
                 CTCP_SHUTUP, do_page },
-#endif 
+#endif
 /**********************/
 /****************************************************************************/
 };
@@ -217,7 +218,7 @@ int     sed = 0;
 /*
  * in_ctcp_flag is set to true when IRCII is handling a CTCP request.  This
  * is used by the ctcp() sending function to force NOTICEs to be used in any
- * CTCP REPLY 
+ * CTCP REPLY
  */
 int	in_ctcp_flag = 0;
 
@@ -225,7 +226,7 @@ int	in_ctcp_flag = 0;
  * quote_it: This quotes the given string making it sendable via irc.  A
  * pointer to the length of the data is required and the data need not be
  * null terminated (it can contain nulls).  Returned is a malloced, null
- * terminated string.   
+ * terminated string.
  */
 char	*
 ctcp_quote_it(str, len)
@@ -1111,7 +1112,7 @@ char *args;
 /*
  * do_crypto: performs the ecrypted data trasfer for ctcp.  Returns in a
  * malloc string the decryped message (if a key is set for that user) or the
- * text "[ENCRYPTED MESSAGE]" 
+ * text "[ENCRYPTED MESSAGE]"
  */
 #ifndef LITE
 static	char	*
@@ -1157,7 +1158,7 @@ do_crypto(ctcp, from, to, args)
  * do_clientinfo: performs the CLIENTINFO CTCP.  If cmd is empty, returns the
  * list of all CTCPs currently recognized by IRCII.  If an arg is supplied,
  * it returns specific information on that CTCP.  If a matching CTCP is not
- * found, an ERRMSG ctcp is returned 
+ * found, an ERRMSG ctcp is returned
  */
 static	char	*
 do_clientinfo(ctcp, from, to, cmd)
@@ -1206,7 +1207,7 @@ do_clientinfo(ctcp, from, to, cmd)
 			strmcat(buffer, ctcp_cmd[i].name, BIG_BUFFER_SIZE);
 			strmcat(buffer, " ", BIG_BUFFER_SIZE);
 		}
-		send_ctcp_reply(from, ctcp->name, 
+		send_ctcp_reply(from, ctcp->name,
 			"%s :Use CLIENTINFO <COMMAND> to get more specific information",
 			buffer);
             }
@@ -1332,7 +1333,7 @@ static	char	*
 do_echo(ctcp, from, to, cmd)
 	CtcpEntry	*ctcp;
 	char	*from,
-		*to,	
+		*to,
 		*cmd;
 {
 /**************************** PATCHED by Flier ******************************/
@@ -1381,7 +1382,7 @@ do_finger(ctcp, from, to, cmd)
 #  ifdef DAEMON_UID
 	if (uid != DAEMON_UID)
 	{
-#  endif /* DAEMON_UID */	
+#  endif /* DAEMON_UID */
 		if ((pwd = getpwuid(uid)) != NULL)
 		{
 			char	*tmp;
@@ -1401,7 +1402,7 @@ do_finger(ctcp, from, to, cmd)
 		send_ctcp_reply(from, ctcp->name,
 			"IRCII Telnet User (%s) Idle %d second%c",
 			realname, (int)diff, c);
-#  endif /* DAEMON_UID */	
+#  endif /* DAEMON_UID */
 # endif /* _Windows */
 #endif /* PARANOID */
 /**************************** PATCHED by Flier ******************************/
@@ -1684,6 +1685,8 @@ do_ctcp(from, to, str)
 /**************************** PATCHED by Flier ******************************/
                                 /*if (i == NUMBER_OF_CTCPS)
 				{
+					if (beep_on_level & LOG_CTCP)
+						beep_em(1);
 					say("Unknown CTCP %s from %s to %s: %s%s",
 						cmd, from, to, *args ? ": " :
 						empty_string, args);
@@ -1704,6 +1707,7 @@ do_ctcp(from, to, str)
                                               tmpaway,1);
 #endif
                                 if (i == NUMBER_OF_CTCPS && get_int_var(VERBOSE_CTCP_VAR)) {
+				    if (beep_on_level & LOG_CTCP) beep_em(1);
 #ifdef WANTANSI
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"%sUnknown CTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
@@ -1720,6 +1724,7 @@ do_ctcp(from, to, str)
 #endif
 				}
 				else if (ctcp_flag & CTCP_VERBOSE && get_int_var(VERBOSE_CTCP_VAR)) {
+				    if (beep_on_level & LOG_CTCP) beep_em(1);
 #ifdef WANTANSI
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
@@ -2126,7 +2131,7 @@ send_ctcp(type, to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 
 /*
  * send_ctcp_notice: A simply way to send CTCP replies.   I put this here
- * rather than in ctcp.c to keep my compiler quiet 
+ * rather than in ctcp.c to keep my compiler quiet
  */
 void
 #ifdef HAVE_STDARG_H
