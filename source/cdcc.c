@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.35 2001-03-15 21:07:06 f Exp $
+ * $Id: cdcc.c,v 1.36 2001-07-01 09:11:49 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2352,7 +2352,7 @@ char *from;
 char *args;
 {
     if (CTCPCloaking) return;
-    send_to_server("NOTICE %s :Cdcc v1.8 written by Sheik & Flier",from);
+    send_to_server("NOTICE %s :Cdcc v" CDCC_VERSION " written by Sheik & Flier",from);
     send_to_server("NOTICE %s :IRC's first XDCC clone in C !",from);
 }
 
