@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.24 2002-01-21 22:12:15 f Exp $
+dnl @(#)$Id: configure.in,v 1.25 2002-02-04 17:57:35 f Exp $
 
-AC_REVISION($Revision: 1.24 $)dnl
+AC_REVISION($Revision: 1.25 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.24 2002-01-21 22:12:15 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.25 2002-02-04 17:57:35 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1186,17 +1186,20 @@ AC_ARG_WITH(ssl,
   no)  AC_MSG_RESULT(no)
        ;;		
   *) AC_MSG_RESULT(yes)
-     openssl_prefix="$withval"
-     AC_MSG_CHECKING(for OpenSSL)
-     if test -d "$openssl_prefix/include"; then
-       CFLAGS="-I$openssl_prefix/include $CFLAGS"
+     if test "x$withval" = "xyes";
+     then
+       openssl_prefix=""
      else
-       CFLAGS="-I$openssl_prefix $CFLAGS"
+       openssl_prefix="$withval"
      fi
-     if test -d "$openssl_prefix/lib"; then
+     AC_MSG_CHECKING(for OpenSSL)
+     if test -d "$openssl_prefix/include" -a -n "$openssl_prefix"; then
+       CFLAGS="-I$openssl_prefix/include $CFLAGS"
+     fi
+     if test -d "$openssl_prefix/lib" -a -n "$openssl_prefix"; then
        LIBS="-L$openssl_prefix/lib $LIBS -lssl -lcrypt"
      else
-       LIBS="-L$openssl_prefix $LIBS -lssl -lcrypt"
+       LIBS="$LIBS -lssl -lcrypt"
      fi
      AC_TRY_LINK([
 #include <openssl/opensslv.h>
