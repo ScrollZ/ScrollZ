@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: log.c,v 1.2 1998-09-10 17:45:41 f Exp $
+ * $Id: log.c,v 1.3 1999-02-14 16:56:44 f Exp $
  */
 
 #include "irc.h"
@@ -58,20 +58,36 @@ extern void StripAnsi _((char *, char *, int));
 FILE	*irclog_fp = (FILE *) 0;
 /****************************************************************************/
 
-FILE	*
+/**************************** PATCHED by Flier ******************************/
+/*FILE	*
 do_log(flag, logfile, fp)
 	int	flag;
 	char	*logfile;
-	FILE	*fp;
+	FILE	*fp;*/
+void
+do_log(flag, logfile, fp)
+	int	flag;
+	char	*logfile;
+	FILE	**fp;
+/****************************************************************************/
 {
 	time_t	t;
 
 	if (logfile == (char *) 0)
-		return ((FILE *) 0);
+/**************************** PATCHED by Flier ******************************/
+		/*return ((FILE *) 0);*/
+        {
+                *fp = (FILE *) 0;
+                return;
+        }
+/****************************************************************************/
 	t = time(0);
 	if (flag)
 	{
-		if (fp)
+/**************************** PATCHED by Flier ******************************/
+		/*if (fp)*/
+		if (*fp)
+/****************************************************************************/
 			say("Logging is already on");
 		else
 		{
@@ -85,30 +101,47 @@ do_log(flag, logfile, fp)
 			{
 #endif /* DAEMON_UID */
 				say("Starting logfile %s", logfile);
-				if ((fp = fopen(logfile, "a")) != NULL)
+/**************************** PATCHED by Flier ******************************/
+				/*if ((fp = fopen(logfile, "a")) != NULL)*/
+				if ((*fp = fopen(logfile, "a")) != NULL)
+/****************************************************************************/
 				{
 #ifndef _Windows
 #ifdef NEED_FCHMOD
 					chmod(logfile, S_IREAD | S_IWRITE);
 #else
 #ifndef _IBMR2
-					fchmod(fileno(fp),S_IREAD | S_IWRITE);
+/**************************** PATCHED by Flier ******************************/
+					/*fchmod(fileno(fp),S_IREAD | S_IWRITE);*/
+					fchmod(fileno(*fp),S_IREAD | S_IWRITE);
+/****************************************************************************/
 #else
-					int fd = (int) fileno(fp);
+/**************************** PATCHED by Flier ******************************/
+					/*int fd = (int) fileno(fp);*/
+					int fd = (int) fileno(*fp);
+/****************************************************************************/
 					fchmod((char *) &fd, S_IREAD |
 							S_IWRITE);
 #endif /* !_IBMR2 */
 #endif /* M_UNIX */
 #endif /* _Windows */
-					fprintf(fp, "IRC log started %.16s\n",
+/**************************** PATCHED by Flier ******************************/
+					/*fprintf(fp, "IRC log started %.16s\n",
 							ctime(&t));
-					fflush(fp);
+					fflush(fp);*/
+					fprintf(*fp, "IRC log started %.16s\n",
+							ctime(&t));
+					fflush(*fp);
+/****************************************************************************/
 				}
 				else
 				{
 					say("Couldn't open logfile %s: %s",
 						logfile, strerror(errno));
-					fp = (FILE *) 0;
+/**************************** PATCHED by Flier ******************************/
+					/*fp = (FILE *) 0;*/
+					*fp = (FILE *) 0;
+/****************************************************************************/
 				}
 #ifdef DAEMON_UID
 			}
@@ -117,19 +150,27 @@ do_log(flag, logfile, fp)
 	}
 	else
 	{
-		if (fp)
+/**************************** PATCHED by Flier ******************************/
+		/*if (fp)*/
+		if (*fp)
+/****************************************************************************/
 		{
-			fprintf(fp, "IRC log ended %.16s\n", ctime(&t));
+/**************************** PATCHED by Flier ******************************/
+			/*fprintf(fp, "IRC log ended %.16s\n", ctime(&t));
 			fflush(fp);
 			fclose(fp);
-/**************************** PATCHED by Flier ******************************/
-                        if (fp==irclog_fp) irclog_fp = (FILE *) 0;
+			fp = (FILE *) 0;*/
+			fprintf(*fp, "IRC log ended %.16s\n", ctime(&t));
+			fflush(*fp);
+			fclose(*fp);
+			*fp = (FILE *) 0;
 /****************************************************************************/
-			fp = (FILE *) 0;
 			say("Logfile ended");
 		}
 	}
-	return (fp);
+/**************************** PATCHED by Flier ******************************/
+	/*return (fp);*/
+/****************************************************************************/
 }
 
 /* logger: if flag is 0, logging is turned off, else it's turned on */
@@ -145,7 +186,10 @@ logger(flag)
 		set_int_var(LOG_VAR, 0);
 		return;
 	}
-	irclog_fp = do_log(flag, logfile, irclog_fp);
+/**************************** PATCHED by Flier ******************************/
+	/*irclog_fp = do_log(flag, logfile, irclog_fp);*/
+	do_log(flag, logfile, &irclog_fp);
+/****************************************************************************/
 	if ((irclog_fp == (FILE *) 0) && flag)
 		set_int_var(LOG_VAR, 0);
 }

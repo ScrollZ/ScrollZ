@@ -31,13 +31,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: log.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: log.h,v 1.2 1999-02-14 16:56:33 f Exp $
  */
 
 #ifndef __log_h_
 #define __log_h_
 
-	FILE	*do_log _((int, char *, FILE *));
+/**************************** PATCHED by Flier ******************************/
+	/*FILE	*do_log _((int, char *, FILE *));*/
+	void	do_log _((int, char *, FILE **));
+/****************************************************************************/
 	void	logger _((int));
 	void	set_log_file _((char *));
 	void	add_to_log _((FILE *, char *));

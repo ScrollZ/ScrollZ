@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.4 1998-10-21 19:34:42 f Exp $
+ * $Id: window.c,v 1.5 1999-02-14 16:56:45 f Exp $
  */
 
 #include "irc.h"
@@ -2673,7 +2673,10 @@ window(command, args, subargs)
 					sprintf(buffer, "%s.%s", logfile, window->query_nick);
 				else
 					sprintf(buffer, "%s.Window_%d", logfile, window->refnum);
-				window->log_fp = do_log(window->log, buffer, window->log_fp);
+/**************************** PATCHED by Flier ******************************/
+				/*window->log_fp = do_log(window->log, buffer, window->log_fp);*/
+				do_log(window->log, buffer, &(window->log_fp));
+/****************************************************************************/
 				if (window->log_fp == (FILE *) 0)
 					window->log = 0;
 			}
