@@ -1,5 +1,5 @@
 /*
- * $Id: regbin.c,v 1.2 1998-09-10 17:34:40 f Exp $
+ * $Id: regbin.c,v 1.3 1998-10-24 10:30:27 f Exp $
  */
 
 #include <stdio.h>
@@ -81,11 +81,36 @@ int high;
     return(tmp%high);
 }
 
+void locatelog(pathbuf,fname)
+char *pathbuf;
+char *fname;
+{
+    char *curpath,*tmpp;
+    char fpath[512],cpath[512];
+    FILE *fp;
+
+    *pathbuf='\0';
+    curpath=getenv("PATH");
+    if (curpath==NULL) return;
+    strcpy(fpath,curpath);
+    curpath=fpath;
+    do {
+        tmpp=index(curpath,':');
+	if (tmpp) *tmpp++='\0';
+        sprintf(cpath,"%s/%s",curpath,fname);
+        if ((fp=fopen(cpath,"r"))) {
+            strcpy(pathbuf,curpath);
+            strcat(pathbuf,"/");
+            return;
+	}
+	curpath=tmpp;
+    } while (curpath);
+}
+
 void main(argc,argv)
 int argc;
 char **argv;
 {
-    char *path;
     char pathbuf[512];
     FILE *fp1;
 
@@ -94,13 +119,7 @@ char **argv;
         printf("Usage : regbin filename regname valid_IP [password] or  regbin string [password]\n");
         return;
     }
-    strcpy(pathbuf,argv[0]);
-    path=rindex(pathbuf,'/');
-    if (path) {
-        path++;
-        *path='\0';
-    }
-    else *pathbuf='\0';
+    locatelog(pathbuf,"regbin");
     strcpy(tmpbuf2,ver);
     for (l=0,tmp2=tmpbuf2;l<2;tmp2++) if (*tmp2==' ') l++;
     for (l=0,tmp1=tmp2;l<2;tmp1++) if (*tmp1==' ') l++;
