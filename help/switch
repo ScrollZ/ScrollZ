@@ -1,0 +1,50 @@
+!	 $Id: switch,v 1.1 2003-09-21 16:04:53 f Exp $
+!
+! Copyright (c) 1994-2003 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SWITCH (text to be matched)
+       {
+         (sample text)
+         {
+           ...
+         }
+         (sample text2)
+         (sample text3)
+         {
+           ...
+         }
+         ...
+       }
+  The (...) expression is taken to be regular expando-text
+  (much like the (...) body of FE. The {...} body is
+  taken to be a series of [(...)] {...} pairs. The [(...)]
+  expression is taken to be one or more consecutive (...)
+  structures, which are taken to be text expressions to match
+  against the header text. If any of the (...) expressions
+  are found to match, then the commands in the {...} body
+  are executed. There may be as many such [(...)] {...}
+  pairs as you need. However, only the *first* pair found
+  to be matching is actually executed, and the others are
+  ignored, so placement of your switches are rather important:
+  put your most general ones last.
+
+  Example:
+  alias blah {
+    switch ($0) {
+      (1) {
+        echo you entered 1
+      }
+      (2) {
+        echo you entered 2
+      }
+      (3)
+      (4)
+      (5) {
+        echo you entered 3,4 or 5
+      }
+    }
+  }
+  eval ^input "enter your choice: " blah $$*
