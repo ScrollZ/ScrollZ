@@ -1,4 +1,4 @@
-$Id: README.ScrollZ,v 1.7 2001-10-18 20:18:59 f Exp $
+$Id: README.ScrollZ,v 1.8 2001-12-18 20:18:35 f Exp $
 
 This is the readme file for ScrollZ IRC client.
 ScrollZ is copyright (C) 1995-2001 by Flier (flier@scrollz.com).
@@ -16,9 +16,9 @@ in tools directory.
 Mailing list address: scrollz@ahnberg.pp.se
 
 I would like to thank the following individuals: f0x for scrollz.com,
-acidflash for patches and support, ogre and colrebel for arranging
-the FTP sites, Ahnberg for the FTP site and the mailing list, largo for
-the web page design, Sheik for cdcc.c, whowas.c and edit2.c.lame, and
-Saud for the FTP site.
+acidflash for patches and support, ogre, Anton and colrebel for arranging
+and maintaining the FTP site/mirrors, Ahnberg for the FTP mirror and the
+mailing list, largo for the web page design, Sheik for cdcc.c, whowas.c and
+edit2.c.lame, and Saud for the FTP mirror.
 
 -Flier
