@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.29 2000-08-27 10:04:39 f Exp $
+ * $Id: operv.c,v 1.30 2000-08-27 10:09:05 f Exp $
  */
 
 #include "irc.h"
@@ -27,6 +27,7 @@
 #include "output.h"
 #include "server.h"
 #include "screen.h"
+#include "status.h"
 #include "myvars.h"
 
 #if defined(OPERVISION) && defined(WANTANSI)
@@ -249,6 +250,7 @@ char *from;
 {
     char *tmp;
     char *tmpline;
+    char *curtime;
     char *servername;
     char word1[mybufsize];
     char word2[mybufsize];
@@ -1124,10 +1126,14 @@ char *from;
     }
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
-    if (from) put_it("[%s%s%s] Opermsg from %s%s%s: %s",
-                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
-                     CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
-    else put_it("[%s%s%s] %s",
+    curtime=update_clock(0,0,GET_TIME);
+    if (from)
+        put_it("[%s|%s%s%s] Opermsg from %s%s%s: %s",
+                curtime,
+                CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
+                CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+    else put_it("[%s|%s%s%s] %s",
+                curtime,
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
 }
 
