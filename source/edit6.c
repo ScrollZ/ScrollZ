@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.96 2001-09-10 14:48:31 f Exp $
+ * $Id: edit6.c,v 1.97 2001-09-10 21:39:17 f Exp $
  */
 
 #include "irc.h"
@@ -2851,13 +2851,24 @@ int when;
 #ifdef WANTANSI
     char *coloroff=Colors[COLOFF];
     char *pipecolor=CmdsColors[COLPUBLIC].color2;
-#else
-    char *coloroff="";
-    char *pipecolor="";
 #endif
     static char stampbuf[mybufsize/64];
 
     *stampbuf='\0';
-    if (Stamp>=when) sprintf(stampbuf,"%s%s|%s",update_clock(0,0,GET_TIME),pipecolor,coloroff);
+    if (Stamp>=when) {
+#ifdef OLD_TS
+#ifdef WANTANSI
+        sprintf(stampbuf,"%s(%s%s%s)%s ",pipecolor,coloroff,update_clock(0,0,GET_TIME),pipecolor,coloroff);
+#else  /* WANTANSI */
+        sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
+#endif /* WANTANSI */
+#else  /* OLD_TS */
+#ifdef WANTANSI
+        sprintf(stampbuf,"%s%s|%s",update_clock(0,0,GET_TIME),pipecolor,coloroff);
+#else  /* WANTANSI */
+        sprintf(stampbuf,"%s|",update_clock(0,0,GET_TIME));
+#endif /* WANTANSI */
+#endif /* OLD_TS */
+    }
     return(stampbuf);
 }
