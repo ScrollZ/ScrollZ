@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.32 1999-08-22 12:34:57 f Exp $
+ * $Id: edit3.c,v 1.33 1999-08-25 20:09:04 f Exp $
  */
 
 #include "irc.h"
@@ -94,7 +94,7 @@ extern void ShowHelpLine _((char *));
 extern void PrintUsage _((char *));
 extern void MangleString _((char *, char *, int));
 extern void MangleVersion _((char *));
-extern void EncryptString _((char *, char *, char *, int));
+extern void EncryptString _((char *, char *, char *, int, int));
 extern int  AddLast _((List *, List *));
 extern int  CheckPrivs _((char *, char *));
 extern int  CheckShit _((char *, char *));
@@ -251,7 +251,7 @@ int  type;
         if (*tmpbuf1) sprintf(tmpbuf2,"[%.24s] %s: %s",ctime(&now),tmpbuf1,message);
         else sprintf(tmpbuf2,"[%.24s] %s",ctime(&now),message);
         StripAnsi(tmpbuf2,tmpbuf1,2);
-        if (EncryptPassword) EncryptString(tmpbuf2,tmpbuf1,EncryptPassword,mybufsize);
+        if (EncryptPassword) EncryptString(tmpbuf2,tmpbuf1,EncryptPassword,mybufsize,0);
         else strcpy(tmpbuf2,tmpbuf1);
         fprintf(awayfile,"%s\n",tmpbuf2);
         fclose(awayfile);

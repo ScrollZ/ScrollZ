@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.3 1998-11-15 20:18:16 f Exp $
+ * $Id: blowfish.c,v 1.4 1999-08-25 20:09:04 f Exp $
  */
 
 #include "irc.h"
@@ -17,6 +17,7 @@
 
 #define NUMPBOX      16
 #define NUMSBOX      2
+#define SZCRYPTSTR   "++SZ"
 
 static char *base64="./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -226,11 +227,12 @@ int keybytes;
     }
 }
 
-void EncryptString(dest,src,key,bufsize)
+void EncryptString(dest,src,key,bufsize,szenc)
 char *dest;
 char *src;
 char *key;
 int  bufsize;
+int  szenc;
 {
     int i;
     unsigned int l,r;
@@ -242,6 +244,10 @@ int  bufsize;
     for (i=0;i<8;i++) *s++='\0';
     s=encrbuf;
     d=dest;
+    if (szenc) {
+        strcpy(dest,SZCRYPTSTR);
+        d+=strlen(SZCRYPTSTR);
+    }
     while (s && *s) {
         l=((*s++)<<24); l|=((*s++)<<16); l|=((*s++)<<8); l|=*s++;
         r=((*s++)<<24); r|=((*s++)<<16); r|=((*s++)<<8); r|=*s++;
@@ -267,21 +273,29 @@ char c;
     return(0);
 }
 
-void DecryptString(dest,src,key,bufsize)
+void DecryptString(dest,src,key,bufsize,szenc)
 char *dest;
 char *src;
 char *key;
 int  bufsize;
+int  szenc;
 {
     int i;
     unsigned int l,r;
-    char *s,*d;
+    char *s,*d,*x=src;
 
     BlowfishInit(key,strlen(key));
-    strmcpy(encrbuf,src,bufsize);
+    if (szenc) {
+        if (strncmp(x,SZCRYPTSTR,4)) {
+            strmcpy(dest,x,bufsize);
+            return;
+        }
+        x+=strlen(SZCRYPTSTR);
+    }
+    strmcpy(encrbuf,x,bufsize);
     s=encrbuf+strlen(encrbuf);
     for (i=0;i<12;i++) *s++='\0';
-    s=encrbuf;
+    s=x;
     d=dest;
     while (s && *s) {
         l=0;

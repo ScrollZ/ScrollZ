@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.23 1999-08-15 18:38:38 f Exp $
+ * $Id: ctcp.c,v 1.24 1999-08-25 20:09:04 f Exp $
  */
 
 #include "irc.h"
@@ -97,7 +97,7 @@ extern void CheckCdcc _((char *, char *, char *, int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
 extern void MangleVersion _((char *));
-extern void EncryptString _((char *, char *, char *, int));
+extern void EncryptString _((char *, char *, char *, int, int));
 /****************************************************************************/
 
 static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
@@ -407,7 +407,7 @@ char *passwd;
 
     if (tmpfriend->passwd) {
         if (passwd && *passwd) {
-            EncryptString(passbuf,passwd,passwd,mybufsize/16);
+            EncryptString(passbuf,passwd,passwd,mybufsize/16,0);
             return((!strcmp(passbuf,tmpfriend->passwd))?0:1);
         }
         return(1);

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.33 1999-08-22 12:34:29 f Exp $
+ * $Id: edit2.c,v 1.34 1999-08-25 20:09:04 f Exp $
  */
 
 #include "irc.h"
@@ -164,7 +164,7 @@ extern struct autobankicks *FindShit _((char *, char *));
 extern void PlayBack _((char *, char *, char *));
 extern void PrintUsage _((char *));
 extern void CheckJoinChannel _((WhoisStuff *, char *, char *));
-extern void EncryptString _((char *, char *, char *, int));
+extern void EncryptString _((char *, char *, char *, int, int));
 extern int  CheckServer _((int));
 extern char *FormatTime _((int));
 extern int  matchmcommand _((char *, int));
@@ -2290,7 +2290,7 @@ char *buffer;
         malloc_strcpy(&(tmpfriend->userhost),userhost);
         malloc_strcpy(&(tmpfriend->channels),chanlist);
         if (passwd && *passwd) {
-            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16);
+            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
             malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
         }
         else new_free(&(tmpfriend->passwd));
