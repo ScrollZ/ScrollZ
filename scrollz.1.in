@@ -34,7 +34,7 @@ ScrollZ \- An advanced ircII-based IRC client
 .SH DESCRIPTION
 .B ScrollZ
 is advanced IRC client based on ircII code. It adds features
-normally found in ircII scripts like Toolz, PhoEniX, GargOyle or Lice.
+normally found in ircII scripts.
 .PP
 The main difference between these scripts and
 .B ScrollZ
@@ -44,7 +44,13 @@ ircII scripts take a lot of disk and memory space and run slow,
 only takes a couple of extra kilobytes compared to stock ircII client
 yet runs faster than any ircII script. This was accomplished by using
 C code instead of ircII scripting language. This reduces memory and
-CPU usage and code tends to run way faster.
+CPU usage and code tends to run faster.
+.B ScrollZ
+includes features such as built-in userlist, shitlist, improved
+scripting, Blowfish based encryption, features for
+.B IRC
+operators and user friendly features such as completion for nicks
+and channels.
 .SH OPTIONS
 .TP
 .BI \-c " channel"
@@ -77,7 +83,7 @@ Runs
 in "dumb" terminal mode
 .TP
 .B \-q
-Does not load .scrollzrc or .ircquick
+Does not load .scrollzrc or .scrollzquick
 .TP
 .B \-a
 Adds default servers and command line servers to server list
@@ -89,7 +95,7 @@ Load .scrollzrc before connecting to a server
 Loads file in place of your .scrollzrc
 .TP
 .BI \-I " file"
-Loads file in place of your .ircquick
+Loads file in place of your .scrollzquick
 .TP
 .BI \-L " file"
 Loads file in place of your .scrollzrc and expands $ expandos
@@ -143,6 +149,19 @@ Set mail file
 .TP
 .B TERM
 The terminal type to use
+.SH FILES
+.TP
+.B SHAREDIR/script/szglobal
+The global initialization file loaded when connection to a server
+is established.
+.TP
+.B ~/.scrollzrc
+The personal initialization file loaded when connection to a server
+is established.
+.TP
+.B ~/.scrollzquick
+The personal initialization file loaded when connection to a server
+is initiated.
 .SH NOTES
 .PP
 The nickname is limited to 9 characters on many IRC networks.
