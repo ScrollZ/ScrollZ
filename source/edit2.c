@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.47 2000-08-16 15:09:45 f Exp $
+ * $Id: edit2.c,v 1.48 2000-08-20 18:40:52 f Exp $
  */
 
 #include "irc.h"
@@ -1294,7 +1294,7 @@ char *subargs;
         }
 #else  /* WANTANSI */
         if (tmp->chanop) malloc_strcat(&users,"@");
-        else if (tmp->voice) malloc_strcat(&users,"+");
+        else if (tmp->hasvoice) malloc_strcat(&users,"+");
 #ifndef NEWCSCAN
         buflen+=2;
 #endif /* NEWCSCAN */
