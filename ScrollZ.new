@@ -181,6 +181,8 @@ added OV HERE which enables OperVision in current window
 added support for WINDOW LEVEL +level1,level2...
 fixed ircII bug where nickname was corrupted after ping timeout
       (thanks to ogre for information on this one)
+fixed core dump in NEWHOST on non-Linux systems (I forgot who first
+      mentioned this, also thanks to ogre for bringing attention about this one)
 
 
 -------------------------------------------------------------------------------
