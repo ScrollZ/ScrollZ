@@ -554,15 +554,19 @@ When set to on, only people from userlist with OP or AUTOOP access are
 allowed to be channel operators on such channels.
 :CHANLOG       Toggles per channel logging on/off
 Usage $3CHANLOG on channels$0|$3off$0
-Also look at $2CHANLOGDIR$0 and $2CHANLOGPREFIX$0
+Also look at $2CHANLOGDIR$0, $2CHANLOGPOST$0 and $2CHANLOGPREFIX$0
 :CHANLOGDIR    Sets the path to a directory with logfiles
 Usage $3CHANLOGDIR path$0
 If $3path$0 is a minus ('-') first directory from $3SET LOAD_PATH$0 is used.
-Also look at $2CHANLOG$0 and $2CHANLOGPREFIX$0
+Also look at $2CHANLOG$0, $2CHANLOGPOST$0 and $2CHANLOGPREFIX$0
+:CHANLOGPOST   Sets a string to postfix the logfiles with
+Usage $3CHANLOGPOST postfix$0
+If $3postfix$0 is a minus ('-') the postfix is removed.
+Also look at $2CHANLOG$0, $2CHANLOGDIR$0 and $2CHANLOGPREFIX$0
 :CHANLOGPREFIX Sets a string to prefix the logfiles with
 Usage $3CHANLOGPREFIX prefix$0
 If $3prefix$0 is a minus ('-') the prefix is removed.
-Also look at $2CHANLOG$0 and $2CHANLOGDIR$0
+Also look at $2CHANLOG$0, $2CHANLOGDIR$0 and $2CHANLOGPOST$0
 :CHSIGNOFF     Toggles channels display on signoff on/off
 Usage $3CHSIGNOFF on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).

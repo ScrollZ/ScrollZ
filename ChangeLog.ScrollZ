@@ -64,7 +64,7 @@ Meaning of flags:
     ~ upon netsplit we don't display 'Press Control-F to see who split away'
       notice anymore to save screen space
     + per channel logging, check help for commands CHANLOG, CHANLOGDIR,
-      and CHANLOGPREFIX (requested by Ahnberg and his gang)
+      CHANLOGPOST and CHANLOGPREFIX (requested by Ahnberg and his gang)
     ! PONG notice being displayed on servers without dot in the server name
       (reported by Ahnberg)
     + decrypter for log files to tools subdir
