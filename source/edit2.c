@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.90 2003-01-09 20:13:37 f Exp $
+ * $Id: edit2.c,v 1.91 2003-01-09 20:21:21 f Exp $
  */
 
 #include "irc.h"
@@ -3381,67 +3381,19 @@ char *subargs;
     add_wait_prompt("Display message file (y/n/r) ? ",SetBack2,args,WAIT_PROMPT_KEY);
 }
 
-/* This checks given password against master password */
-void EncryptMasterSetBackReverse(stuff, line)
-char *stuff;
-char *line;
-{
-    int pwlen;
-    char *mastpass;
-
-    pwlen = 2 * strlen(line) + 16;
-    mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, line, line, pwlen, 0);
-    if (strcmp(EncryptPassword, mastpass)) {
-        say("Incorrect master password!");
-        new_free(&mastpass);
-        return;
-    }
-    new_free(&mastpass);
-    PlayBack(NULL, "-R", stuff);
-}
-
-/* This checks given password against master password */
-void EncryptMasterSetBack(stuff, line)
-char *stuff;
-char *line;
-{
-    int pwlen;
-    char *mastpass;
-
-    pwlen = 2 * strlen(line) + 16;
-    mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, line, line, pwlen, 0);
-    if (strcmp(EncryptPassword, mastpass)) {
-        say("Incorrect master password!");
-        new_free(&mastpass);
-        return;
-    }
-    new_free(&mastpass);
-    PlayBack(NULL, empty_string, stuff);
-}
-
 /* Handles prompt from SetBack */
-void SetBack2(stuff, line)
+void SetBack2(stuff,line)
 char *stuff;
 char *line;
 {
-    char reply = ' ';
+    char reply=' ';
 
-    if (line && *line >= 'a' && *line <= 'z') reply = *line - ' ';
-    if (reply != ' ' && (reply == 'Y' || reply == 'R')) {
-        if (reply == 'R') {
-            if (AwayEncrypt && EncryptPassword)
-                add_wait_prompt("Master password:", EncryptMasterSetBackReverse, stuff, WAIT_PROMPT_LINE);
-            else PlayBack(NULL, "-R", stuff);
-        }
-        else {
-            if (AwayEncrypt && EncryptPassword)
-                add_wait_prompt("Master password:", EncryptMasterSetBack, stuff, WAIT_PROMPT_LINE);
-            else PlayBack(NULL, empty_string, stuff);
-        }
+    if (line && *line>='a' && *line<='z') reply=*line-' ';
+    if (reply!=' ' && (reply=='Y' || reply=='R')) {
+        if (reply=='R') PlayBack(NULL,"-R",stuff);
+        else PlayBack(NULL,empty_string,stuff);
     }
-    else add_wait_prompt("Delete message file (y/n) ? ", SetBackDelete, stuff, WAIT_PROMPT_KEY);
+    else add_wait_prompt("Delete message file (y/n) ? ",SetBackDelete,stuff,WAIT_PROMPT_KEY);
 }
 
 /* This asks user if he wants to delete ScrollZ.away file */
