@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.86 2002-05-05 09:06:01 f Exp $
+ * $Id: edit2.c,v 1.87 2002-07-09 16:44:16 f Exp $
  */
 
 #include "irc.h"
@@ -254,126 +254,137 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  server=0;
-    int  maxnicks=get_int_var(MAX_WALLOP_NICKS_VAR);
-    int  opscount=0;
-    int  totalcount=0;
-    int  includecount=0;
+    int  server = 0;
+    int  maxnicks = get_int_var(MAX_WALLOP_NICKS_VAR);
+    int  opscount = 0;
+    int  totalcount = 0;
+    int  includecount = 0;
     char *ptr;
     char *word;
     char *channel;
-    char *alllist=(char *) 0;
-    char *allinclist=(char *) 0;
-    char *allexclist=(char *) 0;
+    char *alllist = (char *) 0;
+    char *allinclist = (char *) 0;
+    char *allexclist = (char *) 0;
     char *fulllistptr;
     char tmpnick[100];
-    char fulllist[mybufsize*2];
+    char fulllist[mybufsize * 2];
     char excludelist[mybufsize];
     char includelist[mybufsize];
     char currentlist[mybufsize];
     char buffer[mybufsize];
     NickList *tmp;
-    ChannelList *chan=NULL;
+    ChannelList *chan = NULL;
 
     /* set all strings to null */
-    *fulllist='\0';
-    *excludelist='\0';
-    *includelist='\0';
-    *currentlist='\0';
+    *fulllist = '\0';
+    *excludelist = '\0';
+    *includelist = '\0';
+    *currentlist = '\0';
     if (!(args && *args)) {
         PrintUsage("WALL [#channel] [+nick] [-nick] message");
         return;
     }
-    server=curr_scr_win->server;
+    server = curr_scr_win->server;
     while (*args && isspace(*args)) args++;
-    if (*args=='#') {
-        word=next_arg(args,&args);
-        if ((chan=lookup_channel(word,server,0))==NULL) return;
+    if (*args == '#') {
+        word = next_arg(args, &args);
+        if ((chan = lookup_channel(word, server, 0)) == NULL) return;
     }
-    else if (!(channel=get_channel_by_refnum(0)) ||
-             (chan=lookup_channel(channel,server,0))==NULL) {
+    else if (!(channel = get_channel_by_refnum(0)) ||
+             (chan = lookup_channel(channel, server, 0)) == NULL) {
         NoWindowChannel();
         return;
     }
     /* work along line till we find a word that doesn't start with - or +  */
     while (args) {
         /* peek at the first char, before detaching */
-        if ((*args!='-') && (*args!='+')) break; /* no special flags to parse out */
-        word=next_arg(args,&args);
-        if (!word || !*(word+1)) {
+        if ((*args != '-') && (*args != '+')) break; /* no special flags to parse out */
+        word = next_arg(args, &args);
+        if (!word || !*(word + 1)) {
             say("Error: no message/channel/nicks found");
             return;
         }
-        else if (*word=='-') {
-            *word++='\0';
+        else if (*word == '-') {
+            *word ++= '\0';
             /* exclude list will be like " sheik  blah  lame " */
-            if ((tmp=find_in_hash(chan,word))) {
-                strmcat(excludelist," ",sizeof(excludelist));
-                strmcat(excludelist,tmp->nick,sizeof(excludelist));
-                strmcat(excludelist," ",sizeof(excludelist));
-                if (allexclist) malloc_strcat(&allexclist," ");
-                malloc_strcat(&allexclist,tmp->nick);
+            if ((tmp = find_in_hash(chan, word))) {
+                snprintf(tmpnick, sizeof(tmpnick), " %s ", tmp->nick);
+                if (strstr(excludelist, tmpnick)) continue;
+                strmcat(excludelist, tmpnick, sizeof(excludelist));
+                if (allexclist) malloc_strcat(&allexclist, " ");
+                malloc_strcat(&allexclist, tmp->nick);
             }
         }
-        else if (*word=='+') {
-            *word++='\0';
-            if ((tmp=find_in_hash(chan,word))) {
-                strmcat(includelist," ",sizeof(includelist));
-                strmcat(includelist,tmp->nick,sizeof(includelist));
-                strmcat(includelist," ",sizeof(includelist));
+        else if (*word == '+') {
+            *word ++= '\0';
+            if ((tmp = find_in_hash(chan, word))) {
+                snprintf(tmpnick, sizeof(tmpnick), " %s ", tmp->nick);
+                if (strstr(includelist, tmpnick)) continue;
+                strmcat(includelist, tmpnick, sizeof(includelist));
                 includecount++;
-                if (allinclist) malloc_strcat(&allinclist," ");
-                malloc_strcat(&allinclist,tmp->nick);
+                if (allinclist) malloc_strcat(&allinclist, " ");
+                malloc_strcat(&allinclist, tmp->nick);
             }
         }
     }
     /* strip all spaces in front of message */
-    while (args && isspace(*args)) *args++='\0';
+    while (args && isspace(*args)) *args ++= '\0';
     if (!args || !(*args)) {
         say("Error: no message found");
         return;
     }
-    for (tmp=chan->nicks;tmp;tmp=tmp->next) {
+    for (tmp = chan->nicks; tmp; tmp = tmp->next) {
         if (tmp->chanop || tmp->halfop) {
             /* create a string like  " sheik ", then strstr()
              * on the exclude list, does not allow wildcards
              * in the exclude list! EXPENSIVE!
              */
-            snprintf(tmpnick,sizeof(tmpnick)," %s ",tmp->nick);
-            if (strstr(excludelist,tmpnick)) continue;
-            strmcat(fulllist,tmpnick,sizeof(fulllist));
+            snprintf(tmpnick, sizeof(tmpnick), " %s ", tmp->nick);
+            /* skip people in exclude list */
+            if (strstr(excludelist, tmpnick)) continue;
+            strmcat(fulllist, tmpnick, sizeof(fulllist));
             opscount++;
         }
     }
-    if (includecount) strmcat(fulllist,includelist,sizeof(fulllist));
-    fulllistptr=fulllist;
-    for (ptr=new_next_arg(fulllistptr,&fulllistptr);ptr;
-         ptr=new_next_arg(fulllistptr,&fulllistptr)) {
-        if (*currentlist) strmcat(currentlist,",",sizeof(currentlist));
-        strmcat(currentlist,ptr,sizeof(currentlist));
-        totalcount++;
-        if (totalcount>=maxnicks) {
-            snprintf(buffer,sizeof(buffer),"[S-WallOp/%s] %s",chan->channel,args);
-            send_to_server("NOTICE %s :%s",currentlist,buffer);
-            totalcount=0;
-            *currentlist='\0';
+    if (includecount) {
+        char *includelistptr = includelist;
+
+        for (ptr = new_next_arg(includelistptr, &includelistptr); ptr;
+             ptr = new_next_arg(includelistptr, &includelistptr)) {
+            snprintf(tmpnick, sizeof(tmpnick), " %s ", ptr);
+            /* skip duplicates */
+            if (strstr(fulllist, tmpnick)) continue;
+            strmcat(fulllist, tmpnick, sizeof(fulllist));
         }
-        if (alllist) malloc_strcat(&alllist," ");
-        malloc_strcat(&alllist,ptr);
+    }
+    fulllistptr = fulllist;
+    for (ptr = new_next_arg(fulllistptr, &fulllistptr); ptr;
+         ptr = new_next_arg(fulllistptr, &fulllistptr)) {
+        if (*currentlist) strmcat(currentlist, ",", sizeof(currentlist));
+        strmcat(currentlist, ptr, sizeof(currentlist));
+        totalcount++;
+        if (totalcount >= maxnicks) {
+            snprintf(buffer, sizeof(buffer), "[S-WallOp/%s] %s", chan->channel, args);
+            send_to_server("NOTICE %s :%s", currentlist, buffer);
+            totalcount = 0;
+            *currentlist = '\0';
+        }
+        if (alllist) malloc_strcat(&alllist, " ");
+        malloc_strcat(&alllist, ptr);
     }
     if (totalcount) {
-        snprintf(buffer,sizeof(buffer),"[S-WallOp/%s] %s",chan->channel,args);
-        send_to_server("NOTICE %s :%s",currentlist,buffer);
+        snprintf(buffer, sizeof(buffer), "[S-WallOp/%s] %s", chan->channel, args);
+        send_to_server("NOTICE %s :%s", currentlist, buffer);
     }
     if (ShowWallop) {
-        if (*excludelist) say("Excluding %s from wallmsg",allexclist);
-        if (includecount) say("Including %s to receive wallmsg",allinclist);
-        say("Sent wallmsg on %s to %s",chan->channel,alllist);
+        if (*excludelist) say("Excluding %s from wallmsg", allexclist);
+        if (includecount) say("Including %s to receive wallmsg", allinclist);
+        say("Sent wallmsg on %s to %s", chan->channel, alllist);
     }
     new_free(&alllist);
     new_free(&allinclist);
     new_free(&allexclist);
-    if (!opscount) say("There are no channel operators in %s",chan->channel);
+    if (!opscount) say("There are no channel operators in %s", chan->channel);
 }
 
 void MegaMode(args,type)
