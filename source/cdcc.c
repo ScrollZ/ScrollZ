@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.34 2001-03-12 19:57:02 f Exp $
+ * $Id: cdcc.c,v 1.35 2001-03-15 21:07:06 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -72,6 +72,7 @@ static void listcommand _((char *, char *));
 static void helpcommand _((char *, char *));
 static void sendcommand _((char *, char *, int, int));
 static void versioncommand _((char *, char *));
+static void queuecommand _((char *, char *));
 #ifndef LITE
 static void psendmcommand _((char *));
 static void psend2mcommand _((char *, char *));
@@ -2302,7 +2303,8 @@ int  msg;
     if (away_set || LogOn) AwaySave(tmpbuf4,SAVECTCP);
     if (Security && !(level&FLCDCC)) {
         strcat(tmpbuf4,", no access");
-        send_to_server("NOTICE %s :You do not have access...  -ScrollZ-",nick);
+        if (!CTCPCloaking)
+            send_to_server("NOTICE %s :You do not have access...  -ScrollZ-",nick);
         say("%s",tmpbuf4);
         return;
     }
@@ -2315,6 +2317,7 @@ int  msg;
         else if (!my_stricmp(command,"RESEND")) sendcommand(nick,args,1,level&FLCDCC);
         else if (!my_stricmp(command,"LIST")) listcommand(nick,args);
         else if (!my_stricmp(command,"VERSION")) versioncommand(nick,args);
+        else if (!my_stricmp(command,"QUEUE")) queuecommand(nick,args);
         else if (!CTCPCloaking) send_to_server("NOTICE %s :Try /CTCP %s CDCC HELP to get Cdcc help",nick,get_server_nickname(from_server));
     }
     else if (!CTCPCloaking) send_to_server("NOTICE %s :Try /CTCP %s CDCC HELP to get Cdcc help",nick,get_server_nickname(from_server));
@@ -2337,8 +2340,10 @@ char *args;
                            from,args,!strcmp(args,"RESEND")?"re":"");
             send_to_server("NOTICE %s :filter can be : -2,4,6-8,10- or * for all",from);
         }
+        else if (!my_stricmp(args,"QUEUE"))
+            send_to_server("NOTICE %s :Cdcc QUEUE will show your queue position",from);
     }
-    else send_to_server("NOTICE %s :/CTCP %s CDCC HELP command where command is one of the following : HELP VERSION LIST SEND or RESEND",from,get_server_nickname(from_server));
+    else send_to_server("NOTICE %s :/CTCP %s CDCC HELP command where command is one of the following : HELP VERSION LIST QUEUE SEND or RESEND",from,get_server_nickname(from_server));
 }
 
 /* send msg'er version reply */
@@ -2440,6 +2445,41 @@ char *args;
     }
     else if (!CTCPCloaking)
         send_to_server("NOTICE %s :Sorry, there are no files offered",from);
+}
+
+/* List files in queue */
+static void queuecommand(from,args)
+char *from;
+char *args;
+{
+    int i=1;
+    int cnt=0;
+    char *tmpstr=(char *) 0;
+    char tmpbuf[mybufsize/64];
+    FileQueue *tmp=queuelist;
+
+    if (!queuelist) {
+        if (!CTCPCloaking)
+            send_to_server("NOTICE %s :There are no files in queue",from);
+        return;
+    }
+    for (;tmp;tmp=tmp->next) {
+        if (tmp->server==parsing_server_index && !my_stricmp(tmp->nick,from)) {
+            if (cnt) malloc_strcat(&tmpstr,",");
+            sprintf(tmpbuf,"%d",i);
+            malloc_strcat(&tmpstr,tmpbuf);
+            if (cnt>=10) {
+                malloc_strcat(&tmpstr,"...");
+                break;
+            }
+            cnt++;
+        }
+        i++;
+    }
+    if (cnt) {
+        send_to_server("NOTICE %s :Your queue position: %s",from,tmpstr);
+        new_free(&tmpstr);
+    }
 }
 
 /* Send pack that they request */
