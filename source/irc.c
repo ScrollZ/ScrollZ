@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.29 2000-07-09 09:31:28 f Exp $
+ * $Id: irc.c,v 1.30 2000-07-10 15:53:09 f Exp $
  */
 
 #define IRCII_VERSION	"4.4J"
@@ -244,7 +244,7 @@ extern void SwitchNick _((void));
 extern void CleanUp _((void));
 
 #ifdef WANTANSI
-char *Colors[NUMCOLORS]={
+char *Colors[SZNUMCOLORS]={
  /*  off  */
  "\033[0m" ,
  /*  bold       underline  flash      reverse */

@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.6 1999-07-24 12:39:40 f Exp $
+ * $Id: mystructs.h,v 1.7 2000-07-10 15:52:37 f Exp $
  */
 
 /* don't change!! */
@@ -26,7 +26,7 @@
 #define NUMCMDCOLORS	(NUMCMDCOLORS_)
 #endif /* CELECOSM && OPERVISION */
 
-#define NUMCOLORS     22
+#define SZNUMCOLORS     22
 #endif /* WANTANSI */
 
 /* some defines for friends list */
