@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.3 1998-09-16 20:07:45 f Exp $
+ * $Id: dcc.c,v 1.4 1998-09-27 16:29:26 f Exp $
  */
 
 #include "irc.h"
@@ -721,12 +721,8 @@ dcc_open(Client)
 #ifdef DCC_CNCT_PEND
 		Client->flags |= DCC_CNCT_PEND;
 #endif
-/**************************** PATCHED by Flier ******************************/
-		/*if ((Client->write = connect_by_number(Client->remport,
-			      inet_ntoa(Client->remote), 1)) < 0)*/
-                if ((Client->write=
-                     connect_by_number(Client->remport,inet_ntoa(Client->remote),1,1))<0)
-/****************************************************************************/
+		if ((Client->write = connect_by_number(Client->remport,
+			      inet_ntoa(Client->remote), 1)) < 0)
 		{
 			message_from(user, LOG_DCC);
 			say("Unable to create connection: %s",
@@ -783,10 +779,7 @@ dcc_open(Client)
 		Client->flags |= DCC_WAIT;
 #endif
 		message_from(user, LOG_DCC);
-/**************************** PATCHED by Flier ******************************/
-		/*if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)*/
-		if ((Client->read=connect_by_number(0,empty_string,1,1))<0)
-/****************************************************************************/
+		if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)
 		{
 			say("Unable to create connection: %s",
 				errno ? strerror(errno) : "Unknown Host");
