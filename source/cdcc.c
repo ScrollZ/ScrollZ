@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.38 2001-08-22 19:23:11 f Exp $
+ * $Id: cdcc.c,v 1.39 2001-10-02 19:48:42 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -149,7 +149,6 @@ static FileQueue *queuelist=(FileQueue *) 0;
 static struct dirent **CdccFileNames=NULL;
 static struct stat CdccStatBuf;
 static int CdccEntries;
-static int c_entry_size;
 static char *CdccString="[S+Z]";
 static time_t LastIdleCheck=0;
 static time_t LastList=0;
@@ -2134,8 +2133,6 @@ char *args;
 static void GetDir(path)
 char *path;
 {
-    c_entry_size = 0;
-
     CleanList();
     CdccEntries=scandir(path, &CdccFileNames,
                         (const void *)(int (*) (const struct dirent *)) selectent,
@@ -2174,11 +2171,7 @@ static int selectent(entry)
 struct dirent *entry;
 {
     if (*(entry->d_name)=='.') return (0);
-    else {
-        int len=strlen(entry->d_name);
-        c_entry_size=(len>c_entry_size)?len:c_entry_size;
-        return(1);
-    }
+    else return(1);
 }
 
 /***********************************************************************
