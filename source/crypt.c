@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: crypt.c,v 1.2 1998-09-10 17:44:35 f Exp $
+ * $Id: crypt.c,v 1.3 1998-11-18 21:00:10 f Exp $
  */
 
 #include "irc.h"
@@ -45,8 +45,8 @@
 
 static	void	add_to_crypt _((char *, char *));
 static	int	remove_crypt _((char *));
-static	void	encrypt_str _((char *, int, char *));
-static	void	decrypt _((char *, int, char *));
+static	void	encrypt_str _((char **, int *, char *));
+static	void	decrypt_str _((char **, int *, char *));
 static	char	*do_crypt _((char *, char *, int));
 
 #define CRYPT_BUFFER_SIZE (IRCD_BUFFER_SIZE - 50)	/* Make this less than
@@ -105,6 +105,7 @@ remove_crypt(nick)
 	if ((tmp = (Crypt *) list_lookup((List **) &crypt_list, nick, !USE_WILDCARDS, REMOVE_FROM_LIST)) != NULL)
 	{
 		new_free(&(tmp->nick));
+		bzero(tmp->key, strlen(tmp->key));		/* wipe it out */
 		new_free(&(tmp->key));
 		new_free(&tmp);
 		return (0);
@@ -175,8 +176,8 @@ encrypt_cmd(command, args, subargs)
 
 static	void
 encrypt_str(str, len, key)
-	char	*str;
-	int	len;
+	char	**str;
+	int	*len;
 	char	*key;
 {
 	int	key_len,
@@ -188,20 +189,20 @@ encrypt_str(str, len, key)
 	key_len = strlen(key);
 	key_pos = 0;
 	mix = 0;
-	for (i = 0; i < len; i++)
+	for (i = 0; i < *len; i++)
 	{
-		tmp = str[i];
-		str[i] = mix ^ tmp ^ key[key_pos];
+		tmp = (*str)[i];
+		(*str)[i] = mix ^ tmp ^ key[key_pos];
 		mix ^= tmp;
 		key_pos = (key_pos + 1) % key_len;
 	}
-	str[i] = (char) 0;
+	(*str)[i] = (char) 0;
 }
 
 static	void
-decrypt(str, len, key)
-	char	*str;
-	int	len;
+decrypt_str(str, len, key)
+	char	**str;
+	int	*len;
 	char	*key;
 {
 	int	key_len,
@@ -214,14 +215,14 @@ decrypt(str, len, key)
 	key_pos = 0;
 	/*    mix = key[key_len-1]; */
 	mix = 0;
-	for (i = 0; i < len; i++)
+	for (i = 0; i < *len; i++)
 	{
-		tmp = mix ^ str[i] ^ key[key_pos];
-		str[i] = tmp;
+		tmp = mix ^ (*str)[i] ^ key[key_pos];
+		(*str)[i] = tmp;
 		mix ^= tmp;
 		key_pos = (key_pos + 1) % key_len;
 	}
-	str[i] = (char) 0;
+	(*str)[i] = (char) 0;
 }
 
 static	char	*
@@ -289,11 +290,16 @@ do_crypt(str, key, flag)
 			new_close(in[1]);
 			setgid(getgid());
 			setuid(getuid());
-			execl(encrypt_program, encrypt_program, key, NULL);
+			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR))
+				execl(encrypt_program, encrypt_program, key, NULL);
+			else
+				execl(encrypt_program, encrypt_program, NULL);
 			exit(0);
 		default:
 			new_close(out[1]);
 			new_close(in[0]);
+			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR) == 0)
+				write(in[1], key, strlen(key));
 			write(in[1], ptr, c);
 			new_close(in[1]);
 			c = read(out[0], buffer, CRYPT_BUFFER_SIZE);
@@ -314,13 +320,13 @@ do_crypt(str, key, flag)
 		c = strlen(str);
 		if (flag)
 		{
-			encrypt_str(str, c, key);
+			encrypt_str(&str, &c, key);
 			ptr = ctcp_quote_it(str, c);
 		}
 		else
 		{
 			ptr = ctcp_unquote_it(str, &c);
-			decrypt(ptr, c, key);
+			decrypt_str(&ptr, &c, key);
 		}
 	}
 	return (ptr);

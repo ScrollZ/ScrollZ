@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.7 1998-11-16 21:04:59 f Exp $
+ * $Id: dcc.c,v 1.8 1998-11-18 21:00:11 f Exp $
  */
 
 #include "irc.h"
@@ -1932,7 +1932,7 @@ process_incoming_chat(Client)
 	{
 	case -1:
 		add_to_dcc_buffer(Client, bufptr);
-		if (strlen(Client->buffer) > BIG_BUFFER_SIZE/2)
+		if (Client->buffer && strlen(Client->buffer) > BIG_BUFFER_SIZE/2)
 		{
 			new_free(&Client->buffer);
 			say("*** dropped long DCC CHAT message from %s", Client->user);
@@ -2069,7 +2069,7 @@ process_incoming_raw(Client)
 	{
 	case -1:
 		add_to_dcc_buffer(Client, bufptr);
-		if (strlen(Client->buffer) > BIG_BUFFER_SIZE/2)
+		if (Client->buffer && strlen(Client->buffer) > BIG_BUFFER_SIZE/2)
 		{
 			new_free(&Client->buffer);
 			say("*** dropping long DCC raw message from %s", Client->user);
@@ -2489,7 +2489,7 @@ dcc_message_transmit(user, text, type, flag)
 		say("No active DCC %s:%s connection for %s", dcc_types[type], host ? host : "<any>", user);
 		return;
 	}
-#ifdef DCC_DCNT_PEND
+#ifdef DCC_CNCT_PEND
 	/*
 	 * XXX - should make this buffer
 	 * XXX - just for dcc chat ?  maybe raw dcc too.  hmm.

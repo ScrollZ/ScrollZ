@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.8 1998-11-15 20:21:11 f Exp $
+ * $Id: irc.c,v 1.9 1998-11-18 21:00:12 f Exp $
  */
 
-#define IRCII_VERSION	"4.4A"
+#define IRCII_VERSION	"4.4B"
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.

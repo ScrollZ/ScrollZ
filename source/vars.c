@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.5 1998-10-31 18:53:08 f Exp $
+ * $Id: vars.c,v 1.6 1998-11-18 21:00:13 f Exp $
  */
 
 #include "irc.h"
@@ -211,6 +211,7 @@ static	IrcVariable irc_variable[] =
 	{ "NOTIFY_STRING",		STR_TYPE_VAR,	0, NULL, Cnotifystring, 0, 0 },
 /****************************************************************************/
 	{ "NOVICE",			BOOL_TYPE_VAR,	DEFAULT_NOVICE, NULL, NULL, 0, 0 },
+	{ "OLD_ENCRYPT_PROGRAM",	BOOL_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "REALNAME",			STR_TYPE_VAR,	0, 0, set_realname, 0, VF_NODAEMON },
 	{ "SAME_WINDOW_ONLY",		BOOL_TYPE_VAR,	DEFAULT_SAME_WINDOW_ONLY, NULL, NULL, 0, 0 },
 	{ "SCREEN_OPTIONS", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
