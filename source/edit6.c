@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.107 2001-10-11 20:41:41 f Exp $
+ * $Id: edit6.c,v 1.108 2001-10-18 20:20:34 f Exp $
  */
 
 #include "irc.h"
@@ -2637,7 +2637,6 @@ char *subargs;
 
     tmpstr=new_next_arg(args,&args);
     if (tmpstr) {
-        tmpstr=new_next_arg(args,&args);
         malloc_strcpy(&StatscFilter,tmpstr);
         StatscNumber=0;
         send_to_server("STATS c %s",args);
