@@ -10,11 +10,9 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.47 2002-03-09 17:49:13 f Exp $
+ * $Id: cdcc.c,v 1.48 2002-05-04 15:01:48 f Exp $
  */
 
-/* uncomment this if compiling on BSD */
-/*#include <db.h>*/
 #include "irc.h"
 #include "list.h"
 #include "server.h"
@@ -48,6 +46,11 @@ static void formatstats _((char *, int));
 static void sendmcommand _((char *));
 static void send2mcommand _((char *, char *));
 static void send3mcommand _((char *, char *));
+#ifdef EXTRAS
+static void fsendmcommand _((char *));
+static void fsend2mcommand _((char *, char *));
+static void fsend3mcommand _((char *, char *));
+#endif
 static void resendmcommand _((char *));
 static void resend2mcommand _((char *, char *));
 static void resend3mcommand _((char *, char *));
@@ -162,6 +165,9 @@ static CdccCom CdccCommands[]={
     { "HELP",        helpmcommand },
     { "GET",         getmcommand },
     { "SEND",        sendmcommand },
+#ifdef EXTRAS
+    { "FSEND",       fsendmcommand },
+#endif
     { "CLOSE",       closemcommand },
     { "RESEND",      resendmcommand },
     { "OFFER",       offermcommand },
@@ -252,10 +258,10 @@ void helpmcommand(line)
 char *line;
 {
     PrintUsage("CDCC command where command is one of :");
-    say("AUTOGET  CHAN     CLOSE   DLDIR    DOFFER  GET     IDLE   LIMIT   LIST");
-    say("LOAD     LONGST   OVERWR  NOTICE   OFFER   PLIST   PTIME  NTIME   PSEND");
-    say("QUEUE    RENPACK  RESEND  REQUEST  SAVE    SECURE  SEND   STATUS  ULDIR");
-    say("VERBOSE  WARNING");
+    say("AUTOGET  CHAN     CLOSE    DLDIR    DOFFER  FSEND   GET     IDLE    LIMIT");
+    say("LIST     LOAD     LONGST   OVERWR   NOTICE  OFFER   PLIST   PTIME   NTIME");
+    say("PSEND    QUEUE    RENPACK  RESEND  REQUEST  SAVE    SECURE  SEND   STATUS");
+    say("ULDIR    VERBOSE  WARNING");
     say("For more help on command do /HELP CDCC command");
 }
 
@@ -1721,6 +1727,102 @@ char *line;
 #endif
             }
             if (queuesay) say("Duplicate files were not put in queue");
+        }
+    }
+    else say("You must specify nick(s) to send file(s) to");
+    DeleteSend();
+}
+
+/**********************************************************************
+* fsendmcommand: Prompt User for files                                 *
+***********************************************************************/
+static void fsendmcommand(line)
+char *line;
+{
+    char *comma;
+
+    if (line && *line) {
+        comma=strchr(line,',');
+        if (!comma) {
+            PrintUsage("CDCC FSEND pattern1 pattern2 , nick1 nick2");
+            return;
+        }
+        *comma='\0';
+        comma++;
+        if (AddFiles2List(line)) fsend3mcommand(NULL,comma);
+    }
+    else add_wait_prompt("Files to send ? ",fsend2mcommand,line,WAIT_PROMPT_LINE);
+}
+
+/**********************************************************************
+* fsend2mcommand  This parses file send list                           *
+*                 Files Linked list                                    *
+***********************************************************************/
+static void fsend2mcommand(blah,line)
+char *blah;
+char *line;
+{
+    if (line && *line) {
+        if (AddFiles2List(line))
+            add_wait_prompt("Send to whom ? (ie. nick1 nick2 nick3) ",fsend3mcommand,line,WAIT_PROMPT_LINE);
+    }
+    else say("You must specify file(s) to send");
+}
+
+/**********************************************************************
+* fsend3mcommand  This parses nick send list, and sends all files in   *
+*                 Files Linked list                                    *
+***********************************************************************/
+static void fsend3mcommand(blah,line)
+char *blah;
+char *line;
+{
+    int  count;
+    int  total;
+    char byteschar;
+    char *nick=(char *) 0;
+    char tmpbuf1[mybufsize/4];
+    char tmpbuf2[mybufsize/8];
+    float mult;
+    Files *tmp;
+    unsigned int display;
+
+    if (line && *line) {
+        for (nick=new_next_arg(line,&line);nick;nick=new_next_arg(line,&line)) {
+            total=0;
+            count=0;
+            display=window_display;
+            window_display=0;
+            for (tmp=files;tmp;tmp=tmp->next) {
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%s \"%s/%s\"",nick,tmp->path,tmp->file);
+                dcc_filesend(tmpbuf1);
+                count++;
+                total+=tmp->size;
+            }
+            window_display=display;
+            if (total>1048575) {
+                byteschar='M';
+                mult=1024.0;
+            }
+            else {
+                byteschar='k';
+                mult=1.0;
+            }
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+                    count,count==1?empty_string:"s");
+            if (count) {
+                if (!CTCPCloaking)
+                    send_to_server("NOTICE %s :Sent : [%s]",nick,tmpbuf2);
+#ifdef WANTANSI
+                snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCdcc%s %ssending%s %s%s%s : ",
+                        CmdsColors[COLCDCC].color4,Colors[COLOFF],
+                        CmdsColors[COLCDCC].color3,Colors[COLOFF],
+                        CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
+                say("%s[%s%s%s]",tmpbuf1,CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
+#else
+                say("Cdcc sending %s : [%s]",nick,tmpbuf2);
+#endif
+            }
         }
     }
     else say("You must specify nick(s) to send file(s) to");
