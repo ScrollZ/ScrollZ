@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.33 1999-09-26 16:26:37 f Exp $
+ * $Id: edit4.c,v 1.34 1999-10-03 09:31:22 f Exp $
  */
 
 #include "irc.h"
@@ -2456,6 +2456,7 @@ char *PickSignOff()
     char *filepath;
     char tmpbuf1[mybufsize];
     char tmpbuf2[mybufsize/2];
+    static char tmpbuf3[mybufsize/2+1];
     FILE *fp;
 
     if (!NumberOfSignOffMsgs) return(NULL);
@@ -2471,7 +2472,8 @@ char *PickSignOff()
         }
         fclose(fp);
         while (isspace(*pointer)) pointer++;
-        return(pointer);
+        strmcpy(tmpbuf3,pointer,mybufsize/2);
+        return(tmpbuf3);
     }
     return(NULL);
 }
