@@ -501,9 +501,11 @@ Usage $3AREJOIN on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).
 Client will rejoin such channels on kick.
 :ARINWIN       Toggles showing auto reply in current/special window
-Usage $3ARINWIN on$0|$3off$0|$3user$0
+Usage $3ARINWIN on$0|$3user$0|$3both$0|$3off$0
 If set to on auto-reply is also shown in current window.
 If set to user auto-reply is shown in window with level USERLOG4.
+If set to both auto-reply is shown both in current window and
+in window with level USERLOG4.
 Also look at $2REPWORD$0
 :AUTOCOMPL     Toggles auto nick completion on/off
 Usage $3AUTOCOMPL on string$0|$3auto string$0|$3off$0
