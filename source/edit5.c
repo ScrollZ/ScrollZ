@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.64 2001-07-21 19:07:46 f Exp $
+ * $Id: edit5.c,v 1.65 2001-07-25 17:48:30 f Exp $
  */
 
 #include "irc.h"
@@ -3086,7 +3086,7 @@ int len;
 }
 #endif
 
-#ifdef MGS
+#ifdef SORTED_NICKS
 /* Used to insert into sorted linked list */
 int SortedCmp(elmt1,elmt2)
 List *elmt1;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.23 2001-07-24 15:42:01 f Exp $
+ * $Id: names.c,v 1.24 2001-07-25 17:48:30 f Exp $
  */
 
 #include "irc.h"
@@ -67,7 +67,7 @@ extern int  AddBan _((char *, char *, int, char *, int, time_t, ChannelList *));
 extern int  RemoveBan _((char *, int, ChannelList *));
 extern void CheckPermBans _((ChannelList *));
 extern void HandleGotOps _((char *, ChannelList *));
-#ifdef MGS
+#ifdef SORTED_NICKS
 extern int  SortedCmp _((List *, List *));
 #endif
 extern int  HashFunc _((char *));
@@ -519,7 +519,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
                 new->deopp=0;
                 new->kickp=0;
                 new->nickp=0;
-#ifdef MGS
+#ifdef SORTED_NICKS
                 add_to_list_ext((List **) &(chan->nicks), (List *) new, SortedCmp);
 #else
                 add_to_list((List **) &(chan->nicks), (List *) new);
@@ -1540,7 +1540,7 @@ rename_nick(old_nick, new_nick, server)
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*if ((tmp = (NickList *) list_lookup((List **) &chan->nicks, old_nick, !USE_WILDCARDS, !REMOVE_FROM_LIST)))*/
-#ifdef MGS
+#ifdef SORTED_NICKS
                         if ((tmp=(NickList *) list_lookup((List **) &chan->nicks,
                                                           old_nick,!USE_WILDCARDS,REMOVE_FROM_LIST)) != NULL)
 #else
@@ -1554,7 +1554,7 @@ rename_nick(old_nick, new_nick, server)
 				new_free(&tmp->nick);
 				malloc_strcpy(&tmp->nick, new_nick);
 /**************************** PATCHED by Flier ******************************/
-#ifdef MGS
+#ifdef SORTED_NICKS
                                 add_to_list_ext((List **) &(chan->nicks), (List *) tmp,
                                                 SortedCmp);
 #endif

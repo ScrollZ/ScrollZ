@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.30 2001-05-09 17:20:41 f Exp $
+ * $Id: SZdist.c,v 1.31 2001-07-25 17:48:30 f Exp $
  */
 
 #include <stdio.h>
@@ -42,7 +42,7 @@
 #define GENX           (1<<3)
 #define NEWCSCAN       (1<<4)
 #define ACID           (1<<5)
-#define MGS            (1<<6)
+#define SORTEDNICKS    (1<<6)
 #define SCKICKS        (1<<7)
 #define OPERVISION     (1<<8)
 #define CELE           (1<<9)
@@ -74,7 +74,7 @@ char *BETTERTIMERfiles="edit.o edit6.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
 char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o vars.o window.o";
-char *MGSfiles="edit.o edit3.o edit5.o names.o";
+char *SORTEDNICKfiles="edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
  window.o";
@@ -174,7 +174,7 @@ char **argv;
             else if (strstr(buf,"GENX")) choice|=GENX;
             else if (strstr(buf,"NEWCSCAN")) choice|=NEWCSCAN;
             else if (strstr(buf,"ACID")) choice|=ACID;
-            else if (strstr(buf,"MGS")) choice|=MGS;
+            else if (strstr(buf,"SORTEDNICKS")) choice|=SORTEDNICKS;
             else if (strstr(buf,"SCKICKS")) choice|=SCKICKS;
             else if (strstr(buf,"OPERVISION")) choice|=OPERVISION;
 	    else if (strstr(buf,"CELE")) choice|=CELE;
@@ -211,6 +211,8 @@ char **argv;
             else if (*tmp1=='y') choice&=~COUNTRY;
             if (*tmp1=='L') choice|=LITE;
             else if (*tmp1=='l') choice&=~LITE;
+            if (*tmp1=='N') choice|=SORTEDNICKS;
+            else if (*tmp1=='n') choice&=~SORTEDNICKS;
         }
         if (*tmp1==' ' && *(tmp1+1)=='O' && *(tmp1+2)=='V') {
             choice|=OPERVISION;
@@ -269,8 +271,8 @@ char **argv;
                onoffstr(choice&NEWCSCAN,onoffbuf));
         printf(" [1mF[0m - ACID          %s - invite on notify for non +i channels, req. EXTRAS\n",
                onoffstr(choice&ACID,onoffbuf));
-        printf(" [1mG[0m - MGS           %s - sorted nicks in CSCAN and TERMINATE\n",
-               onoffstr(choice&MGS,onoffbuf));
+        printf(" [1mG[0m - SORTEDNICKS   %s - sorted nicks in CSCAN\n",
+               onoffstr(choice&SORTEDNICKS,onoffbuf));
         printf(" [1mH[0m - SCKICKS       %s - scatter (funny) kicks\n",
                onoffstr(choice&SCKICKS,onoffbuf));
         printf(" [1mI[0m - OPERVISION    %s - for IRC Operators, req. WANTANSI\n",
@@ -323,8 +325,8 @@ char **argv;
                 case 'F': if ((choice&ACID)) choice&=~ACID;
                           else choice|=ACID;
                           break;
-                case 'G': if ((choice&MGS)) choice&=~MGS;
-                          else choice|=MGS;
+                case 'G': if ((choice&SORTEDNICKS)) choice&=~SORTEDNICKS;
+                          else choice|=SORTEDNICKS;
                           break;
                 case 'H': if ((choice&SCKICKS)) choice&=~SCKICKS;
                           else choice|=SCKICKS;
@@ -382,7 +384,7 @@ char **argv;
             else if (i==GENX) addtobuf(GENXfiles,tmpbuf,choice,oldchoice,i);
             else if (i==NEWCSCAN) addtobuf(NEWCSCANfiles,tmpbuf,choice,oldchoice,i);
             else if (i==ACID) addtobuf(ACIDfiles,tmpbuf,choice,oldchoice,i);
-            else if (i==MGS) addtobuf(MGSfiles,tmpbuf,choice,oldchoice,i);
+            else if (i==SORTEDNICKS) addtobuf(SORTEDNICKSfiles,tmpbuf,choice,oldchoice,i);
             else if (i==SCKICKS) addtobuf(SCKICKSfiles,tmpbuf,choice,oldchoice,i);
             else if (i==OPERVISION) addtobuf(OPERVISIONfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==CELE) addtobuf(CELEfiles,tmpbuf,choice,oldchoice,i);
@@ -446,8 +448,8 @@ char **argv;
         if (choice&ACID) fprintf(fpout,"#define ACID\n");
         else fprintf(fpout,"#undef ACID\n");
         fprintf(fpout,"\n/* Define this if you want sorted nicks in /CSCAN */\n");
-        if (choice&MGS) fprintf(fpout,"#define MGS\n");
-        else fprintf(fpout,"#undef MGS\n");
+        if (choice&SORTEDNICKS) fprintf(fpout,"#define SORTED_NICKS\n");
+        else fprintf(fpout,"#undef SORTED_NICKS\n");
         fprintf(fpout,"\n/* Define this if you want scatter (funny) kicks support */\n");
         if (choice&SCKICKS) fprintf(fpout,"#define SCKICKS\n");
         else fprintf(fpout,"#undef SCKICKS\n");

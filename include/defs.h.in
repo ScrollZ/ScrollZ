@@ -367,8 +367,8 @@
    notify signon */
 #undef ACID
 
-/* Define this if you want sorted nicks in /CSCAN and old style of MSGs */
-#undef MGS
+/* Define this if you want sorted nicks in /CSCAN */
+#define SORTED_NICKS
 
 /* Define this if you want scatter kicks */
 #undef SCKICKS
