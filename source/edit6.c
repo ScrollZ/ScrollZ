@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.117 2001-12-30 09:34:57 f Exp $
+ * $Id: edit6.c,v 1.118 2001-12-30 12:20:25 f Exp $
  */
 
 #include "irc.h"
@@ -2949,10 +2949,10 @@ ChannelList *tmpchan;
 char *TimeStamp(when)
 int when;
 {
-    static char stampbuf[mybufsize/4+1];
+    static char stampbuf[mybufsize / 4 + 1];
 
-    *stampbuf='\0';
-    if (Stamp>=when && TimeStampString) strmcpy(stampbuf,TimeStampString,mybufsize/4);
+    *stampbuf = '\0';
+    if (Stamp >= when && TimeStampString) strmcpy(stampbuf, TimeStampString, mybufsize / 4);
     return(stampbuf);
 }
 
