@@ -31,10 +31,13 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.53 2001-05-09 17:20:41 f Exp $
+ * $Id: irc.c,v 1.54 2001-07-01 09:12:12 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
+/**************************** PATCHED by Flier ******************************/
+#define SCROLLZ_VERSION "1.8k"
+/****************************************************************************/
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.
@@ -97,6 +100,7 @@
 
 /************************ PATCHED by Flier **************************/
 #include "myvars.h"
+#include "cdcc.h"
 
 #ifdef SZ32
 #undef IRCPATH
@@ -273,7 +277,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII 4.4Z+ScrollZ v1.8k (22.1.2001)+Cdcc v1.8";
+char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (22.1.2001)+Cdcc v" CDCC_VERSION;
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
