@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.27 2000-08-21 15:49:02 f Exp $
+ * $Id: parse.c,v 1.28 2000-08-22 16:51:30 f Exp $
  */
 
 #include "irc.h"
@@ -1150,7 +1150,7 @@ p_channel(from, ArgList)
                              !my_stricmp(channel,"&channel")  ||
                              !my_stricmp(channel,"&numerics") ||
                              !my_stricmp(channel,"&kills")    ||
-                             !my_stricmp(channel,"&clients"))) {
+                             !my_stricmp(channel,"&oper"))) {
                             sprintf(tmpbuf,"MODE %s",channel);
                         }
                         else {

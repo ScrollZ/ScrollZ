@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.7 2000-08-21 18:41:40 f Exp $
+ * $Id: funny.c,v 1.8 2000-08-22 16:51:30 f Exp $
  */
 
 #include "irc.h"
@@ -403,7 +403,7 @@ funny_mode(from, ArgList)
                     !my_stricmp(channel,"&channel")  ||
                     !my_stricmp(channel,"&numerics") ||
                     !my_stricmp(channel,"&kills")    ||
-                    !my_stricmp(channel,"&clients"))) {
+                    !my_stricmp(channel,"&oper"))) {
                     tmp->gotbans=1;
                     tmp->gotwho=1;
                     PrintSynch(tmp);
