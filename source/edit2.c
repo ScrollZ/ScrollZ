@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.34 1999-08-25 20:09:04 f Exp $
+ * $Id: edit2.c,v 1.35 1999-09-04 20:54:23 f Exp $
  */
 
 #include "irc.h"
@@ -3420,11 +3420,13 @@ char *line;
 #ifdef IPCHECKING
 void AddJoinChannel() {
     int  i;
-    char *nick=get_server_nickname(from_server);
+    char *nick;
     void (*func)();
     time_t timenow=time((time_t *) 0);
 
     if (timenow-start_time<15) return;
+    if (from_server<0 || from_server>=number_of_servers) return;
+    nick=get_server_nickname(from_server);
     if (channel_join) {
         if (timenow-start_time>297)
             for (i=0;i<mybufsize;i++)
