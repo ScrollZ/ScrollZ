@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.53 2001-01-22 18:19:01 f Exp $
+ * $Id: edit.c,v 1.54 2001-02-03 19:18:44 f Exp $
  */
 
 #include "irc.h"
@@ -2600,7 +2600,10 @@ send_topic(command, args, subargs)
 	}
 	else
 	if (get_channel_by_refnum(0))
-		send_to_server("%s %s :%s", command, get_channel_by_refnum(0), subargs);
+/**************************** Patched by Flier ******************************/
+		/*send_to_server("%s %s :%s", command, get_channel_by_refnum(0), subargs);*/
+		send_to_server("%s %s :%s %s",command,get_channel_by_refnum(0),arg,args);
+/****************************************************************************/
 	else
 		say("You aren't on a channel in this window");
 }
