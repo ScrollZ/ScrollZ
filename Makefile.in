@@ -1,0 +1,297 @@
+# IRC II - written by Michael Sandrof
+#
+# Copyright (c) 1991 Michael Sandrof.
+# Copyright (c) 1991, 1992 Troy Rollo.
+# Copyright (c) 1992-1998 Matthew R. Green.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. The name of the author may not be used to endorse or promote products
+#    derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+# $Id: Makefile.in,v 1.1 1998-09-10 17:31:12 f Exp $
+
+# targets recognised by this makefile:
+#   all, everything	- compiles ircii, ircio, ircflush and wserv
+#   ircio		- compiles ircio
+#   ircflush		- compiles ircflush
+#   wserv		- compiles wserv
+#   install		- installs ircii, ircio, ircflush and wserv the scripts
+#			  and the translation tables.
+#   installirc		- installs ircii
+#   installio		- installs ircio
+#   installwserv	- installs wserv
+#   installflush	- installs ircflush
+#   installscript 	- installs the scripts
+#   installtranslation	- installs the translation tables
+#   installhelp		- installs the help files
+#   installman          - installs the manual pages.
+#   installeverything   - all of the above
+#   clean               - remove all .o files, core, and binaries
+#   distclean           - remove all files geneated by compilation/installation.
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/man/man1
+
+# Where the ircII binary will be installed.
+# 'make install' will compile and install the program
+INSTALL_IRC = ${bindir}/irc
+
+# Where the ircII library will be.  Generally this is the place that
+# you put the scripts, help pages and translation tables.  It is
+# very important that you set this correctly.
+IRCLIB = @IRCLIB@
+
+# Set this to the lex you want to use, and if they lex uses a library.
+
+LEX = @LEX@
+LEXLIB = @LEXLIB@
+
+CC = @CC@
+DEFS = @DEFS@
+LIBS = @LIBS@
+
+# Set this to -g if you want to be able to debug the client, otherwise
+# use -O to have the compiler do some optimization instead.
+CFLAGS = @CFLAGS@
+
+# Set this to -s if you want the binary to be stripped.
+LDFLAGS = @LDFLAGS@
+
+# these are legacy things from ircii 2.2 that haven't yet been
+# handled with autoconf.
+
+# For Apollo systems (10.2 and upwards) use the following with BSD defaults:
+# DEFS = -Asys,bsd4.3
+
+# Use one of the following for mips systems:
+# Choice 1, if your system has the wait3() call
+# DEFS = -systype bsd43
+# Choice 2, if your system has the wait2() call
+# DEFS = -systype bsd43 -Duse_wait2
+#
+# Or, if you only have sysv installed, use one of the following:
+# DEFS = -DMIPS_SYSV
+# DEFS = -DMIPS_SYSV -Duse_wait2
+
+## You probably don't need to change anything below this line
+
+# Uncomment the following if you want a secure IRC which binds to a
+# privileged port. This feature is completely useless in the current
+# IRC environment, but in the future some servers may use privileged
+# port systems to verify users connecting to them. The value of
+# PRIV_PORT determines the minimum port number to use.
+# If you modify these (including uncommenting them) you will need to
+# touch config.h
+#
+# If you are on a system where test-suid works, you can simply define
+# PP_DEFS to be PRIV_PORT_ULC and irc will change effective UID back
+# to a normal user immediately, and change to root when binding a port.
+# This feature is undocumented, but is known to work on Sun, MIPS and
+# Apollo (Cos we've tested them already).  Note that it's almost 
+# _CERTAIN_ that ircII has security problems with buffer overflows
+# in it's code that having it setuid root is the wrong thing to do
+# and this is _STRONGLY_ advised against.
+# PP_DEFINES = -DPRIV_PORT=667
+# PP_OBJS = file.o
+# PP_DEFINES = -DPRIV_PORT_ULC
+
+# Full path of the directory for ircII help files.  
+HELP_DIR = $(IRCLIB)/help
+
+# Full path of the directory for the ircII scripts.
+INSTALL_SCRIPT = $(IRCLIB)/script
+
+# Default setting for IRC_PATH where irc will look for
+# its script files if the environment variable is undefined.
+# Usually, this should contain the same path as used for INSTALL_SCRIPT in
+# the Makefile, but it can contain multiple path elements
+# separated by colons. The path MUST lead to an existing directory,
+# because the 'global' script is expected to be found there.
+IRC_PATH = ~/.ScrollZ:$(INSTALL_SCRIPT):.
+
+# Path for TRANSLATION variable.
+TRANS_PATH = $(IRCLIB)/translation
+
+# Set the next line to the full path for installation of the ircio program
+# if you wish to use it. 
+INSTALL_IRCIO = $(bindir)/ircio
+
+# This little program is necessary to have an interactive shell
+# in a window of ircII. The 'shell' script uses it, so also update
+# the path in there, if you want to enable this.
+INSTALL_IRCFLUSH = $(bindir)/ircflush
+
+# This program allows you to use screen/xterm's to put new irc windows
+# on new screen/xterm windows.
+INSTALL_WSERV = $(bindir)/wserv
+
+# This command will be used to install the irc help files.  If you don't
+# want to install them, replace with the following:
+# INSTALL_HELP_CMD = @echo The help files have not been installed.
+INSTALL_HELP_CMD = @INSTALL_HELP_CMD@
+
+## You shouldn't have to change anything below here
+
+srcdir = .
+
+RM = @RM@
+LN = @LN@
+CP = cp
+MV = mv
+INSTALL = ./bsdinstall -c -m 755
+INSTALL_DATA = ../bsdinstall -c -m 644
+
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+MAKE = make $(MFLAGS)
+MFLAGS ='CC=$(CC)'					\
+	'CFLAGS=$(CFLAGS)'				\
+	'DEFS=$(DEFS)'					\
+	'HELP_DIR=$(HELP_DIR)'				\
+	'INSTALL_IRC=$(INSTALL_IRC)'			\
+	'INSTALL_IRCIO=$(INSTALL_IRCIO)'		\
+	'INSTALL_WSERV=$(INSTALL_WSERV)'		\
+	'IRCLIB=$(IRCLIB)'				\
+	'IRCPATH=$(IRC_PATH)'				\
+	'LDFLAGS=$(LDFLAGS)'				\
+	'LEX=$(LEX)'					\
+	'LEXLIB=$(LEXLIB)'				\
+	'LIBS=$(LIBS)'					\
+	'LN=$(LN)'					\
+	'PP_DEFS=$(PP_DEFS)'				\
+	'PP_OBJS=$(PP_OBJS)'				\
+	'PPS_DEFS=$(PPS_DEFS)'				\
+	'RM=$(RM)'					\
+	'TRANS_DIR=$(TRANS_PATH)'
+
+all: irc ircio ircflush wserv
+
+install: all installbin installscript installtranslation installman installhelp
+
+irc: source/Makefile Makefile
+	@cd source; $(MAKE) all
+
+installeverything: install installflush installio installwserv \
+	installscript installtranslation installhelp
+
+everything: all ircflush ircio wserv
+
+ircserv: ircio
+
+ircio: source/Makefile
+	@cd source; $(MAKE) ircio
+
+ircflush: source/ircflush.c source/Makefile
+	@cd source; $(MAKE) ircflush
+
+wserv: source/wserv.c source/term.c source/Makefile
+	@cd source; $(MAKE) wserv
+
+installbin: installirc installio installflush installwserv
+
+installirc: irc installdirs
+	$(INSTALL) source/irc $(INSTALL_IRC)-$(VERSION)
+	$(INSTALL) ircbug $(bindir)/ircbug
+	@if test -f $(INSTALL_IRC).old; then $(RM) $(INSTALL_IRC).old; fi
+	@if test -f $(INSTALL_IRC); then $(MV) $(INSTALL_IRC) $(INSTALL_IRC).old; fi
+	$(RM) $(INSTALL_IRC)
+	$(LN) $(INSTALL_IRC)-$(VERSION) $(INSTALL_IRC)
+
+installscript: installdirs
+	-chmod -x script/*
+	-@(								\
+		if test -f $(INSTALL_SCRIPT)/local; then		\
+			if test -f script/local; then 			\
+				$(MV) script/local script/local.orig;	\
+			fi;						\
+		fi							\
+	)
+	cd script; for i in *; do $(INSTALL_DATA) $$i $(INSTALL_SCRIPT); done
+
+installtranslation: installdirs
+	-chmod -x translation/*
+	cd translation; for i in *; do $(INSTALL_DATA) $$i $(TRANS_PATH); done
+
+installserv: installio
+installio: ircio installdirs
+	$(INSTALL) source/ircio $(INSTALL_IRCIO)
+
+installflush: ircflush installdirs
+	$(INSTALL) source/ircflush $(INSTALL_IRCFLUSH)
+
+installwserv: wserv installdirs
+	$(INSTALL) source/wserv $(INSTALL_WSERV)
+
+installhelp:
+	$(INSTALL_HELP_CMD)
+
+installman:
+	cd doc; for i in ircII.1 ircbug.1; do $(INSTALL_DATA) $$i $(mandir); done
+
+# not sure about installing this one yet.
+#	$(INSTALL_DATA) doc/query-pr.1 $(mandir)
+
+installdirs:
+	umask 022; ./mkinstalldirs $(IRCLIB) $(bindir) $(mandir) \
+		$(TRANS_PATH) $(INSTALL_SCRIPT) $(HELP_DIR)
+
+clena clean:
+	@-if test -f source/Makefile; then cd source; $(MAKE) clean; fi
+	@-if test -f include/Makefile; then cd include; $(MAKE) clean; fi
+
+distclean cleandir realclean: clean
+	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log easyinst.status include/defs.h ircbug
+
+lint:
+	@if test -f source/Makefile; then cd source; $(MAKE) lint; fi
+
+autoconf: configure
+
+configure: configure.in acconfig.h aclocal.m4
+	autoconf
+
+autoheader: include/defs.h.in
+
+include/defs.h.in: configure.in acconfig.h aclocal.m4
+	autoheader
+
+headers:
+	@-if test -f include/Makefile; then cd include; $(MAKE) headers; fi
+
+autofiles: headers autoconf autoheader
+
+config_h:
+	$(RM) include/config.h
+	cp include/config.h.dist include/config.h
+
+export: headers distclean autoconf autoheader config_h
+
+dist: export
+	( \
+		cd ..; \
+		tar --exclude .CVS -z -c -f ircii-$(VERSION).tar.z ircii; \
+	)

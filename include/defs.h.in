@@ -1,0 +1,338 @@
+/* include/defs.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/*
+ * $Id
+ */
+
+/* Define if on AIX 3.
+   System headers sometimes define this.
+   We just want to avoid a redefinition error message.  */
+#ifndef _ALL_SOURCE
+#undef _ALL_SOURCE
+#endif
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef gid_t
+
+/* Define if you have the strftime function.  */
+#undef HAVE_STRFTIME
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef mode_t
+
+/* Define if your C compiler doesn't accept -c and -o together.  */
+#undef NO_MINUS_C_MINUS_O
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef pid_t
+
+/* Define if the system does not provide POSIX.1 features except
+   with this defined.  */
+#undef _POSIX_1_SOURCE
+
+/* Define if you need to in order for stat and other things to work.  */
+#undef _POSIX_SOURCE
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define on System V Release 4.  */
+#undef SVR4
+
+/* Define if you can safely include both <sys/time.h> and <time.h>.  */
+#undef TIME_WITH_SYS_TIME
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef uid_t
+
+/* define if allow sys/time.h with time.h */
+#undef TIME_WITH_SYS_TIME
+
+/* define this if you are using BSD wait union thigs */
+#undef BSDWAIT
+
+/* define this if you are using sigaction() instead of signal() */
+#undef USE_SIGACTION
+
+/* define this if you are using sigset() instead of signal() */
+#undef USE_SIGSET
+
+/* define this if you are using system V (unreliable) signals */
+#undef SYSVSIGNALS
+
+/* define this if termcap(3) requires it */
+#undef INCLUDE_TERM_H
+
+/* define this if you are using -lcurses, or if termcap(3) requires it */
+#undef INCLUDE_CURSES_H
+
+/* define this if wait3() is declared */
+#undef WAIT3_DECLARED
+
+/* define this if waitpid() is declared */
+#undef WAITPID_DECLARED
+
+/* define this if waitpid() is unavailable */
+#undef NEED_WAITPID
+
+/* define this to the name of the AMS mail file */
+#undef AMS_MAIL
+
+/* define this if you have scandir() */
+#undef HAVE_SCANDIR
+
+/* define this if you have memmove() */
+#undef HAVE_MEMMOVE
+
+/* define this if you have setsid() */
+#undef HAVE_SETSID
+
+/* define this if you have getsid() */
+#undef HAVE_GETSID
+
+/* define this if you have getpgid() */
+#undef HAVE_GETPGID
+
+/* define this if your getpgrp() doesn't take a pid argument */
+#undef BROKEN_GETPGRP
+
+/* define this if you need getcwd() */
+#undef NEED_GETCWD 
+
+/* define this if you have hpux version 7 */
+#undef HPUX7
+
+/* define this if you have hpux version 8 */
+#undef HPUX8
+
+/* define this if you have an unknown hpux version (pre ver 7) */
+#undef HPUXUNKNOWN
+
+/* define this if an unsigned long is 32 bits */
+#undef UNSIGNED_LONG32
+
+/* define this if an unsigned int is 32 bits */
+#undef UNSIGNED_INT32
+
+/* define this if you are unsure what is is 32 bits */
+#undef UNKNOWN_32INT
+
+/* define this if you are on a svr4 derivative */
+#undef SVR4
+
+/* define this if you are on solaris 2.x */
+#undef __solaris__
+
+/* define this if you don't have struct linger */
+#undef NO_STRUCT_LINGER
+
+/* define this if you are on svr3/twg */
+#undef WINS
+
+/* define this if you need fchmod */
+#undef NEED_FCHMOD
+
+/* define this to the location of normal unix mail */
+#undef UNIX_MAIL
+
+/* define this to be the name[:port] of the default server */
+#undef DEFAULT_SERVER
+
+/* define this if you want to be paranoid */
+#undef PARANOID
+
+/* define this if your header files declare sys_errlist */
+#undef SYS_ERRLIST_DECLARED
+
+/* define this if you have uname(2) */
+#undef HAVE_UNAME
+
+/* define this if you need strerror(3) */
+#undef NEED_STRERROR
+
+/* define this if you have posix strftime(3) */
+#undef HAVE_STRFTIME
+
+/* define this if you have (working) POSIX (O_NONBLOCK) non-blocking */
+#undef NBLOCK_POSIX
+
+/* define this if you have BSD (O_NDELAY) non-blocking */
+#undef NBLOCK_BSD
+
+/* define this if you have SYSV (FIONBIO) non-blocking */
+#undef NBLOCK_SYSV
+
+/* Define this if compiling with SOCKS (the firewall traversal library).
+   Also, you must define connect, getsockname, bind, accept, listen, and
+   select to their R-versions. */
+#undef SOCKS
+#undef connect
+#undef getsockname
+#undef bind
+#undef accept
+#undef listen
+#undef select
+
+/*
+ * Are we doing non-blocking connects?  Note:  SOCKS support precludes
+ * us from using this feature.
+ */
+#if (defined(NBLOCK_POSIX) || defined(NBLOCK_BSD) || defined(NBLOCK_SYSV)) && \
+	!defined(SOCKS)
+# define NON_BLOCKING_CONNECTS
+#endif
+
+/* Define if you have the <dirent.h> header file.  */
+#undef HAVE_DIRENT_H
+
+/* Define if you have the <fcntl.h> header file.  */
+#undef HAVE_FCNTL_H
+
+/* Define if you have the <limits.h> header file.  */
+#undef HAVE_LIMITS_H
+
+/* Define if you have the <memory.h> header file.  */
+#undef HAVE_MEMORY_H
+
+/* Define if you have the <ndir.h> header file.  */
+#undef HAVE_NDIR_H
+
+/* Define if you have the <netdb.h> header file.  */
+#undef HAVE_NETDB_H
+
+/* Define if you have the <process.h> header file.  */
+#undef HAVE_PROCESS_H
+
+/* Define if you have the <sgtty.h> header file.  */
+#undef HAVE_SGTTY_H
+
+/* Define if you have the <stdarg.h> header file.  */
+#undef HAVE_STDARG_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
+/* Define if you have the <sys/dir.h> header file.  */
+#undef HAVE_SYS_DIR_H
+
+/* Define if you have the <sys/fcntl.h> header file.  */
+#undef HAVE_SYS_FCNTL_H
+
+/* Define if you have the <sys/file.h> header file.  */
+#undef HAVE_SYS_FILE_H
+
+/* Define if you have the <sys/ioctl.h> header file.  */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define if you have the <sys/ndir.h> header file.  */
+#undef HAVE_SYS_NDIR_H
+
+/* Define if you have the <sys/ptem.h> header file.  */
+#undef HAVE_SYS_PTEM_H
+
+/* Define if you have the <sys/select.h> header file.  */
+#undef HAVE_SYS_SELECT_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/twg_config.h> header file.  */
+#undef HAVE_SYS_TWG_CONFIG_H
+
+/* Define if you have the <sys/un.h> header file.  */
+#undef HAVE_SYS_UN_H
+
+/* Define if you have the <sys/wait.h> header file.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if you have the <termcap.h> header file.  */
+#undef HAVE_TERMCAP_H
+
+/* Define if you have the <termio.h> header file.  */
+#undef HAVE_TERMIO_H
+
+/* Define if you have the <termios.h> header file.  */
+#undef HAVE_TERMIOS_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the <varargs.h> header file.  */
+#undef HAVE_VARARGS_H
+
+/* Define if you have the sun library (-lsun).  */
+#undef HAVE_LIBSUN
+
+/**************************** PATCHED by Flier ******************************/
+/* Define this if you have gettimeofday(), most systems do */
+#undef HAVETIMEOFDAY
+
+/* Define this if you want IP checking */
+/* #undef IPCHECKING */
+
+/* Define this if you want client with ANSI (color) support */
+#define WANTANSI 1
+
+/* Define this if you want OperVision support in the client */
+/* #undef OPERVISION */
+
+/* Define this if you want following optional stuff:
+ - /AUTOINV   - Invites on Notify    - /LOGO
+ - /FIND      - /SVER                - /BKT
+ - /DIRLMK    - /DIRLNK              - /BKI
+ - /MODELOCK  - /MODEUNLOCK          - Mode Lock Checking
+ - /LLOOKUP   - /LLOOK               - /RANLK
+ - /MN        - /ML                  - /TERMINATE
+ - /MSAY      - /DOBANS */
+/* #undef EXTRAS */
+
+/* Define this if you want more /TIMER that's accurate to 0.01s */
+/* #undef BETTERTIMER */
+
+/* Define this if you want formatted /CSCAN */
+/* #undef NEWCSCAN */
+
+/* Define this if you feel users should be invited to non +i channels on
+   notify signon */
+/* #undef ACID */
+
+/* Define this if you want sorted nicks in /CSCAN and old style of MSGs */
+/* #undef MGS */
+
+/* Define this if you want scatter kicks */
+/* #undef SCKICKS */
+
+/* Define this if you want to compile with Celerity C-Script */
+/* #undef CELE */
+/* #undef CELECOSM */
+/* #undef CELEPROT */
+/* #undef CELESCRP */
+/* #undef CELEHOOK */
+
+/* Define this if you want HyperDCC by Annatar in the client */
+/* #undef HYPERDCC */
+
+/* Define this if you don't want ScrollZ trademarks in KICKs and AWAY msgs */
+/* #undef VILAS */
+
+/* Define this if you want better /NEWHOST */
+/* #undef JIMMIE */
+
+/* Define this if you want CTCP PAGE by BiGhEaD */
+/* #undef CTCPPAGE */
+
+/* Define this if you want different messages, chat messages and CDCC */
+/* #undef TDF */
+
+/* Define this if you want $country() in the client */
+/* #undef COUNTRY */
+/****************************************************************************/

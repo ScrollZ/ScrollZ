@@ -1,0 +1,199 @@
+/*
+ * hook.h.proto: header for hook.c
+ *
+ * Copyright (c) 1990 Michael Sandrof.
+ * Copyright (c) 1991, 1992 Troy Rollo.
+ * Copyright (c) 1992-1998 Matthew R. Green.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+/*
+ * Generated from hook.h.proto automatically by the Makefile
+ *
+ * $Id: hook.h.proto,v 1.1 1998-09-10 17:31:12 f Exp $
+ */
+
+#ifndef __hook_h_
+# define __hook_h_
+
+/* Hook: The structure of the entries of the hook functions lists */
+typedef struct	hook_stru
+{
+	struct	hook_stru *next;	/* pointer to next element in list */
+	char	*nick;			/* The Nickname */
+	int	not;			/* If true, this entry should be
+					 * ignored when matched, otherwise it
+					 * is a normal entry */
+	int	noisy;			/* flag indicating how much output
+					 * should be given */
+	int	server;			/* the server in which this hook
+					 * applies. (-1 if none). If bit 0x1000
+					 * is set, then no other hooks are
+					 * tried in the given server if all the
+					 * server specific ones fail
+					 */
+	int	sernum;			/* The serial number for this hook. This
+					 * is used for hooks which will be
+					 * concurrent with others of the same
+					 * pattern. The default is 0, which
+					 * means, of course, no special
+					 * behaviour. If any 1 hook suppresses
+					 * the * default output, output will be
+					 * suppressed.
+					 */
+	char	*stuff;			/* The this that gets done */
+	int	global;			/* set if loaded from `global' */
+}	Hook;
+
+/* HookFunc: A little structure to keep track of the various hook functions */
+typedef struct
+{
+	char	*name;			/* name of the function */
+	Hook	*list;			/* pointer to head of the list for this
+					 * function */
+	int	params;			/* number of parameters expected */
+	int	mark;
+	unsigned flags;
+}	HookFunc;
+
+/*
+ * NumericList: a special list type to dynamically handle numeric hook
+ * requests 
+ */
+typedef struct numericlist_stru
+{
+	struct	numericlist_stru *next;
+	char	*name;
+	Hook	*list;
+}	NumericList;
+
+#define	ACTION_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define CDCC_PLIST $
+#define CDCC_PLIST_FOOTER $
+#define CDCC_PLIST_HEADER $
+/****************************************************************************/
+#define	CHANNEL_NICK_LIST $
+#define CHANNEL_SIGNOFF_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define CHANNEL_SYNCH_LIST $
+#define CHANNEL_WALLOP $
+/****************************************************************************/
+#define CONNECT_LIST $
+#define CTCP_LIST $
+#define CTCP_REPLY_LIST $
+#define	DCC_CHAT_LIST $
+#define DCC_CONNECT_LIST $
+#define DCC_ERROR_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define DCC_LIST $
+#define DCC_LIST_FOOTER $
+#define DCC_LIST_HEADER $
+/****************************************************************************/
+#define DCC_LOST_LIST $
+#define	DCC_RAW_LIST $
+#define DCC_REQUEST_LIST $
+#define DISCONNECT_LIST $
+#define ENCRYPTED_NOTICE_LIST $
+#define ENCRYPTED_PRIVMSG_LIST $
+#define EXEC_LIST $
+#define EXEC_ERRORS_LIST $
+#define EXEC_EXIT_LIST $
+#define EXEC_PROMPT_LIST $
+#define EXIT_LIST $
+#define FLOOD_LIST $
+#define HELP_LIST $
+#define	HOOK_LIST $
+#define IDLE_LIST $
+#define INPUT_LIST $
+#define INVITE_LIST $
+#define JOIN_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define JOIN_ME_LIST $
+/****************************************************************************/
+#define KICK_LIST $
+#define LEAVE_LIST $
+#define LIST_LIST $
+#define MAIL_LIST $
+#define MODE_LIST $
+#define MSG_LIST $
+#define MSG_GROUP_LIST $
+#define NAMES_LIST $
+#define NICKNAME_LIST $
+#define NOTE_LIST $
+#define NOTICE_LIST $
+#define NOTIFY_SIGNOFF_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define NOTIFY_SIGNOFF_UH_LIST $
+/****************************************************************************/
+#define NOTIFY_SIGNON_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define NOTIFY_SIGNON_UH_LIST $
+/****************************************************************************/
+#define PUBLIC_LIST $
+#define PUBLIC_MSG_LIST $
+#define PUBLIC_NOTICE_LIST $
+#define PUBLIC_OTHER_LIST $
+#define	RAW_IRC_LIST $
+#define	SEND_ACTION_LIST $
+/**************************** PATCHED by Flier ******************************/
+#define SEND_CTCP_LIST $
+/****************************************************************************/
+#define	SEND_DCC_CHAT_LIST $
+#define SEND_MSG_LIST $
+#define SEND_NOTICE_LIST $
+#define SEND_PUBLIC_LIST $
+#define	SEND_TALK_LIST $
+#define	SERVER_NOTICE_LIST $
+#define SIGNOFF_LIST $
+#define	TALK_LIST $
+#define TIMER_LIST $
+#define TOPIC_LIST $
+#define WALL_LIST $
+#define WALLOP_LIST $
+#define WHO_LIST $
+#define WIDELIST_LIST $
+#define WINDOW_LIST $
+#define WINDOW_KILL_LIST $
+#define NUMBER_OF_LISTS $
+
+#ifdef HAVE_STDARG_H
+	int	do_hook _((int, char *, ...));
+#else
+	int	do_hook _(());
+#endif /* HAVE_STDARG_H */
+	void	on _((char *, char *, char *));
+	void	save_hooks _((FILE *, int));
+	void	remove_hook _((int, char *, int, int, int));
+	void	show_hook _((Hook *, char *));
+
+extern	char	*hook_info;
+extern	NumericList *numeric_list;
+extern	HookFunc hook_functions[];
+
+extern	int	in_on_who;
+
+#endif /* __hook_h_ */

@@ -1,0 +1,136 @@
+/*
+ * keys.h: header for keys.c 
+ *
+ * Written By Michael Sandrof
+ *
+ * Copyright (c) 1990 Michael Sandrof.
+ * Copyright (c) 1991, 1992 Troy Rollo.
+ * Copyright (c) 1992-1998 Matthew R. Green.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * This file is automatically created from keys.h.proto.
+ *
+ * $Id: keys.h.proto,v 1.1 1998-09-10 17:31:12 f Exp $
+ */
+
+#ifndef __keys_h_
+#define __keys_h_
+
+#define BACKSPACE $
+#define BACKWARD_CHARACTER $
+#define BACKWARD_HISTORY $
+#define BACKWARD_WORD $
+#define BEGINNING_OF_LINE $
+#define CLEAR_SCREEN $
+#define COMMAND_COMPLETION $
+#define DELETE_CHARACTER $
+#define DELETE_NEXT_WORD $
+#define DELETE_PREVIOUS_WORD $
+#define END_OF_LINE $
+#define ENTER_DIGRAPH $
+#define	ENTER_MENU $
+#define ERASE_LINE $
+#define ERASE_TO_BEG_OF_LINE $
+#define ERASE_TO_END_OF_LINE $
+#define FORWARD_CHARACTER $
+#define FORWARD_HISTORY $
+#define FORWARD_WORD $
+#define META1_CHARACTER $
+#define META2_CHARACTER $
+#define META3_CHARACTER $
+#define META4_CHARACTER $
+#define NEXT_WINDOW $
+#define NOTHING $
+#define PARSE_COMMAND $
+#define PREVIOUS_WINDOW $
+#define QUIT_IRC $
+#define QUOTE_CHARACTER $
+#define REFRESH_INPUTLINE $
+#define REFRESH_SCREEN $
+#define	SCROLL_BACKWARD $
+#define	SCROLL_END $
+#define SCROLL_FORWARD $
+#define SCROLL_START $
+#define SELF_INSERT $
+#define SEND_LINE $
+#define STOP_IRC $
+#define SWAP_LAST_WINDOW $
+#define SWAP_NEXT_WINDOW $
+#define SWAP_PREVIOUS_WINDOW $
+#define SWITCH_CHANNELS $
+#define TOGGLE_INSERT_MODE $
+#define TOGGLE_STOP_SCREEN $
+#define TRANSPOSE_CHARACTERS $
+#define TYPE_TEXT $
+#define UNSTOP_ALL_WINDOWS $
+#define YANK_FROM_CUTBUFFER $
+/**************************** PATCHED by Flier ******************************/
+#define INSERT_AUTOREPLY $
+#define NICK_COMPLETION $
+#define LASTJOINER_KICK $
+#define ACCEPT_LAST_CHAT $
+#define META5_CHARACTER $
+#define INSERT_TABKEY_NEXT $
+#define INSERT_TABKEY_PREV $
+/****************************************************************************/
+#define NUMBER_OF_FUNCTIONS $
+
+/* KeyMap: the structure of the irc keymaps */
+typedef struct
+{
+	int	index;
+	char	changed;
+	int	global;
+	char	*stuff;
+}	KeyMap;
+
+/* KeyMapNames: the structure of the keymap to realname array */
+typedef struct
+{
+	char	*name;
+	void	(*func) _((unsigned char, char *));
+}	KeyMapNames;
+
+extern	KeyMap	keys[],
+		meta1_keys[],
+		meta2_keys[],
+		meta3_keys[],
+/**************************** PATCHED by Flier ******************************/
+		/*meta4_keys[];*/
+		meta4_keys[],
+		meta5_keys[];
+/****************************************************************************/
+extern	KeyMapNames key_names[];
+
+	void	(* get_send_line _((void))) _((unsigned char, char*));
+	void	save_bindings _((FILE *, int));
+	void	change_send_line _((void (*)(unsigned char, char *)));
+	void	bindcmd _((char *, char *, char *));
+	void	rbindcmd _((char *, char *, char *));
+	void	parsekeycmd _((char *, char *, char *));
+	void	type _((char *, char *, char *));
+
+#endif /* __keys_h_ */

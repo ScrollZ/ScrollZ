@@ -1,0 +1,16 @@
+$Id: README,v 1.1 1998-09-10 17:31:12 f Exp $
+
+please read the NEWS file to find out what is new in this
+version of ircii, and the INSTALL file to find out how to
+compile and install this version of ircii.
+
+this is a proper release of ircii.  it has bugs (ircii always
+has bugs).  feel free to send me context diffs to fix them,
+or at least a sequence of actions to show the bug.  run the
+`ircbug' script to submit bug reports.  if `ircbug' can not
+be run, please send reports to ircii-bugs@ircii.eterna.com.au.
+
+the INSTALL file also has some additional notes on portability
+issues.
+
+mrg (mrg@eterna.com.au)

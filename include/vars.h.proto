@@ -1,0 +1,223 @@
+/*
+ * vars.h: header for vars.c
+ *
+ * Generated from vars.h.proto automatically by the Makefile
+ *
+ * Copyright (c) 1990 Michael Sandrof.
+ * Copyright (c) 1991, 1992 Troy Rollo.
+ * Copyright (c) 1992-1998 Matthew R. Green.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ * $Id: vars.h.proto,v 1.1 1998-09-10 17:31:12 f Exp $
+ */
+
+#ifndef __vars_h_
+#define __vars_h_
+
+	int	do_boolean _((char *, int *));
+	void	set_variable _((char *, char *, char *));
+	int	get_int_var _((int));
+	char	*get_string_var _((int));
+	void	set_int_var _((int, unsigned int));
+	void	set_string_var _((int, char *));
+	void	init_variables _((void));
+	char	*make_string_var _((char *));
+	void	set_highlight_char _((char *));
+	int	charset_size _((void));
+	void	save_variables _((FILE *, int));
+	void	set_var_value _((int, char *));
+
+extern	char	*var_settings[];
+extern	int	loading_global;
+
+/* var_settings indexes ... also used in display.c for highlights */
+#define OFF 0
+#define ON 1
+#define TOGGLE 2
+
+#define	DEBUG_COMMANDS		0x0001
+#define	DEBUG_EXPANSIONS	0x0002
+#define DEBUG_FUNCTIONS		0x0004
+
+/* indexes for the irc_variable array */
+#define ALWAYS_SPLIT_BIGGEST_VAR $
+#define AUTO_UNMARK_AWAY_VAR $
+#define AUTO_WHOWAS_VAR  $
+#define BEEP_VAR $
+#define BEEP_MAX_VAR $
+#define BEEP_ON_MSG_VAR $
+#define BEEP_WHEN_AWAY_VAR $
+#define	BOLD_VIDEO_VAR $
+#define CHANNEL_NAME_WIDTH_VAR $
+#define CLIENTINFO_VAR $
+#define CLOCK_VAR $
+#define CLOCK_24HOUR_VAR $
+#define CLOCK_ALARM_VAR $
+#define CMDCHARS_VAR $
+#define COMMAND_MODE_VAR $
+#define CONTINUED_LINE_VAR $
+#define CTCP_REPLY_BACKLOG_SECONDS_VAR $
+#define CTCP_REPLY_FLOOD_SIZE_VAR $
+#define CTCP_REPLY_IGNORE_SECONDS_VAR $
+#define DCC_BLOCK_SIZE_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define DCC_PORTS_VAR $
+/****************************************************************************/
+#define	DEBUG_VAR $
+#define DISPLAY_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define DISPLAY_ANSI_VAR $
+/****************************************************************************/
+#define EIGHT_BIT_CHARACTERS_VAR $
+#define ENCRYPT_PROGRAM_VAR $
+#define EXEC_PROTECTION_VAR $
+#define FLOOD_AFTER_VAR $
+#define FLOOD_RATE_VAR $
+#define FLOOD_USERS_VAR $
+#define FLOOD_WARNING_VAR $
+#define FULL_STATUS_LINE_VAR $
+#define HELP_PAGER_VAR $
+#define HELP_PATH_VAR $
+#define HELP_PROMPT_VAR $
+#define HELP_WINDOW_VAR $
+#define HIDE_PRIVATE_CHANNELS_VAR $
+#define HIGHLIGHT_CHAR_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define HIGH_ASCII_VAR $
+/****************************************************************************/
+#define HISTORY_VAR $
+#define HISTORY_FILE_VAR $
+#define HOLD_MODE_VAR $
+#define HOLD_MODE_MAX_VAR $
+#define INDENT_VAR $
+#define INPUT_ALIASES_VAR $
+#define INPUT_PROMPT_VAR $
+#define INPUT_PROTECTION_VAR $
+#define INSERT_MODE_VAR $
+#define INVERSE_VIDEO_VAR $
+#define LASTLOG_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define LASTLOG_ANSI_VAR $
+/****************************************************************************/
+#define LASTLOG_LEVEL_VAR $
+#define	LOAD_PATH_VAR $
+#define LOG_VAR $
+#define LOGFILE_VAR $
+#define MAIL_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define MAX_MODES_VAR $
+/****************************************************************************/
+#define MAX_RECURSIONS_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define MAX_WALLOP_NICKS_VAR $
+/****************************************************************************/
+#define	MENU_VAR $
+#define MINIMUM_SERVERS_VAR $
+#define MINIMUM_USERS_VAR $
+#define NO_CTCP_FLOOD_VAR $
+#define NOTIFY_HANDLER_VAR $
+#define NOTIFY_LEVEL_VAR $
+#define NOTIFY_ON_TERMINATION_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define NOTIFY_STRING_VAR $
+/****************************************************************************/
+#define NOVICE_VAR $
+#define REALNAME_VAR $
+#define SAME_WINDOW_ONLY_VAR $
+#define SCREEN_OPTIONS_VAR $
+#define SCROLL_VAR $
+#define SCROLL_LINES_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define SCROLLZ_STRING_VAR $
+/****************************************************************************/
+#define SEND_IGNORE_MSG_VAR $
+#define SHELL_VAR $
+#define SHELL_FLAGS_VAR $
+#define SHELL_LIMIT_VAR $
+#define SHOW_AWAY_ONCE_VAR $
+#define SHOW_CHANNEL_NAMES_VAR $
+#define SHOW_END_OF_MSGS_VAR $
+#define SHOW_NUMERICS_VAR $
+#define SHOW_STATUS_ALL_VAR $
+#define SHOW_WHO_HOPCOUNT_VAR $
+#define STATUS_AWAY_VAR $
+#define STATUS_CHANNEL_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define STATUS_CHANNELCOUNT_VAR $
+/****************************************************************************/
+#define	STATUS_CHANOP_VAR $
+#define STATUS_CLOCK_VAR $
+#define STATUS_FORMAT_VAR $
+#define STATUS_FORMAT1_VAR $
+#define STATUS_FORMAT2_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define STATUS_FORMAT3_VAR $
+/****************************************************************************/
+#define	STATUS_GROUP_VAR $
+#define STATUS_HOLD_VAR $
+#define STATUS_HOLD_LINES_VAR $
+#define STATUS_INSERT_VAR $
+#define STATUS_MAIL_VAR $
+#define STATUS_MODE_VAR $
+#define STATUS_NOTIFY_VAR $
+#define STATUS_OPER_VAR $
+#define STATUS_OVERWRITE_VAR $
+#define STATUS_QUERY_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define STATUS_REVERSE_VAR $
+/****************************************************************************/
+#define STATUS_SERVER_VAR $
+#define	STATUS_UMODE_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define STATUS_UPTIME_VAR $
+/****************************************************************************/
+#define STATUS_USER_VAR $
+#define STATUS_USER1_VAR $
+#define STATUS_USER2_VAR $
+#define STATUS_USER3_VAR $
+/**************************** PATCHED by Flier ******************************/
+#define STATUS_USER4_VAR $
+#define STATUS_USER5_VAR $
+#define STATUS_USER6_VAR $
+#define STATUS_USER7_VAR $
+#define STATUS_USER8_VAR $
+#define STATUS_USER9_VAR $
+/****************************************************************************/
+#define STATUS_WINDOW_VAR $
+#define SUPPRESS_SERVER_MOTD_VAR $
+#define TAB_VAR $
+#define	TAB_MAX_VAR $
+#define TRANSLATION_VAR $
+#define UNDERLINE_VIDEO_VAR $
+#define USE_OLD_MSG_VAR $
+#define USER_INFO_VAR $
+#define	USER_WALLOPS_VAR $
+#define VERBOSE_CTCP_VAR $
+#define WARN_OF_IGNORES_VAR $
+#define XTERM_OPTIONS_VAR $
+#define NUMBER_OF_VARIABLES $
+
+#endif /* __vars_h_ */

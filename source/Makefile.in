@@ -1,0 +1,326 @@
+# soucre/Makefile.in
+# ircii 2.3
+# all rights reserved
+# written by matthew green.
+# copyright (c) 1993
+# @(#)$Id: Makefile.in,v 1.1 1998-09-10 17:31:12 f Exp $
+
+LIBS	= @LIBS@
+CC	= @CC@
+CFLAGS	= @CFLAGS@
+LDFLAGS	= @LDFLAGS@
+LEX	= @LEX@
+LEXLIB	= @LEXLIB@
+DEFS	= @DEFS@
+LN	= @LN@
+RM	= @RM@
+
+OBJECTS = alias.o blowfish.o cdcc.o crypt.o ctcp.o dcc.o debug.o edit.o\
+	edit2.o edit3.o edit4.o edit5.o edit6.o exec.o files.o flood.o\
+	funny.o help.o history.o hold.o hook.o if.o ignore.o input.o\
+	irc.o ircaux.o ircsig.o keys.o lastlog.o list.o log.o mail.o\
+	menu.o names.o newio.o notice.o notify.o numbers.o operv.o output.o\
+	parse.o queue.o reg.o scandir.o screen.o server.o stack.o\
+	status.o term.o translat.o vars.o whois.o whowas.o window.o\
+	$(PP_OBJS)
+
+SOURCES = alias.c blowfish.c cdcc.c crypt.c ctcp.c dcc.c debug.c edit.c\
+	edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c flood.c\
+	funny.c help.c history.c hold.c hook.c if.c ignore.c input.c\
+	irc.c ircaux.c ircsig.c keys.c lastlog.c list.c log.c mail.c\
+	menu.c names.c newio.c notice.c notify.c numbers.c operv.c output.c\
+	parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
+	status.c term.c translat.c vars.c whois.c whowas.o window.c\
+	$(PP_SRCS)
+
+IRCIO_OBJECTS = ircio.o
+
+IRCIO_SOURCES = ircio.c
+
+WSERV_OBJECTS = wserv.o wterm.o
+
+WSERV_SOURCES = wserv.c term.c
+
+INCLUDES = -I../include
+
+default:
+	(cd ..;make)
+
+all: irc
+
+# got I hate typos.
+clena: clean
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -c $<
+
+irc: $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) -o irc $(OBJECTS) $(LIBS)
+clean::
+	$(RM) irc $(OBJECTS)
+
+install: irc
+	cd ..; $(MAKE) install
+
+# .o files needing special compilation flags
+
+irc.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCLIB=\"$(IRCLIB)/\" -DIRCPATH=\"$(IRCPATH)\" -c irc.c
+
+vars.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DDEFAULT_HELP_PATH=\"$(HELP_DIR)\" -c vars.c
+
+help.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DDEFAULT_HELP_PATH=\"$(HELP_DIR)\" -c help.c
+
+server.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DIRCIO_PATH=\"$(INSTALL_IRCIO)\" -c server.c
+
+translat.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DTRANSLATION_PATH=\"$(TRANS_DIR)/\" -c translat.c
+
+screen.o: Makefile ../Makefile
+	$(CC) $(CFLAGS) $(DEFS) $(PP_DEFS) $(INCLUDES) -DWSERV_PATH=\"$(INSTALL_WSERV)\" -c screen.c
+
+# auxiliary programs
+
+ircflush: ircflush.o ircsig.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(INCLUDES) -o ircflush ircflush.o ircsig.o $(LIBS)
+clean::
+	$(RM) ircflush ircflush.o
+
+ircio: ircio.o newio.o ircsig.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(PPS_DEFS) $(INCLUDES) -o ircio ircio.o newio.o ircsig.o $(LIBS)
+clean::
+	$(RM) ircio ircio.o newio.o
+
+wserv: $(WSERV_OBJECTS) ircsig.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFS) $(INCLUDES) -o wserv $(WSERV_OBJECTS) ircsig.o $(LIBS)
+clean::
+	$(RM) wserv wserv.o wterm.o wterm.c
+
+# extra junk
+
+clean::
+	$(RM) core a.out debug.log
+
+
+# dependencies
+
+wterm.c: term.c
+	$(RM) wterm.c
+	$(LN) term.c wterm.c
+
+wterm.o : wterm.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/translat.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/screen.h 
+	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -DSTTY_ONLY -c wterm.c
+
+alias.o : alias.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/alias.h ../include/dcc.h ../include/status.h \
+  ../include/edit.h ../include/history.h ../include/vars.h ../include/ircaux.h \
+  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
+  ../include/lastlog.h ../include/menu.h ../include/screen.h ../include/input.h \
+  ../include/output.h 
+crypt.o : crypt.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/crypt.h ../include/vars.h \
+  ../include/ircaux.h ../include/list.h ../include/ctcp.h ../include/output.h \
+  ../include/newio.h 
+ctcp.o : ctcp.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/hook.h \
+  ../include/crypt.h ../include/ctcp.h ../include/vars.h ../include/server.h ../include/names.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/status.h ../include/ignore.h ../include/output.h \
+  ../include/dcc.h ../include/parse.h 
+dcc.o : dcc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/server.h \
+  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/whois.h ../include/ctcp.h \
+  ../include/dcc.h ../include/hook.h ../include/vars.h ../include/output.h ../include/newio.h 
+debug.o : debug.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h 
+edit.o : edit.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/parse.h ../include/ircterm.h \
+  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
+  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/crypt.h \
+  ../include/vars.h ../include/ircaux.h ../include/screen.h ../include/whois.h \
+  ../include/hook.h ../include/input.h ../include/ignore.h ../include/keys.h ../include/alias.h \
+  ../include/history.h ../include/funny.h ../include/ctcp.h ../include/dcc.h ../include/translat.h \
+  ../include/output.h ../include/exec.h ../include/notify.h ../include/numbers.h \
+  ../include/status.h ../include/if.h ../include/help.h ../include/stack.h ../include/queue.h 
+exec.o : exec.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/exec.h ../include/vars.h ../include/ircaux.h \
+  ../include/edit.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/menu.h ../include/screen.h ../include/hook.h ../include/input.h ../include/list.h \
+  ../include/server.h ../include/names.h ../include/output.h ../include/parse.h \
+  ../include/dcc.h ../include/newio.h sig.inc 
+file.o : file.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h 
+flood.o : flood.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/hook.h ../include/ircaux.h \
+  ../include/ignore.h ../include/flood.h ../include/vars.h ../include/output.h 
+funny.o : funny.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/hook.h \
+  ../include/vars.h ../include/funny.h ../include/names.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/server.h \
+  ../include/ircterm.h ../include/output.h ../include/numbers.h ../include/parse.h 
+help.o : help.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/server.h \
+  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/vars.h ../include/ircaux.h ../include/input.h \
+  ../include/screen.h ../include/output.h ../include/help.h 
+history.o : history.c ../include/irc.h ../include/defs.h ../include/config.h \
+  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/ircaux.h \
+  ../include/vars.h ../include/history.h ../include/output.h ../include/input.h 
+hold.o : hold.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
+  ../include/vars.h ../include/input.h 
+hook.o : hook.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/hook.h ../include/vars.h ../include/ircaux.h \
+  ../include/alias.h ../include/list.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/server.h ../include/names.h ../include/output.h 
+if.o : if.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/alias.h ../include/ircaux.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/vars.h ../include/output.h ../include/if.h 
+ignore.o : ignore.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ignore.h ../include/ircaux.h \
+  ../include/list.h ../include/vars.h ../include/output.h 
+input.o : input.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/input.h ../include/ircterm.h \
+  ../include/alias.h ../include/vars.h ../include/ircaux.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
+  ../include/exec.h 
+irc.o : irc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/status.h ../include/dcc.h \
+  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/vars.h ../include/input.h ../include/alias.h \
+  ../include/output.h ../include/ircterm.h ../include/exec.h ../include/screen.h \
+  ../include/log.h ../include/server.h ../include/hook.h ../include/keys.h ../include/ircaux.h \
+  ../include/history.h ../include/notify.h ../include/mail.h ../include/newio.h 
+ircaux.o : ircaux.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/output.h \
+  ../include/ircterm.h ../include/newio.h 
+ircflush.o : ircflush.c ../include/irc.h ../include/defs.h ../include/config.h \
+  ../include/irc_std.h ../include/debug.h ../include/struct.h 
+ircio.o : ircio.c ../include/defs.h ../include/irc_std.h ../include/newio.h 
+ircsig.o : ircsig.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h 
+keys.o : keys.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/output.h ../include/keys.h \
+  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/vars.h ../include/translat.h \
+  ../include/ircterm.h ../include/input.h ../include/screen.h 
+lastlog.o : lastlog.c ../include/irc.h ../include/defs.h ../include/config.h \
+  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/lastlog.h \
+  ../include/window.h ../include/hold.h ../include/edit.h ../include/menu.h ../include/screen.h \
+  ../include/vars.h ../include/ircaux.h ../include/output.h 
+list.o : list.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/list.h ../include/ircaux.h 
+log.o : log.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/log.h ../include/vars.h ../include/output.h \
+  ../include/ircaux.h 
+mail.o : mail.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/newio.h ../include/mail.h \
+  ../include/lastlog.h ../include/hook.h ../include/vars.h ../include/ircaux.h \
+  ../include/output.h ../include/window.h ../include/hold.h ../include/edit.h \
+  ../include/menu.h 
+menu.o : menu.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/menu.h ../include/list.h ../include/ircaux.h \
+  ../include/ircterm.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/screen.h ../include/input.h ../include/vars.h ../include/output.h 
+names.o : names.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/names.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/screen.h ../include/server.h ../include/list.h \
+  ../include/output.h 
+newio.o : newio.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h ../include/newio.h 
+notice.o : notice.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/whois.h ../include/ctcp.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/flood.h ../include/vars.h ../include/ircaux.h ../include/hook.h \
+  ../include/ignore.h ../include/server.h ../include/names.h ../include/funny.h \
+  ../include/output.h ../include/parse.h ../include/notify.h 
+notify.o : notify.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/list.h ../include/notify.h \
+  ../include/ircaux.h ../include/whois.h ../include/hook.h ../include/server.h \
+  ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/output.h ../include/vars.h 
+numbers.o : numbers.c ../include/irc.h ../include/defs.h ../include/config.h \
+  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/input.h \
+  ../include/edit.h ../include/ircaux.h ../include/vars.h ../include/lastlog.h \
+  ../include/hook.h ../include/server.h ../include/names.h ../include/window.h \
+  ../include/hold.h ../include/menu.h ../include/whois.h ../include/numbers.h \
+  ../include/screen.h ../include/output.h ../include/funny.h ../include/parse.h 
+output.o : output.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/output.h ../include/vars.h \
+  ../include/input.h ../include/ircterm.h ../include/lastlog.h ../include/window.h \
+  ../include/hold.h ../include/edit.h ../include/menu.h ../include/screen.h ../include/hook.h \
+  ../include/ctcp.h ../include/log.h 
+parse.o : parse.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/server.h ../include/names.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/vars.h ../include/ctcp.h ../include/hook.h ../include/ignore.h \
+  ../include/whois.h ../include/ircaux.h ../include/funny.h ../include/crypt.h \
+  ../include/ircterm.h ../include/flood.h ../include/screen.h ../include/output.h \
+  ../include/numbers.h ../include/parse.h ../include/notify.h 
+queue.o : queue.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/alias.h ../include/ircaux.h \
+  ../include/output.h ../include/edit.h ../include/if.h ../include/queue.h 
+reg.o : reg.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircaux.h 
+scandir.o : scandir.c ../include/defs.h 
+screen.o : screen.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/screen.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/output.h \
+  ../include/vars.h ../include/server.h ../include/names.h ../include/list.h ../include/ircterm.h \
+  ../include/ircaux.h ../include/input.h ../include/log.h ../include/hook.h ../include/dcc.h \
+  ../include/translat.h ../include/exec.h ../include/newio.h 
+server.o : server.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/server.h ../include/names.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/screen.h ../include/ircaux.h ../include/whois.h \
+  ../include/exec.h ../include/output.h ../include/parse.h ../include/list.h ../include/newio.h 
+stack.o : stack.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/stack.h ../include/hook.h \
+  ../include/alias.h ../include/window.h ../include/hold.h ../include/lastlog.h \
+  ../include/edit.h ../include/menu.h ../include/ircaux.h ../include/output.h \
+  ../include/list.h 
+status.o : status.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/status.h \
+  ../include/server.h ../include/names.h ../include/window.h ../include/hold.h \
+  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/vars.h ../include/hook.h \
+  ../include/input.h ../include/screen.h ../include/mail.h ../include/output.h \
+  ../include/ircaux.h ../include/translat.h 
+term.o : term.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircterm.h ../include/translat.h \
+  ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
+  ../include/menu.h ../include/screen.h 
+translat.o : translat.c ../include/irc.h ../include/defs.h ../include/config.h \
+  ../include/irc_std.h ../include/debug.h ../include/struct.h ../include/vars.h \
+  ../include/translat.h ../include/ircaux.h ../include/window.h ../include/hold.h \
+  ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/screen.h \
+  ../include/output.h digraph.inc 
+vars.o : vars.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/status.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/log.h \
+  ../include/crypt.h ../include/history.h ../include/notify.h ../include/vars.h \
+  ../include/input.h ../include/ircaux.h ../include/whois.h ../include/translat.h \
+  ../include/ircterm.h ../include/output.h 
+whois.o : whois.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/whois.h ../include/hook.h \
+  ../include/lastlog.h ../include/vars.h ../include/server.h ../include/names.h \
+  ../include/window.h ../include/hold.h ../include/edit.h ../include/menu.h ../include/ignore.h \
+  ../include/ircaux.h ../include/notify.h ../include/numbers.h ../include/output.h \
+  ../include/parse.h ../include/ctcp.h 
+window.o : window.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/screen.h ../include/window.h \
+  ../include/hold.h ../include/lastlog.h ../include/edit.h ../include/menu.h ../include/vars.h \
+  ../include/server.h ../include/names.h ../include/list.h ../include/ircterm.h ../include/ircaux.h \
+  ../include/input.h ../include/status.h ../include/output.h ../include/log.h \
+  ../include/hook.h ../include/dcc.h ../include/translat.h 
+wserv.o : wserv.c ../include/defs.h ../include/irc.h ../include/config.h ../include/irc_std.h \
+  ../include/debug.h ../include/struct.h ../include/ircterm.h 

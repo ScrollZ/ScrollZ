@@ -1,0 +1,937 @@
+!MAIN ScrollZ + Cdcc MAIN HELP v1.4 screen
+:$5USER$0          User specific commands
+:$5OPS$0           Commands you can use if you have ops
+:$5MISC$0          Miscellaneous commands
+:$5CDCC$0          Cdcc related commands
+:$5SETTINGS$0      Commands that let you customize ScrollZ
+:$5INDEX$0         Index of all ScrollZ commands
+!MISC ScrollZ + Cdcc MISC HELP v1.4 screen
+:ABOUT         Thank you and stuff
+First of all, some ScrollZ background: I decided to write ScrollZ
+because I haven't been satisfied with any of the scripts I have
+tried (including PhoEniX, GargOyle and Toolz). Special thanks goes
+to Sheik for his help. I would also like to greet everyone I know,
+including $1#warez2$0, $1#$0, $1#warez$0, $1#f1$0, $1#cracking$0 and $1#scrollz$0.
+Special greets to $4SZ/Net$0 people and to all $4non-idiotic$0 IRC ops.
+Special thanks to all the people that provided me with accounts,
+$2ircII authors$0 and, last but not least $2Linux$0 community.
+:ADDS          Adds given server to server list
+Usage $3ADDS server$0[$3:port$0] or $3ADDS server$0 [$3port$0]
+Also look at $2LISTS$0 and $2REMS$0
+:BYE           Quits IRC
+Usage $3BYE$0 [$3sign-off message$0]
+:C             Sets mode for your current channel
+Usage $3C chanmode$0
+:CHANST        Shows current channel's statistics
+:CHAT          Sends DCC CHAT request to nick
+Usage $3CHAT$0 [$3nick$0]
+If no nick is given, client will attempt to establish chat connection
+with last user that requested it.
+:CLEARTAB      Clears tabkey list
+:CSCAN         Show channel users
+Usage $3CSCAN$0 [$3-H$0|$3-R$0] [[$3#$0]$3channel$0]
+Without arguments it will show users for current channel. If $3-H$0 is
+passed as first argument, users will be listed in following order:
+shitlisted users, normal users, voted users (+v), channel operators
+and at last your friends. If $3-R$0 is passed as first argument, the
+above order is reversed, friends showing up first and shitlisted
+people showing up last.
+:CYCLE         Leaves and then rejoins channel
+Usage $3CYCLE$0 [[$3#$0]$3channel$0]
+Without arguments it will cycle current channel.
+:DIRLM         Redirects last received message to nick/channel
+Usage $3DIRLM$0 [$3nick$0|$3#channel$0]
+If no nick/channel is specified it will redirect to current channel.
+Also look at $2DIRLSM$0, $2DIRLN$0 and $2DIRLSN$0
+:DIRLSM        Redirects last sent message to nick/channel
+Usage $3DIRLSM$0 [$3nick$0|$3#channel$0]
+If no nick/channel is specified it will redirect to current channel.
+Also look at $2DIRLM$0, $2DIRLN$0 and $2DIRLSN$0
+:DIRLN         Redirects last received notice to nick/channel
+Usage $3DIRLN$0 [$3nick$0|$3#channel$0]
+If no nick/channel is specified it will redirect to current channel.
+Also look at $2DIRLSN$0, $2DIRLM$0 and $2DIRLSM$0
+:DIRLSN        Redirects last sent notice to nick/channel
+Usage $3DIRLSN$0 [$3nick$0|$3#channel$0]
+If no nick/channel is specified it will redirect to current channel.
+Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
+:DUMP          Dumps aliases, ons, vars or all of them
+Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
+:FINGER        Launches finger on user@host
+Usage $3FINGER nick$0
+:FKLINE        Does STATS K with filter
+Usage $3FKLINE filter$0 [$3server$0]
+:IG            Ignores user
+Usage $3IG$0 [$3-T time$0] $3nick$0 [$3type$0]
+This will ignore by user@domain. If no type is given it will ignore $4ALL$0.
+Ignore will take place for $4IGTIME$0 seconds unless $3-T$0 is given.
+In that case, ignore will last $4time$0 seconds.
+Other types are : $3MSGS,NOTICES,PUBLIC,INVITES,WALLOPS,$0
+                  $3NOTES,CTCP,CRAP,ALL,NONE$0.
+Also look at $2NOIG$0 and $2IGTIME$0
+:J             Joins channel
+Usage $3J$0 [$3#$0]$3channel$0
+Also look at $2L$0
+:KEYS          List of default ScrollZ key binds
+$3Cursor left/right$0 moves cursor in input line left and right
+$3Cursor up/down$0 is for next/previous command
+$3PageUp$0 or $3Alt-P$0 scrolls backward
+$3PageDown$0 or $3Alt-N$0 scrolls forward
+$3Control-B$0 toggles bold on/off
+$3Control-F$0 shows netsplit information
+$3Control-K$0 ban kicks last user to join from current channel
+$3Control-N$0 accepts chat connection from last user to offer it
+$3Control-R$0 inserts nick that last triggered auto reply
+$3Control-T$0 is nick completion
+$3Control-V$0 toggles reverse on/off
+$3Control-X$0 switches channels
+$3Control-_$0 toggles underline on/off
+$3F1$0 this help
+$3F2$0 will join last channel you have been invited to
+:L             Leaves channel
+Usage $3L$0 [$3#channel$0] [reason] 
+If no channel is given it will leave current channel. Note that
+specifying reason only works for some servers (notably 2.9).
+Also look at $2J$0
+:LISTS         Lists all servers on server list
+Also look at $2ADDS$0 and $2REMS$0
+:LLOOK         This will store LINKS info internally
+Also look at $2LLOOKUP$0
+:LLOOKUP       This will compare LINKS info against stored one
+You have to issue $4LLOOK$0 first!
+Also look at $2LLOOK$0
+:LOGON         Toggles logging to ScrollZ.away on/off
+Usage $3LOGON on$0|$3off$0
+If you set it to $3ON$0, client will log events to ScrollZ.away
+even if you are not set away. Note that this setting is NOT
+saved to ScrollZ.save
+:LS            Does ls -al (shows specified directory)
+Usage $3LS$0 [$3path$0]
+:M             Sends message to nick/channel
+Usage $3M nick$0|$3#channel message$0
+You can use $2TAB$0 key to "scroll" through list of nicks.
+:MAP           Generates map of IRC servers
+:MSAY          Sends text to all channels you're on
+Usage $3MSAY$0 [$3#channels$0] $3text$0
+Channels is list of channels separated with comma, you can
+include * and ?.
+:N             Sends notice to nick/channel
+Usage $3N nick$0|$3#channel notice$0
+:NET           Connects to server in another window
+Usage $3NET server$0 [$3port$0] [$3nickname$0] [$3username$0] [$3realname$0]
+Creates a new window and connects it to specified server.
+Default port is 6667.
+$3^W?$0 Shows you this help screen.
+$3^WK$0 Kills the current window.
+$3^WH$0 Hides the current window.
+$3^WC$0 Clears the current window.
+$3^WL$0 Lists all windows.
+$3^WP$0 Goes to the previous window.
+$3^WN$0 Goes to the next window. 
+$3^WR$0 Reduces window 1 line.
+$3^WG$0 Grows window 1 line.
+$3^W<1-9>$0 Changes to window number <1-9>.
+:NEWHOST       For people with virtual IP
+Usage $3NEWHOST$0 [$3hostname$0] || [[$3#$0]$3number$0]
+Changes your hostname on the fly and reconnects to server. When no
+arguments are passed and client was compiled with -DJIMMIE, all
+available hostnames will be listed. With this option, you can also
+specify new hostname as [#]number.
+:NEWUSER       Changes your username if possible
+Usage $3NEWUSER username$0 [$3your info$0]
+This will fail if your system runs ident.
+:NOCHAT        Sends DCC CLOSE CHAT to nick
+Usage $3NOCHAT$0 [$3nick$0]
+If no nick is given, client will close chat connection to
+last user that requested it.
+:NOIG          Unignores nick
+Usage $3NOIG nick$0|$3#number$0
+Numbers are listed with $4IGNORE$0.
+Also look at $2IG$0 and $2IGTIME$0
+:NOTEPAD       Saves text to notepad
+Usage $3NOTEPAD text$0
+:NSLOOKUP      Looks up the DNS for your entry
+Usage $3NSLOOKUP host$0|$3nick$0
+:NWHOIS        Prints some statistics about nick
+Usage $3NWHOIS nick$0
+:OV            Turns OperVision on/off
+Usage $3OV on$0|$3off$0
+:P             Pings nick
+Usage $3P nick$0|$3#channel$0
+If no arguments are given, current channel will be pinged
+:PASSWD        Sets password for ScrollZ.away and your log file
+Usage $3PASSWD password$0 [$3old_password$0]
+Be sure not to forget your password as you will not be able
+to read encrypted files!! Use one word for password, the
+longer it is the better. If you're changing it specify new
+password as first argument and old password as second argument.
+If old password won't match, new password will NOT be set! If
+setting it for the first time, just set your password. It is
+possible to disable encryption, just pass the current password.
+Use decode.c to read the encrypted files.
+:PLAYBACK      Shows away file without setting you back
+Usage $3PLAYBACK$0 [$3-R$0] [$3pattern$0]
+Plays back stored messages without marking you as not being away.
+If $3-R$0 is passed as an argument, messages will be played in
+reverse order. Optional pattern may include * and ?. If used,
+only entries matching pattern will be shown.
+:RE            Redirects output to nick/channel
+Usage $3RE nick$0|$3#channel command$0
+:RECONNECT     Reconnects to current server
+:REMLOG        Deletes ScrollZ.away file
+Usage $3REMLOG$0 [$3OFF$0]
+If $3OFF$0 is given no notice will be shown on screen whether delete
+was sucessful or not.
+Also look at $2AWAYT$0, $2PLAYBACK$0, $2SETAWAY$0, $2SETBACK$0 and $2SHOWAWAY$0
+:REMS          Removes given server from server list
+Usage $3REMS server$0[$3:port$0] or $3REMS server$0 [$3port$0]
+Also look at $2ADDS$0 and $2LISTS$0
+:S             Connects you to server
+Usage $3S server to use$0
+If no server is given default server (from ScrollZ.save) is used.
+:SB            Show channel bans
+Usage $3SB$0 [[$3#$0]$3channel$0]
+If no channel is given it will show bans on current channel.
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0 and $2BKT$0
+:SETAWAY       Sets you away and saves all messages
+Usage $3SETAWAY$0 [$3-C$0] [$3-H$0] [$3away message$0]
+If $4-C$0 is given, no text will be added to your message. If $4-H$0 is given,
+effect is the same as having $2SHOWAWAY$0 set to $3OFF$0. If no message is
+given default message (from ScrollZ.save) is used.
+Also look at $2AWAYT$0, $2PLAYBACK$0, $2REMLOG$0, $2SETBACK$0 and $2SHOWAWAY$0
+:SETBACK       Sets you back and displays messages
+Usage $3SETBACK$0 [$3-C$0] [$3-H$0] [$3back message$0]
+If $4-C$0 is given, no text will be added to your message. If $4-H$0 is given,
+effect is the same as having $2SHOWAWAY$0 set to $3OFF$0. If no message is
+given default message (from ScrollZ.save) is used.
+Also look at $2AWAYT$0, $2PLAYBACK$0, $2REMLOG$0, $2SETAWAY$0 and $2SHOWAWAY$0
+:SHOWKILL      Shows the last person that killed you
+:SINFO         Nicely formatted server info
+:SPING         Pings specified server
+Usage $3SPING$0 $3server$0
+Useful to measure network lag
+:TERMINATE     Quits IRC
+The same as $4BYE$0, $4EXIT$0 and $4QUIT$0 except that client returns status
+152 instead of 0.
+:TKILL         Kills users matching filter with trace
+Usage $3TKILL pattern [reason]$0
+Also look at $2MKILL$0 and $2WKILL$0
+:UMODE         Sets user mode for you
+Usage $3UMODE mode$0
+:UNFLASH       Unflashes your terminal
+:URL           Adds last grabbed URL to your notepad.
+Usage $3URL$0 [$3-CLEAR$0] [$3http://...$0]
+When you see a highlighted URL, type $4URL$0 to save it to the notepad.
+This will only work on the last grabbed URL. You may also give a URL
+to this command. $3-CLEAR$0 will clear url buffer.
+Also look at $2URLCATCH$0
+:SHOWIDLE      Shows idle time for users on channel
+Usage $3SHOWIDLE$0 [$3channels$0 [$3filter$0]]
+Shows idle time for specified channel. If no channel is given current
+channel is used. If filter is given, idle time for users matching filter
+is displayed.
+Also look at $2IDLEKICK$0 and $2IDLETIME$0
+:SHOWUSER      Shows all users that match filter and channel
+Usage $3SHOWUSER$0 [$3-O$0|$3-N$0|$3-F$0|$3-V$0|$3-S$0|$3-A$0] $3filter $0[$3channels$0]
+$3-O$0 lists channel operators, $3-N$0 lists people that are not channel
+operators, $3-F$0 lists friends, $3-V$0 lists voiced (+v) users, $3-S$0 lists
+shitlisted people and $3-A$0 lists all. You can combine multiple flags
+together. Filter can include * and ?. Channels is a list of channels
+separated with ','. You can include * and ?.
+Default is $3-A$0 * current_channel.
+:VER           Does CTCP target VERSION
+Usage $3VER nick$0|$3#channel$0
+If no arguments are given, current channel will be versioned.
+:W             Show all nicks and their userhosts on channel 
+Usage $3W filter$0
+If no channel is given current channel is used.
+:WALL          Notices all the ops on current channel
+Usage $3WALL$0 [$3+nick$0|$3-nick$0] $3text$0
+Words starting with $3-$0 will be checked against nicks on current
+channel and if matched, those nicks will be excluded from wall-op
+notice. The same is true for words starting with $3+$0 except that
+those nicks will be included in in wall-op notice.
+Also look at $4SET MAX_WALLOP_NICKS$0 and $4SHOWWALLOP$0 setting in
+ScrollZ.save file.
+:WHOLEFT       Prints all the users that left with netsplit
+:WI            Like whois
+Usage $3WI nick$0
+:WII           Like whois but queries nick's local server
+Usage $3WII nick$0
+:WKILL         Kills users matching filter with who
+Usage $3WKILL who_filter kill_pattern$0 [$3reason$0]
+Also look at $2MKILL$0 and $2TKILL$0
+:WW            Tells you who was person using nick
+Usage $3WW nick$0
+!USER ScrollZ + Cdcc USER HELP v1.4 screen
+:ADDBK         Adds user to your shit list
+Usage $3ADDBK nick$0|$3filter channels shit-level$0 [$3comment$0]
+Filter can include * and ?. When used with nick client will create entry
+that will use pattern like *!user@*.domain.
+Channels is a list of channels separated by ',' where nick will be 
+shitted. You can use * and ?  (like : #chat*,#tes?,#chan).
+Comment is used as kick comment.
+Available shit-levels are: $3D$0=DEOP, $3K$0=KICK, $3B$0=BBAN, $3I$0=IGNORE and
+$3P$0=PERMBAN.
+Also look at $2REMBK$0, $2LISTBK$0 and $2LEVELS$0
+:ADDF          Adds user to your friends list
+Usage $3ADDF nick$0|$3filter channels access$0 [$3password$0]
+Filter can include * and ?. When used with nick client will create entry
+that will use pattern like *!user@*.domain.
+Channels is a list of channels separated by ',' where nick will have
+access to CTCP commands. You can use * and ? (example : #chat*,#tes?).
+Available access modes are $3I$0=INVITE, $3C$0=CHOPS, $3O$0=OP, $3A$0=AUTOOP $3U$0=UNBAN,
+$3P$0=PROT, $3G$0=GOD, $3V$0=VOTE, $3D$0=CDCC, $3J$0=JOIN and $3F$0=FLOOD or $3ALL$0.
+(example : ICOAU stands for INVITE CHOPS OP AUTOOP and UNBAN). Client
+will auto invite users from notify list if they have $3I$0, $3C$0, $3O$0 and $3U$0
+privileges and they don't have password set. They can access $3CTCP OPEN$0 if
+they have I, O and U flags set).
+Also look at $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2REMFCHAN$0, $2LISTF$0,
+$2FRLIST$0, $2LEVELS$0 and $2AUTOINV$0.
+:ADDFFLAG      Adds flags for userlist entries
+Usage $3ADDFFLAG filter$0|$3#number flaglist$0
+Number is the same as in $4TBAN$0 or $4CDCC GET$0. Example :
+#-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+from 12 and on. Numbers for entries are shown with $4LISTF$0. Flaglist is
+a list of flags you wish to add or remove.
+Also look at $2ADDF$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2REMFCHAN$0, $2LISTF$0,
+$2FRLIST$0 and $2LEVELS$0 
+:ADDFCHAN      Adds channels for userlist entries
+Usage $3ADDFCHAN filter$0|$3#number channel$0
+Number is the same as in $4TBAN$0 or $4CDCC GET$0. Example :
+#-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+from 12 and on. Numbers for entries are shown with $4LISTF$0. Note
+that channel must match the one in userlist entry if you wish to
+remove it (no wildcards are allowed). If #number is does not start
+with digit, it is considered a channel name, and in that case all
+channel will be added to all entries that match #number.
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2REMF$0, $2REMFCHAN$0, $2REMFFLAG$0, $2LISTF$0,
+$2FRLIST$0 and $2LEVELS$0
+:ADDN          Adds user to your notify list
+Usage $3ADDN nick [nick ...]$0
+If nick is of form nick!filter where filter is user@host mask, notify
+will be triggered only by people matching filter. If only nick is
+used ircII style notify is used.
+Also look at $2REMN$0 and $2LISTN$0
+:ADDW          Adds word to your word kicks list
+Usage $3ADDW channels word$0 [$3comment$0]
+Channels is a list of channels, separated with comma. You can use * and ?
+in channels. Note that this will kick unopped people only unless you turn
+on $4KICKOPS$0. This won't kick users with +F flag set (no flood checking).
+Also look at $2REMW$0, $2LISTW$0 and $2KICKOPS$0
+:FRLIST        Toggles friend list on/off
+Usage $3FRLIST on channels$0|$3off$0
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0,
+$2REMFCHAN$0 and $2LISTF$0
+:LEVELS        List of all user/shit levels available in ScrollZ
+Available user levels are :
+$3I$0   user can request invite through CTCP
+$3V$0   user can request voice through CTCP
+$3C$0   user can request list of channel operators through CTCP
+$3O$0   user can request channel operator status through CTCP
+$3A$0   user will automatically receive channel operator status on join
+    or voice status if they have V flag set
+$3U$0   user can request unban through CTCP
+$3P$0   user is protected, client will reop/unban/invite him when
+    he gets deopped/banned/kicked unless done by user with G flag
+$3G$0   user is god, client will reop/unban/invite him when he gets
+    deopped/banned/kicked plus offender will be deopped unless
+    he is god too
+$3D$0   user has access to CDCC. This is only relevant when /CDCC SECURE
+    is ON. If so, user will be able to see/get files from your offer
+    list plus you will autoget files from this user if /CDCC AUTOGET
+    is ON as well.
+$3J$0   upon invite to a channel from user with this level, you will au-
+    tomatically join no matter what /AJOIN is set to
+$3F$0   such users won't trigger flood protection
+Available shit levels are :
+$3D$0   user will be deopped if opped
+$3K$0   user will be kicked on join
+$3B$0   user will be banned on join
+$3I$0   user will be ignored on join
+$3P$0   permanent ban, enforced at all times if possible
+:LISTBK        Lists all the users on your shit list
+Usage $3LISTBK$0 [$3filter$0]
+If no filter is given, * is used
+Also look at $2ADDBK$0 and $2REMBK$0
+:LISTF         Lists all the users on your friends list
+Usage $3LISTF$0 [$3filter$0|$3channel$0]
+If no filter is given, * is used. Can also have $3#s*$0 as an argument to show
+users with access in all channels that begin with 's'
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0,
+$2REMFCHAN$0 and $2FRLIST$0
+:LISTN         Lists all the users on your notify list
+Also look at $2ADDN$0 and $2REMN$0
+:LISTW         Lists all the words on your word kicks list
+Also look at $2ADDW$0, $2REMW$0 and $2KICKOPS$0
+:RELOAD        Clears your friend and shit list and reloads
+ScrollZ.save and resets all settings.
+:REMBK         Removes user from your shit list
+Usage $3REMBK nick$0|$3filter$0
+Filter can include * and ? or start with #. If it starts with
+#, you can use filters like in $4CDCC GET$0 and $4TBAN$0. Example :
+#-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
+from 12 on. Entries number are shown in $4LISTBK$0.
+Also look at $2ADDBK$0 and $2LISTBK$0
+:REMF          Removes user from your friends list
+Usage $3REMF nick$0|$3filter$0
+Filter can include * and ? or start with #. If it starts with
+#, you can use filters like in Cdcc and $4TBAN$0. Example :
+#-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
+from 12 on. Numbers for entries are shown with $4LISTF$0.
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMFFLAG$0, $2REMFCHAN$0,
+$2LISTF$0 and $2FRLIST$0
+:REMFFLAG      Removes flags for userlist entries
+Usage $3REMFFLAG filter$0|$3#number flaglist$0
+Number is the same as in $4TBAN$0 or $4CDCC GET$0. Example :
+#-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+from 12 and on. Numbers for entries are shown with $4LISTF$0. Flaglist is
+a list of flags you wish to add or remove.
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFCHAN$0, $2LISTF$0,
+$2FRLIST$0 and $2LEVELS$0 
+:REMFCHAN      Removes channels for userlist entries
+Usage $3REMFCHAN filter$0|$3#number channel$0
+Number is the same as in $4TBAN$0 or $4CDCC GET$0. Example :
+#-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+from 12 and on. Numbers for entries are shown with $4LISTF$0. Note
+that channel must match the one in userlist entry if you wish to
+remove it (no wildcards are allowed).
+Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMF$0, $2REMFFLAG$0, $2LISTF$0,
+$2FRLIST$0 and $2LEVELS$0
+:REMN          Removes user from your notify list
+Usage $3REMN nick [nick ...]$0
+Also look at $2ADDN$0 and $2LISTN$0
+:REMW          Removes word from your word kicks list
+Usage $3REMW channels word$0
+Also look at $2ADDW$0, $2LISTW$0 and $2KICKOPS$0
+:SVE           Saves all ScrollZ stuff to ScrollZ.save file
+!SETTINGS ScrollZ + Cdcc SETTINGS HELP v1.4 screen
+:ADDCHAN       Adds channels to ScrollZ settings
+Usage $3ADDCHAN $3setting$0 $3channel$0
+This is used to add channel for specified setting. Possible
+settings are: AJOIN, AREJOIN, BITCH, DPROT, FAKE, FRLIST, KICKONBAN,
+KICKONFLOOD, KICKOPS, KPROT, NHPROT, NPROT and SHOWAWAY.
+Also look at $2REMCHAN$0
+:AJOIN         Toggles auto join on invite
+Usage $3AJOIN on$0|$3auto channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+If marked away and is set to "auto", client will try to join channels 
+you specify every 500 seconds (channels with * and ? will be ignored).
+When set to on, only auto join on invite will take place.
+:AREJOIN       Toggles auto rejoin on kick
+Usage $3AREJOIN on channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+Client will rejoin such channels on kick.
+:AUTOCOMPL     Toggles auto nick completion on/off
+Usage $3AUTOCOMPL on$0|$3auto string$0|$3off$0
+If set to on or auto, client will do the nick completion for you on
+public messages. If public message starts with 'blah:' client will
+search for nick starting with 'blah' on current channel and insert
+that nick in place of 'blah'. If more than one nick matches blah,
+public message is left untouched (unless someone has nick that exactly
+matches blah, in that case client will use their full nick). When set
+to auto, client will use first nick that matches. Second argument with
+on or auto is string that'll be inserted on right side of the nick.
+If set to off, message is left untouched. 
+right side of the nick.
+:AUTOINV       Toggles auto invite on notify on/off
+Usage $3AUTOINV on$0|$3off$0
+If set to on, client will automatically invite users who have access to
+INVITE, CHOPS, OP and UNBAN when sign-on is detected for them. Note that
+they will be invited only to +i channels.
+:AWAYSAVE      Defines what to save in ScrollZ.away
+Usage $3AWAYSAVE $0[$3-$0]$3type$0
+Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
+PROT, HACK, SRVMODE, CTCP, FLOOD, INVITE, KILL, KICK, SERVER, FAKE,
+AREPLY, CHAT, NOTIFY or ALL. You can combine them together, space
+separates them. You can turn it off by specifying NONE. If preceeded by
+minus such events will not be saved. Note that effects accumulate so if
+you specify only one type it will be added to current set.
+:AWAYT         Sets time before you're automatically set away if idle
+Usage $3AWAYT time_in_minutes$0
+Default auto-away time is 10. Setting this to 0 disables auto-away.
+Also look at $2PLAYBACK$0, $2REMLOG$0, $2SETAWAY$0, $2SETBACK$0 and $2SHOWAWAY$0
+:BANTYPE       Sets ban type
+Usage $3BANTYPE $0[$3N$0|$3B$0|$3E$0|$3H$0|$3S$0]
+Available types are : $3N$0=Normal, $3B$0=Better, $3E$0=Elite, $3H$0=Host and $3S$0=Screw
+Normal : nick!user@host       Better : *!user@host
+Host   : *!*@host             Screw  : *!*@domain
+Elite  : n?c?!??er@?o??
+Also look at $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, $2CDBAN$0 and $2DOBANS$0
+:BITCH         Toggles bitch mode on/off
+Usage $3BITCH on channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+When set to on, only people from userlist with OP or AUTOOP access are
+allowed to be channel operators on such channels.
+:CHSIGNOFF     Toggles channels display on signoff on/off
+Usage $3CHSIGNOFF on channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+When set to on, client will display list of channels when user
+quits IRC. When set to off normal signoff message appears.
+:COLOR         Sets colors for events
+Usage $3COLOR event color1 color2 color3 color4 color5$0
+Available events are WARNING, JOIN, MSG, NOTICE, NETSPLIT, INVITE,
+MODE, SETTING, HELP, LEAVE, NOTIFY, CTCP, KICK, DCC, WHO, WHOIS,
+PUBLIC, CDCC, LINKS, DCCCHAT and CSCAN. Available colors are BOLD,
+UNDERLINE, FLASH, REVERSE, BLACK, RED, GREEN, YELLOW, BLUE, PURPLE,
+CYAN and WHITE. You can also set background colors by appending BG
+to color name (example : REDBG). You can combine colors together,
+use comma to separate them (example : BOLD,YELLOW).
+:COMPRESS      Toggles compress modes on/off
+Usage $3COMPRESS on channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+When set to on, client will suppress output of modes that don't have
+any effect (example: oping user that is already opped).
+:CTCPCLOAK     Toggles CTCP cloaking on/off/hide
+Usage $3CTCPCLOAK on$0|$3off$0|$3hide$0
+This is useful if you want to make other people think your client is
+the usual one, not ScrollZ. When set to off, it will act like normal
+ScrollZ. When set to on, it will sent replys like normal client would.
+If set to hide no CTCP replies will be sent.
+:DEOPS         Sets mass deop sensor
+Usage $3DEOPS number_of_deops$0
+Also look at $2DEOPT$0 and $2DPROT$0
+:DEOPT         Sets mass deop timer
+Usage $3DEOPT number_of_seconds$0
+Also look at $2DEOPS$0 and $2DPROT$0
+:DPROT         Toggles mass deop protection on/off
+Usage $3DPROT on channels$0|$3off$0
+This will react only on people that have access lower than $3P$0 or $3G$0 and
+if mass deop protection is $3ON$0. When number of deops doubles that of
+$4DEOPS$0, user will be kicked if $4KICKONFLOOD$0 is $3ON$0.
+Also look at $2KICKONFLOOD$0, $2DEOPS$0 and $2DEOPT$0
+:EGO           Toggles ego on/off
+If on, your nick will have different colour in public messages
+Usage $3EGO on$0|$3off$0
+:EXTMES        Toggles extended message display on/off
+Usage $3EXTMES on$0|$3off$0
+:FAKE          Toggles fake modes display on/off
+Usage $3FAKE on channels$0|$3off$0
+Also look at $2SERVNOTICE$0
+:FLOODP        Toggles flood protection on/off
+Usage $3FLOODP on$0|$3off$0|$3max #messages #seconds$0
+If set to on, users that flood you will be ignored for seconds set with
+$4IGTIME$0. If set to off, no action is performed on flood. If set to max
+and you receive at least #messages in #seconds, client will change
+nick to prevent further flooding. Make sure you set this high enough to
+prevent false flood attack detection.
+Also look at $2IGTIME$0
+:IDLEKICK      Toggles idle kick on/off
+Usage $3IDLEKICK on$0|$3auto channels$0|$3off$0
+This will not kick friends, channel operators or voiced users.
+If set to auto, all non opped users will be kicked.
+Also look at $2IDLETIME$0 and $2SHOWIDLE$0
+:IDLETIME      Sets idle kick timeout in minutes
+Usage $3IDLETIME time$0
+Also look at $2IDLEKICK$0 and $2SHOWIDLE$0
+:IGTIME        Sets ignore time (it is used when auto ignoring on floods)
+Usage $3IGTIME number_of_seconds$0
+Also look at $2FLOODP$0
+:KICKONBAN     Toggles whether to kick banned users that join channels
+Usage $3KICKONBAN on channels$0|$3off$0
+This is here to protect channel from netsplit hackers that split in
+but are banned on your server. It will not kick users from your friend
+list.
+:KICKONFLOOD   Toggles whether to kick on deop/kick flood or not
+Usage $3KICKONFLOOD on channels$0|$3off$0
+Also look at $2DPROT$0, $2DEOPS$0, $2DEOPT$0, $2KPROT$0, $2KICKS$0 and $2KICKT$0
+:KICKOPS       Toggles whether to kick chan-ops on/off
+Usage $3KICKOPS on channels$0|$3off$0
+When set to on, channel operators will be kicked on word-kick and
+filter-kick too. When set to off, only non channel operators will be
+kicked.
+Also look at $2ADDW$0, $2FBK$0, $2FK$0, $2LISTW$0 and $2REMW$0
+:KICKS         Sets mass kick sensor
+Usage $3KICKS number_of_kicks$0
+Also look at $2KICKT$0 and $2KPROT$0
+:KICKT         Sets mass kick timer
+Usage $3KICKT number_of_seconds$0
+Also look at $2KICKS$0 and $2KPROT$0
+:KPROT         Toggles mass kick protection on/off
+Usage $3KPROT on channels$0|$3off$0
+This will react only on people that have access lower than $3P$0 or $3G$0 and
+if mass kick protection is $3ON$0. When number of kicks doubles $4KICKS$0, user
+will be kicked if $4KICKONFLOOD$0 is $3ON$0.
+Also look at $2KICKONFLOOD$0, $2KICKS$0 and $2KICKT$0
+:MIRC          Toggles whether to convert mIRC colors to ANSI
+Usage $3MIRC on$0|$3off$0
+When set to ON, client will translate mIRC colors to ANSI colors. When
+set to OFF, no translation will be performed.
+:NHPROT        Toggles nethack protection on/off and sets display level
+Usage $3NHPROT on channels$0|$3off quiet$0|$3medium$0|$3full$0
+When set to $3OFF$0, no action will be taken on netsplit hacks. If $3ON$0,
+it will deop people that are not on your friends list. Display type
+toggles the info that is displayed when netsplit/netjoin occurs. If
+set to $3QUIET$0, it will behave like normal client would. When set to
+$3MEDIUM$0, only netsplit/netjoin will be reported. $3FULL$0 level is like
+$3MEDIUM$0 but will display netsplit hacks too. People that left with
+netsplit will be stored internally only if display level is set to
+$3MEDIUM$0 or $3FULL$0.
+:NICKS         Sets nick flood sensor
+Usage $3NICKS number_of_nick_changes$0
+Also look at $2NICKT$0 and $2NPROT$0
+:NICKT         Sets nick flood timer
+Usage $3NICKT number_of_seconds$0
+Also look at $2NICKS$0 and $2NPROT$0
+:NPROT         Toggles nick change flood protection on/off
+Usage $3NPROT on channels$0|$3off$0
+This will react only on people that have access lower than $3P$0 or $3G$0 and
+if nick flood protection is $3ON$0.
+Also look at $2NICKS$0 and $2NICKT$0
+:NTFYMODE      Toggles notify mode brief/verbose
+Usage $3NTFYMODE brief$0|$3verbose$0
+:ORIGNICK      Toggles whether to try to revert to original nick
+Usage $3ORIGNICK on nick$0|$3off$0
+Client will try to switch to nick specified after $3ON$0. Use $4ORIGNTIME$0
+to define how often it does that.
+Also look at $2ORIGNTIME$0
+:ORIGNTIME     Define how often to attempt to switch to wanted nick
+Usage $3ORIGNTIME number_of_seconds$0
+Also look at $2ORIGNICK$0
+:REMCHAN       Removes channels from ScrollZ settings
+Usage $3REMCHAN $3setting$0 $3channel$0
+This is used to remove channel for specified setting. Possible
+settings are: AJOIN, AREJOIN, BITCH, DPROT, FAKE, FRLIST, KICKONBAN,
+KICKONFLOOD, KICKOPS, KPROT, NHPROT, NPROT and SHOWAWAY.
+Also look at $2ADDCHAN$0
+:REPWORD       Allows you to change your AutoReply buffer
+Usage $3REPWORD reply_trigger$0
+Considered a good idea to set this to first few letters of your nick.
+You can set multiple strings that will trigger auto reply, separate
+them with ','.
+:SERVNOTICE    Toggles server notices display on/off
+Usage $3SERVNOTICE on$0|$3off$0
+If you hate server notices as much as I do, you can turn them off.
+Also look at $2FAKE$0
+:SETTINGS      Prints all ScrollZ related settings
+:SHOWAWAY      Toggles notifying when you do SETAWAY or SETBACK
+Usage $3SHOWAWAY on channels$0|$3off$0
+When you do $4SETAWAY$0 or $4SETBACK$0 client will send all the channels you
+are on notification that you're now away or that you have returned.
+It applies to auto set away too.
+Also look at $2AWAYT$0, $2PLAYBACK$0, $2REMLOG$0, $2SETAWAY$0 and $2SETBACK$0
+:SHOWNICK      Toggles whether to show your nick on publics
+Usage $3SHOWNICK on$0|$3off$0
+If set to on, client will show your nick when sending out public messages
+like it does for other people. When set to off, it will act like plain
+vanilla client.
+:STAMP         Toggles time stamping on publics on/off
+Usage $3STAMP on channels$0|$3off$0
+Channels is a list of channels separated by , (like : #te,#chan*).
+When set to on, client will output time in front of publics.
+:URLCATCH      Toggles URL catcher on/off
+Usage $3URLCATCH on$0|$3auto$0|$3quiet$0|$3off$0
+If set to $3AUTO$0, client will look for publics with *tp:/*.* in them and
+use $4NOTEPAD$0 to save such entries. $3QUIET$0 works the same, the only
+difference is that no message will be printed about stored URLs. When set
+to $3ON$0, you can use $4URL$0 to save last grabbed URL.
+Also look at $2URL$0 and $2NOTEPAD$0
+!OPS ScrollZ + Cdcc OPS HELP v1.4 screen
+:BAN           Deops and bans user on current channel
+Usage $3BAN$0 $3nick$0|$3filter$0 [$3nick$0|$3filter$0] ...
+Also look at $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
+:BK            Deops, bans and kicks user from your current channel
+Usage $3BK nick$0 [$3comment$0]
+Also look at $2BANTYPE$0, $2BAN$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
+:BKI           Like BK but also ignores user
+Usage $3BKI nick$0 [$3comment$0]
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
+:BKT           Like BK with unban after 5 seconds
+Usage $3BKT nick$0 [$3comment$0]
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
+:CDBAN         Clears bans on current channel
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2SB$0 and $2DOBANS$0
+:DIRLMK        Kicks nick with your last message as comment
+Usage $3DIRLMK nick$0
+Also look at $2DIRLNK$0
+:DIRLNK        Kicks nick with your last notice as comment
+Usage $3DIRLNK nick$0
+Also look at $2DIRLMK$0
+:DOBANS        Bans all the people from your auto ban kicks list
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, $2TBAN$0 and $2CDBAN$0
+:DOP           Deops line of nicks on your current channel
+Usage $3DOP$0 [$3#channel$0] $3nick1 nick2 nick3 ...$0
+Also look at $2OP$0
+:FBK           Kicks and bans all the users that match filter
+Usage $3FBK filter$0 [$3reason$0]
+Filter may include * and ? (example : *.com or *.uni-??.*).
+Also look at $2K$0, $2FK$0, $2LK$0, $2MULTK$0, $2MK$0, $2RANLK$0 and $2KICKOPS$0
+:FK            Kicks all the users that match filter
+Usage $3FK filter$0 [$3reason$0]
+Filter may include * and ? (example : *.com or *.uni-??.*).
+Also look at $2K$0, $2LK$0, $2MULTK$0, $2MK$0, $2RANLK$0 and $2KICKOPS$0
+:INV           Invites nick to channel
+Usage $3INV nick$0 [[$3#$0]$3channel$0]
+If no channel is given it will invite nick to current channel
+:K             Kicks user from your current channel
+Usage $3K nick$0 [$3reason$0]
+Also look at $2FBK$0, $2FK$0, $2MK$0, $2MULTK$0 and $2RANLK$0
+:LK            Kicks all unopped/unvoted users from your current channel
+Usage $3LK$0 [$3-ALL$0]
+When $3-ALL$0 is specified all non opped users will be kicked.
+Also look at $2K$0, $2MK$0, $2MULTK$0 and $2RANLK$0
+:MASSDV        Mass devoices channel
+Usage $3MASSDV$0 [$3-O$0|$3-A$0] [$3#channel$0]
+If you pass it $3-O$0, it will devoice people that are not on your userlist.
+Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSV$0
+:MASSV         Mass voices channel
+Usage $3MASSV$0 [$3-O$0|$3-A$0] [$3#channel$0]
+If you pass it $3-O$0, it will voice people that are on your userlist.
+Also look at $2MOP$0, $2MREOP$0, $2MDOP$0 and $2MASSDV$0
+:MC            Clears all the modes on your current channel
+Also look at $2MODELOCK$0 and $2MODEUNLOCK$0
+:MDOP          Mass deops channel
+Usage $3MDOP$0 [$3-O$0] [$3#channel$0]
+If you pass it $3-O$0, it will deop people that don't have flag O on your
+userlist.
+Also look at $2MOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
+:MK            Kicks multiple nicks at the same time
+Usage $3MK$0 [$3#channel$0] $3nick1$0 [$3nick2$0] ... [:$3reason$0]
+Also look at $2K$0, $2LK$0, $2MULTK$0 and $2RANLK$0
+:MKILL         Kill multiple nicks at once
+Usage $3MKILL$0 $3nick1$0 $3nick2$0 $3nick3$0 ... [:$3reason$0]
+Also look at $2WKILL$0 and $2TKILL$0
+:MODELOCK      Sets channel's lock mode
+Usage $3MODELOCK$0 [$3#$0]$3channel mode$0
+Acceptable modes are +ints, -intskl and +l number.
+Also look at $2MC$0 and $2MODEUNLOCK$0
+:MODEUNLOCK    Resets channel's lock mode
+Usage $3MODEUNLOCK$0 [[$3#$0]$3channel$0]
+Also look at $2MC$0 and $2MODELOCK$0
+:MOP           Mass ops channel
+Usage $3MOP$0 [$3-O$0] [$3#channel$0]
+If you pass it $3-O$0, it will op people that have flag O on your userlist.
+Also look at $2MDOP$0, $2MREOP$0, $2MASSV$0 and $2MASSDV$0
+:MREOP         Mass re-ops channel
+Usage $3MREOP$0 [$3-O$0] [$3#channel$0]
+If you pass it $3-O$0, it will re-op people that are on your userlist.
+Also look at $2MDOP$0, $2MOP$0, $2MASSV$0 and $2MASSDV$0
+:MULTK         Kicks nick from multiple channels
+Usage $3MULTK$0 [$3#channels$0] $3nick$0 [$3reason$0]
+Also look at $2K$0, $2LK$0, $2MK$0 and $2RANLK$0
+:NOKEY         Clears channel key if set
+Usage $3NOKEY$0 [[$3#$0]$3channel$0]
+If no channel is specified, current channel is assumed
+:OP            Ops line of nicks on your current channel
+Usage $3OP$0 [$3#channel$0] $3nick1 nick2 nick3 ...$0
+Also look at $2DOP$0
+:RANLK         Randomly kicks unopped person from your current channel
+Usage $3RANLK$0 [$3comment$0]
+Also look at $2K$0, $2LK$0 and $2MULTK$0
+:T             Like TOPIC
+Usage $3T$0 [$3#channel$0] [$3topic$0]
+If no arguments are given it will display current channel's topic,
+otherwise it will set topic on channel you have specified.
+$4T #channel$0 will unset topic.
+:TBAN          Lists bans on channel and removes selected ones
+Usage $3TBAN$0 [[$3#$0]$3channel$0]
+You can use following format: * for all bans or -2,4,6-8,10- (this
+would remove bans 1,2,4,6,7,8 and all bans from 10 and on)
+Also look at $2BAN$0, $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, $2CDBAN$0 and $2DOBANS$0
+:UNBAN         Unbans user on your current channel
+Usage $3UNBAN nick$0
+Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2TBAN$0, $2CDBANS$0 and $2DOBANS$0
+!CDCC ScrollZ + Cdcc CDCC HELP v1.4 screen
+:CDCC          First XDCC clone made in C by Sheik & FLiEr
+:CDCC GET      Prompts you for files to get
+Usage $3CDCC GET$0 [$3pattern$0]
+Example :
+#   Type    Nick      Status          kb/s Completed Arguments
+#1  GET     I1        Offered                        test1
+#2  GET     I1        Offered                        test2
+#3  GET     I1        Offered                        test3
+#4  GET     I1        Offered                        test4
+#5  GET     I1        Offered                        test5
+#6  GET     I1        Offered                        test6
+Your answer           Means
+*                     All dccs
+1                     Dcc #1
+3-5                   Dccs from #3 to #5
+-3                    All dccs from #1 to #3
+3-                    All dcss from #3 to #6
+You can enter multiple sets (like : -2,4,5-6).
+Separator can be anything other than digits and -.
+Also look at $2CDCC SEND$0, $2CDCC RESEND$0, $2CDCC PSEND$0 and $2CDCC CLOSE$0
+:CDCC SEND     Sends file(s) to nick(s)
+Usage $3CDCC SEND$0 [$3pattern1 pattern2 , nick1 nick2$0]
+First you enter what file(s) you wanna send. You can use
+* and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). Then you
+have to enter nick(s) (like : nick1 nick2 nick3).
+Also look at $2CDCC RESEND$0, $2CDCC PSEND$0, $2CDCC GET$0, $2CDCC CLOSE$0 and
+$2CDCC LIMIT$0
+:CDCC RESEND   Resends file(s) to nick(s)
+Usage $3CDCC RESEND$0 [$3pattern1 pattern2 , nick1 nick2$0]
+First you enter what file(s) you wanna resend. You can use
+* and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). Then you
+have to enter nick(s) (like : nick1 nick2 nick3).
+Also look at $2CDCC SEND$0, $2CDCC PSEND$0, $2CDCC GET$0, $2CDCC CLOSE$0 and
+$2CDCC LIMIT$0
+:CDCC PSEND    Sends pack(s) to nick(s)
+Usage $3CDCC PSEND$0 [$3pattern , nick1 nick2$0]
+First you have to create pack(s) with $4CDCC OFFER$0. Then you
+enter nick(s) to send pack(s) to (like : nick1 nick2 nick3).
+Then you enter set of pack(s) to send (for more info on how
+to choose what pack(s) to send refer to $4CDCC GET$0).
+Also look at $2CDCC SEND$0, $2CDCC RESEND$0, $2CDCC GET$0, $2CDCC CLOSE$0,
+$2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PLIST$0, $2CDCC LOAD$0, $2CDCC SAVE$0
+and $2CDCC LIMIT$0
+:CDCC CLOSE    Closes dcc(s)
+Usage $3CDCC CLOSE$0 [$3pattern$0]
+You just have to enter what dcc(s) you want to close (for more
+info on how to choose what dcc(s) to close refer to $4CDCC GET$0).
+Also look at $2CDCC SEND$0, $2CDCC RESEND$0 and $2CDCC GET$0
+:CDCC OFFER    Adds file(s) to pack allowing you to offer them
+Usage $3CDCC OFFER$0 [$3pattern1 pattern2 , speed , description$0]
+First you enter what file(s) to add to pack (for more info on
+how to select files to add refer to $4CDCC SEND$0). Then you must
+enter pack description. Pack description will show when you
+offer the pack(s).
+Also look at $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC PLIST$0,
+$2CDCC LOAD$0, $2CDCC SAVE$0, $2CDCC REQUEST$0 and $2CDCC LIMIT$0
+:CDCC DOFFER   Removes pack(s) from offer list
+Usage $3CDCC DOFFER$0 [$3pattern$0]
+You just have to enter set of pack(s) to deoffer (for more info
+on how to choose what pack(s) to deoffer refer to $4CDCC PSEND$0).
+Also look at $2CDCC OFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC PLIST$0,
+$2CDCC LOAD$0, $2CDCC SAVE$0 and $2CDCC REQUEST$0
+:CDCC REQUEST  Tells leechers what you need
+Usage $3CDCC REQUEST text$0|$3OFF$0
+Just pass it what you'd like leechers to send to you and whenever client
+receives SEND request, it will send them notice saying what you need.
+Also look at $2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0,
+$2CDCC PLIST$0, $2CDCC LOAD$0 and $2CDCC SAVE$0
+:CDCC LIST     Lists all created pack(s) or given pack
+Usage $3CDCC LIST$0 [$3pattern$0]
+It also displays pack description and number of files in
+pack and their sizes.
+Also look at $2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC PLIST$0,
+$2CDCC LOAD$0, $2CDCC SAVE$0 and $2CDCC REQUEST$0
+:CDCC PLIST    Lists all created pack(s) to current channel
+Usage $3CDCC PLIST$0 [$3channels$0]
+It also displays pack description and number of files in pack
+and their sizes. Client will automatically do $4CDCC PLIST$0 every
+$4CDCC PTIME$0 seconds on the channels specified with $4CDCC CHAN$0. If
+set to 0, automatic $4CDCC PLIST$0 is disabled.
+Also look at $2CDCC PTIME$0, $2CDCC CHAN$0, $2CDCC OFFER$0, $2CDCC DOFFER$0,
+$2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC LOAD$0, $2CDCC SAVE$0, $2CDCC REQUEST$0,
+$2CDCC LIMIT$0 and $2CDCC STATS$0
+:CDCC PTIME    Sets time to pass between automatic $4CDCC PLIST$0 output
+Usage $3CDCC PTIME number$0
+Also look at $2CDCC PLIST$0, $2CDCC CHAN$0, $2CDCC NOTICE$0, $2CDCC NTIME$0,
+$2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC LOAD$0,
+$2CDCC SAVE$0 and $2CDCC REQUEST$0
+:CDCC LONGST   Toggles whether to show long status bar or not
+Usage $3CDCC LONGST on$0|$3off$0
+:CDCC OVERWR   Toggles whether to overwrite existing files
+Usage $3CDCC OVERWR on$0|$3off$0
+When set to off, _ will be added to filename.
+:CDCC STATUS   Toggles whether to show DCC status on status bar or not
+Usage $3CDCC STATUS on$0|$3off$0
+:CDCC STATS    Toggles whether to show Cdcc stats on CDCC PLIST
+Usage $3CDCC STATS on$0|$3off$0
+Also look at $2CDCC PLIST$0
+:CDCC WARNING  Toggles whether to check incoming DCCs
+Usage $3CDCC WARNING on$0|$3off$0
+:CDCC CHAN     Sets valid channels for PLIST
+Usage $3CDCC CHAN channels$0
+Channels is a list of channels separated by , you can include * and ?
+(example : #test,#c*,-#boo). When set to current, PLIST will go to
+current channel. + in front of channel name means $2CDCC NOTICE$0
+format will be used for that channel.
+Also look at $2CDCC PLIST$0, $2CDCC PTIME$0, $2CDCC OFFER$0, $2CDCC DOFFER$0,
+$2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC LOAD$0, $2CDCC SAVE$0 and $2CDCC REQUEST$0
+:CDCC LOAD     Loads packs from file
+Usage $3CDCC LOAD$0 [$3file name$0]
+If no file name is given, ScrollZ.offer is used.
+Also look at $2CDCC SAVE$0, $2CDCC PLIST$0, $2CDCC PTIME$0, $2CDCC NTIME$0,
+$2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC NOTICE$0
+and $2CDCC REQUEST$0
+:CDCC SAVE     Saves packs to file
+Usage $3CDCC SAVE$0 [$3file name$0]
+If no file name is given, ScrollZ.offer is used.
+Also look at $2CDCC LOAD$0, $2CDCC PLIST$0, $2CDCC PTIME$0, $2CDCC NTIME$0,
+$2CDCC OFFER$0, $2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC NOTICE$0
+and $2CDCC REQUEST$0
+:CDCC NOTICE   Tells people that you have offered files
+Usage $3CDCC NOTICE$0 [$3channels$0]
+Also look at $2CDCC NTIME$0, $2CDCC PLIST$0, $2CDCC PTIME$0, $2CDCC OFFER$0,
+$2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC LOAD$0, $2CDCC SAVE$0,
+$2CDCC REQUEST$0 and $2CDCC CHAN$0
+:CDCC NTIME    Sets time to pass between automatic $4CDCC NOTICE$0 output
+Usage $3CDCC NTIME number$0
+Also look at $2CDCC NOTICE$0, $2CDCC PLIST$0, $2CDCC CHAN$0, $2CDCC OFFER$0,
+$2CDCC DOFFER$0, $2CDCC PSEND$0, $2CDCC LIST$0, $2CDCC LOAD$0, $2CDCC SAVE$0
+and $2CDCC REQUEST$0
+:CDCC RENPACK  Changes pack description
+Usage $3CDCC RENPACK #packno new description$0
+:CDCC LIMIT    Sets max number of active dccs
+Usage $3CDCC LIMIT limit$0 [$3queue limit$0]
+This is valid for for $4CDCC SEND$0, $4CDCC RESEND$0 and when people request
+offered files from you. You can get arround this by using $4DCC SEND$0.
+Queue number is used to set limit for queue. Setting it to zero allows
+for unlimited queue size.
+Also look at $2CDCC QUEUE$0
+:CDCC QUEUE    Tells you some info on queued files
+Without arguments it will list number of files in queue. If you pass it
+LIST it will show you detailed list with filename and who is it sending
+file to. If filter is passed after LIST, only files that go to nicks
+matching filter will be listed. Filter can include * and ?. You can
+remove files from queue by specifying filter after REMOVE. Filter is
+the same as in $4CDCC GET$0.
+Usage $3CDCC QUEUE$0 [$3LIST$0 [$3filter$0]]|[$3REMOVE filter$0]
+Also look at $2CDCC LIMIT$0 and $2CDCC GET$0
+:CDCC IDLE     Sets number of seconds when to auto-close idle dccs
+Usage $3CDCC IDLE number_of_seconds$0
+When set to $3zero$0, this function is disabled.
+:CDCC AUTOGET  Toggles whether to auto-get offered files
+Usage $3CDCC AUTOGET on$0|$3off$0
+Also look at $2CDCC GET$0 and $2CDCC CLOSE$0
+:CDCC SECURE   Toggles Cdcc security on/of
+Usage $3CDCC SECURE on$0|$3off$0
+If turned $3ON$0, only people from your friends list that have $3D$0 access
+will be able to get offered files. If turned $3OFF$0, everyone will be able
+to get your offered files.
+Also look at $2ADDF$0, $2REMF$0 and $2LISTF$0
+:CDCC DLDIR    Sets the download dir for Cdcc
+All the files that people send to you will be saved to this dir if it
+is set. Current directory will be used otherwise.
+Also look at $2CDCC ULDIR$0
+:CDCC ULDIR    Sets the upload dir for Cdcc
+All the files that you send to people will be read from this dir if it
+is set. Current directory will be used otherwise.
+Also look at $2CDCC DLDIR$0
+!COMINDEX
+:INDEX         Index of all ScrollZ commands
+   ABOUT         ADDBK         ADDCHAN       ADDF          ADDFCHAN
+   ADDFFLAG      ADDN          ADDS          ADDW          AJOIN
+   AREJOIN       AUTOCOMPL     AUTOINV       AWAYSAVE      AWAYT
+   BAN           BANTYPE       BITCH         BK            BKI
+   BKT           BYE           C             CDBAN         CDCC
+   CHANST        CHAT          CHSIGNOFF     CLEARTAB      COLOR
+   COMPRESS      CSCAN         CTCPCLOAK     CYCLE         DEOPS
+   DEOPT         DIRLM         DIRLMK        DIRLN         DIRLNK
+   DIRLSM        DIRLSN        DOBANS        DOP           DPROT
+   DUMP          EGO           EXTMES        FAKE          FBK
+   FINGER        FK            FKLINE        FLOODP        FRLIST
+   IDLEKICK      IDLETIME      IG            IGTIME        INV
+   J             K             KEYS          KICKONBAN     KICKONFLOOD
+   KICKOPS       KICKS         KICKT         KPROT         L
+   LEVELS        LISTBK        LISTF         LISTN         LISTS
+   LISTW         LK            LLOOK         LLOOKUP       LOGON
+   LS            M             MAP           MASSDV        MASSV
+   MC            MDOP          MIRC          MK            MKILL
+   MODELOCK      MODEUNLOCK    MOP           MREOP         MSAY
+   MULTK         N             NET           NEWHOST       NEWUSER
+   NHPROT        NICKS         NICKT         NOCHAT        NOIG
+   NOKEY         NOTEPAD       NPROT         NSLOOKUP      NTFYMODE
+   NWHOIS        OP            ORIGNICK      ORIGNTIME     OV
+   P             PASSWD        PLAYBACK      RANLK         RE
+   RECONNECT     RELOAD        REMBK         REMCHAN       REMF
+   REMFCHAN      REMFFLAG      REMLOG        REMN          REMS
+   REMW          REPWORD       S             SB            SERVNOTICE
+   SETAWAY       SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE
+   SHOWKILL      SHOWNICK      SHOWUSER      SINFO         SPING
+   STAMP         SVE           T             TBAN          TERMINATE
+   TKILL         UMODE         UNBAN         UNFLASH       URL
+   URLCATCH      VER           W             WALL          WHOLEFT
+   WI            WII           WKILL         WW

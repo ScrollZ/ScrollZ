@@ -1,0 +1,81 @@
+$Id: NEWS,v 1.1 1998-09-10 17:31:12 f Exp $
+
+Changes since ircII 4.4:
+
+  o  ircII is now under a BSD-style copyright.  thanks to troy rollo
+     and mike sandrof for helping this process so much, so quickly!
+  o  fix core dumps in /queue
+  o  docmentation enhancements
+  o  new script `nocolour' for dealing with mIRC-style colour codes
+  o  fix several configuration time problems
+  o  fix the "encryption_program".
+  o  expand ctcp to dcc.  queries only, no replies.  dcc send, actions,
+     ctcp UTC, etc. work.  prints more information when connecting.
+  o  fixes stupid "channel leave" bug.
+  o  add new configure switch `--paranoid' which turns of then uname
+     and finger information returned in ctcp version and finger replies.
+  o  avoid buffer overflows in dcc chat code, as noted on bugtraq.
+  o  fix problems with ctcp encryption
+  o  setting the logfile will expand `~user' expressions
+  o  fix the $rindex() function.
+
+Changes since ircII 2.8.2:
+
+  o  tabkey works with nicknames with \'s in them.
+  o  muchly updated /window server and /window channel system.
+  o  more robust autoconfiguration.
+  o  lots of bugs fixed.
+  o  `idle()' functions returns idle time.
+  o  `/dcc rename -chat old new' renames a dcc chat connection
+  o  `/set same_window_only' places channels in windows more often.
+  o  `&' is expanded in GCOS fields, as per BSD.
+  o  ctcp flood handling done in a more sane manner.
+  o  non blocking connects (use -DNON_BLOCKING_CONNECTS).  ircII will
+     attempt to figure out if this is available or not automatically,
+     when configuring.
+  o  new window commands `addgroup', and `delgroup'.  these allow you
+     to define a group of windows, such that they are always connected
+     to the same server.
+  o  new `ircbug' shell command for reporting bugs.
+  o  SOCKS support.
+  o  new `imap' script.
+  o  new log level `BEEP'.
+  o  dcc works with `/server localhost', again.
+  o  `/set HELP_PATH' now works with ~user expansion.
+  o  lots and lots and lots of bug fixes.
+  o  new `undernet' script to make ircII understand undernet.org extras.
+  o  a bunch of general bug fixes.  most of the submitted-via-ircbug (the
+     correct way!) have been fixed, or at least closely analyzed.
+  o  DYNAMIC_SLIP is not longer available, due to ircII simply handling
+     the case properly now.
+  o  `/window create' might be stabler.  really this time.
+  o  removed `/set help_service' support from ircII.
+  o  added `help' script to replace `/set help_service' support.
+  o  almost all gcc -Wall warnings on a sane system fixed.
+  o  help files are once again distributed with ircII.
+  o  windows now default to having level of `NONE'.
+  o  better error reporting in some circumstances.
+  o  renamed `ircserv' to `ircio' due to continued believe that `ircserv'
+     was actually an IRC server.
+  o  `/server .' should reconnect to the server last connected in this
+     window.
+  o  fully prototyped source tree.
+  o  each window can have two status lines, using `/window double', and
+     the new `STATUS_FORMAT1' and `STATUS_FORMAT2' varaibles.
+  o  new variable `SAME_WINDOW_ONLY' that controls how disconnected
+     channels are placed (if at all) in other windows.
+  o  ircII no longer use lex/flex in the build process.
+  o  `/notify' can be more verbose.
+  o  `irc -b' loads the .ircrc before connecting to a server.  beware.
+  o  irc 2.9 support.
+  o  many many new translation tables, polish, russian, etc.
+  o  hopefully more consistant message levels.
+  o  `/window server', `/server', then `IRCSERVER' variable, and command
+     line server lists all support the server:port:password:nickname
+     format.
+  o  `/window sticky <on|off>' to control whether channels follow server
+     changes, etc.
+  o  new `/squery' and `/servlist' commands, for ircd 2.9.x.
+  o  annoying bug in `/server -delete' fixed.
+  0  several more bugs fixed.
+  o  window scroll now works better.

@@ -1,0 +1,13 @@
+$Id: todo,v 1.1 1998-09-10 17:31:12 f Exp $
+
+mrg's list:
+
+finish /stack.  make sure it works.  i don't think /stack % on <numeric> works.
+fix eight bit mode, stty losing problems.
+scroll_forward is hosed.
+make 'server .' reconnect to the server who used to be connected in this window, and all other windows that had this channel.
+  -- this has been begun by glen.
+
+ian's list:
+
+[ =Dae= <16:41> ] figure out /win new level snotes

@@ -1,0 +1,3265 @@
+/*
+ * ChangeLog: Dealing with the actual changes of code in ircII, leaving
+ * UPDATES for actual user changes.
+ *
+ * Matthew Green, 1993.
+ *
+ * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998.
+ *
+ * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
+ *
+ * $Id: ChangeLog,v 1.1 1998-09-10 17:31:12 f Exp $
+ */
+
+Tue Jun  2 18:48:39 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/queue.c:
+		fix core dumps.  pr#298.
+	doc/ircII.1:
+		document the "global" script.  pr#315.
+
+Tue Jun  2 18:13:09 EST 1998 - matthew green <mrg@eterna.com.au>
+	help/window/bind, help/window/unbind:
+		new help files.
+	script/nocolour:
+		stop mIRC colour crap.
+	source/server.c:
+		match server name correctly.  noted in pr#301.
+	source/dcc.c:
+		print ip/port in dcc requests.  per pr#325.
+	source/crypt.c:
+		call setgid() before setuid().  call wait() after exec().
+		there are still MANY system calls with unchecked return
+		values here but at least it seems to work now.  at least
+		with `/usr/games/caeser' as the encryption program, and 13
+		as the key (rot13 :).
+	configure.in, configure:
+		AMS mail is ~/Mailbox as a directory, not a file.  this
+		fixes problems with qmail installations.
+
+Tue Jun  2 16:11:05 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		initialise new->status, which fixes the "channel leave"
+		bug, noted in several PR's (fix from 328).
+	source/mail.c:
+		use my_strnicmp().  from mark.
+	configure, configure.in, acconfig.h, include/defs.h.in, source/ctcp.c:
+		add a --with-paraoid switch which disables the "bad" parts of
+		ctcp version/finger replies.
+	source/ctcp.c, source/dcc.c, source/edit.c:
+		allow dcc channels to have (only) ctcp queries.  involved some
+		interface changes to send_ctcp() and related functions.  for now,
+		no replies are generated -- there is no privmsg/notice in a dcc
+		chat connection.
+	source/ctcp.c:
+		ensure ctcp functions that return data return it in a malloced
+		string, and ensure that the caller cleans this up.  should fix
+		several problems noted over the last several years.
+	source/dcc.c, include/irc.h:
+		avoid buffer overflows in dcc chat connections.  noted by forcer.
+
+Fri Jan 12 02:20:00 EST 1997 - glen mccready <glen@qnx.com>
+	source/edit.c, source/exec.c, source/screen.c, source/server.c,
+	source/status.c, source/ircio.c, source/ircflush.c, source/irc.c,
+	source/wserv.c, source/names.c, source/dcc.c, source/scandir.c,
+	source/help.c, include/scandir.h:
+		clean up some warnings. prototype scandir. make sure
+		notify_mark is prototyped where it's used.  fudge some
+		qnx defaults further in configure.
+	source/queue.c:
+		fix segv (pr#292).
+	source/vars.c:
+		fix "/set logfile ~/blah".
+	source/ircaux.c, source/alias.c, include/ircaux.h:
+		add srindex() to compliment sindex().  used by $rindex().
+	source/output.c:
+		fix bug in end-of-string handling.
+
+Fri Jan  9 23:44:00 EST 1997 - glen mccready <glen@qnx.com>
+	source/ctcp.c:
+		fix missing toupper().
+
+4.4
+Sun Dec  7 13:25:24 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		fix PR211 from krys:  make scrolling work a bit better.
+
+Thu Dec  4 11:25:13 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		fix PR280:  don't set SERVERREQ for /msg as it breaks
+		dcc chat and /disconnect-ed.
+
+Tue Nov 25 16:52:31 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		hack:  fix pr272:  set lastlog/loglevel to CRAP for
+		xecho -window.
+	source/numbers.c:
+		fix pr273:  numerics 471, 473, 474, 475 and 476 need
+		to be caught my the client before hooking.  do so.
+	source/notice.c:
+		fix pr274 (i think, i can not test this):  if the server
+		doesn't give a 'normal' 002 numeric, don't totally lose.
+		pretend it's a 2.9 server and go from there.
+	source/ctcp.c, source/edit.c:
+		from flier in pr275:  don't free the return value of
+		crypt_msg().
+	source/lastlog.c:
+		fix pr276:  free the malloced copy, and use strncmp().
+
+2.9beta2
+Mon Nov 10 15:06:55 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/names.c, source/names.h:
+		cleanup mode string code.  fix bug while i'm here...
+
+2.9beta1
+Mon Nov 10 11:36:56 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		giver user indication of SQUERY (idea from kalt).
+	source/names.c:
+		add modes a and q.  should parse server numeric for
+		this info at connect time.  (from kalt) also, don't leak
+		a channel (from flier).
+	source/parse.c:
+		if is_channel() is called with NULL, return 0  (from
+		vps@unicorn.niimm.spb.su)
+	source/window.c:
+		make /window remove deal with ^foo as a nick (from flier).
+	source/numbers.c:
+		add a hook for numeric 437.
+	source/irc.c, source/hook.c, source/notice.c, source/server.c:
+		change get_connected() to take an oldconn parameter, that
+		makes it set WIN_OLDCONN when moving channels.  update
+		callers of this.
+	script/dccchan, help/load/dccchan:
+		add ian frechette's dccchan implementation.
+
+Thu Oct  9 00:09:42 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/vars.c, source/alias.c:
+		send output of non-singual versions of /set, /assign
+		and /alias to window level crap, like it used to do.
+		eg, '/set foo' will go to crap, but '/set foo bar'
+		will go to the current window.
+
+Thu Sep  4 13:45:03 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		use send_2comm() for squery.
+	help/squery, help/servlist:
+		document these new commands.
+	README:
+		duh! update my address to eterna, not mame.
+	INSTALL:
+		make a note about the fuckage that happens with
+		BIND 8 being installed into /usr/local.
+
+2.9alpha8
+Sun Aug 31 15:21:53 EST 1997 - matthew green <mrg@eterna.com.au>
+	script/2.9script, help/load/2.9script:
+		new files:  contain code to deal with 2.9 server
+		messages and stats p output.  from kalt in pr#217.
+	source/names.c, source/edit.c, source/window.c:
+		don't use a server index if it is -1.  fixes some
+		crashes.  from flier@ferlin.fri.uni-lj.si in pr#222
+		and pr#223.
+	source/window.c:
+		fix error in displays, from flier@ferlin.fri.uni-lj.si
+		in pr#228.
+	source/dcc.c, source/names.c:
+		don't forget to free some things, from sarayan in pr's
+		232 and 234.
+	source/server.c:
+		fix out-of-bounds bcopy() that was causing lots of havoc
+		after /server -delete.  from sarayn in pr#238.
+	source/server.c:
+		don't trash parsing_server_index, from sarayan in pr#240.
+	source/edit.c:
+		add SERVLIST and SQUERY as comments (for ircd 2.9), using
+		send_comm().  this may not be correct and these commands
+		may simply fail.
+	script/version:
+		update for 2.9.
+
+2.9alpha7
+Tue Jun  3 22:34:10 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/keys.c:
+		pass the args in /parse.  fixes PR#236.  from sarayan.
+	source/server.c:
+		don't send whois foo and whois !foo.  fixes PR#85.
+		also from sarayan.
+	source/parse.c:
+		don't use `level' if we haven't set it!  also from
+		sarayan.
+
+Thu May 22 04:53:00 EST 1997 - glen mccready <glen@qnx.com>
+	source/irc.c, source/ircaux.c:
+		add '-h host' for specifying the local address for
+		multi-homed boxes.
+
+Wed May  7 17:55:56 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c, help/save:
+		add new SERVERREQ flag to irc_commands[] that
+		requires that we be connected to a server for this
+		command to be run.  fixes problems noted in pr#222
+		and pr#223.
+		implement /save -force, to skip the question asking.
+
+Mon May  5 19:13:32 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/ignore.c:
+		rework a sentence.
+	sourec/dcc.c:
+		make dcc sent/read byte counts correct under systems
+		with off_t > long (eg, NetBSD/sparc), by casting
+		arguments for "%ld" to (long).
+
+2.9alpha6
+Mon Apr 21 16:35:57 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/hook.c:
+		minor fix for previous.
+
+Mon Apr 21 01:12:22 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/hook.c:
+		fix Add_Remove_Check stuff, from Sarayan.
+	source/names.c:
+		fully initialise channel.  from sarayan.
+	source/vars.c:
+		handle DEFAULT_LOG being on.
+	contrib/README, contrib/random_nick:
+		Kalt's random nick patch.
+
+2.9alpha5
+Sun Apr 20 20:51:01 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/alias.c, source/crypt.c, source/dcc.c, source/edit.c,
+	source/exec.c, source/hook.c, source/keys.c, source/lastlog.c,
+	source/vars.c:
+		purify found several memory leaks i introduced some
+		months ago.  thanks sar.
+	source/alias.c:
+		alias_xxx() functions don't allocate their return value.
+
+Sun Apr 20 19:41:53 EST 1997 - matthew green <mrg@eterna.com.au>
+	contrib/README, contrib/japanese_support:
+		put PR#203 from Sarayan into the contrib directory,
+		so that people needing ISO2202 (japanese) support
+		can have it.
+
+Sun Apr 20 18:43:33 EST 1997 - matthew green <mrg@eterna.com.au>
+	contrib/README, contrib/colour:
+		put PR#202 from Sarayan into the contrib directory,
+		so that people wanting colour can have it.
+
+Tue Apr 15 01:58:44 CDT 1997 - scott reynolds <scottr@og.org>
+	acconfig.h, include/defs.h.in:
+		don't use non-blocking connects if SOCKS support
+		is enabled.
+
+2.9alpha4
+Tue Apr 15 02:29:48 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/output.c:
+		increase the buffer size, as suggested by
+		<flier@ferlin.fri.uni-lj.si> in pr#201.
+
+Tue Apr 15 02:13:11 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/window.c:
+		handle /window double correctly.  from
+		<flier@ferlin.fri.uni-lj.si> in pr#198 & pr#200.
+		normalise some formats.
+		when swapping channels and windows, don't do
+		disconnected windows.  pr #182, pr#191 & pr#196
+	help/window/sticky:
+		initial document on this commmand.
+
+Tue Apr 15 01:11:48 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/mail.c:
+		minor optimisation.
+	source/server.c:
+		default to /WINDOW STICKY.
+	source/screen.c, source/window.c, include/window.h:
+		remove WIN_LOGLEVEL.
+
+Wed Apr  2 16:04:04 EST 1997 - matthew green <mrg@eterna.com.au>
+	include/ircterm.h
+		add __GNU__ (the hurd) to the int/int putchar_x
+		crowd.  this was the only change required!
+	source/edit.c:
+		patch from Sarayan to fix some errors caused by me,
+		and some clean up, for the channel commands.  pr#190.
+
+Wed Mar 26 18:11:22 EST 1997 - matthew green <mrg@eterna.com.au>
+	include/ircterm.h:
+		#ifdef __sgi, then int putchar_x(int) is correct.
+		this works for IRIX5 and IRIX6.  if it doesn't
+		work, blame sarayan.
+
+2.9alpha3
+Wed Mar 26 15:50:50 EST 1997 - matthew green <mrg@eterna.com.au>
+	NEWS:
+		updated for `2.9'
+
+Wed Mar 26 14:33:56 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		leave kicked channels in CHAN_LIMBO.
+	source/status.c:
+		don't cut of domains of irc servers called "irc.".
+	source/dcc.c, source/screen.c:
+		deal with /window add =nick properly.
+	source/window.c:
+		change add_nicks_by_refnum() so that you can
+		explicitly add/delete with a new parameter.  allows
+		the caller to _NOT_ have to malloc a new string for
+		prepending a ^ on it.
+	help/help, help/load/help, help/set/help_pager,
+	help/set/help_service, help/set/help_prompt, script/help,
+	source/help.c, source/vars.c, include/vars.h.proto,
+	include/vars.h:
+		remove help_service, and re-implement it as a help
+		script.
+	source/server.c, source/window.c:
+		finish /server . that glen started at my urging.
+	include/ircterm.h:
+		Linux and AIX use int/int for tputs.
+	source/edit.c:
+		fix a few commands, and make leave comments work
+		properly.
+	source/dcc.c:
+		handle dcc send with "irc -S" by using MyIpAddr.
+	source/numbers.c:
+		reset the whois_queue() on numeric 001.
+	source/dcc.c:
+		don't use a filename if it's NULL.  from Sarayan.
+	source/ircaux.c:
+		don't free anything pointing as "empty_string".
+		should prhaps do zero and one here also.
+	configure, configure.in:
+		look for /stand/vmunix as well as /hp-ux, before
+		testing for HPUX.
+	easyinst:
+		deal with default server more sanely.
+
+Sun Mar 23 03:24:48 EST 1997 - matthew green <mrg@eterna.com.au>
+	help/alias/functions:
+		fix index ^ desc.  from Stefan Le Breton
+		<stlb@cs.tu-berlin.de>.
+
+Sun Mar 23 01:59:45 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/parse.c, source/hook.c, include/hook.h.proto,
+	include/irc.h:
+		remove ON_KICK:  we always have it.
+	Makefile.in:
+		cp not ln config.h.dist to config.h.
+	include/config.h.dist, include/config.h.lynx, include/vars.h,
+	include/vars.h.proto, include/hook.h, include/hook.h.proto::
+		add ctcp_reply* and status_group variables
+	include/hook.h.proto, include/hook.h:
+		add /on KICK as normal.
+
+Wed Mar 19 06:10:03 METDST 1997 - Olivier Galibert  <galibert@loria.fr>
+	source/ctcp.c, source/server.c, source/vars.c,
+	include/server.h, include/vars.h, include/config.h,
+	include/config.h.dist, include/config.h.lynx:
+		Implement new way of doing CTCP reply flood
+		protection. Read source/ctcp.c for details.
+		Has been tested against multiple -- unasked for--
+		flood attacks, never failed :-)
+
+Fri Mar 21 16:26:45 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		from sarayan:  fix array out of bounds.
+	source/lastlog.c:
+		from StElb <stlb@cs.tu-berlin.de>: add lastlog
+		-save <file>.
+	source/numbers.c:
+		handle number 437, for ircd 2.9.
+
+Fri Mar 21 12:23:03 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		don't send "NAMES" for hostmasked channels (eg,
+		#foo:*.edu).  fixes PR#187
+	source/dcc.c:
+		fix pr#131:  handle dcc send with irc -AS.
+
+Thu Mar 20 17:56:47 EST 1997 - matthew green <mrg@eterna.com.au>
+	translation/POLISH, translation/POLISH_NOPL,
+	help/set/translation:
+		add POLISH translation tables from Piotr 'Beeth'
+		Kucharski <chopin@sgh.waw.pl>
+	script/global, help/ison:
+		add /ISON command.
+
+2.9alpha2
+Wed Mar 19 14:42:24 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/dcc.c:
+		fix bug pointed out by sar:  don't use filename if
+		it is NULL.
+	source/vars.c:
+		fix bug pointed out by shadow@tsatsos.math.auth.gr:
+		/set -realname dumped core.
+	help/server:
+		clarify /server name:port:pass:nick
+	source/ircaux.c:
+		in new_free(), just reset the pointer to NULL it is
+		really `empty_string'.
+	source/parse.c:
+		use STRING_CHANNEL not a hardcoded '+'.
+
+Fri Jan 17 18:10:54 EST 1997 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c:
+		change the way ctcp flood protection works.  for
+		longer or faster messages, we ignore for longer.
+
+2.9alpha1
+Mon Nov 11 01:25:27 CST 1996 - scott reynolds <scottr@og.org>
+	source/parse.c:
+		fix reversed test for comment when leaving channel.
+
+Wed Jul 24 11:42:12 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/lastlog.c, source/mail.c, source/window.c, source/notice.c,
+	source/names.c, source/server.c, source/screen.c, source/edit.c,
+	source/funny.c, source/irc.c, source/dcc.c, source/ctcp.c,
+	source/parse.c, source/numbers.c, source/whois.c:
+		more message_from() clean ups.
+	source/parse.c, help/on/leave:
+		implement part comments (from per).
+
+Mon Jul 22 11:42:47 EST 1996 - matthew green <mrg@eterna.com.au>
+	acconfig.h, include/defs.h.in, include/config.h:
+		only define NON_BLOCKING_CONNECTS if we actually have
+		a way of doing it.
+	source/server.c, source/screen.c, source/dcc.c:
+		fix some redirect lossage.
+
+2.9_roof
+Sun Jul 21 05:20:15 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c, source/dcc.c, source/edit.c, source/funny.c,
+	source/lastlog.c, source/mail.c, source/numbers.c,
+	source/server.c, source/whois.c, source/window.c,
+	source/notice.c, source/names.c, source/parse.c:
+		use message_from() consistantly across the board, except
+		for a few places that set it explicitly to LOG_CURRENT
+		(which _should_ be the default).  this should fix all the
+		bugs with messages going to the wrong window, but there
+		are also *lastlog*() functions that might affect this
+		(and assignments tto `to_window', etc, etc).
+	source/names.c, source/parse.c:
+		move the notify_mark() calls to add_to_channel() and
+		remove_from_channel().
+	help/set/translation:
+		update to reality.
+
+Fri Jul 19 22:33:14 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/newio.c:
+		it's FD_SETSIZE, _not_ FDSETSIZE.
+	source/ctcp.c:
+		in do_ctcp(), only call send_to_server() if there is
+		actually something to send.  stops the client sending
+		a blank line to the server for every ctcp recieved.
+	source/server.c:
+		when a connection fails, set connected = 0, and
+		read = write = -1 in the server struct.  this stops the
+		"looping failed connection" bug from happening.
+
+Tue Jul  9 13:47:42 MET DST 1996 - Christophe Kalt  <kalt@syrk.ensta.fr>
+	source/numbers.c:
+		display numeric 366 (RPL_ENDOFNAMES) in the right window.
+
+2.9_wall
+Wed Jun 26 23:14:21 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/parse.c:
+		don't notify_mark() when nick changes case only.
+	source/numbers.c:
+		don't set +sw with numeric 381.  why was this ever
+		done, i dunno...
+	source/numbers.c, source/funny.c, include/server.h:
+		notice and care about usermode +r and numeric 484
+		(ERR_RESTRICTED).
+	include/ircterm.h:
+		XXX more irix6 lossage.  give a tgetstr() proto.
+
+Wed Jun 26 12:49:50 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/edit.c, source/input.c:
+		ANSIification of some functions taking char arguments.
+	source/dcc.c:
+		__STDC_ -> __STDC__
+	configure.in, configure, acconfig.h, include/config.h,
+	include/config.h.lynx, include/defs.h.in:
+		implement --with-default-server (scottr).
+	source/irc.c, source/notice.c, include/irc.h:
+		implement new -b switch: loads .ircrc before
+		connecting to a server.
+	source/edit.c:
+		fix auto_unmark_away (pr#104).  check_away was always 0.
+	configure.in, configure:
+		impliment --with-non-blocking=(posix|bsd|sysv|none).
+		make solaris test work on x86.
+
+Thu Jun 20 15:32:03 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/term.c, include/ircterm.h:
+		XXX HACK ALERT!
+			made this work for irix6, kinda.  this
+			needs to be replaced by something real.
+	source/mail.c, source/help.c:
+		NeXT bug fixes from Mark.
+	script/2.8script:
+		fix invite and ban reply.
+
+Tue Jun 11 19:52:23 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		don't use sa_len anymore.  irix uses it and it
+		makes Lossage!
+	easyinst:
+		deal with no config.h.dist
+	source/keys.c:
+		cast call to malloc_strcpy().  from fn.
+	source/translat.c
+		translation tables don't have spaces in their
+		names.  from fn.
+	include/output.h:
+		refresh_screen returns RETSIGTYPE.  pr#92.
+	contrib/README, contrib/check_load:
+		added contrib section.
+	include/lastlog.h:
+		make default window level LOG_NONE, as per -DPHONE.
+
+2.9_floor
+Thu Jun  6 00:50:08 CDT 1996 - scott reynolds <scottr@og.org>
+	source/if.c:
+		fix a buffer overrun.  (from Karthik Gargi)
+
+2.9_base
+Sun Apr 14 14:55:15 CDT 1996 - scott reynolds <scottr@og.org>
+	source/window.c:
+		fix problem with /WINDOW SERVER ignoring the port
+		from the server list under some conditions.
+
+Sun Mar 31 08:45:47 CST 1996 - scott reynolds <scottr@og.org>
+	Makefile.in:
+		when installing, make sure to create $(mandir), if
+		necessary.
+
+Fri May 31 00:14:23 EST 1996 - matthew green <mrg@eterna.com.au>
+	Makefile.in:
+		don't delete config.h anymore.
+
+Mon Mar 18 12:40:33 CST 1996 - scott reynolds <scottr@og.org>
+	source/edit.c:
+		don't try to use args to /PART if they weren't
+		specified.  fixes pr 81, from krys.
+
+Fri Mar 22 15:13:24 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		fix old bug in updating status clock.
+
+2.8.16beta
+Sun Mar 17 15:19:09 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/irc.c, doc/VERSIONS
+		note beta release.
+
+Thu Mar 14 11:08:53 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/window.c:
+		backout previous change to window_get_connected().
+		fix the bug by not calling realloc_channels() in
+		set_window_server().
+
+Wed Mar 13 23:45:53 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		backout one of the previous next_arg() changes that
+		broke "/ foo".  from phil.
+	source/window.c:
+		fix pr#75.  don't be so intrusive looking for a channel
+		for this window.  call set_window_server() with misc of 1
+		from window_get_connected().  this fixes an annoying bug
+		that made channels get reconnected to the wrong window.
+		however, this may cause more lossage.
+	source/parse.c:
+		add signon/off detection in nick changes.  pr#77 from
+		krys.
+
+2.8.15
+Fri Mar  1 21:44:00 EST 1996 - matthew green <mrg@eterna.com.au>
+	include/whois.h:
+		add WHOIS_ISON2 as required by scott's change below.
+	source/dcc.c:
+		#ifdef S_IFDIR:  some unix doesn't have this?
+	source/edit.c:
+		fix some memory leaks with expand_twiddle() usage.
+		use next_arg().
+	source/exec.c:
+		bounds check in is_process_running().  from mark
+		matthewson.
+	source/help.c:
+		count displayed help lines correctly.  from kalt.
+	source/parse.c:
+		display kick in correct window.  from kalt.
+	source/server.c:
+		don't allow send_to_server() to recurse.
+	source/vars.c:
+		add VF_EXPAND_PATH.  allows HELP_PATH to be ~/irc/help, eg.
+
+Thu Feb 29 23:41:40 CST 1996 - scott reynolds <scottr@og.org>
+	source/whois.c:
+		more whois queue cleanup, from phil.
+	source/window.c:
+		fix definition of is_current_channel() to agree with
+		prototype, and fix for SAME_WINDOW_ONLY, both from phil.
+
+2.8.14
+Thu Feb 15 10:16:20 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/dcc.c:
+		don't use the ip address 127.0.0.1 for dcc connections.
+	source/help.c, help/*:
+		add copyright notices.
+
+Wed Feb 14 17:11:44 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		be smarter about displaying server lists.  reworked
+		change from phil.
+
+Tue Feb 13 22:33:10 CST 1996 - scott reynolds <scottr@og.org>
+	include/server.h, source/ctcp.c, source/names.c, source/server.c,
+	source/whois.c:
+		Changes from <Philippe.LEVAN@enst-bretagne.fr>:
+		- initialize ctcp_last_reply_time when creating a
+		  server in the list
+		- significantly clean up the whois queue stuff
+		- be more careful with servers we're waiting to
+		  be reconnected
+
+2.8.13beta
+Wed Feb  7 21:55:36 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c:
+		fix bugs introduced in new flood code.
+
+Tue Jan 30 22:55:11 CST 199 - scott reynolds <scottr@og.org>6
+	source/lastlog.c:
+		extend LOG_BEEP beyond pr #56 to include normal
+		lastlog operations.
+	help/set/lastlog_level, help/window/notify_level:
+		documentation for LOG_BEEP.
+
+Tue Jan 30 00:13:17 CST 1996 - scott reynolds <scottr@og.org>
+	include/lastlog.h, source/lastlog.c, source/screen.c:
+		add LOG_BEEP, and clean up a bit.  closes pr #56,
+		mostly from krys.
+
+Mon Jan 29 16:32:00 EST 1996 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c:
+		be smarted about ctcp floods (still allow non-replying commands).
+
+Sun Jan 21 18:10:24 CST 1996 - scott reynolds <scottr@og.org>
+	source/edit.c:
+		compare the correct variable; fixes pr #45.
+	source/term.c:
+		check for and disable VDISCARD if present,  from
+		<levan@rennes.enst-bretagne.fr>
+	help/window/double:
+		added.  closes related pr #28.
+
+Fri Jan 05 11:22:29 EST 1996 - glen mccready <glen@qnx.com>
+	source/dcc.c, source/server.c:
+		put forth some effort in cleaning up the non-blocking
+		connects - ideas for the cleanup stemmed from a chat
+		with deraadt@theos.com
+
+Thu Dec 21 15:56:55 CST 1995 - scott reynolds <scottr@og.org>
+	source/irc.c:
+		Add '&' expansion to the code that gets the user's
+		name from the passwd file.
+
+Wed Dec 13 17:04:52 CST 1995 - scott reynolds <scottr@og.org>
+	include/struct.h, include/config.h.dist, include/config.h.lynx,
+	include/config.h.phone, include/vars.h, include/vars.h.proto,
+	source/screen.c, source/status.c, source/vars.c, source/window.c:
+		pr #42, /SET DOUBLE -> /WINDOW DOUBLE, from krys.
+
+Wed Dec 06 13:28:46 EST 1995 - glen mccready <glen@qnx.com>
+	Makefile.in:
+		fix `installman'
+	configure.in:
+		slightly modify the qnx compile/link options used
+	source/alias.c:
+		function_idle() now always exists, instead of only
+		when strftime() was found by configure
+	source/exec.c:
+		POSIX doesn't define NSIG or anything like it; _SIGMAX
+		is an extension from somewhere.. with POSIX.4 coming into
+		being SIGRTMAX may be useful at some point.. until then..
+	source/term.c, source/window.c:
+		avoid name conflicts
+	source/wserv.c, source/ircsig.c:
+		cast signal handlers
+
+Mon Nov 13 23:50:33 CST 1995 - scott reynolds <scottr@og.org>
+	source/edit.c, source/hook.c:
+		fix memory leaks, from krys. fixes PRs 38, 39.
+
+Sun Nov 12 23:37:39 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/config.h.phone, include/config.h.lynx,
+	include/config.h.dist:
+		remove some old cruft.
+	source/mail.c:
+		count From_ lines correctly.
+	source/count.l, include/count.l, include/Makefile.in:
+		move count.l to include.
+	configure.in, configure, aclocal.m4:
+		update sendmail check to use macros.
+	source/vars.c:
+		comment last of help_service code.
+
+Fri Nov 10 02:55:21 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/ircaux.h, source/alias.c, source/ctcp.c,
+	source/dcc.c, source/edit.c, source/exec.c, source/hook.c,
+	source/ignore.c, source/input.c, source/ircaux.c,
+	source/keys.c, source/lastlog.c, source/names.c,
+	source/stack.c, source/translat.c, source/vars.c,
+	source/window.c:
+		remove all occurances of my_stricmp/my_strnicmp
+		in a loop where one string being compared was
+		always upper or lower already.  convert some older
+		changes like this to use upper() and lower().
+
+Mon Nov  6 01:03:06 CST 1995 - scott reynolds <scottr@og.org>
+	script/imap:
+		updated mapper script from ian.
+
+Sat Nov  4 21:06:29 EST 1995 - matthew green <mrg@eterna.com.au>
+	Makefile.in, doc/ircbug.1 doc/query-pr.1:
+		install manuals, and the ircbug program.
+
+2.8.12beta
+Wed Nov  1 23:27:33 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/config.h.dist, include/config.h.lynx,
+	include/config.h.phone, source/help.c:
+		#ifdef support for help services.  not enabled by default.
+
+Wed Nov  1 23:17:10 EST 1995 - matthew green <mrg@eterna.com.au>
+	help/window/same_window_only, include/vars.h,
+	include/vars.h.proto, source/window.c, source/vars.c:
+		add philippe's same_window_only set.
+
+Wed Nov  1 22:21:46 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		call do_channel() with join -i; fixes pr#23
+	configure.in, aclocal.m4, ircbug.in:
+		look for sendmail now; don't assume it is in /usr/sbin.
+	easyinst:
+		don't call configure with ". ./configure".  export necessary
+		variables (IRCLIB and bindir).
+		remove all help service stuff -- they don't exist anymore.
+
+Tue Oct 31 00:58:59 CST 1995 - scott reynolds <scottr@og.org>
+	Makefile.in, acconfig, include/defs.h.in, configure.in, configure,
+	source/irc.c, source/ircflush.c, source/ircio.c, source/wserv.c:
+		add support for SOCKS firewall traversal library.
+	INSTALL:
+		SOCKS support, and a caveat.
+
+Mon Oct 30 23:05:30 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		fix switch_channels; from philippe.
+
+Fri Oct 27 20:23:29 CDT 1995 - scott reynolds <scottr@og.org>
+	include/config.h.dist, include/struct.h, include/vars.h.proto,
+	source/input.c, source/screen.c, source/status.c, source/vars.c,
+	source/window.c:
+		double status line, from Christophe Kalt.
+	source/dcc.c:
+		double status line, plus fix a bogon when compiling without
+		NON_BLOCKING_CONNECTS.
+	include/vars.h:
+		from vars.h.proto above.
+	include/irc.h:
+		struct.h must be included only after INPUT_BUFFER_SIZE
+		is defined.  fixes PR #21.
+
+2.8.11beta
+Wed Oct 25 15:14:49 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/alias.c, source/dcc.c, source/help.c, source/names.c:
+		fix bug in alias_server(), missing #ifdef nonblocking,
+		set use_help_service properly, call is_current_channel()
+		correctly, and clear the server's channel list in a
+		better way.  all from philippe.
+
+Tue Oct 24 23:56:44 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/numbers.c:
+		fix bug that made failed oper commands close the server.
+		from philippe.
+
+Fri Oct 13 01:15:25 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/dcc.h, include/ircterm.h, source/alias.c, source/ctcp.c,
+	source/dcc.c, source/help.c, source/hold.c, source/if.c,
+	source/menu.c, source/names.c, source/output.c, source/reg.c,
+	source/scandir.c, source/server.c, source/status.c:
+		more fixes for solaris warnings.
+
+Fri Oct 13 01:14:59 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/parse.c, source/server.c, include/parse.h, include/server.h:
+		begin framework for other parsers.
+
+Fri Sep 22 11:01:28 CDT 1995 - scott reynolds <scottr@og.org>
+	source/reg.c:
+		enable new _wild_match(), remove old version.
+
+Thu Sep 21 14:14:32 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/keys.c, source/edit.c, source/edit.h:
+		rename clear_screen() to irc_clear_screen().
+
+Tue Sep 12 23:25:00 CDT 1995 - scott reynolds <scottr@og.org>
+	include/edit.h, source/edit.c, source/whois.c:
+		ison_ison() -> ison_now(); add dummy arg and prototype
+		it the way add_ison_to_whois() expects.
+	source/reg.c:
+		Integrate new version of _wild_match() from
+		<dalewis@acsu.buffalo.edu> with minor changes, but don't
+		enable/use it yet.
+
+Fri Sep  8 12:57:14 CDT 1995 - scott reynolds <scottr@og.org>
+	include/ircterm.h, source/edit.c, source/input.c, source/irc.c,
+	source/menu.c, source/output.c, source/parse.c, source/screen.c,
+	source/status.c, source/term.c:
+		Move the #include <{curses.h|term.h}> into ircterm.h, and
+		account for some nasty #define's in some lame <term.h>
+		implementations.
+
+Thu Sep  7 10:28:20 CDT 1995 - scott reynolds <scottr@og.org>
+	source/hook.c, source/ircaux.c, source/ircio.c:
+		More portability fixes pointed out by HP's cc.
+
+Wed Sep  6 21:02:01 CDT 1995 - scott reynolds <scottr@og.org>
+	include/irc_std.h:
+		Remove unused TRUE/FALSE #defines.
+	include/hook.h.proto:
+		Finish up previous change.
+	configure.in:
+		Fix a comment.
+
+Wed Sep  6 16:52:51 CDT 199 - scott reynolds <scottr@og.org>5
+	include/irc.h:
+		If we HAVE_STDARG_H but we're not __STDC__, just forget
+		about <stdarg.h>.
+	include/ctcp.h, include/debug.h, include/defs.h, include/hook.h,
+	include/output.h, include/server.h, include/whois.h:
+		Undo previous HAVE_STDARG_H changes.
+
+Tue Sep  5 15:31:06 CDT 1995 - scott reynolds <scottr@og.org>
+	source/alias.c:
+		Fix "illegal pointer combination" warnings.
+
+Tue Sep  5 14:57:59 CDT 1995 - scott reynolds <scottr@og.org>
+	include/ircterm.h, include/term.c:
+		HP-UX declares arg3 to tputs() differently.  Barf.
+
+Wed Sep  6 01:34:53 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, include/defs.h, include/ircterm.h,
+	include/term.h, source/edit.c, source/funny.c, source/help.c,
+	source/input.c, source/irc.c, source/ircaux.c, source/keys.c,
+	source/menu.c, source/output.c, source/parse.c, source/screen.c,
+	source/status.c, source/term.c, source/vars.c, source/window.c,
+	source/wserv.c:
+		renamed term.h to ircterm.h so that it wouldn't conflict
+		with <term.h>.  fixed test for term.h (sigh).
+
+Tue Sep  5 07:30:14 CDT 1995 - scott reynolds <scottr@og.org>
+	Makefile.in, configure, configure.in, source/Makefile.in:
+		Move burden of generating vars.h, hook.h, and keys.h to
+		developers.
+	include/Makefile.in:
+		Added.
+	include/vars.h, include/hook.h, include/keys.h:
+		Generated and added.
+
+Tue Sep  5 21:29:02 EST 1995 - matthew green <mrg@eterna.com.au>
+	acconfig.h, configure, configure.in, include/defs.h.in, include/irc.h,
+	source/edit.c, source/input.c, source/irc.c, source/ircio.c,
+	source/menu.c, source/output.c, source/parse.c, source/scandir.c,
+	source/screen.c, source/status.c, source/term.c:
+		quell some gcc warnings under solaris 2.
+
+Sun Sep  3 13:22:38 CDT 1995 - scott reynolds <scottr@og.org>
+	include/ctcp.h, include/debug.h, include/hook.h.proto,
+	include/output.h, include/server.h, include/whois.h:
+		Don't try using '...' in prototypes unless __STDC__ is
+		defined.  Takes care of some brain-damaged stock compilers
+		on otherwise ANSI-aware systems.  In particular, this
+		takes care of HP-UX 9 and, presumably, SunOS 4 systems.
+
+2.8.10
+Sun Sep  3 23:41:33 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/alias.h, include/exec.h, include/irc.h, include/list.h,
+	include/menu.h, include/names.h, include/screen.h, include/status.h,
+	include/struct.h, include/whois.h, include/window.h, source/alias.c,
+	source/crypt.c, source/ctcp.c, source/dcc.c, source/edit.c,
+	source/exec.c, source/help.c, source/history.c, source/hook.c,
+	source/ignore.c, source/irc.c, source/ircaux.c, source/ircio.c,
+	source/keys.c, source/lastlog.c, source/list.c, source/mail.c,
+	source/menu.c, source/names.c, source/numbers.c, source/parse.c,
+	source/screen.c, source/server.c, source/stack.c, source/status.c,
+	source/term.c, source/whois.c, source/window.c, doc/VERSIONS:
+		fix most of -Wstrict-prototypes, a few more ansi c parameter
+		promotion fixes (not sure if any are left), up version, fix
+		a few more warnings, and remove some unused code.
+
+Sun Sep  3 00:16:23 CDT 1995 - scott reynolds <scottr@og.org>
+	source/edit.c, source/input.c, source/menu.c, source/output.c,
+	source/parse.c, source/screen.c, source/status.c, source/term.c:
+		Include <curses.h> if needed.
+	include/term.h:
+		Prototype putchar_x() properly.
+
+Sat Sep  2 23:07:56 CDT 1995 - scott reynolds <scottr@og.org>
+	acconfig.h, configure.in, configure, include/defs.h.in,
+	source/irc.c, source/term.c:
+		Test for tputs() declaration in <curses.h>.  Rename
+		USING_CURSES to INCLUDE_CURSES_H, since the new
+		use of this is a superset of the old.
+
+Sun Sep  3 12:04:35 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/crypt.c, source/dcc.c, source/debug.c, source/exec.c,
+	source/hook.c, source/irc.c, source/ircaux.c, source/ircflush.c,
+	source/ircio.c, source/mail.c, source/menu.c, source/names.c,
+	source/newio.c, source/screen.c, source/server.c, source/wserv.c,
+	include/irc.h, include/newio.h, include/debug.h:
+		move newio.c functions from irc.h to newio.h, and include
+		this.  more prototypes and some style fixes.  removed some
+		unused functions.
+
+Fri Sep  1 10:31:02 CDT 1995 - scott reynolds <scottr@og.org>
+	source/alias.c, source/dcc.c, source/exec.c, source/keys.c,
+	source/reg.c, source/vars.c:
+		Fix some inconsistencies for certain static functions.
+
+Fri Sep  1 09:41:04 CDT 1995 - scott reynolds <scottr@og.org>
+	include/ctcp.h, include/debug.h, include/hook.h.proto,
+	include/server.h:
+		Put some HAVE_STDARG_H lines back that I had deleted
+		earlier.
+	include/ircaux.h, source/ircaux.c:
+		Another ANSI prototype.
+
+Thu Aug 31 08:20:54 CDT 1995 - scott reynolds <scottr@og.org>
+	include/ircaux.h, include/screen.h, include/whois.h,
+	include/window.h, source/edit.c, source/ircaux.c,
+	source/notice.c, source/notify.c, source/screen.c,
+	source/stack.c, source/status.c:
+		More ANSI prototyping.
+
+Wed Aug 30 23:00:41 CDT 1995 - scott reynolds <scottr@og.org>
+	include/alias.h, include/crypt.h, include/ctcp.h, include/dcc.h,
+	include/debug.h, include/edit.h, include/exec.h, include/flood.h,
+	include/funny.h, include/help.h, include/history.h, include/hold.h,
+	include/hook.h.proto, include/if.h, include/input.h,
+	include/ignore.h, include/irc.h, include/ircaux.h, include/keys.h,
+	include/lastlog.h, include/list.h, include/log.h, include/mail.h,
+	include/menu.h, include/names.h, include/notify.h,
+	include/numbers.h, include/output.h, include/parse.h,
+	include/queue.h, include/screen.h, include/server.h,
+	include/stack.h, include/status.h, include/term.h,
+	include/translat.h, include/vars.h.proto, include/whois.h:
+		Consistency.
+
+Wed Aug 30 12:45:32 CDT 1995 - scott reynolds <scottr@og.org>
+	include/alias.h, include/dcc.h, include/list.h, include/names.h,
+	include/notify.h, include/server.h, include/struct.h:
+		ANSIfy some more prototypes.
+	source/alias.c, source/ctcp.c, source/dcc.c, source/edit.c,
+	source/exec.c, source/funny.c, source/history.c, source/hold.c,
+	source/hook.c, source/if.c, source/ignore.c, source/input.c,
+	source/irc.c, source/ircaux.c, source/keys.c, source/list.c,
+	source/menu.c, source/names.c, source/newio.c, source/notice.c,
+	source/numbers.c, source/output.c, source/parse.c, source/screen.c,
+	source/server.c, source/status.c, source/term.c, source/vars.c,
+	source/window.c:
+		Various ANSI prototype-related cleaning, and some
+		cosmetics to keep gcc -Wall from complaining.
+	source/reg.c:
+		Fix operator precedence problem in _wild_match() and
+		the way it deals with backslash quoting.
+
+Mon Aug 28 23:08:30 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/window.h, source/server.c, source/irc.c, source/window.c,
+	include/irc.h, include/irc_std.h:
+		finish server group stuff, remove couple more warnings with
+		proper prototypes.
+	configure, configure.in:
+		redo signal processing and make AMS mail smarter.
+	include/config.h.phone, include/config.h.lynx, include/config.h.old,
+	include/config.h.lynx:
+		remove DYNAMIC_SLIP, and, totally remove config.h.old.
+
+Mon Aug 28 17:33:32 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c, source/window.c, source/keys.h.proto, source/list.h,
+	source/numbers.h, source/server.h, source/struct.h,
+	source/vars.h.proto, source/window.h:
+		add some of the server group stuff.  isn't use, but, the
+		user interface is mostly done.  new window commands
+		addgroup and delgroup exist.
+
+Thu Aug 24 13:13:21 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/funny.c, source/keys.c, source/server.c, source/status.c:
+		more casts.
+
+Thu Aug 24 01:41:12 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/alias.c, source/dcc.c, source/edit.c, source/input.c,
+	source/lastlog.c, source/newio.c, source/screen.c,
+	source/server.c, source/status.c, source/keys.c, source/vars.c,
+	source/window.c, source/if.c:
+		more ansi function definitions, fix picky compiler
+		warnings, and fix a few bogons in previous change.
+
+Wed Aug 23 22:50:37 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/alias.c, source/edit.c, source/hold.c, source/if.c,
+	source/input.c, source/keys.c, source/menu.c, source/names.c,
+	source/output.c, source/screen.c, source/term.c, source/window.c,
+	include/alias.h, include/window.h:
+		add a lot of ansi function definitions.
+
+Wed Aug 23 21:43:46 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/window.c:
+		call window_check_servers() at the end of
+		window_get_connected() to maybe ensure that all servers are
+		actually connected.
+	source/translat.c:
+		add a couple of ansi function declarations.
+
+2.8.9
+Wed Aug 23 13:04:54 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		a quick hack to stop the spinning server loop bug.  needs
+		to be revised.
+	source/irc.c, doc/VERSIONS:
+		update.
+
+Mon Aug 14 09:54:10 CDT 1995 - scott reynolds <scottr@og.org>
+	Makefile.in:
+		Spelling correction.
+	include/hook.h.proto, include/keys.h.proto, include/vars.h.proto:
+		Add ANSI prototypes.
+	include/edit.h, include/irc.h, include/ircaux.h, include/server.h,
+	include/term.h, include/window.h:
+		Clean up and add a few more ANSI prototypes.
+	source/alias.c, source/edit.c, source/hook.c, source/irc.c,
+	source/keys.c, source/numbers.c, source/screen.c, source/server.c,
+	source/term.c, source/vars.c, source/window.c:
+		First run through gcc -Wall -Wmissing-prototypes.  Lots
+		more needs to be done.
+
+Fri Aug 11 03:53:13 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/alias.h, source/crypt.h, source/ctcp.h, source/dcc.h,
+	source/debug.h, source/edit.h, source/exec.h, source/flood.h,
+	source/funny.h, source/history.h, source/hold.h, source/ignore.h,
+	source/input.h, source/ircaux.h, source/list.h, log.h,
+	source/mail.h, source/menu.h, source/names.h, source/notify.h,
+	source/numbers.h, source/output.h, screen.h, source/server.h,
+	source/status.h, source/struct.h, source/talkd.h, source/term.h,
+	source/window.h:
+		consistancy.
+
+Thu Aug 10 01:43:01 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/debug.c, source/exec.c, source/flood.c, source/hook.c,
+	source/ignore.c, source/menu.c, source/names.c, source/notify.c,
+	source/numbres.c, source/screen.c, source/server.c, source/stack.c,
+	source/window.c, source/alias.c, source/dcc.c, source/crypt.c,
+	include/debug.h:
+		fix prototype warnings and bogons in debug.c with -DDEBUG.
+
+Wed Aug  9 08:50:51 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/irc.c, source/dcc.c, include/dcc.h:
+		prototype dcc_check(), and attempt to make non blocking
+		connects work more sanely.
+
+Tue Aug  8 16:24:27 CDT 1995 - scott reynolds <scottr@og.org>
+	include/alias.h, include/crypt.h, include/ctcp.h, include/dcc.h,
+	include/debug.h, include/defs.h, include/edit.h, include/exec.h,
+	include/flood.h, include/funny.h, include/help.h, include/history.h,
+	include/hold.h, include/if.h, include/ignore.h, include/input.h,
+	include/irc.h, include/irc_std.h, include/ircaux.h, include/lastlog.h,
+	include/list.h, include/log.h, include/mail.h, include/menu.h,
+	include/names.h, include/notify.h, include/numbers.h, include/output.h,
+	include/parse.h, include/queue.h, include/screen.h, include/server.h,
+	include/stack.h, include/status.h, include/struct.h, include/talkd.h,
+	include/term.h, include/translat.h, include/whois.h, include/window.h,
+	source/gzip.h:
+		Add ANSI prototypes to a great many functions.
+	source/irc.c:
+		call to set_window_server was missing "all" arg
+	source/screen.c:
+		call to dgets() was missing "specials" arg
+
+Tue Aug  8 12:16:25 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		fix a bogon glen left lying around in failed server
+		connections.
+
+2.8.8
+Wed Aug 02 00:57:54 MDT 1995 - glen mccready <glen@qnx.com>
+	source/irc.c, source/ircaux.c, source/dcc.c, source/screen.c,
+	source/server.c, include/dcc.h, include/ircaux.h:
+		mostly working non-blocking connect code
+			define NON_BLOCKING_CONNECTS
+		a start at "/server ."
+			define SERVER_DOT
+	source/alias.c, source/edit.c, source/exec.c, source/names.c,
+	source/parse.c, source/stack.c, source/window.c, include/irc.h:
+		use `zero' and `one' rather than "0" and "1"
+		use my_stricmp() less to save tolower()ing the string
+	source/newio.c:
+		the new_free() mentioned below was necessary
+	source/notify.c:
+		the extra test broke /notify
+	source/if.c, source/reg.c:
+		cleaned up some warnings
+
+Tue Jul 25 23:29:04 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/ircaux.c, source/newio.c:
+		fix typo in ircaux.c.
+		remove dated ESIX code (read/recv)
+		make new_close() smarter:  doesn't matter if you
+		call it with -1, and doesn't new_free() the io_rec,
+		as it's likely we'll want it later anway.
+	source/dcc.c, source/edit.c, source/file.c, source/flood.c,
+	source/history.c, source/ignore.c, source/ircflush.c,
+	ircsig.c, source/lastlog.c, source/list.c, source/log.c,
+	source/mail.c, source/notify.c, source/reg.c, source/screen.c,
+	stack.c, source/translat.c, source/vars.c, source/whois.c,
+	source/wserv.c:
+		for (;foo;) -> while (foo)
+	source/ircserv.c, source/ircio.c, source/Makefile.in,
+	doc/ircII.1, doc/SecureIRC, source/file.c, source/irc.c,
+	source/server.c, Makefile.in:
+		renamed ircserv to ircio.
+
+Thu Jul 20 02:45:39 CDT 1995 - christopher williams <cgw@io.com>
+	source/edit.c:
+		fix bug in execute_timer() to set to_window
+		to curr_scr_win
+
+Wed Jul 19 22:57:57 MDT 1995 - glen mccready <glen@qnx.com>
+	source/ctcp.c, include/server.h:
+		fix for premature ctcp flood response
+
+Tue Jul 18 23:19:35 CDT 1995 - scott reynolds <scottr@og.org>
+	configure.in, configure, acconfig.h, include/defs.h.in,
+	include/irc.h:
+		check for varargs.h
+	include/ctcp.h, include/debug.h, include/irc.h,
+	include/output.h, include/server.h, include/whois.h,
+	include/hook.h.proto, source/alias.c, source/ctcp.c,
+	source/debug.c, source/help.c, source/hook.c,
+	source/ircaux.c, source/output.c, source/server.c,
+	source/term.c source/whois.c:
+		use stdarg.h if available.
+
+Tue Jul 18 00:38:02 MDT 1995 - glen mccready <glen@qnx.com>
+	source/dcc.c:
+		added dcc rename -chat
+
+Tue Jul  4 23:21:17 CDT 1995 - scott reynolds <scottr@og.org>
+	configure.in, configure:
+		general organizational cleanup.
+
+Tue Jul  4 13:47:22 CDT 1995 - scott reynolds <scottr@og.org>
+	source/term.c, source/output.c:
+		check for sys/ioctl.h; remove dead code.
+
+Mon Jul  3 23:57:41 CDT 1995 - scott reynolds <scottr@og.org>
+	source/term.c:
+		set up termcap before twiddling tty settings.
+
+2.8.7
+Sat Jul  1 21:44:20 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		various fixes to previous changes.
+	configure.in, configure:
+		portability and style fixes.
+
+Sat Jul  1 21:46:57 EST 1995 - scott reynolds <scottr@og.org>
+	configure.in, configure, Makefile.in, source/term.c,
+	acconfig.h:
+		install help pages with pax/tar/cpio.  do termios
+		stuff as termios/sgtty/termio.
+
+Mon Jun 26 00:17:46 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/dcc.c:
+		add errno to dcc send close message.
+	configure, configure.in:
+		fix bug in test for unsigned 32 bit int's.
+
+Sat Jun 24 06:23:08 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/lastlog.h, include/names.h, source/edit.c,
+	source/irc.c, source/names.c, source/numbers.c,
+	source/screen.c, source/server.c, source/window.c:
+		added connected member to ChannelList.  reworked
+		some PHONE/NOPHONE things to be simpler, fix a
+		couple of memory leaks in names.c
+
+Sat Jun 24 04:31:05 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		do st_mode in a more sane way.
+
+Thu Jun 22 23:54:57 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/dcc.c, source/screen,c, source/server.c,
+	source/window.c:
+		remove dgets timed out messages.  reverse log on
+		PHONE and call it NOPHONE for most.
+	source/alias.c, help/alias/functions:
+		idle() command, and doc for idle and strftime, from
+		scottr@plexus.com.
+	help/
+		added.
+
+Wed Jun  7 23:52:56 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/crypt.c, source/dcc.c, source/exec.c, source/irc.c,
+	source/ircaux.c, source/ircserv.c, source/screen.c,
+	source/server.c:
+		use new_close() not close().
+
+2.8.6
+Wed Jun  7 00:24:34 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		couple of fixes from philippe i missed, and removal
+		of old junk (local_ip_address).
+	include/edit.h, include/hold.h, include/input.h,
+	include/irc.h, include/keys.h.proto, include/menu.h,
+	include/names.h, include/output.h, include/screen.h,
+	include/term.h, include/window.h, source/edit.c,
+	source/hold.c, source/input.c, source/irc.c,
+	source/keys.c, source/menu.c, source/names.c,
+	source/output.c, source/screen.c, source/term.c,
+	source/window.c:
+		don't ask.
+	source/irc.c, doc/VERSIONS:
+		release.
+
+2.8.5
+
+a big thanks to philippe for this version.
+
+Sat May 27 00:02:13 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure configure.in:
+		handle space or tab in version grovelling.
+	source/edit.c:
+		added phil to info.
+	source/irc.c, doc/VERSIONS:
+		release.
+
+Fri May 26 23:55:35 EST 1995 - matthew green <mrg@eterna.com.au>
+	include/funny.h, include/names.h, include/server.h,
+	include/window.h, source/alias.c, source/ctcp.c,
+	source/edit.c, source/funny.c, source/irc.c, source/names.c,
+	source/notice.c, source/numbers.c, source/parse.c,
+	source/screen.c, source/server.c, source/status,c,
+	source/window.c:
+		a bunch of changes from philippe relating to
+		windows and servers and channels and other little
+		things.  /window server, channel and bind all work
+		MUCH better.
+
+2.8.4
+Fri May 26 23:54:19 EST 1995 - matthew green <mrg@eterna.com.au>
+(actually 19950412)
+	source/names.c:
+		fix a buglet in previous.
+
+2.8.3
+Tue Apr 11 22:04:49 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		optimise a Hell of a lot of things.
+	source/server.c:
+		remove dyanmic slip stuff.  we do this a better
+		way already..
+	source/names.c, source/server.c, source/parse.c,
+	source/notice.c, include/names.h:
+		rework the channel_list to be a server-local thing
+		(and thus attached to the server_list).  this lets
+		multi-servers work better.
+
+Sun Apr  9 23:20:17 EST 1995 - matthew green <mrg@eterna.com.au>
+	script/tabkey:
+		fix to allow nicks with \'s in them work.
+
+2.8.2
+Thu Apr  6 00:37:12 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/names.c:
+		removed bogus patch.
+
+Tue Apr  4 01:18:47 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		patch for qnx's select lossage from glen@qnx.com.
+
+2.8.1
+Tue Apr  4 01:04:44 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure.in/configure:
+		quick patch to fix message on sunos, and autoconf
+		2.2.
+	include/names.h, source/names.c:
+		fix from levan@enstb.enst-bretagne.fr for cached
+		mode strings and channel limits.
+	include/window.h, source/edit.c, source/names.c,
+	source/status.c, source/window.c:
+		fixes from levan@enstb.enst-bretagne.fr for
+		various window/server problems.
+	source/help.c, source/numbers.c:
+		fixes from levan@enstb.enst-bretagne.fr for dumb
+		mode and wait prompts.  maybe this should be fixed
+		in add_wait_prompt() instead...
+	source/edit.c:
+		update poxaV's address.
+	source/irc.c:
+		don't do the notify_list if we aren't connected!
+	source/notify.c:
+		fix core dump.
+	source/screen.c:
+		fixed select() return value.  duh.
+	source/server.c:
+		fixes from levan for port stuff.  fixes from me
+		for a stupid core dump that shouldn't happen.  we
+		reset the entire server connection list if we get
+		this `impossible' case.  should warn the user too,
+		i guess.
+
+2.8
+Thu Jan 26 18:13:57 EST 1995 - matthew green <mrg@eterna.com.au>
+	released to the public.
+
+2.7.3
+Tue Jan 24 00:13:28 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, include/exec.h, include/irc_std.h
+	source/exec.c:
+		some fixes for next:  major lossage head damaged
+		i don't know how to organise an operating system
+		such that it works -or- i'm just a stupid git who
+		has no idea about standards.  you choose.
+
+2.7.2
+Sat Jan 21 12:34:02 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/dcc.c:
+		always make sure from_server is set in dcc_open.
+	source/edit.c:
+		some zcat fixes.
+	configure, configure.in:
+		-lc -lposix for NeXT.
+
+2.7.1
+Mon Jan 16 20:14:59 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c, source/edit.c, include/server.h:
+		added /disconnect.
+
+Mon Jan 16 17:23:38 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/parse.c:
+		can't use '\a' on broken compilers.  what a pile
+		of shit they are.  found by comstud.
+
+Sun Jan 15 12:14:39 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/newio.c:
+		fixed bug caused with /flush sending a null rd
+		value to new_select().  duh.  found by
+		arnaud.girsch@insa-lyon.fr.
+
+2.7
+Thu Jan 12 21:20:04 EST 1995 - matthew green <mrg@eterna.com.au>
+	2.7 released to the world.
+
+Wed Jan 11 14:16:34 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		fixed for new dgets_errno being -1 for read == 0.
+		broken strerror() on losing systems.
+
+Tue Jan 10 23:40:24 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/whois.c:
+		i hate c.  stdarg fixes me and glen bashed into
+		working.
+	source/window.c:
+		doh!  thanks glen.
+
+2.6.10
+Sat Jan  7 01:30:11 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure.in:
+		fixed typo.
+	NEWS:
+		updated for 2.7
+	source/server.c:
+		fixed bug in dcc send/chat and non-first server
+		connected to.
+	include/vars.h.proto, include/keys.h.proto,
+	include/hook.h.proto:
+		changed __P macro.
+	source/ctcp.c source/debug.c source/file.c source/flood.c
+	source/funny.c source/hold.c source/ircflush.c
+	source/ircserv.c source/lastlog.c source/list.c
+	source/menu.c source/notice.c source/output.c source/reg.c:
+		reformat.  nothing else needed now.
+
+2.6.9
+Thu Jan  5 17:52:00 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/vars.c:
+		fixed losing ansi stuff.
+	Makefile.in:
+		added cleandir and realclean targets.
+
+Wed Jan  4 22:44:18 EST 1995 - matthew green <mrg@eterna.com.au>
+	configure.in, source/help.c, source/mail.c:
+		updated fully for autoconf 2.x.  this could lead
+		to some breakage.  we'll see.
+	source/edit.c:
+		make `/topic * foo' work as expected.
+	source/keys.c, source/term.c:
+		fixed eight_bit_mode and /bind'ing char's with an
+		eigth bit set.
+
+2.6.8
+Tue Jan  3 01:14:53 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/
+		removed all occurances of "index" as a variable.
+		move the ansi prototype macro from __P() to _()
+	code "freeze" for 2.7
+
+Mon Jan  2 16:44:10 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/names.c, source/funny.c, source/parse.c,
+	include/names.h:
+		added new method of user joining for irc 2.9 (
+		JOIN #foo^G[ov]) handling.
+
+Sun Jan  1 21:39:58 EST 1995 - matthew green <mrg@eterna.com.au>
+	source/dcc.c, source/server.c, include/server.h
+		added struct in_addr to server structure that is
+		filled in with getsockname() and is used in dcc
+		requests.
+	source/dcc.c:
+		added idea from mark to show unknown dcc requests.
+	source/newio.c:
+		fixed new_select() to call select with the correct
+		first argument.
+
+2.6.7
+Thu Dec 29 22:22:34 EST 1994 - matthew green <mrg@eterna.com.au>
+	source/Makefile.in:
+		fixed lossage with wterm dependancies.
+	source/irc.c:
+		fixed "irc --" and "irc -q nick" core dumps.
+	source/input.c:
+		make transpose chars work at the end of line.
+	doc/ircII.1:
+		updated my email address.
+
+2.6.6
+Wed Dec 21 20:43:04 EST 1994 - matthew green <mrg@eterna.com.au>
+	source/Makefile.in:
+		updated dependancies.  (problems pointed out by
+		daniel carosone).
+	source/dcc.c:
+		read in to the *end* of the buffer, dork.
+
+2.6.5
+Mon Dec 19 02:57:38 EST 1994 - matthew green <mrg@eterna.com.au>
+	Makefile.in, configure.in:
+		some changes as needed for autoconf 2.x.
+	source/dcc.c, source/window.c, include/dcc.h:
+		might have fixed the bug with bsd/dcc chat.
+
+2.6.4
+Mon Dec 19 01:47:21 EST 1994 - matthew green <mrg@eterna.com.au>
+	source/irc.c, source/notice.c, include/irc.h:
+		added -q option for quick startup.
+
+Mon Dec 19 01:32:15 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/edit.c, source/names.c, source/screen.c,
+	source/window.c, include/window.h
+		added 'bind' and 'unbind' window commands.
+	source/edit.c:
+		moved NOVICE /part stuff to only be when we are
+		actually sending a JOIN to the server.
+
+Sun Dec 18 23:00:54 EST 1994 - matthew green <mrg@eterna.com.au>
+	easyinst:
+		fixed bug in question asking.
+	source/server.c:
+		fixed lossage with /server -delete, reported by
+		scottr.
+	source/parse.c:
+		removed bogus fix from cjs@netcom.com.
+	source/alias.c:
+		still fixing chanusers().
+	source/exec.c:
+		close all unneeded fd's in /exec now.
+	source/numbers.c:
+		try to set the message_from level to the channel
+		the numeric is about, if we can.
+	source/screen.c:
+		move closing in to close_all_screen() so we can
+		call it for /exec also.
+
+2.6.3
+Sun Nov 27 03:16:16 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/alias.c:
+		fix for chanusers() from Greg Jarman <amigo@deakin.edu.au>
+	source/ctcp.c
+		fix for do_echo() from taner
+	source/window.c
+		made default JOIN rather than CHANNEL for /win join
+	source/parse.c
+		fix for /server lossage from cjs@netcom.com
+	source/translat.c:
+		fix for /set -translation
+
+Sun Nov 27 02:36:23 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/screen.c, source/vars.c, include/vars.h.proto:
+		added dave leonard's screen_options stuff, as well
+		as some bug fixes he found.
+
+Fri Nov 25 16:58:00 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		got fix for dcc problems from Scott Johnson
+		<scottj@neuron.cs.tamu.edu>
+
+Tue Nov 15 01:27:40 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		added diagnostic to attempt to observe losing dcc
+		chat and newer-bsd's.  it appears that somewhere
+		between 2.5 and 2.6.2 it was fixed -- perhaps the
+		edit.c lossage fixed in 2.6.1.
+	source/edit.c:
+		/join now defaults to sending a JOIN command rather
+		than sending a CHANNEL command... duh!
+
+2.6.2
+Mon Nov 14 01:23:44 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/names.c, source/server.c:
+		fixed bug avalon found where death of other
+		servers would cause channel lists to be broken.
+	source/screen.c:
+		fully initialised struct timeval for window create.
+		
+2.6.1
+Tue Nov 08 02:35:r9 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	Makefile.in, mkinstalldirs:
+		removed old garbage, and we now use noah's
+		mkinstalldirs..
+	include/help.h, include/if.h, include/queue.h:
+		added to help fix edit.c lossage.
+	include/alias.h, include/crypt.h, include/edit.h,
+	include/exec.h, include/history.h, include/hook.h.proto,
+	include/ignore.h, include/irc.h, include/keys.h.proto,
+	include/notify.h, include/parse.h, include/server.h,
+	include/stack.h, include/parse.h, include/vars.h.proto,
+	include/window.h, source/alias.c, source/crypt.c,
+	source/edit.c, source/exec.c, source/help.c,
+	source/history.c, source/hook.c, source/if.c,
+	source/ignore.c, source/keys.c, source/match.c,
+	source/names.c, source/notice.c, source/notify.c,
+	source/queue.c, source/server.c, source/stack.c,
+	source/translat.c, source/vars.c, source/window.c,
+	source/irc.c:
+		many of the functions in the edit.c command array
+		were called with three args, but these functions
+		only took 2 args.  all fixed up and prototyped now.
+		who knows what lossage this caused.  found by
+		diane bruce (db@diana.ocunix.on.ca).
+
+2.6
+Tue Oct 18 19:17:49 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	script/newformat
+		does $R processing for stats l output.  works only
+		on the local server, though.  from ian.
+
+Mon Oct 17 21:59:21 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/reg.c:
+		% was broken in pattern matching.  got a fix from
+		ian and no_nick for this.  grumble.
+	source/server.c, include/config.h.dist
+		got a patch from ian to make ircii do dynamic
+		ip number stuff.
+
+2.5
+Sun Oct 16 15:45:47 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	more general clean up.
+
+2.4
+Sun Oct 16 09:48:53 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/edit.c:
+		turned on hop's for, fe and fec commands.
+
+Sat Oct 15 13:25:47 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	general clean up of everything.
+
+2.3.24
+Wed Oct 12 09:24:36 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/debug.c:
+		added fixes.
+	source/irc.c, source/screen.c:
+		added debugging info in forward_scroll. (not part
+		of release tree).
+	source/stack.c:
+		begun finishing.
+
+Sun Oct  9 16:42:44 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	configure.in source/crypt.c source/dcc.c source/debug.c
+	source/edit.c source/exec.c source/help.c source/history.c
+	source/hook.c source/ircaux.c source/server.c source/log.c
+	source/term.c source/whois.c source/window.c source/output.c
+	source/ctcp.c:
+		stdarg.h patches from brianc@qnx.com and glen@qnx.com,
+		plus some other minor fixes.  qnx support, also.
+
+Thu Oct  6 22:16:42 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/server.c:
+		fixed `bug' in -DPHONE where /window server + was
+		setting the window level to ALL.  eeew.
+
+Mon Sep 26 14:38:17 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/alias.c:
+		fix for onchannel() from Scott Reynolds
+		<scott@lisa.acs.nmu.edu>
+
+2.3.23beta
+Sun Sep  4 00:24:13 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/names.c:
+		fixed /part bug,and a fix (finally!) for ischanop()
+		from <cbehrens@iastate.edu>.
+	source/dcc.c:
+		fixed bug where you could not dcc send to one person
+		more than once.
+	source/screen.c:
+		fixed resize bug when going to s smaller window and
+		a line would be cut off.  how did this last so long?
+
+Tue Aug  2 00:30:33 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	configure.in, include/irc.h, include/term.h, source/scandir.c,
+	source/term.c:
+		fixed hpux autoconf problems.
+		configure now checks that -lresolv actually works,
+		and doesn't break compiles.
+		configure doesn't use BSDWAIT if POSIX is defined,
+		so that newer bsd systems (like netbsd) will use the
+		POSIX waitpid() stuff, not causes warnings..
+
+Sun Jul 31 21:53:03 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		removed debug message, and a fix for DCC_RAW from
+		jim_bob (jrg@doc.ic.ac.uk).
+
+2.3.22beta
+Sun Jul 31 03:07:00 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/names.c, source/parse.c, include/names.h
+		fixed ircii not forgetting about remembered channel
+		modes after the channel has been joined.
+	source/queue.c, source/notify.c, source/mail.c:
+		fixed compatibilty problems found with sunos cc.
+	source/irc.c:
+		versions.
+	script/autoop, script/list, script/functions, script/imap,
+	script/history-match:
+		fixed autoop & list, cleaned up functions and imap,
+		added history-match (Daemon).
+
+Tue Jul 26 22:12:42 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/edit.c, source/alias.c:
+		getcwd() fixes from cgw.
+	source/dcc.h, include/dcc.h:
+		added new member to the client struct, othername.
+		it's currently only used by dcc_filesend() to save
+		the name given as well as the full path - so that
+		/dcc send file nick file works, without giving the
+		full pathname for 'file'.
+
+2.3.21b
+Mon Jul 25 23:27:09 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/window.c:
+		window() - added new commands REMOVE, which is the
+		opposite of ADD, and NUMBER, which changes the refnum
+		of a window, forcing a swap if needed.
+	source/ircserv.c:
+		removed printf()'s. no more lame messages at startup
+		now.
+	acconfig.h, configure.in, include/irc.h, source/alias.c,
+	source/dcc.c, source/edit.c:
+		configure now checks for getcwd() not getwd(), and
+		everything now uses getcwd() not getwd().
+	source/term.c:
+		cleaned up a bit.
+	script/uhnotify:
+		got a fix from taner <taner@ucsd.edu>.
+
+
+2.3.21a
+Sat Jul 23 23:30:53 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/alias.c:
+		fixed the broken $, bug introduced from hop's alias.c
+		changes.  blah.
+
+Sat Jul 23 18:37:25 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/alias.c, include/irc_std.h, source/term.c:
+		removed sys/param.h, and moved it into irc_std.h.
+		this was to get the newer bsd's define of BSD4_4
+		(net/2 defines this as 0.5), which was then used
+		in term.c to use termios.
+	source/ctcp.c:
+		also prints unix version (uname) in ctcp finger
+		reply.
+	source/scandir.c:
+		removed sunos4 readdir_r() stuff.  it used to fail
+		because we were getting the ucblib's readdir() but
+		not using the right header files.
+	include/irc_std.h, configure.in, acconfig.h:
+		added a check for memmove(), which we now use if we
+		are missing bcopy().
+
+
+2.3.21
+Sun Jul  3 17:03:52 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/alias.c:
+		fixed bug that broke /if and chewed cpu time.
+
+2.3.20
+Sat Jul  2 17:36:41 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	this version was mostly updates from jeremy nelson
+	(jnelson@iastate.edu), with a few other bits from me.
+
+	configure, acconfig.h:
+		bug fix for signal() test, and check for uname(2).
+	include/dcc.h, source/notice.c, source/whois.c:
+		added new hooks ENCRYPTED_NOTICE and
+		ENCRYPTED_PRIVMSG from hop (jnelson@iastate.edu)
+	include/names.h, source/names.c:
+		fixed memory leak in recreate_mode() that hop found,
+		but patched badly ;).  it now caches the string
+		version of the mode for each channel, in each channel's
+		channel struct.
+	source/Makefile.in:
+		updated dependancies.
+	source/alias.c:
+		reworked parser stuff from hop, plus a few new goodies.
+	source/ctcp.c:
+		added special parsing of ctcp SED.
+		added posix uname() handling for ctcp FINGER.
+	source/help.c:
+		temporary fix for compressed help pages.
+	source/hook.c:
+		added hop's new do_hook() and assiciated routines that
+		fix the bugs we had in serial numbers.
+	source/if.c:
+		added some of hop's if.c hacks
+	source/ircaux.c:
+		added hop's stristr() and rstristr() functions.
+	source/parse.c:
+		many bug fixes from hop.
+	source/queue.c:
+		added hop's queue.c after cleaning it up a bit.
+	source/whois.c:
+		various bug fixes from hop and myself.
+
+version 2.3.19 never really existed.
+
+2.3.18
+Sun Mar 27 22:41:02 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/reg.c:
+		fixed bug in matching where the string ended in \.
+		found by avalon (avalon@coombs.anu.edu.au)
+	source/input.c:
+		fixed bug in transpose characters (avalon).
+	source/alias.c:
+		fixed pathetic code for showing aliases.
+	source/dcc.c:
+		fixed window level stuff.. bry (b@ctpm.org).
+	source/hook.c 
+		removing all hooks with a specific serial number
+		works now (/on #hook 1 -).
+	source/parse.c, source/numbers.c:
+		fixed bugs with missing args
+
+2.3.17beta
+Mon Mar 21 00:08:15 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/crypt.c, source/help.c, source/vars.c, source/screen.c,
+	source/Makefile.in:
+		fixed security bugs in /help and some /set's and in
+		/window create.
+	configure.in:
+		moved AC_PROG_CPP.
+	translation/RUSSIAN*:
+		added this.  thanks to dima@demos.su (Dima Ruban)
+		for these.
+
+Sat Mar 19 00:04:42 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/window.c:
+		fixed bug in /on window_kill
+	source/help.c:
+		fixed lame bug in freeing nonallocated memory
+	source/exec.c:
+		fixed bugs in getpgrp() stuff
+	source/dcc.c:
+		dcc requests with the port < 1024 are now rejceted.
+	source/scandir.c
+		hopefully got the solaris 2 stuff right here.  i
+		hate solaris 2.
+
+2.3.16beta
+Thu Feb  3 20:11:11 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed stupid bug
+	source/parse.c:
+		fixed window level problems.
+
+2.3.15beta
+Tue Feb  1 19:18:23 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/config.h:
+		updated for the beta release.
+	source/scandir.c:
+		memory leak fixes, and solaris fixes.
+	source/status.c:
+		'mode k' bug fixed.  any non printables chars are now
+		hanlded properly in the status line..
+
+Mon Jan 17 18:48:54 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/parse.c:
+		fixed the level of topic changes
+	source/server.c, source/notice.c:
+		fixed resending away's on reconnect/changing servers.
+	source/notify.c:
+		made `notify -' delete all the nicks in the list.
+
+Sun Jan  9 22:47:09 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed ctcp flooding so that we don't see multiple
+		`ctcp flood from nick'.
+	source/whois.c:
+		added notify_mark() all for 401.
+	source/screen.c, source/wserv.c, include/screen.h:
+		added the ttyname stuff, but aren't using it yet.
+	source/alias.c:
+		fixed stupid bug in alias parsing that gave core dumps.
+		how this lasted this long i have no idea.
+	source/dcc.c:
+		remove the broken-dcc-times stuff, and now we just use
+		the anal-ultrix stuff.
+	source/parse.c:
+		added message_from() things for p_channel().
+	source/stack.c, source/stack.h:
+		played some more.  things actually compile again here,
+		but nothing new works.
+
+2.3.14
+Wed Jan  5 22:43:08 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/notify.c, source/notice.c, source/parse.c, source/whois.c,
+	source/vars.c, include/config.h*, include/vars.h.proto,
+	include/notify.h
+		added notify_handler variable.
+	source/irc.c:
+		fixed bug in /wait.  god, what a stupid bug.
+
+Sun Jan  2 02:36:11 EST 1994 - matthew green <mrg@eterna.com.au>
+
+	source/scandir.c:
+		fixed for readdir_r() with solaris 2.  thanks to
+		Travis L Priest <T.L.Priest@LaRC.NASA.GOV> for this one.
+	source/names.c:
+		fixed sending of modes to server on rejoin.
+	source/alias.c:
+		fixed bug in $N where from_server != current_screen->
+		current_window->server.
+	source/ctcp.c:
+		made `ctcp time' more `date' like.
+	source/window.c:
+		made continued line be up to 1/2 the screen.
+
+Thu Dec 30 23:47:01 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/unotify:
+		updated to not show UNKNOWN crap.
+	source/help.c:
+		fixed set help_window.  i hate help.c
+	source/numbers.c:
+		changed reset_nickname() etc to not have more than
+		one `Nickname:' prompt waiting at a time.
+
+Wed Dec 29 01:08:13 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	script/uhnotify:
+		added new script to do cached userhost lookups for
+		notify.
+
+2.3.13
+Tue Dec 28 03:26:13 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/edit.c:
+		userhost() - now lets any number of nick's for -cmd.
+	configure.in:
+		fixed lame bugs in 2.3.12 that prevented it from
+		even compiling.
+
+2.3.12
+Fri Dec 24 00:50:11 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/vars.c, source/whois.c, source/notify.c, source/parse.c
+	include/vars.h.proto, include/notify.h:
+		added notify stuff from checking join's, etc.
+	source/help.c
+		fixed typo-bug.
+	source/edit.c, source/server.c:
+		added /clear -unhold
+
+Wed Dec 22 23:30:15 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/exec.c, configure.in, acconfig.h:
+		finished svr3/twg patches, fixed the UNIX_MAIL stuff,
+		finished the auto-grok signals for exec.c.
+
+2.3.11c
+2.3.11b
+	source/server.c:
+		fixed all known bugs in server.c ;-)
+2.3.11a
+Thu Dec  2 21:05:56 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/server.c:
+		added extra debugging to dgets stuff.
+
+2.3.11
+Thu Dec  2 01:50:31 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/dcc.c, source/exec,c, source/irc.c, source/server.c
+	source/newioc, source/screen.c:
+		fixed lame bug's introduced in 2.3.9 that caused
+		bogus server connections closing.
+
+2.3.10
+Sun Nov 28 13:15:14 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/exec.c:
+		fixed POSIX kill(-pid).
+
+Mon Nov 15 23:32:22 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/crypt.c source/exec.c source/file.c source/help.c
+	source/irc.c source/ircaux.c source/ircflush.c source/log.c
+	source/mail.c source/notice.c source/parse.c source/scandir.c
+	source/term.c include/irc.h:
+		svr3/wollongong tcp/ip patches applied from entropy
+		(entropy@parakeet.con.wesleyan.edu)
+
+2.3.9
+Mon Nov 15 00:58:56 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/..:
+		various fixes to remove the `stricmp' stuff so that
+		ircii always uses it's own `my_stricmp'
+	source/server.c, source/parse.c, source/window.c:
+		fixed bug where ircii wouldn't let you /server after
+		a oper kill.  removed the kludge `CLOSING_SERVER'
+		code (oops, for got to remove the #define from server.h
+		oh well).
+	source/irc.c:
+		fixed notify/clock scheluding.
+	
+Tue Nov  2 21:17:59 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/exec.c, include/irc.h:
+		exec.c defines IN_EXEC_C so that in include/irc.h we
+		don't include unistd.h
+
+	source/dcc.c, source/ircserv.c, source/ircaux.c, source/newio.c
+		added set_socket_options() which either calls the
+		ESIX mark_socket() thing, or sets off linger and sets
+		keepaline and reuseaddr on.
+
+2.3.8
+Mon Nov  1 00:45:13 EST 1993 - matthew green <mrg@eterna.com.au>
+
+	source/edit.c:
+		added /beep command which just beeps the terminal.
+	source/edit.c, source/keys.c:
+		added rbind command that is a reverse bind lookup.
+		`/rbind parse_command' shows all keys bound to
+		parse_command.
+	source/status.c:
+		fixed problem with alarm clock (shulick@indiana.edu)
+	source/irc.c:
+		handlers for SIGHUP/SIGTERM that call irc_exit().
+
+Sun Oct 31 18:01:12 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/server.c:
+		fixed bug where primary_server was -1 and used as an
+		index.
+	source/vars.c, source/hook.c, source/edit.c, source/alias.c,
+	source/keys.c, source/notice.c:
+		changed the way /save works.  you can use -bind -on
+		-alias -digraph -set -notify to save just those types
+		(default is all of them), and the -all switch also
+		saves things that were generated by the global script.
+		these are not saved by default.
+
+Sun Oct 31 05:10:14 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	configure.in:
+		updated for autoconf 1.7, couple of other small
+		bugs fixed
+	source/vars.c, include/vars.h.proto:
+		added REALNAME varaible.
+
+2.3.7
+Sun Oct 24 21:47:10 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	too many to remember.  many bugs fixed.  hide_private_channels,
+	mode #foo +l 0, away when changing servers.  on connect now has
+	the port.  added posix signals when avaliable.  more real svr4
+	support.  various little bits of other peoples patches added
+	where still needed.
+
+2.3.6
+Mon Oct  4 02:37:27 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/status.c:
+		yay!!!!!! fixed the `cursor gets lost with /window
+		create' bug finally.  added a cursor_to_display() in
+		update_status().
+	source/alias.c:
+		new funcitons pid() and ppid() (and thus function_pid()
+		and function_ppid()).
+
+Sat Sep 25 20:13:38 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/server.c:
+		fixed the long know bug in bad link on /server.  also
+		fixed setting of closed fd to -1.
+
+Sun Sep  5 23:52:39 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	easyinst:
+		shell script from end to configure that also sets up
+		the default server and default help service.
+	source/, include/
+		removed `SCO' and replaced it with either `M_UNIX' or
+		with `HAVE_SYS_UN_H'.
+	source/dcc.c:
+		now shows the port as well as the ip address.
+
+Thu Aug 26 00:09:11 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c, source/window.c, include/lastlog.h:
+		fixed bugs in 2.3.3 relating to window level LOG_DCC.
+		LOG_DCC is back in level LOG_ALL 'cause now only one
+		window can have it at once.
+		oh god i am so lame.  fixed /dcc get bug.
+	
+	configure.in:
+		added tests for testing getpgrp() to grok non-posix
+		getpgrp() regardless what <unistd.h> says.
+
+2.3.3
+Sun Aug 22 18:29:21 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/, include/irc.h
+		removed all occurances of the lame null() macro.
+	
+2.3.2
+Sun Aug  1 02:25:21 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	configure.in, source/Makefile.in, Makefile.in
+		no longer creates source/Makefile from
+		source/Makefile.proto, but rather configure does.  we
+		call the make in source/ with the righ aruments.
+	source/, include/dcc.h, include/irc.h
+		general clean up with some header files, fixed time.h
+		and sys/time.h, netinet/in.h (thanks 386bsd for broken
+		header files)..
+
+Wed Jul 28 23:39:51 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/stack.c:
+		fixed stack pop on <number> so that the list from the
+		stack is actually added to the numeric list, if it was
+		empty, currently.
+
+Tue Jul 27 23:59:45 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed bugs in send_action() where it was sending the
+		message as the format string, and in do_sed() where it
+		was calling crypt_msg() with a null key.
+
+2.3.1
+Sat Jul 24 03:47:26 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	script/dmsg
+		added this finally..
+
+2.3.0
+Sun Jul 18 04:36:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		fixed lame bug with the dcc deadlists.
+	source/ircaux.c:
+		null() -=> NULL
+
+2.3beta1.9
+Mon Jul 12 20:43:55 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/stack.c source/hook.c, include/stack.h:
+		got /stack working with on's.  yay
+	configure.in, Makefile.in, acconfig.h:
+		updated for use with autoheader, acconfig.h added for
+		this purpose (thanks noah).  defs.h is much nicer than
+		-DBLAH all the way across the screen.
+	source/scandir.c, configure.in:
+		whole thing put in a #ifdef HAVE_SCANDIR, that is grokked
+		in configure ..
+
+2.3beta1.8
+Sat Jul 10 13:11:48 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	configure.in, Makefile.in:
+		fiddled with, added questions for DEFAULT_SERVER and 
+		DEFAULT_HELP_SERVICE, unused so far..
+	source/dcc.c, source/edit.c, source/numbers.c:
+		fixed some level things.
+	source/edit.c:
+		made NUMBER_OF_COMMANDS groked automatically..
+
+2.3beta1.7
+Sun Jul  4 19:49:36 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	NeXT port for 2.3 ..  cleaned up all the .. `suggest parentheses'
+	warnings from gcc -Wparentheses ..
+
+2.3beta1.6
+Thu Jul  1 23:06:14 EST 1993 - Matthew Green <matthew@valiant.vut.edu.au>
+
+	hpux/osf1/sgi/osx/ptx stuff for 2.3 ..
+
+2.3beta1.2
+Tue Jun 29 14:14:29 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	.. added gnu's autoconf to ircII, it works for sunos, and mostly
+	for sgi so far ..
+
+2.2.9
+Tue Jun 29 00:05:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+	
+	source/newio.c;
+		new_select() - once again, linux proves to be painful.
+		previous `fixes' to this routine were lame, and leaked
+		memory.
+
+2.2.8
+Sat Jun 26 14:45:10 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/hook.c:
+		fixed stupid bug in do_hook() which ignored the last
+		/on in each list.
+
+2.2.7
+Sat Jun 26 05:15:35 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	.. clean up for release ..
+
+Fri Jun 18 12:25:18 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	.. various bugs for dynix/ptx, linux, hpux .. fixed.. general
+	clean up for the release.
+
+(2.3beta1.1)
+Sun Jun 13 01:10:07 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	Wow.  ircII is now under RCS.
+
+2.2.7pre2
+Fri Jun 11 03:44:25 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	ctcp.c:
+		do_finger() - fixed type for replies for daemon clients..
+	server.c:
+		server() - fixed setting of away's, was causing core dumps,
+		and general lossage.
+
+Wed Jun  9 23:30:33 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/server.c:
+		fixed sending AWAY's when reconnecting.. by adding the
+		: prefix..
+
+(2.3beta1.0)
+Wed Jun  9 00:20:19 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	the lot,
+		gah, huge clean up.  changed the lame alpha `port' Long
+		stuff back to long, and started using the types for lots
+		of things.. like time_t, etc..
+		created include/ and moved every header in here..  major
+		changes to source/Makefile.proto for this..
+		added debug.c and debug.h..  and debug define to config.h
+
+Wed Jun  2 23:07:25 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c, source/irc.c:
+		added support to reset signal handlers under ESIX.
+	source/edit.c, source/server.h, source/server.c:
+		made /redirect smarter about if it needs to wait on
+		server output, by setting something in send_to_server(),
+		that is checked after the end of the parse_line() in
+		redirect().
+	source/dcc.c:
+		fixed varoius DYNIX/ptx problems that got introduced..
+	source/window.c:
+		create_additional_screen() - close() and unlink() when
+		the create fails...
+
+Tue Jun  1 23:41:08 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c:
+		term_cont() - added signal for linux..
+
+2.2.7pre1
+Tue Jun  1 20:00:02 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/vars.c, source/edit.c:
+		Changed the way EIGHT_BIT_CHARACTERS works so that if you
+		set it, its honoured.
+	source/ctcp.c:
+		fixed UTC bug.
+	source/, Makefile.
+		Added patch from Fuzzy to give SCO UNIX support.
+		<adrian@cursci.co.uk>
+
+Sun May 30 01:36:18 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/help.c:
+		fixed the linux/help bug finally.  not exactly sure what
+		was wrong with it, but Veep <eric@blahrvares.er.usgs.gov>
+		found the problem, and i fixed it.
+
+Fri May 28 23:10:47 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/parse.c:
+		p_privmsg() - fixed beep_when_away with /on msg..
+
+Thu May 20 03:25:57 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/irc.c:
+		irc_io() - when reading from stdin (for any screen) we
+		read up to BIG_BUFFER_SIZE chars at a time now.
+	source/ctcp.c, source/dcc.c:
+		added sizes to dcc send/get.
+	source/names.c:
+		decipher_mode() - bug with loosing track of mode string
+		for mode's v and b (Aiken).
+	source/alias.c:
+		added randm(), a better random function (Sarayan) and
+		fixed bug in function_srand() if input was an empty
+		string.
+	source/edit.c:
+		load() - now allows \ at the end of a line to continue
+		the line (Stargazer <spz@specklec.mpifr-bonn.mpg.de>)
+
+Tue May 18 01:20:50 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numbers.c:
+		stupid stupid stupid bug in 433 handling fix.
+	source/screen.c:
+		over zealousness with unsigned char's removed.
+
+2.2.6+
+Wed May 12 20:39:01 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numbers.c:
+		fixed various bugs in the handling of some of the more
+		important numerics.  every numeric should be able to
+		be caught in a /on now.
+	source/notice.c:
+		parse_server_notice() - if from is null, use the server's
+		name as far as its concerned, if it exists (.itsname).
+	source/screen.c:
+		change the handling of lines that are null being written to
+		the screen, that was causing core dumps in places. (Rogue_F)
+	source/keys.c:
+		write_bindings() - changed char to unsigned char.
+
+Fri May  7 22:54:58 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/names.c:
+		blah, fixed show_channel() to not assume buffer isn't
+		changed ever.
+
+Thu May  6 04:41:24 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numbers.c, source/parse.c, source/funny.c:
+		fixed some numerics that were in accessable from /on
+		<num> (353 and 366), and removed the away-time from
+		the /on msg hook.
+	script/finger:
+		updated so it doesn't cause core dumps on AIX (Daemon)
+	install:
+		updated to work with the new config.h (Daemon)
+
+Wed May  5 21:43:35 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/new_io.c:
+		new_select() - if timeout == NULL, then we bzero() the
+		newtimeval .. stops ircserv from hanging... thanks to
+		Kenny Zalewski <zalewk@rpi.edu> for this.
+
+2.2.5
+Tue May  4 17:12:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/keys.h.proto, source/keys.c, source/screen.c
+		Added new binding SCROLL_START, and new function 
+		scrollback_start() to do it.
+	source/ircaux.c:
+		check_nickname() - fixed bug where it was returning `s'.
+
+Tue May  4 02:11:02 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/exec.c:
+		various patches from avalon added to help speed up
+		exec handling.
+
+Mon May  3 21:32:49 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaargh.
+	Turning bold or inverse off turns everything off.  its a bug in
+	termcap. sigh.
+
+Mon May  3 01:26:18 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/irc.c:
+		added HPUX and linux to the re-issue list for signals
+		that are handled seeing the internal process handlers
+		aren't always re-set properly -=> ^C making the client
+		exit untimely.
+
+Sun May  2 23:06:08 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/parse.c, source/notice.c, source/ignore.c, source/ignore.h:
+		changed the handling of ignore_combo, introducing
+		a new function double_ignore().
+	source/parse.c, source/ignore.c
+		moved IgnoreCombo() into ingore.c from parse.c and 
+		renamed it ignore_combo()
+	source/window.c, source/screen.c, source/dcc.c:
+		removed netinet/in.h and arpa/inet.h includes where they
+		existed as dcc.h includes them, and 386BSD has lame
+		header files.
+	source/pares.c:
+		p_nick() - if its mynick then its shown to the current
+		window.
+	source/lastlog.c:
+		lastlog() - added -literal switch.
+
+Sun May  2 05:03:27 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/names.c, source/names.h:
+		Added channels keys to the channel stuff, and it also
+		gets shown in the mode returned.
+	source/numbers.c:
+		Fixed bug in 002 handling with SHOW_NUMERICS on.
+
+Fri Apr 30 18:48:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ircux.c:
+		check_nickname() - rewritten, and handles things better.
+	source/irc.c:
+		parse_args() - we now call check_nickname() to make
+		sure the nick given is "ok".  If not, we don't start.
+
+Wed Apr 28 19:55:43 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed bug in ctcp ping reply.
+	source/parse.c, source/edit.c:
+		prefixed duplicate funcion names with p_ and e_.
+	source/screen.c:
+		fixed lame bug in add_to_window() where the arguments
+		to strmcat() were wrong.  (wall privmsg quit channel
+		invite nick)
+	source/keys.c:
+		added emacs bindings to 0x80 + b/d/f/h/^? for people
+		with meta keys.
+	source/keys.h:
+		removed.  wasn't used anywhere.
+	source/dcc.c:
+		DCC connections are now shown with the ip number, to
+		provide a little extra security (Avalon).
+
+Tue Apr 27 02:33:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		"blah". fixing put_it() et al, didn't fix the lame
+		ultrix float bug after all.  stupid ultrix.
+
+2.2.4
+Mon Apr 26 12:01:58 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed lame bug in do_atmosphere() that was making channels
+		leave windows because of a missing 2nd argument to
+		is_current_channel().
+
+2.2.3
+Mon Apr 26 00:42:21 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/screen.c, source/irc.h, source/irc.c:
+		added new global variable, char global_all_off[] that 
+		holds a string with the ALL_OFF character in it.  Fixes
+		bug with crap getting on the screen.
+	source/Makefile.proto:
+		Added dependancies for crypt.o.
+
+pre2.2.3
+Sun Apr 25 11:17:29 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/exec.c:
+		fixed lameness with wait3() arguements.
+	source/screen.c:
+		added a `:' to the send_to_server() call when redirecting.
+		makes it so that 2.8 servers get everything.
+
+Sun Apr 25 01:35:35 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/
+		blah. fixed several problems in lots of stupid things
+		i did for the release.
+	source/screen.c, source/status.c, source/irc.h:
+		changed bold, inverse and underline characters to
+		^B, ^V and ^_ respectively.  wow.  it makes some sense
+		now.
+	Makefile:
+		Some rearrangements, and general updating.  its now
+		easier to install, or at least i hope so.
+	config.h:
+		several things updated, AUTO_RECONNECT removed..
+
+2.2.2
+Fri Apr 23 05:44:29 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/
+		fixed all of the implicit functions declartions, and
+		several other compiler warnings. wheeeeeeeeeee.
+
+Thu Apr 22 14:42:07 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numbers.c:
+		fixed handling of RPL_LINKS (364) so that 2.8 servers
+		would be cool.
+
+Thu Apr 22 04:18:53 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/
+		fixeds 1000's olf lines of warnings from gcc -Wall.
+
+Tue Apr 20 22:29:05 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c:
+		fixed lame hpux bugs, got term.c back to working again.
+	source/keys.c, source/edit.c:
+		fixed 8-bit stuff again in edit_char(), by using 
+		unsigned char.
+
+pre2.2.pl12
+Mon Apr 19 21:54:09 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c:
+		blah.  i hate sun tty drivers.  we're back to sgtty.
+
+Sat Apr 17 21:28:42 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/alias.c, source/alias.h, source/parse.c, source/ctcp.c,
+	source/dcc.c, source/dcc.h, source/edit.c, source/edit.h,
+	sourec/exec.c, source/flood.c, source/help.c, source/history.c,
+	source/irc.c, source/irc.h, source/ircaux.c, source/log.c,
+	source/mail.c, source/notice.c, source/scandir.c, source/server.c,
+	source/status.c, source/whois.c, source/dcc.c.orig, source/screen.c:
+		Added OSF/1 support.  Made `long' a define, Long.
+	source/output.c, source/ctcp.c, source/server.c, source/hook.c:
+		put_it(), say(), yell(), send_to_server(), do_hook(),
+		send_ctcp() and send_ctcp_notice() - changed from being
+		`int' to `char *' being passed.  Fixes several lame
+		problems.
+
+Thu Apr 15 17:09:16 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/whois.c:
+		whois_operator() - fixed 313 reply, so that 2.8 
+		servers look cool.
+	source/numbres.c
+		cannot_join_channel() - now switch on -current_numeric,
+		not current_numeric.
+	source/term.c:
+		Changed terminal handling from sgtty to termios for 
+		SUNOS.
+
+Tue Apr 13 13:39:09 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c:
+		fixed various bugs with ctcp floods,
+	source/
+		fixed lots of compiler warnings, thanks to Vesa.
+
+pre2.2.2pl10
+Mon Apr 12 18:39:55 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	all:
+		fixed various .h and .c files, removing a few compiler
+		warnings.
+	source/alias.c:
+		changed $channels() and $servers() to $mychannels and
+		$myservers().
+	source/edit.c:
+		Added new command XTYPE [-LITERAL] <text>, function
+		xtypecmd().
+
+Mon Apr 12 03:26:44 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	Makefile, source/Makefile.proto
+		Added LEX and LEXLIB.
+
+Sat Apr 10 02:42:55 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c;
+		close_all_dcc() - fixed bug where the list was merely
+		being lost, not removed (so not closing fd's)
+
+pre2.2.2pl9
+Fri Apr  9 02:27:26 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	Makefile, source/dcc.c:
+		Added PTX patches.
+	source/exec.c, source/edit.c, source/screen.c:
+		changed test_to_process() to have switch if it would
+		call put_it() or not - fixed recusive bug with /redirectign
+		to a process.
+
+Thu Apr  8 01:17:41 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/server.c:
+		Fixed /window server, and /server so that ircii would
+		use the old port numbers.
+
+Wed Apr  7 13:31:23 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/hook.c:
+		Made save_hooks() include the serial number.
+	source/edit.c:
+		parse_line() - \r and \n are not treated as special from
+		within a loaded script anymore.
+
+pre2.2.2pl8
+Tue Apr  6 23:37:27 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/history.c:
+		Fixed history scrolling from the initial input line.
+	source/server.c:
+		Fixed bug in server -delete where Window->server's
+		were left the old value.
+	source/mail.c:
+		Made it so mail type messages go to level CRAP.
+	soucre/alias.c:
+		Added poxaV's curpos patch.
+	source/edit.c:
+		Changed /WAIT to use unknown command, not WHOIS.
+	
+pre2.2.2pl7
+Tue Apr  6 01:01:46 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/notice.c:
+		fixed lame bug where the server version/name NOTICE was
+		being shown twice.
+	source/numbers.c:
+		Added lastlog saving to all numeric messages.
+	source/mail.c:
+		init_mail() - fixed handling of env var MAIL where it was
+		strcat()ing not strcpy()ing (Glenn!)
+	source/status.c:
+		Added Aiken's right justification patch to the status
+		line (%>).
+	source/screen.c, source/window.c, source/window.h:
+		Fixed lame bug where I'd left variables in screen.c and
+		window.c.
+	source/?:
+		Added various things from Lynx.
+
+Mon Apr  5 05:15:16 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numerics.c:
+		made numerics 471 473 474 475 476 show what sort of
+		cannot join channel they are.
+	source/whois.c:
+		made 313 replies (whois operator) only add the
+		"(is an IRC operator)" if the server is < 2.8.
+
+Tue Mar 30 03:58:27 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c, Makefile:
+		Added support for A/UX, thanks to Helen Rose for help
+		with this (hrose@eff.org).
+
+pre2.2.2pl6
+Tue Mar 30 02:02:22 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c, source/term.h:
+		changed various things for hpux terminal emulation. .now
+		uses sysV style (termio).  Fixes problem with getting
+		info about the terminal out of the tty.  Also added
+		support for irix.
+
+pre2.2.2pl5
+Mon Mar 29 18:50:25 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/window.h, source/screen.c, source/screen.h
+	source/names.c, source/lastlog.c, source/hold.c, source/exec.c,
+	source/translat.c, source/term.c, source/status.c, source/menu.c,
+	source/irc.c, source/input.c, source/help.c, source/edit.c,
+	source/alias.c
+		window.c was split into window.c and screen.c today, and
+		these files had various changes to fit to this.
+
+Mon Mar 29 01:13:30 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/count.l, source/count.c, source/Makefile.proto:
+		Added count.l, removed count.c, and updated Makefile.proto
+		to use these changes.
+	
+	source/irc.c, source/dcc.c, source/exec.c
+		Fixed close_all_dcc(), and close_all_exec().  Added
+		signal handlers for SIGUSR1 (sig_user1) and SIGUSR2
+		(sig_user2).  USR1 closes all dcc and exec connections,
+		and USR2 uses setjmp()/longjmp() to break out of where
+		it is, and start processing from irc_io() again.  USR2
+		doesn't seem to work.  sigh.
+
+pre2.2.2pl4
+Sat Mar 27 04:18:29 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c:
+		fixed lame bugs for some commands losing parameters.
+	source/window.h, source/window.c:
+		Fixed bugs in scroll functions where wrong lines were
+		displayed when new lines had been added to the window.
+		New Window element int new_scrolled_lines.
+	source/server.c:
+		fixed ircserv to show the real name of the program in
+		argv[0], not "ircserv".
+	source/edit.c:
+		Fixed handling of literal ^J and ^M's to the way they were
+		originally documented in UPDATES (the same as \n used to do).
+	source/hook.c:
+		ugh, do_hook().  added a bzero().  see comments.  ha ha ha.
+	source/lastlog.h:
+		Added LOG_SNOTE to LOG_ALL.
+
+Thu Mar 25 23:58:58 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c, source/parse.c:
+		Finished the ignore ctcps and crap stuff.
+	source/parse.c:
+		ON PUBLIC has $1 as channel, and $2- as message.
+
+Thu Mar 25 02:19:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c:
+		fixed send_com() so that it would only use "%s :%s" when
+		the argument existed.
+	source/ignore.c, source/ignore.h:
+		changed level from unsigned char to int, to allow more than
+		8 level's of ignore to work.  Reformatted the  output ..
+
+Wed Mar 24 19:57:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/numbers.c:
+		Fixed motd numerics for 2.8 properly..
+	source/vars.h.proto, source/vars.c, config.h, config.h.lynx:
+		Added new variable NOTIFY_LEVEL, which is used by default
+		for new windows.
+	source/edit.c:
+		Fixed bug in quote(), where the arguement was being sent
+		as the format string.  Real dumb.
+	source/ctcp.c, source/ignore.c, source/ignore.h, source/lastlog.c,
+	source/lastlog.c:
+		Added ignore levels CTCP and CRAP.
+
+Tue Mar 23 01:58:34 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c, source/numbers.c, source/window.c, source/whois.c,
+	source/irc.c:
+		Changed redirect to use unknown command, and fixed some
+		strange bugs.  Some still exist with 2.8 servers.  Also
+		made all numerics work with /on <num>.  Some (318 eg)
+		didn't have hook code for it.
+	source/input.c:
+		Fixed lame bug in write a character to the screen.
+
+Mon Mar 22 02:24:43 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/window.h:
+		Added window notify levels, with /window notify_level
+		level ..
+	source/vars.h.proto, source/vars.c, source/window.c, source/keys.c,
+	config.h, config.h.lynx:
+		Added two new variables, XTERM_OPTIONS, whose value is
+		passed to xterm, when using WINDOW CREATE, and 
+		EIGHT_BIT_CHARACTERS, which, if set, doesn't strip the
+		8th bit off the input streams.
+	source/alias.c, source/names.c, source/names.h, source/server.c,
+	source/server.h:
+		Added new functions $channels() and $servers().
+
+Sun Mar 21 02:31:25 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c:
+		privmsg() - changed so that /msg =nick and @nick both
+		set from_server to -1.. fixes lame level bug..
+
+Sat Mar 20 02:16:34 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c:
+		window() - made /window server make the window level
+		ALL -DCC, not just ALL.
+	source/numbers.c:
+		Fixed the INFO and MOTD numerics so that they will work
+		with the new ones from ircd 2.8-7+ .. blah ..
+	source/newio.c:
+		new_select() - fixed so that select() wouldn't over right
+		the struct timeval...
+		
+
+Fri Mar 12 18:27:31 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c:
+		send_com() - wasn't prefixing the arguements with a
+		: which meant ircd 2.8 was being lame ...  For some
+		commands, using send_comm()
+
+Mon Mar  8 10:22:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/exec.c:
+		fixed bug in /exec -in
+	source/server.c:
+		added support for /server -delete
+	source/edit.c, source/keys.c:
+		Added support for 8 bit input.
+	source/irc.c:
+		Added command line option -v, version.
+
+2.2.1.2
+Sun Feb 28 13:35:19 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/whois.c:
+		add_to_whois_queue() - finished fixing another bug in
+		/userhost -cmd..
+	source/names.c:
+		ignore() - made /IGNORE use the HIGHLIGHT_CHARACTER.
+		reconnect_all_channels() - fixed bug from 2.2.1
+
+2.2.1.1
+Wed Feb 24 17:43:55 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/whois.c:
+		Fixed bug in /userhost.
+	source/parse.c:
+		Fixed bug in ON RAW_IRC.
+
+Tue Feb 23 18:56:54 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/reg.c:
+		Fixed bug in \escaping. (Troy)
+
+Sun Feb 21 16:36:22 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	script/troy, script/killpath, script/kpstat, script/traces:
+		Updatd scripts for 2.2.1.
+
+Sat Feb 20 00:36:12 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c, source/irc.c
+		Finally did The Right Thing (tm) with the wait key junk
+		that help uses, and moved it from irc_io() to edit_char()
+		where I should have put it originally.  Also fixes a bug
+		in dumb mode.
+
+Thu Feb 18 01:48:05 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/window.h:
+		window() - added new command LOGFILE for window logging.
+	source/dcc.c:
+		We now use wait_new_free() for dcc_erase().
+	Makefile:
+		Removed makehelps and changed installhelp.
+
+Wed Feb 17 06:13:34 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/notice.c:
+		changed ON SERVER_NOTICE for $0 to be the server name.
+		Changed the AIX_370 #if's to BROKEN_SCANF.
+	source/ctcp.c:
+		Fixed bugs in CTCP PING.
+	source/edit.c:
+		Fixed bugs in me() and describe().
+
+Thu Feb 11 14:57:10 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/server.c:
+		do_server() - actually fixed the autoreconect problems
+		when there is only one server in the server list this
+		time. ugh.
+	config.h, source/vars.h.proto, source/vars.c, source/parse.c
+		Added new variable SHOW_WHO_HOPCOUNT, whoreply().
+
+Wed Feb 10 19:53:32 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	script/whowas
+		New whowas script for 2.2 from Mycroft.
+	source/ctpc.c
+		Fixed NO_CTCP_FLOOD, changed do_errmsg() to do_echo(),
+		and moved do_ping() to this, and added CTCP ECHO.
+	Numerous other bugs fixes from various people.
+
+2.2
+Tue Feb  9 16:46:39 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c, source/scandir.c, source/help.c, source/edit.c:
+		couple of bugs fixes here and there ...
+	source/edit.c:
+		bug in who() with -operator switch..
+
+Sun Feb  7 17:35:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/server.c, source/edit.c;
+		Fixed away bugs..
+	source/window.c:
+		update_all_status() - doesn't call traverse_all_windows()
+		anymore, as it was calling it recusively.  Should rewrite
+		traverse_all_winodws().
+	source/
+		Support for Solaris 2 added (spot <raob@ee.mu.oz.au>)
+	source/
+		Support for 386BSD added (Mycroft)
+
+Sun Feb  7 05:04:23 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/alias.c:
+		alias_currdir(), and `$W' now return the current working
+		directory. alias_version(), and '$V' give the version
+		(poxaV).
+	source/alias.c:
+		alias_current_numeric(), and `$H' now return the current
+		numeric.
+	source/edit.c;
+		fixed couple of memory leaks, made `:' not a special
+		character in command mode, as it is now the no-op command.
+		me(), describe() and prepare_action() - changed to not
+		add the offensive period.
+	source/window.c:
+		window() - fixed bugs in WINDOW SERVER and WINDOW NAME.
+	source/help.c:
+		help() - bit of cleaning up..
+	source/ctcp.c:
+		do_version() - made it use IRCII_COMMENT if the value for
+		CLIENT_INFORMATION is null.
+
+Thu Feb  4 17:59:23 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/
+		Various unused variables removed, uninitialised variables
+		initilised..
+	source/status.c, source/window.c, source/hook.c, source/edit.c,
+	source/if.c:
+		Few bug fixes here and there, and a couple of very nasty
+		memory leaks..  thanks to jlemon..
+	source/hook.c:
+		do_hook() - fixed the `Dumb mode' bug that Daemon, then
+		recently poxaV had trouble with (Mycroft)
+		
+Wed Feb  3 18:30:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/ctcp.c, source/vars.h.proto, source/vars.c, config.h:
+		New variable NO_CTCP_FLOOD, which when set makes ircii
+		only send one CTCP reply per second.
+	source/numbers.c, source/whois.c, source/names.c, source/funny.c:
+		Changed all the numerics replies so that $0 is now the
+		server name (if it want't already), except for ISON and
+		USERHOST, as these are server local anyway.
+
+Tue Feb  2 21:40:46 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c, source/whois.c:
+		Removed /msg -channel as it doesn't make sense anymore.
+	source/dcc.c:
+		process_dcc_request() - fixed start times in dcc requests.
+	source/status.c:
+		status_mail() - fixed stupid bug (Mycroft).
+	source/whois.c:
+		no_such_nickname() - fixed so that $0 is now the server name.
+
+Sun Jan 31 23:33:18 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c:
+		kill_screen() - fixed more lame bugs left for me to fix.
+	source/term.h, source/scandir.c, source/ircflush.c:
+		Fixed various hpux problems.
+	Makefile, config.h, source/dcc.c, source/edit.c,source/exec.c,
+	source/irc.c, source/irc.h, source/mail.c, source/scandir.c,
+	source/term.c, source/hook.c:
+		Fixed various AIX 3.1/3.2 problems.  (Mycroft)
+
+Sat Jan 30 18:28:31 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c, source/ctcp.c:
+		Added CTCP PING to ircII...  pingcmd() and special case
+		handling for the reply .. convert_ping_args()..
+	source/edit.c
+		waitcmd() - fixed stupid bug that Troy left in the code
+		to set up a WAIT -CMD.
+
+Thu Jan 28 23:37:19 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/names.c:
+		Fixed bug in irc -c that I broke when fixing the phone bug.
+
+Wed Jan 27 22:48:46 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/irc.c:
+		Changed create_additional_screen() to select on the listening
+		socket, and timeout after 5 seconds, returning an error, 
+		rather than just calling accept().  This stops the case where
+		the wserv process doesn't get started, and the client will
+		hang in the accept().  Removed the force arguement from
+		kill_screen(), and all the calls to it.
+
+	source/edit.c:
+		renamed new_send_line() to sendlinecmd() so that it follows
+		the general ircII pattern (is there such a thing ? - phone :)
+		
+Tue Jan 26 19:03:51 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/status.c
+		Added poxaV's patch to put time in standard format.
+
+Mon Jan 25 09:14:10 EST 1993 - Brian Koehmstedt <bpk@gnu.ai.mit.edu>
+
+	source/crypt.c, source/dcc.c, source/exec.c, source/help.c,
+	source/irc.c, source/ircaux.c, source/notice.c, source/scandir.c,
+	source/term.c, source/ircflush.c:
+		added support for Linux
+
+Mon Jan 25 02:52:14 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c, source/exec.c, source/server.c, source/window.c:
+		added close_all_dcc(), close_all_exec() and close_all_server(),
+		which are called from create_additional_screen(), from the
+		forked process to close all unneeded file descriptors.
+		create_screen() - fixed bug when create_screen() returns a
+		screen that was marked as being !alive.
+		Hmm, somewhere here I think I have fixed the bug with the
+		position of the cursor, when using more than one screen.
+		No idea if it is fixed, but I can't get it to happen.
+	source/names.c:
+		set_window_channel() - fixed bug when channel was NULL.
+
+Mon Jan 25 11:44:20 EST 1993 - Charles Hannum <mycroft@gnu.ai.mit.edu>
+
+	source/window.c:
+		scroll_window() - fixed bug that deleted text from the
+		input prompt
+
+Thu Jan 21 18:16:16 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/dcc.c:
+		Added flag to dcc_message_transmit(), to indicate if the
+		hook/put_it() call should be made.  Used when redirecting
+		to a dcc chat connection, which is now possible.
+
+Wed Jan 20 23:41:50 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c, source/edit.c, source/whois.c, source/window.h:
+		Changed how REDIRECT works.  We now send a redirect token
+		to the server when redirecting, not a wait token.  It is in
+		the form of #RED#nnnn where nnnn is the screen's number
+		(internal).  Redirect also is a property of the screen, not
+		of the whole of ircII.  This means that there are no more
+		valid reasons to call irc_io() recursively.
+	source/mysetjmp.h, source/mysetjmp.c, source/irc.c, source/alias.c,
+	source/window.c, source/window.h:
+		Removed all the code that was applicable to the mysetjmp()
+		code, as there are no need for it anymore - only /WAIT and
+		$".." call irc_io() recursively, and they can be used in
+		other (better) ways.
+
+Tue Jan 19 14:05:52 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/help.c:
+		You guessed it.. another bug.. fixed.
+	source/window.c;
+		window() - fixed bugs in WINDOW SERVER.
+	source/parse.c, source/edit.c, source/exec.c:
+		Added doing_privmsg, which makes ircII convert all attempts
+		to PRIVMSG from a PRIVMSG in to a NOTICE.
+	source/parse.c, source/whois.c:
+		Added flag to HOST and USERHOST commands.  It allows a command
+		to be executed when the the userhost (302) reply comes back
+		from the server - userhost_cmd_returned().
+	source/edit.c;
+		Added new command INPUT.  Takes a ".." prompt as its first
+		parameter, and displays this, and prompts for input that
+		expanded, and passed to the command that is its second arg.
+		(ie, /INPUT "prompt> " echo $*).  This should be used as
+		a replacement for $".." type variables.
+
+Sun Jan 17 22:01:34 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/help.c:
+		help_prompt() - fixed another bug..  when will it end..?
+	source/dcc.c:
+		register_dcc_offer() - made dcc collisions for DCC CHAT
+		automatically connect to the other party.  Impressed.
+	source/window.h, source/window.c:
+		Added new define in winodw.h SCROLL_AFTER_DISPLAY .. which
+		makes the display scroll like it used to in 2.1.5.
+
+Sun Jan 17 01:16:37 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/funny.c:
+		Fixed lame bug in funny_list() which caused the wide list
+		to be corrupted when more than 50 in it.
+
+Sat Jan 16 17:42:41 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c:
+		Fixed stupid bug in window(), in the CHANNEL command.
+	source/dcc.c:
+		Forgot dcc get for lame ultrix - fixed.
+	source/lastlog.c:
+		lastlog() - made it possible to /lastlog <pattern> <count>
+		now.
+	source/help.c:
+		help_me() - fixed a stupid bug that would cause help to
+		become trapped, and unusable for that session.
+
+Fri Jan 15 16:26:13 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/irc.c, source/window.c:
+		Finally got irc_io() knowing when a socket connection to
+		a wserv process closes, and to kill that screen, I know
+		don't know of any pending bugs directly related to
+		WINDOW CREATE.
+
+	source/irc.c, source/help.c:
+		Got help working properly again (I think), and all the
+		checking to make sure ircII won't get confused, etc.
+
+Fri Jan 15 03:07:48 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/help.c:
+		Added variable help_screen, that is set when we enter a
+		help command, and is set to NULL when we exit.  In help(),
+		I made it illegal to call help from more then one screen
+		at the same time.
+	source/irc.c, source/window.c:
+		Added new function is_main_screen(), and added code to 
+		irc_io() to detect if a screen is closed from something
+		other than window delete.
+
+Thu Jan 14 12:37:10 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	Makefile, source/Makefile.proto:
+		Removed the INSTALL section of this, replacing it with a
+		cp, strip, and chmod, as not all machines support install.
+		Also added new target `everything' to the Makefile.. that
+		does the same as `make all ircflush ircserv wserv'.
+
+Wed Jan 13 18:19:26 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/alias.c, source/edit.c:
+		Smallish revamp of the whole modules, formatting for 80 columns
+		and smallish optimizations here and there.  Could be bugs here
+		I guess.
+	source/crypt.c, source/ctcp.c, source/dcc.c, source/exec.c,
+	source/flood.c, source/funny.c, source/help.c, source/history.c,
+	source/hold.c, source/hook.c, source/if.c, source/ignore.c,
+	source/input.c, source/irc.c, source/ircaux.c, source/ircflush.c,
+	source/ircserv.c, source/key.c, source/lastlog.c, source/list.c,
+	source/log.c, source/mail.c, source/menu.c, source/mysetjmp.c
+	source/names.c, source/newio.c, source/notice.c, source/notify.c
+	source/numbers.c, source/output.c, source/parse.c source/reg.c,
+	source/status.c, source/server.c, source/term.c source/translat.c,
+	source/vars.c, source/whois.c, source/window.c, source/wserv.c:
+		reformatted for 80 columns, hopefully thats the end of the
+		formatting saga..  :)
+
+Tue Jan 12 16:42:55 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/dcc.c:
+		Changed the call to put_it() for ultrix machines so that
+		the floating pointers won't get garbled.
+	source/ctcp.c, source/ctcp.h:
+		Fixed send_ctcp_reply(), and removed Transmit_CTCP() moving
+		the 2 lines to the only place it was called from.
+	source/translat.c, source/term.c, source/ignore.c:
+		reformatted.
+
+Mon Jan 11 16:40:14 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c:
+		Changed window() so that the handling of HOLD_MODE called
+		set_int_var() rather than reset_line_cnt().  Fixed a problem
+		with /flush.
+
+Mon Jan 11 01:35:22 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/lastlog.c, source/file.c, source/crypt.c, source/list.c:
+		reformatted.
+
+Mon Jan 11 00:29:41 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/names.h, source/names.c, source/window.c, source/window.h,
+	source/edit.c, source/parse.c:
+		Changed the handing of WINDOW CHANNEL, and JOIN so that
+		ircII now remembers what window a channel was joined on.
+		channel() in both parse.c and edit.c were changed, 
+		add_channel() in names.c.  New function, set_channel_window()
+		added, in names.c thats sets a channel's window, and as such,
+		Window * added to ChannelList.  This sometimes helps ircII
+		remember what channels were on which windows, when
+		re-connecting to a server.  Sometimes.
+
+	source/ctcp.c, source/output.c, source/hook.h.proto, source/parse.c,
+	source/output.h:
+		Moved the ctcp_* functions in output.c to ctcp.c, where they
+		belong, and also put in_on_who in hook.h.proto, and fixed
+		those fucntions that used it.
+
+Sun Jan 10 10:30:20 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/funny.c:
+		Changed funny_list(), fixing the -TOPIC argument to the
+		LIST command.  Changed the functionality of -TOPIC so
+		that it works *with* the other arguements, not against
+		them.
+
+Sun Jan 10 09:23:43 EST 1993 - poxaV <cgw@unt.edu>
+
+	source/vars.h.proto, source/vars.c, source/status.c, config.h:
+		renamed status_user() to status_user0(), and added 3
+		new functions, status_user[123]()..  New variables
+		STATUS_USER[0-3] ..  to go with the new status line
+		functions, %X, %Y and %Z.
+
+Thu Jan  7 00:13:14 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/status.c:
+		Fixed status_oper() so that it wouldn't show
+		if SHOW_STATUS_ALL wasn't set.
+
+Wed Jan  6 19:04:42 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/funny.c:
+		Changed funny_print_widelist() ..  it now works
+		again, I don't know when I broke it.
+
+Wed Jan  6 11:59:11 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/term.c, source/wserv.c:
+		Made the term_init() call used in wserv to set the
+		line discipline to RAW, so I could forget about
+		having to worry about signals, and removed the
+		SIGINT handling from wserv.c.  Hopefully this means
+		that wserv works properly now.  (thanks to Dizzy
+		<nathan@eas.gatech.edu> for help with this).
+
+Wed Jan  6 00:03:00 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/Makefile.proto:
+		updated depandancies, and re-organised the
+		SOURCES and OBJECTS.
+
+	source/timer.c, source/edit.c, source/irc.c, source/irc.h,
+	source/mysetjmp.c, source/mysetjmp.h, source/window.c:
+		Moved everything from timer.c into either edit.c
+		or irc.c.  Made WINDOW_CREATE define more parts
+		out, in irc.c, mysetjmp.[ch], and window.c.
+
+Tue Jan  5 20:59:36 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/exec.c:
+		Reformatted, and new element of the process list
+		added, server, to allow /exec -out/msg/notice
+		to go to the right server.
+
+	source/newio.c:
+		reformatted.
+
+Tue Jan  5 18:06:25 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c, source/keys.c:
+		Added new function parsekeycmd(), and new command,
+		PARSEKEY which calls it - does the same as typing
+		a key which is bound the the arguement.
+
+Tue Jan  5 17:03:04 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/window.c:
+		Changed window() so that the WINDOW CHANNEL
+		command with no arguments make the current
+		window's channel null.
+
+Tue Jan  5 16:15:51 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/wserv.c:
+		Changed got_sigint() to send the ^C down the pipe,
+		rather than kill SIGINT the ircII process, as this
+		was causing the ^C to be read as though it was from
+		the main screen.
+
+Tue Jan  5 01:57:58 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/edit.c:
+		Changed new_send_line() to set the display on.
+
+Mon Jan  4 23:46:58 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	source/vars.h.proto, source/vars.c, source/hook.c, source/edit.c,
+	config.h:
+		New variable INPUT_PROTECTION.  Doesn't allow any
+		ON INPUT's to be added when set.  ON INPUT moved to
+		send_line(), so that all input is caught in the hook,
+		SENDLINE command added, that calls the new function,
+		new_send_line, that does a simliar thing to the send_line
+		command, except, no handling for prompts, or ON INPUT is
+		done during this.
+
+Mon Jan  4 15:23:34 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	hook.c:
+		reformatted.
+
+Fri Jan  1 23:46:03 EST 1993 - Matthew Green <mrg@eterna.com.au>
+
+	*.h:
+		Fixed all the header files, so that if included more than
+		once, they are only parsed once.

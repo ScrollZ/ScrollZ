@@ -1,0 +1,796 @@
+dnl configure.in for ircii
+dnl
+dnl Copyright (c) 1993-1998 Matthew R. Green.
+dnl All rights reserved.
+dnl
+dnl Redistribution and use in source and binary forms, with or without
+dnl modification, are permitted provided that the following conditions
+dnl are met:
+dnl 1. Redistributions of source code must retain the above copyright
+dnl    notice, this list of conditions and the following disclaimer.
+dnl 2. Redistributions in binary form must reproduce the above copyright
+dnl    notice, this list of conditions and the following disclaimer in the
+dnl    documentation and/or other materials provided with the distribution.
+dnl 3. The name of the author may not be used to endorse or promote products
+dnl    derived from this software without specific prior written permission.
+dnl
+dnl THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+dnl IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+dnl OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+dnl IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+dnl INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+dnl BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+dnl LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+dnl AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+dnl OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+dnl OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+dnl SUCH DAMAGE.
+dnl
+dnl certain portions have other attributions, see below.
+dnl
+dnl thanks to the screen 3.3 configure.in for giving me examples to
+dnl work from and steal ;)
+dnl
+dnl $Id: configure.in,v 1.1 1998-09-10 17:31:12 f Exp $
+
+AC_REVISION($Revision: 1.1 $)dnl
+AC_INIT(source/irc.c)
+AC_CONFIG_HEADER(include/defs.h)
+
+dnl
+dnl grok the version number - from source/irc.c
+dnl
+
+VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < source/irc.c` 
+echo this is ircii version $VERSION
+echo
+AC_SUBST(VERSION)
+
+CATEGORIES='build change-request doc pending runtime'
+AC_SUBST(CATEGORIES)
+
+dnl so that the generated configure has an id.
+echo '$Id: configure.in,v 1.1 1998-09-10 17:31:12 f Exp $' > /dev/null
+
+dnl
+dnl initial stuff
+dnl
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_ISC_POSIX
+
+dnl
+dnl check for NeXT.. and -bsd switch
+dnl
+
+AC_MSG_CHECKING(for NeXT)
+AC_EGREP_CPP(yes,
+[#if defined(NeXT) || defined(__NeXT) || defined(__NeXT__)
+  yes
+#endif
+],nextstep=1)
+
+if test -n "$nextstep"; then
+  AC_MSG_RESULT(yes)
+  CFLAGS="$CFLAGS -posix"
+  LIBS="$LIBS -lposix"
+else
+  AC_MSG_RESULT(no)
+fi
+
+dnl AC_AIX is broken.  blah.
+
+AC_MSG_CHECKING(for AIX)
+AC_EGREP_CPP(yes,
+[
+#ifdef _AIX
+  yes
+#endif
+],AC_MSG_RESULT(yes)
+  aix=1
+  AC_DEFINE(_ALL_SOURCE),
+  AC_MSG_RESULT(no))
+
+AC_PROG_LEX
+AC_PROG_GCC_TRADITIONAL
+AC_CHECK_LIB(sun, getpwnam)
+
+AC_MSG_CHECKING(for qnx)
+case "$(uname -s)" in
+dnl bleck - wish i could ditch this qnx test, but we need to bump the stack
+  QNX*)
+    AC_MSG_RESULT(yes)
+    LDFLAGS="-N64k -M"
+    CFLAGS="-w4 -Otax -zc -Wc,-fr= -Wc,-wcd=121"
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+esac
+
+AC_MSG_CHECKING(for solaris)
+if /bin/sun 2> /dev/null
+then
+  uname=`uname -r`
+  case "$uname" in
+    4.*)
+      AC_MSG_RESULT(no) 
+      sunos4=1
+      ;;
+    5.*)
+      AC_DEFINE(__solaris__)
+      AC_DEFINE(SVR4)
+      svr4=1
+      ;;
+  esac
+else
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING(for SVR4)
+  AC_EGREP_CPP(yes,
+[#if defined(SVR4) || defined(__svr4__)
+  yes
+#endif
+],svr4=1)
+fi
+
+if test -n "$svr4"
+then
+  AC_MSG_RESULT(yes)
+  LIBS="-L/usr/ccs/lib $LIBS"
+  AC_DEFINE(SVR4)
+else
+  if test ! -n "$sunos4"
+  then
+    AC_MSG_RESULT(no)
+  fi
+fi
+
+dnl
+dnl testing for svr3/wollengong tcp's /usr/netinclude
+dnl
+
+AC_MSG_CHECKING(for -I/usr/netinclude)
+if test -d /usr/netinclude; then
+  AC_MSG_RESULT(yes)
+  CFLAGS="$CFLAGS -I/usr/netinclude"
+else
+  AC_MSG_RESULT(no)
+fi
+
+dnl
+dnl check for hpux, and hpux version
+dnl
+
+AC_MSG_CHECKING(for hpux version)
+if test -f /hp-ux -o -f /stand/vmunix; then
+  AC_MSG_RESULT(yes)
+  hpux=1
+  uname=`uname -r` 2> /dev/null
+  case $uname in
+	A.09* | A.9* | a.9* | a.09* | 9* | 09* | B.09*)
+		;;
+	A.08* | A.8* | a.8* | a.08* | 8* | 08*)
+		AC_DEFINE(HPUX8)
+		;;
+	A.07* | A.B7* | A.7* | a.7* | a.07* | 7* | 07*)
+		AC_DEFINE(HPUX7)
+		;;
+	*)
+		AC_DEFINE(HPUXUNKNOWN)
+		;;
+  esac
+else
+  AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(for ultrix)
+AC_EGREP_CPP(yes,
+[#if defined(ultrix) || defined(__ultrix) || defined(__ultrix)
+  yes
+#endif
+], ultrix=1)
+if test -n "$ultrix"; then
+  AC_MSG_RESULT(yes)
+  test -z "$GCC" && CC="$CC -YBSD"
+else
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING(for POSIX.1)
+  AC_EGREP_CPP(yes, [
+#include <sys/types.h>
+#include <unistd.h>
+main () {
+#ifdef _POSIX_VERSION
+  yes
+#endif
+}
+], AC_DEFINE(POSIX) AC_MSG_RESULT(yes); posix=1, AC_MSG_RESULT(no))
+fi
+
+AC_MSG_CHECKING(for sequent/ptx)
+AC_EGREP_CPP(yes,
+[#ifdef _SEQUENT_
+  yes
+#endif
+], LIBS="$LIBS -lseq" seqptx=1 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h)dnl sys/ ones
+AC_CHECK_HEADERS(unistd.h fcntl.h string.h memory.h netdb.h limits.h)dnl non sys/ ones
+AC_CHECK_HEADERS(stdarg.h varargs.h, break)dnl look for varadic function header
+AC_CHECK_HEADERS(process.h termcap.h)dnl others
+if test -n "$ultrix"; then
+  # POSIX termios is broken on Ultrix so don't look for it.
+  AC_CHECK_HEADERS(termio.h sgtty.h, break)dnl sigh.
+else
+  AC_CHECK_HEADERS(termios.h termio.h sgtty.h, break)dnl sigh.
+fi
+
+AC_CHECK_FUNC(setsid, AC_DEFINE(HAVE_SETSID),)
+AC_CHECK_FUNC(getpgid, AC_DEFINE(HAVE_GETPGID),)
+AC_CHECK_FUNC(getsid, AC_DEFINE(HAVE_GETSID),)
+AC_CHECK_FUNC(scandir, AC_DEFINE(HAVE_SCANDIR),)
+AC_CHECK_FUNC(memmove, AC_DEFINE(HAVE_MEMMOVE),)
+AC_CHECK_FUNC(uname, AC_DEFINE(HAVE_UNAME),)
+AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
+AC_CHECK_FUNC(getcwd,, AC_DEFINE(NEED_GETCWD))
+AC_CHECK_FUNC(fchmod,, AC_DEFINE(NEED_FCHMOD))
+AC_CHECK_FUNC(strerror,, AC_DEFINE(NEED_STRERROR))
+AC_CHECK_FUNC(gettimeofday,, AC_DEFINE(HAVETIMEOFDAY))
+AC_HEADER_STDC
+AC_HEADER_TIME
+AC_HEADER_DIRENT
+AC_TYPE_SIGNAL
+AC_TYPE_MODE_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UID_T
+
+if test x$ac_cv_header_sys_twg_config_h = xyes
+then
+  AC_DEFINE(WINS)
+fi
+
+dnl
+dnl check for struct linger
+dnl
+
+AC_MSG_CHECKING(for struct linger)
+AC_EGREP_HEADER([struct( |	)*linger], sys/socket.h, AC_MSG_RESULT(yes), AC_DEFINE(NO_STRUCT_LINGER) AC_MSG_RESULT(no, ugh.))
+
+dnl
+dnl grok process groups
+dnl
+
+if test x$ac_cv_func_getsid != xyes && test x$ac_cv_func_getpgid != xyes
+then
+  AC_MSG_CHECKING(if getpgrp takes an argument)
+  AC_TRY_RUN([
+main()
+{
+  int pid;
+  int pgid;
+
+  pid = fork();
+
+  if (0 == pid)
+  {
+#ifdef HAVE_SETSID
+    setsid();
+#else
+    setpgrp(0, getpid());
+#endif /* HAVE_SETSID */
+    sleep(10);
+  }
+  else
+  {
+    sleep(2);
+    pgid = getpgrp(pid);
+    kill(pid,9);
+    if (pid != pgid)
+      exit(1);
+  }
+  exit(0);
+}
+],
+  AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no your getpgrp is painful)
+  AC_DEFINE(BROKEN_GETPGRP), :)
+fi
+
+dnl
+dnl work out wait type..
+dnl
+
+if test x$posix != x1
+then
+AC_MSG_CHECKING(for bsd wait)
+AC_TRY_LINK([
+#include <sys/types.h>
+#include <sys/wait.h>
+],[
+  union wait x;
+  int y;
+#ifdef WEXITSTATUS
+  y = WEXITSTATUS(x);
+#endif
+],
+  AC_DEFINE(BSDWAIT)
+  bsdwait=1
+  AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no)
+  AC_CHECK_FUNC(waitpid,,
+    AC_DEFINE(NEED_WAITPID)))
+fi
+
+dnl
+dnl checking for select()
+dnl
+
+olibs="$LIBS"
+AC_CHECK_FUNC(select, ,
+  AC_CHECK_LIB(socket, select, LIBS="$LIBS -lsocket",
+    AC_CHECK_LIB(nsl, select, LIBS="$LIBS -lnsl",
+      AC_CHECK_LIB(inet, select, LIBS="$LIBS -linet",
+        AC_CHECK_LIB(cposix, select, LIBS="$LIBS -lcposix",
+          AC_CHECK_LIB(net, select, LIBS="$LIBS -lnet",
+            AC_MSG_WARN(i can not find select.  you might need to help me)))))))
+
+dnl
+dnl termcap or curses
+dnl if termcap, check for tputs declaration
+dnl
+if test x$aix = x1
+then
+  LIBS="-lcurses $LIBS"
+  AC_DEFINE(INCLUDE_CURSES_H)
+else
+  olibs="$LIBS"
+  AC_CHECK_LIB(termcap, tgetent, LIBS="-ltermcap $olibs",
+    AC_CHECK_LIB(termlib, tgetent, LIBS="-ltermlib $olibs",
+      AC_CHECK_LIB(curses, tgetent, LIBS="-lcurses $olibs",
+        AC_CHECK_LIB(xtermcap, tgetent, LIBS="-lxtermcap $olibs",
+          AC_MSG_WARN(i can not find tgetent.  you might need to help me)))))
+  AC_MSG_CHECKING(for tputs in curses.h)
+  AC_EGREP_CPP([tputs( |	|\()],[#include <curses.h>
+], AC_DEFINE(INCLUDE_CURSES_H) AC_MSG_RESULT(yes), blahhack=1; AC_MSG_RESULT(no))
+fi
+
+if test x$blahhack = x1
+then
+  AC_MSG_CHECKING(for tputs in term.h)
+  AC_EGREP_CPP([tputs( |	|\()],[#include <term.h>
+], AC_DEFINE(INCLUDE_TERM_H) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl
+dnl signal handling
+dnl
+
+AC_CHECKING(signal implementation)
+AC_CHECK_FUNC(sigaction, AC_DEFINE(USE_SIGACTION)
+  echo using posix signals
+  ,
+  AC_CHECK_FUNC(sigset, AC_DEFINE(USE_SIGSET)
+  echo using ok system v signals
+  ,
+
+echo checking for reliable signals
+AC_TRY_RUN([
+#include <sys/types.h>
+#include <signal.h>
+
+#ifndef SIGCHLD
+# define SIGCHLD SIGCLD
+#endif
+#ifdef USE_SIGSET
+# define signal sigset
+#endif
+
+int got;
+
+#ifdef SIGVOID
+void
+#endif
+hand()
+{
+  got++;
+}
+
+main()
+{
+  (void)signal(SIGCHLD, hand);
+  kill(getpid(), SIGCHLD);
+  kill(getpid(), SIGCHLD);
+  if (got < 2)
+    exit(1);
+  exit(0);
+}
+], 
+echo using bsd signals
+, AC_DEFINE(SYSVSIGNALS)
+echo using system v signals, you lose.
+)))
+
+if test x$bsdwait = x1
+then
+  AC_MSG_CHECKING(for wait3 declaration)
+  AC_EGREP_CPP([wait3( |	|\()],[#include <sys/types.h> dnl )
+#include <signal.h>
+#include <sys/wait.h>
+], AC_DEFINE(WAIT3_DECLARED) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+else
+  AC_MSG_CHECKING(for waitpid declaration)
+  AC_EGREP_CPP([waitpid( |	|\()],[#include <sys/types.h> dnl )
+#include <signal.h>
+#include <sys/wait.h>
+], AC_DEFINE(WAITPID_DECLARED) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl
+dnl check for sys_errlist declaration
+dnl
+
+AC_MSG_CHECKING(for sys_errlist declaration)
+AC_TRY_RUN([
+#include <sys/types.h>
+#include <stdio.h>
+#include <errno.h>
+main()
+{
+  char *s = sys_errlist[0];
+  exit(0);
+}
+],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(SYS_ERRLIST_DECLARED),
+  AC_MSG_RESULT(no), :)
+
+
+dnl
+dnl need this for dcc stuff
+dnl
+
+AC_MSG_CHECKING(for a 32 bit integer)
+AC_TRY_RUN([
+main()
+{
+  if (4 == sizeof(unsigned long))
+    exit(0);
+  exit(1);
+}
+],
+  AC_MSG_RESULT(unsigned long)
+  AC_DEFINE(UNSIGNED_LONG32),
+  AC_TRY_RUN([
+main()
+{
+  if (4 == sizeof(unsigned int))
+    exit(0);
+  exit(1);
+}
+],
+  AC_MSG_RESULT(unsigned int)
+  AC_DEFINE(UNSIGNED_INT32),
+  AC_MSG_RESULT(none, using unsigned long)
+  AC_DEFINE(UNKNOWN_32INT), :),
+:)
+
+dnl
+dnl libraries
+dnl
+
+dnl i think this was only needed for solaris with -lucb.
+dnl AC_HAVE_LIBRARY(elf, LIBS="$LIBS -lelf",)
+dnl AC_HAVE_LIBRARY(nls, libnls=1;AC_DEFINE(HAVE_LIB_NLS),)
+if test ! -n "$libsocket"; then
+	AC_CHECK_LIB(socket, socket, LIBS="$LIBS -lsocket",)
+fi
+dnl this is for isc.  need the nsl_s library as well.
+if test ! -n "$libinet"; then
+	AC_CHECK_LIB(inet, socket, libnsl=1; LIBS="$LIBS -linet -lnsl_s",)
+fi
+if test ! -n "$libnsl"; then
+	AC_CHECK_LIB(nsl, gethostname, LIBS="$LIBS -lnsl",)
+fi
+AC_CHECK_LIB(dgc, inet_addr, LIBS="$LIBS -ldgc",)
+AC_CHECK_LIB(resolv, gethostbyname,
+  olibs=$LIBS
+  LIBS="$LIBS -lresolv"
+  AC_TRY_RUN([
+#include <netdb.h>
+main()
+{
+  struct hostent *hp;
+
+  hp = gethostbyname("foo");
+  exit(0);
+}
+],,LIBS=$olibs, :))
+dnl AC_HAVE_LIBRARY(PW, LIBS="$LIBS -lPW",)
+
+dnl
+dnl check for non-blocking fd style available..
+dnl
+AC_MSG_CHECKING(for non-blocking)
+changequote(<<, >>)dnl
+<<
+precode='#include <sys/types.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/file.h>
+#include <signal.h>
+
+alarmed()
+{
+	exit(1);
+}
+
+main()
+{
+	char b[12], x[32];
+	int f, l = sizeof(x);
+	f = socket(AF_INET, SOCK_DGRAM, 0);
+	if (f >= 0 && (fcntl(f, F_SETFL,'
+postcode=') != -1)) {
+		signal(SIGALRM, alarmed);
+		alarm(3);
+		recvfrom(f, b, 12, 0, x, &l);
+		alarm(0);
+		exit(0);
+	}
+	exit(1);
+}'
+>>
+changequote([, ])dnl
+
+code="$precode O_NONBLOCK $postcode"
+
+AC_TRY_RUN($code,
+  AC_DEFINE(NBLOCK_POSIX)
+  AC_MSG_RESULT(posix),
+  code="$precode O_NDELAY $postcode"
+  AC_TRY_RUN($code,
+    AC_DEFINE(NBLOCK_BSD)
+    AC_MSG_RESULT(bsd),
+    code="$precode FIONBIO $postcode"
+    AC_TRY_RUN($code,
+      AC_DEFINE(NBLOCK_SYSV)
+      AC_MSG_RESULT(system v),
+      AC_MSG_WARN(i can't find a working non blocking system),
+      :),
+    :),
+  :)
+
+dnl this is all stolen from perl-4.036's Configure.  larry is god.
+dnl well, most of it.  couple of tweaks to make it work better.
+echo "generating a list of signal names..."
+set X `cat /usr/include/signal.h /usr/include/sys/signal.h /usr/include/linux/signal.h 2>&1 | sed 's/^#[ 	]*/#/' | awk '
+$1 ~ /^#define$/ && $2 ~ /^SIG[A-Z0-9]*$/ && $3 ~ /^[1-9][0-9]*$/ {
+  [sig[$3] = substr($2,4,20)]
+  if (max < $3 && $3 < 60) {
+	max = $3
+  }
+}
+
+END {
+  for (i=1; i<=max; i++) {
+    [if (sig[i] == "")]
+      printf "%d", i
+    else
+      [printf "%s", sig[i]]
+    if (i < max)
+      printf " "
+  }
+  printf "\n"
+}
+'`
+shift
+case $# in
+0)
+  set X `kill -l 2> /dev/null`
+  shift
+  case $# in
+  0)
+    if test -f /bin/csh; then
+      set X `/bin/csh -cf 'kill -l'`
+      shift
+      case $# in
+      0)
+dnl this is a reasonable default; HUP, QUIT, ABRT, KILL, BUS, SEGV, ALRM and 
+dnl TERM are all reasonably portable defaults -- i (mrg) haven't ever seen
+dnl a system where they are different than these.
+        set HUP INT QUIT ILL TRAP ABRT EMT FPE KILL BUS SEGV SYS PIPE ALRM TERM
+        ;;
+      esac
+    fi
+    ;;
+  esac
+  ;;
+esac
+
+sig_name="ZERO $*"
+if test -f source/sig.inc; then
+  /bin/rm -f source/sig.inc
+fi
+
+[echo $sig_name | sed -e 's/$/"};/' -e 's/ /", "/g' -e 's/^/char *signals[] = { "/' >> source/sig.inc]
+
+dnl work out UNIX mail dir..
+
+AC_MSG_CHECKING(for unix mail directory)
+
+for foo in /var/spool/mail /usr/spool/mail /var/mail /usr/mail
+do
+  if test -d $foo; then
+    mdir=$foo
+    break
+  fi
+done
+
+if test -n "$mdir"; then
+  UNIX_MAIL=\"$mdir\"
+  AC_MSG_RESULT($mdir)
+  AC_DEFINE_UNQUOTED(UNIX_MAIL, "$mdir")
+else
+  AC_MSG_RESULT(none)
+  AC_MSG_CHECKING(for AMS mail)
+  if test "x$HOME" != "/" -o -z "x$HOME" && test -d "$HOME/Mailbox"; then
+    AC_MSG_RESULT(using Mailbox)
+    AC_DEFINE_UNQUOTED(AMS_MAIL, "Mailbox")
+  else
+    AC_MSG_RESULT(no)
+  fi
+fi
+
+
+if test -z "$CFLAGS"; then CFLAGS=-O ; fi
+if test -z "$LDFLAGS"; then LDFLAGS= ; fi
+RM="rm -f"
+LN="ln -s"
+
+if test ! -n "$bindir";
+then
+	bindir=\${exec_prefix}/bin
+fi
+
+if test ! -n "$IRCLIB";
+then
+	IRCLIB=\${prefix}/share/irc
+fi
+
+if test -n "$nextstep";
+then
+  LIBS=`echo $LIBS | sed -e 's/-lposix/-lsys_s -lposix/'`
+fi
+
+if test "x$exec_prefix" = "xNONE"; then
+  if test "x$prefix" = "xNONE"; then
+    libdir="$ac_default_prefix/lib"
+  else
+    libdir="$prefix/lib"
+  fi
+else
+  libdir="$exec_prefix/lib"
+fi
+
+AC_MSG_CHECKING(paranoia status)
+AC_ARG_WITH(paranoid,
+[  --with-paranoid     Sets the compile-time paranoid flag.],
+[ AC_MSG_RESULT(yes)
+  AC_DEFINE_UNQUOTED(PARANOID, 1) ],
+  AC_MSG_RESULT(none)
+)
+
+AC_MSG_CHECKING(for default server)
+AC_ARG_WITH(default-server,
+[  --with-default-server=SERVER[:PORT]     Connect to SERVER by default.],
+[ if test "$withval"; then
+    AC_MSG_RESULT($withval)
+    AC_DEFINE_UNQUOTED(DEFAULT_SERVER, "$withval")
+  else
+    AC_MSG_RESULT(none)
+  fi ],
+  AC_MSG_RESULT(none)
+)
+
+AC_MSG_CHECKING(whether to support SOCKS)
+AC_ARG_WITH(socks,
+[  --with-socks[=PATH]     Compile with SOCKS firewall traversal support.],
+[ case "$withval" in
+  no)
+    AC_MSG_RESULT(no)
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(SOCKS)
+    AC_DEFINE(connect, Rconnect)
+    AC_DEFINE(getsockname, Rgetsockname)
+    AC_DEFINE(bind, Rbind)
+    AC_DEFINE(accept, Raccept)
+    AC_DEFINE(listen, Rlisten)
+    AC_DEFINE(select, Rselect)
+    if test "x$withval" = "xyes"; then
+      withval="-lsocks"
+    fi
+    olibs="$LIBS"
+    LIBS="$LIBS -L$libdir $withval"
+    AC_TRY_LINK([],
+      [ Rconnect(); ],
+      [ LIBS="$olibs -L\${libdir} $withval" ],
+      [ AC_MSG_ERROR(Could not find the $withval library.  You must first install socks.)
+    ])
+    ;;
+  esac ],
+  AC_MSG_RESULT(no)
+)
+
+if test -n "$hpux"
+then
+	# HP-UX's pax is broken
+	AC_CHECK_PROGS(COPY_DIRECTORY, tar cpio)
+else
+	AC_CHECK_PROGS(COPY_DIRECTORY, pax tar cpio)
+fi
+if test "x$COPY_DIRECTORY" = "xpax";
+then
+    INSTALL_HELP_CMD='cd help; pax -r -w . $(HELP_DIR)'
+else
+    if test "x$COPY_DIRECTORY" = "xtar";
+    then
+	INSTALL_HELP_CMD='cd help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
+    else
+	if test "x$COPY_DIRECTORY" = "xcpio";
+	then
+	    INSTALL_HELP_CMD='cd help; find . -print | cpio -pdu $(HELP_DIR)'
+	else
+	    INSTALL_HELP_CMD="@echo \"I couldn't figure out a way to install the help files.\""
+	fi
+    fi
+fi
+AC_SUBST(INSTALL_HELP_CMD)
+
+AC_CHECK_PROGS(ZCAT, gzcat zcat gunzip gzip uncompress uncompress)
+case "x$ZCAT" in
+  xgzcat)
+    ZSUFFIX=".gz"
+    ZARGS=
+    ;;
+  xzcat)
+    ZSUFFIX=".Z"
+    ZARGS=
+    ;;
+  xgunzip)
+    ZSUFFIX=".gz"
+    ZARGS="-c"
+    ;;
+  xgzip)
+    ZSUFFIX=".gz"
+    ZARGS="-dc"
+    ;;
+  xuncompress)
+    ZSUFFIX=".Z"
+    ZARGS="-c"
+    ;;
+  xcompress)
+    ZSUFFIX=".Z"
+    ZARGS="-dc"
+    ;;
+esac
+AC_SUBST(ZCAT)
+AC_SUBST(ZSUFFIX)
+AC_SUBST(ZARGS)
+	
+AC_FIND_PROGRAM(SENDMAIL,sendmail,/usr/lib:/usr/sbin:/usr/ucblib)
+
+AC_SUBST(RM)
+AC_SUBST(LN)
+AC_SUBST(IRCLIB)
+AC_SUBST(bindir)
+AC_OUTPUT(Makefile ircbug include/Makefile source/Makefile)
+
+echo
+echo well there we are, you now might want to look in include/config.h
+echo and see if there is anything you might want to tune, else you can
+echo just run a make here..  good luck!
+echo
+
