@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.27 2002-01-21 21:37:36 f Exp $
+ * $Id: notice.c,v 1.28 2002-01-22 19:03:54 f Exp $
  */
 
 #include "irc.h"
@@ -468,8 +468,8 @@ got_initial_version(line)
 /**************************** PATCHED by Flier ******************************/
         /* attempting_to_connect is broken if we are connecting to multiple
            servers simoultaneously -> correct the value apropriately */
-        if (attempting_to_connect<0) attempting_to_connect=0;
-        was_connected=server_list[parsing_server_index].connected;
+        if (attempting_to_connect < 0) attempting_to_connect = 0;
+        was_connected = server_list[parsing_server_index].connected;
 /****************************************************************************/
 	set_server_motd(parsing_server_index, 1);
 	server_is_connected(parsing_server_index, 1);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.47 2002-01-21 21:37:36 f Exp $
+ * $Id: server.c,v 1.48 2002-01-22 19:03:54 f Exp $
  */
 
 #include "irc.h"
@@ -1213,7 +1213,7 @@ connect_to_server(server_name, port, nick, c_server)
 /**************************** PATCHED by Flier ******************************/
         int i;
 
-        LastServer=time((time_t *) 0);
+        LastServer = time(NULL);
 /****************************************************************************/
  	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
@@ -1225,13 +1225,13 @@ connect_to_server(server_name, port, nick, c_server)
          * 2) /s server which is firewalled or timeouts
          * 3) /s new_server while 2) is still in progress
          * Now client is confused about servers. */
-        for (i=0;i<number_of_servers;i++) {
-            if ((server_list[i].flags)&CLEAR_PENDING)
+        for (i = 0; i < number_of_servers; i++) {
+            if ((server_list[i].flags) & CLEAR_PENDING)
                 clear_channel_list(i);
-            if ((server_list[i].flags)&CLOSE_PENDING) {
-		server_list[i].close_serv=-1;
-		server_list[i].flags&=~(CLOSE_PENDING|CLEAR_PENDING);
-                close_server(i,"broken connect");
+            if ((server_list[i].flags) & CLOSE_PENDING) {
+		server_list[i].close_serv = -1;
+		server_list[i].flags &= ~(CLOSE_PENDING | CLEAR_PENDING);
+                close_server(i, "broken connect");
             }
         }
 /****************************************************************************/
@@ -1258,7 +1258,7 @@ connect_to_server(server_name, port, nick, c_server)
 
 /**************************** PATCHED by Flier ******************************/
                 /* transfer auto-reply and tabkey lists */
-                if (CheckServer(c_server) && server_index>=0) {
+                if (CheckServer(c_server) && server_index >= 0) {
                     struct nicks *tmp;
                     struct nicks *tmpfree;
 
@@ -1282,22 +1282,22 @@ connect_to_server(server_name, port, nick, c_server)
                     if (server_list[c_server].LastNoticeSent)
                         malloc_strcpy(&(server_list[server_index].LastNoticeSent),
                                       server_list[c_server].LastNoticeSent);
-                    for (tmp=server_list[server_index].arlist;tmp;) {
-                        tmpfree=tmp;
-                        tmp=tmp->next;
+                    for (tmp = server_list[server_index].arlist; tmp;) {
+                        tmpfree = tmp;
+                        tmp = tmp->next;
                         new_free(&(tmpfree->nick));
                         new_free(&tmpfree);
                     }
-                    server_list[server_index].arcur=server_list[c_server].arcur;
-                    server_list[server_index].arlist=server_list[c_server].arlist;
-                    for (tmp=server_list[server_index].nicklist;tmp;) {
-                        tmpfree=tmp;
-                        tmp=tmp->next;
+                    server_list[server_index].arcur = server_list[c_server].arcur;
+                    server_list[server_index].arlist = server_list[c_server].arlist;
+                    for (tmp = server_list[server_index].nicklist; tmp;) {
+                        tmpfree = tmp;
+                        tmp = tmp->next;
                         new_free(&(tmpfree->nick));
                         new_free(&tmpfree);
                     }
-                    server_list[server_index].nickcur=server_list[c_server].nickcur;
-                    server_list[server_index].nicklist=server_list[c_server].nicklist;
+                    server_list[server_index].nickcur = server_list[c_server].nickcur;
+                    server_list[server_index].nicklist = server_list[c_server].nicklist;
                 }
 /****************************************************************************/
 		if (using_server_process)
@@ -1403,10 +1403,10 @@ login_to_server(server)
 #endif
 
 /**************************** PATCHED by Flier ******************************/
-	server_list[server].SZWI=0;
-	server_list[server].SZWho=0;
-	server_list[server].SZUnban=0;
-	server_list[server].ConnectTime=time((time_t *) 0);
+	server_list[server].SZWI = 0;
+	server_list[server].SZWho = 0;
+	server_list[server].SZUnban = 0;
+	server_list[server].ConnectTime = time(NULL);
 /****************************************************************************/
 	server_list[server].flags |= LOGGED_IN;
 #ifdef NON_BLOCKING_CONNECTS
@@ -1492,7 +1492,7 @@ get_connected(server, oldconn)
 
 /**************************** PATCHED by Flier ******************************/
 		/*if (server == number_of_servers)*/
-                if (server>=number_of_servers)
+                if (server >= number_of_servers)
 /****************************************************************************/
 			server = 0;
 		else if (server < 0)
@@ -1527,7 +1527,7 @@ get_connected(server, oldconn)
                                 (oldconn ? WIN_OLDCONN : 0);
 			window_set_server(-1, from_server, flags);
 /**************************** PATCHED by Flier ******************************/
-                        if (flags&WIN_OLDCONN) switch_channels(0,(char *) 0);
+                        if (flags & WIN_OLDCONN) switch_channels(0, NULL);
 /****************************************************************************/
  		}
 	}

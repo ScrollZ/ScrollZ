@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.23 2002-01-21 22:36:18 f Exp $
+ * $Id: status.c,v 1.24 2002-01-22 19:07:58 f Exp $
  */
 
 #include "irc.h"
@@ -1602,18 +1602,18 @@ status_chanop(window)
 	if (window->current_channel &&
 		chan_is_connected(window->current_channel, window->server) &&
 		(chan=lookup_channel(window->current_channel, window->server, 0))) {
-		if (chan->status&CHAN_CHOP) {
-			text=get_string_var(STATUS_CHANOP_VAR);
+		if (chan->status & CHAN_CHOP) {
+			text = get_string_var(STATUS_CHANOP_VAR);
 			malloc_strcpy(&ptr,text ? text : "@");
 		}
-		else if (chan->status&CHAN_HALFOP)
-			malloc_strcpy(&ptr,"%");
-		else if (chan->status&CHAN_VOICE)
-			malloc_strcpy(&ptr,"+");
+		else if (chan->status & CHAN_HALFOP)
+			malloc_strcpy(&ptr, "%");
+		else if (chan->status & CHAN_VOICE)
+			malloc_strcpy(&ptr, "+");
 		else
-			malloc_strcpy(&ptr,empty_string);
+			malloc_strcpy(&ptr, empty_string);
 	} else
-		malloc_strcpy(&ptr,empty_string);
+		malloc_strcpy(&ptr, empty_string);
 	return (ptr);
 }
 
