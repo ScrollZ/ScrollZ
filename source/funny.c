@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.22 2004-06-26 10:46:56 f Exp $
+ * $Id: funny.c,v 1.23 2004-06-28 16:55:53 f Exp $
  */
 
 #include "irc.h"
@@ -478,10 +478,14 @@ void reinstate_user_modes()
 
     if (get_server_version(parsing_server_index) < Server2_7) return;
     c = modes;
-    for (i = 0; i < 25; i++)
-        if ('a' + i != 'o' && get_server_umode_flag(parsing_server_index, 'a' + i)) *c ++= 'a' + i;
-    for (i = 0; i < 25; i++)
-        if ('A' + i != 'O' && get_server_umode_flag(parsing_server_index, 'A' + i)) *c ++= 'A' + i;
+    for (i = 0; i < 25; i++) {
+        if ('a' + i != 'o' && get_server_umode_flag(parsing_server_index, 'a' + i))
+            *c ++= 'a' + i;
+    }
+    for (i = 0; i < 25; i++) {
+        if ('A' + i != 'O' && get_server_umode_flag(parsing_server_index, 'A' + i))
+            *c ++= 'A' + i;
+    }
     *c = '\0';
     if (PermUserMode)
         send_to_server("MODE %s %s", get_server_nickname(parsing_server_index), PermUserMode);
