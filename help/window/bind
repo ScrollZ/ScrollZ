@@ -1,4 +1,4 @@
-!	 $Id: bind,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: bind,v 1.4 2002-02-23 11:23:50 f Exp $
 !
 ! Copyright (c) 1990-2001 Matthew Green.
 !
@@ -8,7 +8,8 @@
 Usage: WINDOW BIND <channel>
   Binds the channel <channel> to the current window.  This means
   that the channel is tightly coupled with the window, and should
-  not ever move, without being unbound.
-       
+  not ever move, without being unbound. <channel> is a comma
+  separated list of channels.
+
 See Also:
   WINDOW UNBIND

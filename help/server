@@ -1,4 +1,4 @@
-!	 $Id: server,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: server,v 1.5 2002-02-23 11:23:50 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,11 +6,13 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: SERVER [<name of server>|<number in server_list> [<port>]]
+Usage: SERVER <name of server>|<number in server_list> [<port>]]
        SERVER <name of server>[:<port>[:<password>[:<nickname>]]]
-       SERVER -(IRC|ICB) <args as above>
+       SERVER -SSL <args as above>
        SERVER [+|-]
        SERVER -DELETE <number in server_list>
+  If server name starts with an exclamation mark (!) a SSL connection
+  is established.
   Switches your primary server to the server specified at the
   specified port number.   If no port number is given, the default
   port number is used.   Your channel and AWAY status will remain
@@ -67,9 +69,8 @@ Usage: SERVER [<name of server>|<number in server_list> [<port>]]
   environment variable using the same format as above.
 
 Available flags:
-  -IRC <normal arguments>
-  -ICB <normal arguments>
-    Make this connection as an IRC or ICB connection.
+  -SSL <normal arguments>
+    Make this a SSL connection.
   -DELETE <number in servers list>
     Allows you to remove servers from the internal server list.
 

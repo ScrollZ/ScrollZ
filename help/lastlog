@@ -1,4 +1,4 @@
-!	 $Id: lastlog,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: lastlog,v 1.4 2002-02-23 11:23:50 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -38,6 +38,9 @@ Available flags:
     -WALLOP         Wallops
     -CRAP           Anything not included in the other categories
     -LITERAL        Make the follow a pattern always, not a number
+    -TIME           Only display the entries from the given
+                    time interval (it only works if STAMP is
+                    enabled, example: -TIME 19:00-20:00)
 
   The lastlog will only display messages of the type specified
   by the flag.
@@ -45,3 +48,4 @@ Available flags:
 See Also:
   SET LASTLOG
   SET LASTLOG_LEVEL
+  STAMP

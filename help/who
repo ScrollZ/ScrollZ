@@ -1,4 +1,4 @@
-!	 $Id: who,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: who,v 1.5 2002-02-23 11:23:50 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -27,6 +27,9 @@ Usage: WHO [-switch [<arg>]] [<wildcard expression>]
     -HERE		  - Lists only those marked as here.
     -AWAY		  - Lists only those marked away.
     -NICK 		  - Match only the given nickname
+    -SHOW_SERVER	  - Display server name in place of
+			    user's IRC name
+    -HOPS 		  - lists only channel halfops
 
   The switches may be abbreviated unambiguously.  All matching of
   usernames, hostnames, and servernames may contain wildcards (*).
