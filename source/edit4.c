@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.56 2001-03-20 21:18:28 f Exp $
+ * $Id: edit4.c,v 1.57 2001-03-21 20:35:33 f Exp $
  */
 
 #include "irc.h"
@@ -766,7 +766,7 @@ void HandleTabNext() {
         /* Start one position left from the cursor and walk left until
            we see separator or we reach beginning of input line. */
         tmpstr--;
-        while (!isspace(*tmpstr) && tmpstr>minstr) {
+        while (!isspace(*tmpstr) && tmpstr>=minstr) {
             tmpstr--;
             len++;
         }
@@ -797,7 +797,7 @@ void HandleTabNext() {
                 int sameloop=0;
 
                 /* Check if entry in input line is still valid. */
-                if (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick))) {
+                if (!tabnickcompl || (tabnick && my_strnicmp(tabnick,tmpbuf,strlen(tabnick)))) {
                     new_free(&tabnick);
                     new_free(&oldtabnick);
                     tabnickcompl=NULL;
