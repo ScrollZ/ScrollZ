@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $Id: SZsetup.c,v 1.3 2002-02-25 18:25:29 f Exp $
+ * $Id: SZsetup.c,v 1.4 2002-03-05 17:50:07 f Exp $
  */
 
 #include <stdio.h>
@@ -363,9 +363,6 @@ FILE *fp;
                 break;
             case COLSETTING:
                 fprintf(fp,"COLOR  SETTING   %s\n",tmpbuf);
-                break;
-            case COLHELP:
-                fprintf(fp,"COLOR  HELP      %s\n",tmpbuf);
                 break;
             case COLLEAVE:
                 fprintf(fp,"COLOR  LEAVE     %s\n",tmpbuf);
@@ -939,22 +936,6 @@ void init_sz_colors() {
     /* Channels */
     strcpy(CmdsColors[COLSETTING].color5,Colors[COLBOLD]);
     strcat(CmdsColors[COLSETTING].color5,Colors[COLCYAN]);
-
-    /* Help */
-    /* Topic */
-    strcpy(CmdsColors[COLHELP].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLHELP].color1,Colors[COLCYAN]);
-    /* See also */
-    strcpy(CmdsColors[COLHELP].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLHELP].color2,Colors[COLYELLOW]);
-    /* Examples */
-    strcpy(CmdsColors[COLHELP].color3,Colors[COLCYAN]);
-    /* Other commands */
-    strcpy(CmdsColors[COLHELP].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLHELP].color4,Colors[COLGREEN]);
-    /* Main topics */
-    strcpy(CmdsColors[COLHELP].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLHELP].color5,Colors[COLCYAN]);
 
     /* Leaves */
     /* Nick */

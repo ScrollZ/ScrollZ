@@ -1,5 +1,5 @@
 /*
- * $Id: SZsetup.h,v 1.2 2001-10-05 18:32:40 f Exp $
+ * $Id: SZsetup.h,v 1.3 2002-03-05 17:50:07 f Exp $
  */
 
 #define mybufsize     1024
@@ -36,21 +36,20 @@
 #define COLINVITE    5
 #define COLMODE      6
 #define COLSETTING   7
-#define COLHELP      8
-#define COLLEAVE     9
-#define COLNOTIFY    10
-#define COLCTCP      11
-#define COLKICK      12
-#define COLDCC       13
-#define COLWHO       14
-#define COLWHOIS     15
-#define COLPUBLIC    16
-#define COLCDCC      17
-#define COLLINKS     18
-#define COLDCCCHAT   19
-#define COLCSCAN     20
-#define COLNICK      21
-#define COLME        22
+#define COLLEAVE     8
+#define COLNOTIFY    9
+#define COLCTCP      10
+#define COLKICK      11
+#define COLDCC       12
+#define COLWHO       13
+#define COLWHOIS     14
+#define COLPUBLIC    15
+#define COLCDCC      16
+#define COLLINKS     17
+#define COLDCCCHAT   18
+#define COLCSCAN     19
+#define COLNICK      20
+#define COLME        21
 
 #define COLOR1 CmdsColors[setting+startset].color1
 #define COLOR2 CmdsColors[setting+startset].color2
