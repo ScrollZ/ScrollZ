@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.76 2004-07-02 19:57:53 f Exp $
+ * $Id: numbers.c,v 1.77 2004-08-31 14:12:26 f Exp $
  */
 
 #include "irc.h"
@@ -1692,7 +1692,8 @@ numbered_command(from, comm, ArgList)
                         
 /**************************** PATCHED by Flier ******************************/
 		case 402:		/* #define ERR_NOSUCHSERVER     402 */
-			NoSuchServer4SPing(from,ArgList);
+			NoSuchServer4SPing(from, ArgList);
+                        if (inSZTrace) inSZTrace = 0;
 			break;
 /****************************************************************************/
 
