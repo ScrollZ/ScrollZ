@@ -8,16 +8,18 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.6 2000-04-11 18:15:54 f Exp $
+ * $Id: blowfish.c,v 1.7 2000-10-24 18:10:39 f Exp $
  */
 
 #include "irc.h"
 #include "ircaux.h"
 #include "blowfish.h"
 
-#define NUMPBOX      16
-#define NUMSBOX      2
-#define SZCRYPTSTR   "++SZ"
+#define NUMPBOX       16
+#define NUMSBOX       2
+#define SZCRYPTSTROLD "++SZ"
+#define SZCRYPTSTR    "+/SZ"
+#define SZOLDCRYPT    '-'
 
 static char *base64="./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -235,18 +237,35 @@ int  bufsize;
 int  szenc;
 {
     int i;
+    int oldk=0;
+    char *oldkey;
+    char buf[mybufsize/64];
+    char newkey[mybufsize/8+6];
     unsigned int l,r;
     unsigned char *s,*d;
 
-    BlowfishInit(key,strlen(key));
+    if (szenc) {
+        oldkey=key;
+        if (*oldkey==SZOLDCRYPT) {
+            oldk=1;
+            oldkey++;
+        }
+        strmcpy(newkey,oldkey,mybufsize/8);
+        if (!oldk) {
+            sprintf(buf,"%d",strlen(oldkey));
+            strmcat(newkey,buf,mybufsize/8+5);
+        }
+    }
+    else strmcpy(newkey,key,mybufsize/8);
+    BlowfishInit(newkey,strlen(newkey));
     strmcpy(encrbuf,src,bufsize);
     s=encrbuf+strlen(encrbuf);
     for (i=0;i<8;i++) *s++='\0';
     s=encrbuf;
     d=dest;
     if (szenc) {
-        strcpy(dest,SZCRYPTSTR);
-        d+=strlen(SZCRYPTSTR);
+        strcpy(dest,oldk?SZCRYPTSTROLD:SZCRYPTSTR);
+        d+=strlen(dest);
     }
     while (s && *s) {
         l=((*s++)<<24); l|=((*s++)<<16); l|=((*s++)<<8); l|=*s++;
@@ -282,17 +301,27 @@ int  bufsize;
 int  szenc;
 {
     int i;
+    int oldk=0;
+    char buf[mybufsize/64];
+    char newkey[mybufsize/8+6];
     unsigned int l,r;
     unsigned char *s,*d,*x=src;
 
-    BlowfishInit(key,strlen(key));
     if (szenc) {
-        if (strncmp(x,SZCRYPTSTR,4)) {
+        if (!(strncmp(x,SZCRYPTSTR,4) || strncmp(x,SZCRYPTSTROLD,4))) {
             strmcpy(dest,x,bufsize);
             return(0);
         }
+        if (!strncmp(x,SZCRYPTSTROLD,4)) oldk=1;
         x+=strlen(SZCRYPTSTR);
+        strmcpy(newkey,key,mybufsize/8);
+        if (!oldk) {
+            sprintf(buf,"%d",strlen(key));
+            strmcat(newkey,buf,mybufsize/8+5);
+        }
     }
+    else strmcpy(newkey,key,mybufsize/8);
+    BlowfishInit(newkey,strlen(newkey));
     strmcpy(encrbuf,x,bufsize);
     s=encrbuf+strlen(encrbuf);
     for (i=0;i<12;i++) *s++='\0';
