@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.15 1999-10-04 19:21:37 f Exp $
+ * $Id: server.c,v 1.16 2000-01-27 15:29:31 f Exp $
  */
 
 #include "irc.h"
@@ -617,7 +617,16 @@ add_to_server_list(server, port, password, nick, overwrite)
 					new_free(&(server_list[from_server].password));
 			}
 			if (nick && *nick)
-				malloc_strcpy(&(server_list[from_server].nickname), nick);
+/**************************** PATCHED by Flier ******************************/
+                        {
+				/*malloc_strcpy(&(server_list[from_server].nickname), nick);*/
+                            char *tmpnick=(char *) 0;
+
+                            malloc_strcpy(&tmpnick,nick);
+                            malloc_strcpy(&(server_list[from_server].nickname),tmpnick);
+                            new_free(&tmpnick);
+                        }
+/****************************************************************************/
 		}
 		if ((int) strlen(server) > (int) strlen(server_list[from_server].name))
 			malloc_strcpy(&(server_list[from_server].name), server);
