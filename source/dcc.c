@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.8 1998-11-18 21:00:11 f Exp $
+ * $Id: dcc.c,v 1.9 1998-11-20 20:59:44 f Exp $
  */
 
 #include "irc.h"
@@ -116,14 +116,14 @@ extern void CheckAutoGet _((char *, char *, char *, char *));
 extern void AwaySave _((char *, int));
 extern void AddNick2List _((char *, int));
 extern struct friends *CheckUsers _((char *, char *));
-extern void PrintChatMsg _((DCC_list *, char *, int));
-extern void PrintMyChatMsg _((char *, char *));
+extern void PrintChatMsg _((DCC_list *, char *, int, int));
+extern void PrintMyChatMsg _((char *, char *, int));
 extern void CheckDCCSpeed _((DCC_list *, time_t));
 extern void RemoveFromQueue _((int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern int  CheckServer _((int));
-extern void DecryptChatMessage _((char *, char *));
-extern void EncryptChatMessage _((char *, char *));
+extern int  DecryptChatMessage _((char *, char *));
+extern int  EncryptChatMessage _((char *, char *));
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -1887,6 +1887,7 @@ process_incoming_chat(Client)
 	int	old_timeout;
  	int	len;
 /**************************** PATCHED by Flier ******************************/
+        int     iscrypted;
         char    tmpbuf[mybufsize*4];
 /****************************************************************************/
 
@@ -1963,7 +1964,7 @@ process_incoming_chat(Client)
 		{
 			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX: stop dcc long messages */
 /**************************** PATCHED by Flier ******************************/
-                        DecryptChatMessage(s,Client->user);
+                        iscrypted=DecryptChatMessage(s,Client->user);
 /****************************************************************************/
 			if (do_hook(DCC_CHAT_LIST, "%s %s", Client->user, s))
                         {
@@ -1977,7 +1978,7 @@ process_incoming_chat(Client)
 					s = tmp;
 				}
         	                put_it("=%s= %s", Client->user, s);*/
-                	        PrintChatMsg(Client,s,bytesread);
+                	        PrintChatMsg(Client,s,bytesread,iscrypted);
 /****************************************************************************/
                         }
 		}
@@ -2459,6 +2460,9 @@ dcc_message_transmit(user, text, type, flag)
 	int	lastlog_level;
 	int	list = 0;
 	int	len;
+/**************************** PATCHED by Flier ******************************/
+        int     iscrypted;
+/****************************************************************************/
 
 	switch(type)
 	{
@@ -2504,7 +2508,7 @@ dcc_message_transmit(user, text, type, flag)
 	message_from(Client->user, LOG_DCC);
 	strmcpy(tmp, text, BIG_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
-        EncryptChatMessage(tmp,Client->user);
+        iscrypted=EncryptChatMessage(tmp,Client->user);
 /****************************************************************************/
 	strmcat(tmp, "\n", BIG_BUFFER_SIZE); 
 	len = strlen(tmp);
@@ -2517,7 +2521,7 @@ dcc_message_transmit(user, text, type, flag)
 /**************************** PATCHED by Flier *****************************/
 				/*put_it("=> %c%s%c %s", thing, Client->user,
 							thing, text);*/
-                                PrintMyChatMsg(Client->user,text);
+                                PrintMyChatMsg(Client->user,text,iscrypted);
 /***************************************************************************/
 	}
 	set_lastlog_msg_level(lastlog_level);
