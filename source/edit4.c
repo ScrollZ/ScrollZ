@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.7 1998-11-02 21:20:50 f Exp $
+ * $Id: edit4.c,v 1.8 1998-11-07 17:31:45 f Exp $
  */
 
 #include "irc.h"
@@ -2028,6 +2028,12 @@ ChannelList *chan;
                 *modebuf='\0';
             }
         }
+        if (count) {
+            count=0;
+            send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
+            new_free(&tmpmode);
+            *modebuf='\0';
+        }
         for (tmp=chan->nicks;tmp;tmp=tmp->next) {
             opped=0;
             if (!(tmp->chanop)) {
@@ -2114,7 +2120,7 @@ ChannelList *chan;
                 }
             }
             if (count==max) {
-                send_to_server("MODE %s %d %s",chan->channel,modebuf,tmpmode);
+                send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
                 new_free(&tmpmode);
                 count=0;
                 *modebuf='\0';
