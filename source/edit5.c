@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.38 2000-08-09 19:31:20 f Exp $
+ * $Id: edit5.c,v 1.39 2000-08-09 22:25:02 f Exp $
  */
 
 #include "irc.h"
@@ -3181,6 +3181,7 @@ char *filepath;
                  !my_strnicmp(tmpstr1,"www.",4) || !my_strnicmp(tmpstr1,"ftp.",4)) &&
                 index(tmpstr1,'.')) {
                 saveit=1;
+                prevurl=(struct urlstr *) 0;
                 for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next) {
                     if (!my_stricmp(tmpurl->urls,tmpstr1)) break;
                     prevurl=tmpurl;
