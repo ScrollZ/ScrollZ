@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.25 2000-09-24 17:10:33 f Exp $
+ * $Id: dcc.c,v 1.26 2000-09-26 17:08:54 f Exp $
  */
 
 #include "irc.h"
@@ -560,7 +560,9 @@ dcc_check(rd, wd)
 	int	previous_server;
 	int	lastlog_level;
 /**************************** PATCHED by Flier ******************************/
+#ifdef NON_BLOCKING_CONNECTS
         char tmpbuf[mybufsize/32];
+#endif
 /****************************************************************************/
 
 	previous_server = from_server;
