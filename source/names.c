@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.12 2000-08-09 19:31:21 f Exp $
+ * $Id: names.c,v 1.13 2000-08-10 18:58:49 f Exp $
  */
 
 #include "irc.h"
@@ -267,8 +267,15 @@ add_channel(channel, server, connected, copy)
 	{
 		new->server = server;
 /**************************** PATCHED by Flier ******************************/
+                new->status=0;
                 new->gotbans=0;
                 new->gotwho=0;
+		new->mode=0;
+		new->limit=0;
+		new->i_mode=0;
+		new->i_limit=-1;
+		new_free(&new->key);
+		malloc_strcpy(&new->s_mode,empty_string);
 #ifdef HAVETIMEOFDAY
                 gettimeofday(&(new->time),NULL);
 #else
