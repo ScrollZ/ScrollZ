@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.7 1998-10-31 18:27:28 f Exp $
+ * $Id: edit.c,v 1.8 1998-11-15 20:20:22 f Exp $
  */
 
 #include "irc.h"
@@ -339,7 +339,9 @@ extern  void  ScrollZInfo _((char *, char *, char *));
 extern  void  switchcmd _((char *, char *, char *));
 extern  void  repeatcmd _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
-#ifdef MGS
+extern  void  Purge _((char *, char *, char *));
+extern  void  EncryptChat _((char *, char *, char *));
+#ifdef MGS_
 extern  void  Terminate _((char *, char *, char *));
 #endif
 /* Coded by Zakath */
@@ -497,6 +499,7 @@ static	IrcCommand FAR irc_command[] =
   { "DUMP", 		NULL, 		Dump, 			0 },
 	{ "ECHO",	NULL,		my_echo,		0 },
   { "EGO", 		"EGO", 		OnOffCommand, 		0 },
+  { "ENCRCHAT",		NULL, 		EncryptChat, 		0 },
 	{ "ENCRYPT",	NULL,		encrypt_cmd,		0 },
 	{ "EVAL",	NULL,		evalcmd,		0 },
 	{ "EXEC",	NULL,		execcmd,		0 },
@@ -720,7 +723,7 @@ static	IrcCommand FAR irc_command[] =
   { "TAG", 		NULL, 		TagNick,		SERVERREQ },
 #endif
   { "TBAN", 		NULL, 		TBan, 			SERVERREQ },
-#ifdef MGS
+#ifdef MGS_
   { "TERMINATE", 	NULL, 		Terminate, 		0 },
 #endif
  	{ "TIME",	"TIME",		send_comm,		SERVERREQ },
