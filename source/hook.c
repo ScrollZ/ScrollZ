@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.6 1999-03-04 22:06:09 f Exp $
+ * $Id: hook.c,v 1.7 2000-04-12 20:04:40 f Exp $
  */
 
 #include "irc.h"
@@ -450,7 +450,10 @@ do_hook(int which, char *format, ...)
 {
 	va_list vl;
 #else
-do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
+/**************************** Patched by Flier ******************************/
+/*do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)*/
+do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+/****************************************************************************/
 	int	which;
 	char	*format;
 	char	*arg1,
@@ -458,7 +461,13 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 		*arg3,
 		*arg4,
 		*arg5,
-		*arg6;
+/**************************** Patched by Flier ******************************/
+		/**arg6;*/
+		*arg6,
+                *arg7,
+                *arg8,
+                *arg9;
+/****************************************************************************/
 {
 #endif
 	Hook	*tmp, **list;
@@ -485,7 +494,10 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
  	vsprintf(lbuf, format, vl);
 	va_end(vl);
 #else
- 	sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6);
+/**************************** Patched by Flier ******************************/
+ 	/*sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6);*/
+ 	sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+/****************************************************************************/
 #endif
 	if (which < 0)
 	{
