@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.11 2000-12-10 10:12:35 f Exp $
+ * $Id: output.c,v 1.12 2001-03-02 18:57:25 f Exp $
  */
 
 #include "irc.h"
@@ -94,7 +94,10 @@ static char *putbuf=(char *) 0;
 /****************************************************************************/
 
 # if defined(HAVE_VSNPRINTF)
-#  define PUTBUF_SPRINTF(f, v) vsnprintf(putbuf, sizeof putbuf, f, v);
+/**************************** Patched by Flier ******************************/
+/*#  define PUTBUF_SPRINTF(f, v) vsnprintf(putbuf, sizeof putbuf, f, v);*/
+#  define PUTBUF_SPRINTF(f,v) vsnprintf(putbuf,4*BIG_BUFFER_SIZE,f,v);
+/****************************************************************************/
 # else
 #  define PUTBUF_SPRINTF(f, v) vsprintf(putbuf, f, v);
 # endif /* HAVE_VSNPRINTF */
