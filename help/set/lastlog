@@ -1,4 +1,4 @@
-!	 $Id: lastlog,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: lastlog,v 1.4 2002-02-24 09:14:11 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -10,3 +10,6 @@ Usage: SET LASTLOG <value>
   Sets the size of the lastlog buffer (See HELP LASTLOG).  This
   buffer keeps an in memory record of messages sent and received.
   If LASTLOG is set to 0, the lastlog function is disabled.
+
+See Also:
+  SET LASTLOG_ANSI
