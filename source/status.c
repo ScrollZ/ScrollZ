@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.12 2000-08-14 20:45:50 f Exp $
+ * $Id: status.c,v 1.13 2000-08-15 20:20:11 f Exp $
  */
 
 #include "irc.h"
@@ -2557,7 +2557,7 @@ Window *window;
         else malloc_strcpy(&ptr,empty_string);
     } 
     else malloc_strcpy(&ptr,empty_string);
-#elif defined(HAVE_GETLOADAVG)  /* BSD systems */
+#elif defined(HAVEGETLOADAVG)  /* BSD systems */
     double loadbuf[] = { 0 };
     char loadbuf2[7];
 
@@ -2591,7 +2591,7 @@ Window *window;
      */
 #else
     malloc_strcpy(&ptr,empty_string);
-#endif /* __linux__ && HAVE_GETLOADAVG */
+#endif /* __linux__ && HAVEGETLOADAVG */
     return (ptr);
 }
 #endif /* CELE */
