@@ -170,6 +170,8 @@ added CDCC QUEUE FLUSH to flush the Cdcc queue in case it gets stuck
 fixed notify bugs when switching servers (reported by cain)
 merged ircII 4.4J code
 improved OperVision code and added support for ircnet's ircd
+fixed bug where client couldn't rejoin channels with key set
+      (reported by ogre)
 
 
 -------------------------------------------------------------------------------
