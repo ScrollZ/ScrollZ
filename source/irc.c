@@ -31,12 +31,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.73 2002-01-07 19:18:16 f Exp $
+ * $Id: irc.c,v 1.74 2002-01-08 17:32:25 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
 /**************************** PATCHED by Flier ******************************/
-#define SCROLLZ_VERSION "1.9beta1"
+#define SCROLLZ_VERSION "1.9beta2"
 /****************************************************************************/
 
 /*
@@ -48,7 +48,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 /*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"20011218"
+#define INTERNAL_VERSION	"20020108"
 /****************************************************************************/
 
 #include "irc.h"
