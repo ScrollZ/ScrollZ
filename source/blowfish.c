@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.10 2001-01-15 17:07:42 f Exp $
+ * $Id: blowfish.c,v 1.11 2001-11-17 10:57:44 f Exp $
  */
 
 #include "irc.h"
@@ -324,8 +324,8 @@ int  szenc;
         for (i=0;i<6;i++) r|=(Base64Decode(*s++))<<(i*6);
         for (i=0;i<6;i++) l|=(Base64Decode(*s++))<<(i*6);
         BlowfishDecipher(&l,&r);
-        for (i=0;i<4;i++) *d++=(l & (0xFF<<((3-i)*8))) >> ((3-i)*8);
-        for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8))) >> ((3-i)*8);
+        for (i=0;i<4;i++) *d++=(l & (0xFF<<((3-i)*8)))>>((3-i)*8);
+        for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8)))>>((3-i)*8);
     }
     *d=0;
     return(szenc);
