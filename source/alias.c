@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.19 2001-08-25 18:25:15 f Exp $
+ * $Id: alias.c,v 1.20 2001-12-11 18:01:22 f Exp $
  */
 
 #include "irc.h"
@@ -3503,6 +3503,10 @@ function_chanusers(input)
 /**************************** PATCHED by Flier ******************************/
 	/*chan = lookup_channel((char *) input, from_server, CHAN_NOUNLINK);*/
         channel=new_next_arg((char *) input,(char **) &input);
+	if (!channel) {
+	    channel=get_channel_by_refnum(0);
+	    if (!channel) return (u_char *) 0;
+	}
         chan=lookup_channel(channel,from_server,CHAN_NOUNLINK);
         if (input && *input=='1') nickst=1;
 /****************************************************************************/
