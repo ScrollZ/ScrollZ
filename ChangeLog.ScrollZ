@@ -6,6 +6,7 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+    ~ AUTORECON crash (reported by Tero)
     - debian subdirectory
     ~ default compile time flags in defs.h.in
     + man page (contributed by Debian maintainer Mike Markley)
@@ -21,12 +22,12 @@ Meaning of flags:
     ! channel settings not being set upon join from .scrollzrc (thanks
       to gamo for figuring this out)
     + define for alphabetically sorted nicks in CSCAN to defs.h
-    ~ AUTORECON crash (reported by Lukasz Grochal)
     - AUTORECON since it is handled by a SET
     + anonymous channel topic handling on hybrid7 (reported by braneded)
-    + numeric 308 on hybrid7 (patch submitted by braneded)
+    + numeric 308 (server admin) on hybrid7 (patch submitted by braneded)
     ! -DCELECOSM without -DCELE compile (reported by braneded)
     ! numeric 477 for IRCNet
+    + numeric 276 (virtual channels) on hybrid7 (request by braneded)
 
 ------------------------------------------------------------------------------
 
