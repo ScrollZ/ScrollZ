@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.61 2001-04-05 19:58:46 f Exp $
+ * $Id: edit5.c,v 1.62 2001-05-09 19:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -1566,6 +1566,10 @@ int  create;
     if (!filename) return(NULL);
     if (!(path=get_string_var(LOAD_PATH_VAR))) path=".";
     if ((filepath=path_search(filename,path))) return(filepath);
+    if (!strcmp(filename,"ScrollZ.help")) {
+        if (!(path=get_string_var(HELP_PATH_VAR))) return(NULL);
+        if ((filepath=path_search(filename,path))) return(filepath);
+    }
     if (!create) return(NULL);
     strcpy(tmpbuf,path);
     if ((filepath=index(tmpbuf,':'))) *filepath='\0';
