@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.33 2004-11-25 17:40:30 f Exp $
+ * $Id: screen.c,v 1.34 2004-11-25 17:49:27 f Exp $
  */
 
 #include "irc.h"
@@ -1650,12 +1650,9 @@ add_to_screen(incoming)
 #endif
 
         if (!get_int_var(DISPLAY_ANSI_VAR)) {
-            int maxlen;
-
             StripAnsi(incoming, buffer, 0);
-            maxlen = strlen(incoming);
-            if (maxlen > 0) maxlen--;
-            strmcpy(incoming, buffer, maxlen);
+            /* this shouldn't be larger than original anyway */
+            strmcpy(incoming, buffer, strlen(buffer) + 1);
         }
 #ifdef WANTANSI
         else {
