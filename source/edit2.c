@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.44 2000-08-10 17:21:16 f Exp $
+ * $Id: edit2.c,v 1.45 2000-08-10 17:26:50 f Exp $
  */
 
 #include "irc.h"
@@ -3850,6 +3850,8 @@ char *subargs;
 #ifndef JIMMIE
     if (newhname) {
         malloc_strcpy(&source_host,newhname);
+        set_string_var(IRCHOST_VAR,newhname);
+        set_irchost();
         ReconnectServer(NULL,NULL,NULL);
     }
     else PrintUsage("NEWHOST <Virtual Host>");
@@ -4026,6 +4028,8 @@ char *subargs;
     else say("No valid hostnames found");
     if (chosenname) {
         malloc_strcpy(&source_host,chosenname);
+        set_string_var(IRCHOST_VAR,chosenname);
+        set_irchost();
         ReconnectServer(NULL,NULL,NULL);
         new_free(&chosenname);
     }
