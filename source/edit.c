@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.37 2000-08-14 20:38:13 f Exp $
+ * $Id: edit.c,v 1.38 2000-08-15 16:31:34 f Exp $
  */
 
 #include "irc.h"
@@ -365,6 +365,7 @@ extern	void  ExecUptime _((char *, char *, char *));
 extern	void  CTCPFing _((char *, char *, char *));
 extern  void  Cquickstat _((char *, char *, char *));
 extern	void  ScrollZTrace _((char *, char *, char *));
+extern  void  Cstatusbar _((char *, char *, char *));
 #endif
 #if defined(OPERVISION) && defined(WANTANSI)
 extern  void  OperVision _((char *, char *, char *));
@@ -739,6 +740,9 @@ static	IrcCommand FAR irc_command[] =
 	{ "STACK",	NULL,		stackcmd,		0 },
   { "STAMP",		"STAMP", 	ChannelCommand, 	0 },
  	{ "STATS",	"STATS",	send_comm,		SERVERREQ },
+#ifdef CELE
+  { "STATUS", 		NULL, 		Cstatusbar, 		SERVERREQ },
+#endif
  	{ "SUMMON",	"SUMMON",	send_comm,		SERVERREQ },
   { "SVE", 		NULL, 		ScrollZSave, 		0 },
   { "SWITCH", 		NULL, 		switchcmd, 		0 },
