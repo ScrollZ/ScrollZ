@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.77 2002-01-21 21:37:35 f Exp $
+ * $Id: edit.c,v 1.78 2002-01-22 19:27:22 f Exp $
  */
 
 #include "irc.h"
@@ -4851,8 +4851,13 @@ show_timer(command)
 	char	*command;
 {
 	TimerList	*tmp;
-	time_t	current,
-		time_left;
+/**************************** Patched by Flier ******************************/
+	/*time_t	current,
+		time_left;*/
+        struct timeval current, time_left;
+        char tmpbuf1[mybufsize / 16];
+        char tmpbuf2[mybufsize / 32];
+/****************************************************************************/
 
 	if (!PendingTimers)
 	{
@@ -4860,14 +4865,31 @@ show_timer(command)
 		return;
 	}
 
-	time(&current);
+/**************************** Patched by Flier ******************************/
+	/*time(&current);*/
+        gettimeofday(&current, NULL);
+/****************************************************************************/
 	say("Timer Seconds   Command");
 	for (tmp = PendingTimers; tmp; tmp = tmp->next)
 	{
-		time_left = tmp->time - current;
+/**************************** Patched by Flier ******************************/
+		/*time_left = tmp->time - current;
 		if (time_left < 0)
 			time_left = 0;
-		say("%-5d %-10d %s", tmp->ref, time_left, tmp->command);
+		say("%-5d %-10d %s", tmp->ref, time_left, tmp->command);*/
+                time_left.tv_sec = tmp->time;
+                time_left.tv_usec = tmp->microseconds;
+                time_left.tv_sec -= current.tv_sec;
+                if (time_left.tv_usec >= current.tv_usec) time_left.tv_usec -= current.tv_usec;
+                else {
+                    time_left.tv_usec = time_left.tv_usec - current.tv_usec + 1000000;
+                    time_left.tv_sec--;
+                }
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%06d", time_left.tv_usec);
+                tmpbuf2[3] = '\0';
+                snprintf(tmpbuf1, sizeof(tmpbuf1), "%d.%s", time_left.tv_sec, tmpbuf2);
+                say("%-5d %-9s %s", tmp->ref, tmpbuf1, tmp->command);
+/****************************************************************************/
 	}
 }
 
