@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.69 2001-12-11 18:06:18 f Exp $
+ * $Id: edit2.c,v 1.70 2001-12-22 11:48:13 f Exp $
  */
 
 #include "irc.h"
@@ -1199,29 +1199,29 @@ char *subargs;
 }
 
 /* Prints out all nicks on your current or specified channel */
-void ChannelScan(command,args,subargs)
+void ChannelScan(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
 #ifdef NEWCSCAN
-    int  count=0;
-    int  width=0;
-    int  len=0;
+    int  count = 0;
+    int  width = 0;
+    int  len = 0;
 #else
     int  buflen;
     int  szlen;
 #endif
-    int  gotchannel=0;
+    int  gotchannel = 0;
     int  shitted;
-    int  reverse=2;
+    int  reverse = 2;
     int  friendok;
     int  hierarchy; /* 1-shitted, 2-normal, 3-voiced, 4-ops, 5-friends */
-    char *channel=(char *) 0;
-    char *users=(char *) 0;
-    char *prefstr=ScrollZstr;
+    char *channel = (char *) 0;
+    char *users = (char *) 0;
+    char *prefstr = ScrollZstr;
 #ifdef WANTANSI
-    char *colorstr=(char *) 0;
+    char *colorstr = (char *) 0;
 #endif
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
@@ -1234,141 +1234,141 @@ char *subargs;
     NickList *tmp;
     ChannelList *chan;
 
-    channel=new_next_arg(args,&args);
+    channel = new_next_arg(args, &args);
     if (channel) {
-        gotchannel=1;
-        if (!my_stricmp(channel,"-H")) {
-            reverse=0;
-            gotchannel=0;
+        gotchannel = 1;
+        if (!my_stricmp(channel, "-H")) {
+            reverse = 0;
+            gotchannel = 0;
         }
-        else if (!my_stricmp(channel,"-R")) {
-            reverse=1;
-            gotchannel=0;
+        else if (!my_stricmp(channel, "-R")) {
+            reverse = 1;
+            gotchannel = 0;
         }
-        if (!gotchannel && (channel=new_next_arg(args,&args))) gotchannel=1;
+        if (!gotchannel && (channel = new_next_arg(args, &args))) gotchannel = 1;
         if (gotchannel) {
-            if (is_channel(channel)) strcpy(tmpbuf1,channel);
-            else sprintf(tmpbuf1,"#%s",channel);
-            channel=tmpbuf1;
+            if (is_channel(channel)) strcpy(tmpbuf1, channel);
+            else sprintf(tmpbuf1, "#%s", channel);
+            channel = tmpbuf1;
         }
-        else channel=(char *) 0;
+        else channel = (char *) 0;
     }
-    if (!channel && (channel=get_channel_by_refnum(0))==NULL) {
+    if (!channel && (channel = get_channel_by_refnum(0)) == NULL) {
         NoWindowChannel();
         return;
     }
-    hierarchy=reverse?5:1;
-    if (!(chan=lookup_channel(channel,curr_scr_win->server,0))) return;
-    if (Stamp==2) prefstr=TimeStamp(2);
+    hierarchy = reverse ? 5 : 1;
+    if (!(chan = lookup_channel(channel, curr_scr_win->server, 0))) return;
+    if (Stamp == 2) prefstr = TimeStamp(2);
 #ifdef WANTANSI
 #ifndef NEWCSCAN
-    szlen=strlen(ScrollZstr)-CountAnsi(prefstr,-1);
-    sprintf(tmpbuf3,"%%%ds",szlen);
+    szlen = strlen(ScrollZstr) - CountAnsi(prefstr, -1);
+    sprintf(tmpbuf3, "%%%ds",szlen);
 #endif /* NEWCSCAN */
-    sprintf(tmpbuf1,"%sUsers on %s%s%s :",prefstr,
-            CmdsColors[COLCSCAN].color1,chan->channel,Colors[COLOFF]);
+    sprintf(tmpbuf1, "%s%sUsers on %s%s%s :", prefstr, Stamp ? "" : " ",
+            CmdsColors[COLCSCAN].color1, chan->channel, Colors[COLOFF]);
 #else /* WANTANSI */
-    sprintf(tmpbuf1,"%sUsers on %s :",prefstr,chan->channel);
+    sprintf(tmpbuf1, "%sUsers on %s :", prefstr, chan->channel);
 #ifndef NEWCSCAN
-    szlen=strlen(prefstr);
-    sprintf(tmpbuf3,"%%%ds",szlen);
+    szlen = strlen(prefstr);
+    sprintf(tmpbuf3, "%%%ds", szlen);
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
 
 #ifdef NEWCSCAN
-    put_it("%s",tmpbuf1);
+    put_it("%s", tmpbuf1);
 #else
-    buflen=strlen(tmpbuf1);
-    malloc_strcpy(&users,tmpbuf1);
+    buflen = strlen(tmpbuf1);
+    malloc_strcpy(&users, tmpbuf1);
 #endif /* NEWCSCAN */
 
 #ifdef NEWCSCAN
-    for (tmp=chan->nicks;tmp;tmp=tmp->next)
-        if(strlen(tmp->nick)>len) len=strlen(tmp->nick);
-    if (len<=9) len=9;
+    for (tmp = chan->nicks; tmp; tmp = tmp->next)
+        if (strlen(tmp->nick) > len) len = strlen(tmp->nick);
+    if (len <= 9) len = 9;
 #ifdef WANTANSI
-    width=(CO-(strlen(prefstr)-CountAnsi(prefstr,-1)+7))/(len+2);
+    width=(CO - (strlen(prefstr) - CountAnsi(prefstr, -1) + 7)) / (len + 2);
 #else
-    width=(CO-(strlen(prefstr)+7))/(len+2);
+    width=(CO - (strlen(prefstr) + 7)) / (len + 2);
 #endif /* WANTANSI */
-    sprintf(tmpbuf1,"%%-%ds",len);
+    sprintf(tmpbuf1, "%%-%ds", len);
 #endif /* NEWCSCAN */
 
-    tmp=chan->nicks;
+    tmp = chan->nicks;
     for (;;) {
         if (!tmp) {
-            if (reverse==2) break;
+            if (reverse == 2) break;
             else if (reverse) {
                 hierarchy--;
-                if (hierarchy<1) break;
+                if (hierarchy < 1) break;
             }
             else {
                 hierarchy++;
-                if (hierarchy>5) break;
+                if (hierarchy > 5) break;
             }
-            tmp=chan->nicks;
+            tmp = chan->nicks;
         }
-        shitted=tmp->shitlist?tmp->shitlist->shit:0;
-        friendok=(!shitted && tmp->frlist)?tmp->frlist->privs:0;
-        if (reverse!=2) {
+        shitted = tmp->shitlist ? tmp->shitlist->shit : 0;
+        friendok = (!shitted && tmp->frlist) ? tmp->frlist->privs : 0;
+        if (reverse != 2) {
             switch (hierarchy) {
             case 1: /* shitlisted */
                 if (shitted)
 #ifdef WANTANSI
-                    colorstr=CmdsColors[COLCSCAN].color6;
+                    colorstr = CmdsColors[COLCSCAN].color6;
 #else
                 ;
 #endif
                 else {
-                    tmp=tmp->next;
+                    tmp = tmp->next;
                     continue;
                 }
                 break;
             case 2: /* normal */
                 if (!(tmp->hasvoice) && !(tmp->chanop) && !(tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
-                    colorstr=CmdsColors[COLCSCAN].color5;
+                    colorstr = CmdsColors[COLCSCAN].color5;
 #else
                 ;
 #endif
                 else {
-                    tmp=tmp->next;
+                    tmp = tmp->next;
                     continue;
                 }
                 break;
             case 3: /* voiced */
                 if (tmp->hasvoice && !(tmp->chanop) && !(tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
-                    colorstr=CmdsColors[COLCSCAN].color4;
+                    colorstr = CmdsColors[COLCSCAN].color4;
 #else
                 ;
 #endif
                 else {
-                    tmp=tmp->next;
+                    tmp = tmp->next;
                     continue;
                 }
                 break;
             case 4: /* ops */
                 if ((tmp->chanop || tmp->halfop) && !friendok && !shitted)
 #ifdef WANTANSI
-                    colorstr=CmdsColors[COLCSCAN].color3;
+                    colorstr = CmdsColors[COLCSCAN].color3;
 #else
                 ;
 #endif
                 else {
-                    tmp=tmp->next;
+                    tmp = tmp->next;
                     continue;
                 }
                 break;
             case 5: /* friends */
                 if (friendok)
 #ifdef WANTANSI
-                    colorstr=CmdsColors[COLCSCAN].color2;
+                    colorstr = CmdsColors[COLCSCAN].color2;
 #else
                 ;
 #endif
                 else {
-                    tmp=tmp->next;
+                    tmp = tmp->next;
                     continue;
                 }
                 break;
@@ -1377,99 +1377,99 @@ char *subargs;
 
 #ifdef WANTANSI
         else {
-            if (shitted) colorstr=CmdsColors[COLCSCAN].color6;
-            else if (friendok) colorstr=CmdsColors[COLCSCAN].color2;
-            else if (tmp->chanop) colorstr=CmdsColors[COLCSCAN].color3;
-	    else if (tmp->halfop) colorstr=CmdsColors[COLCSCAN].color3;
-            else if (tmp->hasvoice) colorstr=CmdsColors[COLCSCAN].color4;
-            else colorstr=CmdsColors[COLCSCAN].color5;
+            if (shitted) colorstr = CmdsColors[COLCSCAN].color6;
+            else if (friendok) colorstr = CmdsColors[COLCSCAN].color2;
+            else if (tmp->chanop) colorstr = CmdsColors[COLCSCAN].color3;
+	    else if (tmp->halfop) colorstr = CmdsColors[COLCSCAN].color3;
+            else if (tmp->hasvoice) colorstr = CmdsColors[COLCSCAN].color4;
+            else colorstr = CmdsColors[COLCSCAN].color5;
         }
 #endif /* WANTANSI */
 
-        if (users) malloc_strcat(&users," ");
+        if (users) malloc_strcat(&users, " ");
 
 #ifdef NEWCSCAN
-        else malloc_strcat(&users,"  ");
+        else malloc_strcat(&users, "  ");
 #endif /* NEWCSCAN */
 
 #ifdef WANTANSI
         if (tmp->chanop) {
-            sprintf(tmpbuf4,"%s@%s",CmdsColors[COLNICK].color4,Colors[COLOFF]);
-            malloc_strcat(&users,tmpbuf4);
+            sprintf(tmpbuf4, "%s@%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+            malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
-            buflen+=strlen(tmpbuf4)+1;
+            buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
         }
 	else if (tmp->halfop) {
-	    sprintf(tmpbuf4,"%s%%%s",CmdsColors[COLNICK].color4,Colors[COLOFF]);
-	    malloc_strcat(&users,tmpbuf4);
+	    sprintf(tmpbuf4, "%s%%%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+	    malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
-	    buflen+=strlen(tmpbuf4)+1;
+	    buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
 	}
         else if (tmp->hasvoice) {
-            sprintf(tmpbuf4,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
-            malloc_strcat(&users,tmpbuf4);
+            sprintf(tmpbuf4, "%s+%s", CmdsColors[COLNICK].color5, Colors[COLOFF]);
+            malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
-            buflen+=strlen(tmpbuf4)+1;
+            buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
         }
 #else  /* WANTANSI */
-        if (tmp->chanop) malloc_strcat(&users,"@");
-	else if (tmp->halfop) malloc_strcat(&users,"%");
-        else if (tmp->hasvoice) malloc_strcat(&users,"+");
+        if (tmp->chanop) malloc_strcat(&users, "@");
+	else if (tmp->halfop) malloc_strcat(&users, "%");
+        else if (tmp->hasvoice) malloc_strcat(&users, "+");
 #ifndef NEWCSCAN
-        buflen+=2;
+        buflen += 2;
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
 
 #ifdef NEWCSCAN
-        else malloc_strcat(&users," ");
+        else malloc_strcat(&users, " ");
 #endif /* NEWCSCAN */
 
 #ifdef WANTANSI
-        malloc_strcat(&users,colorstr);
+        malloc_strcat(&users, colorstr);
 #ifndef NEWCSCAN
-        buflen+=strlen(colorstr);
+        buflen += strlen(colorstr);
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
 
 #ifndef NEWCSCAN
-        malloc_strcat(&users,tmp->nick);
-        buflen+=strlen(tmp->nick);
+        malloc_strcat(&users, tmp->nick);
+        buflen += strlen(tmp->nick);
 #else
-        sprintf(tmpbuf2,tmpbuf1,tmp->nick);
-        malloc_strcat(&users,tmpbuf2);
+        sprintf(tmpbuf2, tmpbuf1,tmp->nick);
+        malloc_strcat(&users, tmpbuf2);
 #endif /* NEWCSCAN */
 
 #ifdef WANTANSI
-        malloc_strcat(&users,Colors[COLOFF]);
+        malloc_strcat(&users, Colors[COLOFF]);
 #ifndef NEWCSCAN
-        buflen+=4;
+        buflen += 4;
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
 
 #ifndef NEWCSCAN
-        if (buflen>=BIG_BUFFER_SIZE-100) {
-            put_it("%s",users);
-            buflen=0;
-            sprintf(tmpbuf2,tmpbuf3," ");
-            malloc_strcpy(&users,tmpbuf2);
+        if (buflen >= BIG_BUFFER_SIZE - 100) {
+            put_it("%s", users);
+            buflen = 0;
+            sprintf(tmpbuf2, tmpbuf3, " ");
+            malloc_strcpy(&users, tmpbuf2);
         }
 #else
         count++;
-        if ((count%width)==0) {
-            say("%s",users);
-            count=0;
+        if ((count % width) == 0) {
+            say("%s", users);
+            count = 0;
             new_free(&users);
         }
 #endif /* NEWCSCAN */
-        tmp=tmp->next;
+        tmp = tmp->next;
     }
 #ifndef NEWCSCAN
-    if (users && buflen) put_it("%s",users);
+    if (users && buflen) put_it("%s", users);
 #else
-    if (count) say("%s",users);
+    if (count) say("%s", users);
 #endif
     new_free(&users);
 }
