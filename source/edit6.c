@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.17 1998-11-20 20:59:57 f Exp $
+ * $Id: edit6.c,v 1.18 1998-11-21 15:47:19 f Exp $
  */
 
 #include "irc.h"
@@ -313,7 +313,7 @@ int  unmangle;
     tmpstr1--;
     *tmpstr1='\0';
     sprintf(tmpbuf2,"%s%s",internal_version,tmpstr2);
-    for (k=-33,tmpstr1=internal_version;*tmpstr1;tmpstr1++) k+=*tmpstr1;
+    for (k=-17,tmpstr1=internal_version;*tmpstr1;tmpstr1++) k+=*tmpstr1;
     k+=strlen(internal_version);
     verstr=tmpbuf2;
     tmpstr1=inbuf;
@@ -322,10 +322,10 @@ int  unmangle;
         while (*tmpstr1) {
             for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++) if (*tmpstr4==*tmpstr1) break;
             if (!(*tmpstr4)) break;
-            j=k-2*l-i-(tmpstr1-inbuf);
+            j=k+2*l-i-(tmpstr1-inbuf);
             while (j<0) j+=l;
             while (j>=l) j-=l;
-            j+=27;
+            j+=31;
             if (j>=l) j-=l;
             *tmpstr3=chars[j];
             tmpstr1++;
@@ -373,9 +373,9 @@ int  unmangle;
         while (*tmpstr1) {
             for (tmpstr4=chars,i=0;*tmpstr4;tmpstr4++,i++) if (*tmpstr4==*tmpstr1) break;
             if (!(*tmpstr4)) break;
-            i-=27;
+            i-=31;
             if (i<0) i+=l;
-            j=k-2*l-i-(tmpstr1-tmpbuf1);
+            j=k+2*l-i-(tmpstr1-tmpbuf1);
             while (j<0) j+=l;
             while (j>=l) j-=l;
             *tmpstr3=chars[j];

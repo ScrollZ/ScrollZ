@@ -1,5 +1,5 @@
 /*
- * $Id: regbin.c,v 1.3 1998-10-24 10:30:27 f Exp $
+ * $Id: regbin.c,v 1.4 1998-11-21 15:47:55 f Exp $
  */
 
 #include <stdio.h>
@@ -11,10 +11,10 @@
 
 #define bufsize 65536
 
-char *mask="V.XTjHwjCuRS7U";
-char *int_ver="19980912";
-char *ver="ircII 4.4A+ScrollZ v1.8i2 (12.09.98)+Cdcc v1.7";
-char *chars="ABCDEFGHIJRSTUVWXYZ.*[]0123|_-{}/=+klmnopqabcdefghijrstuvwxyz456789KLMNOPQ!#$^?():'% ";
+char *mask="d}_Gl+4+.oKF+O";
+char *int_ver="19981121";
+char *ver="ircII 4.4B+ScrollZ v1.8i3 (21.11.98)+Cdcc v1.7";
+char *chars="456789RSTUVWXYZ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'% ABCDEFGHIJ_-{}/=+klmnopq";
 
 #define SearchNum 5
 #define FoundNum 5
@@ -114,7 +114,7 @@ char **argv;
     char pathbuf[512];
     FILE *fp1;
 
-    strcpy(format,"KBdAAIFeHRY0COtvT5UM0|-PO=_^R$t");
+    strcpy(format,"1sXr'FwYyL/n !UONfOPn46dcR5)}h2");
     if (!(argc==2 || argc==3 || argc==4 || argc==5)) {
         printf("Usage : regbin filename regname valid_IP [password] or  regbin string [password]\n");
         return;
@@ -135,12 +135,12 @@ char **argv;
         else strcpy(password,argv[2]);
         tmp2=password;
         if (argc==3) {
-            k=-77;
+            k=-19;
             for (tmp1=tmp2;*tmp1;tmp1++) k+=*tmp1;
             k+=strlen(tmp2);
         }
         else {
-            for (k=-33,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
+            for (k=-17,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
             k+=strlen(int_ver);
         }
         tmp1=tmpbuf1;
@@ -152,11 +152,11 @@ char **argv;
                 exit(1);
             }
             if (argc==3) j=k+l-i+(tmp1-tmpbuf1)-1;
-            else j=k-2*l-i-(tmp1-tmpbuf1);
+            else j=k+2*l-i-(tmp1-tmpbuf1);
             while (j<0) j+=l;
             while (j>=l) j-=l;
             if (argc==2) {
-                j+=27;
+                j+=31;
                 if (j>=l) j-=l;
             }
             *tmp3=chars[j];
@@ -240,7 +240,7 @@ char **argv;
         fseek(fp,pos+j,0);
         l=strlen(chars);
         tmp2=password;
-        k=-77;
+        k=-19;
         for (tmp1=tmp2;*tmp1;tmp1++) k+=*tmp1;
         k+=strlen(tmp2);
         tmp1=format;
@@ -303,7 +303,7 @@ char **argv;
             }
             else *tmp2++=*tmp1;
         *tmp2='\0';
-        for (k=-33,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
+        for (k=-17,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
         k+=strlen(int_ver);
         l=strlen(chars);
         tmp1=tmpbuf1;
@@ -314,10 +314,10 @@ char **argv;
                 printf("Character %c (%d/%X) is wrong!\n",*tmp1,*tmp1,*tmp1);
                 exit(1);
             }
-            j=k-2*l-i-(tmp1-tmpbuf1);
+            j=k+2*l-i-(tmp1-tmpbuf1);
             while (j<0) j+=l;
             while (j>=l) j-=l;
-            j+=27;
+            j+=31;
             if (j>=l) j-=l;
             *tmp3=chars[j];
             tmp1++;

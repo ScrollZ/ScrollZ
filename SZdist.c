@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.10 1998-11-19 20:44:48 f Exp $
+ * $Id: SZdist.c,v 1.11 1998-11-21 15:47:54 f Exp $
  */
 
 #include <stdio.h>
@@ -60,9 +60,9 @@
 
 #define mybufsize 1024
 
-char *int_ver="19980912";
-char *ver="ircII 4.4A+ScrollZ v1.8i2 (12.09.98)+Cdcc v1.7";
-char *chars="ABCDEFGHIJRSTUVWXYZ.*[]0123|_-{}/=+klmnopqabcdefghijrstuvwxyz456789KLMNOPQ!#$^?():'% ";
+char *int_ver="19981121";
+char *ver="ircII 4.4B+ScrollZ v1.8i3 (21.11.98)+Cdcc v1.7";
+char *chars="456789RSTUVWXYZ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'% ABCDEFGHIJ_-{}/=+klmnopq";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";
 char *ircfile="source/files.c";
@@ -183,7 +183,7 @@ char *ip;
         }
         else *tmp2++=*tmp1;
     *tmp2='\0';
-    for (k=-33,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
+    for (k=-17,tmp1=int_ver;*tmp1;tmp1++) k+=*tmp1;
     k+=strlen(int_ver);
     l=strlen(chars);
     tmp1=tmpbuf;
@@ -194,10 +194,10 @@ char *ip;
             printf("Character %c (%d/%X) is wrong!\n",*tmp1,*tmp1,*tmp1);
             exit(1);
         }
-        j=k-2*l-i-(tmp1-tmpbuf);
+        j=k+2*l-i-(tmp1-tmpbuf);
         while (j<0) j+=l;
         while (j>=l) j-=l;
-        j+=27;
+        j+=31;
         if (j>=l) j-=l;
         *tmp3=chars[j];
         tmp1++;
@@ -373,7 +373,7 @@ char **argv;
     time_t timenow;
     struct stat statbuf;
 
-    strcpy(format,"KBdAAIFeHRY0COtvT5UM0|-PO=_^R$t");
+    strcpy(format,"1sXr'FwYyL/n !UONfOPn46dcR5)}h2");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
@@ -387,7 +387,7 @@ char **argv;
     l=strlen(chars);
     if ((strlen(password))) {
         tmp2=password;
-        k=-77;
+        k=-19;
         for (tmp1=tmp2;*tmp1;tmp1++) k+=*tmp1;
         k+=strlen(tmp2);
         tmp1=format;

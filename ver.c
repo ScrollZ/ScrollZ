@@ -1,12 +1,12 @@
 /*
- * $Id: ver.c,v 1.2 1998-09-10 17:34:49 f Exp $
+ * $Id: ver.c,v 1.3 1998-11-21 15:47:56 f Exp $
  */
 
 #include <stdio.h>
 
-char *int_ver="19980912";
-char *ver="ircII 4.4A+ScrollZ v1.8i2 (12.09.98)+Cdcc v1.7";
-char *chars="ABCDEFGHIJRSTUVWXYZ.*[]0123|_-{}/=+klmnopqabcdefghijrstuvwxyz456789KLMNOPQ!#$^?():'% ";
+char *int_ver="19981121";
+char *ver="ircII 4.4B+ScrollZ v1.8i3 (21.11.98)+Cdcc v1.7";
+char *chars="456789RSTUVWXYZ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'% ABCDEFGHIJ_-{}/=+klmnopq";
 
 char tmpbuf[128];
 char *tmp1,*tmp2,*tmp3,*tmp4;
