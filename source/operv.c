@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.47 2003-04-20 18:46:26 f Exp $
+ * $Id: operv.c,v 1.48 2003-04-26 19:10:38 f Exp $
  */
 
 #include "irc.h"
@@ -286,6 +286,7 @@ char *from;
     char word2[mybufsize];
     char word3[mybufsize];
     char word4[mybufsize];
+    char word5[mybufsize];
     char tmpbuf[mybufsize];
 #ifdef MULTI_SERVER_OV
     Window *oldwin;
@@ -1415,6 +1416,50 @@ char *from;
         snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%sm D-Line added by %s%s%s for %s%s%s: %s%s%s",
                 CmdsColors[COLOV].color5,word2,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," is requesting gline for ")) {
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,3,tmpline));  /* server */
+        strcpy(word4,OVgetword(0,8,tmpline));  /* g-line */
+        OVnobrackets(word4,word3,sizeof(word3));
+        strcpy(word5,OVgetword(9,0,tmpline));  /* reason */
+        OVnobrackets(word5,word4,sizeof(word4));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %sgline%s] requested by %s%s%s %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"G-Line requested by %s%s%s %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#endif
+    }
+    else if (strstr(tmpline," has triggered gline for ")) {
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
+        strcpy(word2,OVgetword(0,3,tmpline));  /* server */
+        strcpy(word4,OVgetword(0,8,tmpline));  /* g-line */
+        OVnobrackets(word4,word3,sizeof(word3));
+        strcpy(word5,OVgetword(9,0,tmpline));  /* reason */
+        OVnobrackets(word5,word4,sizeof(word4));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %sgline%s] triggered by %s%s%s %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word3,Colors[COLOFF],
+                CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"G-Line requested by %s%s%s %s%s%s for %s%s%s: %s%s%s",
+                CmdsColors[COLOV].color5,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word2,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word3,Colors[COLOFF],
                 CmdsColors[COLOV].color4,word4,Colors[COLOFF]);
 #endif
