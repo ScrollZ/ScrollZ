@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.26 1999-05-21 17:06:51 f Exp $
+ * $Id: edit5.c,v 1.27 1999-05-24 21:09:31 f Exp $
  */
 
 #include "irc.h"
@@ -3848,7 +3848,7 @@ char *subargs;
     ChannelList *tmpchan;
 
     channels=new_next_arg(args,&args);
-    if (channels && *channels) {
+    if (channels) {
         if (!(*channels=='#')) {
             nick=channels;
             channels="*";
@@ -3862,7 +3862,8 @@ char *subargs;
         else comment=DefaultK;
         for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
              tmpchan=tmpchan->next)
-            if (((tmpchan->status)&CHAN_CHOP) && CheckChannel(tmpchan->channel,channels)) {
+            if (((tmpchan->status)&CHAN_CHOP) && CheckChannel(tmpchan->channel,channels))
+            {
                 tmpnick=find_in_hash(tmpchan,nick);
                 if (tmpnick) send_to_server("KICK %s %s :%s",
                                             tmpchan->channel,nick,comment);
