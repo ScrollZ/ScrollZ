@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.72 2004-04-20 18:26:35 f Exp $
+ * $Id: parse.c,v 1.73 2004-04-25 09:59:32 f Exp $
  */
 
 #include "irc.h"
@@ -316,6 +316,7 @@ p_topic(from, ArgList)
             }
         }
         if ((double_ignore(ArgList[0], NULL, IGNORE_CRAP)) == IGNORED) return;
+        if ((double_ignore(FromUserHost, ArgList[0], IGNORE_CRAP)) == IGNORED) return;
 /****************************************************************************/				
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 	if (flag == IGNORED)
@@ -722,6 +723,8 @@ p_privmsg(from, Args)
         if (ignore_type == IGNORE_PUBLIC && double_ignore(to, NULL, IGNORE_PUBLIC) == IGNORED)
             goto out;
         if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(from, to, IGNORE_PUBLIC) == IGNORED)
+            goto out;
+        if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(FromUserHost, to, IGNORE_PUBLIC) == IGNORED)
             goto out;
         if (FloodProt > 1 && flood_type == MSG_FLOOD) {
             snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", from, FromUserHost);
@@ -1328,6 +1331,9 @@ p_channel(from, ArgList)
                     return;
                 if ((double_ignore(channel, from, IGNORE_JOIN)) == IGNORED)
                     return;
+                if (is_channel(channel) &&
+                    double_ignore(FromUserHost, channel, IGNORE_JOIN) == IGNORED)
+                    return;
 /****************************************************************************/
 		if (!get_channel_oper(channel, parsing_server_index))
 			in_on_who = 1;
@@ -1416,7 +1422,10 @@ p_invite(from, ArgList)
 		else
 		{
 /**************************** PATCHED by Flier ******************************/
-                        if ((double_ignore(ArgList[1],NULL,IGNORE_INVITES))==IGNORED) return;
+                        if ((double_ignore(ArgList[1], NULL, IGNORE_INVITES)) == IGNORED)
+                            return;
+                        if ((double_ignore(FromUserHost, ArgList[1], IGNORE_INVITES)) == IGNORED)
+                            return;
 /****************************************************************************/
  			save_message_from();
 			message_from(from, LOG_CRAP);
@@ -1626,6 +1635,7 @@ p_mode(from, ArgList)
                         update_channel_mode(channel,parsing_server_index,tmpbuf3,sizeof(tmpbuf3),
                                             from,FromUserHost,tmpbuf1,tmpbuf2,NULL);
                         if (flag!=IGNORED) flag=double_ignore(channel,NULL,IGNORE_CRAP);
+                        if (flag!=IGNORED) flag=double_ignore(FromUserHost,channel,IGNORE_CRAP);
                         if (*tmpbuf3 && flag!=IGNORED && do_hook(MODE_LIST, "%s %s %s",
                                                                  from,channel,tmpbuf3))
                             ModePrint(tmpbuf3,channel,from,FromUserHost,tmpbuf1,tmpbuf2);
@@ -1657,6 +1667,7 @@ p_kick(from, ArgList)
 		*who,
 		*comment;
 /**************************** PATCHED by Flier *******************************/
+        int     flag;
         int     frkick;
 /****************************************************************************/
 
@@ -1704,7 +1715,10 @@ p_kick(from, ArgList)
                         joiner=CheckJoiners(who,channel,from_server,chan);
                         frkick=(joiner && joiner->frlist)?joiner->frlist->privs:0;
                         HandleMyKick(who,from,FromUserHost,channel,comment);
-                        if ((double_ignore(channel,NULL,IGNORE_CRAP))!=IGNORED) {
+                        flag = double_ignore(channel,NULL,IGNORE_CRAP);
+                        if (flag == 0)
+                            flag = double_ignore(FromUserHost,channel,IGNORE_CRAP);
+                        if (flag != IGNORED) {
                             if (comment && *comment)
                             {
                                 if (do_hook(KICK_LIST, "%s %s %s %s", who,
@@ -1751,7 +1765,10 @@ p_kick(from, ArgList)
 					say("%s has been kicked off channel %s by %s",
 						who, channel, from);
 			}*/
-                        if ((double_ignore(channel,NULL,IGNORE_CRAP))!=IGNORED) {
+                        flag = double_ignore(channel,NULL,IGNORE_CRAP);
+                        if (flag == 0)
+                            flag = double_ignore(FromUserHost,channel,IGNORE_CRAP);
+                        if (flag!=IGNORED) {
                             if (comment && *comment)
                             {
                                 if (do_hook(KICK_LIST, "%s %s %s %s", who,
@@ -1801,6 +1818,7 @@ p_part(from, ArgList)
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 /**************************** PATCHED by Flier ******************************/
         if (flag!=IGNORED) flag=double_ignore(ArgList[0],NULL,IGNORE_PART);
+        if (flag!=IGNORED) flag=double_ignore(FromUserHost,ArgList[0],IGNORE_PART);
 /****************************************************************************/
 	channel = ArgList[0];
 	if (!is_on_channel(channel, parsing_server_index, from))
