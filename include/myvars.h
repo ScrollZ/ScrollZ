@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.29 2002-01-07 19:18:16 f Exp $
+ * $Id: myvars.h,v 1.30 2002-01-21 22:12:15 f Exp $
  */
 
 #include "mystructs.h"
@@ -222,7 +222,7 @@ extern int    CTCPCloaking;
 extern int    ShowFakes;
 extern int    ShowAway;
 extern int    AutoOpDelay;
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
 extern struct timeval LagTimer;
 #else
 extern int    LagTimer;

@@ -337,9 +337,6 @@
 /* Define this if you have OpenSSL */
 #undef HAVE_SSL
 
-/* Define this if you have gettimeofday(), most systems do */
-#undef HAVETIMEOFDAY
-
 /* Define this if you have getloadavg(), BSD systems do */
 #undef HAVEGETLOADAVG
 
@@ -358,9 +355,6 @@
  - /MN        - /ML                  - /TERMINATE
  - /MSAY      - /DOBANS */
 #define EXTRAS
-
-/* Define this if you want more /TIMER that's accurate to 0.01s */
-#define BETTERTIMER
 
 /* Define this if you want formatted /CSCAN */
 #define NEWCSCAN

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.31 2002-01-21 21:37:36 f Exp $
+ * $Id: names.c,v 1.32 2002-01-21 22:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -52,10 +52,8 @@
 #include "myvars.h"
 #include "whowas.h"
 
-#ifdef HAVETIMEOFDAY
 #include <sys/time.h>
 #include <unistd.h>
-#endif
 
 extern void ClearBans _((ChannelList *));
 extern int  CheckChannel _((char *, char *));
@@ -283,11 +281,7 @@ add_channel(channel, server, connected, copy)
 		new_free(&new->key);
                 new_free(&new->s_mode);
 		new->s_mode=empty_string;
-#ifdef HAVETIMEOFDAY
                 gettimeofday(&(new->time),NULL);
-#else
-                new->time=time((time_t *) 0);
-#endif
                 if (resetchan) {
                     int i;
 

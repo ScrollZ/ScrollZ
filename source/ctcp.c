@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.38 2002-01-21 21:37:35 f Exp $
+ * $Id: ctcp.c,v 1.39 2002-01-21 22:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -64,10 +64,9 @@
 #include "flood.h"
 #include "screen.h"
 #include "ircterm.h"
-#ifdef HAVETIMEOFDAY
+
 #include <sys/time.h>
 #include <unistd.h>
-#endif
 
 static char tmpaway[mybufsize/2];
 
@@ -1854,7 +1853,7 @@ do_new_notice_ctcp(from, to, str, cmd)
 /**************************** PATCHED by Flier *****************************/
         int     isitme;
         char    tmpbuf1[mybufsize/32];
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
         struct  timeval timenow;
 #endif
 /***************************************************************************/
@@ -1905,15 +1904,6 @@ do_new_notice_ctcp(from, to, str, cmd)
 				args = buf;*/
                                 char *tmpstr=(char *) 0;
 				char buf[mybufsize/16];
-#ifndef HAVETIMEOFDAY
-				time_t	timediff,currenttime;
-
-                                currenttime=time(NULL);
-                                tmpstr=next_arg(args,&args);
-                                if (tmpstr) timediff=currenttime-(time_t) atoi(tmpstr);
-				else timediff=(time_t) 0;
-				sprintf(buf,"%d second%s",timediff,(timediff==1)?"":"s");
-#else
                                 struct timeval timeofday;
 
                                 gettimeofday(&timeofday,NULL);
@@ -1939,7 +1929,6 @@ do_new_notice_ctcp(from, to, str, cmd)
                                                  (timeofday.tv_sec==1)?"":"s");
                                 }
                                 else sprintf(buf, "0 seconds");
-#endif
                                 args=buf;
 /****************************************************************************/
 			}
@@ -1968,7 +1957,7 @@ do_new_notice_ctcp(from, to, str, cmd)
                             say("CTCP %s reply from %s: %s",cmd,from,args);
 #endif
                             if (isitme) {
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
                                 /* CTCP Ping is client->server->client->client->server->client
                                    == double lag */
                                 if (timenow.tv_sec>0) {

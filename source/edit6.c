@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.122 2002-01-15 19:45:41 f Exp $
+ * $Id: edit6.c,v 1.123 2002-01-21 22:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -1007,28 +1007,14 @@ char *subargs;
     struct spingstr *spingnew;
     struct spingstr *spingnext;
     struct spingstr *spingold=NULL;
-#ifdef HAVETIMEOFDAY
     struct timeval timenow;
-#else
-    time_t timenow;
-#endif
 
     server=new_next_arg(args,&args);
     if (server) {
-#ifdef HAVETIMEOFDAY
         gettimeofday(&timenow,NULL);
-#else
-        timenow=time((time_t *) 0);
-#endif
         for (spingnew=spinglist;spingnew;spingnew=spingnext) {
             spingnext=spingnew->next;
-            if (
-#ifdef HAVETIMEOFDAY
-                timenow.tv_sec-spingnew->sec>=600
-#else
-                timenow-spingnew->sec>=600
-#endif
-               )
+            if (timenow.tv_sec-spingnew->sec>=600)
             {
                 say("Removed server %s from list after 10 minutes",
                     spingnew->servername);
@@ -1052,12 +1038,8 @@ char *subargs;
 #else
         say("Sent server ping to %c%s%c",bold,server,bold);
 #endif
-#ifdef HAVETIMEOFDAY
         spingnew->sec=timenow.tv_sec;
         spingnew->usec=timenow.tv_usec;
-#else
-        spingnew->sec=timenow;
-#endif
     }
     else PrintUsage("SPING <Server to ping>");
 }

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.54 2002-01-21 21:37:36 f Exp $
+ * $Id: parse.c,v 1.55 2002-01-21 22:12:16 f Exp $
  */
 
 #include "irc.h"
@@ -105,7 +105,7 @@ extern void ChannelLogSave _((char *, ChannelList *));
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
 
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
 extern struct timeval PingSent;
 #else
 extern time_t PingSent;
@@ -1074,12 +1074,8 @@ p_pong(from, ArgList)
 {
 	int	flag;
 /**************************** PATCHED by Flier ******************************/
-#ifdef HAVETIMEOFDAY
         char tmpbuf[mybufsize/32];
         struct timeval timenow;
-#else
-        time_t timenow;
-#endif
         struct spingstr *spingtmp;
 /****************************************************************************/
 
@@ -1098,7 +1094,6 @@ p_pong(from, ArgList)
                 if ((spingtmp=(struct spingstr *) list_lookup((List **) &spinglist,
                                                               ArgList[0],!USE_WILDCARDS,
                                                               REMOVE_FROM_LIST))) {
-#ifdef HAVETIMEOFDAY
                     gettimeofday(&timenow,NULL);
                     timenow.tv_sec-=spingtmp->sec;
                     if (timenow.tv_usec>=spingtmp->usec)
@@ -1117,35 +1112,20 @@ p_pong(from, ArgList)
                     say("Server pong from %s received in %ld.%s seconds",ArgList[0],
                         timenow.tv_sec,tmpbuf);
 #endif /* WANTANSI */
-
-#else  /* HAVETIMEOFDAY */
-
-                    timenow=time((time_t *) 0)-spingtmp->sec;
-#ifdef WANTANSI
-                    say("Server pong from %s%s%s received in %s%ld%s second%s",
-                        CmdsColors[COLCSCAN].color1,ArgList[0],Colors[COLOFF],
-                        CmdsColors[COLCSCAN].color2,timenow,Colors[COLOFF],
-                        timenow!=1?"s":"");
-#else  /* WANTANSI */
-                    say("Server pong from %s received in %ld seconds",ArgList[0],timenow);
-#endif /* WANTANSI */
-#endif /* HAVETIMEOFDAY */
                     new_free(&(spingtmp->servername));
                     new_free(&spingtmp);
                     if (!my_stricmp(server_list[parsing_server_index].itsname,ArgList[0])) {
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
                         LagTimer=timenow;
-#elif defined(HAVETIMEOFDAY)
-                        LagTimer=timenow.tv_sec;
 #else
-                        LagTimer=timenow;
+                        LagTimer=timenow.tv_sec;
 #endif
                         update_all_status();
                     }
                 }
                 else if (!strcmp(ArgList[1],"szlagmeter") ||
                          !strcmp(ArgList[0],get_server_itsname(parsing_server_index))) {
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
                     gettimeofday(&LagTimer,NULL);
                     LagTimer.tv_sec-=PingSent.tv_sec;
                     if (LagTimer.tv_usec>=PingSent.tv_usec)
@@ -1259,11 +1239,7 @@ p_channel(from, ArgList)
                         if (*channel=='+') chan->gotbans=1;
                         joiner=ChannelJoin(from,channel,chan);
                         donelj=1;
-#ifdef HAVETIMEOFDAY
                         gettimeofday(&(chan->time),NULL);
-#else
-                        chan->time=time((time_t *) 0);
-#endif
 /*************************************************************************/	
                 }
                 else

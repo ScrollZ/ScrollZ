@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.80 2002-01-15 19:45:41 f Exp $
+ * $Id: edit5.c,v 1.81 2002-01-21 22:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -2442,14 +2442,11 @@ char *subargs;
 void PrintSynch(chan)
 ChannelList *chan;
 {
-#ifdef HAVETIMEOFDAY
     char tmpbuf1[mybufsize / 16];
     char tmpbuf2[mybufsize / 32];
     struct timeval timenow;
-#endif
 
     if (!chan->gotbans || !chan->gotwho) return;
-#ifdef HAVETIMEOFDAY
     gettimeofday(&timenow, NULL);
     timenow.tv_sec -= chan->time.tv_sec;
     if (timenow.tv_usec >= chan->time.tv_usec) timenow.tv_usec -= chan->time.tv_usec;
@@ -2471,28 +2468,12 @@ ChannelList *chan;
         say("Join to %s is now %csynched%c (%s seconds)",
             chan->channel, bold, bold, tmpbuf1);
 #endif /* WANTANSI */
-#else  /* HAVETIMEOFDAY */
-#ifdef WANTANSI
-#ifndef CELEHOOK
-    if (do_hook(CHANNEL_SYNCH_LIST, "%s 0", chan->channel))
-#endif /* CELEHOOK */
-        say("Join to %s%s%s is now %ssynched%s",
-            CmdsColors[COLJOIN].color3, chan->channel, Colors[COLOFF],
-            CmdsColors[COLJOIN].color4, Colors[COLOFF]);
-#else  /* WANTANSI */
-        say("Join to %s is now %csynched%c", chan->channel, bold, bold);
-#endif /* WANTANSI */
-#endif /* HAVETIMEOFDAY */
     if (HAS_OPS(chan->status) && (chan->FriendList || chan->BKList))
         HandleGotOps(get_server_nickname(from_server), chan);
     if (chan && chan->ChanLog) {
         char tmpbuf3[mybufsize];
 
-#ifdef HAVETIMEOFDAY
         sprintf(tmpbuf3, "Join to %s is now synched (%s seconds)", chan->channel, tmpbuf1);
-#else  /* HAVETIMEOFDAY */
-        sprintf(tmpbuf3, "Join to %s is now synched", chan->channel);
-#endif  /* HAVETIMEOFDAY */
         ChannelLogSave(tmpbuf3, chan);
     }
 }
@@ -2955,15 +2936,11 @@ char *command;
 char *args;
 char *subargs;
 {
-#ifdef HAVETIMEOFDAY
     struct timeval timenow;
 
     gettimeofday(&timenow,NULL);
     send_ctcp(ctcp_type[CTCP_PRIVMSG],get_server_nickname(from_server),"PING","\%ld \%ld",
               timenow.tv_sec,timenow.tv_usec);
-#else
-    send_ctcp(ctcp_type[CTCP_PRIVMSG],get_server_nickname(from_server),"PING","\%ld",time((time_t *) 0));
-#endif
 }
 
 /* Notepad - in case you don't have pen & paper handy... */

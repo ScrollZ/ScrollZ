@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.38 2002-01-17 19:17:12 f Exp $
+ * $Id: SZdist.c,v 1.39 2002-01-21 22:12:15 f Exp $
  */
 
 #include <stdio.h>
@@ -38,26 +38,25 @@
 
 #define WANTANSI       (1<<0)
 #define EXTRAS         (1<<1)
-#define BETTERTIMER    (1<<2)
-#define GENX           (1<<3)
-#define NEWCSCAN       (1<<4)
-#define ACID           (1<<5)
-#define SORTEDNICKS    (1<<6)
-#define SCKICKS        (1<<7)
-#define OPERVISION     (1<<8)
-#define CELE           (1<<9)
-#define HYPERDCC       (1<<10)
-#define VILAS          (1<<11)
-#define JIMMIE         (1<<12)
-#define CTCPPAGE       (1<<13)
-#define TDF            (1<<14)
-#define COUNTRY        (1<<15)
-#define OPER           (1<<16)
-#define OGRE           (1<<17)
-#define SZ32           (1<<18)
-#define LITE           (1<<19)
-#define ALTPUBLICS     (1<<20)
-#define MIRCRESUME     (1<<21)
+#define GENX           (1<<2)
+#define NEWCSCAN       (1<<3)
+#define ACID           (1<<4)
+#define SORTEDNICKS    (1<<5)
+#define SCKICKS        (1<<6)
+#define OPERVISION     (1<<7)
+#define CELE           (1<<8)
+#define HYPERDCC       (1<<9)
+#define VILAS          (1<<10)
+#define JIMMIE         (1<<11)
+#define CTCPPAGE       (1<<12)
+#define TDF            (1<<13)
+#define COUNTRY        (1<<14)
+#define OPER           (1<<15)
+#define OGRE           (1<<16)
+#define SZ32           (1<<17)
+#define LITE           (1<<18)
+#define ALTPUBLICS     (1<<19)
+#define MIRCRESUME     (1<<20)
 #define NUMDEFS        (MIRCRESUME)
 
 #define mybufsize 1024
@@ -70,7 +69,6 @@ char *WANTANSIfiles="alias.o cdcc.o dcc.o edit.o edit2.o edit3.o edit4.o edit5.o
  whois.o";
 char *EXTRASfiles="alias.o cdcc.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o\
  list.o names.o numbers.o parse.o whowas.o";
-char *BETTERTIMERfiles="edit.o edit6.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
 char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o vars.o window.o";
@@ -172,7 +170,6 @@ char **argv;
         if (strstr(buf,"#define")) {
             if (strstr(buf,"WANTANSI")) choice|=WANTANSI;
             else if (strstr(buf,"EXTRAS")) choice|=EXTRAS;
-            else if (strstr(buf,"BETTERTIMER")) choice|=BETTERTIMER;
             else if (strstr(buf,"GENX")) choice|=GENX;
             else if (strstr(buf,"NEWCSCAN")) choice|=NEWCSCAN;
             else if (strstr(buf,"ACID")) choice|=ACID;
@@ -203,8 +200,6 @@ char **argv;
             else if (*tmp1=='e') choice&=~EXTRAS;
             if (*tmp1=='C') choice|=NEWCSCAN;
             else if (*tmp1=='c') choice&=~NEWCSCAN;
-            if (*tmp1=='T') choice|=BETTERTIMER;
-            else if (*tmp1=='t') choice&=~BETTERTIMER;
             if (*tmp1=='S') choice|=SCKICKS;
             else if (*tmp1=='s') choice&=~SCKICKS;
             if (*tmp1=='D') choice|=HYPERDCC;
@@ -271,8 +266,6 @@ char **argv;
                onoffstr(choice&WANTANSI,onoffbuf));
         printf(" [1mB[0m - EXTRAS        %s - enables commands like AUTOINV, BKT, DIRLMK...\n",
                onoffstr(choice&EXTRAS,onoffbuf));
-        printf(" [1mC[0m - BETTERTIMER   %s - TIMER that's accurate to 0.01s \n",
-               onoffstr(choice&BETTERTIMER,onoffbuf));
         printf(" [1mD[0m - GENX          %s - GenX's nifty WHOIS, req. WANTANSI\n",
                onoffstr(choice&GENX,onoffbuf));
         printf(" [1mE[0m - NEWCSCAN      %s - formatted CSCAN, similar to BitchX\n",
@@ -324,9 +317,6 @@ char **argv;
                           break;
                 case 'B': if ((choice&EXTRAS)) choice&=~EXTRAS;
                           else choice|=EXTRAS;
-                          break;
-                case 'C': if ((choice&BETTERTIMER)) choice&=~BETTERTIMER;
-                          else choice|=BETTERTIMER;
                           break;
                 case 'D': if ((choice&GENX)) choice&=~GENX;
                           else choice|=GENX;
@@ -397,7 +387,6 @@ char **argv;
         for (i=1;i<=NUMDEFS;i*=2) {
             if (i==WANTANSI) addtobuf(WANTANSIfiles,tmpbuf,choice,oldchoice,i);
             else if (i==EXTRAS) addtobuf(EXTRASfiles,tmpbuf,choice,oldchoice,i);
-            else if (i==BETTERTIMER) addtobuf(BETTERTIMERfiles,tmpbuf,choice,oldchoice,i);
             else if (i==GENX) addtobuf(GENXfiles,tmpbuf,choice,oldchoice,i);
             else if (i==NEWCSCAN) addtobuf(NEWCSCANfiles,tmpbuf,choice,oldchoice,i);
             else if (i==ACID) addtobuf(ACIDfiles,tmpbuf,choice,oldchoice,i);
@@ -453,9 +442,6 @@ char **argv;
         fprintf(fpout," - /RANLK     - /SHOWIDLE */\n");
         if (choice&EXTRAS) fprintf(fpout,"#define EXTRAS\n");
         else fprintf(fpout,"#undef EXTRAS\n");
-        fprintf(fpout,"\n/* Define this if you want timer that's accurate to 0.01s */\n");
-        if (choice&BETTERTIMER) fprintf(fpout,"#define BETTERTIMER\n");
-        else fprintf(fpout,"#undef BETTERTIMER\n");
         fprintf(fpout,"\n/* Defines this if you want GenX's nifty /WHOIS */\n");
         if (choice&GENX) fprintf(fpout,"#define GENX\n");
         else fprintf(fpout,"#undef GENX\n");

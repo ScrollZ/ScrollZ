@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.9 2002-01-21 21:37:35 f Exp $
+ * $Id: acconfig.h,v 1.10 2002-01-21 22:12:15 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -280,9 +280,6 @@
 #undef HAVE_SOCKADDR_SA_LEN
 
 /**************************** PATCHED by Flier ******************************/
-/* define this if you have gettimeofday() */
-#undef HAVETIMEOFDAY
-
 /* define this if you have getloadavg() */
 #undef HAVEGETLOADAVG
 

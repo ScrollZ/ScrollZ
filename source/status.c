@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.21 2002-01-21 21:37:36 f Exp $
+ * $Id: status.c,v 1.22 2002-01-21 22:12:16 f Exp $
  */
 
 #include "irc.h"
@@ -2136,12 +2136,12 @@ static char *status_lag(window)
 Window	*window;
 {
     char *ptr=(char *) 0;
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
     char lagbuf[8];
 #endif
 
     if (get_int_var(SHOW_STATUS_ALL_VAR) || current_screen->current_window==window) {
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
         sprintf(lagbuf,"%06ld",LagTimer.tv_usec);
         lagbuf[3]='\0';
         sprintf(locbuf,"%ld.%s",LagTimer.tv_sec,lagbuf);

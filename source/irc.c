@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.76 2002-01-21 21:37:35 f Exp $
+ * $Id: irc.c,v 1.77 2002-01-21 22:12:15 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -389,7 +389,7 @@ int   CTCPCloaking;
 int   ShowFakes;
 int   ShowAway;
 int   AutoOpDelay;
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
 struct timeval LagTimer;
 #else
 int   LagTimer;
@@ -461,7 +461,7 @@ time_t LastNlist;
 time_t LastServer;
 time_t LastNick;
 time_t LastLinks;
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
 struct timeval PingSent;
 #else
 time_t PingSent=0;
@@ -482,11 +482,6 @@ char VersionInfo[] = {
     'C',
 #else
     'c',
-#endif
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-    'T',
-#else
-    't',
 #endif
 #ifdef SCKICKS
     'S',
@@ -1629,7 +1624,7 @@ irc_io(prompt, func, my_use_input, loop)
                         CheckCdccTimers();
                         SetStampFormat(NULL);
                         if (from_server>=0 && from_server<number_of_servers) {
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
                             gettimeofday(&PingSent,NULL);
                             if (PingSent.tv_sec-start_time>30)
 #else

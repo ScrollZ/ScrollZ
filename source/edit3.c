@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.72 2002-01-07 19:18:16 f Exp $
+ * $Id: edit3.c,v 1.73 2002-01-21 22:12:15 f Exp $
  */
 
 #include "irc.h"
@@ -2602,7 +2602,7 @@ void InitVars() {
     CTCPCloaking=0;
     ShowFakes=1;
     ShowAway=1;
-#if defined(HAVETIMEOFDAY) && defined(CELE)
+#if defined(CELE)
     LagTimer.tv_sec=0;
     LagTimer.tv_usec=0;
 #else
