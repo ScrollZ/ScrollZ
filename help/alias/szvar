@@ -1,0 +1,99 @@
+!	 $Id: szvar,v 1.1 2002-02-25 17:59:13 f Exp $
+!
+! Copyright (c) 1994-2002 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+SZVAR Variables
+  All numeric variables simply return the value itself. All
+  boolean variables and variables that offer multiple choices
+  (for example URLCATCH) return a numeric value where
+  OFF is denoted by 0, ON is denoted by 1 and other possible
+  values are denoted by numbers 2 and higher, respectively.
+  See help for specific command for more information on all
+  possible choices. Special case are all variables that can
+  be turned ON followed by a comma separated list of channels.
+  In this case 0 denotes command is disabled, and 1 denotes
+  that command is enabled but also the channel list is returned.
+
+  AJOIN          The setting of auto join on invite
+  AREJOIN        The setting of auto rejoin on kick
+  ARINWIN        The setting of showing auto reply in
+                 current/special window
+  AUTOCOMPL      The setting of auto nick completion
+  AUTOINV        The setting of auto invite on notify
+  AWAYT          The time before you are automatically
+  BANTYPE        The setting of bantype
+                 (n = normal, b = better, e = elite,
+                  h = host, s = screw)
+  BITCH          The setting of bitch mode
+  BKLIST         The setting of shit list
+  CDCCAUTOGET    The setting of Cdcc autoget
+  CDCCCHANNELS   The setting of Cdcc channels
+  CDCCDLDIR      The value of Cdcc download dir
+  CDCCIDLE       The value of Cdcc idle time
+  CDCCLIMIT      The Cdcc limit and the queue limit
+                 before the DCCs are auto closed
+  CDCCLONGSTATUS The setting of Cdcc longstatus
+  CDCCNTIME      The value of Cdcc nlist time
+  CDCCOVERWRITE  The setting of Cdcc overwrite
+  CDCCPTIME      The value of Cdcc plist time
+  CDCCSECURE     The setting of Cdcc security
+  CDCCSTATS      The setting of Cdcc stats in plist
+  CDCCSTATUS     The setting of Cdcc in status bar
+  CDCCULDIR      The value of Cdcc upload dir
+  CDCCWARNING    The setting of Cdcc warning
+  CHANLOG        The setting of per channel logging
+  CHANLOGDEST    The destination for per channel logfiles
+  CHANLOGPREFIX  The prefix string for per channel logfiles
+  CHANLOGPOST    The postfix string for per channel logfiles
+  CHSIGNOFF      The setting of showing channels upon signoff
+  COMPRESS       The setting of mode compression
+  CTCPCLOAK      The setting of CTCP cloaking
+  DEOPS          The value of mass deop sensor
+  DEOPT          The value of mass deop timer
+  DPROT          The setting of mass deop protection
+  EGO            The setting of your ego
+  EXTMES         The setting of extended message display
+  EXTPUB         The setting of extended public messages
+  FLOODP         The value of flood protectio,
+                 additionally returns the values of max messages
+                 and max time before client changes nick
+                 (if FLOODP is set to MAX)
+  FRLIST         The setting of user list
+  IDLEKICK       The setting of idle kick
+  IDLETIME       The idle kick timeout value
+  IGTIME         The default ignore time
+  KICKONBAN      The setting of kicking banned users
+                 that have joined the channel
+  KICKONFLOOD    The setting of kick on deop/kick flood
+  KICKOPS        The setting of kicking channel operators
+  KICKS          The value of mass kick sensor
+  KICKT          The value of mass kick timer
+  KPROT          The setting of mass kick protection
+  MIRC           The setting of displaying mIRC colors
+  NHPROT         The setting of nethack protection
+                 (f = full, m = medium, q = quiet)
+  NICKS          The value of nick flood sensor
+  NICKT          The value of nick flood timer
+                 set away if idle
+  NPROT          The setting of nick flood protection
+  NTFYMODE       The setting of notify mode
+                 (1 = brief, 2 = verbose)
+  ORIGNICK       The setting of revertig to original
+                 nick (value of 2 means quiet mode is enabled)
+  REPWORD        The value of your auto-reply buffer
+  SERVNOTICE     The setting of server notices display
+  SHOWAWAY       The setting of notify when you
+                 do SETAWAY or SETBACK
+  SHOWFAKES      The setting of fake modes display
+  SHOWNICK       The setting of showing your nick on
+                 your own public messages
+  SHOWSIGN       The setting of displaying signoff
+                 message in all channels
+  STAMP          The setting of time stamping
+  URLCATCH       The setting of URL catcher
+
+See Also:
+  ALIAS FUNCTIONS
