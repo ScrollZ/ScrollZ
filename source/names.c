@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.27 2001-08-27 17:09:47 f Exp $
+ * $Id: names.c,v 1.28 2001-09-25 20:09:34 f Exp $
  */
 
 #include "irc.h"
@@ -253,6 +253,8 @@ add_channel(channel, server, connected, copy)
 		add_to_list((List **) &server_list[server].chan_list, (List *) new);
 /**************************** PATCHED by Flier ******************************/
                 new->creationtime=time((time_t *) 0);
+                new->modelock=(char *) 0;
+                new->topiclock=(char *) 0;
                 resetchan=1;
 /****************************************************************************/
 	}
