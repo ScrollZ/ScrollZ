@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.29 2003-01-08 20:00:53 f Exp $
+dnl @(#)$Id: configure.in,v 1.30 2004-01-04 17:17:43 f Exp $
 
-AC_REVISION($Revision: 1.29 $)dnl
+AC_REVISION($Revision: 1.30 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.29 2003-01-08 20:00:53 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.30 2004-01-04 17:17:43 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1242,6 +1242,23 @@ else
     fi
 fi
 AC_SUBST(INSTALL_HELP_CMD)
+if test "x$COPY_DIRECTORY" = "xpax";
+then
+    INSTALL_TRANSLATION_CMD='cd translation; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(TRANS_PATH)'
+else
+    if test "x$COPY_DIRECTORY" = "xtar";
+    then
+	INSTALL_TRANSLATION_CMD='cd translation; tar -cf - . | ( cd $(TRANS_PATH); tar -xf - )'
+    else
+	if test "x$COPY_DIRECTORY" = "xcpio";
+	then
+	    INSTALL_TRANSLATION_CMD='cd translation; find . -print | cpio -pdu $(TRANS_PATH)'
+	else
+	    INSTALL_TRANSLATION_CMD="@echo \"I couldn't figure out a way to install the translation files.\""
+	fi
+    fi
+fi
+AC_SUBST(INSTALL_TRANSLATION_CMD)
 
 AC_CHECK_PROGS(ZCAT, gzcat zcat gunzip gzip uncompress uncompress)
 case "x$ZCAT" in
