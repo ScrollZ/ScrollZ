@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.3 1998-11-02 21:20:56 f Exp $
+ * $Id: numbers.c,v 1.4 1998-11-16 20:59:44 f Exp $
  */
 
 #include "irc.h"
@@ -79,6 +79,9 @@ extern void PrintMap _((void));
 extern void ChannelCreateTime _((char *, char **));
 extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
+#ifdef ACID
+extern void DoFilterTrace _((char *));
+#endif
 /* Patched by Zakath */
 #ifdef CELE
 extern void HandleTrace _((int, char *, char *, char *, char *, char *, char *));
@@ -1394,7 +1397,7 @@ numbered_command(from, comm, ArgList)
                 case 204:
                 case 206:
                         if (comm==203 || comm==204 || comm==206) {
-                            if (!inFlierFKill) inFlierTrace=0;
+                            if (inFlierTrace!=2 && !inFlierFKill) inFlierTrace=0;
                             if (inFlierTrace) break;
                         }
 #ifdef CELE
@@ -1403,7 +1406,8 @@ numbered_command(from, comm, ArgList)
 #endif
                 case 205:
                         if (comm==205 && inFlierTrace) {
-                            DoTraceKill(ArgList[2]);
+                            if (inFlierTrace==2) DoFilterTrace(ArgList[2]);
+                            else DoTraceKill(ArgList[2]);
                             break;
                         }
 #ifdef CELE
@@ -1412,7 +1416,7 @@ numbered_command(from, comm, ArgList)
 #endif
                 case 209:
                         if (comm==209 && inFlierTrace) {
-                            HandleEndOfTraceKill();
+                            if (inFlierTrace==1) HandleEndOfTraceKill();
                             break;
                         }
 #ifdef CELE
