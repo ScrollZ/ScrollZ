@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.8 2001-07-23 20:19:59 f Exp $
+ * $Id: ignore.c,v 1.9 2001-07-26 15:31:09 f Exp $
  */
 
 #include "irc.h"
@@ -724,23 +724,28 @@ int IgnoreSave(fp)
 FILE *fp;
 {
     int count=0;
-    char tmpbuf[mybufsize/2];
+    char *tmpstr;
+    char tmpbuf[mybufsize/2+1];
     Ignore *tmp;
 
     for (tmp=ignored_nicks;tmp;tmp=tmp->next) {
         if (!(tmp->perm)) continue;
         *tmpbuf='\0';
         if (tmp->type==IGNORE_ALL) strmcpy(tmpbuf,"ALL",mybufsize/2);
-        if (tmp->type&IGNORE_PUBLIC) strmcat(tmpbuf," PUBLIC",mybufsize/2);
-        if (tmp->type&IGNORE_MSGS) strmcat(tmpbuf," MSGS",mybufsize/2);
-        if (tmp->type&IGNORE_WALLS) strmcat(tmpbuf," WALLS",mybufsize/2);
-        if (tmp->type&IGNORE_WALLOPS) strmcat(tmpbuf," WALLOPS",mybufsize/2);
-        if (tmp->type&IGNORE_INVITES) strmcat(tmpbuf," INVITES",mybufsize/2);
-        if (tmp->type&IGNORE_NOTICES) strmcat(tmpbuf," NOTICES",mybufsize/2);
-        if (tmp->type&IGNORE_NOTES) strmcat(tmpbuf," NOTES",mybufsize/2);
-        if (tmp->type&IGNORE_CTCPS) strmcat(tmpbuf," CTCPS",mybufsize/2);
-        if (tmp->type&IGNORE_CRAP) strmcat(tmpbuf," CRAP",mybufsize/2);
-        fprintf(fp,"IGN   %s %s\n",tmp->nick,tmpbuf);
+        else {
+            if (tmp->type&IGNORE_PUBLIC) strmcat(tmpbuf,",PUBLIC",mybufsize/2);
+            if (tmp->type&IGNORE_MSGS) strmcat(tmpbuf,",MSGS",mybufsize/2);
+            if (tmp->type&IGNORE_WALLS) strmcat(tmpbuf,",WALLS",mybufsize/2);
+            if (tmp->type&IGNORE_WALLOPS) strmcat(tmpbuf,",WALLOPS",mybufsize/2);
+            if (tmp->type&IGNORE_INVITES) strmcat(tmpbuf,",INVITES",mybufsize/2);
+            if (tmp->type&IGNORE_NOTICES) strmcat(tmpbuf,",NOTICES",mybufsize/2);
+            if (tmp->type&IGNORE_NOTES) strmcat(tmpbuf,",NOTES",mybufsize/2);
+            if (tmp->type&IGNORE_CTCPS) strmcat(tmpbuf,",CTCPS",mybufsize/2);
+            if (tmp->type&IGNORE_CRAP) strmcat(tmpbuf,",CRAP",mybufsize/2);
+        }
+        tmpstr=tmpbuf;
+        if (*tmpstr==',') tmpstr++;
+        fprintf(fp,"IGN   %s %s\n",tmp->nick,tmpstr);
         count++;
     }
     return(count);

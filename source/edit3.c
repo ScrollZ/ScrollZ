@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.66 2001-07-23 20:19:59 f Exp $
+ * $Id: edit3.c,v 1.67 2001-07-26 15:31:09 f Exp $
  */
 
 #include "irc.h"
@@ -1904,6 +1904,7 @@ int ScrollZLoad()
         else if (!strcmp("IGN",tmpbuf3)) {
             int display=window_display;
             char *ign=NULL;
+            char *tmpstr;
 
             NextArg(pointer,&pointer,tmpbuf2);
             NextArg(pointer,&pointer,tmpbuf3);
@@ -1917,6 +1918,8 @@ int ScrollZLoad()
                 loaderror=1;
                 continue;
             }
+            for (tmpstr=tmpbuf3;*tmpstr;tmpstr++)
+                if (*tmpstr==',') *tmpstr=' ';
             malloc_strcpy(&ign,tmpbuf2);
             malloc_strcat(&ign," ");
             malloc_strcat(&ign,tmpbuf3);
