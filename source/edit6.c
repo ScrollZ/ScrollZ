@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.3 1998-09-21 19:30:45 f Exp $
+ * $Id: edit6.c,v 1.4 1998-10-21 18:30:42 f Exp $
  */
 
 #include "irc.h"
@@ -2041,12 +2041,10 @@ int server;
 }
 
 /* Clean up ScrollZ allocated variables */
-void CleanUpScrollZVars(void) {
+void CleanUpScrollZVars() {
     new_free(&DefaultServer);
     new_free(&ScrollZstr);
     new_free(&ScrollZlame1);
-    new_free(&LastMessage);
-    new_free(&LastNotice);
     new_free(&DefaultSignOff);
     new_free(&DefaultSetAway);
     new_free(&DefaultSetBack);
@@ -2080,8 +2078,6 @@ void CleanUpScrollZVars(void) {
     new_free(&LastJoin);
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
-    new_free(&LastMessageSent);
-    new_free(&LastNoticeSent);
     new_free(&VirtualHost);
     new_free(&HelpPathVar);
     new_free(&CelerityNtfy);
