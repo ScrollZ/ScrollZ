@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.53 2002-03-11 20:25:01 f Exp $
+ * $Id: server.c,v 1.54 2002-04-07 15:55:10 f Exp $
  */
 
 #include "irc.h"
@@ -208,9 +208,11 @@ close_server(server_index, message)
 #endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (server_list[i].connected && server_list[i].enable_ssl) {
+                if (server_list[i].enable_ssl && server_list[i].ssl_fd) {
                     SSL_shutdown(server_list[i].ssl_fd);
-                    server_list[i].ssl_fd = (SSL *) 0;
+                    server_list[i].ssl_fd = NULL;
+                    server_list[i].ctx = NULL;
+                    server_list[i].meth = NULL;
                 }
 #endif
 /****************************************************************************/
@@ -542,7 +544,9 @@ add_to_server_list(server, port, password, nick, overwrite)
 /**************************** PATCHED by Flier ******************************/
 #ifdef HAVE_SSL
                 server_list[from_server].enable_ssl = 0;
-                server_list[from_server].ssl_fd = (SSL *) 0;
+                server_list[from_server].ssl_fd = NULL;
+                server_list[from_server].ctx = NULL;
+                server_list[from_server].meth = NULL;
                 /* this is true only when adding server(s) from a command line */
                 if (*server == '!') {
                     server++;
