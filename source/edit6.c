@@ -56,7 +56,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.39 1999-07-18 13:27:26 f Exp $
+ * $Id: edit6.c,v 1.40 1999-07-24 12:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -258,6 +258,7 @@ char *buffer;
         if ((user->privs)&FLJOIN) strcat(buffer,"J");
         if ((user->privs)&FLNOFLOOD) strcat(buffer,"F");
         if ((user->privs)&FLINSTANT) strcat(buffer,"X");
+        if ((user->privs)&FLWHOWAS) strcat(buffer,"Z");
     }
 }
 
@@ -665,6 +666,9 @@ void CheckTimeMinute() {
 #ifdef EXTRAS
     NickList *tmpnick;
 #endif
+#ifdef ACID
+    WhowasList *whowas;
+#endif
     ChannelList *tmpchan;
 
     if (curr_scr_win->server!=-1) {
@@ -681,7 +685,13 @@ void CheckTimeMinute() {
 #ifdef CELE
         else if (away_set) CeleAway(1); /* Updates idle counter in away */
 #endif /* CELE */
-        if (away_set && AutoJoinOnInv==2 && timenow-LastCheck>500 && AutoJoinChannels) {
+        if (away_set && AutoJoinOnInv==2 && AutoJoinChannels &&
+#ifdef ACID
+            timenow-LastCheck>55
+#else
+            timenow-LastCheck>500
+#endif /* ACID */
+           ) {
             strcpy(tmpbuf,AutoJoinChannels);
             tmpstr=tmpbuf;
             tmpstr1=tmpbuf;
@@ -694,7 +704,26 @@ void CheckTimeMinute() {
                         for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
                              tmpchan=tmpchan->next)
                             if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
+#ifdef ACID
+                        /* 
+                         * ask up to 5 users with +z flag set to open the channel for us
+                         */
+                        if (!tmpchan) {
+                            found=0;
+                            for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
+                                if (whowas->nicklist && whowas->nicklist->frlist &&
+                                    ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
+                                    !my_stricmp(whowas->channel,tmpstr1)) {
+                                    found++;
+                                    if (found>5) break;
+                                    send_to_server("PRIVMSG %s :OPEN %s",
+                                            whowas->nicklist->nick,tmpstr1);
+                                }
+                            }
+                        }
+#else
                         if (!tmpchan) e_channel("JOIN",tmpstr1,tmpstr1);
+#endif /* ACID */
                     }
                     tmpstr1=tmpstr+1;
                     wildcards=0;
@@ -705,7 +734,26 @@ void CheckTimeMinute() {
                 for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
                      tmpchan=tmpchan->next)
                     if (!my_stricmp(tmpstr1,tmpchan->channel)) break;
+#ifdef ACID
+                /* 
+                 * ask up to 5 users with +z flag set to open the channel for us
+                 */
+                if (!tmpchan) {
+                    found=0;
+                    for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
+                        if (whowas->nicklist && whowas->nicklist->frlist &&
+                            ((whowas->nicklist->frlist->privs)&FLWHOWAS) &&
+                            !my_stricmp(whowas->channel,tmpstr1)) {
+                            found++;
+                            if (found>5) break;
+                            send_to_server("PRIVMSG %s :OPEN %s",
+                                    whowas->nicklist->nick,tmpstr1);
+                        }
+                    }
+                }
+#else
                 if (!tmpchan) e_channel("JOIN",tmpstr1,tmpstr1);
+#endif
             }
             LastCheck=timenow;
         }
@@ -862,6 +910,7 @@ char *subargs;
             else if (*flags=='J' || *flags=='j') privs|=FLJOIN;
             else if (*flags=='F' || *flags=='f') privs|=FLNOFLOOD;
             else if (*flags=='X' || *flags=='x') privs|=FLINSTANT;
+            else if (*flags=='Z' || *flags=='z') privs|=FLWHOWAS;
             flags++;
         }
         for (i=1,tmpfriend=frlist;tmpfriend;i++,tmpfriend=tmpfriend->next) {
@@ -2403,7 +2452,7 @@ char *stuff;
         }
     }
 }
-#endif /* ACID */
+#endif /* OPER */
 
 /* Format time in compressed format */
 char *FormatTime(timediff)
