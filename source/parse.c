@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.43 2001-08-25 18:25:15 f Exp $
+ * $Id: parse.c,v 1.44 2001-08-25 18:28:06 f Exp $
  */
 
 #include "irc.h"
@@ -93,7 +93,6 @@ extern void OVformat _((char *, char *));
 extern void AutoChangeNick _((char *));
 extern void AwaySave _((char *, int));
 extern char *GetNetsplitServer _((char *, char *));
-extern void CheckCdcc _((char *, char *, char *, int));
 extern int  CheckChannel _((char *, char *));
 extern int  DecryptMessage _((char *, char *));
 extern int  IsIrcNetOperChannel _((char *));
@@ -730,13 +729,6 @@ p_privmsg(from, Args)
 	ptr = do_ctcp(from, to, ptr);
 	if (!ptr || !*ptr)
 		goto out;
-/**************************** PATCHED by Flier ******************************/
-        if (list_type==MSG_LIST &&
-            (!my_strnicmp(ptr,"CDCC",4) || !my_strnicmp(ptr,"XDCC",4))) {
-            if (check_flooding(from,flood_type,ptr)) CheckCdcc(from,ptr,NULL,1);
-            goto out;
-        }
-/****************************************************************************/
 	if ((flag != DONT_IGNORE) && (ignore_usernames & ignore_type) && !FromUserHost)
 		add_to_whois_queue(from, whois_ignore_msgs, "%s", ptr);
 	else
