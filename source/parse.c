@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.55 2002-01-21 22:12:16 f Exp $
+ * $Id: parse.c,v 1.56 2002-01-22 19:04:16 f Exp $
  */
 
 #include "irc.h"
@@ -1825,14 +1825,14 @@ irc2_parse_server(line)
 	if (0 != (numeric = atoi(comm)))
 /**************************** PATCHED by Flier ******************************/
         {
-                if (numeric==1) {
-                    char *nickstart,*nickend;
-                    char tmpbuf[mybufsize/8];
+                if (numeric == 1) {
+                    char *nickstart, *nickend;
+                    char tmpbuf[mybufsize / 8];
 
-                    if ((nickstart=index(line,' ')) && (nickstart=index(nickstart+1,' ')) &&
-                        (nickend=index(nickstart+1,' '))) {
-                        strmcpy(tmpbuf,nickstart+1,nickend-(nickstart+1));
-                        set_server_nickname(parsing_server_index,tmpbuf);
+                    if ((nickstart = index(line,' ')) && (nickstart = index(nickstart + 1, ' ')) &&
+                        (nickend = index(nickstart + 1, ' '))) {
+                        strmcpy(tmpbuf, nickstart + 1, nickend - nickstart);
+                        set_server_nickname(parsing_server_index, tmpbuf);
                     }
                 }
 /****************************************************************************/
