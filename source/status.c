@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.27 2002-01-25 18:58:31 f Exp $
+ * $Id: status.c,v 1.28 2002-01-29 16:26:34 f Exp $
  */
 
 #include "irc.h"
@@ -1435,9 +1435,6 @@ status_query_nick(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0;
-/**************************** PATCHED by Flier ******************************/
-        int     buflen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
-/****************************************************************************/
 
 	if (window->query_nick && query_format)
 	{
@@ -1445,8 +1442,12 @@ status_query_nick(window)
 
 /**************************** PATCHED by Flier ******************************/
 		/*snprintf(lbuf, sizeof lbuf, query_format, window->query_nick);*/
-		buflen = buflen > sizeof(lbuf) - 1 ? sizeof(lbuf) : buflen;
-		snprintf(lbuf, buflen, query_format, window->query_nick);
+                int buflen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
+                char tmpbuf[mybufsize / 4];
+
+                if (buflen > sizeof(tmpbuf)) buflen = sizeof(tmpbuf);
+                strmcpy(tmpbuf, window->query_nick, buflen);
+		snprintf(lbuf, sizeof(lbuf), query_format, tmpbuf);
 /****************************************************************************/
 		malloc_strcpy(&ptr, lbuf);
 	}
