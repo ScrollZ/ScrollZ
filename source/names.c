@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.56 2004-12-19 19:04:17 f Exp $
+ * $Id: names.c,v 1.57 2005-01-14 20:13:30 f Exp $
  */
 
 #include "irc.h"
@@ -310,6 +310,7 @@ add_channel(channel, server, connected, copy, key, nowho)
 /**************************** PATCHED by Flier ******************************/
                 new->status = 0;
                 new->gotbans = 0;
+                new->repeatexceptions = 0;
                 new->gotwho = nowho;
 		new->mode = 0;
 		new->limit = 0;
@@ -1519,7 +1520,7 @@ char    *servmodes;
             if (!chan->gotbans || !chan->gotwho) gotops = 0;
             if (!isitme && minusban && HAS_OPS(*chop) && chan->gotbans && chan->gotwho && !gotops && chan->BKList)
                 CheckPermBans(chan);
-            if (!isitme && gotops && (chan->FriendList || chan->BKList))
+            if (!isitme && gotops)
                 HandleGotOps(mynick, chan);
             if (chan->CompressModes) {
                 *compmodeadd = '\0';

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.16 2003-05-04 18:06:58 f Exp $
+ * $Id: struct.h,v 1.17 2005-01-14 20:13:30 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -400,12 +400,12 @@ typedef	struct	channel_stru
 /**************************** PATCHED by Flier ******************************/
 #define	CHAN_VOICE	0x10
 #define CHAN_HALFOP	0x20
-        int plush,minush,pluso,minuso,plusb,minusb,topic,kick,pub;
-        int servplush,servminush,servpluso,servminuso,servplusb,servminusb;
-        int AutoRejoin,MDopWatch,ShowFakes,KickOnFlood,KickWatch,IdleKick;
-        int NHProt,NickWatch,ShowAway,KickOps,KickOnBan,Bitch,FriendList;
-        int CompressModes,TryRejoin,BKList,ChanLog;
-        int gotbans,gotwho;
+        int plush, minush, pluso, minuso, plusb, minusb, topic, kick, pub;
+        int servplush, servminush, servpluso, servminuso, servplusb, servminusb;
+        int AutoRejoin, MDopWatch, ShowFakes, KickOnFlood, KickWatch, IdleKick;
+        int NHProt, NickWatch, ShowAway, KickOps, KickOnBan, Bitch, FriendList;
+        int CompressModes, TryRejoin, BKList, ChanLog;
+        int gotbans, gotwho, repeatexceptions;
         char *topicstr;
         char *topicwho;
         time_t topicwhen;

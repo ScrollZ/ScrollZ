@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.79 2004-12-13 21:21:19 f Exp $
+ * $Id: numbers.c,v 1.80 2005-01-14 20:13:30 f Exp $
  */
 
 #include "irc.h"
@@ -1413,9 +1413,15 @@ numbered_command(from, comm, ArgList)
                 /* 
                  * Don't display if we're joining a channel since it
                  * most likely means it came from MODE #channel e
+                 * Mark it so we can repeat MODE #channel e later when
+                 * we get opped
                  */
-                for (chan=server_list[from_server].chan_list;chan;chan=chan->next)
-                    if (!(chan->gotbans) || !(chan->gotwho)) break;
+                for (chan = server_list[from_server].chan_list; chan; chan = chan->next) {
+                    if (!(chan->gotbans) || !(chan->gotwho)) {
+                        chan->repeatexceptions = 1;
+                        break;
+                    }
+                }
 		if (!chan && do_hook(current_numeric, "%s %s", from, *ArgList))
                     display_msg(from, ArgList);
                 break;
