@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.142 2003-04-28 16:13:37 f Exp $
+ * $Id: edit6.c,v 1.143 2003-04-28 18:46:12 f Exp $
  */
 
 #include "irc.h"
@@ -1795,7 +1795,7 @@ char *stuff;
 		    mode='h';
 		break;
 	    case 'o':
-		if ((chan->status&CHAN_CHOP) && (tmpnick->frlist->privs&FLOP))
+		if ((chan->status&CHAN_CHOP) && (tmpnick->frlist->privs&FLOP) && !tmpnick->chanop)
 		    mode='o';
 		break;
 	}
