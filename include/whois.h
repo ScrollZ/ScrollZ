@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: whois.h,v 1.2 2000-12-05 20:30:56 f Exp $
  */
 
 #ifndef __whois_h_
@@ -70,7 +70,10 @@
 	void	whoreply _((char *, char **));
 	void	convert_to_whois _((void));
 	void	ison_notify _((WhoisStuff *, char *, char *));
-	void	no_such_nickname _((char *, char **));
+/**************************** PATCHED by Flier ******************************/
+	/*void	no_such_nickname _((char *, char **));*/
+	void	no_such_nickname _((char *, char **, int));
+/****************************************************************************/
 
 extern	int	beep_on_level;
 extern	char	*redirect_format;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.32 2000-11-08 19:33:46 f Exp $
+ * $Id: numbers.c,v 1.33 2000-12-05 20:30:56 f Exp $
  */
 
 #include "irc.h"
@@ -1099,9 +1099,10 @@ numbered_command(from, comm, ArgList)
 /************************** PATCHED by Flier *****************************/
 		/*no_such_nickname(from, ArgList);*/
                 RemoveFromDCCList(ArgList[0]);
-                if (!server_list[parsing_server_index].SZWI)
-                    no_such_nickname(from, ArgList);
-                else server_list[parsing_server_index].SZWI--;
+                no_such_nickname(from,ArgList,
+                                 server_list[parsing_server_index].SZWI>0);
+                if (server_list[parsing_server_index].SZWI)
+                    server_list[parsing_server_index].SZWI--;
                 break;
 /*************************************************************************/		
 

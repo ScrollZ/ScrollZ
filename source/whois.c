@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.6 1999-03-04 22:06:14 f Exp $
+ * $Id: whois.c,v 1.7 2000-12-05 20:30:56 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -819,9 +819,15 @@ end_of_whois(from, ArgList)
  */
 /*ARGSUSED*/
 void
-no_such_nickname(from, ArgList)
+/**************************** PATCHED by Flier ******************************/
+/*no_such_nickname(from, ArgList)*/
+no_such_nickname(from,ArgList,dontshow)
+/****************************************************************************/
 	char	*from,
 		**ArgList;
+/**************************** PATCHED by Flier ******************************/
+        int     dontshow;
+/****************************************************************************/
 {
 	char	*nick;
 	char		*ptr;
@@ -870,11 +876,31 @@ no_such_nickname(from, ArgList)
 		ignore_whois_crap = 0;
 		return;
 	}
-	if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1]))
+/**************************** PATCHED by Flier ******************************/
+        if (dontshow) {
+            WhoisQueue *thing;
+
+            if (ptr && (whois_type_head(parsing_server_index)&(WHOIS_WHOIS|WHOIS_ISON2)) && !strcmp(ptr,nick)) {
+                thing=remove_from_whois_queue(parsing_server_index);
+                whois_stuff->not_on=0;
+                if (thing->func)
+                    thing->func(whois_stuff,thing->nick,thing->text);
+                new_free(&whois_stuff->channels);
+                new_free(&thing->nick);
+                new_free(&thing->text);
+                new_free(&thing);
+            }
+        }
+        else {
+/****************************************************************************/
+	    if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1]))
 		put_it("%s %s: %s", numeric_banner(), nick, ArgList[1]);
-	if ((get_server_version(parsing_server_index) > Server2_5) &&
-	    get_int_var(AUTO_WHOWAS_VAR))
-		send_to_server("WHOWAS %s", nick);
+	    if ((get_server_version(parsing_server_index) > Server2_5) &&
+	        get_int_var(AUTO_WHOWAS_VAR))
+		    send_to_server("WHOWAS %s", nick);
+/**************************** PATCHED by Flier ******************************/
+        }
+/****************************************************************************/
 }
 
 /*
