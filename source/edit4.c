@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.45 2000-09-24 17:10:34 f Exp $
+ * $Id: edit4.c,v 1.46 2000-11-01 10:13:46 f Exp $
  */
 
 #include "irc.h"
@@ -775,7 +775,7 @@ void HandleTabNext() {
                 }
                 return;
             }
-            else if (*tmpstr) {
+            else {
                 int nicklen;
                 int sameloop=0;
 
