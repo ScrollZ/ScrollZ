@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.16 2001-08-02 18:42:53 f Exp $
+ * $Id: alias.c,v 1.17 2001-08-11 15:42:57 f Exp $
  */
 
 #include "irc.h"
@@ -4597,6 +4597,7 @@ u_char *input;
 #ifdef EXTRAS
         { "SHOWSIGN"       , 1, &ShowSignAllChan , NULL                   },
 #endif
+        { "EXTPUB"         , 1, &ExtPub          , NULL                   },
         { NULL             , 0, NULL             , NULL                   }
     };
 
