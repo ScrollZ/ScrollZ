@@ -164,10 +164,12 @@ Usage $3NSLOOKUP host$0|$3nick$0
 :NWHOIS        Prints some statistics about nicks matching filter
 Usage $3NWHOIS filter$0
 :OV            Turns OperVision on/off
-Usage $3OV on$0|$3off$0|$3here$0
+Usage $3OV on$0 [$3nots$0]|$3here$0 [$3nots$0]|$3off$0
 When enabled client will create a new window which will receive
 all IRC operator related stuff. If enabled with $3here$0 IRC
-operator related stuff goes to current window.
+operator related stuff goes to current window. Time stamping
+is enabled by default. If $4NOTS$0 is given, time stamping is
+disabled.
 :P             Pings nick
 Usage $3P nick$0|$3#channel$0
 If no arguments are given, current channel will be pinged
