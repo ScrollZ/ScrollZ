@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.16 1999-10-31 11:05:39 f Exp $
+ * $Id: operv.c,v 1.17 1999-11-06 18:02:43 f Exp $
  */
 
 #include "irc.h"
@@ -177,8 +177,8 @@ int b;
 char *string;
 {
     int  i=1;
-    static char tmpbuf1[mybufsize/4];
-    static char tmpbuf2[mybufsize/4];
+    static char tmpbuf1[mybufsize/4+1];
+    static char tmpbuf2[mybufsize/4+1];
     char *tmpstr=tmpbuf1;
     char *tmpbuf=tmpbuf1;
 
@@ -188,16 +188,16 @@ char *string;
        This should speed things up and reduce CPU usage.
        First check if this is new notice, and if it is copy entire string to buffer.
        Else, copy old pointer and work from there on, using new indexes   -Flier */
-    if (NewNotice) strcpy(tmpbuf1,string);
+    if (NewNotice) strmcpy(tmpbuf1,string,mybufsize/4);
     else {
-        strcpy(tmpbuf1,OldPtr);
+        strmcpy(tmpbuf1,OldPtr,mybufsize/4);
         i=OldWord+1;
     }
     /* If a=0, find and return word #b */
     if ((a==0) && (b>0)) {
 	for(;i<=b;i++) tmpstr=next_arg(tmpbuf,&tmpbuf);
         /* Made it crash proof since my ircd formats some messages differently */
-        if (tmpstr) strcpy(tmpbuf2,tmpstr);
+        if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/4);
         /* so if there is no word #b we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -212,7 +212,7 @@ char *string;
             if (tmpstr) tmpstr++;
         }
         /* Made it crash proof since my ircd formats some messages differently */
-	if (tmpstr) strcpy(tmpbuf2,tmpstr);
+	if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/4);
         /* so if there is no word #a we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -254,8 +254,8 @@ char *from;
     char tmpbuf[mybufsize];
 
     /* Set up tmpline to be just the message to parse */
-    if (strstr(line,"Notice --")) tmpline=line+14;
-    else if (strstr(line,"***")) tmpline=line+4; 
+    if (!strncmp(line,"*** Notice -- ",14)) tmpline=line+14;
+    else if (!strncmp(line,"***",4)) tmpline=line+4; 
     else tmpline=line;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
     tmpline=tmpbuf;
@@ -538,7 +538,7 @@ char *from;
         if (strlen(word1) && word1[strlen(word1)-1]=='.')
             word1[strlen(word1)-1]='\0';
         strcpy(word2,OVgetword(0,7,tmpline));  /* killer  */
-        strcpy(word3,OVgetword(0,7,tmpline));  /* path  */
+        strcpy(word3,OVgetword(0,9,tmpline));  /* path  */
         strcpy(word4,OVgetword(10,0));         /* reason */
         /* check for server kill first */
         if (index(word2,'.'))
