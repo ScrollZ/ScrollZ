@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.33 1999-08-25 20:09:04 f Exp $
+ * $Id: edit3.c,v 1.34 1999-09-18 10:03:38 f Exp $
  */
 
 #include "irc.h"
@@ -649,7 +649,7 @@ char *line;
 #else
                 say("Help for command %c%s%c",22,&tmpbuf[1],22);
 #endif
-                say("%s",tmpstr);
+                ShowHelpLine(tmpstr);
                 incommand=1;
                 FoundCommand=1;
             }
