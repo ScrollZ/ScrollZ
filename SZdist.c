@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.17 1999-06-14 18:05:00 f Exp $
+ * $Id: SZdist.c,v 1.18 1999-07-24 12:40:24 f Exp $
  */
 
 #include <stdio.h>
@@ -549,7 +549,7 @@ char **argv;
 	       onoffstr(choice&CELE,onoffbuf));
 	printf(" [1mK[0m - HYPERDCC      %s - Compile with HyperDCC by Annatar\n",
 	       onoffstr(choice&HYPERDCC,onoffbuf));
-	printf(" [1mL[0m - VILAS         %s - No ScrollZ trademarks in kicks and away msgs\n",
+	printf(" [1mL[0m - VILAS         %s - No ScrollZ trademarks in ctcps\n",
 	       onoffstr(choice&VILAS,onoffbuf));
 	printf(" [1mM[0m - JIMMIE        %s - Better NEWHOST (lists all hostnames)\n",
 	       onoffstr(choice&JIMMIE,onoffbuf));
