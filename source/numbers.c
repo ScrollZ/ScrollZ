@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.31 2000-11-07 17:27:44 f Exp $
+ * $Id: numbers.c,v 1.32 2000-11-08 19:33:46 f Exp $
  */
 
 #include "irc.h"
@@ -336,7 +336,7 @@ char **ArgList;
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.10 servers */
-        else if (sscanf(rest,"This server has %d users, %d services and %d servers connected",
+        else if (sscanf(rest,"I have %d users, %d services and %d servers",
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
@@ -410,8 +410,8 @@ char **ArgList;
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.9.2 servers */
-        else if (sscanf(rest,"I have %d clients, %d services and %d servers",&clientnum,
-                        &servicenum,&connectnum)==3) {
+        else if (sscanf(rest,"I have %d clients, %d services and %d servers",
+                        &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
             sprintf(tmpbuf,"%s Connected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
@@ -420,7 +420,7 @@ char **ArgList;
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.10 servers */
-        else if (sscanf(rest,"This server has %d users, %d services and %d servers connected",
+        else if (sscanf(rest,"I have %d users, %d services and %d servers",
                         &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
