@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.38 2000-02-03 19:02:46 f Exp $
+ * $Id: edit2.c,v 1.39 2000-04-14 18:10:54 f Exp $
  */
 
 #include "irc.h"
@@ -3831,6 +3831,7 @@ char *subargs;
 #ifdef __linux__
     int tmpsock;
     int oldumask;
+    char devname[mybufsize/16+1];
     struct ifreq ifr;
 #endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
@@ -3864,6 +3865,29 @@ char *subargs;
     sprintf(filename,"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
+    /* obtain device name */
+    if ((fp=fopen("/proc/net/dev","r"))==NULL) strcpy(devname,"eth");
+    else {
+        /* skip two lines of header */
+        fgets(putbuf,mybufsize/4,fp);
+        fgets(putbuf,mybufsize/4,fp);
+        while (fgets(putbuf,sizeof(putbuf),fp)) {
+            tmpstr=putbuf;
+            while (*tmpstr && isspace(*tmpstr)) tmpstr++;
+            strmcpy(devname,tmpstr,mybufsize/16);
+            tmpstr=devname;
+            while (*tmpstr && *tmpstr!=':') tmpstr++;
+            *tmpstr='\0';
+            if (strcmp(devname,"lo")) {
+                if (strlen(devname)>0) {
+                    tmpstr--;
+                    *tmpstr='\0';
+                }
+                break;
+            }
+        }
+        fclose(fp);
+    }
     oldumask=umask(0177);
     if ((fp=fopen(filename,"w"))==NULL) {
         say("Error, can't open temporary file for writing");
@@ -3884,8 +3908,7 @@ char *subargs;
         int isvalid;
         int numinvalid=0;
 
-        sprintf(putbuf,"eth%d",i);
-        strcpy(ifr.ifr_name,putbuf);
+        sprintf(ifr.ifr_name,"%s%d",devname,i);
         /* obtain destination address */
         ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
         isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
@@ -3899,8 +3922,7 @@ char *subargs;
         }
         if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
         for (count=0;count<1023;count++) {
-            sprintf(putbuf,"eth%d:%d",i,count);
-            strcpy(ifr.ifr_name,putbuf);
+            sprintf(ifr.ifr_name,"%s%d:%d",devname,i,count);
             /* obtain destination address */
             ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
             if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
