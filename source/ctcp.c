@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.3 1998-09-27 16:28:04 f Exp $
+ * $Id: ctcp.c,v 1.4 1998-09-29 16:33:07 f Exp $
  */
 
 #include "irc.h"
@@ -1409,7 +1409,13 @@ do_atmosphere(ctcp, from, to, cmd)
 		}
 		else
 		{
-			message_from(from, LOG_ACTION);
+/**************************** PATCHED by Flier ******************************/
+                        /*message_from(from, LOG_ACTION);*/
+                        /* Make ACTION that came through DCC go to window
+                           with query on that nick */
+                        if (*from=='=') message_from(from+1,LOG_DCC);
+			else message_from(from,LOG_ACTION);
+/****************************************************************************/
 			if (do_hook(ACTION_LIST, "%s %s %s", from, to, cmd))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("*> %s %s", from, cmd);*/
@@ -1538,15 +1544,14 @@ do_ctcp(from, to, str)
 			if (*args == ':')
 				++args;
 			malloc_strcpy(&arg_copy, args);
+/**************************** PATCHED by Flier ******************************/
+                        /* if it came via DCC CHAT only allow ACTION to be processed */
+                        if (*from!='=' || (*from=='=' && !strcmp(cmd,"ACTION")))
+/****************************************************************************/
                         for (i = 0; i < NUMBER_OF_CTCPS; i++)
                         {
 				if (strcmp(cmd, ctcp_cmd[i].name) == 0)
 				{
-/**************************** PATCHED by Flier ******************************/
-                                        /* if it came via DCC CHAT only allow
-                                           ACTION to be processed */
-                                        if (*from=='=' && strcmp(cmd,"ACTION")) break;
-/****************************************************************************/
 					/* protect against global (oper) messages */
 					if (*to != '$' && !(*to == '#' && !lookup_channel(to, parsing_server_index, CHAN_NOUNLINK)))
 					{
