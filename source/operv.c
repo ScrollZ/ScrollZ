@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.38 2001-01-18 16:55:07 f Exp $
+ * $Id: operv.c,v 1.39 2001-05-29 19:49:50 f Exp $
  */
 
 #include "irc.h"
@@ -554,6 +554,61 @@ char *from;
 #else
         sprintf(tmpbuf,"Active K-line for %s%s%s%s",
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
+#endif
+    }
+    else if (!strncmp(tmpline,"I-line is full for",18)) {
+	strcpy(word1,OVgetword(0,5,tmpline));  /* nick[user@host] */
+	strcpy(word2,word1);
+        /* strip [ from nick */
+        if ((tmp=index(word1,'['))) *tmp='\0';
+#ifdef CELECOSM
+        sprintf(tmpbuf,"i-line full: %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[     %siline%s] full: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        sprintf(tmpbuf,"I-Line full for %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpline,"Quarantined nick",16)) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* nick */
+	strcpy(word2,OVgetword(0,6,tmpline));  /* user@host */
+        tmp=word1;
+        /* strip [ from nick */
+        if (*tmp=='[') {
+            if ((tmp=rindex(word1,']'))) *tmp='\0';
+            tmp=word1+1;
+        }
+#ifdef CELECOSM
+        sprintf(tmpbuf,"quarantined nick: %s%s%s %s",
+                CmdsColors[COLOV].color1,tmp,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[      %snick%s] quarantined: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,tmp,Colors[COLOFF],OVuh(word2));
+#else
+        sprintf(tmpbuf,"Quarantined nick %s%s%s %s",
+                CmdsColors[COLOV].color1,tmp,Colors[COLOFF],OVuh(word2));
+#endif
+    }
+    else if (!strncmp(tmpline,"X-line Warning",14)) {
+	strcpy(word1,OVgetword(0,9,tmpline));  /* nick[user@host] */
+	strcpy(word2,word1);
+        /* strip [ from nick */
+        if ((tmp=index(word1,'['))) *tmp='\0';
+#ifdef CELECOSM
+        sprintf(tmpbuf,"spambot warning 1: %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#elif defined(OGRE)
+        sprintf(tmpbuf,"[    %sclient%s] spambot warning 1: %s%s%s %s",
+                CmdsColors[COLOV].color2,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else
+        sprintf(tmpbuf,"Spambot warning 1 for %s%s%s %s",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     else if (!my_strnicmp(tmpline,"stats ",6)) {
