@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.45 2000-08-28 20:25:47 f Exp $
+ * $Id: edit.c,v 1.46 2000-08-31 17:11:52 f Exp $
  */
 
 #include "irc.h"
@@ -1497,11 +1497,17 @@ do_channel(chan, force)
 {
 	ChannelList	*channel;
 	char		*old;
+/**************************** PATCHED by Flier ******************************/
+        /* use serv_ind instead of curr_scr_win->server because we might
+         * be called from hook or from timer and in that case curr_scr_win
+         * might not have proper server context */
+        int serv_ind=from_server;
+/****************************************************************************/
 
- 	if (from_server < 0 || curr_scr_win->server < 0)
+ 	if (serv_ind < 0)
  		return (char *) 0;
 
-        channel = lookup_channel(chan, curr_scr_win->server, CHAN_NOUNLINK);
+        channel = lookup_channel(chan, serv_ind, CHAN_NOUNLINK);
 /**************************** PATCHED by Flier ******************************/
         /* if you try to join same channel twice and you reached limit for
            maximum number of channels this fix prevents client from removing
@@ -1509,11 +1515,11 @@ do_channel(chan, force)
         if (channel && channel->connected==CHAN_JOINING) return(NULL);
 /****************************************************************************/
 
-	if (is_bound(chan, curr_scr_win->server) && channel && channel->window != curr_scr_win)
+	if (is_bound(chan, serv_ind) && channel && channel->window != curr_scr_win)
 		say("Channel %s is bound", chan);
-	else if (is_on_channel(chan, curr_scr_win->server, get_server_nickname(curr_scr_win->server)))
+	else if (is_on_channel(chan, serv_ind, get_server_nickname(serv_ind)))
 	{
-		is_current_channel(chan, curr_scr_win->server, 1);
+		is_current_channel(chan, serv_ind, 1);
 		say("You are now talking to channel %s", set_channel_by_refnum(0, chan));
 		update_all_windows();
 	}
@@ -1525,7 +1531,7 @@ do_channel(chan, force)
 			if ((old = get_channel_by_refnum(0)) && strcmp(old, zero))
 				send_to_server("PART %s", old);
 		}
-		add_channel(chan, from_server, CHAN_JOINING, (ChannelList *) 0);
+		add_channel(chan, serv_ind, CHAN_JOINING, (ChannelList *) 0);
 		force = 1;
 	}
 	if (force)
