@@ -6,6 +6,10 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+    ! default compile time flags in defs.h.in
+    + man page (contributed by Debian's maintainer)
+    - debian subdirectory because it is provided by Debian
+
 ------------------------------------------------------------------------------
 
 ScrollZ v1.8l, 3.7.2001
