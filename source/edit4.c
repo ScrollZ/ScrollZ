@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.110 2005-02-22 18:25:49 f Exp $
+ * $Id: edit4.c,v 1.111 2005-03-21 21:10:45 f Exp $
  */
 
 #include "irc.h"
@@ -352,7 +352,7 @@ ChannelList *tmpchan;
 #else  /* CELE */
         send_to_server("KICK %s %s :Banned",channel,nick);
 #endif /* CELE */
-    else if (ischanop && tmpjoiner->shitlist && chan->BKList)
+    else if (ischanop && tmpjoiner && tmpjoiner->shitlist && chan->BKList)
         DoShitList(tmpjoiner,nick,channel,chan);
     if (ischanop && tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
 	if (chan->status&CHAN_CHOP) {
