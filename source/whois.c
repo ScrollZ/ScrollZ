@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.16 2002-10-08 18:33:16 f Exp $
+ * $Id: whois.c,v 1.17 2002-11-11 17:52:46 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -199,7 +199,7 @@ ison_returned(from, ArgList)
 /**************************** Patched by Flier ******************************/
         /* fix ircd 2.10 lameness in HTM mode where ircd will NOT return
          * valid userhost reply at all! */
-        if (inSZNotify && whois_type_head(parsing_server_index) == WHOIS_USERHOST) {
+        while (inSZNotify && whois_type_head(parsing_server_index) == WHOIS_USERHOST) {
             inSZNotify--;
             if (inSZNotify==1) inSZNotify=0;
             thing = remove_from_whois_queue(parsing_server_index);
