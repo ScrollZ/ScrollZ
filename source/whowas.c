@@ -11,7 +11,7 @@
  *
  * Modified by Flier
  *
- * $Id: whowas.c,v 1.4 1999-04-13 16:40:20 f Exp $
+ * $Id: whowas.c,v 1.5 1999-07-24 12:40:50 f Exp $
  */
 
 #include "irc.h"
@@ -31,15 +31,10 @@
 #include "config.h"
 #include "list.h"
 
-/*#include "ctimers.h"
- #include "edit2.h"
- #include "edit3.h"
- #include "edit4.h"
- #include "userlist.h"*/
 #include "whowas.h"
 #include "myvars.h"
 
-#define whowas_userlist_max 100
+#define whowas_userlist_max 150
 #define whowas_reg_max 300
 #define whowas_chan_max 20
 
@@ -90,11 +85,9 @@ int  unlink;
     return((WhowasList *) 0);
 }
 
-void add_to_whowas_buffer(nicklist,channel/*,server1,server2*/)
+void add_to_whowas_buffer(nicklist,channel)
 NickList *nicklist;
 char *channel;
-/*char *server1;
-char *server2;*/
 {
     WhowasList *new;
     WhowasList **slot;
@@ -108,13 +101,9 @@ char *server2;*/
         }
         new=(WhowasList *) new_malloc(sizeof(WhowasList));
         new->channel=(char *) 0;
-        /*new->server1=(char *) 0;
-        new->server2=(char *) 0;*/
         new->nicklist=nicklist;
         new->nicklist->next=(NickList *) 0;
         malloc_strcpy(&(new->channel),channel);
-        /*if (server1) malloc_strcpy(&(new->server1), server1);
-        if (server2) malloc_strcpy(&(new->server2), server2);*/
         new->time=time(NULL);
         /* we've created it, now put it in order */
         for (slot=&whowas_userlist_list;*slot;slot=&(*slot)->next)
@@ -131,13 +120,9 @@ char *server2;*/
         }
         new=(WhowasList *) new_malloc(sizeof(WhowasList));
         new->channel=(char *) 0;
-        /*new->server1=(char *) 0;
-        new->server2=(char *) 0;*/
         new->nicklist=nicklist;
         new->nicklist->next=(NickList *) 0;
         malloc_strcpy(&(new->channel),channel);
-        /*if (server1) malloc_strcpy(&(new->server1),server1);
-        if (server2) malloc_strcpy(&(new->server2),server2);*/
         new->time=time(NULL);
         /* we've created it, now put it in order */
         for (slot=&whowas_reg_list;*slot;slot=&(*slot)->next)
@@ -166,8 +151,6 @@ int count;
             new_free(&(tmp->nicklist->userhost));
             new_free(&(tmp->nicklist));
             new_free(&(tmp->channel));
-            /*new_free(&(tmp->server1));
-            new_free(&(tmp->server2));*/
             *list=tmp->next;
             new_free(&tmp);
             total++;
@@ -180,8 +163,6 @@ int count;
             new_free(&(tmp->nicklist->userhost));
             new_free(&(tmp->nicklist));
             new_free(&(tmp->channel));
-            /*new_free(&(tmp->server1));
-            new_free(&(tmp->server2));*/
             *list=tmp->next;
             new_free(&tmp);
             total++;

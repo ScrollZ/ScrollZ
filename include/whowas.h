@@ -7,7 +7,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: whowas.h,v 1.2 1998-09-25 20:23:55 f Exp $
+ * $Id: whowas.h,v 1.3 1999-07-24 12:40:06 f Exp $
  *
  * Modified by Flier
  */
@@ -25,8 +25,6 @@ typedef	struct	whowaslist_stru
     struct    whowaslist_stru *next;  /* pointer to next whowas entry */
     time_t    time;                   /* time added on list */
     char      *channel;               /* channel they left from */
-    /*char    *server1;*/             /* server 1 of split */
-    /*char    *server2;*/             /* server 2 of split */
     NickList *nicklist;               /* NickList entry */
 } WhowasList;
 
