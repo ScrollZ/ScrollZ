@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.48 2003-03-25 16:51:11 f Exp $
+ * $Id: names.c,v 1.49 2003-04-29 17:52:13 f Exp $
  */
 
 #include "irc.h"
@@ -685,6 +685,8 @@ char    *servmodes;
         int  whowasdone = 0;
         int  server = parsing_server_index;
         int  exception;
+        int  compmodelen = 0, compmodemax;
+        int  servmodeslen = 0, servmodesmax;
         char *arg;
         char tmpbuf[mybufsize / 2];
         char nhdeop[mybufsize / 4];
@@ -706,6 +708,8 @@ char    *servmodes;
         NickList *tmpjoiner = NULL;
         WhowasList *whowas;
 
+        servmodesmax = sizeof(servmodes) - 1;
+        compmodemax = sizeof(compmode) - 1;
         *nethackbuf = '\0';
         if (nethacks) *nethacks = '\0';
         if (check) {
@@ -741,11 +745,17 @@ char    *servmodes;
                 if (*mode_string != 'o' && *mode_string != '+' && *mode_string != '-') {
                     if (check && isserver) {
                         if (servadd != add) {
-                            if (add) *servmodeadd ++= '+';
-                            else *servmodeadd ++= '-';
+                            if (servmodeslen < servmodesmax) {
+                                if (add) *servmodeadd ++= '+';
+                                else *servmodeadd ++= '-';
+                                servmodeslen++;
+                            }
                             servadd = add;
                         }
-                        *servmodeadd ++= *mode_string;
+                        if (servmodeslen < servmodesmax) {
+                            *servmodeadd ++= *mode_string;
+                            servmodeslen++;
+                        }
                     }
                 }
                 if (check && chan->CompressModes) {
@@ -755,11 +765,17 @@ char    *servmodes;
                         *mode_string == 't' || *mode_string == 'c' || *mode_string == 'R' ||
                         *mode_string == 'I' || *mode_string == 'S') {
                         if (compadd != add) {
-                            if (add) *compmodeadd ++= '+';
-                            else *compmodeadd ++= '-';
+                            if (compmodelen < compmodemax) {
+                                if (add) *compmodeadd ++= '+';
+                                else *compmodeadd ++= '-';
+                                compmodelen++;
+                            }
                             compadd = add;
                         }
-                        *compmodeadd ++= *mode_string;
+                        if (compmodelen < compmodemax) {
+                            *compmodeadd ++= *mode_string;
+                            compmodelen++;
+                        }
                     }
                 }
 /****************************************************************************/
@@ -851,11 +867,17 @@ char    *servmodes;
 				if ((add && !(ThisNick->halfop)) ||
 				    (!add && ThisNick->halfop)) {
 				    if (compadd != add) {
-					if (add) *compmodeadd ++= '+';
-					else *compmodeadd ++= '-';
+                                        if (compmodelen < compmodemax) {
+                                            if (add) *compmodeadd ++= '+';
+                                            else *compmodeadd ++= '-';
+                                            compmodelen++;
+                                        }
 					compadd = add;
 				    }
-				    *compmodeadd ++= *mode_string;
+                                    if (compmodelen < compmodemax) {
+                                        *compmodeadd ++= *mode_string;
+                                        compmodelen++;
+                                    }
 				    strmcat(compline, person, sizeof(compline));
 				    strmcat(compline, " ", sizeof(compline));
 				}
@@ -863,11 +885,17 @@ char    *servmodes;
 			if (isserver) {
 			    if (!add) {
 				if (servadd != add) {
-				    if (add) *servmodeadd ++= '+';
-				    else *servmodeadd ++= '-';
+                                    if (servmodeslen < servmodesmax) {
+                                        if (add) *servmodeadd ++= '+';
+                                        else *servmodeadd ++= '-';
+                                        servmodeslen++;
+                                    }
 				    servadd = add;
                             	}
-				*servmodeadd ++= *mode_string;
+                                if (servmodeslen < servmodesmax) {
+                                    *servmodeadd ++= *mode_string;
+                                    servmodeslen++;
+                                }
 				strmcat(servline, person, sizeof(servline));
 				strmcat(servline, " ", sizeof(servline));
 			    }
@@ -929,11 +957,17 @@ char    *servmodes;
                             if (isserver) {
                                 if (!add) {
                                     if (servadd != add) {
-                                        if (add) *servmodeadd ++= '+';
-                                        else *servmodeadd ++= '-';
+                                        if (servmodeslen < servmodesmax) {
+                                            if (add) *servmodeadd ++= '+';
+                                            else *servmodeadd ++= '-';
+                                            servmodeslen++;
+                                        }
                                         servadd = add;
                                     }
-                                    *servmodeadd ++= *mode_string;
+                                    if (servmodeslen < servmodesmax) {
+                                        *servmodeadd ++= *mode_string;
+                                        servmodeslen++;
+                                    }
                                     strmcat(servline, person, sizeof(servline));
                                     strmcat(servline, " ", sizeof(servline));
                                 }
@@ -954,11 +988,17 @@ char    *servmodes;
                                 if ((add && !(ThisNick->chanop)) ||
                                     (!add && ThisNick->chanop)) {
                                     if (compadd != add) {
-                                        if (add) *compmodeadd ++= '+';
-                                        else *compmodeadd ++= '-';
+                                        if (compmodelen < compmodemax) {
+                                            if (add) *compmodeadd ++= '+';
+                                            else *compmodeadd ++= '-';
+                                            compmodelen++;
+                                        }
                                         compadd = add;
                                     }
-                                    *compmodeadd ++= *mode_string;
+                                    if (compmodelen < compmodemax) {
+                                        *compmodeadd ++= *mode_string;
+                                        compmodelen++;
+                                    }
                                     strmcat(compline, person, sizeof(compline));
                                     strmcat(compline, " ", sizeof(compline));
                                 }
@@ -1085,11 +1125,17 @@ char    *servmodes;
                             if ((add && !(ThisNick->hasvoice)) ||
                                 (!add && ThisNick->hasvoice)) {
                                 if (compadd != add) {
-                                    if (add) *compmodeadd ++= '+';
-                                    else *compmodeadd ++= '-';
+                                    if (compmodelen < compmodemax) {
+                                        if (add) *compmodeadd ++= '+';
+                                        else *compmodeadd ++= '-';
+                                        compmodelen++;
+                                    }
                                     compadd = add;
                                 }
-                                *compmodeadd ++= *mode_string;
+                                if (compmodelen < compmodemax) {
+                                    *compmodeadd ++= *mode_string;
+                                    compmodelen++;
+                                }
                                 strmcat(compline, person, sizeof(compline));
                                 strmcat(compline, " ", sizeof(compline));
                             }
@@ -1137,10 +1183,16 @@ char    *servmodes;
                                 if (AddBan(person, chan->channel, server, tmpbuf, exception, timenow, chan)) {
                                     if (chan->CompressModes) {
                                         if (compadd != add) {
-                                            *compmodeadd ++= '+';
+                                            if (compmodelen < compmodemax) {
+                                                *compmodeadd ++= '+';
+                                                compmodelen++;
+                                            }
                                             compadd = add;
                                         }
-                                        *compmodeadd ++= *mode_string;
+                                        if (compmodelen < compmodemax) {
+                                            *compmodeadd ++= *mode_string;
+                                            compmodelen++;
+                                        }
                                         strmcat(compline, person, sizeof(compline));
                                         strmcat(compline, " ", sizeof(compline));
                                     }
@@ -1278,10 +1330,16 @@ char    *servmodes;
                                 if (RemoveBan(person, exception, chan)) {
                                     if (chan->CompressModes) {
                                         if (compadd != add) {
-                                            *compmodeadd ++= '-';
+                                            if (compmodelen < compmodemax) {
+                                                *compmodeadd ++= '-';
+                                                compmodelen++;
+                                            }
                                             compadd = add;
                                         }
-                                        *compmodeadd ++= *mode_string;
+                                        if (compmodelen < compmodemax) {
+                                            *compmodeadd ++= *mode_string;
+                                            compmodelen++;
+                                        }
                                         strmcat(compline, person, sizeof(compline));
                                         strmcat(compline, " ", sizeof(compline));
                                     }
