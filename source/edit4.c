@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.40 2000-08-14 20:38:13 f Exp $
+ * $Id: edit4.c,v 1.41 2000-08-14 20:45:50 f Exp $
  */
 
 #include "irc.h"
@@ -207,7 +207,7 @@ int  print;
             CmdsColors[COLMSG].color1,nick,Colors[COLOFF],tmpbuf2,
             CmdsColors[COLMSG].color5,Colors[COLOFF],
             CmdsColors[COLMSG].color3,message,Colors[COLOFF]);
-    sprintf(tmpbuf3,"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF]);
+    sprintf(tmpbuf3,"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
     sprintf(tmpbuf1,"%c%s%s%s%c %s%s%s",
             thing,CmdsColors[COLMSG].color1,nick,Colors[COLOFF],thing,

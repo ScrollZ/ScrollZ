@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.40 2000-08-14 20:38:13 f Exp $
+ * $Id: edit5.c,v 1.41 2000-08-14 20:45:50 f Exp $
  */
 
 #include "irc.h"
@@ -873,7 +873,7 @@ int  netsplit;
         sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s]%s - ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color3,CmdsColors[COLNETSPLIT].color2,
-                update_clock(GET_TIME),CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
+                update_clock(0,0,GET_TIME),CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
 #else  /* CELECOSM */
         sprintf(tmpbuf2,"%sNetsplit detected%s at %s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],

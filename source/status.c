@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.11 2000-08-14 20:38:14 f Exp $
+ * $Id: status.c,v 1.12 2000-08-14 20:45:50 f Exp $
  */
 
 #include "irc.h"
@@ -2551,8 +2551,8 @@ Window *window;
             }
             else strcpy(loadbuf,"error");
             fclose(fip);
-            sprintf(buffer,loadavg_format,loadbuf);
-            malloc_strcpy(&ptr,buffer);
+            sprintf(locbuf,loadavg_format,loadbuf);
+            malloc_strcpy(&ptr,locbuf);
         }
         else malloc_strcpy(&ptr,empty_string);
     } 
