@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.4 1998-10-21 19:38:07 f Exp $
+ * $Id: irc.c,v 1.5 1998-10-25 18:26:01 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -451,6 +451,7 @@ int   DCCWarning;
 int   CdccOverWrite;
 int   OrigNickDelay;
 int   Stamp;
+int   CdccVerbose;
 time_t LastCheck;
 time_t LastPlist;
 time_t LastNlist;
