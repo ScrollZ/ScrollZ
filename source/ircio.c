@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircio.c,v 1.2 1998-09-10 17:45:30 f Exp $
+ * $Id: ircio.c,v 1.3 1998-10-10 19:19:18 f Exp $
  */
 
 #include "defs.h"
@@ -298,7 +298,7 @@ main(argc, argv)
 				/*if (0 != (c = dgets(buffer, BUFSIZ, 0,
 							(char *) 0)))*/
 				if (0 != (c = dgets(buffer, BUFSIZ, 0,
-							(char *) 0)), 0)
+							(char *) 0, 0)))
 /***************************************************************************/
 					write(des, buffer, c);
 				else
@@ -310,7 +310,7 @@ main(argc, argv)
 				/*if (0 != (c = dgets(buffer, BUFSIZ, des,
 							(char *) 0)))*/
 				if (0 != (c = dgets(buffer, BUFSIZ, des,
-							(char *) 0)), 0)
+							(char *) 0, 0)))
 /***************************************************************************/
 				{
 					if (strncmp(buffer, "PING ", 5) == 0)
