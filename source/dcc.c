@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.20 2000-02-29 16:58:30 f Exp $
+ * $Id: dcc.c,v 1.21 2000-04-18 16:03:01 f Exp $
  */
 
 #include "irc.h"
@@ -2020,7 +2020,7 @@ process_incoming_chat(Client)
 		}
 /**************************** PATCHED by Flier ******************************/
                 if (away_set) {
-                    sprintf(tmpbuf,"=%s= %s",Client->user,tmp);
+                    sprintf(tmpbuf,"=%s= %s",Client->user,s);
                     AwaySave(tmpbuf,SAVECHAT);
                 }
                 sprintf(tmpbuf,"=%s",Client->user);
