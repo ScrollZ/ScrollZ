@@ -1,9 +1,51 @@
-This is a changelog for ScrollZ
+This is ScrollZ IRC client changelog
+
 Meaning of flags:
 + = new stuff
 ! = fixed stuff
 - = removed stuff
 ~ = changed stuff
+
+------------------------------------------------------------------------------
+
+ScrollZ v1.8l
+
+    ! TOPIC ircII bug (reported by Tero)
+    ! MOP/MDOP/MASSV/MASSDV bug in huge channels (reported by ogre)
+    ! ORIGNICK saving to ScrollZ.save (reported by Tero)
+    ~ new logo by juice
+    + parsing of @#te so it is recognized as channel wallop (requested by fox)
+    + time stamping to notice display (thanks to fox for reminding me)
+    ! crash when kicked from a channel during TBAN (reported by ogre)
+    ~ MODELOCK w/o args now shows stored mode locks for all channels
+      (requested by ogre)
+    ~ MODELOCK info is no longer lost when we part channel, I wonder how no
+      one reported this for the past 2 years
+    ! status %! and %y ate one character when invalid args were supplied
+    ! status bar and input prompt now honour the value of SET DISPLAY_ANSI
+      (found out by ogre)
+    + people with Cdcc flag in userlist are exempt from queue and minspeed
+      checking (requested by Blaxthos)
+    ! display all settings properly not just ORIGNICK
+    ! close slow DCC if file transfer does not meet minimum speed (stale
+      connections or when user disconnects but client does not notice it)
+    + CTCP yournick CDCC QUEUE will tell user their queue position
+      (requested by Blaxthos)
+    + LLOOK can now store and load information from a file (requested by
+      Ahnberg, see help for more information)
+    ~ new and improved tabkey handling, if input line starts with /msg nick
+      client cycles through msg list otherwise it cycles through nicks
+      matching word to the left of the cursor, this can be used to complete
+      one channel too (idea by Ahnberg and fox) - this means tabkey in the
+      middle of input line is now possible
+    - NICK_COMPLETION is gone because of the above
+    ~ ^T is back to TRANSPOSE_CHARACTERS
+    ! DIRLSM now sends encrypted message to a user if encrypted communication
+      with that user is established (reported by Tero)
+    ! use current channel for SHOW_SERVER if none specified
+    ~ FKLINE now accepts optional -TEMP argument, read shelp for more info
+      (requested by ogre)
+    + SET AWAY_FILE to specify away file (requsted by Ahnberg)
 
 ------------------------------------------------------------------------------
 
