@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.99 2001-09-17 16:29:44 f Exp $
+ * $Id: edit6.c,v 1.100 2001-09-17 16:35:03 f Exp $
  */
 
 #include "irc.h"
@@ -1913,7 +1913,7 @@ void SwitchNick() {
 
     if (timenow>=LastNick+OrigNickDelay) {
         for (;i<OrigNickNumber;i++) {
-            realnick=index(realnick,',');
+            if (realnick) realnick=index(realnick,',');
             if (realnick) realnick++;
         }
         if (!realnick) { /* we have exhausted all possible nicks */
@@ -1928,11 +1928,13 @@ void SwitchNick() {
             }
             else OrigNickNumber=0;
         }
-        if (my_stricmp(get_server_nickname(from_server),realnick))
-            e_nick(NULL,realnick,NULL);
-        LastNick=timenow+1;
-        OrigNickSent=1;
-        if (savechar) *curnick=savechar;
+        if (realnick && *realnick) {
+            if (my_stricmp(get_server_nickname(from_server),realnick))
+                e_nick(NULL,realnick,NULL);
+            LastNick=timenow+1;
+            OrigNickSent=1;
+            if (savechar) *curnick=savechar;
+        }
     }
 }
 
