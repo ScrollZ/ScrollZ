@@ -8,8 +8,37 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: ChangeLog,v 1.1 1998-09-10 17:31:12 f Exp $
+ * @(#)$Id: ChangeLog,v 1.2 1998-11-18 20:51:28 f Exp $
  */
+
+Tue Sep  8 00:43:18 EST 1998 - matthew green <mrg@eterna.com.au>
+	INSTALL, Makefile.in, easyinst:
+		remove easyinst, document --with[out]-cast.
+
+Mon Sep  7 18:33:01 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/irc.v, doc/VERSIONS:
+		bump version to 4.4B, due to the CAST-128 support.
+	configure, configure.in:
+		change --with-cast to support `=no', and also if we
+		find source/cast.c, enable cast support.  fix alignment
+		of some strings for --with-cast and --with-paranoid.
+
+Mon Sep  7 15:11:57 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/cast.c, source/crypt.c, source/ctcp.c, include/crypt.h,
+	include/cast_sbox.h, acconfig, configure configure.in:
+		add a --with-cast switch to configure, to enable built-in
+		CAST-128 encryption support, rather than the old broken
+		crypt.  requires cast.c and cast_sbox.h that will *not*
+		be distributed with ircII by default.
+
+Sat Sep  5 21:39:36 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/crypt.c, help/encrypt, help/set/old_encrypt_program,
+	help/set/encrypt_program:
+		change encrypt_program to write key as first line,
+		rather than insecure cmd line argument.  add a new
+		`old_encrypt_program' (default off) variable to use
+		the old API.  XXX the exec code here has lots of
+		syscalls with no return values checked XXX.
 
 Tue Jun  2 18:48:39 EST 1998 - matthew green <mrg@eterna.com.au>
 	source/queue.c:
@@ -43,7 +72,7 @@ Tue Jun  2 16:11:05 EST 1998 - matthew green <mrg@eterna.com.au>
 	source/mail.c:
 		use my_strnicmp().  from mark.
 	configure, configure.in, acconfig.h, include/defs.h.in, source/ctcp.c:
-		add a --with-paraoid switch which disables the "bad" parts of
+		add a --with-paranoid switch which disables the "bad" parts of
 		ctcp version/finger replies.
 	source/ctcp.c, source/dcc.c, source/edit.c:
 		allow dcc channels to have (only) ctcp queries.  involved some

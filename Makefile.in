@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $Id: Makefile.in,v 1.1 1998-09-10 17:31:12 f Exp $
+# $Id: Makefile.in,v 1.2 1998-11-18 20:51:31 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -264,7 +264,7 @@ clena clean:
 	@-if test -f include/Makefile; then cd include; $(MAKE) clean; fi
 
 distclean cleandir realclean: clean
-	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log easyinst.status include/defs.h ircbug
+	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h ircbug
 
 lint:
 	@if test -f source/Makefile; then cd source; $(MAKE) lint; fi
@@ -288,10 +288,13 @@ config_h:
 	$(RM) include/config.h
 	cp include/config.h.dist include/config.h
 
-export: headers distclean autoconf autoheader config_h
+export: headers distclean autoconf autoheader
 
-dist: export
+#		tar --exclude .CVS -z -c -f ircii-$(VERSION).tar.gz ircii-$(VERSION); \
+dist:
 	( \
 		cd ..; \
-		tar --exclude .CVS -z -c -f ircii-$(VERSION).tar.z ircii; \
+		mv ircii ircii-$(VERSION); \
+		pax -wz -s '/.*\.CVS.*//' -f ircii-$(VERSION).tar.gz ircii-$(VERSION); \
+		mv ircii-$(VERSION) ircii; \
 	)

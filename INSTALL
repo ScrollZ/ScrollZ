@@ -1,21 +1,8 @@
-$Id: INSTALL,v 1.1 1998-09-10 17:31:12 f Exp $
+@(#)$Id: INSTALL,v 1.2 1998-11-18 20:51:30 f Exp $
 
 to compile ircii
 
-  o  there are 2 main ways of configuring ircii for your system.  you
-     can either run the `easyinst' script, or, if you know how to use
-     gnu configure scripts, you can use that directly, and then edit
-     include/config.h yourself.
-
-  o  using easyinst:
-      - in the same directory that this file is in, type `./easyinst'.
-	if you are using an old version of system v, you might need
-	`sh easyinst'.
-      - this script asks you a few questions and then calls configure
-        for you.
-      - you will then need to run `make' and `make install'.
-
-  o  using configure directly:
+  o  using configure:
       - in the same directory that this file is in, type `./configure'.
 	if you are using an old version of system v, you might need
 	`sh configure'.
@@ -27,8 +14,9 @@ to compile ircii
      WARNING: gnu sed vesrion 2.05 (and maybe 2.04 -- i don't know)
      may not function properly with this configure script.  gnu
      sed version 2.03 does.  please do not send me a bug report if
-     you are using gnu sed version 2.05 (such as linux systems),
-     and configure fails to run correctly.
+     you are using gnu sed version 2.05 (such as linux systems), and
+     configure fails to run correctly.  also, please do not send me
+     a bug report about this notice if it does work correctly for you.
 
       - when this has finished, you might want to check the Makefile
         for the places ircii will be installed.  the defaults are
@@ -40,6 +28,11 @@ to compile ircii
 	turns of CTCP VERSION and FINGER commands returning host
 	system, and user details) with the `--with-paranoid' flag to
 	configure.
+
+      - older versions of ircii used an insecure cipher that has now
+	been replaced with a CAST-128 cipher.  to disable the new
+	cipher and use the old cipher (strongly *not* recommended),
+	use the `--without-cast' flag to configure.
 
   o  to compiling ircii, type `make' in the main ircii directory.
      this will compile the `irc', `ircflush', `ircio', and `wserv'

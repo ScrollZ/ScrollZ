@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl $Id: configure.in,v 1.1 1998-09-10 17:31:12 f Exp $
+dnl $Id: configure.in,v 1.2 1998-11-18 20:51:33 f Exp $
 
-AC_REVISION($Revision: 1.1 $)dnl
+AC_REVISION($Revision: 1.2 $)dnl
 AC_INIT(source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -50,7 +50,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.1 1998-09-10 17:31:12 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.2 1998-11-18 20:51:33 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -675,7 +675,7 @@ fi
 
 AC_MSG_CHECKING(paranoia status)
 AC_ARG_WITH(paranoid,
-[  --with-paranoid     Sets the compile-time paranoid flag.],
+[  --with-paranoid         Sets the compile-time paranoid flag.],
 [ AC_MSG_RESULT(yes)
   AC_DEFINE_UNQUOTED(PARANOID, 1) ],
   AC_MSG_RESULT(none)
