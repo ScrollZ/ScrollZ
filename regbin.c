@@ -1,5 +1,5 @@
 /*
- * $Id: regbin.c,v 1.4 1998-11-21 15:47:55 f Exp $
+ * $Id: regbin.c,v 1.5 1999-03-02 17:59:30 f Exp $
  */
 
 #include <stdio.h>
@@ -11,10 +11,10 @@
 
 #define bufsize 65536
 
-char *mask="d}_Gl+4+.oKF+O";
-char *int_ver="19981121";
-char *ver="ircII 4.4B+ScrollZ v1.8i3 (21.11.98)+Cdcc v1.7";
-char *chars="456789RSTUVWXYZ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'% ABCDEFGHIJ_-{}/=+klmnopq";
+char *mask="?85oDEIDgHfnCW";
+char *int_ver="19980302";
+char *ver="ircII 4.4F+ScrollZ v1.8i4 (2.3.99)+Cdcc v1.8";
+char *chars=".*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ABCDEFGHIJ";
 
 #define SearchNum 5
 #define FoundNum 5
@@ -114,7 +114,7 @@ char **argv;
     char pathbuf[512];
     FILE *fp1;
 
-    strcpy(format,"1sXr'FwYyL/n !UONfOPn46dcR5)}h2");
+    strcpy(format,"pytQyLKyL-9{t8Qc)=QVPfAyXA(*Q*-");
     if (!(argc==2 || argc==3 || argc==4 || argc==5)) {
         printf("Usage : regbin filename regname valid_IP [password] or  regbin string [password]\n");
         return;
