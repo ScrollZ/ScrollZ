@@ -355,7 +355,7 @@ Also look at $2ADDBK$0, $2LISTBK$0, $2REMBK$0 and $2LEVELS$0
 Usage $3CHPASS filter password$0
 Filter can include * and ? or start with #. If it starts with #
 entries with numbers matching expression that follows # will
-be changed.
+be changed. To remove a password use - (minus).
 Also look at $2ADDF$0 and $2REMF$0.
 :FRLIST        Toggles friend list on/off
 Usage $3FRLIST on channels$0|$3off$0
