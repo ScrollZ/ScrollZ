@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.14 2002-01-21 22:12:15 f Exp $
+ * $Id: struct.h,v 1.15 2002-02-01 18:47:37 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -321,6 +321,7 @@ typedef	struct	ScreenStru
 	int	fdin;				/* and descriptions for the */
 	FILE	*fpout;				/* screen's input/output */
 	int	fdout;
+	int	wservin;			/* control socket for wserv */
 
 	char	input_buffer[INPUT_BUFFER_SIZE+1];	/* the input buffer */
 	int	buffer_pos;			/* and the positions for the */

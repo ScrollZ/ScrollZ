@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.23 2002-01-24 19:59:04 f Exp $
+ * $Id: screen.c,v 1.24 2002-02-01 18:47:37 f Exp $
  */
 
 #include "irc.h"
@@ -2004,11 +2004,12 @@ create_additional_screen()
 	char	*displayvar,
 		*termvar;
 	int	screen_type = ST_NOTHING;
-	struct	sockaddr_un sock, 
+	struct	sockaddr_un sock, error_sock,
 			*sockaddr = &sock,
+			*error_sockaddr = &error_sock,
 			NewSock;
 	int	NsZ;
-	int	s;
+	int	s, es;
 	fd_set	fd_read;
 	struct	timeval	time_out;
 	pid_t	child;
@@ -2022,6 +2023,8 @@ create_additional_screen()
 	char	buffer[BIG_BUFFER_SIZE+1];
 	int	ircxterm_num;
 	int	i;
+	static int cycle = 0;
+	pid_t	pid = getpid();
 
 #ifdef DAEMON_UID
 	if (DAEMON_UID == getuid())
@@ -2111,11 +2114,40 @@ create_additional_screen()
 		screen_type == ST_XTERM ?  "window" :
 		screen_type == ST_SCREEN ? "screen" :
 					   "wound" );
-	snprintf(sock.sun_path, sizeof sock.sun_path, "/tmp/irc_%08d", (int) getpid());
+	snprintf(sock.sun_path, sizeof sock.sun_path, "/tmp/irc_%08d_%x", (int) pid, cycle);
 	sock.sun_family = AF_UNIX;
-	s = socket(AF_UNIX, SOCK_STREAM, 0);
- 	bind(s, (struct sockaddr *) &sock, (int)(2 + strlen(sock.sun_path)));
-	listen(s, 1);
+	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+	{
+		say("Can't create UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
+	if (bind(s, (struct sockaddr *) &sock, (int)(2 + my_strlen(sock.sun_path))) < 0)
+	{
+		say("Can't bind UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
+	if (listen(s, 1) < 0)
+	{
+		say("Can't bind UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
+	snprintf(error_sock.sun_path, sizeof error_sock.sun_path, "/tmp/irc_error_%08d_%x", (int) pid, cycle);
+	error_sock.sun_family = AF_UNIX;
+	if ((es = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+	{
+		say("Can't create UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
+	if (bind(es, (struct sockaddr *) &error_sock, (int)(2 + my_strlen(error_sock.sun_path))) < 0)
+	{
+		say("Can't bind UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
+	if (listen(es, 1) < 0)
+	{
+		say("Can't bind UNIX socket, punting /WINDOW CREATE");
+		return (Window *) 0;
+	}
 	oldscreen = current_screen;
 	set_current_screen(create_new_screen());
 	if (0 == (child = fork()))
@@ -2129,6 +2161,7 @@ create_additional_screen()
 	 * request. This isn't a problem with "screen", but is with X.
 	 */
 		new_close(s);
+		new_close(es);
 		close_all_screen();
 		close_all_dcc();
 		close_all_exec();
@@ -2153,6 +2186,7 @@ create_additional_screen()
 			}
 			args[i++] = WSERV_PATH;
 			args[i++] = sockaddr->sun_path;
+			args[i++] = error_sockaddr->sun_path;
 			args[i++] = NULL;
 			execvp("screen", args);
 		}
@@ -2186,6 +2220,7 @@ create_additional_screen()
 			args[i++] = "-e";
 			args[i++] = WSERV_PATH;
 			args[i++] = sockaddr->sun_path;
+			args[i++] = error_sockaddr->sun_path;
 			args[i] = NULL;
 			execvp(xterm, args);
 		}
@@ -2195,6 +2230,7 @@ create_additional_screen()
 	NsZ = sizeof(NewSock);
 	FD_ZERO(&fd_read);
 	FD_SET(s, &fd_read);
+	FD_SET(es, &fd_read);
 	time_out.tv_sec = (time_t) 5;
 	time_out.tv_usec = 0;
 	sleep(1);
@@ -2207,6 +2243,7 @@ create_additional_screen()
 	case 0:
 		errno = get_child_exit(child);
 		new_close(s);
+		new_close(es);
 		kill_screen(current_screen);
 		kill(child, SIGKILL);
 		last_input_screen = oldscreen;
@@ -2219,11 +2256,17 @@ create_additional_screen()
 			accept(s, (struct sockaddr *) &NewSock, &NsZ);
 		if (current_screen->fdin < 0)
 			return (Window *) 0;
+		current_screen->wservin = accept(es, (struct sockaddr *) &NewSock,
+					       &NsZ);
+		if (current_screen->wservin < 0)
+			return (Window *) 0;
 		current_screen->fpin = current_screen->fpout =
 			fdopen(current_screen->fdin, "r+");
 		term_set_fp(current_screen->fpout);
 		new_close(s);
+		new_close(es);
 		unlink(sockaddr->sun_path);
+		unlink(error_sockaddr->sun_path);
 		old_timeout = dgets_timeout(5);
 		/*
 		 * dgets returns 0 on EOF and -1 on timeout.  both of these are
@@ -2603,4 +2646,42 @@ scrollback_start(key, ptr)
 		else
 			hold_mode(window, OFF, 0);
 	}
+}
+
+void
+screen_wserv_message(screen)
+	Screen *screen;
+{
+	u_char buf[128], *rs, *cs, *comma;
+	int old_timeout;
+	Screen *old_screen;
+
+	old_timeout = dgets_timeout(0);
+	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0) < 1)
+	{
+		/* this should be impossible. */
+		if (!is_main_screen(screen))
+			kill_screen(screen);
+	}
+	(void) dgets_timeout(old_timeout);
+	/* should have "rows,cols\n" */
+	rs = buf;
+	comma = strchr(buf, ',');
+	if (comma == NULL)
+	{
+		/* error */
+	}
+	*comma = 0;
+	cs = comma+1;
+	comma = strchr(buf, '\n');
+	if (comma != NULL)
+		*comma = 0;
+
+	screen->li = atoi(CP(rs)); 
+	screen->co = atoi(CP(cs)); 
+
+	old_screen = current_screen;
+	current_screen = screen;
+	term_resize();
+	current_screen = old_screen;
 }

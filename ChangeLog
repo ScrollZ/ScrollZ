@@ -8,8 +8,42 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$eterna: ChangeLog,v 2.315 2002/01/15 13:54:10 mrg Exp $
+ * @(#)$eterna: ChangeLog,v 2.319 2002/01/22 09:49:26 mrg Exp $
  */
+
+Tue Jan 22 20:24:56 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/vars.c:
+		set the default IRCHOST variable.  from flier.
+
+Tue Jan 22 13:46:53 EST 2002 - matthew green <mrg@eterna.com.au>
+	script/autoop:
+		fix from Bernd Eckenfels <ecki@lina.inka.de> for nicks
+		ending in backslash.
+	help/alias/special:
+		fix an example. from David Murn <davey@doa.org> in
+		debian PR#113884.
+
+Tue Jan 22 03:05:27 EST 2002 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		only look at wservin for non-main screen's.
+	source/screen.c:
+		implement screen_wserv_message().
+	source/term.c:
+		modify term_resize() to cope with wserv messages.
+
+Tue Jan 22 01:15:29 EST 2002 - matthew green <mrg@eterna.com.au>
+	Makefile.in:
+		link ircII.1 to irc.1, finally.
+	include/screen.h, include/struct.h, source/irc.c, source/wserv.c,
+	source/screen.c:
+		add a new control socket for WSERV sessions, for coping with
+		screen size changes.
+	include/config.h.dist, include/var.h, include/var.h.proto,
+	include/hook.h, include/hook.h.proto, include/keys.h,
+	include/keys.h.proto, source/crypto.c, source/vars.c:
+		add a new /set decrypt_program. from flier.
+	source/icb.c:
+		clear the ICB $userhost() when it isn't known.
 
 Wed Jan 16 00:33:45 EST 2002 - matthew green <mrg@eterna.com.au>
 	source/crypt.c:

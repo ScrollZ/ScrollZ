@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.80 2002-01-24 19:59:51 f Exp $
+ * $Id: irc.c,v 1.81 2002-02-01 18:47:37 f Exp $
  */
 
 #define IRCII_VERSION	"20011210"	/* YYYYMMDD */
@@ -837,9 +837,6 @@ parse_args(argv, argc)
 	ac = 1;
 	malloc_strcpy(&args_str, argv[0]);
 	malloc_strcat(&args_str, " ");
-/**************************** Patched by Flier ******************************/
-        forced_ip_addr.s_addr = 0;
-/****************************************************************************/
 	while ((arg = argv[ac++]) != (char *) NULL)
 	{
 		malloc_strcat(&args_str, argv[ac-1]);
@@ -1383,7 +1380,11 @@ irc_io(prompt, func, my_use_input, loop)
 		if (my_use_input)
 			for (screen = screen_list;screen; screen = screen->next)
 				if (screen->alive)
+				{
 					FD_SET(screen->fdin, &rd);
+					if (!is_main_screen(screen))
+						FD_SET(screen->wservin, &rd);
+				}
 		set_dcc_bits(&rd, &wd);
 		if (term_reset_flag)
 		{
@@ -1459,6 +1460,9 @@ irc_io(prompt, func, my_use_input, loop)
 				if (!screen->alive)
 					continue;
 				set_current_screen(screen);
+				if (!is_main_screen(screen) &&
+				    FD_ISSET(screen->wservin, &rd))
+					screen_wserv_message(screen);
 				if (FD_ISSET(screen->fdin, &rd))
 				{
 

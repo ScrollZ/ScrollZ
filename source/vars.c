@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.19 2002-01-21 21:37:36 f Exp $
+ * $Id: vars.c,v 1.20 2002-02-01 18:47:37 f Exp $
  */
 
 #include "irc.h"
@@ -164,6 +164,7 @@ static	IrcVariable irc_variable[] =
 	{ "DCC_PORTS",		        STR_TYPE_VAR,	0, NULL, SetDCCPorts, 0, 0 },
 /****************************************************************************/
 	{ "DEBUG",			INT_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+	{ "DECRYPT_PROGRAM",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "DISPLAY",			BOOL_TYPE_VAR,	DEFAULT_DISPLAY, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
 	{ "DISPLAY_ANSI",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, RedrawAll, 0, 0 },
@@ -341,11 +342,13 @@ init_variables()
 	set_string_var(LOGFILE_VAR, DEFAULT_LOGFILE);
 	set_string_var(SHELL_VAR, DEFAULT_SHELL);
 	set_string_var(SHELL_FLAGS_VAR, DEFAULT_SHELL_FLAGS);
+	set_string_var(DECRYPT_PROGRAM_VAR, UP(DEFAULT_DECRYPT_PROGRAM));
 	set_string_var(ENCRYPT_PROGRAM_VAR, DEFAULT_ENCRYPT_PROGRAM);
 	set_string_var(CONTINUED_LINE_VAR, DEFAULT_CONTINUED_LINE);
 	set_string_var(INPUT_PROMPT_VAR, DEFAULT_INPUT_PROMPT);
 	set_string_var(HIGHLIGHT_CHAR_VAR, DEFAULT_HIGHLIGHT_CHAR);
 	set_string_var(HISTORY_FILE_VAR, DEFAULT_HISTORY_FILE);
+	set_string_var(IRCHOST_VAR, empty_string);
 	set_string_var(LASTLOG_LEVEL_VAR, DEFAULT_LASTLOG_LEVEL);
 	set_string_var(NOTIFY_HANDLER_VAR, DEFAULT_NOTIFY_HANDLER);
 	set_string_var(NOTIFY_LEVEL_VAR, DEFAULT_NOTIFY_LEVEL);

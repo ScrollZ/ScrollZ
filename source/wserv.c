@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.4 2000-08-14 20:38:14 f Exp $
+ * $Id: wserv.c,v 1.5 2002-02-01 18:47:37 f Exp $
  */
 
 /*
@@ -52,7 +52,8 @@
  * We can't use getppid() here, because the parent for screen is the
  * underlying screen process, and for xterm's, it the xterm itself.
  */
-static	pid_t	ircIIpid;
+pid_t	ircIIpid;
+int	control_sock;
 
 /* declare the signal handler */
 # if !defined(_RT) && defined(SIGWINCH)
@@ -63,13 +64,16 @@ RETSIGTYPE	got_sigwinch _((void));
 #  endif
 # endif /* _RT */
 
+/*
+ * ./wserv ppid /path/to/socket /path/to/control
+ */
 int
 main(argc, argv)
 	int	argc;
 	char	**argv;
 {
 	char	buffer[1024];
-	struct	sockaddr_un *addr = (struct sockaddr_un *) buffer;
+	struct	sockaddr_un *addr = (struct sockaddr_un *) lbuf, esock;
 	int	nread;
 	fd_set	reads;
 	int	s;
@@ -104,8 +108,7 @@ main(argc, argv)
 		ircIIpid = -1;
 
 	/*
-	 * Set up the socket, from the path passed, connect it.. all that
-	 * stuff..  And initalise the term settings for the window.
+	 * Set up the socket, from the path passed, connect it, etc.
 	 */
 	addr->sun_family = AF_UNIX;
 	strcpy(addr->sun_path, argv[1]);
@@ -113,6 +116,16 @@ main(argc, argv)
 	if (0 > connect(s, (struct sockaddr *) addr, (int)(2 +
 						strlen(addr->sun_path))))
  		return 0;
+
+	/* 
+	 * Next connect to the control socket.
+	 */
+	esock.sun_family = AF_UNIX;
+	strcpy(esock.sun_path, argv[1]);
+	control_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (0 > connect(control_sock, (struct sockaddr *)&esock, (int)(2 +
+						strlen(esock.sun_path))))
+		return 0;
 
 	/*
 	 * first line to for a wserv program is the tty.  this is so ircii
@@ -166,9 +179,49 @@ got_sigwinch(sig)
 got_sigwinch(sig)
 #  endif
 {
+#  ifdef TIOCGWINSZ
+	static int old_li = -1, old_co = -1;
+	int li, co;
+#  endif
+
 #  ifdef SYSVSIGNALS
 	(void) MY_SIGNAL(SIGWINCH, got_sigwinch, 0);
 #  endif
+
+#  ifdef TIOCGWINSZ
+	struct	winsize window;
+
+	if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
+	{
+		li = -1;
+		co = -1;
+	}
+	else
+	{
+		if ((li = window.ws_row) == 0)
+			li = -1;
+		if ((co = window.ws_col) == 0)
+			co = -1;
+	}
+
+	co--;
+	if ((old_li != li) || (old_co != co))
+	{
+		char buf[32];
+		sprintf(buf, "%d,%d\n", li, co);
+		len = strlen(buf);
+		if (write(control_sock, buf, len) != len)
+		{
+			perror("write failed in wserv");
+			sleep(1);
+		}
+		else
+		{
+			old_li = li;
+			old_co = co;
+		}
+	}
+#  endif /* TIOCGWINSZ */
 	if (-1 != ircIIpid)
 		kill(ircIIpid, SIGWINCH);
 }

@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.11 2002-01-21 21:37:35 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.12 2002-02-01 18:47:37 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -260,11 +260,15 @@ do_crypt(str, key, flag, type)
 	size_t	c;
 	u_char	lbuf[CRYPT_BUFFER_SIZE + 1];
 	u_char	*ptr = (char *) 0,
-		*encrypt_program;
+		*crypt_program,
+		*encrypt_program,
+		*decrypt_program,
+		*crypt_str;
 
 #ifndef _Windows
 	encrypt_program = get_string_var(ENCRYPT_PROGRAM_VAR);
-	if (encrypt_program)
+	decrypt_program = get_string_var(DECRYPT_PROGRAM_VAR);
+	if ((flag && encrypt_program) || (!flag && decrypt_program))
 	{
 #ifdef DAEMON_UID
 		if (DAEMON_UID == getuid())
@@ -275,9 +279,19 @@ do_crypt(str, key, flag, type)
 #endif /* DAEMON_ID */
 		in[0] = in[1] = -1;
 		out[0] = out[1] = -1;
-		if (access(encrypt_program, X_OK))
+		if (flag)
 		{
-			say("Unable to execute encryption program: %s", encrypt_program);
+			crypt_str = CP("encryption");
+			crypt_program = encrypt_program;
+		}
+		else
+		{
+			crypt_str = CP("decryption");
+			crypt_program = decrypt_program;
+		}
+		if (access(CP(crypt_program), X_OK))
+		{
+			say("Unable to execute %s program: %s", crypt_str, crypt_program);
 			return ((u_char *) 0);
 		}
 		c = strlen((char *) str);
@@ -287,7 +301,7 @@ do_crypt(str, key, flag, type)
 			malloc_strcpy((char **) &ptr, str);
 		if (pipe(in) || pipe(out))
 		{
-			say("Unable to start encryption process: %s", strerror(errno));
+			say("Unable to start %s process: %s", crypt_str, strerror(errno));
 			if (in[0] != -1)
 			{
 				new_close(in[0]);
@@ -302,7 +316,7 @@ do_crypt(str, key, flag, type)
 		switch (fork())
 		{
 		case -1:
-			say("Unable to start encryption process: %s", strerror(errno));
+			say("Unable to start %s process: %s", crypt_str, strerror(errno));
 			return ((u_char *) 0);
 		case 0:
 			MY_SIGNAL(SIGINT, (sigfunc *) SIG_IGN, 0);
@@ -315,9 +329,9 @@ do_crypt(str, key, flag, type)
 			setgid(getgid());
 			setuid(getuid());
 			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR))
-				execl(encrypt_program, encrypt_program, key->key, NULL);
+				execl(CP(crypt_program), CP(crypt_program), key->key, NULL);
 			else
-				execl(encrypt_program, encrypt_program, NULL);
+				execl(CP(crypt_program), CP(crypt_program), NULL);
 			exit(0);
 		default:
 			new_close(out[1]);

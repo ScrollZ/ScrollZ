@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.9 2002-01-21 21:37:36 f Exp $
+ * $Id: term.c,v 1.10 2002-02-01 18:47:37 f Exp $
  */
 
 #include "irc.h"
@@ -834,17 +834,25 @@ term_resize()
 #else
 	struct	winsize window;
 
-	if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
+	/*
+	 * if we're not the main screen, we've probably arrived here via
+	 * the wserv message path, and we should have already setup the
+	 * values of "li" and "co".
+	 */
+	if (is_main_screen(current_screen))
 	{
-		current_screen->li = li;
-		current_screen->co = co;
-	}
-	else
-	{
-		if ((current_screen->li = window.ws_row) == 0)
+		if (ioctl(tty_des, TIOCGWINSZ, &window) < 0)
+		{
 			current_screen->li = li;
-		if ((current_screen->co = window.ws_col) == 0)
 			current_screen->co = co;
+		}
+		else
+		{
+			if ((current_screen->li = window.ws_row) == 0)
+				current_screen->li = li;
+			if ((current_screen->co = window.ws_col) == 0)
+				current_screen->co = co;
+		}
 	}
 #endif /* TIOCGWINSZ */
 
