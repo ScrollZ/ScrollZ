@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.48 2001-01-17 19:31:04 f Exp $
+ * $Id: edit4.c,v 1.49 2001-01-21 20:59:58 f Exp $
  */
 
 #include "irc.h"
@@ -2393,8 +2393,8 @@ char *subargs;
         say("Couldn't find %s %d",server,port);
     else {
         server=server_list[servernum].name;
-        if (server_list[servernum].connected)
-            say("%s %d is connected. Not removed !",server,port);
+        if (server_list[servernum].connected || server_list[servernum].read>0)
+            say("%s %d is connected or connection in progress. Not removed!",server,port);
         else {
             say("%s %d removed from your server list",server,port);
             remove_from_server_list(servernum);
