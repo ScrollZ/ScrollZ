@@ -239,13 +239,13 @@ channel is used. If filter is given, idle time for users matching filter
 is displayed.
 Also look at $2IDLEKICK$0 and $2IDLETIME$0
 :SHOWUSER      Shows all users that match filter and channel
-Usage $3SHOWUSER$0 [$3-O$0|$3-N$0|$3-F$0|$3-V$0|$3-S$0|$3-A$0] $3filter $0[$3channels$0]
+Usage $3SHOWUSER$0 [$3-O$0] [$3-N$0] [$3-F$0] [$3-V$0] [$3-S$0] $0[$3#channels$0] $3filter filter...$0
 $3-O$0 lists channel operators, $3-N$0 lists people that are not channel
-operators, $3-F$0 lists friends, $3-V$0 lists voiced (+v) users, $3-S$0 lists
-shitlisted people and $3-A$0 lists all. You can combine multiple flags
-together. Filter can include * and ?. Channels is a list of channels
-separated with ','. You can include * and ?.
-Default is $3-A$0 * current_channel.
+operators, $3-F$0 lists friends, $3-V$0 lists voiced (+v) users, and
+$3-S$0 lists shitlisted people. You can combine multiple flags together.
+Filter can include * and ?. Channels is a list of channels separated
+with ',' (it must start with #). You can include * and ?.
+Default is to list all people on current_channel.
 :VER           Does CTCP target VERSION
 Usage $3VER nick$0|$3#channel$0
 If no arguments are given, current channel will be versioned.
@@ -447,6 +447,9 @@ Usage $3AUTOINV on$0|$3off$0
 If set to on, client will automatically invite users who have access to
 INVITE, CHOPS, OP and UNBAN when sign-on is detected for them. Note that
 they will be invited only to +i channels.
+:AUTOOPDELAY   Delay before automatically oping user
+Usage $3AUTOOPDELAY time_in_seconds$0
+Default auto-op time is 4. Setting this to 0 disables auto-op delay.
 :AWAYSAVE      Defines what to save in ScrollZ.away
 Usage $3AWAYSAVE $0[$3-$0]$3type$0
 Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
@@ -764,8 +767,10 @@ Also look at $2CDCC SEND$0, $2CDCC RESEND$0, $2CDCC PSEND$0 and $2CDCC CLOSE$0
 :CDCC SEND     Sends file(s) to nick(s)
 Usage $3CDCC SEND$0 [$3pattern1 pattern2 , nick1 nick2$0]
 First you enter what file(s) you wanna send. You can use
-* and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). Then you
-have to enter nick(s) (like : nick1 nick2 nick3).
+* and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). If you
+want to send filenames with spaces in filename surround
+filename by double quotes ("). Then you have to enter nick(s)
+(like : nick1 nick2 nick3).
 Also look at $2CDCC RESEND$0, $2CDCC PSEND$0, $2CDCC GET$0, $2CDCC CLOSE$0 and
 $2CDCC LIMIT$0
 :CDCC RESEND   Resends file(s) to nick(s)
@@ -916,34 +921,35 @@ Also look at $2CDCC DLDIR$0
 :INDEX         Index of all ScrollZ commands
    ABOUT         ADDBK         ADDCHAN       ADDF          ADDFCHAN
    ADDFFLAG      ADDN          ADDS          ADDW          AJOIN
-   AREJOIN       AUTOCOMPL     AUTOINV       AWAYSAVE      AWAYT
-   BAN           BANTYPE       BITCH         BK            BKI
-   BKT           BYE           C             CDBAN         CDCC
-   CHANST        CHAT          CHSIGNOFF     CLEARTAB      COLOR
-   COMPRESS      CSCAN         CTCPCLOAK     CYCLE         DEOPS
-   DEOPT         DIRLM         DIRLMK        DIRLN         DIRLNK
-   DIRLSM        DIRLSN        DOBANS        DOP           DPROT
-   DUMP          EGO           ENCRCHAT      EXTMES        FAKE
-   FBK           FINGER        FK            FKLINE        FLOODP
-   FRLIST        IDLEKICK      IDLETIME      IG            IGTIME
-   INV           J             K             KEYS          KICKONBAN
-   KICKONFLOOD   KICKOPS       KICKS         KICKT         KPROT
-   L             LEVELS        LISTBK        LISTF         LISTN
-   LISTS         LISTW         LK            LLOOK         LLOOKUP
-   LOGON         LS            M             MAP           MASSDV
-   MASSV         MC            MDOP          MIRC          MK
-   MKILL         MODELOCK      MODEUNLOCK    MOP           MREOP
-   MSAY          MULTK         N             NET           NEWHOST
-   NEWUSER       NHPROT        NICKS         NICKT         NOCHAT
-   NOIG          NOKEY         NOTEPAD       NPROT         NSLOOKUP
-   NTFYMODE      NWHOIS        OP            ORIGNICK      ORIGNTIME
-   OV            P             PASSWD        PLAYBACK      RANLK
-   RE            RECONNECT     RELOAD        REMBK         REMCHAN
-   REMF          REMFCHAN      REMFFLAG      REMLOG        REMN
-   REMS          REMW          REPWORD       S             SB
-   SERVNOTICE    SETAWAY       SETBACK       SETTINGS      SHOWAWAY
-   SHOWIDLE      SHOWKILL      SHOWNICK      SHOWUSER      SINFO
-   SPING         STAMP         SVE           T             TBAN
-   TERMINATE     TKILL         UMODE         UNBAN         UNFLASH
-   URL           URLCATCH      VER           W             WALL
-   WHOLEFT       WI            WII           WKILL         WW
+   AREJOIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY   AWAYSAVE
+   AWAYT         BAN           BANTYPE       BITCH         BK
+   BKI           BKT           BYE           C             CDBAN
+   CDCC          CHANST        CHAT          CHSIGNOFF     CLEARTAB
+   COLOR         COMPRESS      CSCAN         CTCPCLOAK     CYCLE
+   DEOPS         DEOPT         DIRLM         DIRLMK        DIRLN
+   DIRLNK        DIRLSM        DIRLSN        DOBANS        DOP
+   DPROT         DUMP          EGO           ENCRCHAT      EXTMES
+   FAKE          FBK           FINGER        FK            FKLINE
+   FLOODP        FRLIST        IDLEKICK      IDLETIME      IG
+   IGTIME        INV           J             K             KEYS
+   KICKONBAN     KICKONFLOOD   KICKOPS       KICKS         KICKT
+   KPROT         L             LEVELS        LISTBK        LISTF
+   LISTN         LISTS         LISTW         LK            LLOOK
+   LLOOKUP       LOGON         LS            M             MAP
+   MASSDV        MASSV         MC            MDOP          MIRC
+   MK            MKILL         MODELOCK      MODEUNLOCK    MOP
+   MREOP         MSAY          MULTK         N             NET
+   NEWHOST       NEWUSER       NHPROT        NICKS         NICKT
+   NOCHAT        NOIG          NOKEY         NOTEPAD       NPROT
+   NSLOOKUP      NTFYMODE      NWHOIS        OP            ORIGNICK
+   ORIGNTIME     OV            P             PASSWD        PLAYBACK
+   RANLK         RE            RECONNECT     RELOAD        REMBK
+   REMCHAN       REMF          REMFCHAN      REMFFLAG      REMLOG
+   REMN          REMS          REMW          REPWORD       S
+   SB            SERVNOTICE    SETAWAY       SETBACK       SETTINGS
+   SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK      SHOWUSER
+   SINFO         SPING         STAMP         SVE           T
+   TBAN          TERMINATE     TKILL         UMODE         UNBAN
+   UNFLASH       URL           URLCATCH      VER           W
+   WALL          WHOLEFT       WI            WII           WKILL
+   WW            
