@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.17 1999-01-10 20:15:23 f Exp $
+ * $Id: edit3.c,v 1.18 1999-01-17 10:21:14 f Exp $
  */
 
 #include "irc.h"
@@ -1512,10 +1512,10 @@ char *retstr;
         *newstr=*arg;
         arg++;
         newstr++;
-    };
+    }
     *newstr=0;
     *pointer=arg;
-};
+}
 
 /* Prints error in ScrollZ.save */
 void PrintError(string1,string2,lineno)
@@ -1692,7 +1692,7 @@ int ScrollZLoad()
 #endif
         usersloaded=1;
         return(1);
-    };
+    }
     lineno=0;
     while (readln(usfile,tmpbuf1)) {
         lineno++;
@@ -1711,7 +1711,7 @@ int ScrollZLoad()
                 fclose(usfile);
                 usersloaded=1;
                 return(1);
-            };
+            }
             friendnew->privs=0;
             friendnew->userhost=(char *) 0;
             friendnew->channels=(char *) 0;
@@ -1767,7 +1767,7 @@ int ScrollZLoad()
                 fclose(usfile);
                 usersloaded=1;
                 return(1);
-            };
+            }
             abknew->shit=0;
             abknew->userhost=(char *) 0;
             abknew->reason=(char *) 0;
@@ -1832,7 +1832,7 @@ int ScrollZLoad()
                 fclose(usfile);
                 usersloaded=1;
                 return(1);
-            };
+            }
             wordnew->channels=(char *) 0;
             wordnew->word=(char *) 0;
             wordnew->reason=(char *) 0;
@@ -1841,15 +1841,15 @@ int ScrollZLoad()
             if (*tmpbuf3) malloc_strcpy(&(wordnew->channels),tmpbuf3);
             else {
                 PrintError("missing CHANLIST","in ADDW",lineno);
-                continue;
                 error=1;
+                continue;
             }
             NextArg(pointer,&pointer,tmpbuf3);
             if (*tmpbuf3) malloc_strcpy(&(wordnew->word),tmpbuf3);
             else {
                 PrintError("missing WORD","in ADDW",lineno);
-                continue;
                 error=1;
+                continue;
             }
             while (pointer && *pointer && isspace(*pointer)) pointer++;
             if (pointer && *pointer) malloc_strcpy(&(wordnew->reason),pointer);
@@ -2231,7 +2231,7 @@ int ScrollZLoad()
         }
 #endif
         else if (*tmpbuf3!='#') PrintError("unknown command",empty_string,lineno);
-    };
+    }
     fclose(usfile);
     if (error) say("There were errors in ScrollZ.save");
     else say("ScrollZ.save sucessfully loaded");
@@ -2255,11 +2255,11 @@ int ScrollZLoad()
 #ifndef CELE
         if (NumberOfSignOffMsgs) NumberOfSignOffMsgs++;
 #endif
-    };
+    }
     if (PermUserMode) send_to_server("MODE %s %s",get_server_nickname(from_server),
                                      PermUserMode);
     return(0);
-};
+}
 
 /* Lets you change your AutoReply Buffer - by Zakath */
 void ReplyWord(command,args,subargs)
