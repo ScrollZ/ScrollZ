@@ -390,6 +390,8 @@ Filter can include * and ? or start with #. If it starts with
 #, you can use filters like in Cdcc and $4TBAN$0. Example :
 #-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
 from 12 on. Numbers for entries are shown with $4LISTF$0.
+Channel matching is also performed if filter starts with #,
+in this case entries with channel match will be removed.
 Also look at $2ADDF$0, $2ADDFFLAG$0, $2ADDFCHAN$0, $2REMFFLAG$0, $2REMFCHAN$0,
 $2LISTF$0 and $2FRLIST$0
 :REMFFLAG      Removes flags for userlist entries
@@ -446,7 +448,7 @@ on or auto is string that'll be inserted on right side of the nick.
 If set to off, message is left untouched. 
 right side of the nick.
 :AUTOINV       Toggles auto invite on notify on/off
-Usage $3AUTOINV on$0|$3off$0
+Usage $3AUTOINV on channels$0|$3off$0
 If set to on, client will automatically invite users who have access to
 INVITE, CHOPS, OP and UNBAN when sign-on is detected for them. Note that
 they will be invited only to +i channels.
@@ -708,8 +710,10 @@ Also look at $2K$0, $2LK$0, $2MULTK$0 and $2RANLK$0
 Usage $3MKILL$0 $3nick1$0 $3nick2$0 $3nick3$0 ... [:$3reason$0]
 Also look at $2WKILL$0 and $2TKILL$0
 :MODELOCK      Sets channel's lock mode
-Usage $3MODELOCK$0 [$3#$0]$3channel mode$0
-Acceptable modes are +ints, -intskl and +l number.
+Usage $3MODELOCK$0 $3#channel mode$0
+Acceptable modes are +ints, -intskl and +l number. Several channels
+can be specified at once, separate them with comma. Every channel's
+name must start with #.
 Also look at $2MC$0 and $2MODEUNLOCK$0
 :MODEUNLOCK    Resets channel's lock mode
 Usage $3MODEUNLOCK$0 [[$3#$0]$3channel$0]
@@ -906,12 +910,13 @@ Usage $3CDCC IDLE number_of_seconds$0
 When set to $3zero$0, this function is disabled.
 :CDCC AUTOGET  Toggles whether to auto-get offered files
 Usage $3CDCC AUTOGET on$0|$3off$0
-Also look at $2CDCC GET$0 and $2CDCC CLOSE$0
+Also look at $2CDCC GET$0, $2CDCC CLOSE$0 and $2CDCC SECURE$0
 :CDCC SECURE   Toggles Cdcc security on/of
 Usage $3CDCC SECURE on$0|$3off$0
 If turned $3ON$0, only people from your friends list that have $3D$0 access
 will be able to get offered files. If turned $3OFF$0, everyone will be able
-to get your offered files.
+to get your offered files. The same rules apply if $2CDCC AUTOGET$0 is
+turned on.
 Also look at $2ADDF$0, $2REMF$0 and $2LISTF$0
 :CDCC DLDIR    Sets the download dir for Cdcc
 All the files that people send to you will be saved to this dir if it
