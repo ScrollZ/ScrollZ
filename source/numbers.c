@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.30 2000-11-01 09:53:11 f Exp $
+ * $Id: numbers.c,v 1.31 2000-11-07 17:27:44 f Exp $
  */
 
 #include "irc.h"
@@ -270,7 +270,8 @@ char **ArgList;
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
         }
-        else if (sscanf(rest,"There are %d users on %d servers",&totalnum,&servernum)==2) {
+        else if (sscanf(rest,"There are %d users on %d servers",
+                        &totalnum,&servernum)==2) {
 	    usernum=totalnum;
 	    invnum=0;
             sprintf(tmpbuf,"%s There are %s%d%s users on %s%d%s servers",
@@ -308,7 +309,8 @@ char **ArgList;
 	}
     }
     else if (comm==255) {
-        if (sscanf(rest,"I have %d clients and %d servers",&clientnum,&connectnum)==2) {
+        if (sscanf(rest,"I have %d clients and %d servers",
+                   &clientnum,&connectnum)==2) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
             sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) and %s%d%s users (apx. %c%.1f%%%c of total users)",
@@ -319,9 +321,23 @@ char **ArgList;
             if (from) strcat(tmpbuf,tmpbuf2);
             put_it("%s",tmpbuf);
 	}
-/* for lame 2.9.2 servers */
-        else if (sscanf(rest,"I have %d clients, %d services and %d servers",&clientnum,
-                        &servicenum,&connectnum)==3) {
+/* for lame 2.9 servers */
+        else if (sscanf(rest,"I have %d clients, %d services and %d servers",
+                        &clientnum,&servicenum,&connectnum)==3) {
+            if (totalnum) totalper=(float) (clientnum*100)/totalnum;
+            else totalper=0.0;
+            sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
+                    numeric_banner(),
+                    CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
+                    CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
+                    CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
+                    bold,totalper,bold);
+            if (from) strcat(tmpbuf,tmpbuf2);
+            put_it("%s",tmpbuf);
+	}
+/* for lame 2.10 servers */
+        else if (sscanf(rest,"This server has %d users, %d services and %d servers connected",
+                        &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
             sprintf(tmpbuf,"%s Connected are: %s%d%s server(s) with %s%d%s users and %s%d%s services (apx. %c%.1f%%%c of total users)",
@@ -396,6 +412,16 @@ char **ArgList;
 /* for lame 2.9.2 servers */
         else if (sscanf(rest,"I have %d clients, %d services and %d servers",&clientnum,
                         &servicenum,&connectnum)==3) {
+            if (totalnum) totalper=(float) (clientnum*100)/totalnum;
+            else totalper=0.0;
+            sprintf(tmpbuf,"%s Connected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
+                    numeric_banner(),connectnum,clientnum,servicenum,totalper);
+            if (from) strcat(tmpbuf,tmpbuf2);
+            put_it("%s",tmpbuf);
+	}
+/* for lame 2.10 servers */
+        else if (sscanf(rest,"This server has %d users, %d services and %d servers connected",
+                        &clientnum,&servicenum,&connectnum)==3) {
             if (totalnum) totalper=(float) (clientnum*100)/totalnum;
             else totalper=0.0;
             sprintf(tmpbuf,"%s Connected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
