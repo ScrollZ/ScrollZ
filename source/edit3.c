@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.6 1998-10-21 17:38:37 f Exp $
+ * $Id: edit3.c,v 1.7 1998-10-21 18:27:09 f Exp $
  */
 
 #include "irc.h"
@@ -2576,6 +2576,7 @@ char *subargs;
 {
     char *channel;
     char *tmpnick;
+    char *message=server_list[from_server].LastMessage;
     ChannelList *chan;
     NickList *tmp;
 
@@ -2589,17 +2590,16 @@ char *subargs;
                 tmp=find_in_hash(chan,tmpnick);
                 if (tmp) {
 #if defined(VILAS)
-                    if (LastMessage)
-                        send_to_server("KICK %s %s :%s",channel,tmpnick,LastMessage);
+                    if (message) send_to_server("KICK %s %s :%s",channel,tmpnick,message);
                     else send_to_server("KICK %s %s :%s",channel,tmpnick,DefaultK);
 #elif defined(CELE)
-                    if (LastMessage) send_to_server("KICK %s %s :%s %s",channel,tmpnick,
-                                                    LastMessage,CelerityL);
+                    if (message) send_to_server("KICK %s %s :%s %s",channel,tmpnick,
+                                                message,CelerityL);
                     else send_to_server("KICK %s %s :%s %s",channel,tmpnick,
                                         DefaultK,CelerityL);
 #else  /* CELE */
-                    if (LastMessage) send_to_server("KICK %s %s :<ScrollZ-LMK> %s",
-                                                    channel,tmpnick,LastMessage);
+                    if (message) send_to_server("KICK %s %s :<ScrollZ-LMK> %s",
+                                                channel,tmpnick,message);
                     else send_to_server("KICK %s %s :<ScrollZ-K> %s",channel,tmpnick,
                                        DefaultK);
 #endif /* VILAS */
