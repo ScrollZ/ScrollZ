@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.78 2002-01-21 22:34:20 f Exp $
+ * $Id: irc.c,v 1.79 2002-01-22 19:11:03 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -838,6 +838,9 @@ parse_args(argv, argc)
 	ac = 1;
 	malloc_strcpy(&args_str, argv[0]);
 	malloc_strcat(&args_str, " ");
+/**************************** Patched by Flier ******************************/
+        forced_ip_addr.s_addr = 0;
+/****************************************************************************/
 	while ((arg = argv[ac++]) != (char *) NULL)
 	{
 		malloc_strcat(&args_str, argv[ac-1]);
@@ -1129,11 +1132,14 @@ parse_args(argv, argc)
 		strmcpy(username, ptr, REALNAME_LEN);
 
 /**************************** PATCHED by Flier ******************************/
-        forced_ip_addr.s_addr = 0;
         if ((ptr = getenv("DCCHOST"))) {
-            struct in_addr inaddr;
+            char *buf = (char *) 0;
+            struct hostent *hp;
 
-            if (inet_aton(ptr, &inaddr)) forced_ip_addr.s_addr = inaddr.s_addr;
+            malloc_strcpy(&buf, ptr);
+            if ((hp = gethostbyname(buf)) != NULL)
+                bcopy(hp->h_addr, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
+            new_free(&buf);
         }
         /* for Da_P */
         if ((ptr = getenv("VIRTIP"))) malloc_strcpy(&source_host, ptr);
