@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.7 2003-01-08 20:00:54 f Exp $
+ * $Id: wserv.c,v 1.8 2003-01-08 20:03:11 f Exp $
  */
 
 /*
@@ -76,7 +76,7 @@ main(argc, argv)
 	int	argc;
 	char	**argv;
 {
-	char	buffer[1024];
+	char	lbuf[1024];
 	struct	sockaddr_un *addr = (struct sockaddr_un *) lbuf, esock;
 	int	nread;
 	fd_set	reads;
@@ -152,15 +152,15 @@ main(argc, argv)
 			(struct timeval *) 0);
 		if (FD_ISSET(0, &reads))
 		{
-			if (0 != (nread = read(0, buffer, sizeof(buffer))))
-				write(s, buffer, nread);
+			if (0 != (nread = read(0, lbuf, sizeof(lbuf))))
+				write(s, lbuf, nread);
 			else
  				return 0;
 		}
 		if (FD_ISSET(s, &reads))
 		{
-			if (0 != (nread = read(s, buffer, sizeof(buffer))))
-				write(0, buffer, nread);
+			if (0 != (nread = read(s, lbuf, sizeof(lbuf))))
+				write(0, lbuf, nread);
 			else
  				return 0;
 		}
