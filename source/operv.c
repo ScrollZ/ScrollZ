@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.60 2003-05-11 17:24:22 f Exp $
+ * $Id: operv.c,v 1.61 2003-05-12 17:57:19 f Exp $
  */
 
 #include "irc.h"
@@ -1198,7 +1198,7 @@ char *from;
         strcpy(word3,OVgetword(6,0,tmpline));   /* msg */
 #ifdef OGRE
         snprintf(tmpbuf,sizeof(tmpbuf),"[%s%s%s] %s%s%s: %s",
-                CmdsColors[COLOV].color2,word2,Colors[COLOFF],
+                CmdsColors[COLOV].color5,word2,Colors[COLOFF],
                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],word3);
 #else
         snprintf(tmpbuf,sizeof(tmpbuf),"%s from %s%s%s: %s",
@@ -1532,7 +1532,7 @@ char *from;
         if (OVTS) {
 #ifdef OGRE
             snprintf(word1,sizeof(word1),"[%s%s%s] %s%s%s: %s",
-                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],
+                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],
                     CmdsColors[COLOV].color1,from,Colors[COLOFF],
                     tmpline);
             put_it("[%s%s%s%s%s%s%s] %s",
@@ -1551,7 +1551,7 @@ char *from;
         else {
 #ifdef OGRE
             snprintf(word1,sizeof(word1),"[%s%s%s] %s%s%s: %s",
-                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],
+                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],
                     CmdsColors[COLOV].color1,from,Colors[COLOFF],
                     tmp);
             put_it("%s[%s%s%s] %s",
