@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.62 2002-05-28 15:26:32 f Exp $
+ * $Id: numbers.c,v 1.63 2002-06-03 16:43:24 f Exp $
  */
 
 #include "irc.h"
@@ -594,7 +594,6 @@ reset_nickname(from, ArgList)
 	if (already_doing_reset_nickname)
 		return;
 	s = next_arg(*ArgList, ArgList);
-        put_it("[%s] [%s] %d",s,get_server_nickname(from_server),SentNick);
 	if (my_stricmp(s, get_server_nickname(from_server)) == 0)
         {
 /**************************** Patched by Flier ******************************/
