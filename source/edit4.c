@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.5 1998-10-21 18:32:35 f Exp $
+ * $Id: edit4.c,v 1.6 1998-10-21 19:39:03 f Exp $
  */
 
 #include "irc.h"
@@ -406,7 +406,7 @@ ChannelList *chan;
 #ifdef WANTANSI
     FixColorAnsi(tmpbuf);
 #endif
-    malloc_strcpy(&LastJoin,tmpbuf);
+    malloc_strcpy(&(server_list[from_server].LastJoin),tmpbuf);
 #ifndef CELEHOOK
     do_hook(JOIN_ME_LIST,"%s",channel);
 #endif
