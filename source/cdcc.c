@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.37 2001-07-21 18:58:45 f Exp $
+ * $Id: cdcc.c,v 1.38 2001-08-22 19:23:11 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2260,8 +2260,8 @@ int  msg;
 #ifdef WANTANSI
     char  tmpbuf1[mybufsize/2];
 #endif
-    char  tmpbuf2[mybufsize/8];
 #ifdef WANTANSI
+    char  tmpbuf2[mybufsize/8];
     char  tmpbuf3[mybufsize/8];
 #endif
     char  tmpbuf4[mybufsize];

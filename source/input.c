@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.11 2001-03-21 20:33:44 f Exp $
+ * $Id: input.c,v 1.12 2001-08-22 19:23:11 f Exp $
  */
 
 #include "irc.h"
@@ -52,8 +52,8 @@
 
 #ifdef WANTANSI
 extern int CountAnsiInput _((char *, int));
-extern void StripAnsi _((char *, char *, int));
 #endif
+extern void StripAnsi _((char *, char *, int));
 extern NickList *tabnickcompl;
 /****************************************************************************/
 
