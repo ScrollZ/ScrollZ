@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.10 2002-01-21 21:37:35 f Exp $
+ * $Id: exec.c,v 1.11 2002-01-21 22:21:36 f Exp $
  */
 
 #include "irc.h"
@@ -490,6 +490,7 @@ do_processes(rd)
 					message_to(0);
 					from_server = server;
 					break;
+				}
 			}
 		}
 	}
@@ -1160,7 +1161,7 @@ execcmd(command, args, subargs)
 					return;
 				}
 			}
-			else if (my_strncmp(cmd, "FILTER", len) == 0)
+			else if (strncmp(cmd, "FILTER", len) == 0)
 			{
 				redirect = "FILTER";
 				if ((who = next_arg(args, &args)) ==
