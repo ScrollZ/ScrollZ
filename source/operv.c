@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.62 2003-05-13 19:06:57 f Exp $
+ * $Id: operv.c,v 1.63 2003-05-14 18:07:31 f Exp $
  */
 
 #include "irc.h"
@@ -443,19 +443,26 @@ char *from;
 	    snprintf(word2,sizeof(word2),"(%s@%s)",word3,
                     OVgetword(0,7,tmpline));       /* host */
         }
-        else strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
+        else {
+            strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
+            strcpy(word3,OVgetword(0,6,tmpline));  /* conn. class */
+            strcpy(word4,OVgetword(7,0,tmpline));  /* GECOS */
+        }
 #ifdef CELECOSM
-        snprintf(tmpbuf,sizeof(tmpbuf),"clnt/%sconnect%s  %s%s%s %s",
+        snprintf(tmpbuf,sizeof(tmpbuf),"clnt/%sconnect%s  %s%s%s %s %s%s%s %s",
                 CmdsColors[COLOV].color4,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color5,word3,Colors[COLOFF],word4);
 #elif defined(OGRE)
-        snprintf(tmpbuf,sizeof(tmpbuf),"[   %sconnect%s] %s%s%s %s",
+        snprintf(tmpbuf,sizeof(tmpbuf),"[   %sconnect%s] %s%s%s %s %s%s%s %s",
                 CmdsColors[COLOV].color3,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color5,word3,Colors[COLOFF],word4);
 #else
-        snprintf(tmpbuf,sizeof(tmpbuf),"Client %sconnecting%s: %s%s%s %s",
+        snprintf(tmpbuf,sizeof(tmpbuf),"Client %sconnecting%s: %s%s%s %s %s%s%s %s",
                 CmdsColors[COLOV].color4,Colors[COLOFF],
-                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color5,word3,Colors[COLOFF],word4);
 #endif
     }
     else if (!strncmp(tmpline,"LINKS requested by",18) ||
