@@ -535,7 +535,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.1 1998-09-10 17:31:12 f Exp $' > /dev/null
+echo '$Id: configure,v 1.2 1998-10-22 17:16:07 f Exp $' > /dev/null
 
 
 
@@ -1896,7 +1896,7 @@ fi
 if eval "test \"`echo '$ac_cv_func_'gettimeofday`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   cat >> confdefs.h <<\EOF
-#define HAVETIMEOFDAY 1
+#define HAVETIMEOFDAY
 EOF
 
 else
