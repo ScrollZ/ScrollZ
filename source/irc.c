@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.105 2003-04-29 17:16:07 f Exp $
+ * $Id: irc.c,v 1.106 2003-05-01 15:07:14 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1690,6 +1690,7 @@ irc_io(prompt, func, my_use_input, loop)
                         char *curnick=get_server_nickname(from_server);
 
                         if (curnick && !CheckChannel2(OrigNick,curnick)) SwitchNick();
+                        LastNick=time(NULL);
                     }
                 }
 /****************************************************************************/
