@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.48 2003-04-26 19:10:38 f Exp $
+ * $Id: operv.c,v 1.49 2003-04-27 16:43:12 f Exp $
  */
 
 #include "irc.h"
@@ -1379,7 +1379,7 @@ char *from;
 #endif
     }
     else if (strstr(tmpline," added temporary ") && strstr(tmpline," min. K-Line for ")) {
-	strcpy(word2,OVgetword(0,1,tmpline));  /* who */
+	strcpy(word1,OVgetword(0,1,tmpline));  /* who */
         strcpy(word2,OVgetword(0,4,tmpline));  /* time */
         strcpy(word4,OVgetword(0,8,tmpline));  /* k-line */
         OVnobrackets(word4,word3,sizeof(word3));
