@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.82 2002-02-02 10:33:34 f Exp $
+ * $Id: edit2.c,v 1.83 2002-02-05 17:31:31 f Exp $
  */
 
 #include "irc.h"
@@ -1006,10 +1006,11 @@ char *subargs;
     }
     else {
 #ifdef EXTRAS
-        snprintf(tmpbuf1, sizeof(tmpbuf1), "%s [-T unban time] nick [#channel] [reason]", command);
-#else  /* EXTRAS */
+        if (index(command,'T'))
+            snprintf(tmpbuf1, sizeof(tmpbuf1), "%s [-T unban time] nick [#channel] [reason]", command);
+        else
+#endif
         snprintf(tmpbuf1, sizeof(tmpbuf1), "%s nick [#channel] [reason]", command);
-#endif /* EXTRAS */
         PrintUsage(tmpbuf1);
     }
 }
