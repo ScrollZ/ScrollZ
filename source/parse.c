@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.6 1998-10-06 17:50:10 f Exp $
+ * $Id: parse.c,v 1.7 1998-10-21 19:43:04 f Exp $
  */
 
 #include "irc.h"
@@ -1231,7 +1231,8 @@ p_channel(from, ArgList)
                                 strmcat(tmpbuf,"/",mybufsize/4);
                                 if (ov && *ov) strmcat(tmpbuf,"+",mybufsize/4);
                                 strmcat(tmpbuf,channel,mybufsize/4);
-                                malloc_strcpy(&LastJoin,tmpbuf);
+                                malloc_strcpy(&(server_list[parsing_server_index].LastJoin),
+                                              tmpbuf);
                                 update_all_status();
                             }
                         }
@@ -1248,7 +1249,7 @@ p_channel(from, ArgList)
                     strmcat(tmpbuf,"/",mybufsize/4);
                     if (ov && *ov) strmcat(tmpbuf,"+",mybufsize/4);
                     strmcat(tmpbuf,channel,mybufsize/4);
-                    malloc_strcpy(&LastJoin,tmpbuf);
+                    malloc_strcpy(&(server_list[parsing_server_index].LastJoin),tmpbuf);
                     update_all_status();
                 }
 /****************************************************************************/
