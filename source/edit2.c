@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.7 1998-09-27 17:30:07 f Exp $
+ * $Id: edit2.c,v 1.8 1998-10-21 17:35:09 f Exp $
  */
 
 #include "irc.h"
@@ -2998,8 +2998,7 @@ int modify;
     timediff=time((time_t *) 0)-CeleAwayTime;
     strmcpy(tmpbuf1,celeawaystr,mybufsize/4);
     if (modify)
-        sprintf(tmpbuf2,"-ALL %c%s%c /%c%s%c/ ",bold,tmpbuf1,bold,
-                bold,CeleTimeFormat(timediff),bold);
+        sprintf(tmpbuf2,"-ALL %s /%c%s%c/ ",tmpbuf1,bold,CeleTimeFormat(timediff),bold);
     else sprintf(tmpbuf2,"-ALL %s",tmpbuf1);
     SentAway=1;
     away("AWAY",tmpbuf2,NULL);
@@ -3043,8 +3042,8 @@ char *subargs;
     CeleAway(modify);
 #else
     if (modify)
-        sprintf(tmpbuf2,"-ALL %c%s%c [SZ%con%c]  Away since %.16s",bold,tmpbuf1,bold,
-                bold,bold,ctime(&timenow));
+        sprintf(tmpbuf2,"-ALL %s [SZ%con%c]  Away since %.16s",tmpbuf1,bold,bold,
+                ctime(&timenow));
     else sprintf(tmpbuf2,"-ALL %s",tmpbuf1);
     away("AWAY",tmpbuf2,NULL);
 #endif /* CELE */
@@ -3055,13 +3054,12 @@ char *subargs;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
 #if defined(CELE) && !defined(VILAS)
             if (modify)
-                sprintf(tmpbuf2,"%s is away. %c%s%c %s",tmpchan->channel,
-                        bold,tmpbuf1,bold,CelerityL);
+                sprintf(tmpbuf2,"%s is away. %s %s",tmpchan->channel,tmpbuf1,CelerityL);
             else sprintf(tmpbuf2,"%s %s",tmpchan->channel,tmpbuf1);
 #else
             if (modify)
-                sprintf(tmpbuf2,"%s is away. %c%s%c [SZ%con%c]",
-                        tmpchan->channel,bold,tmpbuf1,bold,bold,bold);
+                sprintf(tmpbuf2,"%s is away. %s [SZ%con%c]",
+                        tmpchan->channel,tmpbuf1,bold,bold);
             else sprintf(tmpbuf2,"%s %s",tmpchan->channel,tmpbuf1);
 #endif /* CELE */
             describe(NULL,tmpbuf2,NULL);
@@ -3148,10 +3146,10 @@ char *line;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
             if (modify)
 #ifdef CELE
-                sprintf(tmpbuf,"%s is back. %c%s%c",tmpchan->channel,bold,backstr,bold);
+                sprintf(tmpbuf,"%s is back. %s",tmpchan->channel,backstr);
 #else
-                sprintf(tmpbuf,"%s is back. %c%s%c [SZ%coff%c]",tmpchan->channel,bold,
-                        backstr,bold,bold,bold);
+                sprintf(tmpbuf,"%s is back. %s [SZ%coff%c]",tmpchan->channel,backstr,
+                        bold,bold);
 #endif
             else sprintf(tmpbuf,"%s %s",tmpchan->channel,backstr);
             describe(NULL,tmpbuf,NULL);
