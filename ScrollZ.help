@@ -874,7 +874,7 @@ You can use following format: * for all bans or -2,4,6-8,10- (this
 would remove bans 1,2,4,6,7,8 and all bans from 10 and on)
 Also look at $2BAN$0, $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2SB$0, $2CDBAN$0 and $2DOBANS$0
 :TOPICLOCK     Sets channel's topic lock
-Usage $3TOPICLOCK$0 [$3#channel mode$0]
+Usage $3TOPICLOCK$0 [$3#channel topic$0]
 Several channels can be specified at once, separate them with comma.
 Every channel's name must start with #. Stored topic locks for all
 channels are shown if no arguments are given.
