@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.99 2003-12-03 18:09:55 f Exp $
+ * $Id: edit.c,v 1.100 2004-07-02 18:04:52 f Exp $
  */
 
 #include "irc.h"
@@ -1680,7 +1680,9 @@ do_channel(chan, force, nowho)
 /**************************** Patched by Flier ******************************/
                 /* we should not add !!channel on ircd 2.10 as they denote
                    channel creation */
-                if (*chan == '!' && (get_server_version(serv_ind)) == Server2_10)
+                if (*chan == '!' &&
+                    (get_server_version(serv_ind) == Server2_10 ||
+                     get_server_version(serv_ind) == Server2_11))
                     return(chan);
 		/*add_channel(chan, serv_ind, CHAN_JOINING, (ChannelList *) 0);*/
 		add_channel(chan, serv_ind, CHAN_JOINING, NULL, NULL, nowho);

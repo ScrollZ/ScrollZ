@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.32 2003-01-08 20:00:54 f Exp $
+ * $Id: notice.c,v 1.33 2004-07-02 18:04:52 f Exp $
  */
 
 #include "irc.h"
@@ -177,7 +177,8 @@ parse_server_notice(from, to, line)
 #if defined(OPERVISION) && defined(WANTANSI)
                         if (OperV &&
                            (get_server_version(from_server)==Server2_9 || 
-                            get_server_version(from_server)==Server2_10) &&
+                            get_server_version(from_server)==Server2_10 ||
+                            get_server_version(from_server)==Server2_11) &&
                            IsIrcNetOperChannel(to))
                             OVformat(line,NULL);
                         else

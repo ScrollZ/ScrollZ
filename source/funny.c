@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.23 2004-06-28 16:55:53 f Exp $
+ * $Id: funny.c,v 1.24 2004-07-02 18:04:52 f Exp $
  */
 
 #include "irc.h"
@@ -405,7 +405,8 @@ funny_mode(from, ArgList)
 		update_channel_mode(channel, parsing_server_index, mode, strlen(mode),
                                     NULL, NULL, NULL, NULL, tmp);
                 if ((get_server_version(from_server) == Server2_9 || 
-                     get_server_version(from_server) == Server2_10) &&
+                     get_server_version(from_server) == Server2_10 ||
+                     get_server_version(from_server) == Server2_11) &&
                     IsIrcNetOperChannel(channel)) {
                     tmp->gotbans = 1;
                     tmp->gotwho = 1;

@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.69 2004-04-20 17:13:50 f Exp $
+ * $Id: operv.c,v 1.70 2004-07-02 18:04:52 f Exp $
  */
 
 #include "irc.h"
@@ -47,7 +47,8 @@ int  sizeofbuf;
 {
     /* we need to send aditional usermodes (+swfuckrn), for ircd 2.9/2.10 only send +w */
     if (get_server_version(from_server)==Server2_9 || 
-        get_server_version(from_server)==Server2_10)
+        get_server_version(from_server)==Server2_10 ||
+        get_server_version(from_server)==Server2_11)
         strmcpy(tmpbuf,"w",sizeofbuf);
     else strmcpy(tmpbuf,"swfuckrn",sizeofbuf);
 }
@@ -1412,7 +1413,9 @@ char *from;
         strcpy(word3,OVgetword(0,6,tmpline));  /* o/O */
         tmp=word3;
         if (*tmp) tmp++;
-        if (get_server_version(from_server)==Server2_9 || get_server_version(from_server)==Server2_10) {
+        if (get_server_version(from_server)==Server2_9 ||
+            get_server_version(from_server)==Server2_10 ||
+            get_server_version(from_server)==Server2_11) {
             opertype=*tmp?(*tmp=='o'?2:1):0;
         }
         else {
