@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.28 2002-03-11 20:25:01 f Exp $
+ * $Id: screen.c,v 1.29 2002-09-22 18:33:43 f Exp $
  */
 
 #include "irc.h"
@@ -1528,6 +1528,13 @@ split_up_line(str)
 					}
 					else
 					{
+/**************************** Patched by Flier ******************************/
+                                                /* fix ircII bug when
+                                                 * splitting long lines
+                                                 * without spaces */
+                                                if (indent == -1)
+                                                    indent = 0;
+/****************************************************************************/
 						cont = (char *)
  							new_malloc((size_t)indent + 1);
 						strcpy(cont, cont_ptr);
