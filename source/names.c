@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.2 1998-09-10 17:45:47 f Exp $
+ * $Id: names.c,v 1.3 1998-09-25 20:24:52 f Exp $
  */
 
 #include "irc.h"
@@ -72,6 +72,7 @@ extern int  SortedCmp _((List *, List *));
 #endif
 extern int  HashFunc _((char *));
 extern NickList *find_in_hash _((ChannelList *, char *));
+extern Window *FindWindow _((Window *));
 
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -165,6 +166,7 @@ add_channel(channel, server, connected, copy)
 	int	do_add = 0;
 /**************************** PATCHED by Flier ******************************/
         int     i=1;
+        Window  *newwin;
         WhowasChanList *whowaschan;
 
         if ((whowaschan=check_whowas_chan_buffer(channel,1))) {
@@ -179,6 +181,9 @@ add_channel(channel, server, connected, copy)
                 new_free(&new);
             }
             new=whowaschan->channellist;
+            /* try to rejoin in correct window */
+            if (!(newwin=FindWindow(new->window)) || newwin->refnum!=whowaschan->refnum)
+                new->window=(Window *) 0;
             new->next=(ChannelList *) 0;
             do_add=1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
