@@ -131,7 +131,8 @@ Meaning of flags:
     ! bug where client would think it grabbed illegal nick
     ! client now keeps asking for a nickname if SET NO_ASK_NICKNAME
       is set to OFF (reported by Matt Mills)
-    + support for numeric 320 (identifed user on OPN, coded by braneded)
+    + support for numerics 320/330 (identifed user on OPN/QuakeNet, coded
+      by braneded)
 
 ------------------------------------------------------------------------------
 
