@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.29 2002-01-07 19:18:16 f Exp $
+ * $Id: names.c,v 1.30 2002-01-17 18:55:28 f Exp $
  */
 
 #include "irc.h"
@@ -632,7 +632,7 @@ char    *servmodes;
 	char	*limit = 0;
 /**************************** PATCHED by Flier ******************************/
         /*char	*person;*/
-        char	*person=NULL;
+        char	*person = NULL;
 /****************************************************************************/
 	int	add = 0;
 	int	limit_set = 0;
@@ -642,64 +642,65 @@ char    *servmodes;
 	NickList *ThisNick;
  	u_long	value = 0;
 /**************************** PATCHED by Flier ******************************/
-        char *mynick=get_server_nickname(parsing_server_index);
-        int  check=from?1:0;
-        int  gotops=0;
-        int  isitme=check?!my_stricmp(from,mynick):0;
-        int  isserver=check?(strchr(from,'.')!=NULL):0;
-        int  max=get_int_var(MAX_MODES_VAR);
-        int  deopped=0;
-        int  servadd=-1;
-        int  compadd=-1;
-        int  minusban=0;
-	int  hadops=!HAS_OPS(*chop);
+        char *mynick = get_server_nickname(parsing_server_index);
+        int  check = from ? 1 : 0;
+        int  gotops = 0;
+        int  isitme = check ? !my_stricmp(from, mynick) : 0;
+        int  isserver = check ? (strchr(from, '.') != NULL) : 0;
+        int  max = get_int_var(MAX_MODES_VAR);
+        int  deopped = 0;
+        int  servadd = -1;
+        int  compadd = -1;
+        int  minusban = 0;
+	int  hadops = !HAS_OPS(*chop);
         int  privs;
-        int  isprot=0;
-        int  count=0;
-        int  whowasdone=0;
-        int  server=parsing_server_index;
+        int  isprot = 0;
+        int  count = 0;
+        int  whowasdone = 0;
+        int  server = parsing_server_index;
         int  exception;
-        char tmpbuf[mybufsize/2];
-        char nhdeop[mybufsize/4];
-        char modebuf[mybufsize/32];
-        char servline[mybufsize/2];
-        char lastdeop[mybufsize/4];
-        char lastvoice[mybufsize/4];
-        char compmode[mybufsize/32];
-        char compline[mybufsize/2];
-        char tmpbufmode[mybufsize/2];
-        char tmporigmode[mybufsize/2];
-        char *origmode=mode_string;
-        char *compmodeadd=compmode;
-        char *servmodeadd=servmodes;
-        time_t timenow=time((time_t *) 0);
-        NickList *joiner=NULL;
-        NickList *tmpjoiner=NULL;
+        char *arg;
+        char tmpbuf[mybufsize / 2];
+        char nhdeop[mybufsize / 4];
+        char modebuf[mybufsize / 32];
+        char servline[mybufsize / 2];
+        char lastdeop[mybufsize / 4];
+        char lastvoice[mybufsize / 4];
+        char compmode[mybufsize / 32];
+        char compline[mybufsize / 2];
+        char tmpbufmode[mybufsize / 2];
+        char tmporigmode[mybufsize / 2];
+        char *origmode = mode_string;
+        char *compmodeadd = compmode;
+        char *servmodeadd = servmodes;
+        time_t timenow = time(NULL);
+        NickList *joiner = NULL;
+        NickList *tmpjoiner = NULL;
         WhowasList *whowas;
 
         if (check) {
-            if (isserver) userhost=NULL;
-            *nethacks='\0';
-            *servmodeadd='\0';
-            *tmpbufmode='\0';
-            *servline='\0';
-            *lastdeop='\0';
-            *lastvoice='\0';
-            *nhdeop='\0';
-            *compline='\0';
-            *compmodeadd='\0';
-            tmpjoiner=CheckJoiners(from,chan->channel,server,chan);
+            if (isserver) userhost = NULL;
+            *nethacks = '\0';
+            *servmodeadd = '\0';
+            *tmpbufmode = '\0';
+            *servline = '\0';
+            *lastdeop = '\0';
+            *lastvoice = '\0';
+            *nhdeop = '\0';
+            *compline = '\0';
+            *compmodeadd = '\0';
+            tmpjoiner = CheckJoiners(from, chan->channel, server, chan);
             if (tmpjoiner) {
-                if (tmpjoiner->curo==0) tmpjoiner->deopp=0;
-                if (timenow-tmpjoiner->deopt>=MDopTimer) {
-                    tmpjoiner->curo=0;
-                    tmpjoiner->deopp=0;
-                    tmpjoiner->deopt=timenow;
+                if (tmpjoiner->curo == 0) tmpjoiner->deopp = 0;
+                if (timenow-tmpjoiner->deopt >= MDopTimer) {
+                    tmpjoiner->curo = 0;
+                    tmpjoiner->deopp = 0;
+                    tmpjoiner->deopt = timenow;
                 }
                 if (tmpjoiner->userhost && tmpjoiner->frlist)
-                    isprot=(tmpjoiner->frlist->privs)&(FLPROT | FLGOD);
+                    isprot = (tmpjoiner->frlist->privs) & (FLPROT | FLGOD);
             }
-            if (!(chan->CompressModes)) strcpy(tmporigmode,mode_string);
+            if (!(chan->CompressModes)) strcpy(tmporigmode, mode_string);
         }
 /****************************************************************************/
 
@@ -708,27 +709,28 @@ char    *servmodes;
 	for (; *mode_string; mode_string++)
 	{
 /**************************** PATCHED by Flier ******************************/
-                if (*mode_string!='o' && *mode_string!='+' && *mode_string!='-') {
+                if (*mode_string != 'o' && *mode_string != '+' && *mode_string != '-') {
                     if (check && isserver) {
-                        if (servadd!=add) {
-                            if (add) *servmodeadd++='+';
-                            else *servmodeadd++='-';
-                            servadd=add;
+                        if (servadd != add) {
+                            if (add) *servmodeadd ++= '+';
+                            else *servmodeadd ++= '-';
+                            servadd = add;
                         }
-                        *servmodeadd++=*mode_string;
+                        *servmodeadd ++= *mode_string;
                     }
                 }
                 if (check && chan->CompressModes) {
-                    if (*mode_string=='a' || *mode_string=='i' || *mode_string=='k' ||
-                        *mode_string=='l' || *mode_string=='m' || *mode_string=='n' ||
-                        *mode_string=='p' || *mode_string=='q' || *mode_string=='s' ||
-                        *mode_string=='t' || *mode_string=='c' || *mode_string=='R') {
-                        if (compadd!=add) {
-                            if (add) *compmodeadd++='+';
-                            else *compmodeadd++='-';
-                            compadd=add;
+                    if (*mode_string == 'a' || *mode_string == 'i' || *mode_string == 'k' ||
+                        *mode_string == 'l' || *mode_string == 'm' || *mode_string == 'n' ||
+                        *mode_string == 'p' || *mode_string == 'q' || *mode_string == 's' ||
+                        *mode_string == 't' || *mode_string == 'c' || *mode_string == 'R' ||
+                        *mode_string == 'I') {
+                        if (compadd != add) {
+                            if (add) *compmodeadd ++= '+';
+                            else *compmodeadd ++= '-';
+                            compadd = add;
                         }
-                        *compmodeadd++=*mode_string;
+                        *compmodeadd ++= *mode_string;
                     }
                 }
 /****************************************************************************/
@@ -759,14 +761,14 @@ char    *servmodes;
 			else
 				new_free(key);
 /**************************** PATCHED by Flier ******************************/
-                        if (!the_key) the_key=empty_string;
+                        if (!the_key) the_key = empty_string;
                         if (check && isserver) {
-                            strcat(servline,the_key);
-                            strcat(servline," ");
+                            strcat(servline, the_key);
+                            strcat(servline, " ");
                         }
                         if (check && chan->CompressModes) {
-                            strcat(compline,the_key);
-                            strcat(compline," ");
+                            strcat(compline, the_key);
+                            strcat(compline, " ");
                         }
 /****************************************************************************/
 			break;
@@ -784,13 +786,13 @@ char    *servmodes;
 				limit_reset = 1;
 /**************************** PATCHED by Flier ******************************/
                         if (check && isserver && add) {
-                            strcat(servline,limit);
-                            strcat(servline," ");
+                            strcat(servline, limit);
+                            strcat(servline, " ");
                         }
                         if (check && chan->CompressModes) {
                             if (add) {
-                                strcat(compline,limit);
-                                strcat(compline," ");
+                                strcat(compline, limit);
+                                strcat(compline, " ");
                             }
                         }
 /****************************************************************************/
@@ -798,51 +800,52 @@ char    *servmodes;
 		case 'm':
 			value = MODE_MODERATED;
 			break;
+/**************************** Patched by Flier ******************************/
+                        /* half-op code by braneded */
 		case 'h':
-			if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick)) {
+			if ((person = next_arg(rest, &rest)) && !my_stricmp(person, mynick)) {
 				if (add) {
 					/* we can only have one of ohv on a hybrid7 server.
-				   	+v, +h, -h != +v
-					*/
-					if (get_server_version(server)==Server2_11)
+				   	   +v, +h, -h != +v */
+					if (get_server_version(server) == Server2_11)
 						*chop &= ~CHAN_VOICE;
 
 					*chop |= CHAN_HALFOP;
-					if (check && hadops) gotops=1;
+					if (check && hadops) gotops = 1;
 				}
 				else
 					*chop &= ~CHAN_HALFOP;
 			}
-			ThisNick=find_in_hash(chan,person);
-			if (!person) person=empty_string;
+			ThisNick = find_in_hash(chan, person);
+			if (!person) person = empty_string;
 			if (check && chan->CompressModes && ThisNick) {
 				if ((add && !(ThisNick->halfop)) ||
 				    (!add && ThisNick->halfop)) {
-				    if (compadd!=add) {
-					if (add) *compmodeadd++='+';
-					else *compmodeadd++='-';
-					compadd=add;
+				    if (compadd != add) {
+					if (add) *compmodeadd ++= '+';
+					else *compmodeadd ++= '-';
+					compadd = add;
 				    }
-				    *compmodeadd++=*mode_string;
-				    strcat(compline,person);
-				    strcat(compline," ");
+				    *compmodeadd ++= *mode_string;
+				    strcat(compline, person);
+				    strcat(compline, " ");
 				}
 			}
 			if (isserver) {
 			    if (!add) {
-				if (servadd!=add) {
-				    if (add) *servmodeadd++='+';
-				    else *servmodeadd++='-';
-				    servadd=add;
+				if (servadd != add) {
+				    if (add) *servmodeadd ++= '+';
+				    else *servmodeadd ++= '-';
+				    servadd = add;
                             	}
-				*servmodeadd++=*mode_string;
-				strcat(servline,person);
-				strcat(servline," ");
+				*servmodeadd ++= *mode_string;
+				strcat(servline, person);
+				strcat(servline, " ");
 			    }
                         }
 			if (ThisNick) {
 				ThisNick->halfop = add;
-				if (add && get_server_version(server)==Server2_11)
+				if (add && get_server_version(server) == Server2_11)
 					ThisNick->hasvoice = 0;
 			}
 			if (check && tmpjoiner) {
@@ -859,6 +862,7 @@ char    *servmodes;
 			if (add) chan->plush++;
 			else chan->minush++;
 			break;
+/****************************************************************************/
 		case 'o':
 /**************************** PATCHED by Flier ******************************/
  			/*if ((person = next_arg(rest, &rest)) && !my_stricmp(person, get_server_nickname(from_server))) {
@@ -867,16 +871,15 @@ char    *servmodes;
 				else
 					*chop &= ~CHAN_CHOP;
  			}*/
-                        if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick)) {
+                        if ((person = next_arg(rest, &rest)) && !my_stricmp(person, mynick)) {
                                 if (add) {
 					/* we can only have one of ohv on a hybrid7 server.
-					   +h, +o, -o != +h
-					*/
-					if (get_server_version(server)==Server2_11)
+					   +h, +o, -o != +h */
+					if (get_server_version(server) == Server2_11)
 						*chop &= ~(CHAN_HALFOP | CHAN_VOICE);
 
 					*chop |= CHAN_CHOP;
-                                        if (check && hadops) gotops=1;
+                                        if (check && hadops) gotops = 1;
                                 }
 				else
 					*chop &= ~CHAN_CHOP;
@@ -884,8 +887,8 @@ char    *servmodes;
 /****************************************************************************/
 /**************************** PATCHED by Flier ******************************/
                         /*ThisNick = (NickList *) list_lookup((List **) nicks, person, !USE_WILDCARDS, !REMOVE_FROM_LIST);*/
-                        ThisNick=find_in_hash(chan,person);
-                        if (!person) person=empty_string;
+                        ThisNick = find_in_hash(chan, person);
+                        if (!person) person = empty_string;
                         if (check) {
                             if (tmpjoiner) {
                                 if (add) tmpjoiner->pluso++;
@@ -896,24 +899,24 @@ char    *servmodes;
                             }
                             if (isserver) {
                                 if (!add) {
-                                    if (servadd!=add) {
-                                        if (add) *servmodeadd++='+';
-                                        else *servmodeadd++='-';
-                                        servadd=add;
+                                    if (servadd != add) {
+                                        if (add) *servmodeadd ++= '+';
+                                        else *servmodeadd ++= '-';
+                                        servadd = add;
                                     }
-                                    *servmodeadd++=*mode_string;
-                                    strcat(servline,person);
-                                    strcat(servline," ");
+                                    *servmodeadd ++= *mode_string;
+                                    strcat(servline, person);
+                                    strcat(servline, " ");
                                 }
                                 else {
                                     if (chan->NHProt && chan->FriendList) {
                                         if (!(ThisNick && ThisNick->frlist && ThisNick->frlist->privs)) {
-                                            strcat(nhdeop," -o ");
-                                            strcat(nhdeop,person);
+                                            strcat(nhdeop, " -o ");
+                                            strcat(nhdeop, person);
                                         }
                                     }
-                                    strcat(nethacks,person);
-                                    strcat(nethacks," ");
+                                    strcat(nethacks, person);
+                                    strcat(nethacks, " ");
                                 }
                                 if (add) chan->servpluso++;
                                 else chan->servminuso++;
@@ -921,28 +924,28 @@ char    *servmodes;
                             if (check && chan->CompressModes && ThisNick) {
                                 if ((add && !(ThisNick->chanop)) ||
                                     (!add && ThisNick->chanop)) {
-                                    if (compadd!=add) {
-                                        if (add) *compmodeadd++='+';
-                                        else *compmodeadd++='-';
-                                        compadd=add;
+                                    if (compadd != add) {
+                                        if (add) *compmodeadd ++= '+';
+                                        else *compmodeadd ++= '-';
+                                        compadd = add;
                                     }
-                                    *compmodeadd++=*mode_string;
-                                    strcat(compline,person);
-                                    strcat(compline," ");
+                                    *compmodeadd ++= *mode_string;
+                                    strcat(compline, person);
+                                    strcat(compline, " ");
                                 }
                             }
                             if (add) {
                                 chan->pluso++;
-                                minusban=1;
+                                minusban = 1;
                                 if (ThisNick && chan->BKList) {
-                                    if ((ThisNick->shitlist && (ThisNick->shitlist->shit)&SLDEOP)
-                                        || (chan->Bitch && !isitme && !(isprot&FLGOD) &&
-                                            (!ThisNick->frlist || !((ThisNick->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))) &&
-                                            my_stricmp(mynick,ThisNick->nick))) {
+                                    if ((ThisNick->shitlist && (ThisNick->shitlist->shit) & SLDEOP)
+                                        || (chan->Bitch && !isitme && !(isprot & FLGOD) &&
+                                            (!ThisNick->frlist || !((ThisNick->frlist->privs) & (FLOP | FLAUTOOP | FLINSTANT))) &&
+                                            my_stricmp(mynick, ThisNick->nick))) {
                                         count++;
-                                        strcat(modebuf,"-o");
-                                        strcat(tmpbufmode," ");
-                                        strcat(tmpbufmode,ThisNick->nick);
+                                        strcat(modebuf, "-o");
+                                        strcat(tmpbufmode, " ");
+                                        strcat(tmpbufmode, ThisNick->nick);
                                     }
                                 }
                             }
@@ -950,63 +953,64 @@ char    *servmodes;
                                 chan->minuso++;
                                 if (!isitme && ThisNick && ThisNick->userhost &&
                                     ThisNick->chanop && chan->FriendList) {
-                                    if (ThisNick->frlist) privs=ThisNick->frlist->privs;
-                                    else privs=0;
-                                    if ((privs&(FLPROT | FLGOD)) && (privs&FLOP) && my_stricmp(from,ThisNick->nick)
-                                        && !CheckChannel(lastdeop,ThisNick->nick)
-                                        && !(!(privs&FLGOD) && (isprot&FLGOD))) {
+                                    if (ThisNick->frlist) privs = ThisNick->frlist->privs;
+                                    else privs = 0;
+                                    if ((privs & (FLPROT | FLGOD)) && (privs & FLOP)
+                                        && my_stricmp(from, ThisNick->nick)
+                                        && !CheckChannel(lastdeop, ThisNick->nick)
+                                        && !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                         if (away_set || LogOn || (chan && chan->ChanLog)) {
                                             sprintf(tmpbuf,"%s (%s) has been deopped on channel %s by %s",
-                                                    ThisNick->nick,ThisNick->userhost,
-                                                    chan->channel,from);
+                                                    ThisNick->nick, ThisNick->userhost,
+                                                    chan->channel, from);
                                             if (!isserver) {
-                                                strcat(tmpbuf," (");
-                                                strcat(tmpbuf,userhost);
-                                                strcat(tmpbuf,")");
+                                                strcat(tmpbuf, " (");
+                                                strcat(tmpbuf, userhost);
+                                                strcat(tmpbuf, ")");
                                             }
-                                            if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
-                                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
+                                            if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
+                                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
                                         }
-                                        if (*chop&CHAN_CHOP) {
-                                            if (!isserver && (privs&FLGOD) && !(isprot&FLGOD)) {
+                                        if (*chop & CHAN_CHOP) {
+                                            if (!isserver && (privs & FLGOD) && !(isprot & FLGOD)) {
                                                 count++;
-                                                strcat(modebuf,"-o");
-                                                strcat(tmpbufmode," ");
-                                                strcat(tmpbufmode,from);
-                                                deopped=1;
+                                                strcat(modebuf, "-o");
+                                                strcat(tmpbufmode, " ");
+                                                strcat(tmpbufmode, from);
+                                                deopped = 1;
                                             }
-                                            if (count==max) {
+                                            if (count == max) {
                                                 send_to_server("MODE %s %s %s",
-                                                               chan->channel,modebuf,
+                                                               chan->channel, modebuf,
                                                                tmpbufmode);
-                                                *tmpbufmode='\0';
-                                                *modebuf='\0';
-                                                count=0;
+                                                *tmpbufmode = '\0';
+                                                *modebuf = '\0';
+                                                count = 0;
                                             }
-                                            if ((privs&FLGOD) || ((privs&FLPROT) && !(isprot&FLGOD))) {
+                                            if ((privs & FLGOD) || ((privs & FLPROT) && !(isprot & FLGOD))) {
                                                 count++;
-                                                strcat(modebuf,"+o");
-                                                strcat(tmpbufmode," ");
-                                                strcat(tmpbufmode,ThisNick->nick);
+                                                strcat(modebuf, "+o");
+                                                strcat(tmpbufmode, " ");
+                                                strcat(tmpbufmode, ThisNick->nick);
                                             }
                                         }
-                                        if (*lastdeop) strcat(lastdeop,",");
-                                        strcat(lastdeop,ThisNick->nick);
+                                        if (*lastdeop) strcat(lastdeop, ",");
+                                        strcat(lastdeop, ThisNick->nick);
                                     }
                                 }
                             }
                         }
                         if (ThisNick && add && !(ThisNick->chanop)) {
-                            ThisNick->curo=0;
-                            ThisNick->deopp=0;
-                            ThisNick->deopt=timenow;
+                            ThisNick->curo = 0;
+                            ThisNick->deopp = 0;
+                            ThisNick->deopt = timenow;
                         }
 /****************************************************************************/
 			if (ThisNick)
 			{
 				ThisNick->chanop = add;
 
-				if (add && get_server_version(server)==Server2_11)
+				if (add && get_server_version(server) == Server2_11)
 					ThisNick->halfop = ThisNick->hasvoice = 0;
 			}
 			break;
@@ -1035,44 +1039,44 @@ char    *servmodes;
 			if (ThisNick)
 				ThisNick->hasvoice = add;
 			break;*/
-			if ((person=next_arg(rest, &rest)) && !my_stricmp(person,mynick))
+			if ((person = next_arg(rest, &rest)) && !my_stricmp(person, mynick))
                         {
 				if (add)
 					*chop |= CHAN_VOICE;
 				else
 					*chop &= ~CHAN_VOICE;
                         }
-                        ThisNick=find_in_hash(chan,person);
-                        if (!person) person=empty_string;
+                        ThisNick = find_in_hash(chan, person);
+                        if (!person) person = empty_string;
                         if (check && isserver) {
-                            strcat(servline,person);
-                            strcat(servline," ");
+                            strcat(servline, person);
+                            strcat(servline, " ");
                         }
                         if (check && chan->CompressModes && ThisNick) {
                             if ((add && !(ThisNick->hasvoice)) ||
                                 (!add && ThisNick->hasvoice)) {
-                                if (compadd!=add) {
-                                    if (add) *compmodeadd++='+';
-                                    else *compmodeadd++='-';
-                                    compadd=add;
+                                if (compadd != add) {
+                                    if (add) *compmodeadd ++= '+';
+                                    else *compmodeadd ++= '-';
+                                    compadd = add;
                                 }
-                                *compmodeadd++=*mode_string;
-                                strcat(compline,person);
-                                strcat(compline," ");
+                                *compmodeadd ++= *mode_string;
+                                strcat(compline, person);
+                                strcat(compline, " ");
                             }
                         }
                         if (ThisNick) {
-                            ThisNick->hasvoice=add;
-                            if (ThisNick->frlist) privs=ThisNick->frlist->privs;
-                            else privs=0;
-                            if (check && chan->FriendList && (privs&(FLPROT)) &&
-                                (privs&FLVOICE) && HAS_OPS(*chop) && !isserver &&
-                                !add && !isitme && my_stricmp(from,ThisNick->nick) &&
-                                !CheckChannel(lastvoice,ThisNick->nick)) {
-                                send_to_server("MODE %s +v %s",chan->channel,
+                            ThisNick->hasvoice = add;
+                            if (ThisNick->frlist) privs = ThisNick->frlist->privs;
+                            else privs = 0;
+                            if (check && chan->FriendList && (privs & FLPROT) &&
+                                (privs & FLVOICE) && HAS_OPS(*chop) && !isserver &&
+                                !add && !isitme && my_stricmp(from, ThisNick->nick) &&
+                                !CheckChannel(lastvoice, ThisNick->nick)) {
+                                send_to_server("MODE %s +v %s", chan->channel,
                                                ThisNick->nick);
-                                if (*lastdeop) strcat(lastvoice,",");
-                                strcat(lastvoice,ThisNick->nick);
+                                if (*lastdeop) strcat(lastvoice, ",");
+                                strcat(lastvoice, ThisNick->nick);
                             }
                         }
 			break;
@@ -1081,17 +1085,17 @@ char    *servmodes;
 		case 'e':
 /**************************** PATCHED by Flier ******************************/
 			/*(void) next_arg(rest, &rest);*/
-                        if (!(person=next_arg(rest,&rest))) person=empty_string;
+                        if (!(person = next_arg(rest, &rest))) person = empty_string;
                         if (check) {
-                            if (*mode_string=='e') exception=1;
-                            else exception=0;
+                            if (*mode_string == 'e') exception = 1;
+                            else exception = 0;
                             if (tmpjoiner && !exception) {
                                 if (add) tmpjoiner->plusb++;
                                 else tmpjoiner->minusb++;
                             }
                             if (isserver) {
-                                strcat(servline,person);
-                                strcat(servline," ");
+                                strcat(servline, person);
+                                strcat(servline, " ");
                                 if (!exception) {
                                     if (add) chan->servplusb++;
                                     else chan->servminusb++;
@@ -1099,155 +1103,158 @@ char    *servmodes;
                             }
                             if (add) {
                                 if (!exception) chan->plusb++;
-                                if (userhost) sprintf(tmpbuf,"%s!%s",from,userhost);
-                                else strcpy(tmpbuf,from);
-                                if (AddBan(person,chan->channel,server,tmpbuf,exception,timenow,chan)) {
+                                if (userhost) sprintf(tmpbuf, "%s!%s", from, userhost);
+                                else strcpy(tmpbuf, from);
+                                if (AddBan(person, chan->channel, server, tmpbuf, exception, timenow, chan)) {
                                     if (chan->CompressModes) {
-                                        if (compadd!=add) {
-                                            *compmodeadd++='+';
-                                            compadd=add;
+                                        if (compadd != add) {
+                                            *compmodeadd ++= '+';
+                                            compadd = add;
                                         }
-                                        *compmodeadd++=*mode_string;
-                                        strcat(compline,person);
-                                        strcat(compline," ");
+                                        *compmodeadd ++= *mode_string;
+                                        strcat(compline, person);
+                                        strcat(compline, " ");
                                     }
                                 }
                                 if (!exception && !isitme && chan->FriendList) {
-                                    for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-                                        if (joiner->frlist) privs=joiner->frlist->privs;
-                                        else privs=0;
-                                        if ((privs&(FLPROT | FLGOD)) && (privs&FLUNBAN) && !(!(privs&FLGOD) && (isprot&FLGOD))) {
+                                    for (joiner = chan->nicks; joiner; joiner = joiner->next) {
+                                        if (joiner->frlist) privs = joiner->frlist->privs;
+                                        else privs = 0;
+                                        if ((privs & (FLPROT | FLGOD)) && (privs & FLUNBAN) && 
+                                            !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                             if (joiner->userhost)
-                                                sprintf(tmpbuf,"%s!%s",joiner->nick,
-                                                        joiner->userhost);
-                                            else strcpy(tmpbuf,joiner->nick);
-                                            if (wild_match(person,tmpbuf)) {
-                                                if (*chop&CHAN_CHOP) {
-                                                    if (!deopped && !(isprot&FLGOD) &&
-                                                        !isserver && (privs&FLGOD)) {
+                                                sprintf(tmpbuf, "%s!%s", joiner->nick, joiner->userhost);
+                                            else strcpy(tmpbuf, joiner->nick);
+                                            if (wild_match(person, tmpbuf)) {
+                                                if (*chop & CHAN_CHOP) {
+                                                    if (!deopped && !(isprot & FLGOD) &&
+                                                        !isserver && (privs & FLGOD)) {
                                                         count++;
-                                                        strcat(modebuf,"-o");
-                                                        strcat(tmpbufmode," ");
-                                                        strcat(tmpbufmode,from);
-                                                        deopped=1;
+                                                        strcat(modebuf, "-o");
+                                                        strcat(tmpbufmode, " ");
+                                                        strcat(tmpbufmode, from);
+                                                        deopped = 1;
                                                     }
-                                                    if (count==max) {
+                                                    if (count == max) {
                                                         send_to_server("MODE %s %s %s",
                                                                        chan->channel,
                                                                        modebuf,
                                                                        tmpbufmode);
-                                                        *tmpbufmode='\0';
-                                                        *modebuf='\0';
-                                                        count=0;
+                                                        *tmpbufmode = '\0';
+                                                        *modebuf = '\0';
+                                                        count = 0;
                                                     }
-                                                    if ((privs&FLGOD) ||
-                                                        ((privs&FLPROT) && !(isprot&FLGOD))) {
+                                                    if ((privs & FLGOD) ||
+                                                        ((privs & FLPROT) && !(isprot & FLGOD))) {
                                                         count++;
-                                                        strcat(modebuf,"-b");
-                                                        strcat(tmpbufmode," ");
-                                                        strcat(tmpbufmode,person);
+                                                        strcat(modebuf, "-b");
+                                                        strcat(tmpbufmode, " ");
+                                                        strcat(tmpbufmode, person);
                                                     }
                                                 }
                                                 if (away_set || LogOn || (chan && chan->ChanLog)) {
-                                                    sprintf(tmpbuf,"%cBan%c on mask %s on channel %s by %s",
-                                                            bold,bold,person,
-                                                            chan->channel,from);
+                                                    sprintf(tmpbuf, "%cBan%c on mask %s on channel %s by %s",
+                                                            bold, bold, person,
+                                                            chan->channel, from);
                                                     if (!isserver) {
-                                                        strcat(tmpbuf," (");
-                                                        strcat(tmpbuf,userhost);
-                                                        strcat(tmpbuf,")");
+                                                        strcat(tmpbuf, " (");
+                                                        strcat(tmpbuf, userhost);
+                                                        strcat(tmpbuf, ")");
                                                     }
-                                                    if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
-                                                    if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
+                                                    if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
+                                                    if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
                                                 }
                                                 break;
                                             }
                                         }
                                     }
                                     if (!joiner) {
-                                        whowas=whowas_userlist_list;
+                                        whowas = whowas_userlist_list;
                                         if (!whowas) {
-                                            whowas=whowas_reg_list;
-                                            whowasdone=1;
+                                            whowas = whowas_reg_list;
+                                            whowasdone = 1;
                                         }
-                                        if (!whowas) whowasdone=2;
-                                        while (whowasdone<2) {
+                                        if (!whowas) whowasdone = 2;
+                                        while (whowasdone < 2) {
                                             if (!whowas && !whowasdone) {
-                                                whowas=whowas_reg_list;
-                                                whowasdone=1;
+                                                whowas = whowas_reg_list;
+                                                whowasdone = 1;
                                                 continue;
                                             }
-                                            if (!whowas && whowasdone==1) {
-                                                whowasdone=2;
+                                            if (!whowas && whowasdone == 1) {
+                                                whowasdone = 2;
                                                 continue;
                                             }
-                                            if (!my_stricmp(whowas->channel,chan->channel)) {
+                                            if (!my_stricmp(whowas->channel, chan->channel)) {
                                                 if (whowas->nicklist->frlist)
-                                                    privs=whowas->nicklist->frlist->privs;
-                                                else privs=0;
-                                                if (privs&(FLGOD | FLPROT) && (privs&FLUNBAN) &&
-                                                    !(!(privs&FLGOD) && (isprot&FLGOD))) {
+                                                    privs = whowas->nicklist->frlist->privs;
+                                                else privs = 0;
+                                                if (privs & (FLGOD | FLPROT) && (privs & FLUNBAN) &&
+                                                    !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                                     if (whowas->nicklist->userhost)
-                                                        sprintf(tmpbuf,"%s!%s",
+                                                        sprintf(tmpbuf, "%s!%s",
                                                                 whowas->nicklist->nick,
                                                                 whowas->nicklist->userhost);
-                                                    else strcpy(tmpbuf,whowas->nicklist->nick);
-                                                    if (wild_match(person,tmpbuf)) {
-                                                        if (*chop&CHAN_CHOP) {
+                                                    else strcpy(tmpbuf, whowas->nicklist->nick);
+                                                    if (wild_match(person, tmpbuf)) {
+                                                        if (*chop & CHAN_CHOP) {
                                                             count++;
-                                                            strcat(modebuf,"-b");
-                                                            strcat(tmpbufmode," ");
-                                                            strcat(tmpbufmode,person);
-                                                            if (count==max) {
+                                                            strcat(modebuf, "-b");
+                                                            strcat(tmpbufmode, " ");
+                                                            strcat(tmpbufmode, person);
+                                                            if (count == max) {
                                                                 send_to_server("MODE %s %s %s",
                                                                                chan->channel,
                                                                                modebuf,
                                                                                tmpbufmode);
-                                                                *tmpbufmode='\0';
-                                                                *modebuf='\0';
-                                                                count=0;
+                                                                *tmpbufmode = '\0';
+                                                                *modebuf = '\0';
+                                                                count = 0;
                                                             }
-                                                            if (!deopped && !isprot && !isserver && (privs&128)) {
+                                                            if (!deopped && !isprot && !isserver &&
+                                                                (privs & FLGOD)) {
                                                                 count++;
-                                                                strcat(modebuf,"-o");
-                                                                strcat(tmpbufmode," ");
-                                                                strcat(tmpbufmode,from);
+                                                                strcat(modebuf, "-o");
+                                                                strcat(tmpbufmode, " ");
+                                                                strcat(tmpbufmode, from);
                                                             }
-                                                            deopped=1;
+                                                            deopped = 1;
                                                         }
                                                         if (away_set || LogOn || (chan && chan->ChanLog)) {
-                                                            sprintf(tmpbuf,"%cBan%c on mask %s on channel %s by %s",
-                                                                    bold,bold,person,
-                                                                    chan->channel,from);
+                                                            sprintf(tmpbuf,
+                                                                    "%cBan%c on mask %s on channel %s by %s",
+                                                                    bold, bold, person,
+                                                                    chan->channel, from);
                                                             if (!isserver) {
-                                                                strcat(tmpbuf," (");
-                                                                strcat(tmpbuf,userhost);
-                                                                strcat(tmpbuf,")");
+                                                                strcat(tmpbuf, " (");
+                                                                strcat(tmpbuf, userhost);
+                                                                strcat(tmpbuf, ")");
                                                             }
-                                                            if (away_set || LogOn) AwaySave(tmpbuf,SAVEPROT);
-                                                            if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
+                                                            if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
+                                                            if (chan && chan->ChanLog)
+                                                                ChannelLogSave(tmpbuf, chan);
                                                         }
                                                         break;
                                                     }
                                                 }
                                             }
-                                            whowas=whowas->next;
+                                            whowas = whowas->next;
                                         }
                                     }
                                 }
                             }
                             else {
                                 if (!exception) chan->minusb++;
-                                minusban=1;
-                                if (RemoveBan(person,exception,chan)) {
+                                minusban = 1;
+                                if (RemoveBan(person, exception, chan)) {
                                     if (chan->CompressModes) {
-                                        if (compadd!=add) {
-                                            *compmodeadd++='-';
-                                            compadd=add;
+                                        if (compadd != add) {
+                                            *compmodeadd ++= '-';
+                                            compadd = add;
                                         }
-                                        *compmodeadd++=*mode_string;
-                                        strcat(compline,person);
-                                        strcat(compline," ");
+                                        *compmodeadd ++= *mode_string;
+                                        strcat(compline, person);
+                                        strcat(compline, " ");
                                     }
                                 }
                             }
@@ -1260,7 +1267,14 @@ char    *servmodes;
 /****************************************************************************/
  		case 'I':
  		case 'O': /* this is a weird special case */
-  			(void) next_arg(rest, &rest);
+/**************************** Patched by Flier ******************************/
+  			/*(void) next_arg(rest, &rest);*/
+  			arg = next_arg(rest, &rest);
+                        if (arg && check && chan->CompressModes) {
+                            strcat(compline, arg);
+                            strcat(compline, " ");
+                        }
+/****************************************************************************/
   			break;
 		case 'R':
 			value = MODE_REGONLY;
@@ -1271,109 +1285,108 @@ char    *servmodes;
 		else
 			*mode &= ~value;
 /**************************** PATCHED by Flier ******************************/
-                if (check && count==max) {
-                    if (HAS_OPS(*chop)) send_to_server("MODE %s %s %s",chan->channel,
-                                                        modebuf,tmpbufmode);
-                    *tmpbufmode='\0';
-                    *modebuf='\0';
-                    count=0;
+                if (check && count == max) {
+                    if (HAS_OPS(*chop)) send_to_server("MODE %s %s %s", chan->channel,
+                                                        modebuf, tmpbufmode);
+                    *tmpbufmode = '\0';
+                    *modebuf = '\0';
+                    count = 0;
                 }
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
-        if (tmpjoiner && tmpjoiner->frlist) privs=tmpjoiner->frlist->privs;
-        else privs=0;
+        if (tmpjoiner && tmpjoiner->frlist) privs = tmpjoiner->frlist->privs;
+        else privs = 0;
         if (chan->FriendList && chan->MDopWatch && tmpjoiner && !isitme &&
-            !(privs&(FLGOD | FLPROT))) {
-            if (tmpjoiner->curo>=DeopSensor && tmpjoiner->curo<DeopSensor*2) {
+            !(privs & (FLGOD | FLPROT))) {
+            if (tmpjoiner->curo >= DeopSensor && tmpjoiner->curo < DeopSensor * 2) {
                 if (!(tmpjoiner->deopp)) {
-                    if (!deopped && !isserver && (*chop&CHAN_CHOP)) {
+                    if (!deopped && !isserver && (*chop & CHAN_CHOP)) {
                         count++;
-                        strcat(modebuf,"-o");
-                        strcat(tmpbufmode," ");
-                        strcat(tmpbufmode,from);
+                        strcat(modebuf, "-o");
+                        strcat(tmpbufmode, " ");
+                        strcat(tmpbufmode, from);
                     }
-                    deopped=1;
+                    deopped = 1;
 #ifdef WANTANSI
-                    sprintf(tmpbuf,"%sMass deop%s detected on %s%s%s by %s%s%s",
-                            CmdsColors[COLWARNING].color1,Colors[COLOFF],
-                            CmdsColors[COLWARNING].color4,chan->channel,Colors[COLOFF],
-                            CmdsColors[COLWARNING].color2,from,Colors[COLOFF]);
+                    sprintf(tmpbuf, "%sMass deop%s detected on %s%s%s by %s%s%s",
+                            CmdsColors[COLWARNING].color1, Colors[COLOFF],
+                            CmdsColors[COLWARNING].color4, chan->channel, Colors[COLOFF],
+                            CmdsColors[COLWARNING].color2, from, Colors[COLOFF]);
 #else
                     sprintf(tmpbuf,"%cMass deop%c detected on %s by %s",
-                            bold,bold,chan->channel,from);
+                            bold, bold, chan->channel, from);
 #endif
-                    say("%s",tmpbuf);
+                    say("%s", tmpbuf);
                     if (away_set || LogOn || (chan && chan->ChanLog)) {
                         if (!isserver) {
-                            strcat(tmpbuf," (");
-                            strcat(tmpbuf,userhost);
-                            strcat(tmpbuf,")");
+                            strcat(tmpbuf, " (");
+                            strcat(tmpbuf, userhost);
+                            strcat(tmpbuf, ")");
                         }
-                        if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
-                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
+                        if (away_set || LogOn) AwaySave(tmpbuf, SAVEMASS);
+                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
                     }
                 }
-                tmpjoiner->deopp=1;
+                tmpjoiner->deopp = 1;
             }
-            else if (tmpjoiner->curo>=DeopSensor*2) {
-                if (tmpjoiner->deopp<2) {
-                    if (!deopped && !isserver && chan->KickOnFlood && (*chop&CHAN_CHOP))
-                        send_to_server("KICK %s %s :Deop flood detected",
-                                       chan->channel,from);
-                    deopped=1;
+            else if (tmpjoiner->curo >= DeopSensor * 2) {
+                if (tmpjoiner->deopp < 2) {
+                    if (!deopped && !isserver && chan->KickOnFlood && (*chop & CHAN_CHOP))
+                        send_to_server("KICK %s %s :Deop flood detected", chan->channel, from);
+                    deopped = 1;
 #ifdef WANTANSI
-                    sprintf(tmpbuf,"%sDeop flood%s detected on %s%s%s by %s%s%s",
-                            CmdsColors[COLWARNING].color1,Colors[COLOFF],
-                            CmdsColors[COLWARNING].color4,chan->channel,Colors[COLOFF],
-                            CmdsColors[COLWARNING].color2,from,Colors[COLOFF]);
+                    sprintf(tmpbuf, "%sDeop flood%s detected on %s%s%s by %s%s%s",
+                            CmdsColors[COLWARNING].color1, Colors[COLOFF],
+                            CmdsColors[COLWARNING].color4, chan->channel, Colors[COLOFF],
+                            CmdsColors[COLWARNING].color2, from, Colors[COLOFF]);
 #else
                     sprintf(tmpbuf,"%cDeop flood%c detected on %s by %s",
-                            bold,bold,chan->channel,from);
+                            bold, bold, chan->channel, from);
 #endif
-                    say("%s",tmpbuf);
+                    say("%s", tmpbuf);
                     if (away_set || LogOn || (chan && chan->ChanLog)) {
-                        sprintf(tmpbuf,"%cDeop flood%c detected on %s by %s",
-                                bold,bold,chan->channel,from);
+                        sprintf(tmpbuf, "%cDeop flood%c detected on %s by %s",
+                                bold, bold, chan->channel, from);
                         if (!isserver) {
-                            strcat(tmpbuf," (");
-                            strcat(tmpbuf,userhost);
-                            strcat(tmpbuf,")");
+                            strcat(tmpbuf, " (");
+                            strcat(tmpbuf, userhost);
+                            strcat(tmpbuf, ")");
                         }
-                        if (away_set || LogOn) AwaySave(tmpbuf,SAVEMASS);
-                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf,chan);
+                        if (away_set || LogOn) AwaySave(tmpbuf, SAVEMASS);
+                        if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
                     }
                 }
-                tmpjoiner->deopp=2;
+                tmpjoiner->deopp = 2;
             }
         }
         if (check) {
             if (HAS_OPS(*chop) && count)
-                send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpbufmode);
-            if ((chan->status&CHAN_CHOP) && chan->NHProt && *nhdeop)
-                send_to_server("MODE %s %s",chan->channel,nhdeop);
-            *servmodeadd='\0';
+                send_to_server("MODE %s %s %s", chan->channel, modebuf, tmpbufmode);
+            if ((chan->status & CHAN_CHOP) && chan->NHProt && *nhdeop)
+                send_to_server("MODE %s %s", chan->channel, nhdeop);
+            *servmodeadd = '\0';
             if (*servmodes) {
                 if (*servline) {
-                    strcat(servmodes," ");
-                    strcat(servmodes,servline);
+                    strcat(servmodes, " ");
+                    strcat(servmodes, servline);
                 }
-                if (servmodes[strlen(servmodes)-1]==' ')
-                    servmodes[strlen(servmodes)-1]='\0';
+                if (servmodes[strlen(servmodes) - 1] == ' ')
+                    servmodes[strlen(servmodes) - 1] = '\0';
             }
-            if (!chan->gotbans || !chan->gotwho) gotops=0;
+            if (!chan->gotbans || !chan->gotwho) gotops = 0;
             if (!isitme && minusban && HAS_OPS(*chop) && chan->gotbans && chan->gotwho && !gotops && chan->BKList)
                 CheckPermBans(chan);
             if (!isitme && gotops && (chan->FriendList || chan->BKList))
-                HandleGotOps(mynick,chan);
+                HandleGotOps(mynick, chan);
             if (chan->CompressModes) {
-                *compmodeadd='\0';
-                if (*compmode) sprintf(origmode,"%s %s",compmode,compline);
-                else *origmode='\0';
-                if (*origmode && origmode[strlen(origmode)-1]==' ')
-                    origmode[strlen(origmode)-1]='\0';
+                *compmodeadd = '\0';
+                if (*compmode) sprintf(origmode, "%s %s", compmode, compline);
+                else *origmode = '\0';
+                if (*origmode && origmode[strlen(origmode) - 1] == ' ')
+                    origmode[strlen(origmode) - 1] = '\0';
             }
-            else strcpy(origmode,tmporigmode);
+            else strcpy(origmode, tmporigmode);
         }
 /****************************************************************************/
 	if (limit_set)
