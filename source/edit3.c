@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.5 1998-10-07 16:51:10 f Exp $
+ * $Id: edit3.c,v 1.6 1998-10-21 17:38:37 f Exp $
  */
 
 #include "irc.h"
@@ -1464,7 +1464,7 @@ char *subargs;
     char *newnick=(char *) 0;
     char *newuser=(char *) 0;
     char *newreal=(char *) 0;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize/2];
 
     if (!(server=new_next_arg(args,&args))) PrintUsage("NET server [port] [nick] [username] [realname]");
     else {
@@ -1482,11 +1482,9 @@ char *subargs;
         if (!newnick) newnick=get_server_nickname(from_server);
         if (newuser) strmcpy(username,newuser,NAME_LEN);
         if (newreal) strmcpy(realname,newreal,REALNAME_LEN);
-        strcpy(tmpbuf,"NEW");
-        window(NULL,tmpbuf,NULL);
-        sprintf(tmpbuf,"SERVER %s:%s::%s",server,port,newnick);
         say("Creating new window on server %s port %s",server,port);
         say("Hit CONTROL-W then ? for help on window commands");
+        sprintf(tmpbuf,"NEW SERVER %s:%s::%s HIDE",server,port,newnick);
         window(NULL,tmpbuf,NULL);
     }
 }
