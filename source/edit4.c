@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.36 2000-05-14 07:57:56 f Exp $
+ * $Id: edit4.c,v 1.37 2000-07-20 19:06:15 f Exp $
  */
 
 #include "irc.h"
@@ -2698,6 +2698,14 @@ void ListSplitedServers()
         tmpsplit=tmpsplit->next;
     }
     say("End of missing servers list");
+    say("Servers new in links info");
+    for (tmpsplit=splitlist1;tmpsplit;tmpsplit=tmpsplit->next) {
+        found=0;
+        for (tmp=splitlist;tmp;tmp=tmp->next)
+            if (!my_stricmp(tmpsplit->servers,tmp->servers)) found=1;
+        if (!found) say("%s",tmpsplit->servers);
+    }
+    say("End of new servers list");
 }
 #endif
 
