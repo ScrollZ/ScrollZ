@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.26 2002-02-05 17:34:19 f Exp $
+ * $Id: alias.c,v 1.27 2002-02-24 11:38:30 f Exp $
  */
 
 #include "irc.h"
@@ -3804,7 +3804,7 @@ function_filestat(input)
 	u_char *input;
 {
 	struct	stat statbuf;
-	u_char	*result;
+	u_char	*result = (char *) 0;
 	char	lbuf[40];   /* 40 should be enough */
 
 
