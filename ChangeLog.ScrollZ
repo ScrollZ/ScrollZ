@@ -91,6 +91,7 @@ ScrollZ v1.8m, 15.10.2001
     + customizable timestamp format (SET STAMP_FORMAT to see default example,
       code submitted by braneded, thanks)
     ! don't skip IRC operators in FTRACE (reported by Hans)
+    ! show command that caused error in ScrollZ.save file
 
 ------------------------------------------------------------------------------
 
