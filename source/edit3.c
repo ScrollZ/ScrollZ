@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.9 1998-10-22 17:02:21 f Exp $
+ * $Id: edit3.c,v 1.10 1998-10-25 18:37:32 f Exp $
  */
 
 #include "irc.h"
@@ -1942,6 +1942,8 @@ int ScrollZLoad()
                 OnOffSet(&pointer,&ShowDCCStatus,&error,lineno,"CDCC STATUS");
             else if (!strcmp("STATS",tmpbuf3))
                 OnOffSet(&pointer,&CdccStats,&error,lineno,"CDCC STATS");
+            else if (!strcmp("VERBOSE",tmpbuf3))
+                OnOffSet(&pointer,&CdccVerbose,&error,lineno,"CDCC VERBOSE");
             else if (!strcmp("WARNING",tmpbuf3))
                 OnOffSet(&pointer,&DCCWarning,&error,lineno,"CDCC WARNING");
             else if (!strcmp("ULDIR",tmpbuf3))
@@ -2551,6 +2553,7 @@ void InitVars() {
 #endif
     DCCWarning=1;
     Stamp=0;
+    CdccVerbose=1;
     usersloaded=0;
     unban=0;
     MangleVersion(tmpbuf);
