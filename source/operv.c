@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.3 1998-10-06 17:50:09 f Exp $
+ * $Id: operv.c,v 1.4 1998-10-30 21:58:54 f Exp $
  */
 
 #include "irc.h"
@@ -251,6 +251,8 @@ char *from;
     else tmpline=line;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
     tmpline=tmpbuf;
+    /* If from has '.' in it is is server */
+    if (from && index(from,'.')) from=(char *) 0;
     /* We got new notice, needed for caching */
     NewNotice=1;
     /* Now we got the message, use strstr() to match it up */
