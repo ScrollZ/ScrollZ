@@ -107,6 +107,10 @@ Meaning of flags:
       files can be found in tools directory)
     + hopefully made scandir() stuff work on all platforms by moving the
       #ifdef magic to scandir.h
+    ! ircII NICK bug where entering existing nick twice resulted in client
+      believing it gained the nick (reported by dethnite and braneded)
+    ! don't select G0 character set null mapping so Putty works with ISO
+      8859-1 characters (reported by gamo)
 
 ------------------------------------------------------------------------------
 
