@@ -246,11 +246,12 @@ If no arguments are given, current channel will be versioned.
 Usage $3W filter$0
 If no channel is given current channel is used.
 :WALL          Notices all the ops on current channel
-Usage $3WALL$0 [$3+nick$0|$3-nick$0] $3text$0
-Words starting with $3-$0 will be checked against nicks on current
-channel and if matched, those nicks will be excluded from wall-op
-notice. The same is true for words starting with $3+$0 except that
-those nicks will be included in in wall-op notice.
+Usage $3WALL$0 [$3#channel$0] [$3+nick$0|$3-nick$0] $3text$0
+Words starting with $3-$0 will be checked against nicks on channel
+and if matched, those nicks will be excluded from wall-op notice.
+The same is true for words starting with $3+$0 except that those
+nicks will be included in in wall-op notice. If channel is omitted,
+current channel is used.
 Also look at $4SET MAX_WALLOP_NICKS$0 and $4SHOWWALLOP$0 setting in
 ScrollZ.save file.
 :WHOLEFT       Prints all the users that left with netsplit
