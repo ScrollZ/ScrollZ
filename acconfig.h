@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.10 2002-01-21 22:12:15 f Exp $
+ * $Id: acconfig.h,v 1.11 2002-10-03 18:13:59 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -121,9 +121,6 @@
 
 /* define this if you have an unknown hpux version (pre ver 7) */
 #undef HPUXUNKNOWN
-
-/* define this if you want experimental IPv6 support */
-#undef INET6
 
 /* define this if an unsigned long is 32 bits */
 #undef UNSIGNED_LONG32

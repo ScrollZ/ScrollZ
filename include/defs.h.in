@@ -118,9 +118,6 @@
 /* define this if you have an unknown hpux version (pre ver 7) */
 #undef HPUXUNKNOWN
 
-/* define this if you want experimental IPv6 support */
-#undef INET6
-
 /* define this if an unsigned long is 32 bits */
 #undef UNSIGNED_LONG32
 
