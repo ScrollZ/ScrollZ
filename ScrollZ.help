@@ -683,13 +683,13 @@ Also look at $2URL$0 and $2NOTEPAD$0
 Usage $3BAN$0 $3nick$0|$3filter$0 [$3nick$0|$3filter$0] ...
 Also look at $2BANTYPE$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :BK            Deops, bans and kicks user from your current channel
-Usage $3BK nick$0 [$3comment$0]
+Usage $3BK nick$0 [$3#channel$0] [$3comment$0]
 Also look at $2BANTYPE$0, $2BAN$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :BKI           Like BK but also ignores user
-Usage $3BKI nick$0 [$3comment$0]
+Usage $3BKI nick$0 [$3#channel$0] [$3comment$0]
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :BKT           Like BK with unban after 5 seconds
-Usage $3BKT nick$0 [$3comment$0]
+Usage $3BKT nick$0 [$3#channel$0] [$3comment$0]
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2UNBAN$0, $2TBAN$0, $2CDBAN$0, $2SB$0 and $2DOBANS$0
 :CDBAN         Clears bans on current channel
 Also look at $2BANTYPE$0, $2BAN$0, $2BK$0, $2BKI$0, $2BKT$0, $2UNBAN$0, $2TBAN$0, $2SB$0 and $2DOBANS$0
