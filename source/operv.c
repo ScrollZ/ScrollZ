@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.23 2000-08-06 19:43:03 f Exp $
+ * $Id: operv.c,v 1.24 2000-08-10 17:45:49 f Exp $
  */
 
 #include "irc.h"
@@ -1138,3 +1138,26 @@ char *from;
                 CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
 }
 #endif
+
+void OperVisionReinit(void) {
+    int ovwinref;
+    int curwinref;
+    unsigned int display;
+    char tmpbuf[mybufsize/4+1];
+    Window *ovwin;
+
+    curwinref=curr_scr_win->refnum;
+    ovwin=get_window_by_name("OV");
+    /* if we can't locate OperV window silently ignore */
+    if (!ovwin) return;
+    ovwinref=ovwin->refnum;
+    /* turn on additional user modes */
+    CreateMode(tmpbuf,mybufsize/4);
+    send_to_server("MODE %s :+%s",get_server_nickname(from_server),tmpbuf);
+    sprintf(tmpbuf,"REFNUM %d LEVEL OPNOTE,SNOTE,WALLOP REFNUM %d",
+            ovwinref,curwinref);
+    display=window_display;
+    window_display=0;
+    windowcmd(NULL,tmpbuf,NULL);
+    window_display=display;
+}
