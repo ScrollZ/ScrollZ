@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.7 2001-04-17 17:57:05 f Exp $
+ * $Id: ignore.c,v 1.8 2001-07-23 20:19:59 f Exp $
  */
 
 #include "irc.h"
@@ -82,6 +82,9 @@ typedef struct	IgnoreStru
 	int	type;
 	int	dont;
 	int	high;
+/**************************** Patched by Flier ******************************/
+        int     perm;
+/****************************************************************************/
 }	Ignore;
 
 /* ignored_nicks: pointer to the head of the ignore list */
@@ -164,6 +167,7 @@ ignore_nickname(nick, type, flag, timedignore)
 					malloc_strcpy(&(new->nick), nick);
 /**************************** PATCHED by Flier ******************************/
                                         /*upper(new->nick);*/
+                                        new->perm=timedignore?0:1;
 /****************************************************************************/
 					add_to_list((List **) &ignored_nicks, (List *) new);
 				}
@@ -713,5 +717,32 @@ void CleanUpIgnore() {
         new_free(&(tmpignore->nick));
         new_free(&tmpignore);
     }
+}
+
+/* Save ignore list */
+int IgnoreSave(fp)
+FILE *fp;
+{
+    int count=0;
+    char tmpbuf[mybufsize/2];
+    Ignore *tmp;
+
+    for (tmp=ignored_nicks;tmp;tmp=tmp->next) {
+        if (!(tmp->perm)) continue;
+        *tmpbuf='\0';
+        if (tmp->type==IGNORE_ALL) strmcpy(tmpbuf,"ALL",mybufsize/2);
+        if (tmp->type&IGNORE_PUBLIC) strmcat(tmpbuf," PUBLIC",mybufsize/2);
+        if (tmp->type&IGNORE_MSGS) strmcat(tmpbuf," MSGS",mybufsize/2);
+        if (tmp->type&IGNORE_WALLS) strmcat(tmpbuf," WALLS",mybufsize/2);
+        if (tmp->type&IGNORE_WALLOPS) strmcat(tmpbuf," WALLOPS",mybufsize/2);
+        if (tmp->type&IGNORE_INVITES) strmcat(tmpbuf," INVITES",mybufsize/2);
+        if (tmp->type&IGNORE_NOTICES) strmcat(tmpbuf," NOTICES",mybufsize/2);
+        if (tmp->type&IGNORE_NOTES) strmcat(tmpbuf," NOTES",mybufsize/2);
+        if (tmp->type&IGNORE_CTCPS) strmcat(tmpbuf," CTCPS",mybufsize/2);
+        if (tmp->type&IGNORE_CRAP) strmcat(tmpbuf," CRAP",mybufsize/2);
+        fprintf(fp,"IGN   %s %s\n",tmp->nick,tmpbuf);
+        count++;
+    }
+    return(count);
 }
 /****************************************************************************/

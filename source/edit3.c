@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.65 2001-07-21 19:07:46 f Exp $
+ * $Id: edit3.c,v 1.66 2001-07-23 20:19:59 f Exp $
  */
 
 #include "irc.h"
@@ -1900,6 +1900,30 @@ int ScrollZLoad()
             }
             add_to_list_ext((List **) &wordlist,(List *) wordnew,
                             (int (*) _((List *, List *))) AddLast);
+        }
+        else if (!strcmp("IGN",tmpbuf3)) {
+            int display=window_display;
+            char *ign=NULL;
+
+            NextArg(pointer,&pointer,tmpbuf2);
+            NextArg(pointer,&pointer,tmpbuf3);
+            if (!(*tmpbuf2)) {
+                PrintError("missing PATTERN","in IGN",lineno);
+                loaderror=1;
+                continue;
+            }
+            if (!(*tmpbuf3)) {
+                PrintError("missing IGNORE TYPE","in IGN",lineno);
+                loaderror=1;
+                continue;
+            }
+            malloc_strcpy(&ign,tmpbuf2);
+            malloc_strcat(&ign," ");
+            malloc_strcat(&ign,tmpbuf3);
+            window_display=0;
+            ignore(NULL,ign,NULL);
+            window_display=display;
+            new_free(&ign);
         }
         else if (!strcmp("EXTMES",tmpbuf3))
             OnOffSet(&pointer,&ExtMes,&loaderror,lineno,"EXTMES");

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.62 2001-07-21 19:07:46 f Exp $
+ * $Id: edit2.c,v 1.63 2001-07-23 20:19:59 f Exp $
  */
 
 #include "irc.h"
@@ -169,6 +169,7 @@ extern void CheckJoinChannel _((WhoisStuff *, char *, char *));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern int  CheckServer _((int));
 extern char *FormatTime _((int));
+extern int  IgnoreSave _((FILE *));
 extern int  matchmcommand _((char *, int));
 extern NickList *find_in_hash _((ChannelList *, char *));
 extern void add_nick_to_hash _((ChannelList *, NickList *));
@@ -1670,6 +1671,7 @@ char *subargs;
     int  slistcount;
     int  nlistcount;
     int  wlistcount;
+    int  ilistcount;
     int  oldumask=umask(0177);
     char *filepath;
     char *filebak;
@@ -1755,8 +1757,13 @@ char *subargs;
                 tmpword->channels,tmpword->word,tmpword->reason);
         wlistcount++;
     }
-    say("Saved %d fl, %d sl, %d nl and %d wk entries",ulistcount,slistcount,nlistcount,
-        wlistcount);
+    fprintf(usfile,"#\n");
+    fprintf(usfile,"# Permanent ignore list\n");
+    fprintf(usfile,"# IGN    pattern level\n");
+    fprintf(usfile,"#\n");
+    ilistcount=IgnoreSave(usfile);
+    say("Saved %d fl, %d sl, %d nl, %d wk and %d il entries",ulistcount,
+        slistcount,nlistcount,wlistcount,ilistcount);
     fprintf(usfile,"#\n");
     fprintf(usfile,"# Various user definable settings\n");
     fprintf(usfile,"#\n");
