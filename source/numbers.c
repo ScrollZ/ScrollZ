@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.38 2001-08-05 16:11:17 f Exp $
+ * $Id: numbers.c,v 1.39 2001-08-06 19:18:33 f Exp $
  */
 
 #include "irc.h"
@@ -715,7 +715,7 @@ cannot_join_channel(from, ArgList)
         if (-current_numeric==437) {
             /* special case for ircd 2.9 */
             strcpy(buffer,ArgList[0]);
-            strcat(buffer," Sorry, cannot join channel.");
+            strcat(buffer," Cannot join channel ");
         }
         else {
             /* valid for the rest of numerics covered here */
@@ -1265,6 +1265,7 @@ numbered_command(from, comm, ArgList)
  	case 476:		/* #define ERR_BADCHANMASK      476 */
 /**************************** PATCHED by Flier ******************************/
  	case 477:
+ 	case 276:               /* hybrid7 - virtual channels       */
 /****************************************************************************/
  		cannot_join_channel(from, ArgList);
  		break;
