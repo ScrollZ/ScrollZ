@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.31 1999-07-24 12:41:48 f Exp $
+ * $Id: edit2.c,v 1.32 1999-08-18 19:58:59 f Exp $
  */
 
 #include "irc.h"
@@ -1369,19 +1369,37 @@ void ListFriendsPage(line)
 char *line;
 {
     int  count=3;
+    int  filter;
 #ifdef WANTANSI
-    char *tmpstr;
     int  i;
 #endif
+    char *tmpstr;
     char tmpbuf1[mybufsize/4];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize/4];
     char tmpbuf3[mybufsize/4];
 #endif
 
+    if ((filter=(*line=='#'))) {
+        tmpstr=line;
+        tmpstr++;
+        while (*tmpstr) {
+            if (!(isdigit(*tmpstr) || *tmpstr=='-' || *tmpstr==',')) {
+                filter=0;
+                break;
+            }
+            tmpstr++;
+        }
+        /*
+         * filter=0 -> non-digits found (it's a channel)
+         * filter>0 -> only digits found
+         */
+        filter=filter?2:1;
+    }
     while (count<curr_scr_win->display_size && tmpfriendlist!=NULL) {
         countall++;
-        if ((*line=='#' && CheckChannel2(line,tmpfriendlist->channels)) ||
+        if ((filter==1 && CheckChannel2(line,tmpfriendlist->channels)) ||
+            (filter==2 && matchmcommand(line+1,countall)) ||
             wild_match(line,tmpfriendlist->userhost) ||
             wild_match(tmpfriendlist->userhost,line)) {
             listcount++;
@@ -2575,6 +2593,7 @@ char *userhost;
     int  found=0;
     int  filter;
     int  count=0;
+    char *tmpstr=userhost;
     char tmpbuf[mybufsize/4];
     struct friends *tmpfriend;
     struct friends *tmpfriend1;
@@ -2582,13 +2601,27 @@ char *userhost;
     NickList *tmp;
     ChannelList *tmpchan;
 
-    filter=*userhost=='#';
+    if ((filter=(*userhost=='#'))) {
+        tmpstr++;
+        while (*tmpstr) {
+            if (!(isdigit(*tmpstr) || *tmpstr=='-' || *tmpstr==',')) {
+                filter=0;
+                break;
+            }
+            tmpstr++;
+        }
+        /*
+         * filter=0 -> non-digits found (it's a channel)
+         * filter>0 -> only digits found
+         */
+        filter=filter?2:1;
+    }
     tmpfriend2=frlist;
     tmpfriend=frlist;
     while (tmpfriend2) {
         count++;
-        if ((filter && matchmcommand(&userhost[1],count)) ||
-            (filter && wild_match(tmpfriend2->channels,userhost)) ||
+        if ((filter==2 && matchmcommand(&userhost[1],count)) ||
+            (filter==1 && wild_match(tmpfriend2->channels,userhost)) ||
             wild_match(tmpfriend2->userhost,userhost) ||
             wild_match(userhost,tmpfriend2->userhost)) {
 #ifdef WANTANSI
