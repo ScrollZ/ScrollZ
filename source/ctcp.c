@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.46 2003-11-17 17:22:13 f Exp $
+ * $Id: ctcp.c,v 1.47 2003-11-17 20:25:23 f Exp $
  */
 
 #include "irc.h"
@@ -1499,25 +1499,27 @@ do_atmosphere(ctcp, from, to, cmd)
 /****************************************************************************/
 			}
 /**************************** Patched by Flier ******************************/
-						/* xxx braneded */
-						chan = lookup_channel(to, parsing_server_index, 0);
-						if (chan) {
-							joiner = CheckJoiners(from, to, parsing_server_index, chan);
-							if (joiner)
-							{
-								isshit = joiner->shitlist ? joiner->shitlist->shit : 0;
-								isfriend = (!isshit && joiner->frlist) ? joiner->frlist->privs : 0;
-								Check4WordKick(cmd, joiner, isfriend, chan);
-
-								if (ChanLog) {
-									char tmpbuf2[mybufsize];
-									if (chan->ChanLog) {
-										snprintf(tmpbuf2, sizeof(tmpbuf2), "* %s %s", from, cmd);
-										ChannelLogSave(tmpbuf2, chan);
-									}
-								}
-							}
-					}
+                        /* by braneded */
+                        chan = lookup_channel(to, parsing_server_index, 0);
+                        if (chan) {
+                            joiner = CheckJoiners(from, to,
+                                                  parsing_server_index, chan);
+                            if (joiner) {
+                                isshit = joiner->shitlist ?
+                                         joiner->shitlist->shit : 0;
+                                isfriend = (!isshit && joiner->frlist) ?
+                                           joiner->frlist->privs : 0;
+                                Check4WordKick(cmd, joiner, isfriend, chan);
+                                if (ChanLog) {
+                                    char tmpbuf2[mybufsize];
+                                    if (chan->ChanLog) {
+                                        snprintf(tmpbuf2, sizeof(tmpbuf2),
+                                                 "* %s %s", from, cmd);
+                                        ChannelLogSave(tmpbuf2, chan);
+                                    }
+                                }
+                            }
+                        }
 /****************************************************************************/
 		}
 		else
