@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.7 2001-06-12 18:18:48 f Exp $
+ * $Id: lastlog.c,v 1.8 2001-11-27 20:37:56 f Exp $
  */
 
 #include "irc.h"
@@ -538,13 +538,15 @@ out:
 
                             tmpbuf=(char *) new_malloc(strlen(start_pos->msg)+1);
                             StripAnsi(start_pos->msg,tmpbuf,1);
-                            tmpstr=tmpbuf;
-                            if (*tmpstr=='(' && isdigit(*(tmpstr+1))) {
+                            tmpstr=index(tmpbuf,':');
+                            if (tmpstr && tmpstr-tmpbuf<strlen(tmpbuf)/4 &&
+                                isdigit(*(tmpstr-1)) && isdigit(*(tmpstr+1))) {
                                 int hours;
                                 int minutes=0;
                                 char *minstr;
 
-                                tmpstr++;
+                                tmpstr--;
+                                if (isdigit(*(tmpstr-1))) tmpstr--;
                                 hours=atoi(tmpstr);
                                 minstr=tmpstr;
                                 while (*minstr && !isspace(*minstr)) {
