@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.21 2001-01-22 18:19:01 f Exp $
+ * $Id: names.c,v 1.22 2001-03-05 17:13:41 f Exp $
  */
 
 #include "irc.h"
@@ -1361,7 +1361,6 @@ free_channel(channel)
         (*channel)->limit=0;
         new_free(&((*channel)->key));
         new_free(&((*channel)->s_mode));
-        new_free(&((*channel)->modelock));
         new_free(&((*channel)->topicstr));
         new_free(&((*channel)->topicwho));
         ClearBans((*channel));
