@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.94 2002-03-03 11:03:23 f Exp $
+ * $Id: edit5.c,v 1.95 2002-03-05 18:11:19 f Exp $
  */
 
 #include "irc.h"
@@ -1503,7 +1503,7 @@ int  iscrypted;
             strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color4,sizeof(tmpbuf1));
             /* Display AR in current screen window too
                if it's different from orig channel window  -Pier */
-            if ((ARinWindow==3) || (ARinWindow && chan->window!=curr_scr_win)) {
+            if (ARinWindow==3 || (ARinWindow && chan->window!=curr_scr_win)) {
                 oldwin=to_window;
                 if (ARinWindow==1) /* ON */
                     to_window=curr_scr_win;
@@ -1535,15 +1535,6 @@ int  iscrypted;
                         CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF]);
                 put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,
                         CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
-                if (ARinWindow==3) {
-                    Window *tmpwin=curr_scr_win;
-
-                    if (tmpwin!=to_window) {
-                        to_window=tmpwin;
-                        put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,
-                                CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
-                    }
-                }
                 to_window=oldwin; 
             }
         }
