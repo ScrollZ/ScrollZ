@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.51 2000-12-04 19:51:22 f Exp $
+ * $Id: edit5.c,v 1.52 2000-12-11 16:19:55 f Exp $
  */
 
 #include "irc.h"
@@ -1327,7 +1327,7 @@ int  print;
     *stampbuf='\0';
     if (chan) {
         chan->pub++;
-        if (chan->Stamp) {
+        if (Stamp) {
 #ifdef WANTANSI
             sprintf(stampbuf,"%s(%s%s%s)%s ",
                     CmdsColors[COLPUBLIC].color2,Colors[COLOFF],update_clock(0,0,GET_TIME),
