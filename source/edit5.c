@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.90 2002-02-23 10:08:57 f Exp $
+ * $Id: edit5.c,v 1.91 2002-02-25 18:18:05 f Exp $
  */
 
 #include "irc.h"
@@ -1364,6 +1364,38 @@ char *line;
 #endif /* WANTANSI */
 }
 
+/* Returns true if line matches auto reply buffer */
+int AutoReplyMatch(line)
+char *line;
+{
+    int foundar = 0;
+    int invmatch;
+    char *newar;
+    char *currentar;
+    char tmpbuf1[mybufsize / 2];
+    char tmpbuf2[2 * mybufsize];
+
+    strmcpy(tmpbuf1, AutoReplyBuffer, sizeof(tmpbuf1));
+    currentar = tmpbuf1;
+    do {
+        invmatch = 0;
+        if ((newar = strchr(currentar, ','))) *newar++ = '\0';
+        if (*currentar == '-') {
+            currentar++;
+            invmatch = 1;
+        }
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "%s %s", currentar, line);
+        currentar = function_match(tmpbuf2);
+        if (atoi(currentar) > 0) {
+            if (!invmatch) foundar = 1;
+            else foundar = 0;
+        }
+        new_free(&currentar);
+        currentar = newar;
+    } while (currentar);
+    return(foundar);
+}
+
 /* Prints public message */
 void PrintPublic(nick,col,channel,line,print,iscrypted)
 char *nick;
@@ -1387,8 +1419,6 @@ int  iscrypted;
     char *mynick;
     char *newcol;
     char *newchan;
-    char *currentar;
-    char *newar;
     char *filepath=NULL;
     char tmpbuf1[mybufsize/8];
     char tmpbuf2[mybufsize/2];
@@ -1463,29 +1493,8 @@ int  iscrypted;
             strmcat(tmpbuf3,Colors[COLOFF],sizeof(tmpbuf3));
             strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
         }
-        if (!isitme && AutoReplyBuffer) {
-            int invmatch;
-
-            strmcpy(tmpbuf2,AutoReplyBuffer,sizeof(tmpbuf2));
-            currentar=tmpbuf2;
-            do {
-                invmatch=0;
-                if ((newar=strchr(currentar,','))) *newar++='\0';
-                if (*currentar=='-') {
-                    currentar++;
-                    invmatch=1;
-                }
-                snprintf(tmpbuf3,sizeof(tmpbuf3),"%s %s",currentar,tmpbuf4);
-                currentar=function_match(tmpbuf3);
-                if (atoi(currentar)>0) {
-                    if (!invmatch) foundar=1;
-                    else foundar=0;
-                }
-                new_free(&currentar);
-                currentar=newar;
-            }
-            while (currentar);
-        }
+        if (!isitme && AutoReplyBuffer)
+            foundar=AutoReplyMatch(tmpbuf4);
         if (!foundar || isitme) {
             if (Ego && isitme) strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color6,sizeof(tmpbuf1));
             else strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color1,sizeof(tmpbuf1));
