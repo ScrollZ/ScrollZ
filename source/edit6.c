@@ -57,7 +57,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.44 1999-08-15 09:59:12 f Exp $
+ * $Id: edit6.c,v 1.45 1999-08-17 19:54:42 f Exp $
  */
 
 #include "irc.h"
@@ -210,22 +210,25 @@ int  server;
 
     if (AutoInv) {
         sprintf(tmpbuf,"%s!%s",nick,userhost);
-        for (tmpchan=server_list[server].chan_list;tmpchan;tmpchan=tmpchan->next)
+        for (tmpchan=server_list[server].chan_list;tmpchan;tmpchan=tmpchan->next) {
+            if (!CheckChannel(tmpchan->channel,AutoInvChannels)) continue;
 #if defined(ACID) || defined(FLIER)
-            if ((tmpchan->status)&CHAN_CHOP) {
+            if ((tmpchan->status)&CHAN_CHOP)
 #else
-            if (((tmpchan->status)&CHAN_CHOP) && ((tmpchan->mode)&MODE_INVITE)) {
+            if (((tmpchan->status)&CHAN_CHOP) && ((tmpchan->mode)&MODE_INVITE))
 #endif /* ACID || FLIER */
+            {
                 tmpnick=find_in_hash(tmpchan,nick);
+                tmpfriend=CheckUsers(tmpbuf,tmpchan->channel);
                 if (!tmpnick && (tmpfriend=CheckUsers(tmpbuf,tmpchan->channel)) &&
                     !(tmpfriend->passwd) &&
 #ifdef ACID
-                    ((tmpfriend->privs)&FLINVITE))
+                    ((tmpfriend->privs)&FLINVITE)
 #else
                     ((tmpfriend->privs)&(FLINVITE | FLCHOPS | FLOP | FLUNBAN))==
-                     (FLINVITE | FLCHOPS | FLOP | FLUNBAN))
+                     (FLINVITE | FLCHOPS | FLOP | FLUNBAN)
 #endif /* ACID */
-                     {
+                     ) {
 #ifndef VILAS
                          if (tmpchan->key)
                              send_to_server("NOTICE %s :You have been ctcp invited to %s (key is %s) -ScrollZ-",nick,tmpchan->channel,tmpchan->key);
@@ -237,6 +240,8 @@ int  server;
                          send_to_server("INVITE %s %s",nick,tmpchan->channel);
                      }
             }
+        }
+            
     }
 }
 #endif /* EXTRAS || FLIER */
