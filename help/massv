@@ -1,4 +1,4 @@
-!	 $Id: massv,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: massv,v 1.4 2002-08-12 18:32:53 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -13,6 +13,8 @@ Usage: MASSV [-F] [-A] [#channel]
 
 See also:
   MOP
+  MHOP
   MREOP
   MDOP
+  MDHOP
   MASSDV
