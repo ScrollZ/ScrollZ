@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.4 1999-02-15 21:20:26 f Exp $
+ * $Id: whois.c,v 1.5 1999-02-17 17:55:08 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -1139,8 +1139,12 @@ whois_ignore_walls(stuff, nick, text)
 		}
 		new_free(&ptr);
 	}
+/**************************** PATCHED by Flier ******************************/
+	/*set_lastlog_msg_level(level);
+ 	save_message_from();*/
+ 	restore_message_from();
 	set_lastlog_msg_level(level);
- 	save_message_from();
+/****************************************************************************/
 }
 
 void

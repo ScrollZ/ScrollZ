@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.10 1999-02-15 21:20:06 f Exp $
+ * $Id: parse.c,v 1.11 1999-02-17 17:55:06 f Exp $
  */
 
 #include "irc.h"
@@ -305,7 +305,7 @@ topic(from, ArgList)
                     malloc_strcpy(&(chan->topicwho),from);
                     chan->topicwhen=timenow;
                 }
-                if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) return;
+                if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) goto out;
 /****************************************************************************/				
 		if (do_hook(TOPIC_LIST, "%s %s %s", from, ArgList[0], ArgList[1]))
 /**************************** PATCHED by Flier ******************************/
@@ -319,10 +319,11 @@ topic(from, ArgList)
                                     from, ArgList[0]);
 /****************************************************************************/
 	}
- 	restore_message_from();
 /**************************** PATCHED by Flier ******************************/
+    out:
         update_all_status();
 /****************************************************************************/
+ 	restore_message_from();
 }
 
 static	void
@@ -1184,6 +1185,7 @@ out:
                                 send_to_server("MODE %s -o %s",channel,from);
                         }
                         if (chan_oper && NHDisp==2) {
+                            save_message_from();
                             message_from(channel, LOG_CRAP);
 #ifdef WANTANSI
                             sprintf(tmpbuf1,"[%s%s%s] on %s%s%s",
@@ -1198,7 +1200,7 @@ out:
 #endif
                             say("%s",tmpbuf2);
                             if (away_set || LogOn) AwaySave(tmpbuf2,SAVEHACK);
-                            message_from((char *) 0, LOG_CURRENT);
+                            restore_message_from();
                         }
                 }
 /**********************************************************************/

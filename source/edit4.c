@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.14 1999-01-11 18:51:19 f Exp $
+ * $Id: edit4.c,v 1.15 1999-02-17 17:55:03 f Exp $
  */
 
 #include "irc.h"
@@ -865,6 +865,7 @@ char *userhost;
 int  print;
 {
     int  hooked=1;
+    int  savemessage=0;
     char *tmp;
     char *wallop;
     char *wallchan;
@@ -890,7 +891,11 @@ int  print;
             if ((chan=lookup_channel(tmpbuf2,parsing_server_index,CHAN_NOUNLINK)))
                 foundchan=chan;
         }
-        if (foundchan) message_from(foundchan->channel,LOG_NOTICE);
+        if (foundchan) {
+            save_message_from();
+            message_from(foundchan->channel,LOG_NOTICE);
+            savemessage=1;
+        }
     }
     if (!foundchan || (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,nick,
                                             notice+(wallop-tmpbuf+1)))) {
@@ -920,6 +925,7 @@ int  print;
     malloc_strcpy(&(server_list[from_server].LastNotice),tmpbuf);
     if (!print && (away_set || LogOn))
         AwaySave(server_list[from_server].LastNotice,SAVENOTICE);
+    if (savemessage) restore_message_from();
     return(!hooked);
 }
 

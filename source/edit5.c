@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.18 1999-02-15 21:19:12 f Exp $
+ * $Id: edit5.c,v 1.19 1999-02-17 17:55:04 f Exp $
  */
 
 #include "irc.h"
@@ -215,10 +215,11 @@ char **ArgList;
         if ((chan=lookup_channel(channel,from_server,0))) {
             chan->topicwhen=atoi(ArgList[2]);
             malloc_strcpy(&(chan->topicwho),ArgList[1]);
+            save_message_from();
             message_from(channel, LOG_CRAP);
             put_it("%s Set by %s on %.19s",numeric_banner(),chan->topicwho,
                    ctime(&(chan->topicwhen)));
-            message_from((char *) 0, LOG_CURRENT);
+            restore_message_from();
         }
     }
 }
@@ -1005,9 +1006,10 @@ int  frkick;
     else say("%s %s%s%s",tmpbuf,
              CmdsColors[COLKICK].color2,from,Colors[COLOFF]);
     if (rejoin) {
+        save_message_from();
 	message_from(channel,LOG_CRAP);
         say("Auto rejoining %s%s%s",CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
-	message_from((char *) 0,LOG_CURRENT);
+        restore_message_from();
     }
 #else
     if (comment && *comment) say("%s %s been kicked from channel %s by %s (%s)",
@@ -1015,9 +1017,10 @@ int  frkick;
     else say("%s %s been kicked from channel %s by %s (%s)",
              who,word,channel,from);
     if (rejoin) {
+        save_message_from();
 	message_from(channel,LOG_CRAP);
         say("Auto rejoining %s",channel);
-	message_from((char *) 0,LOG_CURRENT);
+        restore_message_from();
     }
 #endif
 }

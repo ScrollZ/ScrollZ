@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.22 1999-02-17 17:30:42 f Exp $
+ * $Id: edit6.c,v 1.23 1999-02-17 17:55:05 f Exp $
  */
 
 #include "irc.h"
@@ -1785,6 +1785,7 @@ char **ArgList;
         channel=ArgList[0];
         createtime=atoi(ArgList[1]);
         if ((chan=lookup_channel(channel,from_server,0))) {
+            save_message_from();
             message_from(ArgList[0],LOG_CRAP);
             if (createtime) {
 #ifdef WANTANSI
@@ -1804,7 +1805,7 @@ char **ArgList;
                 put_it("%s Time stamping is off for channel %s",numeric_banner(),channel);
 #endif
             }
-            message_from((char *) 0,LOG_CURRENT);
+            restore_message_from();
         }
     }
 }

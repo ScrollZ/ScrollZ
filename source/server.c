@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.9 1999-02-15 21:20:14 f Exp $
+ * $Id: server.c,v 1.10 1999-02-17 17:55:07 f Exp $
  */
 
 #include "irc.h"
@@ -312,12 +312,13 @@ do_server(rd, wd)
 				close_server(i, empty_string);
 /**************************** Patched by Flier ******************************/
                                 /* to force window activity */
+                                save_message_from();
                                 message_from((char *) 0,LOG_CRAP);
 /****************************************************************************/
 				say("Connection closed from %s: %s", server_list[i].name,
 					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
 /**************************** Patched by Flier ******************************/
-                                message_from((char *) 0,LOG_CURRENT);
+                                restore_message_from();
 				sprintf(tmpbuf,"Connection closed from %s: %s",server_list[i].name,
 					dgets_errno == -1?"Remote end closed connection":strerror(dgets_errno));
                                 HandleClosedConn(i,tmpbuf);
