@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.25 2002-02-01 18:56:49 f Exp $
+ * $Id: screen.c,v 1.26 2002-02-01 18:57:30 f Exp $
  */
 
 #include "irc.h"
@@ -2686,4 +2686,4 @@ screen_wserv_message(screen)
 	term_resize();
 	current_screen = old_screen;
 }
-#endif
+#endif /* WINDOW_CREATE */

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.81 2002-02-01 18:47:37 f Exp $
+ * $Id: irc.c,v 1.82 2002-02-01 18:57:30 f Exp $
  */
 
 #define IRCII_VERSION	"20011210"	/* YYYYMMDD */
@@ -1460,9 +1460,11 @@ irc_io(prompt, func, my_use_input, loop)
 				if (!screen->alive)
 					continue;
 				set_current_screen(screen);
+#ifdef WINDOW_CREATE
 				if (!is_main_screen(screen) &&
 				    FD_ISSET(screen->wservin, &rd))
 					screen_wserv_message(screen);
+#endif /* WINDOW_CREATE */
 				if (FD_ISSET(screen->fdin, &rd))
 				{
 
