@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.41 2001-08-25 18:25:15 f Exp $
+ * $Id: numbers.c,v 1.42 2001-08-27 17:20:19 f Exp $
  */
 
 #include "irc.h"
@@ -1143,13 +1143,8 @@ numbered_command(from, comm, ArgList)
 /*************************************************************************/		
 
  	case 405:		/* #define ERR_TOOMANYCHANNELS  405 */
-/************************** PATCHED by Flier *****************************/
- 		/*remove_channel(ArgList[0], parsing_server_index);*/
-                PasteArgs(ArgList,0);
-                strmcpy(tmpbuf,ArgList[0],mybufsize/4);
-                tmpnick=tmpbuf;
-                next_arg(tmpnick,&tmpnick);
-                PurgeChannel(tmpbuf,parsing_server_index);
+ 		remove_channel(ArgList[0], parsing_server_index);
+/**************************** Patched by Flier ******************************/
 		if (do_hook(current_numeric, "%s %s", from, *ArgList))
                     display_msg(from, ArgList);
 /*************************************************************************/		
