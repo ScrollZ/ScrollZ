@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.5 1998-09-30 18:09:26 f Exp $
+ * $Id: parse.c,v 1.6 1998-10-06 17:50:10 f Exp $
  */
 
 #include "irc.h"
@@ -86,7 +86,7 @@ extern void PrintPublic _((char *, char *, char *, char *, int));
 extern void DoKill _((char *, char *, char *));
 extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 #if defined(OPERVISION) && defined(WANTANSI)
-extern void OVformat _((char *));
+extern void OVformat _((char *, char *));
 #endif
 extern void AutoChangeNick _((char *));
 extern void AwaySave _((char *, int));
@@ -399,7 +399,7 @@ wallops(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s!%s!%s %s", high, from, high, line);*/
 #if defined(OPERVISION) && defined(WANTANSI)
-                            if (OperV) OVformat(line);
+                            if (OperV) OVformat(line,from);
                             else
 #endif
                             put_it("%s!%s!%s %s", high, from, high, line);
@@ -421,7 +421,7 @@ wallops(from, ArgList)
 			put_it("!%s! %s", from, line);*/
                 else {
 #if defined(OPERVISION) && defined(WANTANSI)
-                    if (OperV) OVformat(line);
+                    if (OperV) OVformat(line,from);
                     else
 #endif
                     put_it("!%s! %s", from, line);

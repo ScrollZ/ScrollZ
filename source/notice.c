@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.2 1998-09-10 17:45:51 f Exp $
+ * $Id: notice.c,v 1.3 1998-10-06 17:50:08 f Exp $
  */
 
 #include "irc.h"
@@ -58,7 +58,7 @@
 extern void HandleFakes _((char *, char *, int));
 extern int HandleNotice _((char *, char *, char *, int));
 #if defined(OPERVISION) && defined(WANTANSI)
-extern void OVformat _((char *));
+extern void OVformat _((char *, char *));
 #endif
 /*********************************************************************/
 
@@ -172,12 +172,13 @@ parse_server_notice(from, line)
 		/*put_it(flag ? "*** %s" : "%s", line);*/
             if (strncmp(line,"*** Your host is ",17)) {
 #if defined(OPERVISION) && defined(WANTANSI)
-                if (OperV) OVformat(line);
+                if (OperV) OVformat(line,NULL);
                 else
 #endif
                 if (!ServerNotice && strncmp(line, "*** Notice --", 13)) say("%s",line);
                 else if (ServerNotice) say("%s",line);
-                else if (wild_match("*notice*fake*",line)) HandleFakes(line,from,from_server);
+                else if (ShowFakes && wild_match("*notice*fake*",line))
+                    HandleFakes(line,from,from_server);
             }
 /***************************************************************************/      
 	if ((parsing_server_index == primary_server) &&

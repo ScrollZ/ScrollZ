@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.2 1998-09-10 17:45:58 f Exp $
+ * $Id: operv.c,v 1.3 1998-10-06 17:50:09 f Exp $
  */
 
 #include "irc.h"
@@ -232,8 +232,9 @@ char *nuh;
     return(tmpbuf);
 }
 
-void OVformat(line)
+void OVformat(line,from)
 char *line;
+char *from;
 {
     char *tmp;
     char *tmpline;
@@ -665,6 +666,10 @@ char *line;
 */
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
-    put_it("[%s%s%s] %s",CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
+    if (from) put_it("[%s%s%s] Opermsg from %s%s%s: %s",
+                     CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
+                     CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+    else put_it("[%s%s%s] %s",
+                CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
 }
 #endif
