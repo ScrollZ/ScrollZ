@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.63 2001-05-09 19:28:13 f Exp $
+ * $Id: edit3.c,v 1.64 2001-05-09 19:30:22 f Exp $
  */
 
 #include "irc.h"
@@ -2581,8 +2581,8 @@ void InitVars() {
     NumberOfSignOffMsgs=0;
 #endif
     ShowNick=1;
-    PlistTime=3600;
-    NlistTime=3600;
+    PlistTime=7200;
+    NlistTime=7200;
     LastCheck=time((time_t *) 0);
     LastPlist=LastCheck+360000L;
     LastNlist=LastCheck+360000L;
