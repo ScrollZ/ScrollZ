@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.58 2000-05-14 07:57:56 f Exp $
+ * $Id: edit6.c,v 1.59 2000-06-05 18:00:23 f Exp $
  */
 
 #include "irc.h"
@@ -1666,6 +1666,10 @@ int  parentheses;
     if (tmpstr) {
         *tmpstr='\0';
         tmpstr++;
+    }
+    else {
+        *buffer='\0';
+        return;
     }
     if (parentheses) sprintf(buffer,"%s(%s%s%s%s%s@%s%s%s%s%s)%s",
                              CmdsColors[COLMISC].color2,Colors[COLOFF],
