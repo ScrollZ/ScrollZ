@@ -160,6 +160,8 @@ Meaning of flags:
       hint, reported by gamo)
     ! crypto support for notices now works the same as for messages
       (reported by jups)
+    ! long standing bug where CDCC ULDIR was prepended twice when CDCC ULDIR
+      was set to a relative path (reported by Ajdin)
 
 ------------------------------------------------------------------------------
 
