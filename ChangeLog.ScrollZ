@@ -8,31 +8,36 @@ Meaning of flags:
 
 ScrollZ v1.9.1
 
+    ! wserv now builds again (reported by aflux)
+    + COLOR MISC color4 is now used to color <>s in publics for people
+      from user list, COLOR MISC color5 is used for your publics
+      (requested by salan)
+    ! crash on PASSWD one_letter_password
+    + SETBACK now decrypts away messages if master password is set and
+      AWAYENCR is set to ON (requested by Metalfan)
+    ! tab completion no longer assumes slash is the command character but
+      honours value of CMDCHARS (reported by Anton Aksola)
+    ! ETA calculation for DCC reget/resend (patch submitted by Freddie)
+    ! parsing of @+ in names on hispano IRC network (reported by emux)
+    + parsing of WHOIS actually (requested by braneded)
     + SET STAMP_FORMAT now supports strftime conversion specifiers if
-      strftime is available (requested by wiZ)
-    + JOIN and PART ignore levels (requested by TrN and tel)
-    + parsing of whois numeric 338 (whois actually, requested
-      by braneded)
-    ! DCC ETA calculation for DCC reget/resend (patch supplied
-      by Freddie)
-    + FDLINE to filter D/d lines in -DOPER (requested by wiZ)
-    ! tab completion now works with command characters other than the
-      default '/' (reported by Anton Aksola)
-    + <> in publics are now coloured with COLMISC color 4 for friends,
-      COLMISC color 5 for yourself and COLCSCAN color 6 for shitlisted
-      users (requested by salan)
-    + SETAWAY will now decrypt away file if encrypted (requested
-      by Metalfan)
+      available (requested by wiz)
     + improved OperVision parsing
-    ! @+nick parsing for Hispano net (reported by emux)
-    ! mIRC colours overflowing to input prompt if colour was not
-      terminated with colour off sequence (reported by Una)
+    ! lots of OperVision parsing bugs
+    + ignore levels PART and JOIN for channels parts and joins,
+      respectively (requested by TrN and tel)
+    ! SET DISPLAY_ANSI OFF no longer cuts lines at 4 characters
+    ! mIRC colours overflowing to input prompt if a line with
+      mIRC colours was not terminated with a color off
+      (reported by Una)
+    + FDLINE to filter D/d lines in -DOPER (requested by wiZ)
     ! SET DISPLAY_ANSI OFF cutting lines at 4th character
     ! terminal resize bug with hidden windows (ircII bug, reported
       by Zid)
-    ! wserv now compiles again (reported by aflux)
     + $stamp() which returns current timestamp as set by
       SET STAMP_FORMAT
+    ! IDLETIME not being used at all when determining what users
+      to kick (reported by taliz)
 
 ------------------------------------------------------------------------------
 
