@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.23 1999-05-23 08:53:14 f Exp $
+ * $Id: edit4.c,v 1.24 1999-05-24 21:27:12 f Exp $
  */
 
 #include "irc.h"
@@ -1002,23 +1002,20 @@ char *subargs;
 {
     char *mode=(char *) 0;
     char *tmpchannel=(char *) 0;
-    char tmpbuf[mybufsize/4];
     ChannelList *chan;
 
     tmpchannel=new_next_arg(args,&args);
-    mode=args;
-    if (tmpchannel && mode && *tmpchannel && *mode) {
-        if (!is_channel(tmpchannel)) sprintf(tmpbuf,"#%s",tmpchannel);
-        else strcpy(tmpbuf,tmpchannel);
-        chan=lookup_channel(tmpbuf,curr_scr_win->server,0);
-        if (chan) {
-            malloc_strcpy(&(chan->modelock),mode);
-            CheckLock(chan->channel,curr_scr_win->server,chan);
-            say("Mode %s is now locked for channel %s",mode,chan->channel);
+    mode=new_next_arg(args,&args);
+    if (tmpchannel && mode) {
+        for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
+            if (CheckChannel(chan->channel,tmpchannel)) {
+                malloc_strcpy(&(chan->modelock),mode);
+                CheckLock(chan->channel,curr_scr_win->server,chan);
+                say("Mode %s is now locked for channel %s",mode,chan->channel);
+            }
         }
-        else say("You are not on channel %s on this server",tmpbuf);
     }
-    else PrintUsage("MODELOCK [#]channel mode");
+    else PrintUsage("MODELOCK #channel mode");
 }
 
 /* Checks if there is a need to put lock mode back */
@@ -1423,8 +1420,7 @@ char *subargs;
     char tmpbuf[mybufsize/4];
     ChannelList *chan;
 
-    if (args && *args) {
-        channel=new_next_arg(args,&args);
+    if ((channel=new_next_arg(args,&args))) {
         if (is_channel(channel)) strcpy(tmpbuf,channel);
         else sprintf(tmpbuf,"#%s",channel);
         channel=tmpbuf;
