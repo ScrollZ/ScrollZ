@@ -1,4 +1,4 @@
-$Id: README.ScrollZ,v 1.6 2001-10-15 15:44:12 f Exp $
+$Id: README.ScrollZ,v 1.7 2001-10-18 20:18:59 f Exp $
 
 This is the readme file for ScrollZ IRC client.
 ScrollZ is copyright (C) 1995-2001 by Flier (flier@scrollz.com).
@@ -12,6 +12,8 @@ directory as ScrollZ.doc (new users should read it).
 
 Some tools for customizing the client (colour setup) can be found
 in tools directory.
+
+Mailing list address: scrollz@ahnberg.pp.se
 
 I would like to thank the following individuals: f0x for scrollz.com,
 acidflash for patches and support, ogre and colrebel for arranging
