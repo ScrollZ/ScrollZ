@@ -1,0 +1,582 @@
+  The ScrollZ IRC Client User Guide
+  by JustMe_
+  v1.2, 15 October 1997
+
+  This document describes how to install and use ScrollZ IRC client. It
+  is the first document which a new ScrollZ user should read to get
+  started.
+
+  0.  Contents
+
+  1.  Introduction
+  1.1.  Legal aspects
+  1.2.  Purpose of this document
+  1.3.  New versions of this document
+  1.4.  Quoting and stuff
+
+  2.  What is ScrollZ anyway ?
+
+  3.  Installing it
+  3.1.  Setting up ScrollZ directory
+  3.2.  Setting up '~/.scrollzrc'
+  3.3.  Coexistence with other IRC clients
+  3.4.  Choosing compile time options
+  3.5.  Setting up environment variables
+
+  4.  ScrollZ features
+  4.1.  'ScrollZ.save' file
+  4.2.  Friends + Shit list
+  4.3.  Notify list
+  4.4.  Channel protection
+  4.5.  Netsplits, nethacks and netjoins
+  4.6.  DCC - sending and receiving files, dcc chat
+  4.7.  Logging
+  4.8.  Other useful hints
+
+  5.  ScrollZ key bindings
+
+  6.  Thnings not found in ircII
+  6.1.  New /set variables
+  6.2.  Additional status_format modifiers
+
+  7.  Additional stuff for scripters
+  7.1.  $ functions
+  7.2.  ON hooks
+
+  1.  Introduction
+
+  1.1.  Legal aspects
+
+  This document is provided `as is'. I put great effort into writing it as
+  accurately as I could, but you use the information contained in it at
+  your own risk. In no event shall I be liable for any damages resulting
+  from the use of this work.
+
+  1.2.  Purpose of this document
+
+  ScrollZ is an advanced IRC client based on ircII client. It was
+  developed on Linux, but can be compiled on variety of Unix platforms.
+
+  This document assumes that you have heard of and know about ScrollZ, and
+  now want to sit down and use it. Those of you who don't know what IRC is
+  shouldn't be reading this document, really.
+
+  1.3.  New versions of this document
+
+  New versions of the ScrollZ IRC Client User Guide will be periodically
+  updated on ScrollZ home pages.
+
+  1.4.  Quoting and stuff
+
+  To make things more understandable I opted to enclose all multi word
+  phrases in pairs of '', like 'This is really stupid.'. So if I say one
+  has to type 'blah blah', they should really type blah blah without '
+  characters. This also avoids confusion when phrase ends with '.' and
+  people are desperately trying to type the '.' character as well.
+
+  2.  What is ScrollZ anyway ?
+
+  Basically ScrollZ is ircII client plus it adds a lot of features found
+  in all sorts of scripts. You should be aware that the main difference
+  between these scripts and ScrollZ is the code - whereas ircII scripts
+  take a lot of disk and memory space and run slow, ScrollZ only takes a
+  couple of extra kilobytes compared to stock ircII client yet runs
+  faster than any ircII script. This was accomplished by using C code
+  instead of ircII scripting language. This reduces memory and CPU usage
+  and code tends to run way faster. Besides that, scripts also take long
+  time to load since most of them are larger than 100k in size.
+
+  Here is a list of most important features :
+
+     * supports colors
+     * internal userlist and shitlist
+     * a lot of things are stored in memory, so we don't have to contact
+       server at all in some cases
+     * improved file exchange (based on Sheik's cdcc.c)
+     * improved cosmetics (based on TooLie Box by Zakath)
+     * improved flood protection
+     * adds channel protection
+     * comes with user-friendly options like tab key, auto reply and URL
+       catcher
+     * logs events important to you when you're away (customizable)
+     * adds OperVision (optional; coded by Zakath)
+     * supports virtual IP
+
+  As I have already said ScrollZ _is_ ircII so everything that can be
+  done in ircII can be done in ScrollZ too and all ircII scripts work
+  without a problem.
+
+  3.  Installing it
+
+  3.1.  Setting up ScrollZ directory
+
+  First of all you'll have to decide where do you want to keep various
+  files needed by ScrollZ. Default is '~/.ScrollZ' but you can choose any
+  other directory as well. Make sure that the chosen directory exists
+  as you may run in trouble otherwise. So 'mkdir ~/.ScrollZ' will do the
+  job. I also recommend you to disallow other users to browse that
+  directory - so 'chmod 700 ~/.ScrollZ'. You should put files like
+  ScrollZ.help, ScrollZ.addon and/or your scripts in there. Scripts can
+  be placed in any other directory as well but that will require path
+  to script to be supplied in '/load' command.
+
+  3.2.  Setting up '~/.scrollzrc'
+
+  Second thing to do is to create file called '~/.scrollzrc'. You can
+  use your favourite editor to create one. It should contain at least
+  the following line: 'set load_path ~/.ScrollZ'. In reality one
+  doesn't have to set load_path if their ScrollZ dir is ~/.ScrollZ
+  because the client itself will do that for them.
+  Of course one has to type in another directory if they opted to use
+  another directory for ScrollZ stuff in step 3.1. If you want to use
+  ircII help files and keep them in directory other than
+  /usr/local/lib/irc/help/ be sure to add something like
+  'set help_path /home/user/irc/help/'.
+
+  3.3.  Coexistence with other IRC clients
+
+  ScrollZ will co-exist with other IRC clients such as ircII, Ctoolz
+  or BitchX. Main thing how to accomplish this is by keeping each IRC
+  client's files in their own directory. And as they can all use their
+  own '~/.xxxrc' file users can safely use all of them at the same time.
+
+  3.4.  Choosing compile time options
+
+  I assume the source for your copy of ScrollZ client is one of the
+  people from ScrollZ distro team. Now maybe they haven't notified you
+  about this, but ScrollZ can be compiled in many ways which either add
+  or remove some of the functionality. If you want to customize your
+  copy of ScrollZ you will have to persuade your distro person to
+  compile it for you. I leave it up to you to think of the way to do
+  that ;^). Here's list of compile time options - some of them useful
+  some of them not:
+
+     Option       Flag   Description
+     ------------------------------------------------------------------
+
+     WANTANSI     A      enables colors
+     EXTRAS       E      adds a lot of commands like : autoinv, bki, bkt,
+                         dirlmk, dirlnk, dobans, llook, llookup, massdv,
+                         massv, modelock, modeunlock, msay and ranlk.
+     BETTERTIMER  T      timer accurate to 0.01s (default accuracy is 1s)
+     GENX         G      different look of whois
+     FET          F      slightly different look of whois
+     NEWCSCAN     C      formatted cscan, similar to that of BitchX
+     ACID         I      invite on notify for non +i channels
+     MGS                 sorted nicks in cscan + terminate command
+     SCKICKS      S      scatter (funny) kicks
+     OPERVISION   OV     for IRC Opers
+     TOOLIE       C-BOX  compile with Toolie C-BOX in client
+     HYPERDCC     D      compile with HyperDCC by Annatar
+     VILAS        V      no ScrollZ trademarks in kicks and away msgs
+     JIMMIE       J      better newhost command
+     CTCPPAGE     P      CTCP PAGE for friends by Bighead
+     TDF          X      diff. msgs, chat msgs and CDCC
+     SZWINK       W      fet's script
+     COUNTRY      Y      adds $country() function
+
+  You can check which options was your copy of ScrollZ compiled with by
+  typing '/version' and look for string enclosed in []'s. Upper case
+  letters mean that option was disable while lower case letters denote
+  disabled options. Flags like G, F, I, V, J and X are not shown.
+  My personal recommendation are flags A, C-BOX and D.
+
+  3.5.  Setting up environment variables
+
+  ScrollZ is aware of following environment variables:
+
+     * IRCNICK   - sets nick
+     * IRCSERVER - sets servers to use
+     * IRCHELP   - sets path to ircII help directory
+     * IRCLIB    - sets path to irc lib directory
+     * IRCUMODE  - sets user mode
+     * IRCNAME   - sets gecos (shown in whois)
+     * IRCPATH   - much like 'set load_path'
+     * IRCHOST   - sets virtual host
+     * IRC_HOST  - for broken dcc sends
+     * IRCUSER   - sets username (if your ident allows it)
+
+  Usually they can be set in ~/.profile file like this :
+
+     a) for bash, ksh, zsh and sh users :
+        IRCNICK="Nick"
+        IRCSERVER="irc.server.com:port irc.server.org[:port]"
+        ...
+        export IRCNICK IRCSERVER
+
+     b) csh and tcsh users :
+        setenv IRCNICK "Nick"
+
+  4.  ScrollZ features
+
+  To start with let me just say I'm not going to explain every possible
+  option out there but will rather focus on basic concepts of using it.
+  Best way to learn all of its options is (like always) to use it for
+  real - that way you will learn all about it. We will only deal with
+  ScrollZ commands in this document and little or none attention will be
+  payed to regular ircII commands. And remember '/shelp' is your friend.
+
+  4.1.  'ScrollZ.save' file
+
+  When you first start ScrollZ you should type '/sve' which will save all
+  current options to 'ScrollZ.save' file located in first directory
+  found in load_path variable. 'ScrollZ.save' file is plain text file -
+  thus it can be edited with every editor. But you will hardly ever need
+  to edit it by hand, most of the settings can be changed via ScrollZ
+  commands.
+
+  Here are exceptions to this rule :
+
+     * DEFSERVER    - sets default server
+     * DEFSIGNOFF   - sets default sign-off message
+     * DEFSETAWAY   - sets default away reason
+     * DEFSETBACK   - sets default back reason
+     * DEFUSERINFO  - sets default user info reply (CTCP)
+     * DEFFINGER    - sets default finger reply (CTCP)
+     * DEFK         - sets default kick message
+     * DEFBK        - sets default ban-kick message
+     * DEFBKI       - sets default ban-kick-ignore message
+     * DEFBKT       - sets default ban-kick-time message
+     * DEFFK        - sets default filter-kick message
+     * DEFLK        - sets default lame-kick message
+     * DEFABK       - sets default auto-ban-kick message
+     * DEFSK        - sets default scatter-kick message
+     * AUTOOPTIME   - sets default auto-op time
+     * SHOWWALLOP   - sets whether you want to see to which nicks was
+                      wall-op message sent to
+     * USERMODE     - sets default usermode
+
+  You can edit 'ScrollZ.save' file in order to change those options. Don't
+  forget to do '/reload' after editing file for changes to take effect.
+
+  4.2.  Friends + Shit list
+
+  Why friends list ? Why shit list ? It started when people wanted to
+  "keep" control of channels they were hanging in and having friends and
+  shit list helped them in a big way. People that are on your friends
+  list can benefit from it by being auto-opped, auto-voiced etc. while
+  shit list makes sure that those who you hate stay away from your
+  channel(s). ScrollZ's user list is channel aware - meaning that user
+  can have separate friends list entry for every channel you want.
+
+  Commands that control friends list are :
+
+     addf      - add person to friends list
+     addfflag  - add/remove flag from friends' list entry
+     addfchan  - add/remove channel from friends' list entry
+     frlist    - sets friends list on/off
+     listf     - list people on friends list
+     remf      - remove person from friends list
+
+  Commands that control shit list are :
+
+     addbk     - add person to shit list
+     listbk    - list people on shit list
+     rembk     - remove person from shit list
+
+  Also be sure to read '/shelp levels' for more info on flags.
+
+  4.3.  Notify list
+
+  ScrollZ can notify you when certain nicks signs on/off. To select which
+  nicks do you want to be notified about use this commands :
+
+     addn      - add person to notify list
+     listn     - list people on notify list
+     remn      - remove person form notify list
+     ntfymode  - toggle brief or verbose mode of '/listn'
+
+  4.4.  Channel protection
+
+  You can make ScrollZ "protect" channel from nasty stuff like mass deop,
+  mass kick and the likes with this commands :
+     dprot        - sets deop protection on/off
+     deops        - sets deop protection sensor
+     deopt        - sets deop protection time
+     kprot        - sets kick protection on/off
+     kicks        - sets kick protection sensor
+     kickt        - sets kick protection time
+     nprot        - sets nick flood protection on/off
+     nicks        - sets nick flood protection sensor
+     nickt        - sets nick flood protection time
+     kickonflood  - sets kick-on-flood protection on/off
+     addw         - add word to word kick list
+     listw        - list words on word kick list
+     remw         - remove word from word kick list
+
+  4.5.  Netsplits, nethacks and netjoins
+
+  This is one of the features where ScrollZ really excels. It is entirely
+  controlled via '/nhprot' command - so '/shelp nhprot' for more info. If
+  you have this option turned on you better make sure your userlist is
+  pretty complete (most of regular channel ops should be on it) or else
+  you will not be very popular channel op :D.
+
+  4.6.  DCC - sending and receiving files, dcc chat
+
+  ScrollZ is based on ircII and it has the same command as ircII for
+  controlling DCC stuff (that is '/dcc'). But it also features '/cdcc'
+  command which is by far more powerful and user friendly. So I suggest
+  you to forget about '/dcc' and use only '/cdcc' + '/chat' and '/nochat'.
+  Again everything is explained in help, so let me just remind you of
+  '/shelp cdcc get' which will show you examples on how to use that
+  fancy filter for selecting dccs. And be careful with '/cdcc autoget'
+  being turned on! Oh yeah, some people don't like to see others flooding
+  channels with their offer lists - so better set '/cdcc channels' and
+  '/cdcc ptime'.
+
+  4.7.  Logging
+
+  Apart from ircII logging ScrollZ has logging on its own too. For more
+  info try '/shelp awaysave'. Normally ScrollZ would log events to
+  'ScrollZ.away' only if you're set away - but you can change this with
+  '/logon' command.
+
+  4.8.  Other useful hints
+
+  Small things that will make your life with ScrollZ easier are :
+
+     * get used to Ctrl+T key - what the hell is that you ask ? Well
+       let me show how to use it. Say you want to send a file to 3
+       people from your current channel. Go and type
+       '/cdcc send file1 file2, n1<Ctrl+T> n2<Ctrl+T> n3<Ctrl+T>'
+       where "n1", "n2" and "n3" are first two letters of first, second
+       and third nick, respectively. Get it ? It expands the last word
+       to nick if it finds a match for first two letters - if more nicks
+       start with same prefix simply press Ctrl+T more times. Of course
+       you don't need to type first two letters of a nick, it can be any
+       number (except 0 of course).
+
+     * TAB key, it acts much like ircII tabkey script - when someone
+       sends you a msg his/her nick gets stored into an array and if you
+       want to reply to that message just press TAB. ScrollZ will store
+       up to 10 nicks for you.
+
+     * turn auto-completion on ('/autocompl on :' for example) and learn
+       how to use it
+
+     * use Ctrl+R key - did you notice different color of nick on public
+       messages which had your nick in them ? That's auto reply and
+       Ctrl+R cycles through last 5 people's nicks that have triggered
+       your auto-reply. You can change your autoreply word with '/repword'
+       command. Hint : having '/repword' set to some very common word
+       (like "just") will fill your away file with meaningless messages
+       (for you) if you have AREPLY in your '/awaysave' setting. So add
+       lines like this : 'alias setaway {^repword justme_ ;//setaway}'
+       and 'alias setback {//setback ;^repword just,jm}' to
+       '~/.scrollzrc'.
+
+     * you hang in more channels and want each one in its own window ?
+       Here's little alias to help you :
+
+          alias wc {
+             if ([$0]==[]) {
+                echo $scrollz_string Usage : /WC [#]channel
+             }
+             {
+                if ([$left(1 $0)]!=[#]) {^assign winchan #$0}
+                {^assign winchan $0}
+                echo $scrollz_string Creating new window for channel $winchan
+                window new bind $winchan
+                j $winchan
+                window hide
+             }
+             ^assign -winchan
+          }
+
+       You also want channels to be in the same window all the time ? Ok
+       add this to your '~/.scrollzrc' file :
+
+          ^on -join_me "#chan1" window swap 1 bind $0
+          ^on -join_me "#chan2" window swap 2 bind $0
+          ^on -join_me "#chan3" window swap 3 bind $0
+
+       This will bind #chan1 to window 1, #chan2 to window 2 and #chan3
+       to window 3.
+
+       You have bot on channel and want to identify to it automatically
+       without your intervention ? Add this to '~/.scrollzrc' :
+
+          on -channel_synch "#chan" {
+              if ([$ischanop(botnick $0)]==[1] && [$checkuser($uh(botnick) $0)]!=[-1])
+              {
+                  m botnick identify password
+                  m botnick op
+              }
+          }
+
+       Change botnick to your bot's nick and make sure bot is on your
+       friends list (flags don't matter).
+
+     * if you want ScrollZ to automatically join certain channels use
+       '/ajoin' command like : '/ajoin auto #chan1,#chan2' - ScrollZ will
+       try to join #chan1 and #chan2 every 10 minutes (if you haven't
+       already joined those channels of course).
+
+     * if you don't want to be automatically set away after certain
+       amount of time elapses without your activity do '/awayt 0'.
+
+  5.  ScrollZ key bindings
+
+  Most of the key binds are the same as in ircII, here's a list of
+  those that aren't :
+
+     * meta5 has been added
+     * F1, ..., F12 can be bound like '/bind f1 ..', ..., '/bind F12 ..',
+       respectively
+     * TAB/Ctrl+I is bound to insert_tabkey
+     * Ctrl+K is bound to lastjoiner_kick
+     * Ctrl+N is bound to accept_last_chat
+     * Ctrl+R is bound to insert_autoreply
+     * Ctrl+T is bound to nick_completion
+     * Ctrl+X is bound to switch_channels
+     * Ctrl+Z is bound to stop_irc
+     * End is bound to scroll_end
+     * PageUp is bound to scroll_backward
+     * PageDown is bound to scroll_forward
+     * CursorUp is bound to backward_history
+     * CursorDown is bound to forward_history
+     * CursorLeft is bound to backward_character
+     * CursorRight is bound to forward_character
+     * F1 is bound to 'shelp keys'
+     * F2 is bound to 'join -invite'
+     * ^W is bound to META3
+     * ^W? is bound to 'shelp net'
+     * ^Wh is bound to 'window hide'
+     * ^Wn is bound to 'window next'
+     * ^Wp is bound to 'window previous'
+     * ^Wk is bound to 'window kill'
+     * ^Wl is bound to 'window list'
+     * ^Wc is bound to 'window clear'
+     * ^Wg is bound to 'window grow 1'
+     * ^Wr is bound to 'window shrink 1'
+     * ^W1 is bound to 'window goto 1'
+     * ^W2 is bound to 'window goto 2'
+     * ^W3 is bound to 'window goto 3'
+     * ^W4 is bound to 'window goto 4'
+     * ^W5 is bound to 'window goto 5'
+     * Alt-1 is bound to '^window swap 1'
+     * Alt-2 is bound to '^window swap 2'
+     * Alt-3 is bound to '^window swap 3'
+     * Alt-4 is bound to '^window swap 4'
+     * Alt-5 is bound to '^window swap 5'
+     * Alt-6 is bound to '^window swap 6'
+     * Alt-7 is bound to '^window swap 7'
+     * Alt-8 is bound to '^window swap 8'
+     * Alt-9 is bound to '^window swap 9'
+
+  Additional bind choices are (together with their default bindings) :
+
+     * insert_autoreply    - Ctrl+R
+     * nick_completion     - Ctrl+T
+     * lastjoiner_kick     - Ctrl+K
+     * accept_last_chat    - Ctrl+N
+     * meta5_character     - read some 10 lines up
+     * insert_tabkey       - Tab/Ctrl+I
+
+  6.  Things not found in ircII
+
+  6.1.  New /set variables
+
+  List of variables that can be set via '/set' command and can't be found
+  in ircII help (they are ScrollZ specific remember ?) :
+
+     * display_ansi        - display ANSI colors ?
+     * high_ascii          - display high ASCII characters ?
+     * lastlog_ansi        - log ANSI colors ? ('/lastlog' command)
+     * max_modes           - max. number of modes to be sent to server
+                             in one mode line
+     * max_wallop_nicks    - max. number of nicks to send wall-op msg
+                             to in one msg line
+     * scrollz_string      - replaces *** from ircII
+     * status_format3      - sets 3rd status bar line (use
+                             '/window double 3' to turn it on and
+                             '/window double 2' to turn it off)
+     * status_reverse      - if you want to use background colors for
+                             status_format turn this off
+
+  6.2.  Additional status_format modifiers
+
+     * %1   - client's uptime
+     * %2   - lag (in seconds)
+     * %3   - person that last joined one of the channels you're on
+     * %4   - number of packs created with '/cdcc offer'
+     * %5   - number of dcc sends
+     * %6   - number of dcc gets
+     * %7   - status of '/cdcc autoget', A=on, a=off
+     * %8   - status of '/cdcc security', S=on, s=off
+     * %9   - current channel's topic
+     * %A   - use '/set status_away' to format it, %A will be replaced
+              with number of msgs and auto-reply msgs recorded since
+              you've been set away
+     * %D   - status of '/frlist' for current channel, F=on, f=off
+     * %E   - status of '/nhprot', N=on, n=off, q=quiet, m=medium, f=full
+     * %J   - dcc status, '/cdcc status on' to enable it
+     * %L   - status of '/ctcpcloak', K=on, k=off, H=hide
+     * %P   - status of '/floodp', P=on, p=off, M=max
+     * %U   - use '/set status_channelcount' to format it, %O is repla-
+              ced with number of chan ops on current channel, %N with
+              number of non-ops and %T with total number of users
+     * %!00 - status_user
+     * %!01 - status_user1
+       ...    ...
+     * %!19 - status_user19
+
+  7.  Additional stuff for scripters
+
+  7.1.  $ functions
+
+  General functions :
+
+     * J          - ScrollZ version
+     * Y          - Toolie version (if compiled with Toolie)
+     * stripansi  - stripansi(text), strips ANSI codes from test
+     * topic      - topic(#chan), returns nick, time when topic was set
+                    and topic for chan, empty on error
+     * sar        - sar(command/search/replace/data)
+                    command=empty or
+                    r (meaning data is variable, don't add leading $)
+                    g (replace all occurrences)
+     * color      - color(color1,color2,...) returns ANSI color string
+                    which represents color1,color2,... list. Recognizes
+                    this colors : off,bold,underline,flash,reverse,black,
+                    red,green,yellow,blue,purple,cyan,white,blackbg,redbg,
+                    greenbg,yellowbg,bluebg,purplebg,cyanbg,whitebg
+     * country    - country(2_letter_code) returns country name,
+                    unknown on error, only if compiled with COUNTRY
+
+  File operations :
+
+     * open       - open(filename R|W|A), returns file handle, -1 on error
+     * close      - close(filehandle)
+     * read       - read(filehandle), returns -1 on error
+     * write      - write(filehandle text), returns number of bytes
+                    written, -1 on error
+     * eof        - eof(filehandle), returns 1 on eof else 0, -1 on error
+     * fsize      - fsize(filename), returns file size, -1 on error (use
+                    it to check if file exists)
+     * rename     - rename(oldfile newfile), returns 0 if OK, -1 on error
+
+  Friends and shit list functions :
+
+     * uh         - uh(nick #chan), returns n!u@h for nick, -1 on error
+     * checkuser  - checkuser(n!u@h #chan), returns flags, filter and
+                    channel of matching friends list entry, -1 on error
+     * checkshit  - checkshit(n!u@h #chan), same as $checkuser()
+     * isvoiced   - like ischanop(nick #chan)
+     * uhost      - uhost(n!u@h) returns u@h part, empty otherwise
+     * hhost      - hhost(n!u@h) returns h part, empty otherwise
+
+  7.2.  ON hooks
+
+     * cdcc_plist
+     * cdcc_plist_footer
+     * cdcc_plist_header
+     * channel_synch
+     * dcc_list
+     * dcc_list_footer
+     * dcc_list_header
+     * join_me
+     * notify_signoff_uh
+     * notify_signon_uh
+     * send_ctcp
