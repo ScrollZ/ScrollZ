@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.26 2001-07-21 19:07:46 f Exp $
+ * $Id: myvars.h,v 1.27 2001-08-30 17:46:43 f Exp $
  */
 
 #include "mystructs.h"
@@ -155,8 +155,10 @@ extern char   *AutoInvChannels;
 #endif
 extern char   *EncryptPassword;
 #ifdef OPER
-extern char   *StatsFilter;
+extern char   *StatskFilter;
 extern char   *StatsiFilter;
+extern char   *StatscFilter;
+extern char   *StatslFilter;
 #endif
 extern char   *AutoReplyBuffer;
 extern char   *OrigNick;

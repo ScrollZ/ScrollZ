@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.43 2001-08-29 17:09:13 f Exp $
+ * $Id: numbers.c,v 1.44 2001-08-30 17:46:43 f Exp $
  */
 
 #include "irc.h"
@@ -71,8 +71,6 @@ extern void ListSplitedServers _((void));
 #endif
 extern void TimeReply _((char *, char **));
 extern void PrintLinks _((char *, char *, char *));
-extern void HandleStatsK _((char *, char *));
-extern void HandleStatsI _((char *, char *, char *));
 extern void AutoChangeNick _((char *));
 extern void ScrollZLoad _((void));
 extern void HandleEndOfKill _((void));
@@ -90,6 +88,10 @@ extern void TryChannelJoin _((void));
 #endif
 #ifdef OPER
 extern void DoFilterTrace _((char *));
+extern void HandleStatsK _((char *, char *));
+extern void HandleStatsI _((char *, char *, char *));
+extern void HandleStatsC _((char *, char *, char *));
+extern void HandleStatsL _((char *, char *, char *));
 extern int  tottcount;
 extern int  mattcount;
 #endif
@@ -1379,6 +1381,15 @@ numbered_command(from, comm, ArgList)
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef OPER
+                case 211:
+                        PasteArgs(ArgList,2);
+                        HandleStatsL(ArgList[0],ArgList[1],ArgList[2]);
+                        break;
+                case 213:
+                case 214:
+                        PasteArgs(ArgList,2);
+                        HandleStatsC(ArgList[0],ArgList[1],ArgList[2]);
+                        break;
                 case 215:
                         PasteArgs(ArgList,2);
                         HandleStatsI(ArgList[0],ArgList[1],ArgList[2]);

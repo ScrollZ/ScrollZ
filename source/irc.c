@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.61 2001-08-29 16:04:11 f Exp $
+ * $Id: irc.c,v 1.62 2001-08-30 17:46:43 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -315,8 +315,10 @@ char  *AutoInvChannels;
 #endif
 char  *EncryptPassword=(char *) 0;
 #ifdef OPER
-char  *StatsFilter=(char *) 0;
+char  *StatskFilter=(char *) 0;
 char  *StatsiFilter=(char *) 0;
+char  *StatscFilter=(char *) 0;
+char  *StatslFilter=(char *) 0;
 #endif
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;

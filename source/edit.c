@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.67 2001-08-27 16:45:27 f Exp $
+ * $Id: edit.c,v 1.68 2001-08-30 17:46:43 f Exp $
  */
 
 #include "irc.h"
@@ -234,8 +234,10 @@ extern  void  MegaDeop _((char *, char *, char *));
 extern  void  MegaDehalfop _((char *, char *, char *));
 
 #ifdef OPER
-extern  int   StatsKNumber;
+extern  int   StatskNumber;
 extern  int   StatsiNumber;
+extern  int   StatscNumber;
+extern  int   StatslNumber;
 #endif
 extern  char  *chars;
 extern  NickList *tabnickcompl;
@@ -336,6 +338,8 @@ extern  void  MassKill _((char *, char *, char *));
 extern  void  FilterTrace _((char *, char *, char *));
 extern  void  StatsKFilter _((char *, char *, char *));
 extern  void  StatsIFilter _((char *, char *, char *));
+extern  void  StatsLFilter _((char *, char *, char *));
+extern  void  StatsCFilter _((char *, char *, char *));
 extern	void  WhoKill _((char *, char *, char *));
 extern	void  TraceKill _((char *, char *, char *));
 #endif
@@ -563,6 +567,9 @@ static	IrcCommand FAR irc_command[] =
   { "EXTPUB", 		"EXTPUB", 	OnOffCommand, 		0 },
   { "FAKE", 		"FAKE", 	ChannelCommand, 	0 },
   { "FBK", 		"FBK", 		FilterKick, 		SERVERREQ },
+#ifdef OPER
+  { "FCLINE", 		NULL, 		StatsCFilter, 		SERVERREQ },
+#endif
 	{ "FE",		NULL,		foreach_handler,	0 },
 	{ "FEC",	NULL,		fec,			0 },
 #ifdef OPER
@@ -577,6 +584,7 @@ static	IrcCommand FAR irc_command[] =
   { "FK", 		"FK", 		FilterKick, 		SERVERREQ },
 #ifdef OPER
   { "FKLINE", 		NULL, 		StatsKFilter, 		SERVERREQ },
+  { "FLLINE", 		NULL, 		StatsLFilter, 		SERVERREQ },
 #endif
   { "FLOODP", 		NULL, 		FloodProtToggle, 	0 },
  	{ "FLUSH",	NULL,		flush,			SERVERREQ },
@@ -2585,10 +2593,14 @@ send_comm(command, args, subargs)
             }
             else if (!my_stricmp(command,"STATS")) {
 #ifdef OPER
-                StatsKNumber=0;
+                StatskNumber=0;
                 StatsiNumber=0;
-                new_free(&StatsFilter);
+                StatscNumber=0;
+                StatslNumber=0;
+                new_free(&StatskFilter);
                 new_free(&StatsiFilter);
+                new_free(&StatscFilter);
+                new_free(&StatslFilter);
 #endif
             }
         }

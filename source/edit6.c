@@ -63,7 +63,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.89 2001-08-27 17:05:04 f Exp $
+ * $Id: edit6.c,v 1.90 2001-08-30 17:46:43 f Exp $
  */
 
 #include "irc.h"
@@ -152,6 +152,8 @@ static struct mapstr *maplist=NULL;
 
 #ifdef OPER
 int StatsiNumber;
+int StatscNumber;
+int StatslNumber;
 static int  FilterKillNum;
 static char *tkillreason=(char *) 0;
 static char *tkillpattern=(char *) 0;
@@ -1977,8 +1979,10 @@ void CleanUpScrollZVars() {
     new_free(&BKChannels);
     new_free(&EncryptPassword);
 #ifdef OPER
-    new_free(&StatsFilter);
+    new_free(&StatskFilter);
     new_free(&StatsiFilter);
+    new_free(&StatslFilter);
+    new_free(&StatscFilter);
 #endif
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
@@ -2582,13 +2586,80 @@ char *uhiline;
     if (StatsiFilter) {
         tmpstr=new_next_arg(uhiline,&uhiline);
         tmpstr=new_next_arg(uhiline,&uhiline);
-        if (!(tmpstr && *tmpstr))
-            tmpstr=empty_string;
+        if (!(tmpstr && *tmpstr)) tmpstr=empty_string;
     }
     if (!StatsiFilter || (StatsiFilter && 
         (wild_match(StatsiFilter,tmpstr) || wild_match(StatsiFilter,ipiline))))
         say("%s %s %s",statschar,ipiline,tmpbuf1);
     StatsiNumber++;
+}
+
+/* Does /STATS c with filter */
+void StatsCFilter(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpstr;
+
+    if (args && *args) {
+        tmpstr=new_next_arg(args,&args);
+        malloc_strcpy(&StatscFilter,tmpstr);
+        StatscNumber=0;
+        send_to_server("STATS c %s",args);
+    }
+    else PrintUsage("FCLINE filter [server]");
+}
+
+/* Parses STATS c reply from server */
+void HandleStatsC(statschar,str1,str2)
+char *statschar;
+char *str1;
+char *str2;
+{
+    char *tmpstr;
+    char tmpbuf1[mybufsize/2+1];
+
+    if (!StatscNumber) say("C-Line");
+    strmcpy(tmpbuf1,str2,mybufsize/2);
+    if (StatscFilter) {
+        tmpstr=new_next_arg(str2,&str2);
+        tmpstr=new_next_arg(str2,&str2);
+        if (!(tmpstr && *tmpstr)) tmpstr=empty_string;
+    }
+    if (!StatscFilter || (StatscFilter && 
+        (wild_match(StatscFilter,str1) || wild_match(StatscFilter,tmpstr))))
+        say("%s %s %s",statschar,str1,tmpbuf1);
+    StatscNumber++;
+}
+
+/* Does /STATS L with filter */
+void StatsLFilter(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpstr;
+
+    if (args && *args) {
+        tmpstr=new_next_arg(args,&args);
+        malloc_strcpy(&StatslFilter,tmpstr);
+        StatslNumber=0;
+        send_to_server("STATS L * %s",args);
+    }
+    else PrintUsage("FLLINE filter");
+}
+
+/* Parses STATS L reply from server */
+void HandleStatsL(statschar,str1,str2)
+char *statschar;
+char *str1;
+char *str2;
+{
+    if (!StatslNumber) say("L-Line");
+    if (!StatslFilter || (StatslFilter && (wild_match(StatslFilter,statschar))))
+        say("%s %s %s",statschar,str1,str2);
+    StatslNumber++;
 }
 #endif /* OPER */
 

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.71 2001-08-25 18:31:18 f Exp $
+ * $Id: edit5.c,v 1.72 2001-08-30 17:46:43 f Exp $
  */
 
 #include "irc.h"
@@ -169,7 +169,7 @@ int URLnum=0;
 static char *urlbuf=(char *) 0;
 
 #ifdef OPER
-int StatsKNumber;
+int StatskNumber;
 static int  WhoKillNum;
 static char *wkillpattern=(char *) 0;
 static char *wkillreason=(char *) 0;
@@ -1812,8 +1812,8 @@ char *subargs;
             tmpstr=new_next_arg(args,&args);
         }
         if (tmpstr && *tmpstr) {
-            malloc_strcpy(&StatsFilter,tmpstr);
-            StatsKNumber=0;
+            malloc_strcpy(&StatskFilter,tmpstr);
+            StatskNumber=0;
             server=new_next_arg(args,&args);
             send_to_server("STATS %c %s",doall?'K':'k',server?server:"");
             return;
@@ -1893,15 +1893,15 @@ char *rest;
     }
     if (!username) username="*";
     if (!(comment && *comment)) comment="Empty";
-    if (!StatsKNumber) say("%-30s Comment","K-Line");
+    if (!StatskNumber) say("%-30s Comment","K-Line");
     if (kline && strchr(kline,'@')) {
         format="%s%s";
         username=empty_string;
     }
     sprintf(tmpbuf1,format,username,kline);
-    if ((StatsFilter && wild_match(StatsFilter,tmpbuf1)) || !StatsFilter)
+    if ((StatskFilter && wild_match(StatskFilter,tmpbuf1)) || !StatskFilter)
         put_it("%s %-30s %s",numeric_banner(),tmpbuf1,comment);
-    StatsKNumber++;
+    StatskNumber++;
 }
 #endif /* OPER */
 

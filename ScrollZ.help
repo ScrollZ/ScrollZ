@@ -68,6 +68,8 @@ with '='. Use '-' as first character in key if you want to communicate
 with users of ScrollZ v1.8j and older. Whenever encrypted communication
 is used publics and private messages are prepended with [!]. DCC CHAT
 messages are encrypted if nick is enclosed in *.
+:FCLINE        Does STATS c with filter
+Usage $3FCLINE filter$0 [$3server$0]
 :FILINE        Does STATS I with filter
 Usage $3FILINE filter$0 [$3server$0]
 :FINGER        Launches finger on user@host
@@ -76,6 +78,8 @@ Usage $3FINGER nick$0
 Usage $3FKLINE$0 [$3-TEMP$0] $3filter$0 [$3server$0]
 When $3-TEMP$0 is specified $4STATS k$0 is sent instead of usual $4STATS K$0.
 On some servers STATS k returns only temporary K: lines.
+:FLLINE        Does STATS L with filter
+Usage $3FLLINE filter$0
 :FTRACE        Does TRACE with filter
 Usage $3FTRACE filter$0 [$3server$0]
 :IG            Ignores user
@@ -1017,28 +1021,29 @@ Also look at $2CDCC DLDIR$0
 :   DHOP          DIRLM         DIRLMK        DIRLN         DIRLNK
 :   DIRLSM        DIRLSN        DOBANS        DOP           DPROT
 :   DUMP          EGO           ENCRMSG       EXTMES        EXTPUB
-:   FAKE          FBK           FILINE        FINGER        FK
-:   FKLINE        FLOODP        FRLIST        FTRACE        HOP
-:   IDLEKICK      IDLETIME      IG            IGTIME        INV
-:   J             K             KEYS          KICKONBAN     KICKONFLOOD
-:   KICKOPS       KICKS         KICKT         KPROT         L
-:   LEVELS        LISTBK        LISTF         LISTN         LISTS
-:   LISTW         LK            LLOOK         LLOOKUP       LOGON
-:   LS            M             MAP           MASSDV        MASSV
-:   MC            MDHOP         MDOP          MHOP          MIRC
-:   MK            MKILL         MODELOCK      MODEUNLOCK    MOP
-:   MREOP         MSAY          MULTK         N             NET
-:   NEWHOST       NEWUSER       NHPROT        NICKS         NICKT
-:   NOCHAT        NOIG          NOKEY         NOTEPAD       NPROT
-:   NSLOOKUP      NTFYMODE      NWHOIS        OP            ORIGNICK
-:   ORIGNTIME     OV            P             PASSWD        PLAYBACK
-:   RANLK         RE            RECONNECT     RELOAD        REMBK
-:   REMCHAN       REMF          REMFCHAN      REMFFLAG      REMLOG
-:   REMN          REMS          REMW          REPWORD       S
-:   SB            SERVNOTICE    SETAWAY       SETBACK       SETTINGS
-:   SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK      SHOWSIGN
-:   SHOWUSER      SINFO         SPING         STAMP         SVE
-:   T             TBAN          TERMINATE     TKILL         TOPICLOCK
-:   TOPICUNLOCK   UMODE         UNBAN         UNFLASH       URL
-:   URLCATCH      VER           W             WALL          WHOLEFT
-:   WI            WII           WKILL         WW            
+:   FAKE          FBK           FCLINE        FILINE        FINGER
+:   FK            FKLINE        FLLINE        FLOODP        FRLIST
+:   FTRACE        HOP           IDLEKICK      IDLETIME      IG
+:   IGTIME        INV           J             K             KEYS
+:   KICKONBAN     KICKONFLOOD   KICKOPS       KICKS         KICKT
+:   KPROT         L             LEVELS        LISTBK        LISTF
+:   LISTN         LISTS         LISTW         LK            LLOOK
+:   LLOOKUP       LOGON         LS            M             MAP
+:   MASSDV        MASSV         MC            MDHOP         MDOP
+:   MHOP          MIRC          MK            MKILL         MODELOCK
+:   MODEUNLOCK    MOP           MREOP         MSAY          MULTK
+:   N             NET           NEWHOST       NEWUSER       NHPROT
+:   NICKS         NICKT         NOCHAT        NOIG          NOKEY
+:   NOTEPAD       NPROT         NSLOOKUP      NTFYMODE      NWHOIS
+:   OP            ORIGNICK      ORIGNTIME     OV            P
+:   PASSWD        PLAYBACK      RANLK         RE            RECONNECT
+:   RELOAD        REMBK         REMCHAN       REMF          REMFCHAN
+:   REMFFLAG      REMLOG        REMN          REMS          REMW
+:   REPWORD       S             SB            SERVNOTICE    SETAWAY
+:   SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL
+:   SHOWNICK      SHOWSIGN      SHOWUSER      SINFO         SPING
+:   STAMP         SVE           T             TBAN          TERMINATE
+:   TKILL         TOPICLOCK     TOPICUNLOCK   UMODE         UNBAN
+:   UNFLASH       URL           URLCATCH      VER           W
+:   WALL          WHOLEFT       WI            WII           WKILL
+:   WW            
