@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.8 1998-11-15 20:20:22 f Exp $
+ * $Id: edit.c,v 1.9 1998-11-16 20:58:13 f Exp $
  */
 
 #include "irc.h"
@@ -301,6 +301,7 @@ extern  void  TagNick _((char *, char *, char *));
 extern  void  WhereIs _((char *, char *, char *));
 extern  void  WhereList _((char *, char *, char *));
 extern  void  MassKill _((char *, char *, char *));
+extern  void  FilterTrace _((char *, char *, char *));
 #endif
 extern  void  UnFlash _((char *, char *, char *));
 extern  void  Password _((char *, char *, char *));
@@ -520,6 +521,9 @@ static	IrcCommand FAR irc_command[] =
 	{ "FOR",	NULL,		foreach_handler,	0 },
 	{ "FOREACH",	NULL,		foreach_handler,	0 },
   { "FRLIST", 		"FRLIST", 	ChannelCommand, 	0 },
+#ifdef ACID
+  { "FTRACE", 		NULL,		FilterTrace,		0 },
+#endif
  	{ "HASH",	"HASH",		send_comm,		SERVERREQ },
 	{ "HELP",	NULL,		help,			0 },
 	{ "HISTORY",	NULL,		history,		0 },
