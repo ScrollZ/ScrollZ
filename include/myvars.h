@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.30 2002-01-21 22:12:15 f Exp $
+ * $Id: myvars.h,v 1.31 2002-02-02 10:33:35 f Exp $
  */
 
 #include "mystructs.h"
@@ -183,6 +183,7 @@ extern char   *AutoReplyString;
 extern char   *ChanLogChannels;
 extern char   *ChanLogDir;
 extern char   *ChanLogPrefix;
+extern char   *ChanLogPostfix;
 extern int    usersloaded;
 extern int    inSZNotify;
 extern int    inSZLinks;

@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.128 2002-01-25 17:54:13 f Exp $
+ * $Id: edit6.c,v 1.129 2002-02-02 10:33:34 f Exp $
  */
 
 #include "irc.h"
@@ -3148,6 +3148,13 @@ char *subargs;
                 SetChannels(100);
             }
         }
+        else if (!strcmp(command, "CHANLOGPOST")) {
+            if (!strcmp(setting, "-")) new_free(&ChanLogPostfix);
+            else {
+                malloc_strcpy(&ChanLogPostfix, setting);
+                SetChannels(100);
+            }
+        }
     }
     if (!strcmp(command, "CHANLOGDIR")) {
         if (ChanLogDir) PrintSetting("Channel logging directory", ChanLogDir, empty_string, empty_string);
@@ -3156,6 +3163,10 @@ char *subargs;
     else if (!strcmp(command, "CHANLOGPREFIX")) {
         if (ChanLogPrefix) PrintSetting("Channel logging prefix", ChanLogPrefix, empty_string, empty_string);
         else PrintSetting("Channel logging prefix", "OFF", empty_string, empty_string);
+    }
+    else if (!strcmp(command, "CHANLOGPOST")) {
+        if (ChanLogPostfix) PrintSetting("Channel logging postix", ChanLogPostfix, empty_string, empty_string);
+        else PrintSetting("Channel logging postix", "OFF", empty_string, empty_string);
     }
 }
 
@@ -3169,6 +3180,7 @@ ChannelList *chan;
     if (!chan || !chan->ChanLog) return;
     if (ChanLogPrefix) malloc_strcpy(&filename, ChanLogPrefix);
     malloc_strcat(&filename, chan->channel);
+    if (ChanLogPostfix) malloc_strcat(&filename, ChanLogPostfix);
     if (ChanLogDir) malloc_strcpy(&filepath, ChanLogDir);
     else {
         char *path;

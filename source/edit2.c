@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.81 2002-01-31 18:26:28 f Exp $
+ * $Id: edit2.c,v 1.82 2002-02-02 10:33:34 f Exp $
  */
 
 #include "irc.h"
@@ -2080,6 +2080,7 @@ char *subargs;
     fprintf(usfile,"NOTIFYSTR       %s\n",CelerityNtfy);
     if (ChanLogDir) fprintf(usfile,"CHANLOGDIR      %s\n",ChanLogDir);
     if (ChanLogPrefix) fprintf(usfile,"CHANLOGPREFIX   %s\n",ChanLogPrefix);
+    if (ChanLogPostfix) fprintf(usfile,"CHANLOGPOST     %s\n",ChanLogPostfix);
     fprintf(usfile,"#\n");
 #ifdef CELE
     fprintf(usfile,"TRUNCATE        %d\n",get_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR));

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.82 2002-01-29 16:27:39 f Exp $
+ * $Id: edit.c,v 1.83 2002-02-02 10:33:34 f Exp $
  */
 
 #include "irc.h"
@@ -517,6 +517,7 @@ IrcCommand FAR irc_command[] =
 #endif
   { "CHANLOG", 		"CHANLOG",	ChannelCommand, 	0 },
   { "CHANLOGDIR", 	"CHANLOGDIR",	ChanLogCommand, 	0 },
+  { "CHANLOGPOST", 	"CHANLOGPOST",	ChanLogCommand, 	0 },
   { "CHANLOGPREFIX", 	"CHANLOGPREFIX",ChanLogCommand, 	0 },
  	{ "CHANNEL",	"JOIN",		e_channel,		SERVERREQ },
   { "CHANST", 		NULL, 		ChanStat, 		SERVERREQ },

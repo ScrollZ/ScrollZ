@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.76 2002-01-24 19:59:04 f Exp $
+ * $Id: edit3.c,v 1.77 2002-02-02 10:33:34 f Exp $
  */
 
 #include "irc.h"
@@ -2256,6 +2256,8 @@ int ScrollZLoad()
             StringSet(pointer,&ChanLogDir,&loaderror,lineno,"CHANLOGDIR");
         else if (!strcmp("CHANLOGPREFIX",tmpbuf3))
             StringSet(pointer,&ChanLogPrefix,&loaderror,lineno,"CHANLOGPREFIX");
+        else if (!strcmp("CHANLOGPOST",tmpbuf3))
+            StringSet(pointer,&ChanLogPostfix,&loaderror,lineno,"CHANLOGPOST");
         else if (!strcmp("ORIGNICKTIME",tmpbuf3))
             NumberSet(&pointer,&OrigNickDelay,&loaderror,lineno,"ORIGNICKTIME");
         else if (!strcmp("LOGON",tmpbuf3))

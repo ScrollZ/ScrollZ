@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.83 2002-02-01 19:03:45 f Exp $
+ * $Id: irc.c,v 1.84 2002-02-02 10:33:34 f Exp $
  */
 
 #define IRCII_VERSION	"20011210"	/* YYYYMMDD */
@@ -347,6 +347,7 @@ char  *TimeStampString=(char *) 0;
 char  *ChanLogChannels=(char *) 0;
 char  *ChanLogDir=(char *) 0;
 char  *ChanLogPrefix=(char *) 0;
+char  *ChanLogPostfix=(char *) 0;
 int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;
