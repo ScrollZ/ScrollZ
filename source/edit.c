@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.71 2001-11-17 10:50:48 f Exp $
+ * $Id: edit.c,v 1.72 2001-12-12 21:09:20 f Exp $
  */
 
 #include "irc.h"
@@ -827,6 +827,7 @@ static	IrcCommand FAR irc_command[] =
   { "SHOWSIGN", 	"SHOWSIGN",	OnOffCommand, 		0 },
 #endif
   { "SHOWUSER", 	NULL, 		ShowUser, 		SERVERREQ },
+  { "SHOWWALLOP", 	"SHOWWALLOP", 	OnOffCommand,		0 },
  	{ "SIGNOFF",	"QUIT",		e_quit,			NONOVICEABBREV },
 /* Patched by Zakath */
   { "SINFO", 		"LUSERS", 	send_comm, 		SERVERREQ },

@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.113 2001-12-03 18:57:58 f Exp $
+ * $Id: edit6.c,v 1.114 2001-12-12 21:09:20 f Exp $
  */
 
 #include "irc.h"
@@ -1081,6 +1081,7 @@ char *subargs;
 #ifdef EXTRAS
         { "SHOWSIGN"    , &ShowSignAllChan, "Show signoff message in all channels" },
 #endif
+        { "SHOWWALLOP"  , &ShowWallop,      "Show included/excluded nicks with wallops" },
         { NULL          , NULL            , NULL }
     };
 
