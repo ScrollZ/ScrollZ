@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.54 2004-07-02 19:57:53 f Exp $
+ * $Id: names.c,v 1.55 2004-08-31 15:04:34 f Exp $
  */
 
 #include "irc.h"
@@ -490,6 +490,9 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
                     }
                     else if (*tmpnick == '@') {
                         ischop = 1;
+                        nick++;
+                    }
+                    else if (*tmpnick == '&' || *tmpnick == '~') {
                         nick++;
                     }
                     tmpnick++;
