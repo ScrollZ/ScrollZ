@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.3 1998-10-21 19:30:52 f Exp $
+ * $Id: myvars.h,v 1.4 1998-10-25 18:23:44 f Exp $
  */
 
 #include "mystructs.h"
@@ -256,6 +256,7 @@ extern int    DisplaymIRC;
 extern int    DCCWarning;
 extern int    ShowSignoffChan;
 extern int    Stamp;
+extern int    CdccVerbose;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;
