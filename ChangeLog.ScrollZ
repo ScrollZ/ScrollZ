@@ -38,6 +38,8 @@ ScrollZ v1.9.1
       SET STAMP_FORMAT
     ! IDLETIME not being used at all when determining what users
       to kick (reported by taliz)
+    ! delayed op no longer ops already opped users (reported by taliz)
+    ! turn off all colours after user's IRCNAME in whois (reported by taliz)
 
 ------------------------------------------------------------------------------
 
