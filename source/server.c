@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.36 2001-11-21 19:48:14 f Exp $
+ * $Id: server.c,v 1.37 2001-12-18 20:17:14 f Exp $
  */
 
 #include "irc.h"
@@ -72,6 +72,11 @@ extern int  CheckServer _((int));
 static char enctablebnc[256];
 static char dectablebnc[256];
 #endif
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+int SSLconnect = 0;
+#endif
+/****************************************************************************/
 /****************************************************************************/
 
 static	void	add_to_server_buffer _((int, char *));
@@ -176,6 +181,13 @@ close_server(server_index, message)
 			if (message && *message)
 			{
 				sprintf(buffer, "QUIT :%s\n", message);
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                                if (server_list[i].enable_ssl)
+                                    SSL_write(server_list[i].ssl_fd, buffer, strlen(buffer));
+                                else
+#endif
+/****************************************************************************/
 				send(server_list[i].write, buffer, strlen(buffer), 0);
 			}
 			new_close(server_list[i].write);
@@ -195,6 +207,11 @@ close_server(server_index, message)
 			server_list[i].pid = (pid_t) -1;
 		}
 #endif /* _Windows */
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                if (server_list[i].enable_ssl) SSL_shutdown(server_list[i].ssl_fd);
+#endif
+/****************************************************************************/
 	}
 }
 
@@ -305,11 +322,17 @@ do_server(rd, wd)
 				goto buffer_is_full_hack;	/* XXX? */
 /**************************** PATCHED by Flier ******************************/
 			/*junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0);*/
+#ifdef HAVE_SSL
+                        if (server_list[from_server].enable_ssl)
+                            junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0,
+                                             server_list[from_server].ssl_fd);
+                        else
+#endif /* HAVE_SSL */
 #ifdef BNCCRYPT
 			junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0, 1);
-#else
+#else  /* BNCCRYPT */
 			junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0, 0);
-#endif
+#endif /* BNCCRYPT */
 /****************************************************************************/
 			(void) dgets_timeout(old_timeout);
 			switch (junk)
@@ -572,6 +595,9 @@ add_to_server_list(server, port, password, nick, overwrite)
 		server_list[from_server].whois = 0;
 		server_list[from_server].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
+#ifdef HAVE_SSL
+                server_list[from_server].enable_ssl = 0;
+#endif
                 server_list[from_server].umodeflags=0;
                 server_list[from_server].LastMessage=(char *) 0;
                 server_list[from_server].LastNotice=(char *) 0;
@@ -719,6 +745,10 @@ remove_from_server_list(i)
 	if (server_list[i].ctcp_send_size)
 		new_free(&server_list[i].ctcp_send_size);
 /**************************** PATCHED by Flier ******************************/
+#ifdef HAVE_SSL
+        SSL_CTX_free(server_list[i].ctx);
+        new_free(&server_list[i].meth);
+#endif
         if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
         if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
         if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
@@ -1271,6 +1301,11 @@ connect_to_server(server_name, port, nick, c_server)
 		{
 			attempting_to_connect = 0;
  			restore_message_from();
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                        SSLconnect = 0;
+#endif
+/****************************************************************************/
 			return -1;
 		}
 		if ((c_server != -1) && (c_server != from_server))
@@ -1301,6 +1336,12 @@ connect_to_server(server_name, port, nick, c_server)
 		{
 			server_list[from_server].close_serv = -1;
 		}
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                if (SSLconnect) server_list[from_server].enable_ssl = 1;
+                SSLconnect = 0;
+#endif
+/****************************************************************************/
 		if (connect_next_nick)
 		{
 			if (*connect_next_nick)
@@ -1325,7 +1366,30 @@ connect_to_server(server_name, port, nick, c_server)
 		 */
 		if (is_server_open(from_server) &&
 			getpeername(server_list[from_server].read, (struct sockaddr *) &sa, &salen) != -1)
-			login_to_server(from_server);
+/**************************** Patched by Flier ******************************/
+			/*login_to_server(from_server);*/
+                {
+#ifdef HAVE_SSL
+                    if (server_list[from_server].enable_ssl) {
+                        int err;
+
+                        say("SSL connect in progress ...");
+                        SSLeay_add_ssl_algorithms();
+                        server_list[from_server].meth = SSLv2_client_method();
+                        SSL_load_error_strings();
+                        server_list[from_server].ctx = SSL_CTX_new(server_list[from_server].meth);
+                        CHK_NULL(server_list[from_server].ctx);
+                        CHK_SSL(err);
+                        server_list[from_server].ssl_fd = SSL_new(server_list[from_server].ctx);
+                        CHK_NULL(server_list[from_server].ssl_fd);
+                        SSL_set_fd(server_list[from_server].ssl_fd, server_list[from_server].read);
+                        err = SSL_connect(server_list[from_server].ssl_fd);
+                        CHK_SSL(err);
+                    }
+#endif
+                    login_to_server(from_server);
+                }
+/****************************************************************************/
 	}
 	else
 	{
@@ -1659,6 +1723,11 @@ servercmd(command, args, subargs)
 		i,
 		new_server_flags;
 
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+        SSLconnect = 0;
+#endif
+/****************************************************************************/
 	if ((server = next_arg(args, &args)) != NULL)
 	{
 		while (*server == '-')
@@ -1702,6 +1771,11 @@ servercmd(command, args, subargs)
 				say("Need server number for -DELETE");
 				return;
 			}
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                        else if (!strncmp(server, "SSL", len)) SSLconnect = 1;
+#endif
+/****************************************************************************/
 			else
 			{
 				say("SERVER: %s is an unknown flag", server);
@@ -2312,6 +2386,20 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 #endif
 /****************************************************************************/
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+                if (server_list[server].enable_ssl) {
+                    int err;
+
+                    if (server_list[server].ssl_fd == 0) {
+                        say("SSL write error - ssl socket = 0");
+                        return;
+                    }
+                    err = SSL_write(server_list[server].ssl_fd, lbuf, strlen(lbuf));
+                }
+                else
+#endif
+/****************************************************************************/
  		send(des, lbuf, strlen(lbuf), 0);
 	}
 	else if (!in_redirect && !connected_to_server)

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.9 2001-11-19 19:01:16 f Exp $
+ * $Id: server.h,v 1.10 2001-12-18 20:17:14 f Exp $
  */
 
 #ifndef __server_h_
@@ -39,6 +39,11 @@
   
 /* for ChannelList */
 #include "names.h"
+/**************************** Patched by Flier ******************************/
+#ifdef HAVE_SSL
+#include "myssl.h"
+#endif
+/****************************************************************************/
 
 /*
  * type definition to distinguish different
@@ -103,6 +108,12 @@ typedef	struct
         struct  nicks *arlist,*arcur;   /* auto-reply list */
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;
+#ifdef HAVE_SSL
+        int        enable_ssl;
+        SSL        *ssl_fd;
+        SSL_CTX    *ctx;
+        SSL_METHOD *meth;
+#endif
 /****************************************************************************/
 }	Server;
 
@@ -202,5 +213,8 @@ extern	SGroup	*server_group_list;
 #define CLOSE_PENDING	0x0200
 #define LOGGED_IN	0x0400
 #define	CLEAR_PENDING	0x0800
+/**************************** Patched by Flier ******************************/
+#define SSL_CONNECT     0x100000
+/****************************************************************************/
 
 #endif /* __server_h_ */

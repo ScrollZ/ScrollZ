@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.70 2001-12-03 18:57:58 f Exp $
+ * $Id: irc.c,v 1.71 2001-12-18 20:17:14 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -581,6 +581,12 @@ char VersionInfo[] = {
     'P',
     'E',
     'R',
+#endif
+#ifdef HAVE_SSL
+    ' ',
+    'S',
+    'S',
+    'L',
 #endif
     '\0'};
 /*****************************/
