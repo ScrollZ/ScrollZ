@@ -1,0 +1,12 @@
+!	 $Id: fec,v 1.1 2003-09-21 16:03:04 f Exp $
+!
+! Copyright (c) 1994-2003 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: FEC (<list>) <variable> { <commands> }
+  This causes <commands> to be executed once for each 
+  character in the list.  The aliases inside the {} 
+  are not expanded until execution unless the leading { 
+  is quoted like \{
