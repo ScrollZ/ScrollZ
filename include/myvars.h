@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.7 1998-11-26 20:02:36 f Exp $
+ * $Id: myvars.h,v 1.8 1999-05-07 16:07:09 f Exp $
  */
 
 #include "mystructs.h"
@@ -70,26 +70,27 @@
 #endif /* CELECOSM && OPERVISION */
 #endif /* WANTANSI */
 
-#define SAVEMSG         1
-#define SAVENOTICE      2
-#define SAVEMASS        4
-#define SAVECOLL        8
-#define SAVECDCC       16
-#define SAVEDCC        32
-#define SAVEPROT       64
-#define SAVEHACK      128
-#define SAVESRVM      256
-#define SAVECTCP      512
-#define SAVEFLOOD    1024
-#define SAVEINVITE   2048
-#define SAVEKILL     4096
-#define SAVEKICK     8192
-#define SAVESERVER  16384
-#define SAVEFAKE    32768
-#define SAVEAREPLY  65536
-#define SAVECHAT   131072
-#define SAVENOTIFY 262144
-#define SAVEALL    524287
+#define SAVEMSG           1
+#define SAVENOTICE        2
+#define SAVEMASS          4
+#define SAVECOLL          8
+#define SAVECDCC         16
+#define SAVEDCC          32
+#define SAVEPROT         64
+#define SAVEHACK        128
+#define SAVESRVM        256
+#define SAVECTCP        512
+#define SAVEFLOOD      1024
+#define SAVEINVITE     2048
+#define SAVEKILL       4096
+#define SAVEKICK       8192
+#define SAVESERVER    16384
+#define SAVEFAKE      32768
+#define SAVEAREPLY    65536
+#define SAVECHAT     131072
+#define SAVENOTIFY   262144
+#define SAVESENTMSG  524288
+#define SAVEALL     1048575
 
 extern struct friends *frlist;
 extern struct autobankicks *abklist;
