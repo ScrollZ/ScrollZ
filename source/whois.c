@@ -32,10 +32,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.15 2002-10-08 18:32:02 f Exp $
+ * $Id: whois.c,v 1.16 2002-10-08 18:33:16 f Exp $
  */
 
-#define MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
+#undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
 
 #include "irc.h"
 
