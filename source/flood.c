@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.7 2001-01-22 18:19:01 f Exp $
+ * $Id: flood.c,v 1.8 2002-01-25 17:38:36 f Exp $
  */
 
 #include "irc.h"
@@ -73,7 +73,7 @@ check_flooding(nick, type, line)
 	diff;
 	Flooding *tmp;
 /**************************** PATCHED by Flier ******************************/
-        float   rate,after,current=0.0;
+        float   rate, after, current = 0.0;
 /****************************************************************************/
 
 	if (users != get_int_var(FLOOD_USERS_VAR))
@@ -122,17 +122,17 @@ check_flooding(nick, type, line)
 	diff = flood_time - tmp->start;
 /**************************** PATCHED by Flier ******************************/
 	/*if (tmp->cnt > get_int_var(FLOOD_AFTER_VAR))*/
-        after=(float) get_int_var(FLOOD_AFTER_VAR);
-        rate=(float) get_int_var(FLOOD_RATE_VAR);
+        after = (float) get_int_var(FLOOD_AFTER_VAR);
+        rate = (float) get_int_var(FLOOD_RATE_VAR);
         if (tmp->cnt>after)
 /****************************************************************************/
 	{
 /**************************** PATCHED by Flier ******************************/
 		/*if ((diff == 0) || (tmp->cnt / diff) >
 				get_int_var(FLOOD_RATE_VAR))*/
-                if (diff!=0) current=(float) tmp->cnt/(float) diff;
-                else current=(float) tmp->cnt;
-                if (current>=(after/rate))
+                if (diff != 0) current = (float) tmp->cnt / (float) diff;
+                else current = (float) tmp->cnt;
+                if (current >= (after / rate))
 /****************************************************************************/
 		{
 			if (tmp->flood == 0)
@@ -141,7 +141,7 @@ check_flooding(nick, type, line)
 /**************************** PATCHED by Flier ******************************/
 					/*say("%s flooding detected from %s",
 						ignore_types[type], nick);*/
-                                   HandleFlood(nick,FromUserHost,ignore_types[type]);
+                                   HandleFlood(nick, FromUserHost, ignore_types[type]);
 /****************************************************************************/
 				tmp->flood = 1;
 			}
@@ -161,11 +161,11 @@ check_flooding(nick, type, line)
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all allocated memory */
 void CleanUpFlood() {
-    int i,users;
+    int i, users;
 
-    users=get_int_var(FLOOD_USERS_VAR);
+    users = get_int_var(FLOOD_USERS_VAR);
     if (flood) {
-        for (i=0;i<users;i++) new_free(&(flood[i].nick));
+        for (i = 0; i < users; i++) new_free(&(flood[i].nick));
     }
     new_free(&flood);
 }
