@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.97 2002-10-01 22:27:49 f Exp $
+ * $Id: edit5.c,v 1.98 2003-01-08 20:11:18 f Exp $
  */
 
 #include "irc.h"
@@ -1481,6 +1481,8 @@ int  iscrypted;
         else
 #endif /* CELECOSM */
 	if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
+        else if (isfriend) coln=CmdsColors[COLMISC].color4;
+        else if (isitme) coln=CmdsColors[COLMISC].color5;
         else coln=CmdsColors[COLPUBLIC].color2;
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s",coln,pubschar,Colors[COLOFF]);
         snprintf(tmpbuf5,sizeof(tmpbuf5),"%s%c%s",coln,pubechar,Colors[COLOFF]);
@@ -1561,13 +1563,17 @@ int  iscrypted;
 	}
     }
     else {
+	if (isshit && !isfriend) coln=CmdsColors[COLCSCAN].color6;
+        else if (isfriend) coln=CmdsColors[COLMISC].color4;
+        else if (isitme) coln=CmdsColors[COLMISC].color5;
+        else coln=CmdsColors[COLPUBLIC].color2;
         if (!col && print)
             put_it("%s%s%s%c%s %s%s%s",iscrypted?"[!]":"",stampbuf,
-                   CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF],
+                   coln,pubechar,Colors[COLOFF],
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         else if (print) {
             snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s%s%s%s%s>%s ",
-                    CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF],
+                    coln,pubechar,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
             put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf1,
@@ -3800,6 +3806,12 @@ void InitKeysColors() {
 #ifdef CELECOSM
     malloc_strcat(&CmdsColors[COLMISC].color3,Colors[COLBLUE]);
 #endif
+    /* Color of <>s for friends in publics */
+    malloc_strcpy(&CmdsColors[COLMISC].color4,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLMISC].color4,Colors[COLCYAN]);
+    /* Color of <>s for you in publics */
+    malloc_strcpy(&CmdsColors[COLMISC].color5,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLMISC].color5,Colors[COLBLUE]);
 
     /* Color1 of the statusbar */
 #ifndef CELE
