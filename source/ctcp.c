@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.47 2003-11-17 20:25:23 f Exp $
+ * $Id: ctcp.c,v 1.48 2004-03-19 20:18:47 f Exp $
  */
 
 #include "irc.h"
@@ -1439,7 +1439,8 @@ do_atmosphere(ctcp, from, to, cmd)
 #endif
         void    (*func)();
         ChannelList *chan;
-		NickList *joiner;
+	NickList *joiner;
+        Window *oldwin;
 
         if (get_int_var(HIGH_ASCII_VAR)) thing = 'ì';
         else thing = '*';
@@ -1519,6 +1520,35 @@ do_atmosphere(ctcp, from, to, cmd)
                                     }
                                 }
                             }
+                        }
+                        if (foundar &&
+                            (ARinWindow==3 ||
+                            (ARinWindow && chan->window != curr_scr_win))) {
+#ifdef WANTANSI
+                            snprintf(tmpbuf1, sizeof(tmpbuf1),
+                                    "<%s%s%s> %s%c%s %s%s%s",
+                                    CmdsColors[COLME].color4, to, Colors[COLOFF],
+                                    CmdsColors[COLME].color1, thing,
+                                    Colors[COLOFF],
+                                    color, from, Colors[COLOFF]);
+#else
+                            sprintf(tmpbuf1, "<%s> %c %s%s%s %s",
+                                    to, thing, color, from, color, cmd);
+#endif
+                            oldwin=to_window;
+                            if (ARinWindow==1) /* ON */
+                                to_window=curr_scr_win;
+                            else { /* USER/BOTH */
+                                to_window=get_window_by_level(LOG_USER4);
+                                if (to_window==NULL)
+                                    to_window=curr_scr_win;
+                            }
+#ifdef WANTANSI
+                            func("%s %s%s%s", tmpbuf1,
+                                 CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
+#else
+                            func("%s", tmpbuf1);
+#endif
                         }
 /****************************************************************************/
 		}
