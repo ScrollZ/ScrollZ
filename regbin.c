@@ -1,3 +1,7 @@
+/*
+ * $Id: regbin.c,v 1.2 1998-09-10 17:34:40 f Exp $
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -23,7 +23,9 @@
  * have comments on this code, send e-mail to:
  * flier@globecom.net
  * flier@3sheep.com or
-*/
+ * 
+ * $Id: SZdist.c,v 1.2 1998-09-10 17:34:23 f Exp $
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

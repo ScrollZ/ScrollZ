@@ -1,3 +1,7 @@
+/*
+ * $Id: ver.c,v 1.2 1998-09-10 17:34:49 f Exp $
+ */
+
 #include <stdio.h>
 
 char *int_ver="19980912";
