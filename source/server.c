@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.49 2002-01-23 18:48:10 f Exp $
+ * $Id: server.c,v 1.50 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -2512,8 +2512,12 @@ create_server_list()
 	for (i = 0; i < number_of_servers; i++)
 		if (server_list[i].read != -1)
 		{
-			strcat(buffer, get_server_itsname(i));
-			strcat(buffer, " ");
+/**************************** Patched by Flier ******************************/
+			/*strcat(buffer, get_server_itsname(i));
+			strcat(buffer, " ");*/
+			strmcat(buffer, get_server_itsname(i), sizeof(buffer));
+			strmcat(buffer, " ", sizeof(buffer));
+/****************************************************************************/
 		}
 	malloc_strcpy(&value, buffer);
 

@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.126 2002-01-23 18:57:56 f Exp $
+ * $Id: edit6.c,v 1.127 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -346,11 +346,11 @@ ChannelList *tmpchan;
            was only one match found */
         if (count==1 || (AutoNickCompl==2 && count)) tmpnick=NULL;
         if (!tmpnick && nick) {
-            if (count==1 || AutoNickCompl==2) strcpy(tmpbuf,nick->nick);
-            else if (AutoNickCompl==1) strcpy(tmpbuf,result);
+            if (count==1 || AutoNickCompl==2) strmcpy(tmpbuf,nick->nick,sizeof(tmpbuf));
+            else if (AutoNickCompl==1) strmcpy(tmpbuf,result,sizeof(tmpbuf));
             if (*tmpstr==' ' && tmp && *(tmp+1)==' ') tmpstr++;
-            if (tmp && *tmp) strcat(tmpbuf,tmp);
-            strcat(tmpbuf,tmpstr);
+            if (tmp && *tmp) strmcat(tmpbuf,tmp,sizeof(tmpbuf));
+            strmcat(tmpbuf,tmpstr,sizeof(tmpbuf));
             strcpy(result,tmpbuf);
             return;
         }
@@ -464,8 +464,8 @@ char *user;
         snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,host);
         if (wild_match(tmpbuf,tkillpattern) || wild_match(tkillpattern,tmpbuf)) {
             FilterKillNum++;
-            if (tkillreason) strcpy(tmpbuf,tkillreason);
-            else strcpy(tmpbuf,nick);
+            if (tkillreason) strmcpy(tmpbuf,tkillreason,sizeof(tmpbuf));
+            else strmcpy(tmpbuf,nick,sizeof(tmpbuf));
             send_to_server("KILL %s :%s (%d)",nick,tmpbuf,FilterKillNum);
         }
     }
@@ -499,8 +499,8 @@ char *subargs;
         inSZLinks=4;
         strcpy(servbuf,"LINKS ");
         if (server) {
-            strmcat(servbuf,server,mybufsize/16);
-            strmcat(servbuf," *",mybufsize/16+3);
+            strmcat(servbuf,server,sizeof(servbuf));
+            strmcat(servbuf," *",sizeof(servbuf));
         }
         send_to_server("%s",servbuf);
         say("Generating map of IRC servers");
@@ -636,7 +636,7 @@ void CheckTimeMinute() {
         else if (away_set) CeleAway(1); /* Updates idle counter in away */
 #endif /* CELE */
         if (away_set && AutoJoinOnInv==2 && AutoJoinChannels && timenow-LastCheck>500) {
-            strcpy(tmpbuf,AutoJoinChannels);
+            strmcpy(tmpbuf,AutoJoinChannels,sizeof(tmpbuf));
             tmpstr=tmpbuf;
             tmpstr1=tmpbuf;
             wildcards=0;
@@ -821,13 +821,13 @@ int  add;
     }
     else {
         tmpstr=tmpbuf2;
-        strcpy(tmpstr,*setting);
+        strmcpy(tmpstr,*setting,sizeof(tmpbuf2));
         *tmpbuf1='\0';
         if ((tmpchan=strtok(tmpstr,","))) {
             do {
                 if (my_stricmp(tmpchan,channel)) {
-                    if (change) strcat(tmpbuf1,",");
-                    strcat(tmpbuf1,tmpchan);
+                    if (change) strmcat(tmpbuf1,",",sizeof(tmpbuf1));
+                    strmcat(tmpbuf1,tmpchan,sizeof(tmpbuf1));
                     change=1;
                 }
             }
@@ -877,7 +877,7 @@ char *subargs;
                                 for (tmpnick=chan->nicks;tmpnick;tmpnick=tmpnick->next) {
                                     if (tmpnick->userhost)
                                         snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",tmpnick->nick,tmpnick->userhost);
-                                    else strcpy(tmpbuf,tmpnick->nick);
+                                    else strmcpy(tmpbuf,tmpnick->nick,sizeof(tmpbuf));
                                     if (change>1) {
                                         if (wild_match(tmpfriend->userhost,tmpbuf))
                                             tmpnick->frlist=tmpfriend;
@@ -910,37 +910,37 @@ char *line;
             switch (*tmpstr1) {
                 case '0':
 #ifdef WANTANSI
-                    strcat(tmpbuf,Colors[COLOFF]);
+                    strmcat(tmpbuf,Colors[COLOFF],sizeof(tmpbuf));
 #endif
                     break;
                 case '1':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color1);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color1,sizeof(tmpbuf));
 #endif
                     break;
                 case '2':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color2);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color2,sizeof(tmpbuf));
 #endif
                     break;
                 case '3':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color3);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color3,sizeof(tmpbuf));
 #endif
                     break;
                 case '4':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color4);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color4,sizeof(tmpbuf));
 #endif
                     break;
                 case '5':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color5);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color5,sizeof(tmpbuf));
 #endif
                     break;
                 case '6':
 #ifdef WANTANSI
-                    strcat(tmpbuf,CmdsColors[COLHELP].color6);
+                    strmcat(tmpbuf,CmdsColors[COLHELP].color6,sizeof(tmpbuf));
 #endif
                     break;
                 default:
@@ -1703,7 +1703,7 @@ char *subargs;
     char *tmpstr1;
     char tmpbuf[mybufsize / 4 + 1];
 
-    strcpy(tmpbuf, ScrollZver);
+    strmcpy(tmpbuf, ScrollZver, sizeof(tmpbuf));
     tmpstr1 = index(tmpbuf, ' ');
     szver = index(tmpstr1 + 1, ' ') + 1;
     tmpstr1 = index(szver,' ');
@@ -1930,7 +1930,7 @@ char *subargs;
             len+=strlen(joiner->userhost);
         }
         else *tmpbuf2='\0';
-        for (;len<40;len++) strcat(tmpbuf2," ");
+        for (;len<40;len++) strmcat(tmpbuf2," ",sizeof(tmpbuf2));
         say("%s%s%s %s  %dd %dh %dm %ds",
             CmdsColors[COLWHO].color1,joiner->nick,Colors[COLOFF],
             tmpbuf2,days,hours,mins,secs);
@@ -3240,7 +3240,7 @@ ChannelList *chan;
         snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
         if (EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
-        else strcpy(tmpbuf2, tmpbuf1);
+        else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(logfile, "%s\n", tmpbuf2);
         fclose(logfile);
     }

@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.41 2002-01-23 18:48:10 f Exp $
+ * $Id: operv.c,v 1.42 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -198,8 +198,8 @@ int b;
 char *string;
 {
     int  i=1;
-    static char tmpbuf1[mybufsize/2+1];
-    static char tmpbuf2[mybufsize/2+1];
+    static char tmpbuf1[mybufsize/2];
+    static char tmpbuf2[mybufsize/2];
     char *tmpstr=tmpbuf1;
     char *tmpbuf=tmpbuf1;
 
@@ -209,16 +209,16 @@ char *string;
        This should speed things up and reduce CPU usage.
        First check if this is new notice, and if it is copy entire string to buffer.
        Else, copy old pointer and work from there on, using new indexes   -Flier */
-    if (NewNotice) strmcpy(tmpbuf1,string,mybufsize/2);
+    if (NewNotice) strmcpy(tmpbuf1,string,sizeof(tmpbuf1));
     else {
-        strmcpy(tmpbuf1,OldPtr,mybufsize/2);
+        strmcpy(tmpbuf1,OldPtr,sizeof(tmpbuf1));
         i=OldWord+1;
     }
     /* If a=0, find and return word #b */
     if ((a==0) && (b>0)) {
 	for(;i<=b;i++) tmpstr=next_arg(tmpbuf,&tmpbuf);
         /* Made it crash proof since my ircd formats some messages differently */
-        if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/2);
+        if (tmpstr) strmcpy(tmpbuf2,tmpstr,sizeof(tmpbuf2));
         /* so if there is no word #b we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -233,7 +233,7 @@ char *string;
             if (tmpstr) tmpstr++;
         }
         /* Made it crash proof since my ircd formats some messages differently */
-	if (tmpstr) strmcpy(tmpbuf2,tmpstr,mybufsize/2);
+	if (tmpstr) strmcpy(tmpbuf2,tmpstr,sizeof(tmpbuf2));
         /* so if there is no word #a we copy empty string   -Flier */
         else *tmpbuf2='\0';
         /* Store current word number */
@@ -254,9 +254,9 @@ char *OVgetnick(nuh)
 char *nuh;
 {
     char *tmpstr;
-    static char tmpbuf[mybufsize/4+1];
+    static char tmpbuf[mybufsize/4];
 
-    strmcpy(tmpbuf,nuh,mybufsize/4);
+    strmcpy(tmpbuf,nuh,sizeof(tmpbuf));
     if ((tmpstr=index(tmpbuf,'!'))) *tmpstr='\0';
     return(tmpbuf);
 }
@@ -290,7 +290,7 @@ char *from;
             else tmpline=line;
         }
     }
-    strcpy(tmpbuf,tmpline); /* Default if no match is found */
+    strmcpy(tmpbuf,tmpline,sizeof(tmpbuf)); /* Default if no match is found */
     tmpline=tmpbuf;
     /* If from has '.' in it is is server */
     origfrom=from;
@@ -298,6 +298,7 @@ char *from;
     /* We got new notice, needed for caching */
     NewNotice=1;
     /* Now we got the message, use strstr() to match it up */
+    /* OVgetword() and OVgetnick() return max mybufsize/2 so we are safe */
     if (!strncmp(tmpline,"Connecting to",12)) {
         strcpy(word1,OVgetword(0,3,tmpline));  /* Server */
 #ifdef OGRE

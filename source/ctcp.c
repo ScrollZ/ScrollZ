@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.40 2002-01-23 18:48:10 f Exp $
+ * $Id: ctcp.c,v 1.41 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -388,7 +388,7 @@ int  required;
 static void wrongpassword(nick)
 char *nick;
 {
-    strcat(tmpaway,", wrong password");
+    strmcat(tmpaway,", wrong password",sizeof(tmpaway));
     send_to_server("NOTICE %s :Invalid password!  -ScrollZ-",nick);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
 }
@@ -857,16 +857,16 @@ char *args;
             send_to_server("NOTICE %s :-ScrollZ- Mask: %s    Channel(s): %s",from,
                            tmpfriend->userhost,tmpfriend->channels);
             i=tmpfriend->privs;
-            strcpy(tmpbuf1,"CTCP access: ");
-            if (i&FLINVITE) strcat(tmpbuf1,"INVITE ");
-            if (i&FLCHOPS) strcat(tmpbuf1,"CHOPS ");
-            if (i&FLOP) strcat(tmpbuf1,"OP ");
-            if (i&FLHOP) strcat(tmpbuf1,"HOP ");
-            if (i&FLUNBAN) strcat(tmpbuf1,"UNBAN ");
-            if (i&FLCDCC) strcat(tmpbuf1,"CDCC ");
-            if (i&FLVOICE) strcat(tmpbuf1,"VOICE ");
+            strmcpy(tmpbuf1,"CTCP access: ",sizeof(tmpbuf1));
+            if (i&FLINVITE) strmcat(tmpbuf1,"INVITE ",sizeof(tmpbuf1));
+            if (i&FLCHOPS) strmcat(tmpbuf1,"CHOPS ",sizeof(tmpbuf1));
+            if (i&FLOP) strmcat(tmpbuf1,"OP ",sizeof(tmpbuf1));
+            if (i&FLHOP) strmcat(tmpbuf1,"HOP ",sizeof(tmpbuf1));
+            if (i&FLUNBAN) strmcat(tmpbuf1,"UNBAN ",sizeof(tmpbuf1));
+            if (i&FLCDCC) strmcat(tmpbuf1,"CDCC ",sizeof(tmpbuf1));
+            if (i&FLVOICE) strmcat(tmpbuf1,"VOICE ",sizeof(tmpbuf1));
             if ((i&(FLOP|FLINVITE|FLUNBAN))==(FLOP|FLINVITE|FLUNBAN))
-                strcat(tmpbuf1,"OPEN");
+                strmcat(tmpbuf1,"OPEN",sizeof(tmpbuf1));
             snprintf(tmpaway,sizeof(tmpaway),"Auto:%s  Prot:%s  No flood:%s  God:%s",
                     YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
                     YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
@@ -912,15 +912,15 @@ char *args;
     }
     send_to_server("NOTICE %s :Usage  /CTCP %s <command> [channel] [password] where command is :",from,mynick);
     *tmpbuf1='\0';
-    if (i&FLINVITE) strcat(tmpbuf1,"INVITE ");
-    if (i&FLCHOPS) strcat(tmpbuf1,"CHOPS ");
-    if (i&FLOP) strcat(tmpbuf1,"OP ");
-    if (i&FLHOP) strcat(tmpbuf1,"HOP ");
-    if (i&FLUNBAN) strcat(tmpbuf1,"UNBAN ");
-    if ((i&FLOP) && (i&FLINVITE) && (i&FLUNBAN)) strcat(tmpbuf1,"OPEN ");
-    if (i&FLCDCC) strcat(tmpbuf1,"CDCC ");
-    if (i&FLVOICE) strcat(tmpbuf1,"VOICE ");
-    strcat(tmpbuf1,"WHOAMI HELP");
+    if (i&FLINVITE) strmcat(tmpbuf1,"INVITE ",sizeof(tmpbuf1));
+    if (i&FLCHOPS) strmcat(tmpbuf1,"CHOPS ",sizeof(tmpbuf1));
+    if (i&FLOP) strmcat(tmpbuf1,"OP ",sizeof(tmpbuf1));
+    if (i&FLHOP) strmcat(tmpbuf1,"HOP ",sizeof(tmpbuf1));
+    if (i&FLUNBAN) strmcat(tmpbuf1,"UNBAN ",sizeof(tmpbuf1));
+    if ((i&FLOP) && (i&FLINVITE) && (i&FLUNBAN)) strmcat(tmpbuf1,"OPEN ",sizeof(tmpbuf1));
+    if (i&FLCDCC) strmcat(tmpbuf1,"CDCC ",sizeof(tmpbuf1));
+    if (i&FLVOICE) strmcat(tmpbuf1,"VOICE ",sizeof(tmpbuf1));
+    strmcat(tmpbuf1,"WHOAMI HELP",sizeof(tmpbuf1));
     send_to_server("NOTICE %s :       %s",from,tmpbuf1);
     return(NULL);
 }
@@ -980,10 +980,10 @@ char *args;
             return(NULL);
         }
         *tmpbuf1='\0';
-        if ((chan->mode)&MODE_LIMIT) strcat(tmpbuf1,"l");
+        if ((chan->mode)&MODE_LIMIT) strmcat(tmpbuf1,"l",sizeof(tmpbuf1));
         if ((chan->mode)&MODE_KEY && chan->key) {
-            strcat(tmpbuf1,"k ");
-            strcat(tmpbuf1,chan->key);
+            strmcat(tmpbuf1,"k ",sizeof(tmpbuf1));
+            strmcat(tmpbuf1,chan->key,sizeof(tmpbuf1));
         }
         if (*tmpbuf1) {
             send_to_server("MODE %s -%s",channel,tmpbuf1);
@@ -1084,7 +1084,7 @@ char *args;
     else i=0;
     if (Security)
         if (!i || !(i&FLCDCC)) {
-            strcat(tmpaway,", no access");
+            strmcat(tmpaway,", no access",sizeof(tmpaway));
             if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
             if (!i && !CTCPCloaking)
                 send_to_server("NOTICE %s :You do not have access...  -ScrollZ-",from);
@@ -1092,13 +1092,13 @@ char *args;
             return(NULL);
         }
     if (!(*args)) {
-        strcat(tmpaway,", wrong usage");
+        strmcat(tmpaway,", wrong usage",sizeof(tmpaway));
         if (get_int_var(VERBOSE_CTCP_VAR)) say("%s",tmpaway);
         if (!CTCPCloaking) send_to_server("NOTICE %s :Try  /CTCP %s CDCC HELP",from,mynick);
         if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
         return(NULL);
     }
-    strcpy(tmpbuf1,args);
+    strmcpy(tmpbuf1,args,sizeof(tmpbuf1));
     flag=in_ctcp_flag;
     in_ctcp_flag=0;
     CheckCdcc(from,tmpbuf1,to,0);
@@ -1604,7 +1604,10 @@ do_ctcp(from, to, str)
 		if (messages > 3)
 			break;
 		*(cmd++) = '\0';
-		strcat(ctcp_buffer, str);
+/**************************** Patched by Flier ******************************/
+		/*strcat(ctcp_buffer, str);*/
+		strmcat(ctcp_buffer, str, sizeof(ctcp_buffer));
+/****************************************************************************/
 		if ((end = index(cmd, CTCP_DELIM_CHAR)) != NULL)
 		{
 			messages++;
@@ -1633,7 +1636,10 @@ do_ctcp(from, to, str)
 						ptr = ctcp_cmd[i].func(&ctcp_cmd[i], from, to, arg_copy);
 						if (ptr)
 						{
-							strcat(ctcp_buffer, ptr);
+/**************************** Patched by Flier ******************************/
+							/*strcat(ctcp_buffer, ptr);*/
+							strmcat(ctcp_buffer, ptr, sizeof(ctcp_buffer));
+/****************************************************************************/
 							new_free(&ptr);
 						}
 					}
@@ -1719,7 +1725,10 @@ do_ctcp(from, to, str)
 		}
 		else
 		{
-			strcat(ctcp_buffer, CTCP_DELIM_STR);
+/**************************** Patched by Flier ******************************/
+			/*strcat(ctcp_buffer, CTCP_DELIM_STR);*/
+			strmcat(ctcp_buffer, CTCP_DELIM_STR, sizeof(ctcp_buffer));
+/****************************************************************************/
 			str = cmd;
 		}
 	}
@@ -1800,7 +1809,10 @@ clear_ctcp_reply_buffer:
 		*CTCP_Reply_Buffer = '\0';
 	}
 	if (*str)
-		strcat(ctcp_buffer, str);
+/**************************** Patched by Flier ******************************/
+		/*strcat(ctcp_buffer, str);*/
+		strmcat(ctcp_buffer, str, sizeof(ctcp_buffer));
+/****************************************************************************/
 	return (ctcp_buffer);
 }
 
@@ -1832,7 +1844,10 @@ do_notice_ctcp(from, to, str)
 		while ((cmd = index(str, CTCP_DELIM_CHAR)) != NULL)
 			do_new_notice_ctcp(from, to, &str, cmd);
 	in_ctcp_flag = 0;
-	strcat(ctcp_buffer, str);
+/**************************** Patched by Flier ******************************/
+	/*strcat(ctcp_buffer, str);*/
+	strmcat(ctcp_buffer, str, sizeof(ctcp_buffer));
+/****************************************************************************/
 	return (ctcp_buffer);
 }
 
@@ -1860,7 +1875,10 @@ do_new_notice_ctcp(from, to, str, cmd)
 
 	flags = 0;
 	*(cmd++) = '\0';
-	strcat(ctcp_buffer, *str);
+/**************************** Patched by Flier ******************************/
+	/*strcat(ctcp_buffer, *str);*/
+	strmcat(ctcp_buffer, *str, sizeof(ctcp_buffer));
+/****************************************************************************/
 	if ((end = index(cmd, CTCP_DELIM_CHAR)) != NULL)
 	{
 		*(end++) = '\0';
@@ -1873,7 +1891,10 @@ do_new_notice_ctcp(from, to, str, cmd)
 			{
 				if ((ptr = ctcp_cmd[i].func(&(ctcp_cmd[i]), from, to, arg_copy)) != NULL)
 				{
-					strcat(ctcp_buffer, ptr);
+/**************************** Patched by Flier ******************************/
+					/*strcat(ctcp_buffer, ptr);*/
+					strmcat(ctcp_buffer, ptr, sizeof(ctcp_buffer));
+/****************************************************************************/
 					new_free(&ptr);
 					flags = ctcp_cmd[i].flag;
 				}
@@ -1986,7 +2007,10 @@ do_new_notice_ctcp(from, to, str, cmd)
 	}
 	else
 	{
-		strcat(ctcp_buffer, CTCP_DELIM_STR);
+/**************************** Patched by Flier ******************************/
+		/*strcat(ctcp_buffer, CTCP_DELIM_STR);*/
+		strmcat(ctcp_buffer, CTCP_DELIM_STR, sizeof(ctcp_buffer));
+/****************************************************************************/
 		*str = cmd;
 	}
 }

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.33 2002-01-23 18:48:10 f Exp $
+ * $Id: names.c,v 1.34 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -586,7 +586,10 @@ recreate_mode(chan)
 	if (chan->key && !get_int_var(HIDE_CHANNEL_KEYS_VAR))
 	{
 		*s++ = ' ';
-		strcpy(s, chan->key);
+/**************************** Patched by Flier ******************************/
+		/*strcpy(s, chan->key);*/
+		strmcpy(s, chan->key, sizeof(buffer));
+/****************************************************************************/
 		s += strlen(chan->key);
 	}
 	if (chan->limit)
@@ -695,7 +698,7 @@ char    *servmodes;
                 if (tmpjoiner->userhost && tmpjoiner->frlist)
                     isprot = (tmpjoiner->frlist->privs) & (FLPROT | FLGOD);
             }
-            if (!(chan->CompressModes)) strcpy(tmporigmode, mode_string);
+            if (!(chan->CompressModes)) strmcpy(tmporigmode, mode_string, sizeof(tmporigmode));
         }
 /****************************************************************************/
 
@@ -758,12 +761,12 @@ char    *servmodes;
 /**************************** PATCHED by Flier ******************************/
                         if (!the_key) the_key = empty_string;
                         if (check && isserver) {
-                            strcat(servline, the_key);
-                            strcat(servline, " ");
+                            strmcat(servline, the_key, sizeof(servline));
+                            strmcat(servline, " ", sizeof(servline));
                         }
                         if (check && chan->CompressModes) {
-                            strcat(compline, the_key);
-                            strcat(compline, " ");
+                            strmcat(compline, the_key, sizeof(compline));
+                            strmcat(compline, " ", sizeof(compline));
                         }
 /****************************************************************************/
 			break;
@@ -781,13 +784,13 @@ char    *servmodes;
 				limit_reset = 1;
 /**************************** PATCHED by Flier ******************************/
                         if (check && isserver && add) {
-                            strcat(servline, limit);
-                            strcat(servline, " ");
+                            strmcat(servline, limit, sizeof(servline));
+                            strmcat(servline, " ", sizeof(servline));
                         }
                         if (check && chan->CompressModes) {
                             if (add) {
-                                strcat(compline, limit);
-                                strcat(compline, " ");
+                                strmcat(compline, limit, sizeof(compline));
+                                strmcat(compline, " ", sizeof(compline));
                             }
                         }
 /****************************************************************************/
@@ -822,8 +825,8 @@ char    *servmodes;
 					compadd = add;
 				    }
 				    *compmodeadd ++= *mode_string;
-				    strcat(compline, person);
-				    strcat(compline, " ");
+				    strmcat(compline, person, sizeof(compline));
+				    strmcat(compline, " ", sizeof(compline));
 				}
 			}
 			if (isserver) {
@@ -834,8 +837,8 @@ char    *servmodes;
 				    servadd = add;
                             	}
 				*servmodeadd ++= *mode_string;
-				strcat(servline, person);
-				strcat(servline, " ");
+				strmcat(servline, person, sizeof(servline));
+				strmcat(servline, " ", sizeof(servline));
 			    }
                         }
 			if (ThisNick) {
@@ -850,8 +853,8 @@ char    *servmodes;
 			if (isserver) {
 				if (add) {
 					chan->servplush++;
-					strcat(servline, person);
-					strcat(servline, " ");
+					strmcat(servline, person, sizeof(servline));
+					strmcat(servline, " ", sizeof(servline));
 				} else chan->servminush++;
 			}
 			if (add) chan->plush++;
@@ -900,18 +903,18 @@ char    *servmodes;
                                         servadd = add;
                                     }
                                     *servmodeadd ++= *mode_string;
-                                    strcat(servline, person);
-                                    strcat(servline, " ");
+                                    strmcat(servline, person, sizeof(servline));
+                                    strmcat(servline, " ", sizeof(servline));
                                 }
                                 else {
                                     if (chan->NHProt && chan->FriendList) {
                                         if (!(ThisNick && ThisNick->frlist && ThisNick->frlist->privs)) {
-                                            strcat(nhdeop, " -o ");
-                                            strcat(nhdeop, person);
+                                            strmcat(nhdeop, " -o ", sizeof(nhdeop));
+                                            strmcat(nhdeop, person, sizeof(nhdeop));
                                         }
                                     }
-                                    strcat(nethacks, person);
-                                    strcat(nethacks, " ");
+                                    strmcat(nethacks, person, sizeof(nethacks));
+                                    strmcat(nethacks, " ", sizeof(nethacks));
                                 }
                                 if (add) chan->servpluso++;
                                 else chan->servminuso++;
@@ -925,8 +928,8 @@ char    *servmodes;
                                         compadd = add;
                                     }
                                     *compmodeadd ++= *mode_string;
-                                    strcat(compline, person);
-                                    strcat(compline, " ");
+                                    strmcat(compline, person, sizeof(compline));
+                                    strmcat(compline, " ", sizeof(compline));
                                 }
                             }
                             if (add) {
@@ -938,9 +941,9 @@ char    *servmodes;
                                             (!ThisNick->frlist || !((ThisNick->frlist->privs) & (FLOP | FLAUTOOP | FLINSTANT))) &&
                                             my_stricmp(mynick, ThisNick->nick))) {
                                         count++;
-                                        strcat(modebuf, "-o");
-                                        strcat(tmpbufmode, " ");
-                                        strcat(tmpbufmode, ThisNick->nick);
+                                        strmcat(modebuf, "-o", sizeof(modebuf));
+                                        strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                        strmcat(tmpbufmode, ThisNick->nick, sizeof(tmpbufmode));
                                     }
                                 }
                             }
@@ -959,9 +962,9 @@ char    *servmodes;
                                                     ThisNick->nick, ThisNick->userhost,
                                                     chan->channel, from);
                                             if (!isserver) {
-                                                strcat(tmpbuf, " (");
-                                                strcat(tmpbuf, userhost);
-                                                strcat(tmpbuf, ")");
+                                                strmcat(tmpbuf, " (", sizeof(tmpbuf));
+                                                strmcat(tmpbuf, userhost, sizeof(tmpbuf));
+                                                strmcat(tmpbuf, ")", sizeof(tmpbuf));
                                             }
                                             if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
                                             if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
@@ -969,9 +972,9 @@ char    *servmodes;
                                         if (*chop & CHAN_CHOP) {
                                             if (!isserver && (privs & FLGOD) && !(isprot & FLGOD)) {
                                                 count++;
-                                                strcat(modebuf, "-o");
-                                                strcat(tmpbufmode, " ");
-                                                strcat(tmpbufmode, from);
+                                                strmcat(modebuf, "-o", sizeof(modebuf));
+                                                strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                                strmcat(tmpbufmode, from, sizeof(tmpbufmode));
                                                 deopped = 1;
                                             }
                                             if (count == max) {
@@ -984,13 +987,13 @@ char    *servmodes;
                                             }
                                             if ((privs & FLGOD) || ((privs & FLPROT) && !(isprot & FLGOD))) {
                                                 count++;
-                                                strcat(modebuf, "+o");
-                                                strcat(tmpbufmode, " ");
-                                                strcat(tmpbufmode, ThisNick->nick);
+                                                strmcat(modebuf, "+o", sizeof(modebuf));
+                                                strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                                strmcat(tmpbufmode, ThisNick->nick, sizeof(tmpbufmode));
                                             }
                                         }
-                                        if (*lastdeop) strcat(lastdeop, ",");
-                                        strcat(lastdeop, ThisNick->nick);
+                                        if (*lastdeop) strmcat(lastdeop, ",", sizeof(lastdeop));
+                                        strmcat(lastdeop, ThisNick->nick, sizeof(lastdeop));
                                     }
                                 }
                             }
@@ -1044,8 +1047,8 @@ char    *servmodes;
                         ThisNick = find_in_hash(chan, person);
                         if (!person) person = empty_string;
                         if (check && isserver) {
-                            strcat(servline, person);
-                            strcat(servline, " ");
+                            strmcat(servline, person, sizeof(servline));
+                            strmcat(servline, " ", sizeof(servline));
                         }
                         if (check && chan->CompressModes && ThisNick) {
                             if ((add && !(ThisNick->hasvoice)) ||
@@ -1056,8 +1059,8 @@ char    *servmodes;
                                     compadd = add;
                                 }
                                 *compmodeadd ++= *mode_string;
-                                strcat(compline, person);
-                                strcat(compline, " ");
+                                strmcat(compline, person, sizeof(compline));
+                                strmcat(compline, " ", sizeof(compline));
                             }
                         }
                         if (ThisNick) {
@@ -1070,8 +1073,8 @@ char    *servmodes;
                                 !CheckChannel(lastvoice, ThisNick->nick)) {
                                 send_to_server("MODE %s +v %s", chan->channel,
                                                ThisNick->nick);
-                                if (*lastdeop) strcat(lastvoice, ",");
-                                strcat(lastvoice, ThisNick->nick);
+                                if (*lastdeop) strmcat(lastvoice, ",", sizeof(lastvoice));
+                                strmcat(lastvoice, ThisNick->nick, sizeof(lastvoice));
                             }
                         }
 			break;
@@ -1089,8 +1092,8 @@ char    *servmodes;
                                 else tmpjoiner->minusb++;
                             }
                             if (isserver) {
-                                strcat(servline, person);
-                                strcat(servline, " ");
+                                strmcat(servline, person, sizeof(servline));
+                                strmcat(servline, " ", sizeof(servline));
                                 if (!exception) {
                                     if (add) chan->servplusb++;
                                     else chan->servminusb++;
@@ -1098,8 +1101,8 @@ char    *servmodes;
                             }
                             if (add) {
                                 if (!exception) chan->plusb++;
-                                if (userhost) snprintf(tmpbuf,sizeof(tmpbuf), "%s!%s", from, userhost);
-                                else strcpy(tmpbuf, from);
+                                if (userhost) snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", from, userhost);
+                                else strmcpy(tmpbuf, from, sizeof(tmpbuf));
                                 if (AddBan(person, chan->channel, server, tmpbuf, exception, timenow, chan)) {
                                     if (chan->CompressModes) {
                                         if (compadd != add) {
@@ -1107,8 +1110,8 @@ char    *servmodes;
                                             compadd = add;
                                         }
                                         *compmodeadd ++= *mode_string;
-                                        strcat(compline, person);
-                                        strcat(compline, " ");
+                                        strmcat(compline, person, sizeof(compline));
+                                        strmcat(compline, " ", sizeof(compline));
                                     }
                                 }
                                 if (!exception && !isitme && chan->FriendList) {
@@ -1118,16 +1121,16 @@ char    *servmodes;
                                         if ((privs & (FLPROT | FLGOD)) && (privs & FLUNBAN) && 
                                             !(!(privs & FLGOD) && (isprot & FLGOD))) {
                                             if (joiner->userhost)
-                                                snprintf(tmpbuf,sizeof(tmpbuf), "%s!%s", joiner->nick, joiner->userhost);
-                                            else strcpy(tmpbuf, joiner->nick);
+                                                snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", joiner->nick, joiner->userhost);
+                                            else strmcpy(tmpbuf, joiner->nick, sizeof(tmpbuf));
                                             if (wild_match(person, tmpbuf)) {
                                                 if (*chop & CHAN_CHOP) {
                                                     if (!deopped && !(isprot & FLGOD) &&
                                                         !isserver && (privs & FLGOD)) {
                                                         count++;
-                                                        strcat(modebuf, "-o");
-                                                        strcat(tmpbufmode, " ");
-                                                        strcat(tmpbufmode, from);
+                                                        strmcat(modebuf, "-o", sizeof(modebuf));
+                                                        strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                                        strmcat(tmpbufmode, from, sizeof(tmpbufmode));
                                                         deopped = 1;
                                                     }
                                                     if (count == max) {
@@ -1142,9 +1145,9 @@ char    *servmodes;
                                                     if ((privs & FLGOD) ||
                                                         ((privs & FLPROT) && !(isprot & FLGOD))) {
                                                         count++;
-                                                        strcat(modebuf, "-b");
-                                                        strcat(tmpbufmode, " ");
-                                                        strcat(tmpbufmode, person);
+                                                        strmcat(modebuf, "-b", sizeof(tmpbuf));
+                                                        strmcat(tmpbufmode, " ", sizeof(tmpbuf));
+                                                        strmcat(tmpbufmode, person, sizeof(tmpbuf));
                                                     }
                                                 }
                                                 if (away_set || LogOn || (chan && chan->ChanLog)) {
@@ -1152,9 +1155,9 @@ char    *servmodes;
                                                             bold, bold, person,
                                                             chan->channel, from);
                                                     if (!isserver) {
-                                                        strcat(tmpbuf, " (");
-                                                        strcat(tmpbuf, userhost);
-                                                        strcat(tmpbuf, ")");
+                                                        strmcat(tmpbuf, " (", sizeof(tmpbuf));
+                                                        strmcat(tmpbuf, userhost, sizeof(tmpbuf));
+                                                        strmcat(tmpbuf, ")", sizeof(tmpbuf));
                                                     }
                                                     if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
                                                     if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
@@ -1190,13 +1193,13 @@ char    *servmodes;
                                                         snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s",
                                                                 whowas->nicklist->nick,
                                                                 whowas->nicklist->userhost);
-                                                    else strcpy(tmpbuf, whowas->nicklist->nick);
+                                                    else strmcpy(tmpbuf, whowas->nicklist->nick, sizeof(tmpbuf));
                                                     if (wild_match(person, tmpbuf)) {
                                                         if (*chop & CHAN_CHOP) {
                                                             count++;
-                                                            strcat(modebuf, "-b");
-                                                            strcat(tmpbufmode, " ");
-                                                            strcat(tmpbufmode, person);
+                                                            strmcat(modebuf, "-b", sizeof(modebuf));
+                                                            strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                                            strmcat(tmpbufmode, person, sizeof(tmpbufmode));
                                                             if (count == max) {
                                                                 send_to_server("MODE %s %s %s",
                                                                                chan->channel,
@@ -1209,9 +1212,9 @@ char    *servmodes;
                                                             if (!deopped && !isprot && !isserver &&
                                                                 (privs & FLGOD)) {
                                                                 count++;
-                                                                strcat(modebuf, "-o");
-                                                                strcat(tmpbufmode, " ");
-                                                                strcat(tmpbufmode, from);
+                                                                strmcat(modebuf, "-o", sizeof(modebuf));
+                                                                strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                                                                strmcat(tmpbufmode, from, sizeof(tmpbufmode));
                                                             }
                                                             deopped = 1;
                                                         }
@@ -1221,9 +1224,9 @@ char    *servmodes;
                                                                     bold, bold, person,
                                                                     chan->channel, from);
                                                             if (!isserver) {
-                                                                strcat(tmpbuf, " (");
-                                                                strcat(tmpbuf, userhost);
-                                                                strcat(tmpbuf, ")");
+                                                                strmcat(tmpbuf, " (", sizeof(tmpbuf));
+                                                                strmcat(tmpbuf, userhost, sizeof(tmpbuf));
+                                                                strmcat(tmpbuf, ")", sizeof(tmpbuf));
                                                             }
                                                             if (away_set || LogOn) AwaySave(tmpbuf, SAVEPROT);
                                                             if (chan && chan->ChanLog)
@@ -1248,8 +1251,8 @@ char    *servmodes;
                                             compadd = add;
                                         }
                                         *compmodeadd ++= *mode_string;
-                                        strcat(compline, person);
-                                        strcat(compline, " ");
+                                        strmcat(compline, person, sizeof(compline));
+                                        strmcat(compline, " ", sizeof(compline));
                                     }
                                 }
                             }
@@ -1266,8 +1269,8 @@ char    *servmodes;
   			/*(void) next_arg(rest, &rest);*/
   			arg = next_arg(rest, &rest);
                         if (arg && check && chan->CompressModes) {
-                            strcat(compline, arg);
-                            strcat(compline, " ");
+                            strmcat(compline, arg, sizeof(compline));
+                            strmcat(compline, " ", sizeof(compline));
                         }
 /****************************************************************************/
   			break;
@@ -1298,9 +1301,9 @@ char    *servmodes;
                 if (!(tmpjoiner->deopp)) {
                     if (!deopped && !isserver && (*chop & CHAN_CHOP)) {
                         count++;
-                        strcat(modebuf, "-o");
-                        strcat(tmpbufmode, " ");
-                        strcat(tmpbufmode, from);
+                        strmcat(modebuf, "-o", sizeof(modebuf));
+                        strmcat(tmpbufmode, " ", sizeof(tmpbufmode));
+                        strmcat(tmpbufmode, from, sizeof(tmpbufmode));
                     }
                     deopped = 1;
 #ifdef WANTANSI
@@ -1315,9 +1318,9 @@ char    *servmodes;
                     say("%s", tmpbuf);
                     if (away_set || LogOn || (chan && chan->ChanLog)) {
                         if (!isserver) {
-                            strcat(tmpbuf, " (");
-                            strcat(tmpbuf, userhost);
-                            strcat(tmpbuf, ")");
+                            strmcat(tmpbuf, " (", sizeof(tmpbuf));
+                            strmcat(tmpbuf, userhost, sizeof(tmpbuf));
+                            strmcat(tmpbuf, ")", sizeof(tmpbuf));
                         }
                         if (away_set || LogOn) AwaySave(tmpbuf, SAVEMASS);
                         if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
@@ -1344,9 +1347,9 @@ char    *servmodes;
                         snprintf(tmpbuf, sizeof(tmpbuf), "%cDeop flood%c detected on %s by %s",
                                 bold, bold, chan->channel, from);
                         if (!isserver) {
-                            strcat(tmpbuf, " (");
-                            strcat(tmpbuf, userhost);
-                            strcat(tmpbuf, ")");
+                            strmcat(tmpbuf, " (", sizeof(tmpbuf));
+                            strmcat(tmpbuf, userhost, sizeof(tmpbuf));
+                            strmcat(tmpbuf, ")", sizeof(tmpbuf));
                         }
                         if (away_set || LogOn) AwaySave(tmpbuf, SAVEMASS);
                         if (chan && chan->ChanLog) ChannelLogSave(tmpbuf, chan);
@@ -1363,8 +1366,8 @@ char    *servmodes;
             *servmodeadd = '\0';
             if (*servmodes) {
                 if (*servline) {
-                    strcat(servmodes, " ");
-                    strcat(servmodes, servline);
+                    strmcat(servmodes, " ", sizeof(servmodes));
+                    strmcat(servmodes, servline, sizeof(servmodes));
                 }
                 if (servmodes[strlen(servmodes) - 1] == ' ')
                     servmodes[strlen(servmodes) - 1] = '\0';
@@ -1381,7 +1384,7 @@ char    *servmodes;
                 if (*origmode && origmode[strlen(origmode) - 1] == ' ')
                     origmode[strlen(origmode) - 1] = '\0';
             }
-            else strcpy(origmode, tmporigmode);
+            else strmcpy(origmode, tmporigmode, sizeof(tmpbuf));
         }
 /****************************************************************************/
 	if (limit_set)
@@ -2041,8 +2044,12 @@ create_channel_list(window)
 	*buffer = '\0';
 	for (tmp = server_list[window->server].chan_list; tmp; tmp = tmp->next)
 	{
-		strcat(buffer, tmp->channel);
-		strcat(buffer, " ");
+/**************************** Patched by Flier ******************************/
+		/*strcat(buffer, tmp->channel);
+		strcat(buffer, " ");*/
+		strmcat(buffer, tmp->channel, sizeof(buffer));
+		strmcat(buffer, " ", sizeof(buffer));
+/****************************************************************************/
 	}
 	malloc_strcpy(&value, buffer);
 

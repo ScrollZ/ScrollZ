@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.25 2002-01-23 18:48:10 f Exp $
+ * $Id: status.c,v 1.26 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -1271,7 +1271,7 @@ make_status(window)
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
                         if (get_int_var(DISPLAY_ANSI_VAR))
-                            strcat(lbuf, "[0m");
+                            strmcat(lbuf, "[0m", sizeof(lbuf));
 #endif
 /****************************************************************************/
 
@@ -2213,7 +2213,7 @@ Window	*window;
                 if (tmpvar>=0) {
                     snprintf(locbuf,sizeof(locbuf),"%d",tmpvar);
                     *tmpstr2='\0';
-                    strcat(tmpstr2,locbuf);
+                    strmcat(tmpstr2,locbuf,sizeof(tmpbuf));
                     tmpstr2+=strlen(locbuf);
                 }
                 else *tmpstr2++=*tmpstr1;
@@ -2280,7 +2280,7 @@ Window	*window;
                 if (tmpvar>=0) {
                     snprintf(locbuf,sizeof(locbuf),"%02d",tmpvar);
                     *tmpstr2='\0';
-                    strcat(tmpstr2,locbuf);
+                    strmcat(tmpstr2,locbuf,sizeof(tmpbuf));
                     tmpstr2+=strlen(locbuf);
                 }
                 else *tmpstr2++=*tmpstr1;

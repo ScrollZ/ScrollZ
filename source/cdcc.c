@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.44 2002-01-23 18:48:10 f Exp $
+ * $Id: cdcc.c,v 1.45 2002-01-24 19:59:04 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -599,8 +599,8 @@ int type;
             {
                 if (completed) {
                     if (LongStatus) {
-                        strcpy(tmpbuf1,"\026    ");
-                        for (i=1;i<7;i++) strcat(tmpbuf1,"          ");
+                        strmcpy(tmpbuf1,"\026    ",sizeof(tmpbuf1));
+                        for (i=1;i<7;i++) strmcat(tmpbuf1,"          ",sizeof(tmpbuf1));
                         snprintf(tmpbuf2,sizeof(tmpbuf2),"%3d%%  (%ld of %ld bytes)",fills,completed,
                                 (long) Client->filesize);
                         fills=(fills+1)*63/100;
@@ -629,13 +629,13 @@ int type;
                         snprintf(tmpbuf2,sizeof(tmpbuf2)," %3d%%",fills);
                         fills=((fills+3)*BARSIZE)/100;
                         if (highascii) *tmpbuf1='\0';
-                        else strcpy(tmpbuf1,"\026");
-                        for (i=0;i<fills;i++) strcat(tmpbuf1,fillchar);
-                        if (!highascii) strcat(tmpbuf1,"\026");
-                        for (;i<BARSIZE;i++) strcat(tmpbuf1,emptychar);
-                        strcat(tmpbuf1,tmpbuf2);
+                        else strmcpy(tmpbuf1,"\026",sizeof(tmpbuf1));
+                        for (i=0;i<fills;i++) strmcat(tmpbuf1,fillchar,sizeof(tmpbuf1));
+                        if (!highascii) strmcat(tmpbuf1,"\026",sizeof(tmpbuf1));
+                        for (;i<BARSIZE;i++) strmcat(tmpbuf1,emptychar,sizeof(tmpbuf1));
+                        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
                     }
-                    strcpy(tmpbuf2,"    N/A");
+                    strmcpy(tmpbuf2,"    N/A",sizeof(tmpbuf2));
                     flags=Client->flags;
                     if (flags&DCC_ACTIVE && timenow-Client->starttime>0) {
                         flags&=DCC_TYPES;
@@ -648,21 +648,21 @@ int type;
                             snprintf(tmpbuf3,sizeof(tmpbuf3),"%3ld:%02ld ",etatime/60,etatime%60);
                         }
                     }
-                    else strcpy(tmpbuf3,"        N/A ");
+                    else strmcpy(tmpbuf3,"        N/A ",sizeof(tmpbuf3));
                 }
                 else {
                     if (LongStatus) {
-                        strcpy(tmpbuf2,"  N/A");
-                        strcpy(tmpbuf3,"   N/A ");
+                        strmcpy(tmpbuf2,"  N/A",sizeof(tmpbuf2));
+                        strmcpy(tmpbuf3,"   N/A ",sizeof(tmpbuf3));
                     }
                     else {
-                        strcpy(tmpbuf1,"      N/A ");
-                        strcpy(tmpbuf2,"  N/A");
-                        strcpy(tmpbuf3,"        N/A ");
+                        strmcpy(tmpbuf1,"      N/A ",sizeof(tmpbuf1));
+                        strmcpy(tmpbuf2,"  N/A",sizeof(tmpbuf2));
+                        strmcpy(tmpbuf3,"        N/A ",sizeof(tmpbuf3));
                     }
                 }
                 snprintf(tmpbuf4,sizeof(tmpbuf4),"%-2d",count);
-                if (!(*tmpbuf2)) strcpy(tmpbuf2,"      ");
+                if (!(*tmpbuf2)) strmcpy(tmpbuf2,"      ",sizeof(tmpbuf2));
                 if (LongStatus) {
                     flags=Client->flags;
                     say(format,tmpbuf4,dcc_types[flags&DCC_TYPES],Client->user,
@@ -1004,9 +1004,9 @@ ChannelList *chan;
                             (float) (tmp->totalbytes)/(1024.0*mult),byteschar);
                     if (tmp->minspeed>0.0) {
                         snprintf(tmpbuf2,sizeof(tmpbuf2),"/min %.2f kB/s",tmp->minspeed);
-                        strcat(tmpbuf1,tmpbuf2);
+                        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
                     }
-                    strcat(tmpbuf1,"]");
+                    strmcat(tmpbuf1,"]",sizeof(tmpbuf1));
                     timercmd("FTIMER",tmpbuf1,(char *) func);
                     if ((tmp->next || chan->next) && !(number%3)) delay+=LIST_DELAY;
                 }
@@ -1920,21 +1920,21 @@ int  error;
     file=line;
     if (*file=='/') {
         if (strlen(file)>1 && rindex(file,'/')==file) snprintf(tmpbuf1,sizeof(tmpbuf1),"/ %s",&file[1]);
-        else strcpy(tmpbuf1,file);
+        else strmcpy(tmpbuf1,file,sizeof(tmpbuf1));
     }
     else if (*file=='~') {
         if (0 == (fullname=expand_twiddle(file))) {
             if (error) yell("Unable to expand %s!",file);
             return(0);
         }
-        strcpy(tmpbuf1,fullname);
+        strmcpy(tmpbuf1,fullname,sizeof(tmpbuf1));
         new_free(&fullname);
     }
     else {
-        if (CdccUlDir) strcpy(tmpbuf1,CdccUlDir);
-        else getcwd(tmpbuf1,mybufsize/2);
-        strcat(tmpbuf1,"/");
-        strcat(tmpbuf1,file);
+        if (CdccUlDir) strmcpy(tmpbuf1,CdccUlDir,sizeof(tmpbuf1));
+        else getcwd(tmpbuf1,sizeof(tmpbuf1)-1);
+        strmcat(tmpbuf1,"/",sizeof(tmpbuf1));
+        strmcat(tmpbuf1,file,sizeof(tmpbuf1));
     }
     rest=rindex(tmpbuf1,'/');
     if (rest==tmpbuf1) rest++;
@@ -1945,7 +1945,7 @@ int  error;
     }
     GetDir(tmpbuf1);
     for (i=0;i<CdccEntries;i++) {
-        strcpy(tmpbuf2,CdccFileNames[i]->d_name);
+        strmcpy(tmpbuf2,CdccFileNames[i]->d_name,sizeof(tmpbuf2));
         string=tmpbuf2;
 #ifdef lame_dgux
         string=string-2;
@@ -2022,15 +2022,15 @@ char *line;
 #endif
         for (tmpfile=files;tmpfile;tmpfile=tmpfile->next) {
 #ifdef WANTANSI
-            strcat(tmpbuf,CmdsColors[COLCDCC].color5);
+            strmcat(tmpbuf,CmdsColors[COLCDCC].color5,sizeof(tmpbuf));
 #endif
-            strcat(tmpbuf,tmpfile->file);
-            if (tmpfile->next) strcat(tmpbuf," ");
+            strmcat(tmpbuf,tmpfile->file,sizeof(tmpbuf));
+            if (tmpfile->next) strmcat(tmpbuf," ",sizeof(tmpbuf));
             else {
 #ifdef WANTANSI
-                strcat(tmpbuf,Colors[COLOFF]);
+                strmcat(tmpbuf,Colors[COLOFF],sizeof(tmpbuf));
 #endif
-                strcat(tmpbuf,")");
+                strmcat(tmpbuf,")",sizeof(tmpbuf));
             }
             if (strlen(tmpbuf)>mybufsize*2-mybufsize/4) {
                 say("%s",tmpbuf);
@@ -2106,7 +2106,7 @@ char *args;
             for (tmp=packs;tmp;tmp=tmp->next) {
                 if (tmp->minspeed>0.0)
                     snprintf(tmpbuf2,sizeof(tmpbuf2),"/min %.2f kB/s]",tmp->minspeed);
-                else strcpy(tmpbuf2,"]");
+                else strmcpy(tmpbuf2,"]",sizeof(tmpbuf2));
                 if (tmp->totalbytes>1048575) {
                     byteschar='M';
                     mult=1024.0;
@@ -2297,7 +2297,7 @@ int  msg;
 #endif
     if (away_set || LogOn) AwaySave(tmpbuf4,SAVECTCP);
     if (Security && !(level&FLCDCC)) {
-        strcat(tmpbuf4,", no access");
+        strmcat(tmpbuf4,", no access",sizeof(tmpbuf4));
         if (!CTCPCloaking)
             send_to_server("NOTICE %s :You do not have access...  -ScrollZ-",nick);
         say("%s",tmpbuf4);
@@ -2396,7 +2396,7 @@ char *args;
         for (tmp=packs;tmp;tmp=tmp->next) {
             if (tmp->minspeed>0.0)
                 snprintf(tmpbuf1,sizeof(tmpbuf1),"/min %.2f kB/s]",tmp->minspeed);
-            else strcpy(tmpbuf1,"]");
+            else strmcpy(tmpbuf1,"]",sizeof(tmpbuf1));
             if (tmp->totalbytes>1048575) {
                 byteschar='M';
                 mult=1024.0;
@@ -2557,7 +2557,7 @@ int  level;
                     window_display=display;
                     if (packsent) {
                         snprintf(tmpbuf1,sizeof(tmpbuf1),"%d",packcount);
-                        if (*tmpbuf3) strcat(tmpbuf3,",");
+                        if (*tmpbuf3) strmcat(tmpbuf3,",",sizeof(tmpbuf3));
                         strmcat(tmpbuf3,tmpbuf1,sizeof(tmpbuf3));
                     }
                 }

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.85 2002-01-23 19:13:44 f Exp $
+ * $Id: edit5.c,v 1.86 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -721,19 +721,19 @@ int ColorNumber(colname)
 char *colname;
 {
     int  i;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
     char *colornames[SZNUMCOLORS]={
-        "NORMAL","BOLD","UNDERLINE","FLASH","REVERSE",
-        "BLACK","RED","GREEN","YELLOW","BLUE","PURPLE","CYAN","WHITE",
-        "BLACKBG","REDBG","GREENBG","YELLOWBG","BLUEBG","PURPLEBG","CYANBG","WHITEBG",
+        "NORMAL", "BOLD", "UNDERLINE", "FLASH", "REVERSE",
+        "BLACK", "RED", "GREEN", "YELLOW", "BLUE", "PURPLE", "CYAN", "WHITE",
+        "BLACKBG", "REDBG", "GREENBG", "YELLOWBG", "BLUEBG", "PURPLEBG", "CYANBG", "WHITEBG",
         "NOBOLD"
     };
 
     if (colname && *colname) {
-        strcpy(tmpbuf,colname);
+        strmcpy(tmpbuf, colname, sizeof(tmpbuf));
         upper(tmpbuf);
-        for (i=0;i<SZNUMCOLORS;i++) if (!strcmp(tmpbuf,colornames[i])) break;
-        return(i<SZNUMCOLORS?i:-1);
+        for (i = 0; i < SZNUMCOLORS; i++) if (!strcmp(tmpbuf, colornames[i])) break;
+        return(i < SZNUMCOLORS ? i : -1);
     }
     return(-1);
 }
@@ -882,7 +882,7 @@ int  netsplit;
 #endif
 
     if (NHDisp && netsplit==2) {
-        strcpy(tmpbuf1,reason);
+        strmcpy(tmpbuf1, reason, sizeof(tmpbuf1));
         tmpstr = tmpbuf1;
         server = new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
@@ -1448,7 +1448,7 @@ int  iscrypted;
         filepath=OpenCreateFile("ScrollZ.notepad",1);
         numurl=GrabURL(line,tmpbuf4,filepath);
     }
-    else strcpy(tmpbuf4,line);
+    else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
     if (!isitme || ShowNick) {
 #ifdef CELECOSM
@@ -1461,17 +1461,17 @@ int  iscrypted;
         snprintf(tmpbuf5,sizeof(tmpbuf5),"%s%c%s",coln,pubechar,Colors[COLOFF]);
         *tmpbuf3='\0';
         if (ExtPub) {
-            strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
-            if (isopped) strcat(tmpbuf3,"@");
-	    else if (ishalfopped) strcat(tmpbuf3,"%");
-            else if (isvoiced) strcat(tmpbuf3,"+");
-            strcat(tmpbuf3,Colors[COLOFF]);
-            strcat(tmpbuf1,tmpbuf3);
+            strmcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6,sizeof(tmpbuf3));
+            if (isopped) strmcat(tmpbuf3,"@",sizeof(tmpbuf3));
+	    else if (ishalfopped) strmcat(tmpbuf3,"%",sizeof(tmpbuf3));
+            else if (isvoiced) strmcat(tmpbuf3,"+",sizeof(tmpbuf3));
+            strmcat(tmpbuf3,Colors[COLOFF],sizeof(tmpbuf3));
+            strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
         }
         if (!isitme && AutoReplyBuffer) {
             int invmatch;
 
-            strcpy(tmpbuf2,AutoReplyBuffer);
+            strmcpy(tmpbuf2,AutoReplyBuffer,sizeof(tmpbuf2));
             currentar=tmpbuf2;
             do {
                 invmatch=0;
@@ -1492,11 +1492,11 @@ int  iscrypted;
             while (currentar);
         }
         if (!foundar || isitme) {
-            if (Ego && isitme) strcat(tmpbuf1,CmdsColors[COLPUBLIC].color6);
-            else strcat(tmpbuf1,CmdsColors[COLPUBLIC].color1);
+            if (Ego && isitme) strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color6,sizeof(tmpbuf1));
+            else strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color1,sizeof(tmpbuf1));
         }
         else if (foundar) {
-            strcat(tmpbuf1,CmdsColors[COLPUBLIC].color4);
+            strmcat(tmpbuf1,CmdsColors[COLPUBLIC].color4,sizeof(tmpbuf1));
             /* Display AR in current screen window too
                if it's different from orig channel window  -Pier */
             if ((ARinWindow==3) || (ARinWindow && chan->window!=curr_scr_win)) {
@@ -1509,15 +1509,15 @@ int  iscrypted;
                         to_window=curr_scr_win;
                 }
 #ifdef CELE
-                if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,5);
-                else strcpy(channel1,channel);
+                if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,sizeof(channel1));
+                else strmcpy(channel1,channel,sizeof(channel1));
 #endif
                 *tmpbuf3='\0';
                 if (ExtPub) {
-                    strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
-                    if (isopped) strcat(tmpbuf3,"@");
-                    else if (isvoiced) strcat(tmpbuf3,"+");
-                    strcat(tmpbuf3,Colors[COLOFF]);
+                    strmcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6,sizeof(tmpbuf3));
+                    if (isopped) strmcat(tmpbuf3,"@",sizeof(tmpbuf3));
+                    else if (isvoiced) strmcat(tmpbuf3,"+",sizeof(tmpbuf3));
+                    strmcat(tmpbuf3,Colors[COLOFF],sizeof(tmpbuf3));
                 }
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%c%s%s%s%s%s:%s%s%s%s%c%s ",
                         CmdsColors[COLPUBLIC].color2,pubschar,Colors[COLOFF],
@@ -1545,8 +1545,8 @@ int  iscrypted;
         }
         if (print) {
 #ifdef CELE
-            if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,5);
-            else strcpy(channel1,newchan);
+            if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,sizeof(channel1));
+            else strmcpy(channel1,newchan,sizeof(channel1));
 #endif
             snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s%s%s%s",tmpbuf1,
                     nick,Colors[COLOFF],newcol,
@@ -1582,7 +1582,7 @@ int  iscrypted;
 #else  /* WANTANSI */
     if (!isitme || ShowNick) {
         if (!isitme && AutoReplyBuffer) {
-            strcpy(tmpbuf1,AutoReplyBuffer);
+            strmcpy(tmpbuf1,AutoReplyBuffer,sizeof(tmpbuf1));
             currentar=tmpbuf1;
             do {
                 newar=strchr(currentar,',');
@@ -1596,11 +1596,11 @@ int  iscrypted;
         }
         *tmpbuf2='\0';
         if (ExtPub) {
-            strcpy(tmpbuf2,"");
-            if (isopped) strcat(tmpbuf2,"@");
-	    else if (ishalfopped) strcat(tmpbuf2,"%");
-            else if (isvoiced) strcat(tmpbuf2,"+");
-            strcat(tmpbuf2,"");
+            strmcpy(tmpbuf2,"",sizeof(tmpbuf2));
+            if (isopped) strmcat(tmpbuf2,"@",sizeof(tmpbuf2));
+	    else if (ishalfopped) strmcat(tmpbuf2,"%",sizeof(tmpbuf2));
+            else if (isvoiced) strmcat(tmpbuf2,"+",sizeof(tmpbuf2));
+            strmcat(tmpbuf2,"",sizeof(tmpbuf2));
         }
         if (print && (!foundar || isitme)) {
             snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%c%s",iscrypted?"[!]":"",stampbuf,pubschar,tmpbuf2);
@@ -1651,12 +1651,12 @@ int  create;
         if ((filepath=path_search(filename,path))) return(filepath);
     }
     if (!create) return(NULL);
-    strcpy(tmpbuf,path);
+    strmcpy(tmpbuf,path,sizeof(tmpbuf));
     if ((filepath=index(tmpbuf,':'))) *filepath='\0';
-    if (*tmpbuf && tmpbuf[strlen(tmpbuf)-1]!='/') strcat(tmpbuf,"/");
-    strcat(tmpbuf,filename);
+    if (*tmpbuf && tmpbuf[strlen(tmpbuf)-1]!='/') strmcat(tmpbuf,"/",sizeof(tmpbuf));
+    strmcat(tmpbuf,filename,sizeof(tmpbuf));
     filepath=expand_twiddle(tmpbuf);
-    strcpy(newfilepath,filepath);
+    strmcpy(newfilepath,filepath,sizeof(newfilepath));
     new_free(&filepath);
     return(newfilepath);
 }
@@ -1747,7 +1747,7 @@ char *subargs;
         if (command) subargs=NULL;
         if (pattern && *pattern) {
             if (*pattern!='*') snprintf(tmpbuf,sizeof(tmpbuf),"*%s*",pattern);
-            else strcpy(tmpbuf,pattern);
+            else strmcpy(tmpbuf,pattern,sizeof(tmpbuf));
             malloc_strcpy(&playpattern,tmpbuf);
         }
         PlayBack2(subargs,empty_string);
@@ -1938,7 +1938,7 @@ char *rest;
         /* plain ircd 2.8 or 2.9 */
         username=tmpbuf2;
         comment=tmpbuf3;
-        strcpy(tmpbuf1,rest);
+        strmcpy(tmpbuf1,rest,sizeof(tmpbuf1));
         blah=tmpbuf1;
         /* let's dig out username and comment */
         while ((tmpstr=new_next_arg(blah,&blah))) {
@@ -1958,9 +1958,9 @@ char *rest;
         for (tmpnew=args;tmpnew;tmpnew=tmpnew->next)
             if (tmpnew->next && tmpnew->next->next) tmp=tmpnew;
         if (tmp) {
-            strcpy(username,tmp->nick);
+            strmcpy(username,tmp->nick,sizeof(tmpbuf2));
             /* elements before it are comment */
-            strcpy(tmpbuf1,rest);
+            strmcpy(tmpbuf1,rest,sizeof(tmpbuf1));
             tmpstr=tmpbuf1;
             while ((blah=strstr(tmpstr,username)))
                 tmpstr=blah+1;
@@ -1970,7 +1970,7 @@ char *rest;
             while (isspace(*tmpstr) && tmpstr>tmpbuf1) tmpstr--;
             if (!isspace(*tmpstr)) tmpstr++;
             *tmpstr='\0';
-            strcpy(comment,tmpbuf1);
+            strmcpy(comment,tmpbuf1,sizeof(tmpbuf3));
         }
         else say("Something went wrong while parsing K-line");
         /* let's free the list */
@@ -2217,7 +2217,7 @@ char *nick;
     strmcpy(tmpbuf,nick,mybufsize/8);
     tmpstr=tmpbuf;
     newnick=new_next_arg(tmpstr,&tmpstr);
-    strcpy(nickbuf,newnick);
+    strmcpy(nickbuf,newnick,sizeof(nickbuf));
     if (!(*oldnick)) {
         strmcpy(oldnick,nickbuf,mybufsize/8);
         fudge_index=strlen(nickbuf);
@@ -2233,11 +2233,11 @@ char *nick;
             }
         }
         else {
-            strcpy(oldnick,nickbuf);
+            strmcpy(oldnick,nickbuf,sizeof(oldnick));
             fudge_index=strlen(nickbuf);
         }
     }
-    if ((nicklen=strlen(nickbuf))<9) strcat(nickbuf,"_");
+    if ((nicklen=strlen(nickbuf))<9) strmcat(nickbuf,"_",sizeof(nickbuf));
     else {
         char tmp;
 
@@ -2253,14 +2253,14 @@ char *nick;
         tmpbuf[1]=tmpbuf[0];
         tmpbuf[0]=tmp;
         /* be smart about this -> don't create illegal nick */
-        if (check_nickname(tmpbuf)) strcpy(nickbuf,tmpbuf);
+        if (check_nickname(tmpbuf)) strmcpy(nickbuf,tmpbuf,sizeof(nickbuf));
         else {
             srand(time((time_t *) 0));
             nickbuf[rand()%nicklen]='_';
         }
     }
     snprintf(tmpbuf,sizeof(tmpbuf),"%d",parsing_server_index);
-    strcpy(oldnick,nickbuf);
+    strmcpy(oldnick,nickbuf,sizeof(nickbuf));
     nickname_sendline(tmpbuf,nickbuf);
 }
 
@@ -2388,13 +2388,13 @@ char *banstr;
         userhost++;
         if (*userhost=='@') userhost--;
         if (defban=='B') {
-            strcpy(tmpbuf,userhost);
+            strmcpy(tmpbuf,userhost,sizeof(tmpbuf));
             UserDomainList(tmpbuf);
             snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
         }
         else if (defban=='E') {
             srand(time((time_t *) 0));
-            strcpy(tmpbuf,userhost);
+            strmcpy(tmpbuf,userhost,sizeof(tmpbuf));
             UserDomainList(tmpbuf);
             snprintf(tmpbuf2,sizeof(tmpbuf2),"*!%s",tmpbuf);
             rate1=350;
@@ -2658,7 +2658,7 @@ char *subargs;
         if (chan->channel && CheckChannel(chan->channel,channels)) {
             for (joiner=chan->nicks;joiner;joiner=joiner->next) {
                 if (joiner->userhost) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",joiner->nick,joiner->userhost);
-                else strcpy(tmpbuf1,joiner->nick);
+                else strmcpy(tmpbuf1,joiner->nick,sizeof(tmpbuf1));
                 /* Check for u@h match */
                 for (tmpfilt=filtlist;tmpfilt;tmpfilt=tmpfilt->next)
                     if (wild_match(tmpfilt->nick,tmpbuf1)) break;
@@ -2685,17 +2685,17 @@ char *subargs;
                         len=0;
                         *tmpbuf2='\0';
                     }
-                    for (;len<35;len++) strcat(tmpbuf2," ");
-                    strcat(tmpbuf2,CmdsColors[COLCSCAN].color2);
+                    for (;len<35;len++) strmcat(tmpbuf2," ",sizeof(tmpbuf2));
+                    strmcat(tmpbuf2,CmdsColors[COLCSCAN].color2,sizeof(tmpbuf2));
                     BuildPrivs(joiner->frlist,tmpbuf2);
-                    strcat(tmpbuf2,Colors[COLOFF]);
+                    strmcat(tmpbuf2,Colors[COLOFF],sizeof(tmpbuf2));
                     say("%-3d %s%-14s%s %s %s",
                         joiner->frlist?joiner->frlist->number:0,
                         CmdsColors[COLWHO].color3,chan->channel,Colors[COLOFF],
                         tmpbuf1,tmpbuf2);
 #else
                     count=0;
-                    strcpy(tmpbuf2,"  ");
+                    strmcpy(tmpbuf2,"  ",sizeof(tmpbuf2));
                     if (joiner->hasvoice) {
                         tmpbuf2[1]='+';
                         count++;
@@ -3111,7 +3111,7 @@ char *args;
     time_t now;
 
     if (!(args && *args)) strcpy(tmpbuf,"None given.");
-    else strcpy(tmpbuf,args);
+    else strmcpy(tmpbuf,args,sizeof(tmpbuf));
     filepath=OpenCreateFile("ScrollZ.notepad",1);
     if (!filepath || (notefile=fopen(filepath,"a"))==NULL)
         say("Can't open file ScrollZ.notepad");
@@ -3224,7 +3224,7 @@ char *filepath;
     time_t now;
     struct urlstr *urlnew,*tmpurl,*prevurl=NULL;
 
-    strcpy(tmpbuf1,line);
+    strmcpy(tmpbuf1,line,sizeof(tmpbuf1));
     *tmpstr2='\0';
     while (*tmpstr1) {
         while (isspace(*tmpstr1)) *tmpstr2++=*tmpstr1++;
@@ -3252,7 +3252,7 @@ char *filepath;
                     saveit=0;
                 }
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%c%s%c",bold,tmpstr1,bold);
-                strcat(tmpstr2,tmpbuf2);
+                strmcat(tmpstr2,tmpbuf2,sizeof(tmpbuf2));
                 tmpstr2+=strlen(tmpbuf2);
                 /* Add URL to list */
                 if (saveit) {
@@ -3308,36 +3308,36 @@ ChannelList *chan;
     char tmpbuf[mybufsize];
     char buffer[BIG_BUFFER_SIZE + 1];
 
-    strcpy(tmpbuf, nicks);
+    strmcpy(tmpbuf, nicks, sizeof(tmpbuf));
     tmpstr = tmpbuf;
     *buffer = '\0';
     while ((nick = new_next_arg(tmpstr, &tmpstr))) {
-        if (addspace) strcat(buffer, " ");
+        if (addspace) strmcat(buffer, " ", sizeof(buffer));
         else addspace = 1;
         if (*nick == '@') {
-            strcat(buffer, CmdsColors[COLNICK].color4);
-            strcat(buffer, "@");
-            strcat(buffer, Colors[COLOFF]);
-            strcat(buffer, CmdsColors[COLCSCAN].color3);
+            strmcat(buffer, CmdsColors[COLNICK].color4, sizeof(buffer));
+            strmcat(buffer, "@", sizeof(buffer));
+            strmcat(buffer, Colors[COLOFF], sizeof(buffer));
+            strmcat(buffer, CmdsColors[COLCSCAN].color3, sizeof(buffer));
             nick++;
         }
 	else if (*nick == '%') {
-	    strcat(buffer, CmdsColors[COLNICK].color4);
-	    strcat(buffer, "%");
-	    strcat(buffer, Colors[COLOFF]);
-	    strcat(buffer, CmdsColors[COLCSCAN].color3);
+	    strmcat(buffer, CmdsColors[COLNICK].color4, sizeof(buffer));
+	    strmcat(buffer, "%", sizeof(buffer));
+	    strmcat(buffer, Colors[COLOFF], sizeof(buffer));
+	    strmcat(buffer, CmdsColors[COLCSCAN].color3, sizeof(buffer));
 	    nick++;
 	}
         else if (*nick == '+') {
-            strcat(buffer, CmdsColors[COLNICK].color5);
-            strcat(buffer, "+");
-            strcat(buffer, Colors[COLOFF]);
-            strcat(buffer, CmdsColors[COLCSCAN].color4);
+            strmcat(buffer, CmdsColors[COLNICK].color5, sizeof(buffer));
+            strmcat(buffer, "+", sizeof(buffer));
+            strmcat(buffer, Colors[COLOFF], sizeof(buffer));
+            strmcat(buffer, CmdsColors[COLCSCAN].color4, sizeof(buffer));
             nick++;
         }
-        else strcat(buffer, CmdsColors[COLCSCAN].color5);
-        strcat(buffer, nick);
-        strcat(buffer, Colors[COLOFF]);
+        else strmcat(buffer, CmdsColors[COLCSCAN].color5, sizeof(buffer));
+        strmcat(buffer, nick, sizeof(buffer));
+        strmcat(buffer, Colors[COLOFF], sizeof(buffer));
         if (strlen(buffer) >= BIG_BUFFER_SIZE - 100) {
             say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, channel, Colors[COLOFF], buffer);
             *buffer = '\0';
@@ -4037,8 +4037,8 @@ char *host;
     snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s@%s",nick,user,host);
     if (!wild_match(wkillpattern,tmpbuf)) return;
     WhoKillNum++;
-    if (wkillreason) strcpy(tmpbuf,wkillreason);
-    else strcpy(tmpbuf,nick);
+    if (wkillreason) strmcpy(tmpbuf,wkillreason,sizeof(tmpbuf));
+    else strmcpy(tmpbuf,nick,sizeof(tmpbuf));
     send_to_server("KILL %s :%s (%d)",nick,tmpbuf,WhoKillNum);
 }
 

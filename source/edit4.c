@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.96 2002-01-24 17:04:19 f Exp $
+ * $Id: edit4.c,v 1.97 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -1699,7 +1699,7 @@ int  server;
 #endif
     ChannelList *chan;
 
-    strcpy(tmpbuf1,line);
+    strmcpy(tmpbuf1,line,sizeof(tmpbuf1));
     tmparg=tmpbuf1;
     tmpstr=new_next_arg(tmparg,&tmparg);
     tmpstr=new_next_arg(tmparg,&tmparg);
@@ -1803,7 +1803,7 @@ char *subargs;
                     number=atoi(tmpkick);
                     if (number>0 && number<=NumberOfScatterKicks) {
                         number--;
-                        strcpy(tmpbuf1,PickScatterKick(number));
+                        strmcpy(tmpbuf1,PickScatterKick(number),sizeof(tmpbuf1));
                         tmpstr=tmpbuf1;
                         joiner=CheckJoiners(tmpnick,channel,from_server,NULL);
                         if (joiner) {
@@ -1818,19 +1818,20 @@ char *subargs;
                                         if (*tmpstr1=='$' && *(tmpstr1+1)=='0') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            if (!joiner) strcat(tmpbuf2,tmpnick);
-                                            else strcat(tmpbuf2,joiner->nick);
-                                            strcat(tmpbuf2,tmpstr1);
+                                            if (!joiner) strmcat(tmpbuf2,tmpnick,sizeof(tmpbuf2));
+                                            else strmcat(tmpbuf2,joiner->nick,sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
-                                        else if (!my_stricmp("$C",tmpstr1)) strcat(tmpbuf2,channel);
+                                        else if (!my_stricmp("$C",tmpstr1))
+                                            strmcat(tmpbuf2,channel,sizeof(tmpbuf2));
                                         else if (*tmpstr1=='$' && *(tmpstr1+1)=='N') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            strcat(tmpbuf2,get_server_nickname(from_server));
-                                            strcat(tmpbuf2,tmpstr1);
+                                            strmcat(tmpbuf2,get_server_nickname(from_server),sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
-                                        else if (*tmpstr1!=';') strcat(tmpbuf2,tmpstr1);
-                                        strcat(tmpbuf2," ");
+                                        else if (*tmpstr1!=';') strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
+                                        strmcat(tmpbuf2," ",sizeof(tmpbuf2));
                                     } while (tmpstr1 && *tmpstr1!=';');
                                     if (!kicked) me(NULL,tmpbuf2,NULL);
                                     else {
@@ -1845,19 +1846,20 @@ char *subargs;
                                         if (*tmpstr1=='$' && *(tmpstr1+1)=='0') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            if (!joiner) strcat(tmpbuf2,tmpnick);
-                                            else strcat(tmpbuf2,joiner->nick);
-                                            strcat(tmpbuf2,tmpstr1);
+                                            if (!joiner) strmcat(tmpbuf2,tmpnick,sizeof(tmpbuf2));
+                                            else strmcat(tmpbuf2,joiner->nick,sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
-                                        else if (!my_stricmp("$C",tmpstr1)) strcat(tmpbuf2,channel);
+                                        else if (!my_stricmp("$C",tmpstr1))
+                                            strmcat(tmpbuf2,channel,sizeof(tmpbuf2));
                                         else if (*tmpstr1=='$' && *(tmpstr1+1)=='N') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            strcat(tmpbuf2,get_server_nickname(from_server));
-                                            strcat(tmpbuf2,tmpstr1);
+                                            strmcat(tmpbuf2,get_server_nickname(from_server),sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
-                                        else if (*tmpstr1!=';') strcat(tmpbuf2,tmpstr1);
-                                        strcat(tmpbuf2," ");
+                                        else if (*tmpstr1!=';') strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
+                                        strmcat(tmpbuf2," ",sizeof(tmpbuf2));
                                     } while (tmpstr1 && *tmpstr1!=';');
                                     if (!kicked) send_text(channel,tmpbuf2,"PRIVMSG");
                                     else {
@@ -1872,19 +1874,20 @@ char *subargs;
                                         if (*tmpstr1=='$' && *(tmpstr1+1)=='0') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            if (!joiner) strcat(tmpbuf2,tmpnick);
-                                            else strcat(tmpbuf2,joiner->nick);
-                                            strcat(tmpbuf2,tmpstr1);
+                                            if (!joiner) strmcat(tmpbuf2,tmpnick,sizeof(tmpbuf2));
+                                            else strmcat(tmpbuf2,joiner->nick,sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
-                                        else if (!my_stricmp("$C",tmpstr1)) strcat(tmpbuf2,channel);
+                                        else if (!my_stricmp("$C",tmpstr1))
+                                            strmcat(tmpbuf2,channel,sizeof(tmpbuf2));
                                         else if (*tmpstr1=='$' && *(tmpstr1+1)=='N') {
                                             tmpstr1++;
                                             tmpstr1++;
-                                            strcat(tmpbuf2,get_server_nickname(from_server));
-                                            strcat(tmpbuf2,tmpstr1);
+                                            strmcat(tmpbuf2,get_server_nickname(from_server),sizeof(tmpbuf2));
+                                            strmcat(tmpbuf2,tmpstr1,sizeof(tmpbuf2));
                                         }
                                         else if (*tmpstr1!=';') strcat(tmpbuf2,tmpstr1);
-                                        strcat(tmpbuf2," ");
+                                        strmcat(tmpbuf2," ",sizeof(tmpbuf2));
                                     } while (tmpstr1 && *tmpstr1!=';');
                                     while (tmpbuf2[strlen(tmpbuf2)-1]==' ') tmpbuf2[strlen(tmpbuf2)-1]=0;
                                     if (tmpbuf2[0]) comment=tmpbuf2;
@@ -2042,17 +2045,20 @@ char *args;
 char *subargs;
 {
     char *tmpnick;
-    char tmpbuf[mybufsize/4];
+    char *tmpbuf = NULL;
 
     if (*args) {
-        *tmpbuf='\0';
-        while ((tmpnick=new_next_arg(args,&args))) {
-            strcat(tmpbuf," -");
-            strcat(tmpbuf,tmpnick);
+        while ((tmpnick = new_next_arg(args, &args))) {
+            malloc_strcat(&tmpbuf, " -");
+            malloc_strcat(&tmpbuf, tmpnick);
         }
-        notify(NULL,tmpbuf,NULL);
+        if (tmpbuf) {
+            notify(NULL, tmpbuf, NULL);
+            new_free(&tmpbuf);
+            return;
+        }
     }
-    else PrintUsage("REMN nick [nick ...]");
+    PrintUsage("REMN nick [nick ...]");
 }
 
 /* Handles notify reply */
@@ -2260,11 +2266,11 @@ char *subargs;
             }
             if (NotifyMode==2) {
 #ifdef CELECOSM
-                if (!count) strcpy(tmpbuf1,"/present/ ");
+                if (!count) strmcpy(tmpbuf1,"/present/ ",sizeof(tmpbuf1));
 #else
-                if (!count) strcpy(tmpbuf1,"(Present) ");
+                if (!count) strmcpy(tmpbuf1,"(Present) ",sizeof(tmpbuf1));
 #endif /* CELECOSM */
-                else strcpy(tmpbuf1,"          ");
+                else strmcpy(tmpbuf1,"          ",sizeof(tmpbuf1));
 #ifdef WANTANSI
                 if (notify->userhost && maskmatch) {
                     ColorUserHost(notify->userhost,CmdsColors[COLNOTIFY].color2,tmpbuf2,1);
@@ -2395,7 +2401,7 @@ ChannelList *chan;
                             if (ww->nicklist->userhost)
                                 snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",ww->nicklist->nick,
                                         ww->nicklist->userhost);
-                            else strcpy(tmpbuf,ww->nicklist->nick);
+                            else strmcpy(tmpbuf,ww->nicklist->nick,sizeof(tmpbuf));
                             if (wild_match(tmpban->ban,tmpbuf)) {
                                 count++;
                                 strcat(modebuf,"-b");

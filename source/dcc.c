@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.36 2002-01-24 16:58:54 f Exp $
+ * $Id: dcc.c,v 1.37 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -1337,7 +1337,10 @@ dcc_filesend(args)
 	}
 	if (IS_ABSOLUTE_PATH(filename))
 	{
-		strcpy(FileBuf, filename);
+/**************************** Patched by Flier ******************************/
+		/*strcpy(FileBuf, filename);*/
+		strmcpy(FileBuf, filename, sizeof(FileBuf));
+/****************************************************************************/
 	}
 	else if (*filename == '~')
 	{
@@ -1346,18 +1349,23 @@ dcc_filesend(args)
 			yell("Unable to expand %s", filename);
 			return;
 		}
-		strcpy(FileBuf, fullname);
+/**************************** Patched by Flier ******************************/
+		/*strcpy(FileBuf, filename);*/
+		strmcpy(FileBuf, fullname, sizeof(FileBuf));
+/****************************************************************************/
 		new_free(&fullname);
 	}
 	else
 	{
 /**************************** PATCHED by Flier ******************************/
-		/*getcwd(FileBuf, sizeof(FileBuf));*/
-                if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
-                else getcwd(FileBuf, sizeof(FileBuf));
-/****************************************************************************/
+		/*getcwd(FileBuf, sizeof(FileBuf));
 		strcat(FileBuf, "/");
-		strcat(FileBuf, filename);
+		strcat(FileBuf, filename);*/
+                if (CdccUlDir) strmcpy(FileBuf,CdccUlDir,sizeof(FileBuf));
+                else getcwd(FileBuf, sizeof(FileBuf));
+		strmcat(FileBuf, "/", sizeof(FileBuf));
+		strmcat(FileBuf, filename, sizeof(FileBuf));
+/****************************************************************************/
 	}
 	if (0 != access(FileBuf, R_OK))
 	{
@@ -1422,7 +1430,7 @@ dcc_resend(args)
 	}
 	if (IS_ABSOLUTE_PATH(filename))
 	{
-		strcpy(FileBuf, filename);
+		strmcpy(FileBuf, filename, sizeof(FileBuf));
 	}
 	else if (*filename == '~')
 	{
@@ -1431,17 +1439,15 @@ dcc_resend(args)
 			yell("Unable to expand %s", filename);
 			return;
 		}
-		strcpy(FileBuf, fullname);
+		strmcpy(FileBuf, fullname, sizeof(FileBuf));
 		new_free(&fullname);
 	}
 	else
 	{
-/**************************** PATCHED by Flier ******************************/
-                if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
+                if (CdccUlDir) strmcpy(FileBuf, CdccUlDir, sizeof(FileBuf));
                 else getcwd(FileBuf, sizeof(FileBuf));
-/****************************************************************************/
-		strcat(FileBuf, "/");
-		strcat(FileBuf, filename);
+		strmcat(FileBuf, "/", sizeof(FileBuf));
+		strmcat(FileBuf, filename, sizeof(FileBuf));
 	}
 	if (0 != access(FileBuf, R_OK))
 	{

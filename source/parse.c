@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.57 2002-01-23 18:48:10 f Exp $
+ * $Id: parse.c,v 1.58 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -995,23 +995,23 @@ p_quit(from, ArgList)
                                     if (ShowSignoffChan && SignoffChannels && *SignoffChannels) {
                                         if (!CheckChannel(SignoffChannels,chan->channel))
                                             continue;
-                                        if (strlen(chan->channel)+strlen(chanbuf)>mybufsize/4)
+                                        if (strlen(chan->channel)+strlen(chanbuf)>=sizeof(chanbuf)-1)
                                             continue;
                                         if (joiner) {
-                                            if (*chanbuf) strmcat(chanbuf,",",mybufsize/4);
+                                            if (*chanbuf) strmcat(chanbuf,",",sizeof(chanbuf));
                                             else strcpy(chanbuf,"(");
-                                            strmcat(chanbuf,chan->channel,mybufsize/4);
-                                            chanbuf[mybufsize/4+1]='\0';
+                                            strmcat(chanbuf,chan->channel,sizeof(chanbuf));
+                                            chanbuf[sizeof(chanbuf)-1]='\0';
                                         }
                                     }
                                 }
                                 if (ShowSignoffChan && SignoffChannels && *SignoffChannels) {
-                                    if (strlen(chanbuf)>=mybufsize-2) {
-                                        chanbuf[mybufsize-2]=')';
-                                        chanbuf[mybufsize-1]=' ';
-                                        chanbuf[mybufsize]='\0';
+                                    if (strlen(chanbuf)>=sizeof(chanbuf)-3) {
+                                        chanbuf[sizeof(chanbuf)-3]=')';
+                                        chanbuf[sizeof(chanbuf)-2]=' ';
+                                        chanbuf[sizeof(chanbuf)-1]='\0';
                                     }
-                                    else strmcat(chanbuf,") ",mybufsize/4);
+                                    else strmcat(chanbuf,") ",sizeof(chanbuf));
                                 }
                                 for (winelem=winlist;;) {
                                     if (winelem) to_window=winelem->window;
@@ -1533,7 +1533,7 @@ p_mode(from, ArgList)
 				say("Mode change \"%s\" on channel %s by %s",
 						line, channel, from);
 			update_channel_mode(channel, parsing_server_index, line);*/
-                        strcpy(tmpbuf3,line);
+                        strmcpy(tmpbuf3,line,sizeof(tmpbuf3));
                         update_channel_mode(channel,parsing_server_index,tmpbuf3,
                                             from,FromUserHost,tmpbuf1,tmpbuf2,NULL);
                         if (flag!=IGNORED) flag=double_ignore(channel,NULL,IGNORE_CRAP);
@@ -1607,7 +1607,7 @@ p_kick(from, ArgList)
                         if (chan) {
                             if (chan->AutoRejoin) {
                                 snprintf(tmpbuf,sizeof(tmpbuf),"%s ",chan->channel);
-                                if (chan->key) strcat(tmpbuf,chan->key);
+                                if (chan->key) strmcat(tmpbuf,chan->key, sizeof(tmpbuf));
                                 rejoin=1;
                             }
                             chan->kick++;

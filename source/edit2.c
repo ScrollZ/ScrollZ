@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.76 2002-01-23 18:57:56 f Exp $
+ * $Id: edit2.c,v 1.77 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -309,9 +309,9 @@ char *subargs;
             *word++='\0';
             /* exclude list will be like " sheik  blah  lame " */
             if ((tmp=find_in_hash(chan,word))) {
-                strcat(excludelist," ");
-                strcat(excludelist,tmp->nick);
-                strcat(excludelist," ");
+                strmcat(excludelist," ",sizeof(excludelist));
+                strmcat(excludelist,tmp->nick,sizeof(excludelist));
+                strmcat(excludelist," ",sizeof(excludelist));
                 if (allexclist) malloc_strcat(&allexclist," ");
                 malloc_strcat(&allexclist,tmp->nick);
             }
@@ -319,9 +319,9 @@ char *subargs;
         else if (*word=='+') {
             *word++='\0';
             if ((tmp=find_in_hash(chan,word))) {
-                strcat(includelist," ");
-                strcat(includelist,tmp->nick);
-                strcat(includelist," ");
+                strmcat(includelist," ",sizeof(includelist));
+                strmcat(includelist,tmp->nick,sizeof(includelist));
+                strmcat(includelist," ",sizeof(includelist));
                 includecount++;
                 if (allinclist) malloc_strcat(&allinclist," ");
                 malloc_strcat(&allinclist,tmp->nick);
@@ -342,16 +342,16 @@ char *subargs;
              */
             snprintf(tmpnick,sizeof(tmpnick)," %s ",tmp->nick);
             if (strstr(excludelist,tmpnick)) continue;
-            strcat(fulllist,tmpnick);
+            strmcat(fulllist,tmpnick,sizeof(fulllist));
             opscount++;
         }
     }
-    if (includecount) strcat(fulllist,includelist);
+    if (includecount) strmcat(fulllist,includelist,sizeof(fulllist));
     fulllistptr=fulllist;
     for (ptr=new_next_arg(fulllistptr,&fulllistptr);ptr;
          ptr=new_next_arg(fulllistptr,&fulllistptr)) {
-        if (*currentlist) strcat(currentlist,",");
-        strcat(currentlist,ptr);
+        if (*currentlist) strmcat(currentlist,",",sizeof(currentlist));
+        strmcat(currentlist,ptr,sizeof(currentlist));
         totalcount++;
         if (totalcount>=maxnicks) {
             snprintf(buffer,sizeof(buffer),"[S-WallOp/%s] %s",chan->channel,args);
@@ -634,14 +634,14 @@ int type;
     snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
     for (tmp=new_next_arg(chops,&chops);tmp;tmp=new_next_arg(chops,&chops)) {
         count++;
-        strcat(tmpbuf2,modetype);
-	strcat(tmpbuf3," ");
-        strcat(tmpbuf3,tmp);
+        strmcat(tmpbuf2,modetype,sizeof(tmpbuf2));
+	strmcat(tmpbuf3," ",sizeof(tmpbuf3));
+        strmcat(tmpbuf3,tmp,sizeof(tmpbuf3));
         send=1;
         if (count==max) {
-            strcat(tmpbuf1,tmpbuf2);
-            strcat(tmpbuf1,tmpbuf3);
-            strcat(tmpbuf1,"\r\n");
+            strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+            strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
+            strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
             snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s %c",channel,sign);
             *tmpbuf3='\0';
             count=0;
@@ -655,9 +655,9 @@ int type;
         }
     }
     if (count) {
-        strcat(tmpbuf1,tmpbuf2);
-        strcat(tmpbuf1,tmpbuf3);
-        strcat(tmpbuf1,"\r\n");
+        strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+        strmcat(tmpbuf1,tmpbuf3,sizeof(tmpbuf1));
+        strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
         send=1;
     }
     if (send) send_to_server("%s",tmpbuf1);
@@ -1023,7 +1023,7 @@ char *text;
     BanIt(channel,wistuff->nick,tmpbuf1,0,NULL);
 #ifdef EXTRAS
     if (index(command,'I')) {
-        strcat(tmpbuf1," ALL");
+        strmcat(tmpbuf1," ALL",sizeof(tmpbuf1));
         snprintf(tmpbuf2,sizeof(tmpbuf2),"%d",IgnoreTime);
         ignore(NULL,tmpbuf1,tmpbuf2);
         snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d IGNORE %s@%s NONE",IgnoreTime,wistuff->user,wistuff->host);
@@ -1069,8 +1069,8 @@ char *subargs;
                 *tmpbuf='\0';
                 while ((tmpnick=new_next_arg(args,&args))) {
                     if ((tmp=find_in_hash(chan,tmpnick))) {
-                        strcat(tmpbuf," ");
-                        strcat(tmpbuf,tmpnick);
+                        strmcat(tmpbuf," ",sizeof(tmpbuf));
+                        strmcat(tmpbuf,tmpnick,sizeof(tmpbuf));
                         count++;
                     }
                     else say("Can't find %s on %s",tmpnick,channel);
@@ -1549,7 +1549,7 @@ char *line;
             else
                 snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s",
                         CmdsColors[COLSETTING].color4,tmpfriendlist->userhost,Colors[COLOFF]);
-            for (;i<38;i++) strcat(tmpbuf1," ");
+            for (;i<38;i++) strmcat(tmpbuf1," ",sizeof(tmpbuf1));
             snprintf(tmpbuf3,sizeof(tmpbuf3),"#%-3d %s %s %s",tmpfriendlist->number,tmpbuf1,tmpbuf2,
                     tmpfriendlist->passwd?"Y":"N");
             say("%s %s%s%s",tmpbuf3,
@@ -1638,7 +1638,7 @@ char *line;
             *tmpbuf1='\0';
             BuildShit(tmpabklist,tmpbuf1);
 #ifdef WANTANSI
-            strcpy(tmpbuf2,tmpabklist->userhost);
+            strmcpy(tmpbuf2,tmpabklist->userhost,sizeof(tmpbuf2));
             if ((tmpstr=index(tmpbuf2,'@'))) {
                 *tmpstr='\0';
                 tmpstr++;
@@ -1747,28 +1747,28 @@ char *command;
 char *args;
 char *subargs;
 {
-    char *tmpchannel=(char *) 0;
-    char tmpbuf[mybufsize/4];
+    char *tmpchannel = NULL;
+    char tmpbuf[mybufsize / 4];
     ChannelList *chan;
 
-    if (args && *args) {
-        tmpchannel=new_next_arg(args,&args);
-        if (!is_channel(tmpchannel)) snprintf(tmpbuf,sizeof(tmpbuf),"#%s",tmpchannel);
-        else strcpy(tmpbuf,tmpchannel);
-        tmpchannel=tmpbuf;
+    tmpchannel = new_next_arg(args, &args);
+    if (tmpchannel && *tmpchannel) {
+        if (!is_channel(tmpchannel)) snprintf(tmpbuf, sizeof(tmpbuf), "#%s", tmpchannel);
+        else strmcpy(tmpbuf, tmpchannel, sizeof(tmpbuf));
+        tmpchannel = tmpbuf;
     }
-    else if ((tmpchannel=get_channel_by_refnum(0))==NULL) {
+    else if ((tmpchannel = get_channel_by_refnum(0)) == NULL) {
         NoWindowChannel();
         return;
     }
-    if ((chan=lookup_channel(tmpchannel,from_server,0))) {
-        strcpy(tmpbuf,tmpchannel);
+    if ((chan = lookup_channel(tmpchannel, from_server, 0))) {
+        if (tmpchannel != tmpbuf) strmcpy(tmpbuf, tmpchannel, sizeof(tmpbuf));
         if (chan->key) {
-            strcat(tmpbuf," :");
-            strcat(tmpbuf,chan->key);
+            strmcat(tmpbuf, " :", sizeof(tmpbuf));
+            strmcat(tmpbuf, chan->key, sizeof(tmpbuf));
         }
-        send_to_server("PART %s",tmpchannel);
-        e_channel("JOIN",tmpbuf,tmpbuf);
+        send_to_server("PART %s", tmpbuf);
+        e_channel("JOIN", tmpbuf, tmpbuf);
     }
 }
 
@@ -1846,11 +1846,11 @@ char *subargs;
     nlistcount=0;
     *tmpbuf1='\0';
     for (notify=notify_list;notify;notify=notify->next) {
-        if (*tmpbuf1) strcat(tmpbuf1,"  ");
-        strcat(tmpbuf1,notify->nick);
+        if (*tmpbuf1) strmcat(tmpbuf1,"  ",sizeof(tmpbuf1));
+        strmcat(tmpbuf1,notify->nick,sizeof(tmpbuf1));
         if (notify->mask) {
-            strcat(tmpbuf1,"!");
-            strcat(tmpbuf1,notify->mask);
+            strmcat(tmpbuf1,"!",sizeof(tmpbuf1));
+            strmcat(tmpbuf1,notify->mask,sizeof(tmpbuf1));
         }
         nlistcount++;
         if ((nlistcount%3)==0) {
@@ -3077,13 +3077,13 @@ char *subargs;
         snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s",chan->channel);
         for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
             if (tmpban->exception) continue;
-            strcat(tmpbuf2," -b ");
-            strcat(tmpbuf2,tmpban->ban);
+            strmcat(tmpbuf2," -b ",sizeof(tmpbuf2));
+            strmcat(tmpbuf2,tmpban->ban,sizeof(tmpbuf2));
             count++;
             send=1;
             if (count==max) {
-                strcat(tmpbuf1,tmpbuf2);
-                strcat(tmpbuf1,"\r\n");
+                strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+                strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"MODE %s ",chan->channel);
                 count=0;
             }
@@ -3094,8 +3094,8 @@ char *subargs;
             }
         }
         if (count) {
-            strcat(tmpbuf1,tmpbuf2);
-            strcat(tmpbuf1,"\r\n");
+            strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+            strmcat(tmpbuf1,"\r\n",sizeof(tmpbuf1));
             send=1;
         }
         if (send) send_to_server("%s",tmpbuf1);
@@ -3800,16 +3800,16 @@ char *subargs;
     say("Logged netsplit information");
     if (Stamp < 2) StripAnsi(ScrollZstr, tmpbuf3, 1);
     else {
-        strcpy(tmpbuf1, TimeStamp(2));
+        strmcpy(tmpbuf1, TimeStamp(2), sizeof(tmpbuf1));
         StripAnsi(tmpbuf1, tmpbuf3, 1);
     }
     ctlen = strlen(tmpbuf3);
     timenow = time((time_t *) 0);
     for (wholeft = wholist; wholeft; wholeft = wholeft->next) {
-        strcpy(tmpbuf1, wholeft->splitserver);
+        strmcpy(tmpbuf1, wholeft->splitserver, sizeof(tmpbuf1));
         tmpstr = tmpbuf1;
         server = new_next_arg(tmpstr, &tmpstr);
-        strcpy(tmpbuf3, CeleTimeFormat(timenow-wholeft->time));
+        strmcpy(tmpbuf3, CeleTimeFormat(timenow-wholeft->time), sizeof(tmpbuf3));
 #ifdef WANTANSI
         snprintf(tmpbuf2, sizeof(tmpbuf2), "[%s%s%s %s<-%s %s%s%s]",
                 CmdsColors[COLNETSPLIT].color3, tmpstr, Colors[COLOFF],
@@ -3822,7 +3822,7 @@ char *subargs;
 #endif
         len = current_screen->co - ctlen - 29 - strlen(server) - strlen(tmpstr) - strlen(tmpbuf3);
         *tmpbuf3 = '\0';
-        for (i = 0; len > 0 && i < len; i++) strcat(tmpbuf3, " ");
+        for (i = 0; len > 0 && i < len; i++) strmcat(tmpbuf3, " ", sizeof(tmpbuf3));
 #ifdef WANTANSI
         say("%sChannel%s : %sNicks%s %s%s %s",
             CmdsColors[COLNETSPLIT].color4, Colors[COLOFF],
@@ -4041,8 +4041,8 @@ char *subargs;
                 if (strlen(tmpbuf)>0) {
                     tmpstr--;
                     *tmpstr='\0';
-                    if (*devname) strcat(devname,",");
-                    strcat(devname,tmpbuf);
+                    if (*devname) strmcat(devname,",",sizeof(devname));
+                    strmcat(devname,tmpbuf,sizeof(devname));
                 }
                 break;
             }
@@ -4153,7 +4153,7 @@ char *subargs;
             tmplist=listnew;
             listnew=listnew->next;
             snprintf(tmpbuf,sizeof(tmpbuf),"%2d) %-33s",i,tmplist->servers);
-            strcat(putbuf,tmpbuf);
+            strmcat(putbuf,tmpbuf,sizeof(putbuf));
             count++;
             if (count==2 || strlen(tmplist->servers)>35) {
                 if (!newhname) say("%s",putbuf);

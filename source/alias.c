@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.24 2002-01-23 18:48:10 f Exp $
+ * $Id: alias.c,v 1.25 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -3964,10 +3964,10 @@ u_char *words;
             if ((tmpfriend=CheckUsers(args,words))) {
                 *locbuf='\0';
                 BuildPrivs(tmpfriend,locbuf);
-                strcat(locbuf," ");
-                strcat(locbuf,tmpfriend->userhost);
-                strcat(locbuf," ");
-                strcat(locbuf,tmpfriend->channels);
+                strmcat(locbuf," ",sizeof(locbuf));
+                strmcat(locbuf,tmpfriend->userhost,sizeof(locbuf));
+                strmcat(locbuf," ",sizeof(locbuf));
+                strmcat(locbuf,tmpfriend->channels,sizeof(locbuf));
                 malloc_strcpy((char **) &result,locbuf);
                 return(result);
             }
@@ -3995,12 +3995,12 @@ u_char *words;
                 if ((abk->shit)&4) strcat(locbuf,"I");
                 if ((abk->shit)&8) strcat(locbuf,"P");
                 if ((abk->shit)&16) strcat(locbuf,"D");
-                strcat(locbuf," ");
-                strcat(locbuf,abk->userhost);
-                strcat(locbuf," ");
-                strcat(locbuf,abk->channels);
-                strcat(locbuf," ");
-                strcat(locbuf,abk->reason);
+                strmcat(locbuf," ",sizeof(locbuf));
+                strmcat(locbuf,abk->userhost,sizeof(locbuf));
+                strmcat(locbuf," ",sizeof(locbuf));
+                strmcat(locbuf,abk->channels,sizeof(locbuf));
+                strmcat(locbuf," ",sizeof(locbuf));
+                strmcat(locbuf,abk->reason,sizeof(locbuf));
             }
             else strcpy(locbuf,"-1");
             malloc_strcpy((char **) &result,locbuf);
@@ -4173,7 +4173,7 @@ u_char *words;
         }
         else {
             malloc_strcpy((char **) &result,Colors[COLOFF]);
-            strcpy(locbuf,tmp);
+            strmcpy(locbuf,tmp,sizeof(locbuf));
             tmp=locbuf;
             for (;*tmp;tmp++)
                 if (*tmp==',') {
@@ -4233,7 +4233,7 @@ u_char *input;
         (chan=lookup_channel(channel,from_server,0)) && chan->topicstr) {
         if (chan->topicwho) snprintf(locbuf,sizeof(locbuf),"%s %ld ",chan->topicwho,chan->topicwhen);
         else strcpy(locbuf,"unknown 0 ");
-        strcat(locbuf,chan->topicstr);
+        strmcat(locbuf,chan->topicstr,sizeof(locbuf));
         malloc_strcpy((char **) &result,locbuf);
     }
     else malloc_strcpy((char **) &result,empty_string);
@@ -4859,7 +4859,7 @@ u_char *input;
                     *locbuf=defban;
                     *(locbuf+1)='\0';
                 }
-                else if (*(command_list[i].svar)) strcpy(locbuf,*(command_list[i].svar));
+                else if (*(command_list[i].svar)) strmcpy(locbuf,*(command_list[i].svar),sizeof(locbuf));
                 break;
             case 3:
                 if (*(command_list[i].ivar) && *(command_list[i].svar))

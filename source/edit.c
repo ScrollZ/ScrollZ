@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.80 2002-01-23 19:31:02 f Exp $
+ * $Id: edit.c,v 1.81 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -1683,13 +1683,13 @@ do_channel(chan, force)
 static char *fix_channel(channel)
 char *channel;
 {
-    static char chanbuf[mybufsize/4+2];
+    static char chanbuf[mybufsize / 2 + 2];
 
     if (!is_channel(channel)) {
-        strcpy(chanbuf,"#");
-        strmcat(chanbuf,channel,mybufsize/4);
+        strcpy(chanbuf, "#");
+        strmcat(chanbuf, channel, sizeof(chanbuf));
     }
-    else strmcpy(chanbuf,channel,mybufsize/4);
+    else strmcpy(chanbuf, channel, sizeof(chanbuf));
     return(chanbuf);
 }
 /****************************************************************************/
@@ -2020,7 +2020,10 @@ userhost(command, args, subargs)
 				*(s - 1) = '\0';
 			else
 				n--;
-			strcpy(buffer, t);
+/**************************** Patched by Flier ******************************/
+			/*strcpy(buffer, t);*/
+			strmcpy(buffer, t, sizeof(buffer));
+/****************************************************************************/
 			t = s;
 
 			if (userhost_cmd)
@@ -2501,9 +2504,14 @@ redirect_msg(dest, msg)
 {
 	char	buffer[BIG_BUFFER_SIZE];
 
-	strcpy(buffer, dest);
+/**************************** Patched by Flier ******************************/
+	/*strcpy(buffer, dest);
 	strcat(buffer, " ");
-	strcat(buffer, msg);
+	strcat(buffer, msg);*/
+	strmcpy(buffer, dest, sizeof(buffer));
+	strmcat(buffer, " ", sizeof(buffer));
+	strmcat(buffer, msg, sizeof(buffer));
+/****************************************************************************/
 	e_privmsg("PRIVMSG", buffer, NULL);
 }
 
@@ -3015,7 +3023,7 @@ send_text(org_nick, line, command)
 			}
 #endif
 /**************************** PATCHED by Flier ******************************/
-                        strmcpy(tmpbuf, line, mybufsize);
+                        strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
                             send_to_server("%s %s :%s", command, nick, tmpbuf);
                             continue;
@@ -3025,11 +3033,18 @@ send_text(org_nick, line, command)
 			{
 				if (*nick_list)
 				{
-					strcat(nick_list, ",");
-					strcat(nick_list, nick);
+/**************************** Patched by Flier ******************************/
+					/*strcat(nick_list, ",");
+					strcat(nick_list, nick);*/
+					strmcat(nick_list, ",", sizeof(nick_list));
+					strmcat(nick_list, nick, sizeof(nick_list));
+/****************************************************************************/
 				}
 				else
-					strcpy(nick_list, nick);
+/**************************** Patched by Flier ******************************/
+					/*strcpy(nick_list, nick);*/
+					strmcpy(nick_list, nick, sizeof(nick_list));
+/****************************************************************************/
 			}
 			do_final_send = 1;
 		}
@@ -3124,7 +3139,7 @@ send_text(org_nick, line, command)
 #endif
 			set_lastlog_msg_level(lastlog_level);
 /**************************** PATCHED by Flier ******************************/
-                        strmcpy(tmpbuf, line, mybufsize);
+                        strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
                             send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, tmpbuf);
                             continue;
@@ -3135,11 +3150,18 @@ send_text(org_nick, line, command)
 			{
 				if (*nick_list)
 				{
-					strcat(nick_list, ",");
-					strcat(nick_list, nick);
+/**************************** Patched by Flier ******************************/
+					/*strcat(nick_list, ",");
+					strcat(nick_list, nick);*/
+					strmcat(nick_list, ",", sizeof(nick_list));
+					strmcat(nick_list, nick, sizeof(nick_list));
+/****************************************************************************/
 				}
 				else
-					strcpy(nick_list, nick);
+/**************************** Patched by Flier ******************************/
+					/*strcpy(nick_list, nick);*/
+					strmcpy(nick_list, nick, sizeof(nick_list));
+/****************************************************************************/
 			}
 
 			if (get_int_var(WARN_OF_IGNORES_VAR) && (is_ignored(nick, IGNORE_MSGS) == IGNORED))

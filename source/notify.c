@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.11 2002-01-21 21:37:36 f Exp $
+ * $Id: notify.c,v 1.12 2002-01-24 19:59:04 f Exp $
  */
 
 /*
@@ -230,8 +230,8 @@ notify(command, args, subargs)
                                                 if (inSZNotify!=1)
                                                     say("%s added to the notification list",nick);
                                                 else new->flag=2;
-                                                if (*tmpbuf) strcat(tmpbuf," ");
-                                                strcat(tmpbuf,new->nick);
+                                                if (*tmpbuf) strmcat(tmpbuf," ",sizeof(tmpbuf));
+                                                strmcat(tmpbuf,new->nick,sizeof(tmpbuf));
                                                 new->server=from_server;
 /****************************************************************************/
  						from_server = old_server;
@@ -289,8 +289,12 @@ do_notify()
 /****************************************************************************/
 		{
 			c2++;
-			strcat(buf, " ");
-			strcat(buf, tmp->nick);
+/**************************** Patched by Flier ******************************/
+			/*strcat(buf, " ");
+			strcat(buf, tmp->nick);*/
+			strmcat(buf, " ", sizeof(buf));
+			strmcat(buf, tmp->nick, sizeof(buf));
+/****************************************************************************/
 		}
 	}
 	if (c2)
@@ -382,7 +386,7 @@ notify_mark(nick, flag, doit)
                         char *host=NULL;
 
                         if (tmp->userhost) {
-                            strcpy(tmpbuf,tmp->userhost);
+                            strmcpy(tmpbuf,tmp->userhost,sizeof(tmpbuf));
                             host=index(tmpbuf,'@');
                             if (host) host++;
                             if (tmp->flag == 1 && host && tmpbuf[0] && doit 

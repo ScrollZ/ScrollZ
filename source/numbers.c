@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.52 2002-01-23 18:48:10 f Exp $
+ * $Id: numbers.c,v 1.53 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -147,7 +147,7 @@ numeric_banner()
 /************************* PATCHED by Flier ***************************/
 		/*strcpy(thing, "***");*/
         {
-            if (Stamp==2) strcpy(thing,TimeStamp(2));
+            if (Stamp==2) strmcpy(thing,TimeStamp(2),sizeof(thing));
             else if (ScrollZstr && *ScrollZstr) snprintf(thing,sizeof(thing),"%s ",ScrollZstr);
             else *thing='\0';
         }
@@ -275,7 +275,7 @@ char **ArgList;
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
         }
 /* for hybrid ircd */
@@ -286,7 +286,7 @@ char **ArgList;
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],usernum,invnum,
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
         }
 /* for lame 2.9.2 servers */
@@ -298,7 +298,7 @@ char **ArgList;
                     CmdsColors[COLCSCAN].color2,usernum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
         }
         else if (sscanf(rest,"There are %d users on %d servers",
@@ -309,7 +309,7 @@ char **ArgList;
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,totalnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strncat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
         }
     }
@@ -318,14 +318,14 @@ char **ArgList;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s IRC Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strncat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %s%d%s Operator(s) online",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,opernum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -335,7 +335,7 @@ char **ArgList;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sCurrently, %s%d%s channels have been formed",
                     numeric_banner(),
                     CmdsColors[COLCSCAN].color2,channelnum,Colors[COLOFF]);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -349,7 +349,7 @@ char **ArgList;
                     CmdsColors[COLCSCAN].color2,connectnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
                     bold,totalper,bold);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.9 servers */
@@ -363,7 +363,7 @@ char **ArgList;
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
                     bold,totalper,bold);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.10 servers */
@@ -377,7 +377,7 @@ char **ArgList;
                     CmdsColors[COLCSCAN].color2,clientnum,Colors[COLOFF],
                     CmdsColors[COLCSCAN].color2,servicenum,Colors[COLOFF],
                     bold,totalper,bold);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -389,7 +389,7 @@ char **ArgList;
 	    totalnum=usernum+invnum;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d users (%d + %d invisible) on %d servers",
                     numeric_banner(),totalnum,usernum,invnum,servernum);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.9.2 servers */
@@ -398,7 +398,7 @@ char **ArgList;
             totalnum=usernum;
 	    snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d users and %d services on %d servers",
                     numeric_banner(),usernum,servicenum,servernum);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"There are %d users on %d servers",&totalnum,&servernum)==2) {
@@ -406,7 +406,7 @@ char **ArgList;
 	    invnum=0;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %c%d%c users on %c%d%c servers",
                    numeric_banner(),bold,totalnum,bold,bold,servernum,bold);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -414,12 +414,12 @@ char **ArgList;
         if (sscanf(rest,"%d IRC Operators online",&opernum)==1) {
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d IRC Operator(s) online",numeric_banner(),
                     opernum);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
         else if (sscanf(rest,"%d operators(s) online",&opernum)==1) {
             snprintf(tmpbuf,sizeof(tmpbuf),"%sThere are %d Operator(s) online",numeric_banner(),opernum);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -427,7 +427,7 @@ char **ArgList;
         if (sscanf(rest,"%d channels formed",&channelnum)==1) {
             snprintf(tmpbuf,sizeof(tmpbuf),"%sCurrently, %d channels have been formed",
                    numeric_banner(),channelnum);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -437,7 +437,7 @@ char **ArgList;
             else totalper=0.0;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) and %d users (apx. %.1f%% of total users)",
                    numeric_banner(),connectnum,clientnum,totalper);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.9.2 servers */
@@ -447,7 +447,7 @@ char **ArgList;
             else totalper=0.0;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
 /* for lame 2.10 servers */
@@ -457,7 +457,7 @@ char **ArgList;
             else totalper=0.0;
             snprintf(tmpbuf,sizeof(tmpbuf),"%sConnected are: %d server(s) with %d users and %d services (apx. %.1f%% of total users)",
                     numeric_banner(),connectnum,clientnum,servicenum,totalper);
-            if (from) strcat(tmpbuf,tmpbuf2);
+            if (from) strmcat(tmpbuf,tmpbuf2,sizeof(tmpbuf));
             put_it("%s",tmpbuf);
 	}
     }
@@ -764,13 +764,13 @@ cannot_join_channel(from, ArgList)
 	strcpy(buffer, ArgList[0]);*/
         if (-current_numeric==437) {
             /* special case for ircd 2.9 */
-            strcpy(buffer,ArgList[0]);
-            strcat(buffer," Cannot join channel ");
+            strmcpy(buffer,ArgList[0],sizeof(buffer));
+            strmcat(buffer," Cannot join channel ",sizeof(buffer));
         }
         else {
             /* valid for the rest of numerics covered here */
             PasteArgs(ArgList,0);
-            strcpy(buffer,ArgList[0]);
+            strmcpy(buffer,ArgList[0],sizeof(buffer));
         }
 #ifdef ACID
         strmcpy(tmpbuf,buffer,mybufsize/4);
@@ -782,11 +782,11 @@ cannot_join_channel(from, ArgList)
 		{
 /**************************** PATCHED by Flier ******************************/
         	case 437:
-			strcat(buffer, " (Channel is temporarily unavailable)");
+			strmcat(buffer, " (Channel is temporarily unavailable)", sizeof(buffer));
 			break;
 /****************************************************************************/
 		case 471:
-			strcat(buffer, " (Channel is full)");
+			strmcat(buffer, " (Channel is full)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
                         tryjoin=1;
@@ -794,7 +794,7 @@ cannot_join_channel(from, ArgList)
 /****************************************************************************/
 			break;
 		case 473:
-			strcat(buffer, " (Invite only channel)");
+			strmcat(buffer, " (Invite only channel)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
                         tryjoin=1;
@@ -802,7 +802,7 @@ cannot_join_channel(from, ArgList)
 /****************************************************************************/
 			break;
 		case 474:
-			strcat(buffer, " (Banned from channel)");
+			strmcat(buffer, " (Banned from channel)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
                         tryjoin=1;
@@ -810,7 +810,7 @@ cannot_join_channel(from, ArgList)
 /****************************************************************************/
 			break;
 		case 475:
-			strcat(buffer, " (Bad channel key)");
+			strmcat(buffer, " (Bad channel key)", sizeof(buffer));
 /**************************** PATCHED by Flier ******************************/
 #ifdef ACID
                         tryjoin=1;
@@ -818,11 +818,11 @@ cannot_join_channel(from, ArgList)
 /****************************************************************************/
 			break;
 		case 476:
-			strcat(buffer, " (Bad channel mask)");
+			strmcat(buffer, " (Bad channel mask)", sizeof(buffer));
 			break;
 /**************************** PATCHED by Flier ******************************/
 		case 477:
-			strcat(buffer, " (You must first identify yourself with NickServ to join that channel)");
+			strmcat(buffer, " (You must first identify yourself with NickServ to join that channel)", sizeof(buffer));
                         break;
 /****************************************************************************/
 		}

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.10 2002-01-21 21:37:35 f Exp $
+ * $Id: help.c,v 1.11 2002-01-24 19:59:04 f Exp $
  */
 
 /*
@@ -552,7 +552,10 @@ help_me(topics, args)
 	char	*arg_z = (char *) 0;
 #endif /*ZCAT*/ 
 
-	strcpy(help_topic_list, topics);
+/**************************** Patched by Flier ******************************/
+	/*strcpy(help_topic_list, topics);*/
+	strmcpy(help_topic_list, topics, sizeof(help_topic_list));
+/****************************************************************************/
 
 #ifdef DAEMON_UID
 	if (DAEMON_UID == getuid())
@@ -731,10 +734,16 @@ help_me(topics, args)
 			}
 			if (stat_buf.st_mode & S_IFDIR)
 			{
-				strcpy(path, tmp);
+/**************************** Patched by Flier ******************************/
+				/*strcpy(path, tmp);
 				if (*help_topic_list)
 					strcat(help_topic_list, " ");
-				strcat(help_topic_list, namelist[0]->d_name);
+				strcat(help_topic_list, namelist[0]->d_name);*/
+				strmcpy(path, tmp, sizeof(path));
+				if (*help_topic_list)
+					strmcat(help_topic_list, " ", sizeof(help_topic_list));
+				strmcat(help_topic_list, namelist[0]->d_name, sizeof(help_topic_list));
+/****************************************************************************/
 				if ((this_arg = next_arg(args, &args)) ==
 						(char *) 0)
 				{
@@ -763,7 +772,10 @@ help_me(topics, args)
 			}
 		default:
 			help_show_directory = 1;
-			strcpy(paused_topic, help_topic_list);
+/**************************** Patched by Flier ******************************/
+			/*strcpy(paused_topic, help_topic_list);*/
+			strmcpy(paused_topic, help_topic_list, sizeof(paused_topic));
+/****************************************************************************/
 			help_pause_add_line("*** %s choices:", help_topic_list);
 			*buffer = (char) 0;
 			cnt = 0;

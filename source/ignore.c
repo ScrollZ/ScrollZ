@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.11 2002-01-21 21:37:35 f Exp $
+ * $Id: ignore.c,v 1.12 2002-01-24 19:59:04 f Exp $
  */
 
 #include "irc.h"
@@ -230,7 +230,8 @@ ignore_nickname(nick, type, flag, timedignore)
 			}
 			else if (type)
 			{
-				strcpy(buffer, msg);
+/**************************** PATCHED by Flier ******************************/
+				/*strcpy(buffer, msg);
 				if (type & IGNORE_MSGS)
 					strcat(buffer, " MSGS");
 				if (type & IGNORE_PUBLIC)
@@ -249,8 +250,26 @@ ignore_nickname(nick, type, flag, timedignore)
 					strcat(buffer, " CTCPS");
 				if (type & IGNORE_CRAP)
 					strcat(buffer, " CRAP");
-/**************************** PATCHED by Flier ******************************/
-				/*say("%s from %s", buffer, new->nick);*/
+				say("%s from %s", buffer, new->nick);*/
+				strmcpy(buffer, msg, sizeof(buffer));
+				if (type & IGNORE_MSGS)
+					strmcat(buffer, " MSGS", sizeof(buffer));
+				if (type & IGNORE_PUBLIC)
+					strmcat(buffer, " PUBLIC", sizeof(buffer));
+				if (type & IGNORE_WALLS)
+					strmcat(buffer, " WALLS", sizeof(buffer));
+				if (type & IGNORE_WALLOPS)
+					strmcat(buffer, " WALLOPS", sizeof(buffer));
+				if (type & IGNORE_INVITES)
+					strmcat(buffer, " INVITES", sizeof(buffer));
+				if (type & IGNORE_NOTICES)
+					strmcat(buffer, " NOTICES", sizeof(buffer));
+				if (type & IGNORE_NOTES)
+					strmcat(buffer, " NOTES", sizeof(buffer));
+				if (type & IGNORE_CTCPS)
+					strmcat(buffer, " CTCPS", sizeof(buffer));
+				if (type & IGNORE_CRAP)
+					strmcat(buffer, " CRAP", sizeof(buffer));
                                 if (timedignore) say("%s from %s for %s seconds", buffer, new->nick, timedignore);
                                 else say("%s from %s", buffer, new->nick);
 /****************************************************************************/
