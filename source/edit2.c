@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.63 2001-07-23 20:19:59 f Exp $
+ * $Id: edit2.c,v 1.64 2001-08-21 19:30:00 f Exp $
  */
 
 #include "irc.h"
@@ -1119,6 +1119,7 @@ char *subargs;
     int  hierarchy; /* 1-shitted, 2-normal, 3-voiced, 4-ops, 5-friends */
     char *channel=(char *) 0;
     char *users=(char *) 0;
+    char *prefstr=ScrollZstr;
 #ifdef WANTANSI
     char *colorstr=(char *) 0;
 #endif
@@ -1160,15 +1161,16 @@ char *subargs;
     if (!(chan=lookup_channel(channel,curr_scr_win->server,0))) return;
 #ifdef WANTANSI
 #ifndef NEWCSCAN
-    szlen=strlen(ScrollZstr)-CountAnsi(ScrollZstr,-1);
+    if (Stamp==2) prefstr=update_clock(0,0,GET_TIME);
+    szlen=strlen(ScrollZstr)-CountAnsi(prefstr,-1);
     sprintf(tmpbuf3,"%%%ds",szlen);
 #endif /* NEWCSCAN */
-    sprintf(tmpbuf1,"%s Users on %s%s%s :",ScrollZstr,
+    sprintf(tmpbuf1,"%s Users on %s%s%s :",prefstr,
             CmdsColors[COLCSCAN].color1,chan->channel,Colors[COLOFF]);
 #else /* WANTANSI */
-    sprintf(tmpbuf1,"%s Users on %s :",ScrollZstr,chan->channel);
+    sprintf(tmpbuf1,"%s Users on %s :",prefstr,chan->channel);
 #ifndef NEWCSCAN
-    szlen=strlen(ScrollZstr);
+    szlen=strlen(prefstr);
     sprintf(tmpbuf3,"%%%ds",szlen);
 #endif /* NEWCSCAN */
 #endif /* WANTANSI */
@@ -1185,9 +1187,9 @@ char *subargs;
         if(strlen(tmp->nick)>len) len=strlen(tmp->nick);
     if (len<=9) len=9;
 #ifdef WANTANSI
-    width=(CO-(strlen(ScrollZstr)-CountAnsi(ScrollZstr,-1)+7))/(len+2);
+    width=(CO-(strlen(prefstr)-CountAnsi(prefstr,-1)+7))/(len+2);
 #else
-    width=(CO-(strlen(ScrollZstr)+7))/(len+2);
+    width=(CO-(strlen(prefstr)+7))/(len+2);
 #endif /* WANTANSI */
     sprintf(tmpbuf1,"%%-%ds",len);
 #endif /* NEWCSCAN */
