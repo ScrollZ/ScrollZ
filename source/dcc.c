@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.37 2002-01-24 19:59:04 f Exp $
+ * $Id: dcc.c,v 1.38 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -2142,10 +2142,7 @@ process_incoming_chat(Client)
 	else
 		len = 0;
 	old_timeout = dgets_timeout(1);
-/**************************** PATCHED by Flier ******************************/
- 	/*bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0);*/
-	bytesread=dgets(bufptr,(int)((BIG_BUFFER_SIZE/2)-len),Client->read,(char *) 0, 0);
-/****************************************************************************/
+ 	bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0);
 	(void) dgets_timeout(old_timeout);
 	switch (bytesread)
 	{
@@ -2283,10 +2280,7 @@ process_incoming_raw(Client)
 	else
 		len = 0;
 	old_timeout = dgets_timeout(1);
-/**************************** PATCHED by Flier ******************************/
- 	/*switch(bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0))*/
-	switch (bytesread=dgets(bufptr,(int)((BIG_BUFFER_SIZE/2)-len),Client->read,(char *) 0,0))
-/****************************************************************************/
+ 	switch(bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0))
 	{
 	case -1:
 		add_to_dcc_buffer(Client, bufptr);

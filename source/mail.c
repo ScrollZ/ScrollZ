@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.9 2002-01-21 21:37:36 f Exp $
+ * $Id: mail.c,v 1.10 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -161,12 +161,8 @@ count_files(dir_name, lasttime)
 					say("Unable to check headers on new mail");
 				else
 				{
-/**************************** PATCHED by Flier *****************************/
-					/*while (dgets(LetterName,BIG_BUFFER_SIZE, fd, (char *) 0) > 0 && *LetterName != '\n' &&
-					    *LetterName != '\0')*/
-					while (dgets(LetterName,BIG_BUFFER_SIZE, fd, (char *) 0, 0) > 0 && *LetterName != '\n' &&
+					while (dgets(LetterName,BIG_BUFFER_SIZE, fd, (char *) 0) > 0 && *LetterName != '\n' &&
 					    *LetterName != '\0')
-/***************************************************************************/
 					{
 						LetterName[strlen(LetterName) - - 1] = '\0';
  						if (!my_strnicmp(LetterName, "From", 4) || !my_strnicmp(LetterName, "Subject:", 8))
@@ -264,10 +260,7 @@ check_mail()
 		if ((des = open(mail_path, O_RDONLY, 0)) >= 0)
 		{
 			new_cnt = 0;
-/**************************** PATCHED by Flier *****************************/
-			/*while (dgets(buffer, BIG_BUFFER_SIZE, des,(char *) 0)>0)*/
-			while (dgets(buffer, BIG_BUFFER_SIZE, des,(char *) 0, 0)>0)
-/***************************************************************************/
+			while (dgets(buffer, BIG_BUFFER_SIZE, des,(char *) 0)>0)
 			{
 				if (buffer[0] == '\n') {
 					blanks++;
@@ -280,10 +273,7 @@ check_mail()
 					new_cnt++;
 					if (new_cnt > cnt && !VirginProgram && get_int_var(MAIL_VAR) == 2)
 					{
-/**************************** PATCHED by Flier *****************************/
-						/*while (dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0) > 0 && *buffer != '\0' && *buffer != '\n')*/
-						while (dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0, 0) > 0 && *buffer != '\0' && *buffer != '\n')
-/***************************************************************************/
+						while (dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0) > 0 && *buffer != '\0' && *buffer != '\n')
 						{
 							buffer[strlen(buffer)-1] = '\0';
 							if (!strncmp(buffer, "From:", 5) || !strncmp(buffer, "Subject:", 8))

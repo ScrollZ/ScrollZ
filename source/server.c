@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.51 2002-01-25 18:58:31 f Exp $
+ * $Id: server.c,v 1.52 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -68,12 +68,6 @@ extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
 extern void ChannelLogReportAll _((char *, ChannelList *));
 
-/*#define BNCCRYPT 1*/
-
-#ifdef BNCCRYPT
-static char enctablebnc[256];
-static char dectablebnc[256];
-#endif
 #ifdef HAVE_SSL
 int SSLconnect = 0;
 #endif
@@ -246,28 +240,6 @@ set_server_bits(rd, wd)
 	}
 }
 
-/**************************** PATCHED by Flier ******************************/
-#ifdef BNCCRYPT
-void DecryptBNC(buffer,buflen)
-char *buffer;
-int  buflen;
-{
-    int i;
-
-    for (i=0;i<buflen;i++) buffer[i]=dectablebnc[(unsigned char) buffer[i]];
-}
-
-void EncryptBNC(buffer,buflen)
-char *buffer;
-int  buflen;
-{
-    int i;
-
-    for (i=0;i<buflen;i++) buffer[i]=enctablebnc[(unsigned char) buffer[i]];
-}
-#endif /* BNCCRYPT */
-/****************************************************************************/
-
 /*
  * do_server: check the given fd_set against the currently open servers in
  * the server list.  If one have information available to be read, it is read
@@ -330,19 +302,14 @@ do_server(rd, wd)
 			if (len >= BIG_BUFFER_SIZE)
 				goto buffer_is_full_hack;	/* XXX? */
 /**************************** PATCHED by Flier ******************************/
-			/*junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0);*/
 #ifdef HAVE_SSL
                         if (server_list[from_server].enable_ssl)
                             junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0,
                                              server_list[from_server].ssl_fd);
                         else
 #endif /* HAVE_SSL */
-#ifdef BNCCRYPT
-			junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0, 1);
-#else  /* BNCCRYPT */
-			junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0, 0);
-#endif /* BNCCRYPT */
 /****************************************************************************/
+			junk = dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0);
 			(void) dgets_timeout(old_timeout);
 			switch (junk)
 			{
@@ -553,24 +520,6 @@ add_to_server_list(server, port, password, nick, overwrite)
 {
 	int	i;
 
-/**************************** PATCHED by Flier ******************************/
-#ifdef BNCCRYPT
-        /* Decryption table */
-        for (i=0;i<32;i++) dectablebnc[i]=i;
-        for (i=123;i<156;i++) dectablebnc[i]=i-91;
-        for (i=198;i<256;i++) dectablebnc[i]=320-i;
-        for (i=32;i<65;i++) dectablebnc[i]=i+91;
-        for (i=157;i<198;i++) dectablebnc[i]=i;
-        for (i=65;i<123;i++) dectablebnc[i]=i+133;
-        /* Encryption table */
-        for (i=0;i<32;i++) enctablebnc[i]=i;
-        for (i=123;i<156;i++) enctablebnc[i-91]=i;
-        for (i=198;i<256;i++) enctablebnc[320-i]=i;
-        for (i=32;i<65;i++) enctablebnc[i+91]=i;
-        for (i=157;i<198;i++) enctablebnc[i]=i;
-        for (i=65;i<123;i++) enctablebnc[i+133]=i;
-#endif
-/****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
 		from_server = number_of_servers++;
@@ -1138,14 +1087,7 @@ connect_to_server_process(server_name, port, nick)
 		break;
 	}
 	old_timeout = dgets_timeout(3);
-/**************************** PATCHED by Flier ******************************/
-	/*c = dgets(buffer, BIG_BUFFER_SIZE, read_des[0], (char *) 0);*/
-#ifdef BNCCRYPT
-	c = dgets(buffer, BIG_BUFFER_SIZE, read_des[0], (char *) 0, 1);
-#else
-	c = dgets(buffer, BIG_BUFFER_SIZE, read_des[0], (char *) 0, 0);
-#endif
-/****************************************************************************/
+	c = dgets(buffer, BIG_BUFFER_SIZE, read_des[0], (char *) 0);
 	(void) dgets_timeout(old_timeout);
 	if ((c == 0) || ((c = atoi(buffer)) != 0))
 	{
@@ -1974,17 +1916,8 @@ flush_server()
 		default:
 			if (FD_ISSET(des, &rd))
 			{
-/**************************** PATCHED by Flier ******************************/
-				/*if (0 == dgets(buffer, BIG_BUFFER_SIZE, des,
-						(char *) 0))*/
-#ifdef BNCCRYPT
 				if (0 == dgets(buffer, BIG_BUFFER_SIZE, des,
-						(char *) 0, 1))
-#else
-				if (0 == dgets(buffer, BIG_BUFFER_SIZE, des,
-						(char *) 0, 0))
-#endif
-/****************************************************************************/
+						(char *) 0))
 					flushing = 0;
 
 			}
@@ -1995,14 +1928,7 @@ flush_server()
 	FD_ZERO(&rd);
 	FD_SET(des, &rd);
 	if (new_select(&rd, (fd_set *) 0, &time_out) > 0)
-/**************************** PATCHED by Flier ******************************/
-		/*dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0);*/
-#ifdef BNCCRYPT
-		dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0, 1);
-#else
-		dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0, 0);
-#endif
-/****************************************************************************/
+		dgets(buffer, BIG_BUFFER_SIZE, des, (char *) 0);
 	(void) dgets_timeout(old_timeout);
 }
 
@@ -2432,11 +2358,6 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
-/**************************** PATCHED by Flier ******************************/
-#ifdef BNCCRYPT
-                EncryptBNC(lbuf, strlen(lbuf));
-#endif
-/****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 

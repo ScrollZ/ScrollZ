@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.h,v 1.2 2001-12-18 20:17:14 f Exp $
+ * $Id: newio.h,v 1.3 2002-02-01 19:03:45 f Exp $
  */
 
 #ifndef __newio_h_
@@ -46,9 +46,8 @@
 	void	unmark_socket _((int));
 #endif
 	time_t	dgets_timeout _((int));
+        int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
-        /*int	dgets _((char *, int, int, char *));*/
-	int	dgets _((char *, int, int, char *, int));
 #ifdef HAVE_SSL
         int     SSL_dgets _((char *, int, int, char *, SSL *));
 #endif

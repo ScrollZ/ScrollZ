@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.9 2001-12-22 18:03:54 f Exp $
+ * $Id: newio.c,v 1.10 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -83,10 +83,6 @@
 #  endif /* FDSETSIZE */
 # endif /* OPEN_MAX */
 #endif /* SZ32 */
-
-#ifdef BNCCRYPT
-extern void DecryptBNC _((char *, int));
-#endif
 /****************************************************************************/
 
 typedef	struct	myio_struct
@@ -202,19 +198,11 @@ init_io()
  * -1 on a timeout (see dgets_timeout()) 
  */
 int
-/**************************** Patched by Flier ******************************
 dgets(str, len, des, specials)
 	char	*str;
 	int	len;
 	int	des;
 	char	*specials;
-****************************************************************************/
-dgets(str, len, des, specials, decrypt)
-	char	*str;
-	int	len;
-	int	des;
-	char	*specials;
-	int	decrypt;
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -272,11 +260,6 @@ dgets(str, len, des, specials, decrypt)
 					c = read(des, io_rec[des]->buffer +
 					 io_rec[des]->write_pos,
 					 IO_BUFFER_SIZE-io_rec[des]->write_pos);
-/**************************** PATCHED by Flier ******************************/
-#ifdef BNCCRYPT
-                                if (decrypt) DecryptBNC(io_rec[des]->buffer+io_rec[des]->write_pos,c);
-#endif
-/****************************************************************************/
 				if (c <= 0)
 				{
 					if (c == 0)
@@ -416,11 +399,6 @@ SSL	*ssl_fd;
 			default:
 				c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
 				             IO_BUFFER_SIZE-io_rec[des]->write_pos);
-/**************************** PATCHED by Flier ******************************/
-#ifdef BNCCRYPT
-                                if (decrypt) DecryptBNC(io_rec[des]->buffer+io_rec[des]->write_pos,c);
-#endif
-/****************************************************************************/
 				if (c <= 0)
 				{
 					if (c == 0)

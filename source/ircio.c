@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircio.c,v 1.5 2002-01-21 21:37:36 f Exp $
+ * $Id: ircio.c,v 1.6 2002-02-01 19:03:45 f Exp $
  */
 
 #include "defs.h"
@@ -277,24 +277,16 @@ main(argc, argv)
 #endif /* NON_BLOCKING */
 		if (FD_ISSET(0, &rd))
 			{
-/**************************** PATCHED by Flier ******************************/
-				/*if (0 != (c = dgets(lbuf, BUFSIZ, 0,
-							(char *) 0)))*/
 				if (0 != (c = dgets(lbuf, BUFSIZ, 0,
-							(char *) 0, 0)))
-/***************************************************************************/
+							(char *) 0)))
 					write(des, lbuf, (size_t)c);
 				else
 					done = 1;
 			}
 			if (FD_ISSET(des, &rd))
 			{
-/**************************** PATCHED by Flier ******************************/
-				/*if (0 != (c = dgets(lbuf, BUFSIZ, des,
-							(char *) 0)))*/
 				if (0 != (c = dgets(lbuf, BUFSIZ, des,
-							(char *) 0, 0)))
-/***************************************************************************/
+							(char *) 0)))
 				{
 					if (strncmp(lbuf, "PING ", 5) == 0)
 					{

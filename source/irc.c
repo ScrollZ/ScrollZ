@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.82 2002-02-01 18:57:30 f Exp $
+ * $Id: irc.c,v 1.83 2002-02-01 19:03:45 f Exp $
  */
 
 #define IRCII_VERSION	"20011210"	/* YYYYMMDD */
@@ -1482,12 +1482,8 @@ irc_io(prompt, func, my_use_input, loop)
 				int     old_timeout;
 
 				old_timeout = dgets_timeout(1);
-/**************************** PATCHED by Flier ******************************/
- 				/*if (dgets(lbuf, INPUT_BUFFER_SIZE,
-						screen->fdin, (char *) 0))*/
-				if (dgets(lbuf, INPUT_BUFFER_SIZE,
-						screen->fdin, (char *) 0, 0))
-/****************************************************************************/
+ 				if (dgets(lbuf, INPUT_BUFFER_SIZE,
+						screen->fdin, (char *) 0))
 				{
 					(void) dgets_timeout(old_timeout);
 					if (one_key)

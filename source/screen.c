@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.26 2002-02-01 18:57:30 f Exp $
+ * $Id: screen.c,v 1.27 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -2272,10 +2272,7 @@ create_additional_screen()
 		 * dgets returns 0 on EOF and -1 on timeout.  both of these are
 		 * error conditions in this case, so we bail out here.
 		 */
-/**************************** PATCHED by Flier ******************************/
-		/*if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0) < 1)*/
-		if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0, 0) < 1)
-/****************************************************************************/
+		if (dgets(buffer, BIG_BUFFER_SIZE, current_screen->fdin, (char *) 0) < 1)
 		{
 			new_close(current_screen->fdin);
 			kill_screen(current_screen);
@@ -2658,7 +2655,7 @@ screen_wserv_message(screen)
 	Screen *old_screen;
 
 	old_timeout = dgets_timeout(0);
-	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0, 0) < 1)
+	if (dgets(buf, 128, current_screen->wservin, (u_char *) 0) < 1)
 	{
 		/* this should be impossible. */
 		if (!is_main_screen(screen))

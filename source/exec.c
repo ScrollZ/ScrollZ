@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.11 2002-01-21 22:21:36 f Exp $
+ * $Id: exec.c,v 1.12 2002-02-01 19:03:45 f Exp $
  */
 
 #include "irc.h"
@@ -378,10 +378,7 @@ do_processes(rd)
 		{
 			if (FD_ISSET(proc->p_stdout, rd))
 			{
-/**************************** PATCHED by Flier *****************************/
-				/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stdout, (u_char *) 0))*/
-                                switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stdout, (char *) 0, 0))
-/***************************************************************************/
+				switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stdout, (u_char *) 0))
 				{
 				case 0:
 					if (proc->p_stderr == -1)
@@ -438,10 +435,7 @@ do_processes(rd)
 		{
 			if (FD_ISSET(proc->p_stderr, rd))
 			{
-/**************************** PATCHED by Flier *****************************/
-				/*switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stderr, (u_char *) 0))*/
-				switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stderr, (char *) 0, 0))
-/***************************************************************************/
+				switch (dgets(exec_buffer, INPUT_BUFFER_SIZE, proc->p_stderr, (u_char *) 0))
 				{
 				case 0:
 					if (proc->p_stdout == -1)
