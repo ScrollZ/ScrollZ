@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.6 1998-11-15 20:19:26 f Exp $
+ * $Id: dcc.c,v 1.7 1998-11-16 21:04:59 f Exp $
  */
 
 #include "irc.h"
@@ -1962,6 +1962,9 @@ process_incoming_chat(Client)
 		if (s && *s)
 		{
 			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX: stop dcc long messages */
+/**************************** PATCHED by Flier ******************************/
+                        DecryptChatMessage(s,Client->user);
+/****************************************************************************/
 			if (do_hook(DCC_CHAT_LIST, "%s %s", Client->user, s))
                         {
 /**************************** PATCHED by Flier ******************************/
@@ -1974,7 +1977,6 @@ process_incoming_chat(Client)
 					s = tmp;
 				}
         	                put_it("=%s= %s", Client->user, s);*/
-                                DecryptChatMessage(s,Client->user);
                 	        PrintChatMsg(Client,s,bytesread);
 /****************************************************************************/
                         }
