@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.45 2001-08-27 16:45:28 f Exp $
+ * $Id: parse.c,v 1.46 2001-08-29 16:06:07 f Exp $
  */
 
 #include "irc.h"
@@ -1114,7 +1114,7 @@ p_pong(from, ArgList)
 #endif /* HAVETIMEOFDAY */
                     new_free(&(spingtmp->servername));
                     new_free(&spingtmp);
-                    if (!my_stricmp(server_list[from_server].itsname,ArgList[0])) {
+                    if (!my_stricmp(server_list[parsing_server_index].itsname,ArgList[0])) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
                         LagTimer=timenow;
 #elif defined(HAVETIMEOFDAY)
@@ -1126,7 +1126,7 @@ p_pong(from, ArgList)
                     }
                 }
                 else if (!strcmp(ArgList[1],"szlagmeter") ||
-                         !strcmp(ArgList[0],get_server_itsname(from_server))) {
+                         !strcmp(ArgList[0],get_server_itsname(parsing_server_index))) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
                     gettimeofday(&LagTimer,NULL);
                     LagTimer.tv_sec-=PingSent.tv_sec;
