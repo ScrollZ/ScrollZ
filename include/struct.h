@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.11 2002-01-07 19:18:16 f Exp $
+ * $Id: struct.h,v 1.12 2002-01-14 18:43:28 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -402,4 +402,17 @@ typedef	struct	list_stru
 	struct	list_stru	*next;
 	char	*name;
 }	List;
+
+/**************************** Patched by Flier ******************************/
+/* moved here so we can do tab completion on commands */
+/* IrcCommand: structure for each command in the command table */
+typedef struct
+{
+	char	FAR *name;				/* what the user types */
+	char	*server_func;				/* what gets sent to the server
+							 * (if anything) */
+	void	(*func) _((char *, char *, char *));	/* function that is the command */
+	unsigned	flags;
+}	IrcCommand;
 #endif /* __struct_h_ */
+/****************************************************************************/

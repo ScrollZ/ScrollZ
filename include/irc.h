@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.11 2001-11-10 10:04:53 f Exp $
+ * $Id: irc.h,v 1.12 2002-01-14 18:43:28 f Exp $
  */
 
 #ifndef __irc_h
@@ -43,6 +43,11 @@
 #define IRCRC_NAME "/scrollz.rc"
 #else
 #define IRCRC_NAME "/.scrollzrc"
+#endif
+
+/* we need it in IrcCommand structure */
+#ifndef _Windows
+# define FAR
 #endif
 /****************************************************************************/
 
@@ -295,9 +300,11 @@ int	ruid_unlink _(());
 # define stat_file stat
 #endif /*PRIV_PORT*/
 
-#ifndef _Windows
+/**************************** Patched by Flier ******************************/
+/*#ifndef _Windows
 # define FAR
-#endif
+#endif*/
+/****************************************************************************/
 
 /*
  * declared in irc.c 

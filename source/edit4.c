@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.88 2002-01-13 16:42:30 f Exp $
+ * $Id: edit4.c,v 1.89 2002-01-14 18:43:28 f Exp $
  */
 
 #include "irc.h"
@@ -183,6 +183,8 @@ extern NotifyList *notify_list;
 extern NickList *tabnickcompl;
 
 extern DCC_list *ClientList;
+
+extern IrcCommand irc_command[];
 
 /* Prints received message */
 void PrintMessage(nick,userhost,msg,print,iscrypted)
@@ -837,9 +839,9 @@ void HandleTabNext(u_int key, char *ptr)
     }
     p = cur_pos - 1;    /* at string to complete */
     length = argc = 0;
-    while (!isspace(*p) && p >= min_pos) {   
-        p--;            /* walk left until white-space or beginning of line */
-        length++;
+    while (!isspace(*p) && (*min_pos == '/' ? p >= min_pos + 1 : p >= min_pos)) {   
+        p--;            /* walk left until white-space, beginning of line, */
+        length++;	/* or / if it's the first character */
     }
     p++;                /* back to beginning */
     length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
@@ -945,6 +947,31 @@ send_begin:
             if (last_completion) {
                 last_completion = NULL;
                 goto send_begin;
+            }
+        }
+    }
+    else if (*min_pos == '/' && argc == 0) {
+        int j;
+
+command_begin:
+        j = 1;	/* skip "" */
+        if (last_completion) {
+            while (irc_command[j].name && my_strnicmp(irc_command[j].name, last_completion, strlen(last_completion))) j++;
+            j++;
+        }
+        while (irc_command[j].name) {
+            if (!my_strnicmp(irc_command[j].name, completing, strlen(completing))) {
+                for (i = 0; i < length; i++) input_backspace(' ', NULL);
+                for (p = irc_command[j].name; *p; p++) input_add_character(*p, NULL);
+                last_completion = irc_command[j].name;
+                break;
+            }
+            j++;
+        }
+        if (!irc_command[j].name) {
+            if (last_completion) {
+                last_completion = 0;
+                goto command_begin;
             }
         }
     }

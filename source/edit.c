@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.75 2002-01-09 16:41:59 f Exp $
+ * $Id: edit.c,v 1.76 2002-01-14 18:43:28 f Exp $
  */
 
 #include "irc.h"
@@ -76,6 +76,7 @@
 #include "queue.h"
 
 /**************************** PATCHED by Flier ******************************/
+#include "struct.h"
 #include "myvars.h"
 /****************************************************************************/
 
@@ -415,15 +416,18 @@ extern  void  TopicLocked _((char *, char *, char *));
 #endif
 /****************************************************************************/
 
+/**************************** Patched by Flier ******************************/
+/* moved to struct.h so we can do command completion with tab */
 /* IrcCommand: structure for each command in the command table */
-typedef	struct
+/*typedef	struct
 {
-	char	FAR *name;				/* what the user types */
-	char	*server_func;				/* what gets sent to the server
+	char	FAR *name;*/				/* what the user types */
+	/*char	*server_func;*/				/* what gets sent to the server
 							 * (if anything) */
-	void	(*func) _((char *, char *, char *));	/* function that is the command */
-	unsigned	flags;
-}	IrcCommand;
+	/*void	(*func) _((char *, char *, char *));*/	/* function that is the command */
+	/*unsigned	flags;
+}	IrcCommand;*/
+/****************************************************************************/
 
 static	IrcCommand *find_command _((char *, int *));
 
@@ -439,7 +443,10 @@ static	IrcCommand *find_command _((char *, int *));
  * makes "/ blah blah blah" to always be sent to a channel, bypassing queries,
  * etc.  Neato.  This list MUST be sorted.
  */
-static	IrcCommand FAR irc_command[] =
+/**************************** Patched by Flier ******************************/
+/*static IrcCommand FAR irc_command[] =*/
+IrcCommand FAR irc_command[] =
+/****************************************************************************/
 {
 	{ "",		empty_string,	do_send_text,		NOSIMPLESCRIPT| NOCOMPLEXSCRIPT },
 	/*
