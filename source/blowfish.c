@@ -7,6 +7,8 @@
  * Modified by Flier 1998 for ScrollZ
  *
  * Routines for encryption
+ *
+ * $Id: blowfish.c,v 1.2 1998-09-10 17:44:31 f Exp $
  */
 
 #include "irc.h"

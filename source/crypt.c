@@ -30,13 +30,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: crypt.c,v 1.2 1998-09-10 17:44:35 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: crypt.c,v 1.1 1998-09-10 17:31:12 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 #include "crypt.h"

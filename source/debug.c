@@ -26,6 +26,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: debug.c,v 1.2 1998-09-10 17:44:42 f Exp $
  */
 
 /*
@@ -36,12 +38,6 @@
  * int getdlevel();			* returns the debug level..
  * int debuglevel;			* the current level of debugging
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: debug.c,v 1.1 1998-09-10 17:31:12 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"		/* This is where DEBUG is defined or not */
 

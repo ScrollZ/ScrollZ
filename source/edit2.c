@@ -66,6 +66,10 @@
  NewHost              Virtual Hosting, patched in by Zakath
 ******************************************************************************/
 
+/*
+ * $Id: edit2.c,v 1.2 1998-09-10 17:44:46 f Exp $
+ */
+
 #include "irc.h"
 #include "crypt.h"
 #include "vars.h"

@@ -9,6 +9,8 @@
  * Copyright(c) 1995
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
+ *
+ * $Id: cdcc.c,v 1.2 1998-09-10 17:44:33 f Exp $
  */
 
 /* uncomment this if compiling on BSD */

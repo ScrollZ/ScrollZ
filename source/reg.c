@@ -2,13 +2,9 @@
  * Written By Douglas A. Lewis <dalewis@cs.Buffalo.EDU>
  *
  * This file is in the public domain.
+ *
+ * $Id: reg.c,v 1.2 1998-09-10 17:46:06 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: reg.c,v 1.1 1998-09-10 17:31:13 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 

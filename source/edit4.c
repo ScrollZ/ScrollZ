@@ -57,6 +57,10 @@
  ShowKill            This will print out the sucker that last killed you
 ******************************************************************************/
 
+/*
+ * $Id: edit4.c,v 1.2 1998-09-10 17:44:51 f Exp $
+ */
+
 #include "irc.h"
 #include "crypt.h"
 #include "vars.h"

@@ -8,13 +8,9 @@
  * the nickname and type (appropriate for use with IGNORE). 
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
+ *
+ * $Id: flood.c,v 1.2 1998-09-10 17:45:04 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: flood.c,v 1.1 1998-09-10 17:31:13 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 

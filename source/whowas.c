@@ -10,6 +10,8 @@
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
  * Modified by Flier
+ *
+ * $Id: whowas.c,v 1.2 1998-09-10 17:46:28 f Exp $
  */
 
 #include "irc.h"

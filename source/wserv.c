@@ -28,6 +28,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: wserv.c,v 1.2 1998-09-10 17:46:33 f Exp $
  */
 
 /*
@@ -35,12 +37,6 @@
  * before calling wserv, and which ircII also deleted after the
  * connection has been made.
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: wserv.c,v 1.1 1998-09-10 17:31:14 f Exp $";
-#endif
-****************************************************************************/
 
 #include "defs.h"
 

@@ -47,6 +47,10 @@
  CleanUp             Clean up memory on exit
 ******************************************************************************/
 
+/*
+ * $Id: edit6.c,v 1.2 1998-09-10 17:44:56 f Exp $
+ */
+
 #include "irc.h"
 #include "crypt.h"
 #include "vars.h"

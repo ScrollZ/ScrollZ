@@ -20,6 +20,8 @@
  *
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
+ *
+ * $Id: operv.c,v 1.2 1998-09-10 17:45:58 f Exp $
  */
 
 #include "irc.h"

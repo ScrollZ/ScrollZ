@@ -30,13 +30,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: status.c,v 1.2 1998-09-10 17:46:17 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: status.c,v 1.1 1998-09-10 17:31:14 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 

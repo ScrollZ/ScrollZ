@@ -33,6 +33,10 @@
  ReplyWord            Change AutoReply Buffer from IRC
 ******************************************************************************/
 
+/*
+ * $Id: edit3.c,v 1.2 1998-09-10 17:44:49 f Exp $
+ */
+
 #include "irc.h"
 #include "crypt.h"
 #include "vars.h"

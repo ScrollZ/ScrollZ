@@ -31,13 +31,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: whois.c,v 1.2 1998-09-10 17:46:26 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: whois.c,v 1.1 1998-09-10 17:31:13 f Exp $";
-#endif
-****************************************************************************/
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
 

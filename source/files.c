@@ -4,6 +4,7 @@
  *
  * Written by Flier
  *
+ * $Id: files.c,v 1.2 1998-09-10 17:45:02 f Exp $
  */
 
 #include "irc.h"

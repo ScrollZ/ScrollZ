@@ -17,13 +17,9 @@
  * to add transliteration of the Kanji/Katakana sets used in
  * the far east.  8-)
  * Kare H. Pettersson.
+ *
+ * $Id: translat.c,v 1.2 1998-09-10 17:46:22 f Exp $
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: translat.c,v 1.1 1998-09-10 17:31:14 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 

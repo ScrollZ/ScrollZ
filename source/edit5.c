@@ -73,6 +73,10 @@
  HandleEndOfKill     Reports statistics
 ******************************************************************************/
 
+/*
+ * $Id: edit5.c,v 1.2 1998-09-10 17:44:53 f Exp $
+ */
+
 #include "irc.h"
 #include "crypt.h"
 #include "vars.h"

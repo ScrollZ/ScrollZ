@@ -25,6 +25,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * $Id: ircsig.c,v 1.2 1998-09-10 17:45:32 f Exp $
  */
 
 /*
@@ -33,12 +35,6 @@
  * i stole bits of this from w. richard stevens' `advanced programming
  * in the unix environment' -mrg
  */
-
-/**************************** PATCHED by Flier ******************************
-#ifndef lint
-static	char	rcsid[] = "@(#)$Id: ircsig.c,v 1.1 1998-09-10 17:31:13 f Exp $";
-#endif
-****************************************************************************/
 
 #include "irc.h"
 #include "irc_std.h"
