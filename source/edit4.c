@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.29 1999-07-18 12:50:35 f Exp $
+ * $Id: edit4.c,v 1.30 1999-08-07 12:57:27 f Exp $
  */
 
 #include "irc.h"
@@ -410,6 +410,9 @@ ChannelList *chan;
     malloc_strcpy(&(server_list[from_server].LastJoin),tmpbuf);
 #ifndef CELEHOOK
     do_hook(JOIN_ME_LIST,"%s",channel);
+#endif
+#ifdef ACID
+    chan->TryRejoin=0;
 #endif
     return(tmpjoiner);
 }
