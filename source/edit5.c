@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.100 2003-01-08 20:31:16 f Exp $
+ * $Id: edit5.c,v 1.101 2003-01-09 20:12:32 f Exp $
  */
 
 #include "irc.h"
@@ -1093,7 +1093,7 @@ char *subargs;
             oldpwd = new_next_arg(args, &args);
             if (!oldpwd) return;
             if (oldpwd) {
-                oldpwlen = 2 * strlen(oldpwd) + 9;
+                oldpwlen = 2 * strlen(oldpwd) + 16;
                 oldpass = (char *) new_malloc(oldpwlen + 1);
                 EncryptString(oldpass, oldpwd, oldpwd, oldpwlen, 0);
                 bzero(oldpwd, strlen(oldpwd));
@@ -1126,7 +1126,7 @@ void MasterPasswordOld(char *x, char *pass)
     int pwlen;
     char *mastpass;
 
-    pwlen = 2 * strlen(pass) + 9;
+    pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
     EncryptString(mastpass, pass, pass, pwlen, 0);
     if (strcmp(EncryptPassword, mastpass)) {

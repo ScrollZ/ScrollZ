@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.138 2002-11-03 18:06:59 f Exp $
+ * $Id: edit6.c,v 1.139 2003-01-09 20:12:32 f Exp $
  */
 
 #include "irc.h"
@@ -2207,7 +2207,7 @@ char *subargs;
     if (!user) user = new_next_arg(args, &args);
     key = new_next_arg(args, &args);
     if (pass) {
-        pwlen = 2 * strlen(pass) + 9;
+        pwlen = 2 * strlen(pass) + 16;
         mastpass = (char *) new_malloc(pwlen + 1);
         EncryptString(mastpass, pass, pass, pwlen, 0);
         if (strcmp(EncryptPassword, mastpass)) {
@@ -2252,7 +2252,7 @@ void EncryptMasterPass(char *user, char *pass)
     int pwlen;
     char *mastpass;
 
-    pwlen = 2 * strlen(pass) + 9;
+    pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
     EncryptString(mastpass, pass, pass, pwlen, 0);
     if (strcmp(EncryptPassword, mastpass)) {
@@ -2297,7 +2297,7 @@ void EncryptMasterDelUser(char *user, char *pass)
     int pwlen;
     char *mastpass;
 
-    pwlen = 2 * strlen(pass) + 9;
+    pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
     EncryptString(mastpass, pass, pass, pwlen, 0);
     if (strcmp(EncryptPassword, mastpass)) {
@@ -2331,7 +2331,7 @@ void EncryptMasterList(char *flags, char *pass)
     int pwlen;
     char *mastpass;
 
-    pwlen = 2 * strlen(pass) + 9;
+    pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
     EncryptString(mastpass, pass, pass, pwlen, 0);
     if (strcmp(EncryptPassword, mastpass)) {
