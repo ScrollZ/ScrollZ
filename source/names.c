@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.49 2003-04-29 17:52:13 f Exp $
+ * $Id: names.c,v 1.50 2003-10-03 19:01:14 f Exp $
  */
 
 #include "irc.h"
@@ -447,6 +447,13 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
         if (chan)
 /****************************************************************************/
 	{
+/**************************** Patched by Flier ******************************/
+                /* hispano net supports @+nick */
+                if (*nick == '+') {
+                    hasvoice = 1;
+                    nick++;
+                }
+/****************************************************************************/
 		if (*nick == '+')
 		{
 			hasvoice = 1;
@@ -463,13 +470,6 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
 		if (*nick == '@')
 		{
 			nick++;
-/**************************** Patched by Flier ******************************/
-                        /* hispano net supports @+nick */
-                        if (*nick == '+') {
-                            hasvoice = 1;
-                            nick++;
-                        }
-/****************************************************************************/
 			if (!my_stricmp(nick, get_server_nickname(server)) && !((chan->status & CHAN_NAMES) && (chan->status & CHAN_MODE)))
 			{
 				char	*mode =  recreate_mode(chan);
@@ -1943,6 +1943,10 @@ switch_channels(key, ptr)
 	ChannelList *	tmp;
 	char *	s;
 
+/**************************** PATCHED by Flier ******************************/
+        if (!is_server_valid(from_server))
+            return;
+/****************************************************************************/
 	if (server_list[from_server].chan_list)
 	{
 		if (get_channel_by_refnum(0))
