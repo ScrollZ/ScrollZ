@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.95 2001-09-08 16:56:31 f Exp $
+ * $Id: edit6.c,v 1.96 2001-09-10 14:48:31 f Exp $
  */
 
 #include "irc.h"
@@ -2848,9 +2848,16 @@ ChannelList *tmpchan;
 char *TimeStamp(when)
 int when;
 {
+#ifdef WANTANSI
+    char *coloroff=Colors[COLOFF];
+    char *pipecolor=CmdsColors[COLPUBLIC].color2;
+#else
+    char *coloroff="";
+    char *pipecolor="";
+#endif
     static char stampbuf[mybufsize/64];
 
     *stampbuf='\0';
-    if (Stamp>=when) sprintf(stampbuf,"%s|",update_clock(0,0,GET_TIME));
+    if (Stamp>=when) sprintf(stampbuf,"%s%s|%s",update_clock(0,0,GET_TIME),pipecolor,coloroff);
     return(stampbuf);
 }
