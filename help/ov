@@ -1,15 +1,15 @@
-!	 $Id: ov,v 1.4 2003-01-08 20:00:54 f Exp $
+!	 $Id: ov,v 1.5 2003-04-15 19:48:48 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: OV on [nots] [nomodes]|here [nots] [nomodes]|off [nomodes]
+Usage: OV on [ts] [nomodes]|here [nots] [nomodes]|off [nomodes]
   Turns OperVision on/off
 
   When enabled client will create a new window which will receive
   all IRC operator related stuff. If enabled with here IRC
   operator related stuff goes to current window. Time stamping
-  is enabled by default. If NOTS is given, time stamping is
-  disabled. If NOMODES is given, no user modes will be sent.
+  is disabled by default. If TS is given, time stamping is
+  enabled. If NOMODES is given, no user modes will be sent.
