@@ -116,6 +116,12 @@ Meaning of flags:
       some functionality built into the client (requested by Dolphin)
     ! topic in status bar bug where topic for current window's channel
       was displayed in all visible windows (reported by tlund)
+    + CDCC FSEND to -DEXTRAS, it is like CDCC SEND except that it ignores
+      Cdcc queue (requested by arc)
+    + notify now supports grouping of people, see help for more information
+      (requested by KOBAN)
+    + possibility to have one OperVision window for several servers
+      (define MULTI_SERVER_OV in defs.h, requested by MrDev)
 
 ------------------------------------------------------------------------------
 
