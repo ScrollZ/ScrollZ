@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.59 2001-03-27 17:19:36 f Exp $
+ * $Id: edit5.c,v 1.60 2001-04-03 15:59:02 f Exp $
  */
 
 #include "irc.h"
@@ -1803,15 +1803,25 @@ char *command;
 char *args;
 char *subargs;
 {
+    int doall=1;
     char *tmpstr;
+    char *server=NULL;
 
-    if (args && *args) {
-        tmpstr=new_next_arg(args,&args);
-        malloc_strcpy(&StatsFilter,tmpstr);
-        StatsKNumber=0;
-        send_to_server("STATS K %s",args);
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr && *tmpstr) {
+        if (!my_strnicmp(tmpstr,"-TEMP",5)) {
+            doall=0;
+            tmpstr=new_next_arg(args,&args);
+        }
+        if (tmpstr && *tmpstr) {
+            malloc_strcpy(&StatsFilter,tmpstr);
+            StatsKNumber=0;
+            server=new_next_arg(args,&args);
+            send_to_server("STATS %c %s",doall?'K':'k',server?server:"");
+            return;
+        }
     }
-    else PrintUsage("FKLINE filter [server]");
+    PrintUsage("FKLINE [-TEMP] filter [server]");
 }
 
 /* Parses STATS k reply from server */
