@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.16 1999-02-24 20:05:32 f Exp $
+ * $Id: edit4.c,v 1.17 1999-03-09 20:39:41 f Exp $
  */
 
 #include "irc.h"
@@ -316,13 +316,15 @@ ChannelList *tmpchan;
             Ignore(NULL,tmpbuf,tmpbuf);
         }
     }
-    if (tmpjoiner && chan->FriendList && (privs&FLAUTOOP)) {
+    if (tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
         if (privs&FLOP) voice=0;
         else if (privs&FLVOICE) voice=1;
         if (voice>=0) {
+            if ((privs&FLINSTANT))
+                send_to_server("MODE %s +%c %s",channel,voice?'v':'o',nick);
             if (AutoOpDelay) AddDelayOp(channel,nick,voice);
-            else if (ischanop) send_to_server("MODE %s +%c %s",channel,
-                                              voice?'v':'o',nick);
+            else if (ischanop)
+                send_to_server("MODE %s +%c %s",channel,voice?'v':'o',nick);
         }
     }
     return(tmpjoiner);
@@ -2071,8 +2073,10 @@ ChannelList *chan;
         for (tmp=chan->nicks;tmp;tmp=tmp->next) {
             opped=0;
             if (!(tmp->chanop)) {
-                if (tmp->frlist && ((tmp->frlist->privs)&FLAUTOOP) &&
-                    ((tmp->frlist->privs)&FLOP) && !(tmp->frlist->passwd)) {
+                if (tmp->frlist &&
+                   ((tmp->frlist->privs)&FLOP) && !(tmp->frlist->passwd) &&
+                   (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
+                {
                     count++;
                     opped=1;
                     strcat(modebuf,"+o");
@@ -2088,7 +2092,8 @@ ChannelList *chan;
             }
             if (!opped && !(tmp->chanop) && !(tmp->voice)) {
                 if (tmp->frlist && ((tmp->frlist->privs)&FLVOICE) &&
-                    ((tmp->frlist->privs)&FLAUTOOP)) {
+                    (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
+                {
                     countv++;
                     strcat(modebufv,"+v");
                     sprintf(tmpbuf," %s",tmp->nick);
@@ -2116,7 +2121,8 @@ ChannelList *chan;
         for (tmp=chan->nicks;tmp;tmp=tmp->next) {
             done=0;
             if (chan->Bitch && my_stricmp(tmp->nick,mynick) && tmp->chanop &&
-                (!tmp->frlist || (tmp->frlist && !((tmp->frlist->privs)&(FLOP | FLAUTOOP))))) {
+                (!tmp->frlist || (tmp->frlist &&
+                 !((tmp->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))))) {
                 strcat(modebuf,"-o");
                 sprintf(tmpbuf," %s",tmp->nick);
                 malloc_strcat(&tmpmode,tmpbuf);
