@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.44 2000-08-27 18:01:56 f Exp $
+ * $Id: edit.c,v 1.45 2000-08-28 20:25:47 f Exp $
  */
 
 #include "irc.h"
@@ -456,6 +456,9 @@ static	IrcCommand FAR irc_command[] =
   { "BK",  		"BK", 		BanKick, 		SERVERREQ },
 #ifdef EXTRAS
   { "BKI", 		"BKI", 		BanKick, 		SERVERREQ },
+#endif
+  { "BKLIST", 		"BKLIST", 	ChannelCommand,		SERVERREQ },
+#ifdef EXTRAS
   { "BKT", 		"BKT", 		BanKick, 		SERVERREQ },
 #endif
  	{ "BYE",	"QUIT",		e_quit,			NONOVICEABBREV },

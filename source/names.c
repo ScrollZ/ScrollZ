@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.17 2000-08-26 10:52:35 f Exp $
+ * $Id: names.c,v 1.18 2000-08-28 20:25:47 f Exp $
  */
 
 #include "irc.h"
@@ -299,6 +299,7 @@ add_channel(channel, server, connected, copy)
 #endif
                     new->CompressModes=CompressModes?CheckChannel(channel,CompressModesChannels):0;
                     new->Stamp=Stamp?CheckChannel(channel,StampChannels):0;
+                    new->BKList=BKList?CheckChannel(channel,BKChannels):0;
                     new->TryRejoin=0;
                     new->banlist=NULL;
                     new->topicstr=NULL;

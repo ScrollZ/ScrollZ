@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.18 2000-08-27 18:01:56 f Exp $
+ * $Id: myvars.h,v 1.19 2000-08-28 20:25:47 f Exp $
  */
 
 #include "mystructs.h"
@@ -150,6 +150,7 @@ extern char   *IdleKickChannels;
 extern char   *CompressModesChannels;
 extern char   *SignoffChannels;
 extern char   *StampChannels;
+extern char   *BKChannels;
 #if defined(EXTRAS) || defined(FLIER)
 extern char   *AutoInvChannels;
 #endif
@@ -265,6 +266,7 @@ extern int    ShowSignoffChan;
 extern int    Stamp;
 extern int    CdccVerbose;
 extern int    ARinWindow;
+extern int    BKList;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

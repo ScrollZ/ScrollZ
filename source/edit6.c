@@ -60,7 +60,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.66 2000-08-27 18:01:56 f Exp $
+ * $Id: edit6.c,v 1.67 2000-08-28 20:25:47 f Exp $
  */
 
 #include "irc.h"
@@ -178,6 +178,7 @@ static struct commands {
     { "SHOWAWAY"    , &ShowAway       , &ShowAwayChannels      , "Notifying on away/back"     , NULL },
     { "COMPRESS"    , &CompressModes  , &CompressModesChannels , "Compress modes"             , NULL },
     { "STAMP"       , &Stamp          , &StampChannels         , "Time stamp publics"         , NULL },
+    { "BKLIST"      , &BKList         , &BKChannels            , "Shit list"                  , NULL },
 #ifdef EXTRAS
     { "CHSIGNOFF"   , &ShowSignoffChan, &SignoffChannels       , "Show channels in signoff"   , NULL },
 #endif
@@ -1322,8 +1323,11 @@ int setting;
                 case 15: chan->Stamp=
                     Stamp?CheckChannel(chan->channel,StampChannels):0;
                     break;
+                case 16: chan->BKList=
+                    BKList?CheckChannel(chan->channel,BKChannels):0;
+                    break;
 #ifdef EXTRAS
-                case 16: chan->IdleKick=
+                case 99: chan->IdleKick=
                     IdleKick?CheckChannel(chan->channel,IdleKickChannels):0;
                 break;
 #endif
@@ -1373,8 +1377,11 @@ int setting;
             case 15: whowas->channellist->Stamp=
                 Stamp?CheckChannel(whowas->channellist->channel,StampChannels):0;
                 break;
+            case 16: whowas->channellist->BKList=
+                BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
+                break;
 #ifdef EXTRAS
-            case 16: whowas->channellist->IdleKick=
+            case 99: whowas->channellist->IdleKick=
                 IdleKick?CheckChannel(whowas->channellist->channel,IdleKickChannels):0;
                 break;
 #endif
@@ -1464,8 +1471,8 @@ char *subargs;
         PrintSetting("Idle kick",IdleKick==1?"ON":"AUTO",
                      " for channels :",IdleKickChannels);
     else PrintSetting("Idle kick","OFF",empty_string,empty_string);
-    /* 16 is IdleKick, look at SetChannels() */
-    SetChannels(16);
+    /* 99 is IdleKick, look at SetChannels() */
+    SetChannels(99);
 }
 #endif /* EXTRAS */
 
@@ -2093,6 +2100,7 @@ void CleanUpScrollZVars() {
 #endif
     new_free(&CompressModesChannels);
     new_free(&StampChannels);
+    new_free(&BKChannels);
     new_free(&EncryptPassword);
 #ifdef OPER
     new_free(&StatsFilter);

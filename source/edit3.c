@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.46 2000-08-27 18:01:56 f Exp $
+ * $Id: edit3.c,v 1.47 2000-08-28 20:25:47 f Exp $
  */
 
 #include "irc.h"
@@ -1054,6 +1054,20 @@ char *subargs;
             break;
     }
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
+    strcpy(tmpbuf1,"Friend list      : ");
+    if (FriendList)
+        sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+                Colors[COLOFF],CmdsColors[COLSETTING].color5,
+                FriendListChannels,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    say("%s%s",tmpbuf1,tmpbuf2);
+    strcpy(tmpbuf1,"Shit list        : ");
+    if (BKList)
+        sprintf(tmpbuf2,"%sON%s for %s%s%s",CmdsColors[COLSETTING].color2,
+                Colors[COLOFF],CmdsColors[COLSETTING].color5,
+                BKChannels,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    say("%s%s",tmpbuf1,tmpbuf2);
 #ifdef EXTRAS
     strcpy(tmpbuf1,"Idle kicks       : ");
     if (IdleKick)
@@ -1229,6 +1243,18 @@ char *subargs;
             break;
     }
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
+    strcpy(tmpbuf1,"Friend list      : ");
+    if (FriendList)
+        sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,
+                FriendListChannels,bold);
+    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    say("%s%s",tmpbuf1,tmpbuf2);
+    strcpy(tmpbuf1,"Shit list        : ");
+    if (BKList)
+        sprintf(tmpbuf2,"%cON%c for %c%s%c",bold,bold,bold,
+                BKChannels,bold);
+    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
+    say("%s%s",tmpbuf1,tmpbuf2);
 #ifdef EXTRAS
     strcpy(tmpbuf1,"Idle kicks       : ");
     if (IdleKick)
@@ -2164,6 +2190,8 @@ int ScrollZLoad()
 #endif
         else if (!strcmp("STAMP",tmpbuf3))
             ChannelsSet(&pointer,&Stamp,&StampChannels,&loaderror,lineno,"STAMP",NULL);
+        else if (!strcmp("BANKICKLIST",tmpbuf3))
+            ChannelsSet(&pointer,&BKList,&BKChannels,&loaderror,lineno,"BANKICKLIST",NULL);
         else if (!strcmp("NOTIFYSTR",tmpbuf3)) {
             StringSet(pointer,&CelerityNtfy,&loaderror,lineno,"NOTIFYSTR");
             set_string_var(NOTIFY_STRING_VAR,CelerityNtfy);
@@ -2353,6 +2381,7 @@ char *subargs;
 #endif
             tmpchan->CompressModes=CompressModes?CheckChannel(tmpchan->channel,CompressModesChannels):0;
             tmpchan->Stamp=Stamp?CheckChannel(tmpchan->channel,StampChannels):0;
+            tmpchan->BKList=BKList?CheckChannel(tmpchan->channel,BKChannels):0;
         }
     for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
         whowas->channellist->AutoRejoin=
@@ -2388,6 +2417,8 @@ char *subargs;
             CompressModes?CheckChannel(whowas->channellist->channel,CompressModesChannels):0;
         whowas->channellist->Stamp=
             Stamp?CheckChannel(whowas->channellist->channel,StampChannels):0;
+        whowas->channellist->BKList=
+            BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
     }
 }
 
@@ -2462,6 +2493,7 @@ void InitVars() {
     malloc_strcpy(&KickOnFloodChannels,"*");
     malloc_strcpy(&KickOnBanChannels,"*");
     malloc_strcpy(&FriendListChannels,"*");
+    malloc_strcpy(&BKChannels,"*");
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
     defban='B';
@@ -2559,6 +2591,7 @@ void InitVars() {
 #endif
     DCCWarning=1;
     Stamp=0;
+    BKList=1;
     CdccVerbose=1;
     ARinWindow=0;
     usersloaded=0;

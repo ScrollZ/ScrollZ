@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.10 2000-08-21 18:41:40 f Exp $
+ * $Id: alias.c,v 1.11 2000-08-28 20:25:47 f Exp $
  */
 
 #include "irc.h"
@@ -4516,6 +4516,7 @@ u_char *input;
         { "COMPRESS"       , 3, &CompressModes   , &CompressModesChannels },
         { "STAMP"          , 3, &Stamp           , &StampChannels         },
         { "ARINWIN"        , 1, &ARinWindow      , NULL                   },
+        { "BKLIST"         , 3, &BKList          , &BKChannels            },
 #ifdef WANTANSI
         { "MIRC"           , 1, &DisplaymIRC     , NULL                   },
 #endif
