@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.40 2002-04-28 16:34:29 f Exp $
+ * $Id: dcc.c,v 1.41 2002-12-05 20:18:01 f Exp $
  */
 
 #include "irc.h"
@@ -1361,8 +1361,14 @@ dcc_filesend(args)
 		/*getcwd(FileBuf, sizeof(FileBuf));
 		strcat(FileBuf, "/");
 		strcat(FileBuf, filename);*/
-                if (CdccUlDir) strmcpy(FileBuf,CdccUlDir,sizeof(FileBuf));
-                else getcwd(FileBuf, sizeof(FileBuf));
+                *FileBuf = '\0';
+                if (CdccUlDir) {
+                    snprintf(FileBuf, sizeof(FileBuf), "%s/", CdccUlDir);
+                    if (strncmp(filename, FileBuf, strlen(FileBuf)))
+                        strmcpy(FileBuf, CdccUlDir, sizeof(FileBuf));
+                    else *FileBuf = '\0';
+                }
+                if (!(*FileBuf)) getcwd(FileBuf, sizeof(FileBuf));
 		strmcat(FileBuf, "/", sizeof(FileBuf));
 		strmcat(FileBuf, filename, sizeof(FileBuf));
 /****************************************************************************/
@@ -1444,8 +1450,14 @@ dcc_resend(args)
 	}
 	else
 	{
-                if (CdccUlDir) strmcpy(FileBuf, CdccUlDir, sizeof(FileBuf));
-                else getcwd(FileBuf, sizeof(FileBuf));
+                *FileBuf = '\0';
+                if (CdccUlDir) {
+                    snprintf(FileBuf, sizeof(FileBuf), "%s/", CdccUlDir);
+                    if (strncmp(filename, FileBuf, strlen(FileBuf)))
+                        strmcpy(FileBuf, CdccUlDir, sizeof(FileBuf));
+                    else *FileBuf = '\0';
+                }
+                if (!(*FileBuf)) getcwd(FileBuf, sizeof(FileBuf));
 		strmcat(FileBuf, "/", sizeof(FileBuf));
 		strmcat(FileBuf, filename, sizeof(FileBuf));
 	}
