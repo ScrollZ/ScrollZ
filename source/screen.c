@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.9 1999-10-04 19:21:37 f Exp $
+ * $Id: screen.c,v 1.10 2000-03-08 17:22:08 f Exp $
  */
 
 #include "irc.h"
@@ -2055,7 +2055,10 @@ create_additional_screen()
 		else if (screen_type == ST_XTERM)
 		{
 			int	lines,
-				columns,
+/**************************** PATCHED by Flier ******************************/
+				/*columns,*/
+				columns;
+/****************************************************************************/
 			char	geom[20],
 				*args[64],
 				*ss,
