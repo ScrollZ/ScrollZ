@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.20 1999-06-14 16:25:23 f Exp $
+ * $Id: cdcc.c,v 1.21 1999-09-12 10:47:11 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1400,7 +1400,7 @@ char *line;
             if (tmp->minspeed>0.0) fprintf(fp,"SPEED %.2f\n",tmp->minspeed);
             fprintf(fp,"GETS %d\n",tmp->gets);
             for (tmpfile=tmp->files;tmpfile;tmpfile=tmpfile->next)
-                fprintf(fp,"FILE %s/%s\n",tmpfile->path,tmpfile->file);
+                fprintf(fp,"FILE \"%s/%s\"\n",tmpfile->path,tmpfile->file);
             count++;
         }
         fclose(fp);
