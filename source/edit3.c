@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.30 1999-08-15 10:20:10 f Exp $
+ * $Id: edit3.c,v 1.31 1999-08-15 10:29:31 f Exp $
  */
 
 #include "irc.h"
@@ -1523,20 +1523,20 @@ char *string2;
 int  lineno;
 {
 #ifdef WANTANSI
-    say("%sError%s in ScrollZ.save : %s%s%s %s, %sline %d%s",
+    say("%sError%s in ScrollZ.save: %s%s%s %s, %sline %d%s",
         CmdsColors[COLWARNING].color1,Colors[COLOFF],
         CmdsColors[COLWARNING].color2,string1,Colors[COLOFF],string2,
         CmdsColors[COLWARNING].color3,lineno,Colors[COLOFF]);
 #else
-    say("%cError%c in ScrollZ.save : %s %s, line %d",bold,bold,string1,string2,lineno);
+    say("%cError%c in ScrollZ.save: %s %s, line %d",bold,bold,string1,string2,lineno);
 #endif
 }
 
 /* Sets on/off values from ScrollZ.save */
-void OnOffSet(pointer,variable,error,lineno,command)
+void OnOffSet(pointer,variable,loaderror,lineno,command)
 char **pointer;
 int  *variable;
-int  *error;
+int  *loaderror;
 int  lineno;
 char *command;
 {
@@ -1554,15 +1554,15 @@ char *command;
         else if (!strcmp(command,"CDCC VERBOSE"))
             PrintError("must be ON/OFF/VERBOSE",tmpbuf,lineno);
         else PrintError("must be ON/OFF",tmpbuf,lineno);
-        *error=1;
+        *loaderror=1;
     }
 }
 
 /* Sets number values from ScrollZ.save */
-void NumberSet(pointer,variable,error,lineno,command)
+void NumberSet(pointer,variable,loaderror,lineno,command)
 char **pointer;
 int  *variable;
-int  *error;
+int  *loaderror;
 int  lineno;
 char *command;
 {
@@ -1575,15 +1575,15 @@ char *command;
     else {
         sprintf(tmpbuf,"in %s",command);
         PrintError("must be NUMBER",tmpbuf,lineno);
-        *error=1;
+        *loaderror=1;
     }
 }
 
 /* Sets dir values from ScrollZ.save */
-void DirSet(pointer,variable,error,lineno,message,command)
+void DirSet(pointer,variable,loaderror,lineno,message,command)
 char **pointer;
 char **variable;
-int  *error;
+int  *loaderror;
 int  lineno;
 char *message;
 char *command;
@@ -1596,15 +1596,15 @@ char *command;
     else {
         sprintf(tmpbuf,"in %s",command);
         PrintError(message,tmpbuf,lineno);
-        *error=1;
+        *loaderror=1;
     }
 }
 
 /* Sets string values from ScrollZ.save */
-void StringSet(pointer,variable,error,lineno,command)
+void StringSet(pointer,variable,loaderror,lineno,command)
 char *pointer;
 char **variable;
-int  *error;
+int  *loaderror;
 int  lineno;
 char *command;
 {
@@ -1615,16 +1615,16 @@ char *command;
     else {
         sprintf(tmpbuf,"in %s",command);
         PrintError("must be STRING",tmpbuf,lineno);
-        *error=1;
+        *loaderror=1;
     }
 }
 
 /* Sets on channels/off values from ScrollZ.save */
-void ChannelsSet(pointer,variable,strvar,error,lineno,command,message)
+void ChannelsSet(pointer,variable,strvar,loaderror,lineno,command,message)
 char **pointer;
 int  *variable;
 char **strvar;
-int  *error;
+int  *loaderror;
 int  lineno;
 char *command;
 char *message;
@@ -1642,7 +1642,7 @@ char *message;
             if (!message) message="must be ON CHANLIST";
             sprintf(tmpbuf,"in %s",command);
             PrintError(message,tmpbuf,lineno);
-            *error=1;
+            *loaderror=1;
         }
     }
     else if (!my_stricmp(tmpbuf,"OFF")) {
@@ -1652,7 +1652,7 @@ char *message;
     else {
         sprintf(tmpbuf,"in %s",command);
         PrintError("must be OFF",tmpbuf,lineno);
-        *error=1;
+        *loaderror=1;
     }
 }
 
@@ -1660,10 +1660,10 @@ char *message;
 int ScrollZLoad()
 {
     int  i;
-    int  error=0;
     int  lineno;
     int  number;
     int  ulnumber=0;
+    int  loaderror=0;
     char *pointer;
     char *chanlist=NULL;
     char *filepath;
@@ -1687,10 +1687,10 @@ int ScrollZLoad()
     filepath=OpenCreateFile("ScrollZ.save",0);
     if (!filepath || (usfile=fopen(filepath,"r"))==NULL) {
 #ifdef WANTANSI
-        say("%sError%s: Can't open file ScrollZ.save !",
+        say("%sError%s: Can't open file ScrollZ.save!",
             CmdsColors[COLWARNING].color1,Colors[COLOFF]);
 #else
-        say("Can't open file ScrollZ.save");
+        say("Can't open file ScrollZ.save!");
 #endif
         usersloaded=1;
         return(1);
@@ -1705,10 +1705,10 @@ int ScrollZLoad()
         if (!strcmp("ADDF",tmpbuf3)) {
             if ((friendnew=(struct friends *) new_malloc(sizeof(struct friends)))==NULL) {
 #ifdef WANTANSI
-                say("%sError%s: Not enough memory to load friend list !",
+                say("%sError%s: Not enough memory to load friend list!",
                     CmdsColors[COLWARNING].color1,Colors[COLOFF]);
 #else
-                say("Not enough memory to load friend list !");
+                say("Not enough memory to load friend list!");
 #endif
                 fclose(usfile);
                 usersloaded=1;
@@ -1723,14 +1723,14 @@ int ScrollZLoad()
             else {
                 new_free(&friendnew);
                 PrintError("missing USERHOST","in ADDF",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             NextArg(pointer,&pointer,tmpbuf3);
             if (!(*tmpbuf3)) {
                 new_free(&friendnew);
                 PrintError("missing ACCESS","in ADDF",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             if (is_number(tmpbuf3)) {
@@ -1744,7 +1744,7 @@ int ScrollZLoad()
             else {
                 new_free(&friendnew);
                 PrintError("missing CHANLIST","in ADDF",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             NextArg(pointer,&pointer,tmpbuf3);
@@ -1761,10 +1761,10 @@ int ScrollZLoad()
         else if (!strcmp("ADDBK",tmpbuf3)) {
             if ((abknew=(struct autobankicks *) new_malloc(sizeof(struct autobankicks)))==NULL) {
 #ifdef WANTANSI
-                say("%sError%s: Not enough memory to load shit list !",
+                say("%sError%s: Not enough memory to load shit list!",
                     CmdsColors[COLWARNING].color1,Colors[COLOFF]);
 #else
-                say("Not enough memory to load shit list !",lineno);
+                say("Not enough memory to load shit list!",lineno);
 #endif
                 fclose(usfile);
                 usersloaded=1;
@@ -1780,14 +1780,14 @@ int ScrollZLoad()
             else {
                 new_free(&abknew);
                 PrintError("missing USERHOST","in ADDBK",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             NextArg(pointer,&pointer,tmpbuf3);
             if (!(*tmpbuf3)) {
                 new_free(&abknew);
                 PrintError("missing SHIT","in ADDBK",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             if (is_number(tmpbuf3)) {
@@ -1801,7 +1801,7 @@ int ScrollZLoad()
             else {
                 new_free(&abknew);
                 PrintError("missing CHANLIST","in ADDBK",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             while (*pointer==' ') pointer++;
@@ -1820,16 +1820,16 @@ int ScrollZLoad()
             }
             else {
                 PrintError("missing NICK(s)","in ADDN",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("ADDW",tmpbuf3)) {
             if ((wordnew=(struct words *) new_malloc(sizeof(struct words)))==NULL) {
 #ifdef WANTANSI
-                say("%sError%s: Not enough memory to load word kick list !",
+                say("%sError%s: Not enough memory to load word kick list!",
                     CmdsColors[COLWARNING].color1,Colors[COLOFF]);
 #else
-                say("Not enough memory to load word kick list !");
+                say("Not enough memory to load word kick list!");
 #endif
                 fclose(usfile);
                 usersloaded=1;
@@ -1843,14 +1843,14 @@ int ScrollZLoad()
             if (*tmpbuf3) malloc_strcpy(&(wordnew->channels),tmpbuf3);
             else {
                 PrintError("missing CHANLIST","in ADDW",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             NextArg(pointer,&pointer,tmpbuf3);
             if (*tmpbuf3) malloc_strcpy(&(wordnew->word),tmpbuf3);
             else {
                 PrintError("missing WORD","in ADDW",lineno);
-                error=1;
+                loaderror=1;
                 continue;
             }
             while (pointer && *pointer && isspace(*pointer)) pointer++;
@@ -1863,32 +1863,32 @@ int ScrollZLoad()
                             (int (*) _((List *, List *))) AddLast);
         }
         else if (!strcmp("EXTMES",tmpbuf3))
-            OnOffSet(&pointer,&ExtMes,&error,lineno,"EXTMES");
+            OnOffSet(&pointer,&ExtMes,&loaderror,lineno,"EXTMES");
         else if (!strcmp("NHPROT",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             number=NHProt;
             if (!my_stricmp(tmpbuf3,"ON")) NHProt=1;
             else if (!my_stricmp(tmpbuf3,"OFF")) NHProt=0;
-            else error=2;
-            if (error!=2) {
+            else loaderror=2;
+            if (loaderror!=2) {
                 if (NHProt) {
                     NextArg(pointer,&pointer,tmpbuf2);
                     if (*tmpbuf2) chanlist=tmpbuf2;
-                    else error=2;
+                    else loaderror=2;
                 }
-                if (error!=2) {
+                if (loaderror!=2) {
                     NextArg(pointer,&pointer,tmpbuf3);
                     if (*tmpbuf3) {
                         if (!my_stricmp(tmpbuf3,"QUIET")) NHDisp=0;
                         else if (!my_stricmp(tmpbuf3,"MEDIUM")) NHDisp=1;
                         else if (!my_stricmp(tmpbuf3,"FULL")) NHDisp=2;
-                        else error=2;
+                        else loaderror=2;
                     }
-                    else error=2;
+                    else loaderror=2;
                 }
-                if (error!=2) malloc_strcpy(&NHProtChannels,chanlist);
+                if (loaderror!=2) malloc_strcpy(&NHProtChannels,chanlist);
             }
-            if (error==2) {
+            if (loaderror==2) {
                 NHProt=number;
                 PrintError("must be ON CHANLIST/OFF QUIET/MEDIUM/FULL","in NHPROT",lineno);
             }
@@ -1902,7 +1902,7 @@ int ScrollZLoad()
             else if (!my_stricmp(tmpbuf3,"SCREW")) defban='S';
             else {
                 PrintError("must be NORMAL/BETTER/HOST/SCREW","in BANTYPE",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("CDCC",tmpbuf3)) {
@@ -1917,77 +1917,77 @@ int ScrollZLoad()
                 if (*tmpbuf && is_number(tmpbuf)) CdccLimit=number;
                 else {
                     PrintError("must be NUMBER","in CDCC LIMIT",lineno);
-                    error=1;
+                    loaderror=1;
                 }
                 NextArg(pointer,&pointer,tmpbuf);
                 number=atoi(tmpbuf);
                 if (*tmpbuf && is_number(tmpbuf)) CdccQueueLimit=number;
             }
             else if (!strcmp("IDLE",tmpbuf3))
-                NumberSet(&pointer,&CdccIdle,&error,lineno,"CDCC IDLE");
+                NumberSet(&pointer,&CdccIdle,&loaderror,lineno,"CDCC IDLE");
             else if (!strcmp("AUTOGET",tmpbuf3))
-                OnOffSet(&pointer,&AutoGet,&error,lineno,"CDCC AUTOGET");
+                OnOffSet(&pointer,&AutoGet,&loaderror,lineno,"CDCC AUTOGET");
             else if (!strcmp("SECURE",tmpbuf3))
-                OnOffSet(&pointer,&Security,&error,lineno,"CDCC SECURE");
+                OnOffSet(&pointer,&Security,&loaderror,lineno,"CDCC SECURE");
             else if (!strcmp("PTIME",tmpbuf3))
-                NumberSet(&pointer,&PlistTime,&error,lineno,"CDCC PTIME");
+                NumberSet(&pointer,&PlistTime,&loaderror,lineno,"CDCC PTIME");
             else if (!strcmp("NTIME",tmpbuf3))
-                NumberSet(&pointer,&NlistTime,&error,lineno,"CDCC NTIME");
+                NumberSet(&pointer,&NlistTime,&loaderror,lineno,"CDCC NTIME");
             else if (!strcmp("CHANNELS",tmpbuf3))
-                StringSet(pointer,&CdccChannels,&error,lineno,"CDCC CHANNELS");
+                StringSet(pointer,&CdccChannels,&loaderror,lineno,"CDCC CHANNELS");
             else if (!strcmp("LONGSTATUS",tmpbuf3))
-                OnOffSet(&pointer,&LongStatus,&error,lineno,"CDCC LONGSTATUS");
+                OnOffSet(&pointer,&LongStatus,&loaderror,lineno,"CDCC LONGSTATUS");
             else if (!strcmp("OVERWRITE",tmpbuf3))
-                OnOffSet(&pointer,&CdccOverWrite,&error,lineno,"CDCC OVERWRITE");
+                OnOffSet(&pointer,&CdccOverWrite,&loaderror,lineno,"CDCC OVERWRITE");
             else if (!strcmp("STATUS",tmpbuf3))
-                OnOffSet(&pointer,&ShowDCCStatus,&error,lineno,"CDCC STATUS");
+                OnOffSet(&pointer,&ShowDCCStatus,&loaderror,lineno,"CDCC STATUS");
             else if (!strcmp("STATS",tmpbuf3))
-                OnOffSet(&pointer,&CdccStats,&error,lineno,"CDCC STATS");
+                OnOffSet(&pointer,&CdccStats,&loaderror,lineno,"CDCC STATS");
             else if (!strcmp("VERBOSE",tmpbuf3))
-                OnOffSet(&pointer,&CdccVerbose,&error,lineno,"CDCC VERBOSE");
+                OnOffSet(&pointer,&CdccVerbose,&loaderror,lineno,"CDCC VERBOSE");
             else if (!strcmp("WARNING",tmpbuf3))
-                OnOffSet(&pointer,&DCCWarning,&error,lineno,"CDCC WARNING");
+                OnOffSet(&pointer,&DCCWarning,&loaderror,lineno,"CDCC WARNING");
             else if (!strcmp("ULDIR",tmpbuf3))
-                DirSet(&pointer,&CdccUlDir,&error,lineno,NULL,"CDCC ULDIR");
+                DirSet(&pointer,&CdccUlDir,&loaderror,lineno,NULL,"CDCC ULDIR");
             else if (!strcmp("DLDIR",tmpbuf3))
-                DirSet(&pointer,&CdccDlDir,&error,lineno,NULL,"CDCC DLDIR");
+                DirSet(&pointer,&CdccDlDir,&loaderror,lineno,NULL,"CDCC DLDIR");
 #ifdef EXTRA_STUFF
             else if (!strcmp("E",tmpbuf3))
-                DirSet(&pointer,&EString,&error,lineno,"missing STRING","CDCC E");
+                DirSet(&pointer,&EString,&loaderror,lineno,"missing STRING","CDCC E");
             else if (!strcmp("M",tmpbuf3))
-                OnOffSet(&pointer,&RenameFiles,&error,lineno,"CDCC M");
+                OnOffSet(&pointer,&RenameFiles,&loaderror,lineno,"CDCC M");
 #endif
         }
         else if (!strcmp("DEOPSENSOR",tmpbuf3))
-            NumberSet(&pointer,&DeopSensor,&error,lineno,"DEOPSENSOR");
+            NumberSet(&pointer,&DeopSensor,&loaderror,lineno,"DEOPSENSOR");
         else if (!strcmp("KICKSENSOR",tmpbuf3))
-            NumberSet(&pointer,&KickSensor,&error,lineno,"KICKSENSOR");
+            NumberSet(&pointer,&KickSensor,&loaderror,lineno,"KICKSENSOR");
         else if (!strcmp("NICKSENSOR",tmpbuf3))
-            NumberSet(&pointer,&NickSensor,&error,lineno,"NICKSENSOR");
+            NumberSet(&pointer,&NickSensor,&loaderror,lineno,"NICKSENSOR");
         else if (!strcmp("DEOPTIMER",tmpbuf3))
-            NumberSet(&pointer,&MDopTimer,&error,lineno,"DEOPTIMER");
+            NumberSet(&pointer,&MDopTimer,&loaderror,lineno,"DEOPTIMER");
         else if (!strcmp("KICKTIMER",tmpbuf3))
-            NumberSet(&pointer,&KickTimer,&error,lineno,"KICKTIMER");
+            NumberSet(&pointer,&KickTimer,&loaderror,lineno,"KICKTIMER");
         else if (!strcmp("NICKTIMER",tmpbuf3))
-            NumberSet(&pointer,&NickTimer,&error,lineno,"NICKTIMER");
+            NumberSet(&pointer,&NickTimer,&loaderror,lineno,"NICKTIMER");
         else if (!strcmp("AUTOAWTIME",tmpbuf3))
-            NumberSet(&pointer,&AutoAwayTime,&error,lineno,"AUTOAWTIME");
+            NumberSet(&pointer,&AutoAwayTime,&loaderror,lineno,"AUTOAWTIME");
         else if (!strcmp("IGNORETIME",tmpbuf3))
-            NumberSet(&pointer,&IgnoreTime,&error,lineno,"IGNORETIME");
+            NumberSet(&pointer,&IgnoreTime,&loaderror,lineno,"IGNORETIME");
         else if (!strcmp("SHITIGNORETIME",tmpbuf3))
-            NumberSet(&pointer,&ShitIgnoreTime,&error,lineno,"SHITIGNORETIME");
+            NumberSet(&pointer,&ShitIgnoreTime,&loaderror,lineno,"SHITIGNORETIME");
 #ifdef EXTRAS
         else if (!strcmp("IDLETIME",tmpbuf3))
-            NumberSet(&pointer,&IdleTime,&error,lineno,"IDLETIME");
+            NumberSet(&pointer,&IdleTime,&loaderror,lineno,"IDLETIME");
 #endif
         else if (!strcmp("NICKWATCH",tmpbuf3))
-            ChannelsSet(&pointer,&NickWatch,&NickWatchChannels,&error,lineno,"NICKWATCH",NULL);
+            ChannelsSet(&pointer,&NickWatch,&NickWatchChannels,&loaderror,lineno,"NICKWATCH",NULL);
         else if (!strcmp("MDOPWATCH",tmpbuf3))
-            ChannelsSet(&pointer,&MDopWatch,&MDopWatchChannels,&error,lineno,"MDOPWATCH",NULL);
+            ChannelsSet(&pointer,&MDopWatch,&MDopWatchChannels,&loaderror,lineno,"MDOPWATCH",NULL);
         else if (!strcmp("KICKWATCH",tmpbuf3))
-            ChannelsSet(&pointer,&KickWatch,&KickWatchChannels,&error,lineno,"KICKWATCH",NULL);
+            ChannelsSet(&pointer,&KickWatch,&KickWatchChannels,&loaderror,lineno,"KICKWATCH",NULL);
         else if (!strcmp("AUTOREJOIN",tmpbuf3))
-            ChannelsSet(&pointer,&AutoRejoin,&AutoRejoinChannels,&error,lineno,"AUTOREJOIN",NULL);
+            ChannelsSet(&pointer,&AutoRejoin,&AutoRejoinChannels,&loaderror,lineno,"AUTOREJOIN",NULL);
         else if (!strcmp("AUTOJOININV",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if ((!my_stricmp(tmpbuf3,"ON")) || (!my_stricmp(tmpbuf3,"AUTO"))) {
@@ -1997,41 +1997,41 @@ int ScrollZLoad()
                 if (*tmpbuf3) malloc_strcpy(&AutoJoinChannels,tmpbuf3);
                 else {
                     PrintError("must be ON/AUTO CHANLIST","in AUTOJOININV",lineno);
-                    error=1;
+                    loaderror=1;
                 }
             }
             else if (!my_stricmp(tmpbuf3,"OFF")) AutoJoinOnInv=0;
             else {
                 PrintError("must be OFF","in AUTOJOINONINV",lineno);
-                error=1;
+                loaderror=1;
             }
         }
 #if defined(EXTRAS) || defined(FLIER)
         else if (!strcmp("AUTOINV",tmpbuf3))
-            ChannelsSet(&pointer,&AutoInv,&AutoInvChannels,&error,lineno,"AUTOINV",NULL);
+            ChannelsSet(&pointer,&AutoInv,&AutoInvChannels,&loaderror,lineno,"AUTOINV",NULL);
 #endif
         else if (!strcmp("FLOODPROT",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"MAX")) {
                 NextArg(pointer,&pointer,tmpbuf3);
-                if (!is_number(tmpbuf3) || (FloodMessages=atoi(tmpbuf3))<0) error=3;
+                if (!is_number(tmpbuf3) || (FloodMessages=atoi(tmpbuf3))<0) loaderror=3;
                 NextArg(pointer,&pointer,tmpbuf3);
-                if (!is_number(tmpbuf3) || (FloodSeconds=atoi(tmpbuf3))<0) error=3;
-                if (error!=3) FloodProt=2;
+                if (!is_number(tmpbuf3) || (FloodSeconds=atoi(tmpbuf3))<0) loaderror=3;
+                if (loaderror!=3) FloodProt=2;
                 else {
                     PrintError("must be ON/OFF or MAX #messages #seconds","in FLOODPROT",lineno);
-                    error=1;
+                    loaderror=1;
                 }
             }
             else if (!my_stricmp(tmpbuf3,"ON")) FloodProt=1;
             else if (!my_stricmp(tmpbuf3,"OFF")) FloodProt=0;
             else {
                 PrintError("must be ON/OFF or MAX #messages #seconds","in FLOODPROT",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("SERVNOTICE",tmpbuf3))
-            OnOffSet(&pointer,&ServerNotice,&error,lineno,"SERVNOTICE");
+            OnOffSet(&pointer,&ServerNotice,&loaderror,lineno,"SERVNOTICE");
         else if (!strcmp("CTCPCLOAKING",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"ON")) CTCPCloaking=1;
@@ -2039,50 +2039,50 @@ int ScrollZLoad()
             else if (!my_stricmp(tmpbuf3,"OFF")) CTCPCloaking=0;
             else {
                 PrintError("must be ON/OFF/HIDE","in CTCPCLOAKING",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("SHOWFAKES",tmpbuf3))
-            ChannelsSet(&pointer,&ShowFakes,&ShowFakesChannels,&error,lineno,"SHOWFAKES",NULL);
+            ChannelsSet(&pointer,&ShowFakes,&ShowFakesChannels,&loaderror,lineno,"SHOWFAKES",NULL);
         else if (!strcmp("SHOWAWAY",tmpbuf3))
-            ChannelsSet(&pointer,&ShowAway,&ShowAwayChannels,&error,lineno,"SHOWAWAY",NULL);
+            ChannelsSet(&pointer,&ShowAway,&ShowAwayChannels,&loaderror,lineno,"SHOWAWAY",NULL);
         else if (!strcmp("DEFSERVER",tmpbuf3))
-            StringSet(pointer,&DefaultServer,&error,lineno,"DEFSERVER");
+            StringSet(pointer,&DefaultServer,&loaderror,lineno,"DEFSERVER");
         else if (!strcmp("DEFSIGNOFF",tmpbuf3))
-            StringSet(pointer,&DefaultSignOff,&error,lineno,"DEFSIGNOFF");
+            StringSet(pointer,&DefaultSignOff,&loaderror,lineno,"DEFSIGNOFF");
         else if (!strcmp("DEFSETAWAY",tmpbuf3))
-            StringSet(pointer,&DefaultSetAway,&error,lineno,"DEFSETAWAY");
+            StringSet(pointer,&DefaultSetAway,&loaderror,lineno,"DEFSETAWAY");
         else if (!strcmp("DEFSETBACK",tmpbuf3))
-            StringSet(pointer,&DefaultSetBack,&error,lineno,"DEFSETBACK");
+            StringSet(pointer,&DefaultSetBack,&loaderror,lineno,"DEFSETBACK");
         else if (!strcmp("DEFUSERINFO",tmpbuf3))
-            StringSet(pointer,&DefaultUserinfo,&error,lineno,"DEFUSERINFO");
+            StringSet(pointer,&DefaultUserinfo,&loaderror,lineno,"DEFUSERINFO");
         else if (!strcmp("DEFFINGER",tmpbuf3))
-            StringSet(pointer,&DefaultFinger,&error,lineno,"DEFFINGER");
+            StringSet(pointer,&DefaultFinger,&loaderror,lineno,"DEFFINGER");
         else if (!strcmp("AUTOOPTIME",tmpbuf3))
-            NumberSet(&pointer,&AutoOpDelay,&error,lineno,"AUTOOPTIME");
+            NumberSet(&pointer,&AutoOpDelay,&loaderror,lineno,"AUTOOPTIME");
         else if (!strcmp("KICKOPS",tmpbuf3))
-            ChannelsSet(&pointer,&KickOps,&KickOpsChannels,&error,lineno,"KICKOPS",NULL);
+            ChannelsSet(&pointer,&KickOps,&KickOpsChannels,&loaderror,lineno,"KICKOPS",NULL);
         else if (!strcmp("KICKONFLOOD",tmpbuf3))
-            ChannelsSet(&pointer,&KickOnFlood,&KickOnFloodChannels,&error,lineno,"KICKONFLOOD",NULL);
+            ChannelsSet(&pointer,&KickOnFlood,&KickOnFloodChannels,&loaderror,lineno,"KICKONFLOOD",NULL);
         else if (!strcmp("SHOWNICK",tmpbuf3))
-            OnOffSet(&pointer,&ShowNick,&error,lineno,"SHOWNICK");
+            OnOffSet(&pointer,&ShowNick,&loaderror,lineno,"SHOWNICK");
         else if (!strcmp("KICKONBAN",tmpbuf3))
-            ChannelsSet(&pointer,&KickOnBan,&KickOnBanChannels,&error,lineno,"KICKONBAN",NULL);
+            ChannelsSet(&pointer,&KickOnBan,&KickOnBanChannels,&loaderror,lineno,"KICKONBAN",NULL);
         else if (!strcmp("AWAYSAVE",tmpbuf3))
-            NumberSet(&pointer,&AwaySaveSet,&error,lineno,"AWAYSAVE");
+            NumberSet(&pointer,&AwaySaveSet,&loaderror,lineno,"AWAYSAVE");
         else if (!strcmp("SHOWWALLOP",tmpbuf3))
-            OnOffSet(&pointer,&ShowWallop,&error,lineno,"SHOWWALLOP");
+            OnOffSet(&pointer,&ShowWallop,&loaderror,lineno,"SHOWWALLOP");
         else if (!strcmp("AUTOREPLY",tmpbuf3))
-            StringSet(pointer,&AutoReplyBuffer,&error,lineno,"AUTOREPLY");
+            StringSet(pointer,&AutoReplyBuffer,&loaderror,lineno,"AUTOREPLY");
         else if (!strcmp("ORIGNICK",tmpbuf3))
-            ChannelsSet(&pointer,&OrigNickChange,&OrigNick,&error,lineno,"ORIGNICK","must be ON NICK");
+            ChannelsSet(&pointer,&OrigNickChange,&OrigNick,&loaderror,lineno,"ORIGNICK","must be ON NICK");
         else if (!strcmp("NOTIFYMODE",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"BRIEF")) NotifyMode=1;
             else if (!my_stricmp(tmpbuf3,"VERBOSE")) NotifyMode=2;
             else {
                 PrintError("must be Brief/Verbose","in NOTIFYMODE",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("URLCATCHER",tmpbuf3)) {
@@ -2093,11 +2093,11 @@ int ScrollZLoad()
             else if (!my_stricmp(tmpbuf3,"OFF")) URLCatch=0;
             else {
                 PrintError("must be ON/AUTO/QUIET/OFF","in URLCATCHER",lineno);
-                error=1;
+                loaderror=1;
             }
         }
         else if (!strcmp("EGO",tmpbuf3))
-            OnOffSet(&pointer,&Ego,&error,lineno,"EGO");
+            OnOffSet(&pointer,&Ego,&loaderror,lineno,"EGO");
         else if (!strcmp("AUTOCOMPLETION",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"ON") || !my_stricmp(tmpbuf3,"AUTO")) {
@@ -2111,7 +2111,7 @@ int ScrollZLoad()
             else if (!my_stricmp(tmpbuf3,"OFF")) AutoNickCompl=0;
             else {
                 PrintError("must be ON/AUTO string/OFF","in AUTOCOMPLETION",lineno);
-                error=1;
+                loaderror=1;
             }
         }
 #ifdef EXTRAS
@@ -2129,115 +2129,115 @@ int ScrollZLoad()
                 }
                 else {
                     PrintError("must be ON/AUTO channels/OFF","in IDLEKICK",lineno);
-                    error=1;
+                    loaderror=1;
                 }
             }
             else if (!my_stricmp(tmpbuf3,"OFF")) IdleKick=0;
             else {
                 PrintError("must be ON/AUTO channels/OFF","in IDLEKICK",lineno);
-                error=1;
+                loaderror=1;
             }
         }
 #endif
         else if (!strcmp("DEFK",tmpbuf3))
-            StringSet(pointer,&DefaultK,&error,lineno,"DEFK");
+            StringSet(pointer,&DefaultK,&loaderror,lineno,"DEFK");
         else if (!strcmp("DEFBK",tmpbuf3))
-            StringSet(pointer,&DefaultBK,&error,lineno,"DEFBK");
+            StringSet(pointer,&DefaultBK,&loaderror,lineno,"DEFBK");
         else if (!strcmp("DEFBKI",tmpbuf3))
-            StringSet(pointer,&DefaultBKI,&error,lineno,"DEFBKI");
+            StringSet(pointer,&DefaultBKI,&loaderror,lineno,"DEFBKI");
         else if (!strcmp("DEFBKT",tmpbuf3))
-            StringSet(pointer,&DefaultBKT,&error,lineno,"DEFBKT");
+            StringSet(pointer,&DefaultBKT,&loaderror,lineno,"DEFBKT");
         else if (!strcmp("DEFFK",tmpbuf3))
-            StringSet(pointer,&DefaultFK,&error,lineno,"DEFFK");
+            StringSet(pointer,&DefaultFK,&loaderror,lineno,"DEFFK");
         else if (!strcmp("DEFLK",tmpbuf3))
-            StringSet(pointer,&DefaultLK,&error,lineno,"DEFLK");
+            StringSet(pointer,&DefaultLK,&loaderror,lineno,"DEFLK");
         else if (!strcmp("DEFABK",tmpbuf3))
-            StringSet(pointer,&DefaultABK,&error,lineno,"DEFABK");
+            StringSet(pointer,&DefaultABK,&loaderror,lineno,"DEFABK");
         else if (!strcmp("DEFSK",tmpbuf3))
-            StringSet(pointer,&DefaultSK,&error,lineno,"DEFSK");
+            StringSet(pointer,&DefaultSK,&loaderror,lineno,"DEFSK");
 #ifdef OPER
 	else if (!strcmp("DEFKILL",tmpbuf3))
-	    StringSet(pointer,&DefaultKill,&error,lineno,"DEFKILL");
+	    StringSet(pointer,&DefaultKill,&loaderror,lineno,"DEFKILL");
 #endif
         else if (!strcmp("USERMODE",tmpbuf3))
-            StringSet(pointer,&PermUserMode,&error,lineno,"USERMODE");
+            StringSet(pointer,&PermUserMode,&loaderror,lineno,"USERMODE");
         else if (!strcmp("BITCHMODE",tmpbuf3))
-            ChannelsSet(&pointer,&Bitch,&BitchChannels,&error,lineno,"BITCHMODE",NULL);
+            ChannelsSet(&pointer,&Bitch,&BitchChannels,&loaderror,lineno,"BITCHMODE",NULL);
         else if (!strcmp("FRIENDLIST",tmpbuf3))
-            ChannelsSet(&pointer,&FriendList,&FriendListChannels,&error,lineno,"FRIENDLIST",NULL);
+            ChannelsSet(&pointer,&FriendList,&FriendListChannels,&loaderror,lineno,"FRIENDLIST",NULL);
         else if (!strcmp("COMPRESSMODES",tmpbuf3))
-            ChannelsSet(&pointer,&CompressModes,&CompressModesChannels,&error,lineno,"COMPRESSMODES",NULL);
+            ChannelsSet(&pointer,&CompressModes,&CompressModesChannels,&loaderror,lineno,"COMPRESSMODES",NULL);
 #ifdef CELE
         else if (!strcmp("TRUNCATE",tmpbuf3)) {
             set_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR,atoi(pointer));
         }
         else if (!strcmp("SCROLLZSTR",tmpbuf3)) {
-            StringSet(pointer,&ScrollZstr,&error,lineno,"SCROLLZSTR");
+            StringSet(pointer,&ScrollZstr,&loaderror,lineno,"SCROLLZSTR");
             set_string_var(SCROLLZ_STRING_VAR,ScrollZstr);
         }
 #endif
 #ifdef EXTRAS
         else if (!strcmp("SIGNOFFCHANNELS",tmpbuf3))
-            ChannelsSet(&pointer,&ShowSignoffChan,&SignoffChannels,&error,lineno,"SIGNOFFCHANNELS",NULL);
+            ChannelsSet(&pointer,&ShowSignoffChan,&SignoffChannels,&loaderror,lineno,"SIGNOFFCHANNELS",NULL);
 #endif
         else if (!strcmp("STAMP",tmpbuf3))
-            ChannelsSet(&pointer,&Stamp,&StampChannels,&error,lineno,"STAMP",NULL);
+            ChannelsSet(&pointer,&Stamp,&StampChannels,&loaderror,lineno,"STAMP",NULL);
         else if (!strcmp("NOTIFYSTR",tmpbuf3)) {
-            StringSet(pointer,&CelerityNtfy,&error,lineno,"NOTIFYSTR");
+            StringSet(pointer,&CelerityNtfy,&loaderror,lineno,"NOTIFYSTR");
             set_string_var(NOTIFY_STRING_VAR,CelerityNtfy);
         }
         else if (!strcmp("ORIGNICKTIME",tmpbuf3))
-            NumberSet(&pointer,&OrigNickDelay,&error,lineno,"ORIGNICKTIME");
+            NumberSet(&pointer,&OrigNickDelay,&loaderror,lineno,"ORIGNICKTIME");
         else if (!strcmp("LOGON",tmpbuf3))
-            OnOffSet(&pointer,&LogOn,&error,lineno,"LOGON");
+            OnOffSet(&pointer,&LogOn,&loaderror,lineno,"LOGON");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
-            OnOffSet(&pointer,&DisplaymIRC,&error,lineno,"MIRCCOLORS");
+            OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
         else if (!strcmp("COLOR",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             upper(tmpbuf3);
-            if (!strcmp(tmpbuf3,"WARNING")) SetColors(COLWARNING,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"JOIN")) SetColors(COLJOIN,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"MSG")) SetColors(COLMSG,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"NOTICE")) SetColors(COLNOTICE,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"NETSPLIT")) SetColors(COLNETSPLIT,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"INVITE")) SetColors(COLINVITE,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"MODE")) SetColors(COLMODE,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"SETTING")) SetColors(COLSETTING,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"HELP")) SetColors(COLHELP,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"LEAVE")) SetColors(COLLEAVE,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"NOTIFY")) SetColors(COLNOTIFY,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"CTCP")) SetColors(COLCTCP,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"KICK")) SetColors(COLKICK,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"DCC")) SetColors(COLDCC,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"WHO")) SetColors(COLWHO,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"WHOIS")) SetColors(COLWHOIS,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"PUBLIC")) SetColors(COLPUBLIC,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"CDCC")) SetColors(COLCDCC,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"LINKS")) SetColors(COLLINKS,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"DCCCHAT")) SetColors(COLDCCCHAT,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"CSCAN")) SetColors(COLCSCAN,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"NICK")) SetColors(COLNICK,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"ME")) SetColors(COLME,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"MISC")) SetColors(COLMISC,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"SBAR")) SetColors(COLSBAR1,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"SBAR2")) SetColors(COLSBAR2,&pointer,&error,lineno);
+            if (!strcmp(tmpbuf3,"WARNING")) SetColors(COLWARNING,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"JOIN")) SetColors(COLJOIN,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"MSG")) SetColors(COLMSG,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"NOTICE")) SetColors(COLNOTICE,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"NETSPLIT")) SetColors(COLNETSPLIT,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"INVITE")) SetColors(COLINVITE,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"MODE")) SetColors(COLMODE,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"SETTING")) SetColors(COLSETTING,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"HELP")) SetColors(COLHELP,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"LEAVE")) SetColors(COLLEAVE,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"NOTIFY")) SetColors(COLNOTIFY,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"CTCP")) SetColors(COLCTCP,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"KICK")) SetColors(COLKICK,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"DCC")) SetColors(COLDCC,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"WHO")) SetColors(COLWHO,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"WHOIS")) SetColors(COLWHOIS,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"PUBLIC")) SetColors(COLPUBLIC,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"CDCC")) SetColors(COLCDCC,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"LINKS")) SetColors(COLLINKS,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"DCCCHAT")) SetColors(COLDCCCHAT,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"CSCAN")) SetColors(COLCSCAN,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"NICK")) SetColors(COLNICK,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"ME")) SetColors(COLME,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"MISC")) SetColors(COLMISC,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"SBAR")) SetColors(COLSBAR1,&pointer,&loaderror,lineno);
+            else if (!strcmp(tmpbuf3,"SBAR2")) SetColors(COLSBAR2,&pointer,&loaderror,lineno);
 #ifdef CELECOSM
-	    else if (!strcmp(tmpbuf3,"CELE")) SetColors(COLCELE,&pointer,&error,lineno);
+	    else if (!strcmp(tmpbuf3,"CELE")) SetColors(COLCELE,&pointer,&loaderror,lineno);
 #endif
 #ifdef OPERVISION
-            else if (!strcmp(tmpbuf3,"OV")) SetColors(COLOV,&pointer,&error,lineno);
+            else if (!strcmp(tmpbuf3,"OV")) SetColors(COLOV,&pointer,&loaderror,lineno);
 #endif
             else {
                 PrintError("missing or wrong CODE","in COLOR",lineno);
-                error=1;
+                loaderror=1;
             }
         }
 #endif
         else if (*tmpbuf3!='#') PrintError("unknown command",empty_string,lineno);
     }
     fclose(usfile);
-    if (error) say("There were errors in ScrollZ.save");
+    if (loaderror) say("There were errors in ScrollZ.save");
     else say("ScrollZ.save sucessfully loaded");
     usersloaded=1;
     filepath=OpenCreateFile("ScrollZ.addon",0);
