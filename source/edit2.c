@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.58 2001-02-06 20:35:07 f Exp $
+ * $Id: edit2.c,v 1.59 2001-04-05 19:58:46 f Exp $
  */
 
 #include "irc.h"
@@ -3125,6 +3125,7 @@ char *subargs;
     char *tmpstr;
     char *awaystr=(char *) 0;
     char *filepath;
+    char *filename;
     char tmpbuf1[mybufsize/4+1];
     char tmpbuf2[mybufsize/2];
     FILE *awayfile;
@@ -3175,9 +3176,10 @@ char *subargs;
         from_server=oldserver;
     }
     from_server=oldserver;
-    if (!(filepath=OpenCreateFile("ScrollZ.away",1)) ||
+    filename=get_string_var(AWAY_FILE_VAR);
+    if (!(filepath=OpenCreateFile(filename,1)) ||
         (awayfile=fopen(filepath,"a"))==NULL)
-        say("Can't open file ScrollZ.away");
+        say("Can't open file %s",filename);
     else {
         fclose(awayfile);
         AwaySave("SetAway",0);
@@ -3223,13 +3225,15 @@ char *line;
     char *tmpstr;
     char *backstr=(char *) 0;
     char *filepath;
+    char *filename;
     char tmpbuf[mybufsize/4];
     ChannelList *tmpchan;
 
     if (line && (*line=='y' || *line=='Y')) {
-        if ((filepath=OpenCreateFile("ScrollZ.away",1))) done=remove(filepath);
-        if (done==0) say("File ScrollZ.away has been deleted");
-        else say("Can't delete file ScrollZ.away");
+        filename=get_string_var(AWAY_FILE_VAR);
+        if ((filepath=OpenCreateFile(filename,1))) done=remove(filepath);
+        if (done==0) say("File %s has been deleted",filename);
+        else say("Can't delete file %s",filename);
         AwayMsgNum=0;
         update_all_status();
     }

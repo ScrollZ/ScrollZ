@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.59 2001-03-21 20:32:32 f Exp $
+ * $Id: edit3.c,v 1.60 2001-04-05 19:58:46 f Exp $
  */
 
 #include "irc.h"
@@ -196,6 +196,7 @@ int  type;
 {
     int  oldumask;
     char *filepath;
+    char *filename;
     char tmpbuf1[2*mybufsize];
     char tmpbuf2[2*mybufsize];
     FILE *awayfile;
@@ -203,7 +204,8 @@ int  type;
 
     if (type && !(type&AwaySaveSet)) return;
     oldumask=umask(0177);
-    filepath=OpenCreateFile("ScrollZ.away",1);
+    filename=get_string_var(AWAY_FILE_VAR);
+    filepath=OpenCreateFile(filename,1);
     if (filepath && (awayfile=fopen(filepath,"a"))!=NULL) {
         now=time((time_t *) 0);
         if (type&SAVEMSG)          sprintf(tmpbuf1,"%cMSG   %c",REV_TOG,REV_TOG);
@@ -2524,6 +2526,7 @@ void InitVars() {
     malloc_strcpy(&BKChannels,"*");
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
+    set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
     if (!AutoReplyBuffer) {
         i=strlen(nickname)>3?3:strlen(nickname);
         AutoReplyBuffer=(char *) new_malloc(i+1);

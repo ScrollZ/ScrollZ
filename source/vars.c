@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.14 2001-03-12 18:10:44 f Exp $
+ * $Id: vars.c,v 1.15 2001-04-05 19:58:46 f Exp $
  */
 
 #include "irc.h"
@@ -107,6 +107,7 @@ static  void    SetMaxWallopNicks _((int));
 static  void    SetDCCBlockSize _((int));
 static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
+static  void    SetAwayFile _((char *));
 
 extern  void    RedrawAll _((void));
 
@@ -132,6 +133,9 @@ static	IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "AUTO_UNMARK_AWAY",		BOOL_TYPE_VAR,	DEFAULT_AUTO_UNMARK_AWAY, NULL, NULL, 0, 0 },
 	{ "AUTO_WHOWAS",		BOOL_TYPE_VAR,	DEFAULT_AUTO_WHOWAS, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "AWAY_FILE",			STR_TYPE_VAR,	0, NULL, SetAwayFile, 0, 0 },
+/****************************************************************************/
 	{ "BEEP",			BOOL_TYPE_VAR,	DEFAULT_BEEP, NULL, NULL, 0, 0 },
 	{ "BEEP_MAX",			INT_TYPE_VAR,	DEFAULT_BEEP_MAX, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
@@ -993,5 +997,22 @@ char *value;
 {
     if (value && *value) malloc_strcpy(&CelerityNtfy,value);
     else malloc_strcpy(&CelerityNtfy,empty_string);
+}
+
+static void SetAwayFile(file)
+char *file;
+{
+    char *ptr;
+
+    if (file) {
+        if ((ptr=expand_twiddle(file))==NULL) {
+            say("Bad filename: %s",file);
+            set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
+            return;
+        }
+        set_string_var(AWAY_FILE_VAR,ptr);
+        new_free(&ptr);
+    }
+    else set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
 }
 /****************************************************************************/

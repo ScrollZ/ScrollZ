@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.13 2001-01-22 18:19:01 f Exp $
+ * $Id: config.h,v 1.14 2001-04-05 19:58:45 f Exp $
  */
 
 #ifndef __config_h_
@@ -113,6 +113,7 @@
 #define DEFAULT_AUTO_RECONNECT 1
 #define DEFAULT_AUTO_UNMARK_AWAY 0
 #define DEFAULT_AUTO_WHOWAS 0
+#define DEFAULT_AWAY_FILE "ScrollZ.away"
 #define DEFAULT_BEEP 1
 #define DEFAULT_BEEP_MAX 3
 #define DEFAULT_BEEP_ON_MAIL 0

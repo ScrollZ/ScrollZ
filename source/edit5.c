@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.60 2001-04-03 15:59:02 f Exp $
+ * $Id: edit5.c,v 1.61 2001-04-05 19:58:46 f Exp $
  */
 
 #include "irc.h"
@@ -1563,6 +1563,7 @@ int  create;
     char tmpbuf[mybufsize/4];
     static char newfilepath[mybufsize/8];
 
+    if (!filename) return(NULL);
     if (!(path=get_string_var(LOAD_PATH_VAR))) path=".";
     if ((filepath=path_search(filename,path))) return(filepath);
     if (!create) return(NULL);
@@ -1638,10 +1639,12 @@ char *subargs;
 {
     char *pattern;
     char *filepath;
+    char *filename;
     char tmpbuf[mybufsize/4];
 
     new_free(&playpattern);
-    filepath=OpenCreateFile("ScrollZ.away",1);
+    filename=get_string_var(AWAY_FILE_VAR);
+    filepath=OpenCreateFile(filename,1);
     if (filepath && (awayfile=fopen(filepath,"r"))) {
         if (!my_strnicmp(args,"-R",2)) {
             pattern=new_next_arg(args,&args);
@@ -1666,7 +1669,7 @@ char *subargs;
         PlayBack2(subargs,empty_string);
     }
     else {
-        say("Can't open file ScrollZ.away");
+        say("Can't open file %s",filename);
         PlayBack2(subargs,"q");
     }
 }
@@ -2101,12 +2104,14 @@ char *subargs;
 {
     int  done;
     char *filepath;
+    char *filename;
 
-    if ((filepath=OpenCreateFile("ScrollZ.away",0))) {
+    filename=get_string_var(AWAY_FILE_VAR);
+    if ((filepath=OpenCreateFile(filename,0))) {
         done=remove(filepath);
         if (args && *args && !my_stricmp(args,"OFF")) goto out;
-        if (done==0) say("File ScrollZ.away has been deleted");
-        else say("Can't delete file ScrollZ.away");
+        if (done==0) say("File %s has been deleted",filename);
+        else say("Can't delete file %s",filename);
     }
 out:
     AwayMsgNum=0;

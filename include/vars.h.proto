@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.9 2001-01-22 18:19:01 f Exp $
+ * $Id: vars.h.proto,v 1.10 2001-04-05 19:58:46 f Exp $
  */
 
 #ifndef __vars_h_
@@ -73,6 +73,9 @@ extern	int	loading_global;
 /****************************************************************************/
 #define AUTO_UNMARK_AWAY_VAR $
 #define AUTO_WHOWAS_VAR  $
+/**************************** PATCHED by Flier ******************************/
+#define AWAY_FILE_VAR $
+/****************************************************************************/
 #define BEEP_VAR $
 #define BEEP_MAX_VAR $
 /**************************** PATCHED by Flier ******************************/
