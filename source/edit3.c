@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.60 2001-04-05 19:58:46 f Exp $
+ * $Id: edit3.c,v 1.61 2001-05-08 17:36:33 f Exp $
  */
 
 #include "irc.h"
@@ -2243,6 +2243,10 @@ int ScrollZLoad()
                 loaderror=1;
             }
         }
+#ifdef EXTRAS
+        else if (!strcmp("SIGNOFFALLCHAN",tmpbuf3))
+            OnOffSet(&pointer,&ShowSignAllChan,&loaderror,lineno,"SIGNOFFALLCHAN");
+#endif
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2631,6 +2635,9 @@ void InitVars() {
     ARinWindow=0;
     OrigNickQuiet=0;
     OrigNickSent=0;
+#ifdef EXTRAS
+    ShowSignAllChan=0;
+#endif
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
