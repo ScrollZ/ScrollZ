@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.9 1998-11-08 11:20:15 f Exp $
+ * $Id: edit5.c,v 1.10 1998-11-15 20:21:45 f Exp $
  */
 
 #include "irc.h"
@@ -2268,7 +2268,7 @@ char *banstr;
     else strcpy(banstr,tmpbuf2);
 }
 
-#ifdef MGS
+#ifdef MGS_
 /* Quits IRC with error level 152 */
 void Terminate(command,args,subargs)
 char *command;
