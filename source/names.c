@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.7 1999-02-15 21:19:53 f Exp $
+ * $Id: names.c,v 1.8 1999-03-09 20:38:13 f Exp $
  */
 
 #include "irc.h"
@@ -801,7 +801,7 @@ char    *servmodes;
                                 if (ThisNick && chan->FriendList) {
                                     if ((ThisNick->shitlist && (ThisNick->shitlist->shit)&SLDEOP)
                                         || (chan->Bitch && !isitme && !(isprot&FLGOD) &&
-                                            (!ThisNick->frlist || !((ThisNick->frlist->privs)&(FLOP | FLAUTOOP))) &&
+                                            (!ThisNick->frlist || !((ThisNick->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))) &&
                                             my_stricmp(mynick,ThisNick->nick))) {
                                         count++;
                                         strcat(modebuf,"-o");
