@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.19 1999-05-16 11:17:16 f Exp $
+ * $Id: irc.c,v 1.20 1999-05-24 21:23:45 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -1519,7 +1519,7 @@ irc_io(prompt, func, my_use_input, loop)
                         PingSent=time((time_t *) 0);
                         if (from_server!=-1 && PingSent-start_time>30)
 #endif
-                            send_to_server("PING :%s",get_server_nickname(from_server));
+                            send_to_server("PING szlagmeter");
 /****************************************************************************/
 		}
 /**************************** PATCHED by Flier ******************************/
