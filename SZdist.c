@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.36 2001-10-05 18:39:47 f Exp $
+ * $Id: SZdist.c,v 1.37 2001-10-18 20:19:29 f Exp $
  */
 
 #include <stdio.h>
@@ -501,7 +501,6 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want client w/o certain functionality */\n");
 	if (choice&LITE) fprintf(fpout,"#define LITE\n");
 	else fprintf(fpout,"#undef LITE\n");
-        fprintf(fpout,"\n/* Define this if you want old time stamp format (HH:MM) instead of HH:MM| */\n");
         fprintf(fpout,"/****************************************************************************/\n");
         fclose(fpin);
         fclose(fpout);
