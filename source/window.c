@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.26 2000-09-24 17:10:34 f Exp $
+ * $Id: window.c,v 1.27 2000-10-14 10:08:10 f Exp $
  */
 
 #include "irc.h"
@@ -3162,8 +3162,17 @@ windowcmd(command, args, subargs)
 					say("BIND: %s is not a valid channel name", arg);
 				else
 				{
+/**************************** PATCHED by Flier ******************************/
+                                    char *origarg=arg;
+
+                                    while ((arg=strtok(origarg,","))) {
+                                        origarg=(char *) 0;
+/****************************************************************************/
 					bind_channel(arg, window);
 					say("Channel %s bound to window %d", arg, window->refnum);
+/**************************** PATCHED by Flier ******************************/
+                                    }
+/****************************************************************************/
 				}
 			}
 			else
