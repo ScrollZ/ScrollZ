@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.24 1999-05-21 17:11:19 f Exp $
+ * $Id: edit2.c,v 1.25 1999-05-29 10:04:44 f Exp $
  */
 
 #include "irc.h"
@@ -1809,6 +1809,9 @@ char *subargs;
 #endif
     fprintf(usfile,"STAMP           ");
     if (Stamp) fprintf(usfile,"ON %s\n",StampChannels);
+    else fprintf(usfile,"OFF\n");
+    fprintf(usfile,"LOGON           ");
+    if (LogOn) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"DEOPSENSOR      %d\n",DeopSensor);
     fprintf(usfile,"KICKSENSOR      %d\n",KickSensor);

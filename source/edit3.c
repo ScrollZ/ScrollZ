@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.24 1999-04-28 16:12:57 f Exp $
+ * $Id: edit3.c,v 1.25 1999-05-29 10:04:44 f Exp $
  */
 
 #include "irc.h"
@@ -2184,6 +2184,8 @@ int ScrollZLoad()
         }
         else if (!strcmp("ORIGNICKTIME",tmpbuf3))
             NumberSet(&pointer,&OrigNickDelay,&error,lineno,"ORIGNICKTIME");
+        else if (!strcmp("LOGON",tmpbuf3))
+            OnOffSet(&pointer,&LogOn,&error,lineno,"LOGON");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&error,lineno,"MIRCCOLORS");
