@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.18 2000-08-28 20:25:47 f Exp $
+ * $Id: names.c,v 1.19 2000-08-30 18:15:56 f Exp $
  */
 
 #include "irc.h"
@@ -833,7 +833,7 @@ char    *servmodes;
                             if (add) {
                                 chan->pluso++;
                                 minusban=1;
-                                if (ThisNick && chan->FriendList) {
+                                if (ThisNick && chan->BKList) {
                                     if ((ThisNick->shitlist && (ThisNick->shitlist->shit)&SLDEOP)
                                         || (chan->Bitch && !isitme && !(isprot&FLGOD) &&
                                             (!ThisNick->frlist || !((ThisNick->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))) &&
@@ -1251,9 +1251,10 @@ char    *servmodes;
                     servmodes[strlen(servmodes)-1]='\0';
             }
             if (!chan->gotbans || !chan->gotwho) gotops=0;
-            if (!isitme && minusban && (*chop&CHAN_CHOP) && chan->gotbans && chan->gotwho && !gotops)
+            if (!isitme && minusban && (*chop&CHAN_CHOP) && chan->gotbans && chan->gotwho && !gotops && chan->BKList)
                 CheckPermBans(chan);
-            if (!isitme && gotops && chan->FriendList) HandleGotOps(mynick,chan);
+            if (!isitme && gotops && (chan->FriendList || chan->BKList))
+                HandleGotOps(mynick,chan);
             if (chan->CompressModes) {
                 *compmodeadd='\0';
                 if (*compmode) sprintf(origmode,"%s %s",compmode,compline);

@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.43 2000-08-27 18:01:56 f Exp $
+ * $Id: edit4.c,v 1.44 2000-08-30 18:15:56 f Exp $
  */
 
 #include "irc.h"
@@ -294,7 +294,7 @@ ChannelList *tmpchan;
 #else  /* CELE */
         send_to_server("KICK %s %s :Banned",channel,nick);
 #endif /* CELE */
-    else if (ischanop && (tmpabk=tmpjoiner->shitlist)) {
+    else if (ischanop && (tmpabk=tmpjoiner->shitlist) && chan->BKList) {
         if ((tmpabk->shit)&SLBAN)
             send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
         if ((tmpabk->shit)&SLKICK) {
@@ -2053,159 +2053,168 @@ ChannelList *chan;
     char modebuf[mybufsize/32];
     char modebufv[mybufsize/32];
     NickList *tmp;
-    WhowasList *whowas;
+    WhowasList *ww;
     struct bans *tmpban;
 
-    if (chan && chan->FriendList) {
+    if (chan && (chan->FriendList || chan->BKList)) {
         count=0;
         *modebuf='\0';
         *modebufv='\0';
-        for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
-            if (tmpban->exception) continue;
-            for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-                if (tmp->frlist && ((tmp->frlist->privs)&(FLPROT | FLGOD)) &&
-                    ((tmp->frlist->privs)&FLUNBAN)) {
-                    sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
-                    if (wild_match(tmpban->ban,tmpbuf)) {
-                        count++;
-                        strcat(modebuf,"-b");
-                        sprintf(tmpbuf," %s",tmpban->ban);
-                        malloc_strcat(&tmpmode,tmpbuf);
-                        break;
-                    }
-                }
-            }
-            if (!tmp) {
-                for (whowas=whowas_userlist_list;whowas;whowas=whowas->next) {
-                    if (whowas->nicklist->frlist && ((whowas->nicklist->frlist->privs)&(FLPROT | FLGOD))
-                       && ((whowas->nicklist->frlist->privs)&FLUNBAN)) {
-                        if (whowas->nicklist->userhost)
-                            sprintf(tmpbuf,"%s!%s",whowas->nicklist->nick,whowas->nicklist->userhost);
-                        else strcpy(tmpbuf,whowas->nicklist->nick);
+        if (chan->FriendList) {
+            for (tmpban=chan->banlist;tmpban;tmpban=tmpban->next) {
+                if (tmpban->exception) continue;
+                for (tmp=chan->nicks;tmp;tmp=tmp->next) {
+                    if (tmp->frlist && ((tmp->frlist->privs)&(FLPROT|FLGOD)) &&
+                            ((tmp->frlist->privs)&FLUNBAN)) {
+                        sprintf(tmpbuf,"%s!%s",tmp->nick,tmp->userhost);
                         if (wild_match(tmpban->ban,tmpbuf)) {
                             count++;
                             strcat(modebuf,"-b");
                             sprintf(tmpbuf," %s",tmpban->ban);
                             malloc_strcat(&tmpmode,tmpbuf);
+                            break;
                         }
+                    }
+                }
+                if (!tmp) {
+                    for (ww=whowas_userlist_list;ww;ww=ww->next) {
+                        if (ww->nicklist->frlist && ((ww->nicklist->frlist->privs)&(FLPROT|FLGOD))
+                                && ((ww->nicklist->frlist->privs)&FLUNBAN)) {
+                            if (ww->nicklist->userhost)
+                                sprintf(tmpbuf,"%s!%s",ww->nicklist->nick,
+                                        ww->nicklist->userhost);
+                            else strcpy(tmpbuf,ww->nicklist->nick);
+                            if (wild_match(tmpban->ban,tmpbuf)) {
+                                count++;
+                                strcat(modebuf,"-b");
+                                sprintf(tmpbuf," %s",tmpban->ban);
+                                malloc_strcat(&tmpmode,tmpbuf);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (count==max) {
+                    count=0;
+                    send_to_server("MODE %s %s %s",chan->channel,modebuf,
+                            tmpmode);
+                    new_free(&tmpmode);
+                    *modebuf='\0';
+                }
+            }
+            if (count) {
+                count=0;
+                send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
+                new_free(&tmpmode);
+                *modebuf='\0';
+            }
+            for (tmp=chan->nicks;tmp;tmp=tmp->next) {
+                opped=0;
+                if (!(tmp->chanop)) {
+                    if (tmp->frlist &&
+                            ((tmp->frlist->privs)&FLOP) && !(tmp->frlist->passwd) &&
+                            (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
+                    {
+                        count++;
+                        opped=1;
+                        strcat(modebuf,"+o");
+                        sprintf(tmpbuf," %s",tmp->nick);
+                        malloc_strcat(&tmpmode,tmpbuf);
+                        if (count==max) {
+                            count=0;
+                            send_to_server("MODE %s %s %s",chan->channel,
+                                    modebuf,tmpmode);
+                            new_free(&tmpmode);
+                            *modebuf='\0';
+                        }
+                    }
+                }
+                if (!opped && !(tmp->chanop) && !(tmp->hasvoice)) {
+                    if (tmp->frlist && ((tmp->frlist->privs)&FLVOICE) &&
+                            (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
+                    {
+                        countv++;
+                        strcat(modebufv,"+v");
+                        sprintf(tmpbuf," %s",tmp->nick);
+                        malloc_strcat(&tmpmodev,tmpbuf);
+                        if (countv==max) {
+                            countv=0;
+                            send_to_server("MODE %s %s %s",chan->channel,
+                                    modebufv,tmpmodev);
+                            new_free(&tmpmodev);
+                            *modebufv='\0';
+                        }
+                    }
+                }
+            }
+            if (count) {
+                send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
+                new_free(&tmpmode);
+            }
+            if (countv) {
+                send_to_server("MODE %s %s %s",chan->channel,modebufv,tmpmodev);
+                new_free(&tmpmodev);
+            }
+        }
+        if (chan->BKList) {
+            *modebuf='\0';
+            count=0;
+            for (tmp=chan->nicks;tmp;tmp=tmp->next) {
+                done=0;
+                if (chan->Bitch && my_stricmp(tmp->nick,mynick) && tmp->chanop
+                    && (!tmp->frlist ||
+                        (tmp->frlist && !((tmp->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))))) {
+                    strcat(modebuf,"-o");
+                    sprintf(tmpbuf," %s",tmp->nick);
+                    malloc_strcat(&tmpmode,tmpbuf);
+                    count++;
+                    done=1;
+                }
+                if (tmp->shitlist && tmp->shitlist->shit) {
+                    reason=(char *) 0;
+                    if ((tmp->shitlist->shit)&SLDEOP) {
+                        if (!done && tmp->chanop) {
+                            strcat(modebuf,"-o");
+                            sprintf(tmpbuf," %s",tmp->nick);
+                            malloc_strcat(&tmpmode,tmpbuf);
+                            count++;
+                        }
+                    }
+                    if ((tmp->shitlist->shit)&SLKICK) {
+                        if (tmp->shitlist->reason[0]) reason=tmp->shitlist->reason;
+                        else reason=DefaultABK;
+#ifdef CELE
+                        send_to_server("KICK %s %s :%s %s",chan->channel,
+                                       tmp->nick,reason,CelerityL);
+#else  /* CELE */
+                        send_to_server("KICK %s %s :%s",chan->channel,
+                                       tmp->nick,reason);
+#endif /* CELE */
+                    }
+                    if ((tmp->shitlist->shit)&SLBAN)
+                        send_to_server("MODE %s -o+b %s %s",chan->channel,
+                                       tmp->nick,tmp->shitlist->userhost);
+
+                    if ((tmp->shitlist->shit)&SLIGNORE) {
+                        sprintf(tmpbuf,"%s ALL",tmp->userhost);
+                        Ignore(NULL,tmpbuf,tmpbuf);
                         break;
                     }
                 }
+                if (count==max) {
+                    send_to_server("MODE %s %s %s",chan->channel,modebuf,
+                                   tmpmode);
+                    new_free(&tmpmode);
+                    count=0;
+                    *modebuf='\0';
+                }
             }
-            if (count==max) {
-                count=0;
+            if (count) {
                 send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
                 new_free(&tmpmode);
-                *modebuf='\0';
             }
+            CheckPermBans(chan);
         }
-        if (count) {
-            count=0;
-            send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
-            new_free(&tmpmode);
-            *modebuf='\0';
-        }
-        for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-            opped=0;
-            if (!(tmp->chanop)) {
-                if (tmp->frlist &&
-                   ((tmp->frlist->privs)&FLOP) && !(tmp->frlist->passwd) &&
-                   (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
-                {
-                    count++;
-                    opped=1;
-                    strcat(modebuf,"+o");
-                    sprintf(tmpbuf," %s",tmp->nick);
-                    malloc_strcat(&tmpmode,tmpbuf);
-                    if (count==max) {
-                        count=0;
-                        send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
-                        new_free(&tmpmode);
-                        *modebuf='\0';
-                    }
-                }
-            }
-            if (!opped && !(tmp->chanop) && !(tmp->hasvoice)) {
-                if (tmp->frlist && ((tmp->frlist->privs)&FLVOICE) &&
-                    (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
-                {
-                    countv++;
-                    strcat(modebufv,"+v");
-                    sprintf(tmpbuf," %s",tmp->nick);
-                    malloc_strcat(&tmpmodev,tmpbuf);
-                    if (countv==max) {
-                        countv=0;
-                        send_to_server("MODE %s %s %s",chan->channel,modebufv,
-                                       tmpmodev);
-                        new_free(&tmpmodev);
-                        *modebufv='\0';
-                    }
-                }
-            }
-        }
-        if (count) {
-            send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
-            new_free(&tmpmode);
-        }
-        if (countv) {
-            send_to_server("MODE %s %s %s",chan->channel,modebufv,tmpmodev);
-            new_free(&tmpmodev);
-        }
-        *modebuf='\0';
-        count=0;
-        for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-            done=0;
-            if (chan->Bitch && my_stricmp(tmp->nick,mynick) && tmp->chanop &&
-                (!tmp->frlist || (tmp->frlist &&
-                 !((tmp->frlist->privs)&(FLOP|FLAUTOOP|FLINSTANT))))) {
-                strcat(modebuf,"-o");
-                sprintf(tmpbuf," %s",tmp->nick);
-                malloc_strcat(&tmpmode,tmpbuf);
-                count++;
-                done=1;
-            }
-            if (tmp->shitlist && tmp->shitlist->shit) {
-                reason=(char *) 0;
-                if ((tmp->shitlist->shit)&SLDEOP) {
-                    if (!done && tmp->chanop) {
-                        strcat(modebuf,"-o");
-                        sprintf(tmpbuf," %s",tmp->nick);
-                        malloc_strcat(&tmpmode,tmpbuf);
-                        count++;
-                    }
-                }
-                if ((tmp->shitlist->shit)&SLKICK) {
-                    if (tmp->shitlist->reason[0]) reason=tmp->shitlist->reason;
-                    else reason=DefaultABK;
-#ifdef CELE
-                    send_to_server("KICK %s %s :%s %s",chan->channel,tmp->nick,reason,
-                                   CelerityL);
-#else  /* CELE */
-                    send_to_server("KICK %s %s :%s",chan->channel,tmp->nick,reason);
-#endif /* CELE */
-                }
-                if ((tmp->shitlist->shit)&SLBAN)
-                    send_to_server("MODE %s -o+b %s %s",chan->channel,
-                                   tmp->nick,tmp->shitlist->userhost);
-
-                if ((tmp->shitlist->shit)&SLIGNORE) {
-                    sprintf(tmpbuf,"%s ALL",tmp->userhost);
-                    Ignore(NULL,tmpbuf,tmpbuf);
-                    break;
-                }
-            }
-            if (count==max) {
-                send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
-                new_free(&tmpmode);
-                count=0;
-                *modebuf='\0';
-            }
-        }
-        if (count) {
-            send_to_server("MODE %s %s %s",chan->channel,modebuf,tmpmode);
-            new_free(&tmpmode);
-        }
-        CheckPermBans(chan);
 #ifdef EXTRAS
         CheckLock(chan->channel,from_server,chan);
 #endif

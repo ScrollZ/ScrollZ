@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.46 2000-08-27 18:01:56 f Exp $
+ * $Id: edit5.c,v 1.47 2000-08-30 18:15:56 f Exp $
  */
 
 #include "irc.h"
@@ -2356,7 +2356,7 @@ ChannelList *chan;
         say("Join to %s is now %csynched%c",chan->channel,bold,bold);
 #endif /* WANTANSI */
 #endif /* HAVETIMEOFDAY */
-    if ((chan->status)&CHAN_CHOP && chan->FriendList)
+    if ((chan->status)&CHAN_CHOP && (chan->FriendList || chan->BKList))
         HandleGotOps(get_server_nickname(from_server),chan);
 }
 
