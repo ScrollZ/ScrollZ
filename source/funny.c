@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.21 2003-01-08 20:00:54 f Exp $
+ * $Id: funny.c,v 1.22 2004-06-26 10:46:56 f Exp $
  */
 
 #include "irc.h"
@@ -168,7 +168,7 @@ funny_print_widelist()
 		else
 /**************************** Patched by Flier ******************************/
 			/*strcpy(ptr, buffer2);*/
-			strmcpy(ptr, buffer2, sizeof(buffer1));
+			strmcpy(ptr, buffer2, sizeof(buffer1) - (ptr - buffer1));
 /****************************************************************************/
 	}
 	if (*buffer1 && do_hook(WIDELIST_LIST, "%s", buffer1))
