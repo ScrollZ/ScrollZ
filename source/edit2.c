@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.96 2003-12-24 12:15:52 f Exp $
+ * $Id: edit2.c,v 1.97 2004-04-25 09:54:18 f Exp $
  */
 
 #include "irc.h"
@@ -4034,23 +4034,23 @@ void NoWindowChannel()
 }
 
 /* Newhost, patched in by Zakath. Got from diff w/ no credits... */
-void NewHost(command,args,subargs)
+void NewHost(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    char *newhname=(char *) 0;
+    char *newhname = NULL;
 #ifdef JIMMIE
     int  i;
-    int  type=1; /* default to Linux */
+    int  type = 1; /* default to Linux */
     int  count;
-    int  tryall=0;
+    int  tryall = 0;
     char *hname;
     char *tmpstr;
-    char *chosenname=(char *) 0;
-    char putbuf[mybufsize/4+1];
-    char tmpbuf[mybufsize/4+1];
-    char filename[mybufsize/16];
+    char *chosenname = NULL;
+    char putbuf[mybufsize / 4 + 1];
+    char tmpbuf[mybufsize / 4 + 1];
+    char filename[mybufsize / 16];
     FILE *fp;
     struct hostent *hostaddr;
     /* for uname */
@@ -4061,61 +4061,62 @@ char *subargs;
     int oldumask;
     char *curdev;
     char *devtok;
-    char devname[mybufsize/16+1];
+    char devname[mybufsize / 16 + 1];
     struct ifreq ifr;
 #endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
-    struct splitstr *tmplist=NULL,*listnew;
+    struct splitstr *tmplist = NULL, *listnew;
     unsigned long ipnum;
 #endif /* JIMMIE */
 
-    newhname=new_next_arg(args,&args);
+    newhname = new_next_arg(args, &args);
 #ifndef JIMMIE
     if (newhname) {
-        malloc_strcpy(&source_host,newhname);
-        set_string_var(IRCHOST_VAR,newhname);
+        malloc_strcpy(&source_host, newhname);
+        set_string_var(IRCHOST_VAR, newhname);
         set_irchost();
-        ReconnectServer(NULL,NULL,NULL);
+        ReconnectServer(NULL, NULL, NULL);
     }
     else PrintUsage("NEWHOST <Virtual Host>");
 #else  /* JIMMIE */
     /* if user passed -a they want to probe 1024 interfaces */
-    if (newhname && !my_strnicmp(newhname,"-A",2)) {
-        tryall=1;
-        newhname=NULL;
+    if (newhname && !my_strnicmp(newhname, "-A", 2)) {
+        tryall = 1;
+        newhname = NULL;
     }
     /* figure out OS
        1 = Linux
        2 = BSD 
        3 = Solaris */
-    if ((uname(&unamebuf))!=-1) {
-        if (wild_match("*linux*",unamebuf.sysname)) type=1;
-        else if (wild_match("*bsd*",unamebuf.sysname)) type=2;
-        else if (wild_match("*sunos*",unamebuf.sysname)) type=3;
+    if ((uname(&unamebuf)) != -1) {
+        if (wild_match("*linux*", unamebuf.sysname)) type = 1;
+        else if (wild_match("*bsd*", unamebuf.sysname)) type = 2;
+        else if (wild_match("*sunos*", unamebuf.sysname)) type = 3;
     }
     /* create temporary file */
-    snprintf(filename,sizeof(filename),"/tmp/sztmp%ld.%d",time((time_t *) 0)%10000,getpid());
+    snprintf(filename, sizeof(filename),
+             "/tmp/sztmp%ld.%d", time((time_t *) 0) % 10000, getpid());
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
     /* obtain device name */
-    *devname='\0';
-    if ((fp=fopen("/proc/net/dev","r"))) {
+    *devname = '\0';
+    if ((fp = fopen("/proc/net/dev", "r"))) {
         /* skip two lines of header */
-        fgets(putbuf,mybufsize/4,fp);
-        fgets(putbuf,mybufsize/4,fp);
-        while (fgets(putbuf,sizeof(putbuf),fp)) {
-            tmpstr=putbuf;
+        fgets(putbuf, sizeof(putbuf), fp);
+        fgets(putbuf, sizeof(putbuf), fp);
+        while (fgets(putbuf, sizeof(putbuf), fp)) {
+            tmpstr = putbuf;
             while (*tmpstr && isspace(*tmpstr)) tmpstr++;
-            strmcpy(tmpbuf,tmpstr,mybufsize/16);
-            tmpstr=tmpbuf;
-            while (*tmpstr && *tmpstr!=':') tmpstr++;
-            *tmpstr='\0';
-            if (strcmp(tmpbuf,"lo")) {
-                if (strlen(tmpbuf)>0) {
+            strmcpy(tmpbuf, tmpstr, sizeof(tmpbuf));
+            tmpstr = tmpbuf;
+            while (*tmpstr && *tmpstr != ':') tmpstr++;
+            *tmpstr = '\0';
+            if (strcmp(tmpbuf, "lo") && strncmp(tmpbuf, "dummy", 5)) {
+                if (strlen(tmpbuf) > 0) {
                     tmpstr--;
-                    *tmpstr='\0';
-                    if (*devname) strmcat(devname,",",sizeof(devname));
-                    strmcat(devname,tmpbuf,sizeof(devname));
+                    *tmpstr = '\0';
+                    if (*devname) strmcat(devname, ",", sizeof(devname));
+                    strmcat(devname, tmpbuf, sizeof(devname));
                 }
                 break;
             }
@@ -4126,15 +4127,15 @@ char *subargs;
         say("No suitable devices found, aborting");
         return;
     }
-    oldumask=umask(0177);
-    if ((fp=fopen(filename,"w"))==NULL) {
+    oldumask = umask(0177);
+    if ((fp = fopen(filename, "w")) == NULL) {
         say("Error, can't open temporary file for writing, aborting");
         unlink(filename);
         umask(oldumask);
         return;
     }
     /* we need open socket for ioctl() to work */
-    if ((tmpsock=socket(AF_INET,SOCK_DGRAM,0))<0) {
+    if ((tmpsock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         say("Error obtaining socket, aborting");
         fclose(fp);
         unlink(filename);
@@ -4142,35 +4143,40 @@ char *subargs;
         return;
     }
     /* probe eth0 through eth3 */
-    devtok=devname;
-    while ((curdev=strtok(devtok,","))) {
-        devtok=(char *) 0;
-        for (i=0;i<4;i++) {
+    devtok = devname;
+    while ((curdev = strtok(devtok, ","))) {
+        devtok = NULL;
+        for (i = 0; i < 4; i++) {
             int isvalid;
-            int numinvalid=0;
+            int numinvalid = 0;
 
-            snprintf(ifr.ifr_name,sizeof(ifr.ifr_name),"%s%d",devname,i);
+            snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s%d", devname, i);
             /* obtain destination address */
-            ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
-            isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
-            if (i==0 && isvalid<0) {
-                say("Error during ioctl for device %s, aborting",ifr.ifr_name);
+            ioctl(tmpsock, SIOCGIFDSTADDR, &ifr);
+            isvalid = ioctl(tmpsock, SIOCGIFADDR, &ifr);
+            if (i == 0 && isvalid < 0) {
+                say("Error during ioctl for device %s, aborting", ifr.ifr_name);
                 fclose(fp);
                 unlink(filename);
                 close(tmpsock);
                 umask(oldumask);
                 return;
             }
-            if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
-            for (count=0;count<1023;count++) {
-                snprintf(ifr.ifr_name,sizeof(ifr.ifr_name),"%s%d:%d",devname,i,count);
+            if (isvalid == 0) 
+                fprintf(fp, "inet %s\n",
+                        inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
+            for (count = 0; count < 1023; count++) {
+                snprintf(ifr.ifr_name, sizeof(ifr.ifr_name),
+                         "%s%d:%d", devname, i, count);
                 /* obtain destination address */
-                ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
-                if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
-                else numinvalid=0;
-                if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
+                ioctl(tmpsock, SIOCGIFDSTADDR, &ifr);
+                if ((isvalid = ioctl(tmpsock, SIOCGIFADDR, &ifr)) < 0) numinvalid++;
+                else numinvalid = 0;
+                if (isvalid == 0)
+                    fprintf(fp, "inet %s\n",
+                            inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
                 /* abort when we detect 10 failed ioctl()s in sequence */
-                if (!tryall && numinvalid>9) break;
+                if (!tryall && numinvalid > 9) break;
             }
         }
     }
@@ -4181,77 +4187,78 @@ char *subargs;
     /* run /sbin/ifconfig */
     switch (type) {
         case 2:  /* BSD */
-            tmpstr="-m -a";
+            tmpstr = "-m -a";
             break;
         case 3:  /* Solaris */
-            tmpstr="-a";
+            tmpstr = "-a";
             break;
         default: /* other OSes, wild guess */
-            tmpstr="-a";
+            tmpstr = "-a";
             break;
     }
-    snprintf(tmpbuf,sizeof(tmpbuf),"/sbin/ifconfig %s >%s 2>/dev/null",tmpstr,filename);
+    snprintf(tmpbuf, sizeof(tmpbuf),
+             "/sbin/ifconfig %s >%s 2>/dev/null", tmpstr, filename);
     system(tmpbuf);
 #endif /* __linux__ */
-    if ((fp=fopen(filename,"r"))==NULL) {
+    if ((fp = fopen(filename, "r")) == NULL) {
         say("Error, can't open temporary file for reading");
         unlink(filename);
         return;
     }
-    count=0;
-    while (fgets(tmpbuf,mybufsize/4,fp)) {
-        hname=(char *) 0;
-        if ((tmpstr=strstr(tmpbuf,"inet "))) tmpstr+=5;
-        hname=new_next_arg(tmpstr,&tmpstr);
-        if (!hname || !strcmp(hname,"127.0.0.1")) continue;
+    count = 0;
+    while (fgets(tmpbuf, sizeof(tmpbuf), fp)) {
+        hname = NULL;
+        if ((tmpstr = strstr(tmpbuf, "inet "))) tmpstr += 5;
+        hname = new_next_arg(tmpstr, &tmpstr);
+        if (!hname || !strcmp(hname, "127.0.0.1")) continue;
         /* find hostname for this IP */
-        ipnum=inet_addr(hname);
-        hostaddr=gethostbyaddr((char *) &ipnum,sizeof(ipnum),AF_INET);
+        ipnum = inet_addr(hname);
+        hostaddr = gethostbyaddr((char *) &ipnum, sizeof(ipnum), AF_INET);
         /* add to list */
-        if (hostaddr && (listnew=(struct splitstr *) new_malloc(sizeof(struct splitstr)))) {
-            listnew->servers=(char *) 0;
-            listnew->next=(struct splitstr *) 0;
-            malloc_strcpy(&(listnew->servers),(char *) hostaddr->h_name);
-            add_to_list_ext((List **) &tmplist,(List *) listnew,
+        if (hostaddr &&
+            (listnew = (struct splitstr *) new_malloc(sizeof(struct splitstr)))) {
+            listnew->servers = NULL;
+            listnew->next = NULL;
+            malloc_strcpy(&(listnew->servers), (char *) hostaddr->h_name);
+            add_to_list_ext((List **) &tmplist, (List *) listnew,
                             (int (*) _((List *, List *))) AddLast);
         }
     }
     fclose(fp);
     if (tmplist) {
-        countall=0;
-
-        *putbuf='\0';
+        countall = 0;
+        *putbuf = '\0';
         /* let's print all available hostnames */
-        for (listnew=tmplist,i=1;listnew;i++,countall++) {
-            tmplist=listnew;
-            listnew=listnew->next;
-            snprintf(tmpbuf,sizeof(tmpbuf),"%2d) %-33s",i,tmplist->servers);
-            strmcat(putbuf,tmpbuf,sizeof(putbuf));
+        for (listnew = tmplist,i = 1; listnew; i++, countall++) {
+            tmplist = listnew;
+            listnew = listnew->next;
+            snprintf(tmpbuf, sizeof(tmpbuf), "%2d) %-33s", i, tmplist->servers);
+            strmcat(putbuf, tmpbuf, sizeof(putbuf));
             count++;
-            if (count==2 || strlen(tmplist->servers)>35) {
-                if (!newhname) say("%s",putbuf);
-                count=0;
-                *putbuf='\0';
+            if (count == 2 || strlen(tmplist->servers) > 35) {
+                if (!newhname) say("%s", putbuf);
+                count = 0;
+                *putbuf = '\0';
             }
             if (newhname) {
-                if ((*newhname=='#' && i==atoi(&newhname[1])) ||
-                    (is_number(newhname) && i==atoi(newhname)))
-                    malloc_strcpy(&chosenname,tmplist->servers);
-                else if (!chosenname) malloc_strcpy(&chosenname,newhname);
+                if ((*newhname == '#' && i == atoi(&newhname[1])) ||
+                    (is_number(newhname) && i == atoi(newhname)))
+                    malloc_strcpy(&chosenname, tmplist->servers);
+                else if (!chosenname) malloc_strcpy(&chosenname, newhname);
             }
             new_free(&(tmplist->servers));
             new_free(&tmplist);
         }
         if (!newhname) {
-            if (count) say("%s",putbuf);
+            if (count) say("%s", putbuf);
             say("Use /NEWHOST #number to select hostname");
-            if (countall==1) say("Use /NEWHOST -A to query more interfaces");
+            if (countall == 1) say("Use /NEWHOST -A to query more interfaces");
         }
     }
     else say("No valid hostnames found");
     if (chosenname) {
-        malloc_strcpy(&source_host,chosenname);
-        set_string_var(IRCHOST_VAR,chosenname);
+        malloc_strcpy(&source_host, chosenname);
+        set_string_var(IRCHOST_VAR, chosenname);
         set_irchost();
         ReconnectServer(NULL,NULL,NULL);
         new_free(&chosenname);
