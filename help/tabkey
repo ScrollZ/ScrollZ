@@ -1,4 +1,4 @@
-!	 $Id: tabkey,v 1.1 2002-10-01 17:24:10 f Exp $
+!	 $Id: tabkey,v 1.2 2002-10-01 17:27:00 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -17,22 +17,19 @@ however.
 
 SPECIAL
 
-<tab>                   cycles through your recent /msg nick list
-/msg<tab>
-
-n<tab>                  cycles through nicks starting with n
-/m n<tab>
+/msg <tab>              cycles through your recent /msg nick list
+<tab>                   (with empty input line)
 
 /m =<tab>               cycles through your dcc chat nick list
 
-/dc g n<tab>            cycles through your dcc get nick lust
-/dc ren n<tab>          cycles through your dcc get nick lust
-/dc resu n<tab>         cycles through your dcc resume nick lust
-/dc reg n<tab>          cycles through your dcc reget nick lust
+/dc g n<tab>            cycles through your dcc get nick list
+/dc ren n<tab>          cycles through your dcc get nick list
+/dc resu n<tab>         cycles through your dcc resume nick list
+/dc reg n<tab>          cycles through your dcc reget nick list
 
-/dcc send nick f<tab>   cycles through filenames on disk
-/cdcc send f<tab> [f<tab> ...] ,
-/load f<tab>
+/dc se nick f<tab>      cycles through filenames on disk
+/cdc sen f<tab> [f<tab> ...] ,
+/loa f<tab>
 
 /<tab>                  cycles through command names
 /he <tab>
