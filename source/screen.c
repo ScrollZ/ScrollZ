@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.16 2000-10-30 17:09:24 f Exp $
+ * $Id: screen.c,v 1.17 2001-03-22 21:25:43 f Exp $
  */
 
 #include "irc.h"
@@ -1966,7 +1966,6 @@ create_additional_screen()
 	char	*p, *q;
 	char	buffer[BIG_BUFFER_SIZE+1];
 	int	ircxterm_num;
-	char	*p, *q;
 	int	i;
 
 #ifdef DAEMON_UID
