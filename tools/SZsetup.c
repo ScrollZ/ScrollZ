@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $Id: SZsetup.c,v 1.2 2001-10-05 18:32:40 f Exp $
+ * $Id: SZsetup.c,v 1.3 2002-02-25 18:25:29 f Exp $
  */
 
 #include <stdio.h>
@@ -1177,6 +1177,9 @@ void init_sz_colors() {
     strcat(CmdsColors[COLME].color4,Colors[COLCYAN]);
     /* Line */
     strcpy(CmdsColors[COLME].color5,Colors[COLWHITE]);
+    /* Auto Reply */
+    strcpy(CmdsColors[COLME].color6,Colors[COLBOLD]);
+    strcat(CmdsColors[COLME].color6,Colors[COLCYAN]);
 }
 
 void disp_warning() {
