@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.h,v 1.4 2002-01-21 21:37:35 f Exp $
+ * $Id: edit.h,v 1.5 2002-01-21 22:18:17 f Exp $
  */
 
 #ifndef __edit_h_
@@ -49,7 +49,7 @@ extern	u_char	*recv_nick;
 	void	edit_char _((u_int));
 	void	execute_timer _((void));
 	void	ison_now _((WhoisStuff *, char *, char *));
-	void	redirect_msg _((u_char *, u_char *));
+	void	redirect_msg _((char *, char *));
 	void	query _((char *, char *, char *));
 	void	forward_character _((u_int, char *));
 	void	backward_character _((u_int, char *));

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.22 2002-01-21 21:37:35 f Exp $
+ * $Id: alias.c,v 1.23 2002-01-21 22:15:31 f Exp $
  */
 
 #include "irc.h"
@@ -725,7 +725,7 @@ find_inline(str)
 	return (ret);
 }
 
-u_char	*
+char	*
 call_function(name, f_args, args, args_flag)
 	char	*name,
 		*f_args,
@@ -3033,7 +3033,7 @@ function_crypt(input)
 	if (!(salt = next_arg((char *) input, &key)))
 		malloc_strcpy((char **) &result, zero);
 	else
-		malloc_strcpy((char **) &result, crypt(key, salt));
+		malloc_strcpy((char **) &result, (char *) crypt(key, salt));
 	return (result);
 }
 #endif /* HAVE_CRYPT */
@@ -3187,21 +3187,21 @@ function_windows(input)
 	Win_Trav stuff;
 	Window	*tmp;
 
-	malloc_strcat(&result, empty_string);
+	malloc_strcat((char **) &result, empty_string);
 	stuff.flag = 1;
 	while ((tmp = window_traverse(&stuff)))
 	{
 		if (tmp->name)
 		{
-			malloc_strcat(&result, tmp->name);
-			malloc_strcat(&result, " ");
+			malloc_strcat((char **) &result, tmp->name);
+			malloc_strcat((char **) &result, " ");
 		}
 		else
 		{
 			char buf[32];
 
 			snprintf(buf, sizeof buf, "%u ", tmp->refnum);
-			malloc_strcat(&result, buf);
+			malloc_strcat((char **) &result, buf);
 		}
 	}
 
@@ -3216,13 +3216,13 @@ function_screens(input)
 	u_char	*result = (u_char *) 0;
 	char buf[32];
 
-	malloc_strcat(&result, empty_string);
+	malloc_strcat((char **) &result, empty_string);
 	for (list = screen_list; list; list = list->next)
 	{
 		if (list->alive)
 		{
 			snprintf(buf, sizeof buf, "%u ", list->screennum);
-			malloc_strcat(&result, buf);
+			malloc_strcat((char **) &result, buf);
 		}
 	}
 
@@ -3256,7 +3256,7 @@ function_ignored(input)
 	u_char	*result = (u_char *) 0, *userhost, *nick;
 	int type;
 
-	if ((nick = next_arg(input, &input)) != NULL)
+	if ((nick = next_arg((char *) input, (char **) &input)) != NULL)
 	{
 		type = get_ignore_type(input);
 		if (type == 0 || type == -1 || type == IGNORE_ALL)
@@ -3267,13 +3267,13 @@ function_ignored(input)
 		switch (double_ignore(nick, userhost, type))
 		{
 		case DONT_IGNORE:
-			malloc_strcpy(&result, "dont");
+			malloc_strcpy((char **) &result, "dont");
 			break;
 		case HIGHLIGHTED:
-			malloc_strcpy(&result, "highlighted");
+			malloc_strcpy((char **) &result, "highlighted");
 			break;
 		case IGNORED:
-			malloc_strcpy(&result, "ignored");
+			malloc_strcpy((char **) &result, "ignored");
 			break;
 		default:
 			goto do_zero;
@@ -3281,7 +3281,7 @@ function_ignored(input)
 	}
 	else
 do_zero:
-		malloc_strcpy(&result, zero);
+		malloc_strcpy((char **) &result, zero);
 	return (result);
 }
 
@@ -3809,7 +3809,7 @@ function_filestat(input)
 
 
 	if (stat(input, &statbuf) == -1)
-		malloc_strcpy(&result, empty_string);
+		malloc_strcpy((char **) &result, empty_string);
 	else
 	{
 		snprintf(lbuf, sizeof lbuf, "%lu,%d,%d,%o,%s",
@@ -3818,7 +3818,7 @@ function_filestat(input)
 		    (int)statbuf.st_gid,
 		    statbuf.st_mode,
 		    input);
-		malloc_strcpy(&result, lbuf);
+		malloc_strcpy((char **) &result, lbuf);
 	}
 	return (result);
 }
