@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.6 2001-05-09 18:06:41 f Exp $
+# @(#)$Id: Makefile.in,v 1.7 2001-05-09 18:33:52 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -52,7 +52,7 @@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
-libdir = ${exec_prefix}/lib
+libdir = @libdir@
 mandir = ${prefix}/man/man1
 
 # Where the ircII binary will be installed.
