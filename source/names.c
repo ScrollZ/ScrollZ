@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.41 2002-04-07 16:42:01 f Exp $
+ * $Id: names.c,v 1.42 2002-08-08 20:52:24 f Exp $
  */
 
 #include "irc.h"
@@ -689,10 +689,10 @@ char    *servmodes;
         NickList *tmpjoiner = NULL;
         WhowasList *whowas;
 
+        *nethackbuf = '\0';
         if (check) {
             if (isserver) userhost = NULL;
             *nethacks = '\0';
-            *nethackbuf = '\0';
             *servmodeadd = '\0';
             *tmpbufmode = '\0';
             *servline = '\0';
