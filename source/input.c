@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.16 2002-01-21 22:38:59 f Exp $
+ * $Id: input.c,v 1.17 2002-02-27 19:08:23 f Exp $
  */
 
 #include "irc.h"
@@ -883,7 +883,7 @@ set_input_prompt(prompt)
                         *ptr = '\0';
                         strmcat(inpbuf, prompt, mybufsize);
                         *(ptr++) = '%';
-                        if ((*ptr == 'Y') || (*ptr = ='y')) {
+                        if ((*ptr == 'Y') || (*ptr == 'y')) {
                             switch (*(++ptr)) {
                                 case '0':
                                     color = Colors[COLOFF];
