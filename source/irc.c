@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.98 2003-01-08 20:00:54 f Exp $
+ * $Id: irc.c,v 1.99 2003-04-16 15:40:46 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1440,6 +1440,10 @@ irc_io(prompt, func, my_use_input, loop)
 			if (errno == EBADF || errno == ESRCH)
 				irc_io_loop = 0;
 #endif
+/**************************** Patched by Flier ******************************/
+                        /* update time stamp if necessary */
+                        if (Stamp) SetStampFormat(NULL);
+/****************************************************************************/
 			if (cntl_c_hit)
 			{
 				if (one_key)
@@ -1472,6 +1476,10 @@ irc_io(prompt, func, my_use_input, loop)
 /****************************************************************************/
 			break;
 		default:
+/**************************** Patched by Flier ******************************/
+                        /* update time stamp if necessary */
+                        if (Stamp) SetStampFormat(NULL);
+/****************************************************************************/
 #ifndef _Windows
 			if (term_reset_flag)
 			{
