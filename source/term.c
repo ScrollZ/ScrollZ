@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.4 1999-03-04 22:06:13 f Exp $
+ * $Id: term.c,v 1.5 1999-04-25 14:41:28 f Exp $
  */
 
 #include "irc.h"
@@ -287,7 +287,11 @@ void
 term_putchar(i)
  	u_int	i;
 {
- 	char	c = (char)i;
+/**************************** PATCHED by Flier ******************************/
+ 	/*char	c = (char)i;*/
+        /* We need this for high ascii characters */
+ 	u_char c=i;
+/****************************************************************************/
 
 	if (term_echo_flag)
 	{
@@ -373,8 +377,10 @@ term_puts(str, len)
 #else
 /****************************************************************************/
 	for (i = 0; *str && (i < len); str++, i++)
- 		term_putchar((u_int)*str);
 /**************************** PATCHED by Flier ******************************/
+ 		/*term_putchar((u_int)*str);*/
+                /* We need this for high ascii characters! */
+ 		term_putchar((u_char) *str);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	return (i);
