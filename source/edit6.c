@@ -62,7 +62,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.83 2001-05-11 18:52:04 f Exp $
+ * $Id: edit6.c,v 1.84 2001-07-21 19:07:46 f Exp $
  */
 
 #include "irc.h"
@@ -1047,6 +1047,7 @@ char *subargs;
         { "AUTOGET"     , &AutoGet        , "Cdcc auto-get" },
         { "EGO"         , &Ego            , "Ego" },
         { "EXTMES"      , &ExtMes         , "Extended messages display" },
+        { "EXTPUB"      , &ExtPub         , "Extended public messages display" },
         { "LOGON"       , &LogOn          , "Logging if not away" },
         { "LONGSTATUS"  , &LongStatus     , "Cdcc long status" },
 #ifdef EXTRA_STUFF

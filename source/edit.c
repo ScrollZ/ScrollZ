@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.60 2001-06-12 16:31:02 f Exp $
+ * $Id: edit.c,v 1.61 2001-07-21 19:07:46 f Exp $
  */
 
 #include "irc.h"
@@ -554,6 +554,7 @@ static	IrcCommand FAR irc_command[] =
 	{ "EXEC",	NULL,		execcmd,		0 },
  	{ "EXIT",	"QUIT",		e_quit,			NONOVICEABBREV },
   { "EXTMES", 		"EXTMES", 	OnOffCommand, 		0 },
+  { "EXTPUB", 		"EXTPUB", 	OnOffCommand, 		0 },
   { "FAKE", 		"FAKE", 	ChannelCommand, 	0 },
   { "FBK", 		"FBK", 		FilterKick, 		SERVERREQ },
 	{ "FE",		NULL,		foreach_handler,	0 },

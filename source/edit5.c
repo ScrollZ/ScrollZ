@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.63 2001-06-12 16:17:01 f Exp $
+ * $Id: edit5.c,v 1.64 2001-07-21 19:07:46 f Exp $
  */
 
 #include "irc.h"
@@ -1306,6 +1306,8 @@ int  iscrypted;
     int  isshit=0;
     int  isitme;
     int  numurl=0;
+    int  isopped=0;
+    int  isvoiced=0;
     char *mynick;
     char *newcol;
     char *newchan;
@@ -1351,6 +1353,8 @@ int  iscrypted;
         joiner->lastmsg=time((time_t *) 0);
         isshit=joiner->shitlist?joiner->shitlist->shit:0;
         isfriend=(!isshit && joiner->frlist)?joiner->frlist->privs:0;
+        isopped=joiner->chanop;
+        isvoiced=joiner->hasvoice;
     }
     if (!col) {
         newcol=empty_string;
@@ -1405,6 +1409,14 @@ int  iscrypted;
             sprintf(tmpbuf5,"%s>%s",CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
 #endif
 	}
+        *tmpbuf3='\0';
+        if (ExtPub) {
+            strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
+            if (isopped) strcat(tmpbuf3,"@");
+            else if (isvoiced) strcat(tmpbuf3,"+");
+            strcat(tmpbuf3,Colors[COLOFF]);
+            strcat(tmpbuf1,tmpbuf3);
+        }
         if (!isitme && AutoReplyBuffer) {
             int invmatch;
 
@@ -1449,8 +1461,16 @@ int  iscrypted;
                 if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,5);
                 else strcpy(channel1,channel);
 #endif
-                sprintf(tmpbuf2,"%s(%s%s%s%s:%s%s%s%s)%s ",CmdsColors[COLPUBLIC].color2,
-                        Colors[COLOFF],CmdsColors[COLPUBLIC].color4,nick,Colors[COLOFF],
+                *tmpbuf3='\0';
+                if (ExtPub) {
+                    strcpy(tmpbuf3,CmdsColors[COLPUBLIC].color6);
+                    if (isopped) strcat(tmpbuf3,"@");
+                    else if (isvoiced) strcat(tmpbuf3,"+");
+                    strcat(tmpbuf3,Colors[COLOFF]);
+                }
+                sprintf(tmpbuf2,"%s(%s%s%s%s%s:%s%s%s%s)%s ",CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                        tmpbuf3,
+                        CmdsColors[COLPUBLIC].color4,nick,Colors[COLOFF],
 #ifdef CELE
                         CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF],
 #else
@@ -1507,7 +1527,7 @@ int  iscrypted;
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
     }
-#else
+#else  /* WANTANSI */
     if (!isitme || ShowNick) {
         if (!isitme && AutoReplyBuffer) {
             strcpy(tmpbuf1,AutoReplyBuffer);
@@ -1522,19 +1542,23 @@ int  iscrypted;
             }
             while (currentar && !foundar);
         }
+        *tmpbuf2='\0';
+        if (ExtPub) {
+            strcpy(tmpbuf2,"");
+            if (isopped) strcat(tmpbuf2,"@");
+            else if (isvoiced) strcat(tmpbuf2,"+");
+            strcat(tmpbuf2,"");
+        }
         if (print && (!foundar || isitme)) {
-            char *tmpstr=(char *) 0;
-
-            if (iscrypted) malloc_strcpy(&tmpstr,"[!]");
-            malloc_strcat(&tmpstr,stampbuf);
-            put_it("%s%s<%s%s%s%s%s>%s %s",tmpstr,
+            sprintf(tmpbuf3,"%s%s<%s",iscrypted?"[!]":"",stampbuf,tmpbuf2);
+            put_it("%s%s%s%s%s%s%s>%s %s",tmpbuf3,
                    (isitme && Ego)?"":"",(isitme && Ego)?"":"",nick,newcol,newchan,
                    (isitme && Ego)?"":"",(isitme && Ego)?"":"",tmpbuf4);
-            new_free(&tmpstr);
         }
         else {
             if (print)
-                put_it("%s%s<%s%s%s> %s",iscrypted?"[!]":"",stampbuf,nick,newcol,newchan,tmpbuf4);
+                put_it("%s%s<%s%s%s%s> %s",iscrypted?"[!]":"",
+                        stampbuf,tmpbuf2,nick,newcol,newchan,tmpbuf4);
             if (away_set || LogOn) {
                 sprintf(tmpbuf2,"<%s:%s> %s",nick,channel,tmpbuf4);
                 AwaySave(tmpbuf2,SAVEAREPLY);
@@ -1545,7 +1569,7 @@ int  iscrypted;
         if (!col && print) put_it("%s%s> %s",iscrypted?"[!]":"",stampbuf,tmpbuf4);
         else if (print) put_it("%s%s>%s> %s",iscrypted?"[!]":"",stampbuf,newchan,tmpbuf4);
     }
-#endif
+#endif /* WANTANSI */
     if (URLCatch && URLCatch<3 && numurl)
         say("Added %d URL%s to NotePad (%c%s%c)",numurl,numurl==1?"":"s",bold,filepath,
             bold);

@@ -378,9 +378,9 @@ $3G$0   user is god, client will reop/unban/invite him when he gets
     deopped/banned/kicked plus offender will be deopped unless
     he is god too
 $3D$0   user has access to CDCC. This is only relevant when /CDCC SECURE
-    is ON. If so, user will be able to see/get files from your offer
+    is $3ON$0. If so, user will be able to see/get files from your offer
     list plus you will autoget files from this user if /CDCC AUTOGET
-    is ON as well. User will be exempt from minimum speed check and
+    is $3ON$0 as well. User will be exempt from minimum speed check and
     their requests will not be queued but carried right away.
 $3J$0   upon invite to a channel from user with this level, you will au-
     tomatically join no matter what /AJOIN is set to
@@ -561,6 +561,11 @@ Usage $3EGO on$0|$3off$0
 If on, your nick will have different colour in public messages
 :EXTMES        Toggles extended message display on/off
 Usage $3EXTMES on$0|$3off$0
+:EXTPUB        Toggles extended public messages display on/off
+Usage $3EXTPUB on$0|$3off$0
+When enabled, @ will be shown in front of user's public message
+if they have channel operator status. Similarly, + will be
+shown if they have voice status.
 :FAKE          Toggles fake modes display on/off
 Usage $3FAKE on channels$0|$3off$0
 Also look at $2SERVNOTICE$0
@@ -594,8 +599,8 @@ Also look at $2DPROT$0, $2DEOPS$0, $2DEOPT$0, $2KPROT$0, $2KICKS$0 and $2KICKT$0
 :KICKOPS       Toggles whether to kick chan-ops on/off
 Usage $3KICKOPS on channels$0|$3off$0
 When set to on, channel operators will be kicked on word-kick and
-filter-kick too. When set to off, only non channel operators will be
-kicked.
+filter-kick. When set to off, only non channel operators will be
+kicked on word-kick and filter-kick.
 Also look at $2ADDW$0, $2FBK$0, $2FK$0, $2LISTW$0 and $2REMW$0
 :KICKS         Sets mass kick sensor
 Usage $3KICKS number_of_kicks$0
@@ -611,8 +616,8 @@ will be kicked if $4KICKONFLOOD$0 is $3ON$0.
 Also look at $2KICKONFLOOD$0, $2KICKS$0 and $2KICKT$0
 :MIRC          Toggles whether to convert mIRC colors to ANSI
 Usage $3MIRC on$0|$3off$0|$3strip$0
-When set to ON, client will translate mIRC colors to ANSI colors.
-When set to OFF, no translation will be performed. When set to
+When set to $3ON$0, client will translate mIRC colors to ANSI colors.
+When set to $3OFF$0, no translation will be performed. When set to
 STRIP annoying mIRC color crap will be stripped from output.
 :NHPROT        Toggles nethack protection on/off and sets display level
 Usage $3NHPROT on channels$0|$3off quiet$0|$3medium$0|$3full$0
@@ -987,27 +992,28 @@ Also look at $2CDCC DLDIR$0
    CSCAN         CTCPCLOAK     CYCLE         DEOPS         DEOPT
    DIRLM         DIRLMK        DIRLN         DIRLNK        DIRLSM
    DIRLSN        DOBANS        DOP           DPROT         DUMP
-   EGO           ENCRMSG       EXTMES        FAKE          FBK
-   FINGER        FK            FKLINE        FLOODP        FRLIST
-   IDLEKICK      IDLETIME      IG            IGTIME        INV
-   J             K             KEYS          KICKONBAN     KICKONFLOOD
-   KICKOPS       KICKS         KICKT         KPROT         L
-   LEVELS        LISTBK        LISTF         LISTN         LISTS
-   LISTW         LK            LLOOK         LLOOKUP       LOGON
-   LS            M             MAP           MASSDV        MASSV
-   MC            MDOP          MIRC          MK            MKILL
-   MODELOCK      MODEUNLOCK    MOP           MREOP         MSAY
-   MULTK         N             NET           NEWHOST       NEWUSER
-   NHPROT        NICKS         NICKT         NOCHAT        NOIG
-   NOKEY         NOTEPAD       NPROT         NSLOOKUP      NTFYMODE
-   NWHOIS        OP            ORIGNICK      ORIGNTIME     OV
-   P             PASSWD        PLAYBACK      RANLK         RE
-   RECONNECT     RELOAD        REMBK         REMCHAN       REMF
-   REMFCHAN      REMFFLAG      REMLOG        REMN          REMS
-   REMW          REPWORD       S             SB            SERVNOTICE
-   SETAWAY       SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE
-   SHOWKILL      SHOWNICK      SHOWUSER      SINFO         SPING
-   STAMP         SVE           T             TBAN          TERMINATE
-   TKILL         UMODE         UNBAN         UNFLASH       URL
-   URLCATCH      VER           W             WALL          WHOLEFT
-   WI            WII           WKILL         WW            
+   EGO           ENCRMSG       EXTMES        EXTPUB        FAKE
+   FBK           FILINE        FINGER        FK            FKLINE
+   FLOODP        FRLIST        FTRACE        IDLEKICK      IDLETIME
+   IG            IGTIME        INV           J             K
+   KEYS          KICKONBAN     KICKONFLOOD   KICKOPS       KICKS
+   KICKT         KPROT         L             LEVELS        LISTBK
+   LISTF         LISTN         LISTS         LISTW         LK
+   LLOOK         LLOOKUP       LOGON         LS            M
+   MAP           MASSDV        MASSV         MC            MDOP
+   MIRC          MK            MKILL         MODELOCK      MODEUNLOCK
+   MOP           MREOP         MSAY          MULTK         N
+   NET           NEWHOST       NEWUSER       NHPROT        NICKS
+   NICKT         NOCHAT        NOIG          NOKEY         NOTEPAD
+   NPROT         NSLOOKUP      NTFYMODE      NWHOIS        OP
+   ORIGNICK      ORIGNTIME     OV            P             PASSWD
+   PLAYBACK      RANLK         RE            RECONNECT     RELOAD
+   REMBK         REMCHAN       REMF          REMFCHAN      REMFFLAG
+   REMLOG        REMN          REMS          REMW          REPWORD
+   S             SB            SERVNOTICE    SETAWAY       SETBACK
+   SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK
+   SHOWSIGN      SHOWUSER      SINFO         SPING         STAMP
+   SVE           T             TBAN          TERMINATE     TKILL
+   UMODE         UNBAN         UNFLASH       URL           URLCATCH
+   VER           W             WALL          WHOLEFT       WI
+   WII           WKILL         WW            

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.64 2001-05-09 19:30:22 f Exp $
+ * $Id: edit3.c,v 1.65 2001-07-21 19:07:46 f Exp $
  */
 
 #include "irc.h"
@@ -945,9 +945,13 @@ char *subargs;
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
-    say("%s%s",tmpbuf1,tmpbuf2);
+        sprintf(tmpbuf2,"%sON%s   ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf2,"%sOFF%s  ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    strcat(tmpbuf2,"| Extended publics : ");
+    if (ExtPub)
+        sprintf(tmpbuf3,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
+    say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %sCdcc settings%s =------------------------",
         CmdsColors[COLSETTING].color1,Colors[COLOFF]);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
@@ -1162,9 +1166,12 @@ char *subargs;
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
     if (get_int_var(AUTO_RECONNECT_VAR))
-        sprintf(tmpbuf2,"%cON%c ",bold,bold);
-    else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
-    say("%s%s",tmpbuf1,tmpbuf2);
+        sprintf(tmpbuf2,"%cON%c  ",bold,bold);
+    else sprintf(tmpbuf2,"%cOFF%c ",bold,bold);
+    strcat(tmpbuf2," | Extended publics : ");
+    if (ExtPub) sprintf(tmpbuf3,"%cON%c",bold,bold);
+    else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
+    say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     say("-------------------------= %cCdcc settings%c =------------------------",
         bold,bold);
     strcpy(tmpbuf1,"Cdcc auto get    : ");
@@ -2242,6 +2249,8 @@ int ScrollZLoad()
         else if (!strcmp("SIGNOFFALLCHAN",tmpbuf3))
             OnOffSet(&pointer,&ShowSignAllChan,&loaderror,lineno,"SIGNOFFALLCHAN");
 #endif
+        else if (!strcmp("EXTPUB",tmpbuf3))
+            OnOffSet(&pointer,&ExtPub,&loaderror,lineno,"EXTPUB");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2633,6 +2642,7 @@ void InitVars() {
 #ifdef EXTRAS
     ShowSignAllChan=0;
 #endif
+    ExtPub=1;
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;

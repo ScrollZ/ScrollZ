@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.56 2001-07-04 17:27:32 f Exp $
+ * $Id: irc.c,v 1.57 2001-07-21 19:07:46 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -458,6 +458,7 @@ int   OrigNickSent;
 #ifdef EXTRAS
 int   ShowSignAllChan;
 #endif
+int   ExtPub;
 struct in_addr DCCHost;
 #ifdef ACID
 int   ForceJoin;

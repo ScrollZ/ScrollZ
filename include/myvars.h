@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.25 2001-05-08 17:32:39 f Exp $
+ * $Id: myvars.h,v 1.26 2001-07-21 19:07:46 f Exp $
  */
 
 #include "mystructs.h"
@@ -269,6 +269,7 @@ extern int    OrigNickSent;
 #ifdef EXTRAS
 extern int    ShowSignAllChan;
 #endif
+extern int    ExtPub;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;
