@@ -1,11 +1,11 @@
 /*
- * $Id: ver.c,v 1.4 1999-03-02 17:59:29 f Exp $
+ * $Id: ver.c,v 1.5 1999-03-04 22:20:54 f Exp $
  */
 
 #include <stdio.h>
 
-char *int_ver="19980302";
-char *ver="ircII 4.4F+ScrollZ v1.8i4 (2.3.99)+Cdcc v1.8";
+char *int_ver="19980305";
+char *ver="ircII 4.4G+ScrollZ v1.8i4 (5.3.99)+Cdcc v1.8";
 char *chars=".*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ABCDEFGHIJ";
 
 char tmpbuf[128];
