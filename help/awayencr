@@ -1,4 +1,4 @@
-!	 $Id: awayencr,v 1.1 2002-03-07 16:42:33 f Exp $
+!	 $Id: awayencr,v 1.2 2002-03-07 16:51:21 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -9,8 +9,10 @@ Usage: AWAYENCR on|off
   Toggles encryption of ScrollZ.away on/off
 
   If ON, the ScrollZ.away log file will be encrypted using
-  master password as a crypt key.  When OFF, the ScrollZ.away
-  log file will not be encrypted.
+  master password as a crypt key. When OFF, the ScrollZ.away
+  log file will not be encrypted. The encrypted log file can
+  be decrypted using a tool called SZdecode found in tools
+  subdirectory in the ScrollZ source archive.
 
 See also:
   AWAYT
