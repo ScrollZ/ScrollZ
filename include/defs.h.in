@@ -345,7 +345,7 @@
 #define WANTANSI
 
 /* Define this if you want OperVision support in the client */
-#undef OPERVISION
+#define OPERVISION
 
 /* Define this if you want following optional stuff:
  - /AUTOINV   - Invites on Notify    - /LOGO
@@ -355,13 +355,13 @@
  - /LLOOKUP   - /LLOOK               - /RANLK
  - /MN        - /ML                  - /TERMINATE
  - /MSAY      - /DOBANS */
-#undef EXTRAS
+#define EXTRAS
 
 /* Define this if you want more /TIMER that's accurate to 0.01s */
-#undef BETTERTIMER
+#define BETTERTIMER
 
 /* Define this if you want formatted /CSCAN */
-#undef NEWCSCAN
+#define NEWCSCAN
 
 /* Define this if you feel users should be invited to non +i channels on
    notify signon */
@@ -384,25 +384,25 @@
 #undef VILAS
 
 /* Define this if you want better /NEWHOST */
-#undef JIMMIE
+#define JIMMIE
 
 /* Define this if you want CTCP PAGE by BiGhEaD */
-#undef CTCPPAGE
+#define CTCPPAGE
 
 /* Define this if you want different messages, chat messages and CDCC */
 #undef TDF
 
 /* Define this if you want $country() in the client */
-#undef COUNTRY
+#define COUNTRY
 
 /* Define this if you want client with Win32 support */
 #undef SZ32
 
 /* Define this if you want irc oper stuff (not OperVision!) */
-#undef OPER
+#define OPER
 
 /* Define this if you want ogre's cosmetics in OperVision */
-#undef OGRE
+#define OGRE
 
 /* Define this if you want client w/o certain functionality */
 #undef LITE
