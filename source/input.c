@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.10 2001-03-12 18:10:44 f Exp $
+ * $Id: input.c,v 1.11 2001-03-21 20:33:44 f Exp $
  */
 
 #include "irc.h"
@@ -83,17 +83,8 @@ static	int	zone;
 static	int	cursor = 0;
 
 /**************************** PATCHED by Flier ******************************/
-static void CheckNickCompletion() {
-    int i;
-    int numspaces=0;
-
-    for (i=current_screen->buffer_min_pos;i<current_screen->buffer_pos;i++)
-        if (current_screen->input_buffer[i]==' ')
-            numspaces++;
-    if ((current_screen->buffer_min_pos==current_screen->buffer_pos) || numspaces<2) {
-        if (!inSZNickCompl) new_free(&CurrentNick);
-        tabnickcompl=NULL;
-    }
+static void ResetNickCompletion() {
+    tabnickcompl=NULL;
 }
 /****************************************************************************/
 
@@ -461,7 +452,7 @@ input_delete_character(key, ptr)
 		}
 	}
 /**************************** PATCHED by Flier ******************************/
-        CheckNickCompletion();
+        ResetNickCompletion();
 /****************************************************************************/
 }
 
@@ -516,7 +507,7 @@ input_backspace(key, ptr)
 		}
 	}
 /**************************** PATCHED by Flier ******************************/
-        CheckNickCompletion();
+        ResetNickCompletion();
 /****************************************************************************/
 }
 
@@ -577,7 +568,6 @@ input_delete_previous_word(key, ptr)
 	strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), &(current_screen->input_buffer[old_pos]));
 	update_input(UPDATE_FROM_CURSOR);
 /**************************** PATCHED by Flier ******************************/
-        if (!inSZNickCompl) new_free(&CurrentNick);
         tabnickcompl=NULL;
 /****************************************************************************/
 }
@@ -669,7 +659,7 @@ input_add_character(key, ptr)
 		update_input(display_flag);
 	}
 /**************************** PATCHED by Flier ******************************/
-        if (key==' ') new_free(&CurrentNick);
+        if (key==' ') ResetNickCompletion();
 /****************************************************************************/
 }
 
@@ -765,7 +755,6 @@ input_clear_line(key, ptr)
 #else
         term_move_cursor(current_screen->buffer_min_pos, input_line);
 #endif
-        new_free(&CurrentNick);
         tabnickcompl=NULL;
 /****************************************************************************/
 	if (term_clear_to_eol())
