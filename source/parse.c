@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.69 2003-07-06 09:46:25 f Exp $
+ * $Id: parse.c,v 1.70 2003-12-24 19:42:33 f Exp $
  */
 
 #include "irc.h"
@@ -100,9 +100,12 @@ extern int  CompareAddr _((List *, char *));
 extern int  AddLast _((List *, List *));
 extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
+extern void SendToServer _((void));
+extern int  RateLimitJoin _((int));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
+extern void timercmd _((char *, char *, char *));
 
 #if defined(CELE)
 extern struct timeval PingSent;
@@ -1177,6 +1180,10 @@ p_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
         int     donelj = 0;
         char    tmpbuf[mybufsize + 1];
+        void    (*func)() = (void(*)()) SendToServer;
+        time_t  timenow = time(NULL);
+        static int numjoins = 0;
+        static time_t lastjoin = 0;
         NickList *joiner = NULL;
         ChannelList *chan = NULL;
 /****************************************************************************/
@@ -1225,8 +1232,8 @@ p_channel(from, ArgList)
 			add_channel(channel, parsing_server_index, CHAN_JOINED, NULL, NULL,
                                     chan ? chan->gotwho : 0);
                         chan = lookup_channel(channel, parsing_server_index, 0);
-                        if ((get_server_version(from_server) == Server2_9 || 
-                             get_server_version(from_server) == Server2_10) &&
+                        if ((get_server_version(parsing_server_index) == Server2_9 || 
+                             get_server_version(parsing_server_index) == Server2_10) &&
                             IsIrcNetOperChannel(channel)) {
                             snprintf(tmpbuf,sizeof(tmpbuf), "MODE %s", channel);
                         }
@@ -1239,7 +1246,22 @@ p_channel(from, ArgList)
                                         channel, channel, channel);
                             }
                         }
-                        send_to_server("%s", tmpbuf);
+                        if (RateLimitJoin(parsing_server_index)) {
+                            if (timenow - lastjoin < 2) {
+                                char tmpbuf2[mybufsize];
+
+                                /* delay subsequent WHOs by 3 seconds */
+                                numjoins += 4;
+                                snprintf(tmpbuf2, sizeof(tmpbuf2), "-INV %d %s",
+                                        numjoins, tmpbuf);
+                                timercmd("FTIMER", tmpbuf2, (char *) func);
+                            }
+                            else {
+                                numjoins = 0;
+                                send_to_server("%s", tmpbuf);
+                            }
+                            lastjoin = timenow;
+                        }
 /*************************************************************************/
 			if (get_server_version(parsing_server_index) == Server2_5)
 				send_to_server("NAMES %s", channel);

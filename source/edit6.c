@@ -67,10 +67,12 @@
  ChannelLogReportAll Report channel logging event for all channels
  ChannelLogSave      Save channel logging event (join, kick, ...)
  CdExceptions        Clears channel of ban exceptions
+ SendToServer        Sends data to server (used from timer)
+ RateLimitJoin       Should we rate limit the join
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.146 2003-12-03 18:09:55 f Exp $
+ * $Id: edit6.c,v 1.147 2003-12-24 19:42:33 f Exp $
  */
 
 #include "irc.h"
@@ -3321,4 +3323,23 @@ char *subargs;
         if (send) send_to_server("%s", tmpbuf1);
     }
     else NotChanOp(tmpchan);
+}
+
+/* Send data to server */
+void SendToServer(stuff)
+char *stuff;
+{
+    send_to_server("%s", stuff);
+}
+
+/* Should we rate limit the join */
+/* only on hybrid7 / ircd-ratbox for now */
+int RateLimitJoin(server_index)
+int server_index;
+{
+    char *verstr = server_list[server_index].version_string;
+    if (!my_strnicmp(verstr, "ircd-ratbox-1.2", 15) ||
+        !my_strnicmp(verstr, "hybrid-7.0", 10))
+        return 1;
+    return 0;
 }
