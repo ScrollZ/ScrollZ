@@ -81,6 +81,9 @@ Meaning of flags:
     - orignick based on notify signoff
     + ORIGNICK now allows multiple nicks (separate them with comma, requested
       by fox)
+    ~ annoying PONG notice when connecting through psyBNC (thanks to markalso
+      for debugging) but other things might not work 100% because psyBNC mucks
+      with the data stream between client and server
 
 ------------------------------------------------------------------------------
 
