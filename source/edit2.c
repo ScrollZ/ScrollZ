@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.37 1999-11-12 20:52:00 f Exp $
+ * $Id: edit2.c,v 1.38 2000-02-03 19:02:46 f Exp $
  */
 
 #include "irc.h"
@@ -3855,7 +3855,7 @@ char *subargs;
        1 = Linux
        2 = BSD 
        3 = Solaris */
-    if (!(uname(&unamebuf))) {
+    if ((uname(&unamebuf))!=-1) {
         if (wild_match("*linux*",unamebuf.sysname)) type=1;
         else if (wild_match("*bsd*",unamebuf.sysname)) type=2;
         else if (wild_match("*sunos*",unamebuf.sysname)) type=3;
@@ -3916,10 +3916,13 @@ char *subargs;
 #else  /* __linux__ */
     /* run /sbin/ifconfig */
     switch (type) {
-        case 2: /* BSD */
+        case 2:  /* BSD */
             tmpstr="-m -a";
             break;
-        case 3: /* Solaris */
+        case 3:  /* Solaris */
+            tmpstr="-a";
+            break;
+        default: /* other OSes, wild guess */
             tmpstr="-a";
             break;
     }
