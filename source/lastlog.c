@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: lastlog.c,v 1.7 2001-06-12 18:18:48 f Exp $
  */
 
 #include "irc.h"
@@ -272,6 +272,8 @@ lastlog(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
         int     lines=0;
         int     count=0;
+        int     timeend=-1;
+        int     timestart=-1;
         char    *blah=(char *) 0;
         char    *tmpbuf=(char *) 0;
 	Lastlog *tmp;
@@ -299,6 +301,10 @@ lastlog(command, args, subargs)
                             char *ptr=(char *) 0;
 
                             if ((ptr=next_arg(args,&args))) lines=atoi(ptr);
+                            else {
+                                say("Need number for MAX");
+                                goto out;
+                            }
                             if (lines<0) lines=0;
                         }
                         else if (!strncmp(cmd,"CLEAR",len)) {
@@ -313,6 +319,73 @@ lastlog(command, args, subargs)
                             curr_scr_win->lastlog_size=0;
                             say("Lastlog cleared, %d entries removed",count);
                             goto out;
+                        }
+                        else if (!strncmp(cmd,"TIME",len)) {
+                            int hours;
+                            int minutes=0;
+                            char *minstr;
+                            char *tmpstr;
+                            char *timestr=(char *) 0;
+
+                            if ((timestr=next_arg(args,&args))) {
+                                /* time format: 12:30-14:30 or 3:30PM-4:15PM */
+                                hours=atoi(timestr);
+                                minstr=timestr;
+                                while (*minstr && *minstr!='-') {
+                                    if (*minstr==':') {
+                                        *minstr++='\0';
+                                        minutes=atoi(minstr);
+                                        timestr=minstr;
+                                        break;
+                                    }
+                                    minstr++;
+                                }
+                                tmpstr=timestr;
+                                while (*tmpstr && *tmpstr!='-') {
+                                    if (*tmpstr=='P' || *tmpstr=='p') {
+                                        hours+=12;
+                                        break;
+                                    }
+                                    tmpstr++;
+                                }
+                                if (hours<0 || hours>24) {
+                                    say("Illegal start time specified");
+                                    continue;
+                                }
+                                timestart=hours*60+minutes;
+                                timestr=index(timestr,'-');
+                                if (timestr) {
+                                    timestr++;
+                                    hours=atoi(timestr);
+                                    minstr=timestr;
+                                    while (*minstr) {
+                                        if (*minstr==':') {
+                                            *minstr++='\0';
+                                            minutes=atoi(minstr);
+                                            timestr=minstr;
+                                            break;
+                                        }
+                                        minstr++;
+                                    }
+                                    tmpstr=timestr;
+                                    while (*tmpstr) {
+                                        if (*tmpstr=='P' || *tmpstr=='p') {
+                                            hours+=12;
+                                            break;
+                                        }
+                                        tmpstr++;
+                                    }
+                                    if (hours<0 || hours>24) {
+                                        say("Illegal end time specified");
+                                        continue;
+                                    }
+                                    timeend=hours*60+minutes;
+                                }
+                            }
+                            else {
+                                say("Need time string for TIME");
+                                goto out;
+                            }
                         }
 			/*if (!strncmp(cmd, "LITERAL", len))*/
 			else if (!strncmp(cmd, "LITERAL", len))
@@ -459,6 +532,52 @@ out:
 					fprintf(fp, "%s\n", start_pos->msg);
 				else
 					put_it("%s", start_pos->msg);*/
+                        if (timestart>=0 || timeend>=0) {
+                            int timeline=-1;
+                            char *tmpstr;
+
+                            tmpbuf=(char *) new_malloc(strlen(start_pos->msg)+1);
+                            StripAnsi(start_pos->msg,tmpbuf,1);
+                            tmpstr=tmpbuf;
+                            if (*tmpstr=='(' && isdigit(*(tmpstr+1))) {
+                                int hours;
+                                int minutes=0;
+                                char *minstr;
+
+                                tmpstr++;
+                                hours=atoi(tmpstr);
+                                minstr=tmpstr;
+                                while (*minstr && !isspace(*minstr)) {
+                                    if (*minstr==':') {
+                                        *minstr++='\0';
+                                        minutes=atoi(minstr);
+                                        tmpstr=minstr;
+                                        break;
+                                    }
+                                    minstr++;
+                                }
+                                while (*tmpstr && !isspace(*tmpstr)) {
+                                    if (*tmpstr=='P' || *tmpstr=='p') {
+                                        hours+=12;
+                                        break;
+                                    }
+                                    tmpstr++;
+                                }
+                                timeline=hours*60+minutes;
+                            }
+                            new_free(&tmpbuf);
+                            if (timeline>=0) {
+                                if (timestart>=0 && timeend>=0) {
+                                    if (timeline<timestart || timeline>timeend) continue;
+                                }
+                                else if (timestart>=0) {
+                                    if (timeline<timestart) continue;
+                                }
+                                else if (timeend>=0) {
+                                    if (timeline>timeend) continue;
+                                }
+                            }
+                        }
                         if (!match || wild_match(blah, start_pos->msg)) {
                             if (get_int_var(LASTLOG_ANSI_VAR)) {
                                 tmpbuf=(char *) new_malloc(strlen(start_pos->msg)+1);
