@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.13 1999-03-18 19:25:20 f Exp $
+ * $Id: parse.c,v 1.14 1999-05-13 16:55:35 f Exp $
  */
 
 #include "irc.h"
@@ -975,8 +975,7 @@ pong(from, ArgList)
 	/*if (ArgList[0])
 		say("%s: PONG received from %s", ArgList[0], from);*/
         if (ArgList[0]) {
-            if (ArgList[1] && index(ArgList[0],'.') &&
-                !my_stricmp(ArgList[1],get_server_nickname(from_server))) {
+            if (ArgList[1] && index(ArgList[0],'.')) {
                 if ((spingtmp=(struct spingstr *) list_lookup((List **) &spinglist,
                                                               ArgList[0],!USE_WILDCARDS,
                                                               REMOVE_FROM_LIST))) {
