@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.69 2001-09-17 16:29:44 f Exp $
+ * $Id: edit3.c,v 1.70 2001-10-18 20:19:55 f Exp $
  */
 
 #include "irc.h"
@@ -2308,7 +2308,7 @@ int ScrollZLoad()
             }
         }
 #endif
-        else if (*tmpbuf3!='#') PrintError("unknown command",empty_string,lineno);
+        else if (*tmpbuf3!='#') PrintError("unknown command",tmpbuf3,lineno);
     }
     fclose(usfile);
     if (loaderror) say("There were errors in ScrollZ.save");
