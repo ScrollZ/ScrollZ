@@ -35,7 +35,7 @@ Meaning of flags:
       /DCC SEND nick <tab> cycles through files on disk - if you use a
       relative path it looks in your CDCC ULDIR or current dir if that
       isn't set, also completes commands as in /M<tab> and /HELP M<tab>,
-      and path in /LOAD (coded by braneded, many thanks!)
+      path in /LOAD and DCC CHAT nicks (coded by braneded, many thanks!)
     + SHOWWALLOP to toggle whether to show included/excluded nicks with
       channel wallops
     ! don't core in completion routine if we're not on a server
