@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.35 1999-10-04 19:21:37 f Exp $
+ * $Id: edit3.c,v 1.36 2000-01-27 16:06:08 f Exp $
  */
 
 #include "irc.h"
@@ -93,7 +93,6 @@ extern void NoWindowChannel _((void));
 extern void ShowHelpLine _((char *));
 extern void PrintUsage _((char *));
 extern void MangleString _((char *, char *, int));
-extern void MangleVersion _((char *));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern int  AddLast _((List *, List *));
 extern int  CheckPrivs _((char *, char *));
@@ -103,7 +102,7 @@ extern NickList * find_in_hash _((ChannelList *, char *));
 extern void dcc_chat _((char *));
 extern void dcc_close _((char *));
 
-extern char *ScrollZlame1;
+extern char *ScrollZver1;
 extern char *chars;
 #ifdef IPCHECKING
 extern char global_track[];
@@ -2576,15 +2575,15 @@ void InitVars() {
     CdccVerbose=1;
     usersloaded=0;
     unban=0;
-    MangleVersion(tmpbuf);
+    strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
     for (i=0,tmpstr2=tmpstr1;i<1;tmpstr2++) if (*tmpstr2==' ') i++;
     tmpstr2--;
     *tmpstr2='\0';
-    malloc_strcpy(&ScrollZlame1,tmpstr1);
+    malloc_strcpy(&ScrollZver1,tmpstr1);
 #ifdef IPCHECKING
     MangleString(global_track,tmpbuf,1);
-    if (!(*tmpbuf)) strcpy(tmpbuf,ScrollZlame);
+    if (!(*tmpbuf)) strcpy(tmpbuf,ScrollZver);
     malloc_strcpy(&channel_join,tmpbuf);
 #endif
     InitKeysColors();

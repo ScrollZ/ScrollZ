@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.55 2000-01-26 16:54:15 f Exp $
+ * $Id: edit6.c,v 1.56 2000-01-27 16:06:33 f Exp $
  */
 
 #include "irc.h"
@@ -193,7 +193,7 @@ static struct joinkeystr {
     char *channel;
 } joinkeys[NUM_JOIN_KEYS];
 
-extern char *ScrollZlame1;
+extern char *ScrollZver1;
 extern char *HelpPathVar;
 extern char *CelerityNtfy;
 extern char *chars;
@@ -344,7 +344,7 @@ int  unmangle;
     char tmpbuf1[mybufsize/2];
     char tmpbuf2[mybufsize/8];
 
-    strcpy(tmpbuf1,ScrollZlame);
+    strcpy(tmpbuf1,ScrollZver);
     for (i=0,tmpstr2=tmpbuf1;i<2;tmpstr2++) if (*tmpstr2==' ') i++;
     for (i=0,tmpstr1=tmpstr2;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
     tmpstr1--;
@@ -1732,36 +1732,6 @@ char *nick;
     return(sum%HASHTABLESIZE);
 }
 
-void MangleVersion(buf)
-char *buf;
-{
-    int  i,j;
-    char *tmpstr1;
-    char *tmpstr2;
-    char *tmpstr3;
-    char *tmpstr4;
-
-    tmpstr1=ScrollZver;
-    tmpstr2=internal_version;
-    tmpstr3=buf;
-    while (*tmpstr1) {
-        for (tmpstr4=chars,i=0;*tmpstr4;i++,tmpstr4++)
-            if (*tmpstr4==*tmpstr1) break;
-        if (!(*tmpstr4)) break;
-        for (tmpstr4=chars,j=0;*tmpstr4;j++,tmpstr4++)
-            if (*tmpstr4==*tmpstr2) break;
-        if (!(*tmpstr4)) break;
-        i-=j;
-        if (i<0) i+=strlen(chars);
-        *tmpstr3=chars[i];
-        tmpstr1++;
-        tmpstr2++;
-        tmpstr3++;
-        if (!(*tmpstr2)) tmpstr2=internal_version;
-    }
-    *tmpstr3='\0';
-}
-
 /* Shows some ScrollZ related information */
 void ScrollZInfo(command,args,subargs)
 char *command;
@@ -1782,7 +1752,7 @@ char *subargs;
 
     /* XXX - Remove this if but leave body intact, Flier */
     if (!(args && *args)) {
-        MangleVersion(tmpbuf);
+        strcpy(tmpbuf,ScrollZver);
         tmpstr1=index(tmpbuf,' ');
         szver=index(tmpstr1+1,' ')+1;
         tmpstr1=index(szver,' ');
@@ -2102,7 +2072,7 @@ int server;
 void CleanUpScrollZVars() {
     new_free(&DefaultServer);
     new_free(&ScrollZstr);
-    new_free(&ScrollZlame1);
+    new_free(&ScrollZver1);
     new_free(&DefaultSignOff);
     new_free(&DefaultSetAway);
     new_free(&DefaultSetBack);
