@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.18 1999-07-24 12:40:24 f Exp $
+ * $Id: SZdist.c,v 1.19 1999-08-15 10:19:11 f Exp $
  */
 
 #include <stdio.h>
@@ -75,7 +75,7 @@ char *WANTANSIfiles="alias.o cdcc.o dcc.o edit.o edit2.o edit3.o edit4.o edit5.o
  whois.o";
 char *EXTRASfiles="alias.o cdcc.o edit.o edit2.o edit3.o edit4.o edit5.o edit6.o\
  list.o names.o numbers.o parse.o whowas.o";
-char *BETTERTIMERfiles="edit.o";
+char *BETTERTIMERfiles="edit.o edit6.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
 char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o vars.o window.o";
@@ -694,20 +694,20 @@ char **argv;
         fprintf(fpout,"\n/* Define this if you want client with ANSI (color) support */\n");
         if (choice&WANTANSI) fprintf(fpout,"#define WANTANSI\n");
         else fprintf(fpout,"#undef WANTANSI\n");
-        fprintf(fpout,"\n/* Define this if you want OperVision in the client */\n");
+        fprintf(fpout,"\n/* Define this if you want OperVision support in the client */\n");
         if (choice&OPERVISION) fprintf(fpout,"#define OPERVISION\n");
         else fprintf(fpout,"#undef OPERVISION\n");
         fprintf(fpout,"\n/* Define this if you want following optional stuff:\n");
-        fprintf(fpout," - /AUTOINV   - Invites on Notify    - /LOGO\n");
-        fprintf(fpout," - /FIND      - /SVER                - /BKT\n");
-        fprintf(fpout," - /DIRLMK    - /DIRLNK              - /BKI\n");
-        fprintf(fpout," - /MODELOCK  - /MODEUNLOCK          - Mode Lock Checking\n");
-        fprintf(fpout," - /LLOOKUP   - /LLOOK               - /RANLK\n");
-        fprintf(fpout," - /MN        - /ML                  - /TERMINATE\n");
-        fprintf(fpout," - /MSAY      - /DOBANS */\n");
+        fprintf(fpout," - /AUTOINV\n");
+        fprintf(fpout," - /BKT       - /BKI         - /CHSIGNOFF\n");
+        fprintf(fpout," - /DIRLMK    - /DIRLNK      - /DOBANS\n");
+        fprintf(fpout," - /IDLEKICK  - /IDLETIME    - /LLOOK\n");
+        fprintf(fpout," - /LLOOKUP   - /MASSDV      - /MASSV\n");
+        fprintf(fpout," - /MODELOCK  - /MODEUNLOCK  - /MSAY\n");
+        fprintf(fpout," - /RANLK     - /SHOWIDLE */\n");
         if (choice&EXTRAS) fprintf(fpout,"#define EXTRAS\n");
         else fprintf(fpout,"#undef EXTRAS\n");
-        fprintf(fpout,"\n/* Define this if you want more accurate timer, NOT WORKING OK YET !!! */\n");
+        fprintf(fpout,"\n/* Define this if you want timer that's accurate to 0.01s */\n");
         if (choice&BETTERTIMER) fprintf(fpout,"#define BETTERTIMER\n");
         else fprintf(fpout,"#undef BETTERTIMER\n");
         fprintf(fpout,"\n/* Defines this if you want GenX's nifty /WHOIS */\n");
@@ -717,13 +717,13 @@ char **argv;
         if (choice&NEWCSCAN) fprintf(fpout,"#define NEWCSCAN\n");
         else fprintf(fpout,"#undef NEWCSCAN\n");
         fprintf(fpout,"\n/* Define this if you feel users should be invited to non +i channels on\n");
-        fprintf(fpout,"   notify signon */\n");
+        fprintf(fpout,"   notify signon and +z userflag */\n");
         if (choice&ACID) fprintf(fpout,"#define ACID\n");
         else fprintf(fpout,"#undef ACID\n");
-        fprintf(fpout,"\n/* Define this if you want sorted nicks in /CSCAN and old style of MSGs */\n");
+        fprintf(fpout,"\n/* Define this if you want sorted nicks in /CSCAN */\n");
         if (choice&MGS) fprintf(fpout,"#define MGS\n");
         else fprintf(fpout,"#undef MGS\n");
-        fprintf(fpout,"\n/* Define this if you want scatter kicks */\n");
+        fprintf(fpout,"\n/* Define this if you want scatter (funny) kicks support */\n");
         if (choice&SCKICKS) fprintf(fpout,"#define SCKICKS\n");
         else fprintf(fpout,"#undef SCKICKS\n");
 	fprintf(fpout,"\n/* Define this if you want to compile with Celerity C-Script */\n");
@@ -733,16 +733,16 @@ char **argv;
 	fprintf(fpout,"\n/* Define this if you want HyperDCC by Annatar in the client */\n");
 	if (choice&HYPERDCC) fprintf(fpout,"#define HYPERDCC\n");
 	else fprintf(fpout,"#undef HYPERDCC\n");
-	fprintf(fpout,"\n/* Define this if you don't want ScrollZ trademarks in KICKs and away messages*/\n");
+	fprintf(fpout,"\n/* Define this if you don't want ScrollZ trademarks in CTCPs */\n");
 	if (choice&VILAS) fprintf(fpout,"#define VILAS\n");
 	else fprintf(fpout,"#undef VILAS\n");
 	fprintf(fpout,"\n/* Define this if you want better /NEWHOST */\n");
 	if (choice&JIMMIE) fprintf(fpout,"#define JIMMIE\n");
 	else fprintf(fpout,"#undef JIMMIE\n");
-	fprintf(fpout,"\n/* Define this if you want CTCP PAGE by BiGhEaD */\n");
+	fprintf(fpout,"\n/* Define this if you want CTCP PAGE by bighead */\n");
 	if (choice&CTCPPAGE) fprintf(fpout,"#define CTCPPAGE\n");
 	else fprintf(fpout,"#undef CTCPPAGE\n");
-	fprintf(fpout,"\n/* Define this if you want different messages, chat messages and CDCC */\n");
+	fprintf(fpout,"\n/* Define this if you want different look of messages and DCC chat messages */\n");
 	if (choice&TDF) fprintf(fpout,"#define TDF\n");
 	else fprintf(fpout,"#undef TDF\n");
         fprintf(fpout,"\n/* Define this if you want $country() in the client */\n");
