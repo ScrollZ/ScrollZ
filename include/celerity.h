@@ -3,6 +3,8 @@
  * Could be put elsewhere but for now...
  *
  *          - j. roethel [03.06.98]
+ *          
+ * $Id: celerity.h,v 1.2 1998-10-31 18:26:42 f Exp $
  */
 
 #ifndef _CELERITY_H_
