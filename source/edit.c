@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.33 2000-07-09 09:31:14 f Exp $
+ * $Id: edit.c,v 1.34 2000-07-17 15:23:24 f Exp $
  */
 
 #include "irc.h"
@@ -354,6 +354,7 @@ extern  void  ChangePassword _((char *, char *, char *));
 #ifdef MGS_
 extern  void  Terminate _((char *, char *, char *));
 #endif
+extern  void  ARinWindowToggle _((char *, char *, char *));
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -436,6 +437,7 @@ static	IrcCommand FAR irc_command[] =
 	{ "ALLOC",	NULL,		alloc_cmd,		0 },
 #endif
   { "AREJOIN", 		"AREJOIN", 	ChannelCommand, 	0 },
+  { "ARINWIN",	 	NULL, 		ARinWindowToggle, 	0 },
 	{ "ASSIGN",	"1",		alias,			0 },
   { "AUTOCOMPL", 	"AUTOCOMPL", 	SetAutoCompletion, 	0 },
 #if defined(EXTRAS) || defined(FLIER)

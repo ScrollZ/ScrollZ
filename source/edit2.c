@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.41 2000-05-14 07:57:56 f Exp $
+ * $Id: edit2.c,v 1.42 2000-07-17 15:23:24 f Exp $
  */
 
 #include "irc.h"
@@ -1903,6 +1903,10 @@ char *subargs;
     else if (DisplaymIRC) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
 #endif
+    fprintf(usfile,"ARINWINDOW      ");
+    if (ARinWindow==1) fprintf(usfile,"ON\n");
+    else if (ARinWindow==2) fprintf(usfile,"USER\n");
+    else fprintf(usfile,"OFF\n");
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
     fprintf(usfile,"#\n");
 #ifdef CELE

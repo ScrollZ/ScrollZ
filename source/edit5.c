@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.35 2000-07-12 14:12:51 f Exp $
+ * $Id: edit5.c,v 1.36 2000-07-17 15:23:24 f Exp $
  */
 
 #include "irc.h"
@@ -1306,9 +1306,7 @@ int  print;
 #endif
     char stampbuf[mybufsize/16];
 #undef STEFY
-#ifdef STEFY
     Window *old;
-#endif
     NickList *joiner;
     ChannelList *chan=NULL;
 #ifdef CELE
@@ -1411,10 +1409,15 @@ int  print;
             strcat(tmpbuf1,CmdsColors[COLPUBLIC].color4);
             /* Display AR in current screen window too
                if it's different from orig channel window  -Pier */
-#ifdef STEFY
-            if (chan->window!=curr_scr_win) {
+            if (chan->window!=curr_scr_win && ARinWindow) {
                 old=to_window;
-                to_window=get_window_by_refnum(curr_scr_win->refnum);
+                if (ARinWindow==1) /* ON */
+                    to_window=get_window_by_refnum(curr_scr_win->refnum);
+                else { /* USER */
+                    to_window=get_window_by_level(LOG_USER4);
+                    if (to_window==NULL)
+                        to_window=get_window_by_refnum(curr_scr_win->refnum);
+                }
 #ifdef CELE
                 if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,5);
                 else strcpy(channel1,channel);
@@ -1431,7 +1434,6 @@ int  print;
                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
                 to_window=old; 
             }
-#endif
         }
         if (print) {
 #ifdef CELE

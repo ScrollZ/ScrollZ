@@ -32,7 +32,7 @@ with last user that requested it.
 Usage $3CSCAN$0 [$3-H$0|$3-R$0] [[$3#$0]$3channel$0]
 Without arguments it will show users for current channel. If $3-H$0 is
 passed as first argument, users will be listed in following order:
-shitlisted users, normal users, voted users (+v), channel operators
+shitlisted users, normal users, voiced users (+v), channel operators
 and at last your friends. If $3-R$0 is passed as first argument, the
 above order is reversed, friends showing up first and shitlisted
 people showing up last.
@@ -295,7 +295,7 @@ that will use pattern like *!user@*.domain.
 Channels is a list of channels separated by ',' where nick will have
 access to CTCP commands. You can use * and ? (example : #chat*,#tes?).
 Available access modes are $3I$0=INVITE, $3C$0=CHOPS, $3O$0=OP, $3A$0=AUTOOP $3U$0=UNBAN,
-$3X$0=INSTANT OP, $3P$0=PROT, $3G$0=GOD, $3V$0=VOTE, $3D$0=CDCC, $3J$0=JOIN,
+$3X$0=INSTANT OP, $3P$0=PROT, $3G$0=GOD, $3V$0=VOICE, $3D$0=CDCC, $3J$0=JOIN,
 $3F$0=FLOOD or $3ALL$0 (example : ICOAU stands for INVITE CHOPS OP AUTOOP and
 UNBAN). Client will auto invite users from notify list if they have $3I$0,
 $3C$0, $3O$0 and $3U$0 privileges and they don't have password set. They can
@@ -451,6 +451,11 @@ When set to on, only auto join on invite will take place.
 Usage $3AREJOIN on channels$0|$3off$0
 Channels is a list of channels separated by , (like : #te,#chan*).
 Client will rejoin such channels on kick.
+:ARINWIN       Toggles showing auto reply in current/special window
+Usage $3ARINWIN on$0|$3off$0|$3user$0
+If set to on auto-reply is also shown in current window.
+If set to user auto-reply is shown in window with level USERLOG4.
+Also look at $2REPWORD$0
 :AUTOCOMPL     Toggles auto nick completion on/off
 Usage $3AUTOCOMPL on string$0|$3auto string$0|$3off$0
 If set to on or auto, client will do the nick completion for you on
@@ -633,6 +638,7 @@ Usage $3REPWORD reply_trigger$0
 Considered a good idea to set this to first few letters of your nick.
 You can set multiple strings that will trigger auto reply, separate
 them with ','.
+Also look at $2ARINWIN$0
 :SERVNOTICE    Toggles server notices display on/off
 Usage $3SERVNOTICE on$0|$3off$0
 If you hate server notices as much as I do, you can turn them off.
@@ -700,7 +706,7 @@ If no channel is given it will invite nick to current channel
 :K             Kicks user from your current channel
 Usage $3K nick$0 [$3reason$0]
 Also look at $2FBK$0, $2FK$0, $2MK$0, $2MULTK$0 and $2RANLK$0
-:LK            Kicks all unopped/unvoted users from your current channel
+:LK            Kicks all unopped/unvoiced users from your current channel
 Usage $3LK$0 [$3-ALL$0]
 When $3-ALL$0 is specified all non opped users will be kicked.
 Also look at $2K$0, $2MK$0, $2MULTK$0 and $2RANLK$0
@@ -947,35 +953,35 @@ Also look at $2CDCC DLDIR$0
 :INDEX         Index of all ScrollZ commands
    ABOUT         ADDBK         ADDCHAN       ADDF          ADDFCHAN
    ADDFFLAG      ADDN          ADDS          ADDW          AJOIN
-   AREJOIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY   AWAYSAVE
-   AWAYT         BAN           BANTYPE       BITCH         BK
-   BKI           BKT           BYE           C             CDBAN
-   CDCC          CHANST        CHAT          CHPASS        CHSIGNOFF
-   CLEARTAB      COLOR         COMPRESS      CSCAN         CTCPCLOAK
-   CYCLE         DEOPS         DEOPT         DIRLM         DIRLMK
-   DIRLN         DIRLNK        DIRLSM        DIRLSN        DOBANS
-   DOP           DPROT         DUMP          EGO           ENCRMSG
-   EXTMES        FAKE          FBK           FINGER        FK
-   FKLINE        FLOODP        FRLIST        IDLEKICK      IDLETIME
-   IG            IGTIME        INV           J             K
-   KEYS          KICKONBAN     KICKONFLOOD   KICKOPS       KICKS
-   KICKT         KPROT         L             LEVELS        LISTBK
-   LISTF         LISTN         LISTS         LISTW         LK
-   LLOOK         LLOOKUP       LOGON         LS            M
-   MAP           MASSDV        MASSV         MC            MDOP
-   MIRC          MK            MKILL         MODELOCK      MODEUNLOCK
-   MOP           MREOP         MSAY          MULTK         N
-   NET           NEWHOST       NEWUSER       NHPROT        NICKS
-   NICKT         NOCHAT        NOIG          NOKEY         NOTEPAD
-   NPROT         NSLOOKUP      NTFYMODE      NWHOIS        OP
-   ORIGNICK      ORIGNTIME     OV            P             PASSWD
-   PLAYBACK      RANLK         RE            RECONNECT     RELOAD
-   REMBK         REMCHAN       REMF          REMFCHAN      REMFFLAG
-   REMLOG        REMN          REMS          REMW          REPWORD
-   S             SB            SERVNOTICE    SETAWAY       SETBACK
-   SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL      SHOWNICK
-   SHOWUSER      SINFO         SPING         STAMP         SVE
-   T             TBAN          TERMINATE     TKILL         UMODE
-   UNBAN         UNFLASH       URL           URLCATCH      VER
-   W             WALL          WHOLEFT       WI            WII
-   WKILL         WW            
+   AREJOIN       ARINWIN       AUTOCOMPL     AUTOINV       AUTOOPDELAY
+   AWAYSAVE      AWAYT         BAN           BANTYPE       BITCH
+   BK            BKI           BKT           BYE           C
+   CDBAN         CDCC          CHANST        CHAT          CHPASS
+   CHSIGNOFF     CLEARTAB      COLOR         COMPRESS      CSCAN
+   CTCPCLOAK     CYCLE         DEOPS         DEOPT         DIRLM
+   DIRLMK        DIRLN         DIRLNK        DIRLSM        DIRLSN
+   DOBANS        DOP           DPROT         DUMP          EGO
+   ENCRMSG       EXTMES        FAKE          FBK           FINGER
+   FK            FKLINE        FLOODP        FRLIST        IDLEKICK
+   IDLETIME      IG            IGTIME        INV           J
+   K             KEYS          KICKONBAN     KICKONFLOOD   KICKOPS
+   KICKS         KICKT         KPROT         L             LEVELS
+   LISTBK        LISTF         LISTN         LISTS         LISTW
+   LK            LLOOK         LLOOKUP       LOGON         LS
+   M             MAP           MASSDV        MASSV         MC
+   MDOP          MIRC          MK            MKILL         MODELOCK
+   MODEUNLOCK    MOP           MREOP         MSAY          MULTK
+   N             NET           NEWHOST       NEWUSER       NHPROT
+   NICKS         NICKT         NOCHAT        NOIG          NOKEY
+   NOTEPAD       NPROT         NSLOOKUP      NTFYMODE      NWHOIS
+   OP            ORIGNICK      ORIGNTIME     OV            P
+   PASSWD        PLAYBACK      RANLK         RE            RECONNECT
+   RELOAD        REMBK         REMCHAN       REMF          REMFCHAN
+   REMFFLAG      REMLOG        REMN          REMS          REMW
+   REPWORD       S             SB            SERVNOTICE    SETAWAY
+   SETBACK       SETTINGS      SHOWAWAY      SHOWIDLE      SHOWKILL
+   SHOWNICK      SHOWUSER      SINFO         SPING         STAMP
+   SVE           T             TBAN          TERMINATE     TKILL
+   UMODE         UNBAN         UNFLASH       URL           URLCATCH
+   VER           W             WALL          WHOLEFT       WI
+   WII           WKILL         WW            

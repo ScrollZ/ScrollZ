@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.13 2000-07-10 15:53:40 f Exp $
+ * $Id: window.c,v 1.14 2000-07-17 15:23:25 f Exp $
  */
 
 #include "irc.h"
@@ -935,6 +935,24 @@ get_window_by_refnum(refnum)
 	else
 		return (curr_scr_win);
 	return ((Window *) 0);
+}
+
+/*
+ * get_window_by_level: Given a level, this returns a pointer to that
+ * window if a window exists with that level, null is returned otherwise. 
+ */
+Window	*
+get_window_by_level(level)
+u_int level;
+{
+    Window *tmp;
+    int flag=1;
+
+    while ((tmp=traverse_all_windows(&flag))!=NULL) {
+        if (((tmp->window_level)&level)==level)
+            return(tmp);
+    }
+    return((Window *) 0);
 }
 
 /*

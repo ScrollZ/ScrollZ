@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.3 1999-10-04 19:21:37 f Exp $
+ * $Id: window.h,v 1.4 2000-07-17 15:23:24 f Exp $
  */
 
 #ifndef __window_h_
@@ -131,6 +131,9 @@
 	void	add_window_to_server_group _((Window *, char *));
 	void	delete_window_from_server_group _((Window *, char *));
 	void	window_restore_server _((int));
+/**************************** PATCHED by Flier ******************************/
+	Window	*get_window_by_level _((u_int));
+/****************************************************************************/
 
 extern	Window	*invisible_list;
 extern	int	underline;

@@ -57,10 +57,11 @@
  ChangePassword      Change user's password
  StatsIFilter        Does /STATS i with filter
  HandleStatsI        Handles STATS i reply from server
+ ARinWindowToggle    Toggle value of ARinWindow
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.60 2000-07-09 09:32:00 f Exp $
+ * $Id: edit6.c,v 1.61 2000-07-17 15:23:24 f Exp $
  */
 
 #include "irc.h"
@@ -2706,3 +2707,35 @@ char *uhiline;
     StatsiNumber++;
 }
 #endif /* OPER */
+
+/* Toggle value of ARinWindow */
+void ARinWindowToggle(command,args,subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpstr;
+
+    tmpstr=new_next_arg(args,&args);
+    if (tmpstr) {
+        if (!my_stricmp("OFF",tmpstr)) ARinWindow=0;
+        else if (!my_stricmp("ON",tmpstr)) ARinWindow=1;
+        else if (!my_stricmp("USER",tmpstr)) ARinWindow=2;
+        else {
+            PrintUsage("ARINWIN on/user/off");
+            return;
+        }
+    }
+    switch (ARinWindow) {
+        case 0:
+            tmpstr="OFF";
+            break;
+        case 1:
+            tmpstr="ON";
+            break;
+        case 2:
+            tmpstr="USER";
+            break;
+    }
+    PrintSetting("Auto reply in window",tmpstr,empty_string,empty_string);
+}

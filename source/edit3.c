@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.38 2000-05-14 07:57:56 f Exp $
+ * $Id: edit3.c,v 1.39 2000-07-17 15:23:24 f Exp $
  */
 
 #include "irc.h"
@@ -2195,6 +2195,16 @@ int ScrollZLoad()
             NumberSet(&pointer,&OrigNickDelay,&loaderror,lineno,"ORIGNICKTIME");
         else if (!strcmp("LOGON",tmpbuf3))
             OnOffSet(&pointer,&LogOn,&loaderror,lineno,"LOGON");
+        else if (!strcmp("ARINWINDOW",tmpbuf3)) {
+            NextArg(pointer,&pointer,tmpbuf3);
+            if (!my_stricmp(tmpbuf3,"ON")) ARinWindow=1;
+            else if (!my_stricmp(tmpbuf3,"USER")) ARinWindow=2;
+            else if (!my_stricmp(tmpbuf3,"OFF")) ARinWindow=0;
+            else {
+                PrintError("must be ON/OFF/USER","in ARINWINDOW",lineno);
+                loaderror=1;
+            }
+        }
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2575,6 +2585,7 @@ void InitVars() {
     DCCWarning=1;
     Stamp=0;
     CdccVerbose=1;
+    ARinWindow=0;
     usersloaded=0;
     unban=0;
     strcpy(tmpbuf,ScrollZver);
