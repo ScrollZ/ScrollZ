@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.36 2001-01-25 17:53:52 f Exp $
+ * $Id: numbers.c,v 1.37 2001-08-02 18:34:52 f Exp $
  */
 
 #include "irc.h"
@@ -1037,6 +1037,10 @@ numbered_command(from, comm, ArgList)
                 break;
 #endif
 /* ******* ** ****** */
+                /* by braneded */
+        case 308:
+                whois_admin(from, ArgList);
+                break;
 /****************************************************************************/
 	case 311:		/* #define RPL_WHOISUSER        311 */
 		whois_name(from, ArgList);

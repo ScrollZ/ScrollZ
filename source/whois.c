@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.7 2000-12-05 20:30:56 f Exp $
+ * $Id: whois.c,v 1.8 2001-08-02 18:34:52 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -615,6 +615,42 @@ whois_oper(from, ArgList)
 		}
 	}
 }
+
+/**************************** Patched by Flier ******************************/
+/* by braneded */
+void whois_admin(from,ArgList)
+char *from;
+char **ArgList;
+{
+    if (!ignore_whois_crap) {
+        char *nick;
+
+        nick=ArgList[0];
+        if (nick) {
+            if (do_hook(current_numeric,"%s %s %s",from,nick,ArgList[1])) {
+#ifdef WANTANSI
+#ifdef GENX
+                put_it("%s³    %sadmin%s ³ %s %s",
+                        numeric_banner(),CmdsColors[COLWHOIS].color5,
+                        Colors[COLOFF],nick,ArgList[1]);
+#elif defined(CELECOSM)
+                put_it("%s %sadmin%s:      %s %s",
+                        numeric_banner(),CmdsColors[COLWHOIS].color5,
+                        Colors[COLOFF],nick,ArgList[1]);
+#else  /* CELECOSM */
+                put_it("%s %sAdmin%s     : %s %s",
+                        numeric_banner(),CmdsColors[COLWHOIS].color5,
+                        Colors[COLOFF],nick,ArgList[1]);
+#endif /* GENX */
+#else  /* WANTANSI */
+                put_it("%s Admin     : %s %s",
+                        numeric_banner(),nick,ArgList[1]);
+#endif /* WANTANSI */
+            }
+        }
+    }
+}
+/****************************************************************************/
 
 void
 whois_lastcom(from, ArgList)
