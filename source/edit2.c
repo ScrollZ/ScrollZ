@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.54 2001-01-07 20:10:18 f Exp $
+ * $Id: edit2.c,v 1.55 2001-01-14 11:05:53 f Exp $
  */
 
 #include "irc.h"
@@ -625,7 +625,7 @@ int servernum;
     Window *tmp=(Window *) 0;
     Window *oldwindow;
 
-    if (!AutoRecon) return;
+    if (!get_int_var(AUTO_RECONNECT_VAR)) return;
     oldwindow=curr_scr_win;
     if (curr_scr_win->server!=servernum) {
         change=1;
@@ -1924,9 +1924,6 @@ char *subargs;
     fprintf(usfile,"ARINWINDOW      ");
     if (ARinWindow==1) fprintf(usfile,"ON\n");
     else if (ARinWindow==2) fprintf(usfile,"USER\n");
-    else fprintf(usfile,"OFF\n");
-    fprintf(usfile,"AUTORECONNECT   ");
-    if (AutoRecon) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
     fprintf(usfile,"#\n");

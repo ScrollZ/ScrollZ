@@ -61,7 +61,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.73 2001-01-06 19:16:12 f Exp $
+ * $Id: edit6.c,v 1.74 2001-01-14 11:06:35 f Exp $
  */
 
 #include "irc.h"
@@ -772,7 +772,7 @@ void CheckTimeMinute() {
         tmpwholeft=wholeft;
         if (wholeft) wholeft=wholeft->next;
     }
-    if (AutoRecon && LastServer+117<timenow) {
+    if (get_int_var(AUTO_RECONNECT_VAR) && LastServer+117<timenow) {
         found=0;
         for (i=0;i<number_of_servers;i++) found|=server_list[i].connected;
         if (!found && number_of_servers>0) {
@@ -1188,7 +1188,6 @@ char *subargs;
         char *setting;
     } command_list[]= {
         { "AUTOGET"     , &AutoGet        , "Cdcc auto-get" },
-        { "AUTORECON"   , &AutoRecon      , "Automatically reconnect to server" },
         { "EGO"         , &Ego            , "Ego" },
         { "EXTMES"      , &ExtMes         , "Extended messages display" },
         { "LOGON"       , &LogOn          , "Logging if not away" },

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.54 2001-01-06 19:16:11 f Exp $
+ * $Id: edit3.c,v 1.55 2001-01-14 11:06:08 f Exp $
  */
 
 #include "irc.h"
@@ -950,7 +950,7 @@ char *subargs;
     else sprintf(tmpbuf3,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
-    if (AutoRecon)
+    if (get_int_var(AUTO_RECONNECT_VAR))
         sprintf(tmpbuf2,"%sON%s ",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     else sprintf(tmpbuf2,"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
@@ -1167,7 +1167,7 @@ char *subargs;
     else sprintf(tmpbuf3,"%cOFF%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
     strcpy(tmpbuf1,"Auto reconnect   : ");
-    if (AutoRecon)
+    if (get_int_var(AUTO_RECONNECT_VAR))
         sprintf(tmpbuf2,"%cON%c ",bold,bold);
     else sprintf(tmpbuf2,"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
@@ -2231,8 +2231,6 @@ int ScrollZLoad()
                 loaderror=1;
             }
         }
-        else if (!strcmp("AUTORECONNECT",tmpbuf3))
-            OnOffSet(&pointer,&AutoRecon,&loaderror,lineno,"AUTORECONNECT");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2619,7 +2617,6 @@ void InitVars() {
     BKList=1;
     CdccVerbose=1;
     ARinWindow=0;
-    AutoRecon=1;
     usersloaded=0;
     strcpy(tmpbuf,ScrollZver);
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;
