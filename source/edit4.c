@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.50 2001-02-06 20:42:14 f Exp $
+ * $Id: edit4.c,v 1.51 2001-02-06 21:06:05 f Exp $
  */
 
 #include "irc.h"
@@ -726,6 +726,17 @@ void InsertTabNick() {
     }
 }
 
+/* Check if given channel still exists */
+int ChannelExists(chan)
+ChannelList *chan;
+{
+    ChannelList *tmpchan;
+
+    for (tmpchan=server_list[from_server].chan_list;tmpchan;tmpchan=tmpchan->next)
+        if (tmpchan==chan) return(1);
+    return(0);
+}
+
 /* Handles tab key */
 void HandleTabNext() {
     int  len;
@@ -780,6 +791,7 @@ void HandleTabNext() {
                 int nicklen;
                 int sameloop=0;
 
+                if (!ChannelExists(origchan)) origchan=NULL;
                 if (origchan) chan=origchan;
                 else chan=server_list[from_server].chan_list;
                 if (!chan) return;
