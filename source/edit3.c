@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.56 2001-01-25 17:53:52 f Exp $
+ * $Id: edit3.c,v 1.57 2001-02-05 16:36:51 f Exp $
  */
 
 #include "irc.h"
@@ -199,8 +199,8 @@ int  type;
 {
     int  oldumask;
     char *filepath;
-    char tmpbuf1[mybufsize];
-    char tmpbuf2[mybufsize];
+    char tmpbuf1[2*mybufsize];
+    char tmpbuf2[2*mybufsize];
     FILE *awayfile;
     time_t now;
 

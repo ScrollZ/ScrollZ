@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.55 2001-01-25 17:53:52 f Exp $
+ * $Id: edit5.c,v 1.56 2001-02-05 16:36:51 f Exp $
  */
 
 #include "irc.h"
@@ -1316,8 +1316,8 @@ int  iscrypted;
     char *filepath=NULL;
     char tmpbuf1[mybufsize/8];
     char tmpbuf2[mybufsize/2];
-    char tmpbuf3[mybufsize];
-    char tmpbuf4[mybufsize];
+    char tmpbuf3[2*mybufsize];
+    char tmpbuf4[2*mybufsize];
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
 #endif
