@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.21 1999-06-14 17:47:26 f Exp $
+ * $Id: ctcp.c,v 1.22 1999-08-15 18:23:42 f Exp $
  */
 
 #include "irc.h"
@@ -323,8 +323,13 @@ ctcp_unquote_it(str, len)
 
 /************************** PATCHED by Flier **************************/
 static int dropit() {
-    if (server_list[parsing_server_index].ctcp_last_reply_time+3>time((time_t *) 0))
-        return(1);
+    static int ctcpcount=0;
+
+    ctcpcount++;
+    if (server_list[parsing_server_index].ctcp_last_reply_time+3>time((time_t *) 0)) {
+        if (ctcpcount>2) return(1);
+    }
+    if (ctcpcount>2) ctcpcount=1;
     return(0);
 }
 
