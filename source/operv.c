@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.36 2001-01-17 17:31:42 f Exp $
+ * $Id: operv.c,v 1.37 2001-01-17 17:33:13 f Exp $
  */
 
 #include "irc.h"
@@ -997,11 +997,11 @@ char *from;
                 CmdsColors[COLOV].color2,Colors[COLOFF],
                 CmdsColors[COLOV].color6,Colors[COLOFF],
                 CmdsColors[COLOV].color5,word1,Colors[COLOFF],word2,origfrom,
-                CmdsColors[COLOV].color3,word2,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word3,Colors[COLOFF]);
 #else
         sprintf(tmpbuf,"Remote connect %s%s%s %s <- %s from %s%s%s",
                 CmdsColors[COLOV].color5,word1,Colors[COLOFF],word2,origfrom,
-                CmdsColors[COLOV].color3,word2,Colors[COLOFF]);
+                CmdsColors[COLOV].color2,word3,Colors[COLOFF]);
 #endif
     }
     else if (strstr(tmpline,"whois on you") ||
