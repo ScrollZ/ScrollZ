@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.10 1999-06-05 12:06:37 f Exp $
+ * $Id: numbers.c,v 1.11 1999-06-14 16:10:21 f Exp $
  */
 
 #include "irc.h"
@@ -53,8 +53,8 @@
 #include "whois.h"
 #include "funny.h"
 #include "parse.h"
-
 /************************* PATCHED by Flier ***************************/
+#include "ignore.h"
 #include "myvars.h"
 
 extern void OnBans _((char **, int));
@@ -1361,6 +1361,21 @@ numbered_command(from, comm, ArgList)
 		case 403:		/* #define ERR_NOSUCHCHANNEL    403 */
 			not_valid_channel(from, ArgList);
 			break;
+
+/**************************** PATCHED by Flier ******************************/
+		case 441:
+		case 443:
+                        if (ArgList[1]) {
+                            strmcpy(tmpbuf,ArgList[1],mybufsize/4);
+                            PasteArgs(ArgList,0);
+                            if (do_hook(current_numeric, "%s %s", from,*ArgList)) {
+                                if ((double_ignore(tmpbuf,NULL,IGNORE_CRAP))==IGNORED)
+                                    break;
+                                display_msg(from,ArgList);
+                            }
+                        }
+			break;
+/****************************************************************************/
 
 		case 451:		/* #define ERR_NOTREGISTERED    451 */
 	/*
