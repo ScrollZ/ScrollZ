@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.51 2003-12-24 10:35:21 f Exp $
+ * $Id: names.c,v 1.52 2004-01-03 18:07:03 f Exp $
  */
 
 #include "irc.h"
@@ -189,6 +189,30 @@ lookup_channel(channel, server, do_unlink)
 	}
 	return chan;
 }
+
+/**************************** PATCHED by Flier ******************************/
+void rename_channel(old_channel, new_channel)
+char *old_channel;
+char *new_channel;
+{
+    ChannelList	*chan;
+
+    if (!old_channel || !new_channel)
+        return;
+    if (!is_server_valid(from_server))
+        return;
+
+    chan = server_list[from_server].chan_list;
+    while (chan) {
+        if (!my_stricmp(chan->channel, old_channel))
+            break;
+        chan = chan->next;
+    }
+
+    if (chan) put_it("renaming [%s] to [%s]",old_channel,new_channel);
+    if (chan) malloc_strcpy(&(chan->channel), new_channel);
+}
+/****************************************************************************/
 
 /*
  * add_channel: adds the named channel to the channel list.  If the channel
