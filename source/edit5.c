@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.102 2003-01-09 20:22:20 f Exp $
+ * $Id: edit5.c,v 1.103 2003-04-28 19:04:00 f Exp $
  */
 
 #include "irc.h"
@@ -1235,8 +1235,8 @@ char *channel;
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
     put_it("%s", tmpbuf2);
-    put_it("%s³ %sirc name%s ³ %s",banner,
-           CmdsColors[COLWHOIS].color5,Colors[COLOFF], name);
+    put_it("%s³ %sirc name%s ³ %s%s",banner,
+           CmdsColors[COLWHOIS].color5,Colors[COLOFF],name,Colors[COLOFF]);
     if (tmpfriend && tmpfriend->privs) {
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%s³   %sfriend%s ³ filt: %s%s%s",banner,
                CmdsColors[COLWHOIS].color5,Colors[COLOFF],
@@ -1266,8 +1266,9 @@ char *channel;
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
-    put_it("%s%s%-9s%s : %s (%s)%s",banner,
-           CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1,name,country);
+    put_it("%s%s%-9s%s : %s (%s%s)%s",banner,
+           CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1,name,
+           Colors[COLOFF],country);
 #ifdef COUNTRY
     new_free(&country);
 #endif /* COUNTRY */
