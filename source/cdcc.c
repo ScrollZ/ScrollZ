@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.3 1998-09-21 17:38:22 f Exp $
+ * $Id: cdcc.c,v 1.4 1998-10-04 13:55:16 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -191,8 +191,6 @@ static CdccCom CdccCommands[]={
 };
 
 extern char *dcc_types[];
-extern char cdcc[];
-extern char bold;
 extern DCC_list *ClientList;
 
 /************************************************************************
@@ -920,7 +918,6 @@ ChannelList *chan;
     int number;
     int donlist;
     int oldserver;
-    char reverse=22;
     char byteschar;
     char *mynick=get_server_nickname(from_server);
     char tmpbuf1[mybufsize];
@@ -938,9 +935,8 @@ ChannelList *chan;
 #ifndef CELEHOOK
             if (do_hook(CDCC_PLIST_HEADER,"%s %d %s",chan->channel,count,mynick)) {
 #endif
-                sprintf(tmpbuf1,"%s   %c %d PACK%s OFFERED %c  /CTCP %s %cCDCC%c SEND N for pack N",
-                        CdccString,reverse,count,count==1?empty_string:"S",reverse,
-                        mynick,bold,bold);
+                sprintf(tmpbuf1,"%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+                        CdccString,count,count==1?empty_string:"S",mynick);
                 send_text(chan->channel,tmpbuf1,"PRIVMSG");
 #ifndef CELEHOOK
             }
@@ -1040,7 +1036,6 @@ ChannelList *chan;
 {
     int count;
     int oldserver;
-    char reverse=22;
     char *mynick=get_server_nickname(from_server);
     char tmpbuf[mybufsize/4];
     Packs *tmp;
@@ -1049,9 +1044,8 @@ ChannelList *chan;
     oldserver=from_server;
     for (;chan;chan=chan->next) {
         if (current || CheckCdccChannel(chan->channel,tmpchan)) {
-            sprintf(tmpbuf,"%s %c %d PACK%s OFFERED %c  /CTCP %s %cCDCC%c LIST",
-                    CdccString,reverse,count,count==1?empty_string:"S",reverse,
-                    mynick,bold,bold);
+            sprintf(tmpbuf,"%s  %d PACK%s OFFERED   /CTCP %s CDCC LIST",
+                    CdccString,count,count==1?empty_string:"S",mynick);
             from_server=chan->server;
             send_text(chan->channel,tmpbuf,"PRIVMSG");
             from_server=oldserver;
@@ -1268,8 +1262,7 @@ char *line;
             }
 #else
             else {
-                say("%cError%c in %s, line %d (SPEED should follow PACK)",
-                    bold,bold,file,lineno);
+                say("Error in %s, line %d (SPEED should follow PACK)",file,lineno);
                 continue;
             }
 #endif
@@ -1293,8 +1286,7 @@ char *line;
                     }
 #else
                     else {
-                        say("%cError%c in %s, line %d (can't stat %s)",
-                            bold,bold,file,lineno,tmpstr1);
+                        say("Error in %s, line %d (can't stat %s)",file,lineno,tmpstr1);
                         continue;
                     }
 #endif
@@ -1308,8 +1300,7 @@ char *line;
             }
 #else
             else {
-                say("%cError%c in %s, line %d (FILE should follow PACK)",
-                    bold,bold,file,lineno);
+                say("Error in %s, line %d (FILE should follow PACK)",file,lineno);
                 continue;
             }
 #endif
@@ -1656,8 +1647,8 @@ char *line;
             if (queue) sprintf(tmpbuf1,", %d file%s in queue",queue,
                                queue==1?"":"s");
             else *tmpbuf1='\0';
-            if (!CTCPCloaking) send_to_server("NOTICE %s :Sent : %c[%c%s%c]%c%s",
-                                              nick,bold,bold,tmpbuf2,bold,bold,tmpbuf1);
+            if (!CTCPCloaking) send_to_server("NOTICE %s :Sent : [%s]%s",
+                                              nick,tmpbuf2,tmpbuf1);
 #ifdef WANTANSI
             sprintf(tmpbuf1,"%sCdcc%s %ssending%s %s%s%s : ",
                     CmdsColors[COLCDCC].color4,Colors[COLOFF],
@@ -1759,8 +1750,7 @@ char *line;
             }
             sprintf(tmpbuf2,"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
-            if (!CTCPCloaking) send_to_server("NOTICE %s :Resent : %c[%c%s%c]%c",nick,bold,bold,tmpbuf2,
-                                              bold,bold);
+            if (!CTCPCloaking) send_to_server("NOTICE %s :Resent : [%s]",nick,tmpbuf2);
 #ifdef WANTANSI
             sprintf(tmpbuf1,"%sCdcc%s %sresending%s %s%s%s : ",
                     CmdsColors[COLCDCC].color4,Colors[COLOFF],
@@ -2049,9 +2039,8 @@ char *args;
         if (packs) {
             for (tmp=packs;tmp;tmp=tmp->next) {
                 if (tmp->minspeed>0.0)
-                    sprintf(tmpbuf2,"%c/%cmin %.2f kB/s%c]%c",bold,bold,
-                            tmp->minspeed,bold,bold);
-                else sprintf(tmpbuf2,"%c]%c",bold,bold);
+                    sprintf(tmpbuf2,"/min %.2f kB/s]",tmp->minspeed);
+                else strcpy(tmpbuf2,"]");
                 if (tmp->totalbytes>1048575) {
                     byteschar='M';
                     mult=1024.0;
@@ -2060,11 +2049,11 @@ char *args;
                     byteschar='k';
                     mult=1.0;
                 }
-                sprintf(tmpbuf1,"%c[%c%.2f %cB%c/%c%d file%s%s",bold,bold,
-                        (float) (tmp->totalbytes)/(1024.0*mult),byteschar,
-                        bold,bold,tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
-                        tmpbuf2);
-                say("%c#%c%-2d %-29s  %s",bold,bold,packcount,tmp->description,tmpbuf1);
+                sprintf(tmpbuf1,"[%d file%s/%.2f %cB%s",
+                        tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
+                        (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf2);
+                sprintf(tmpbuf2,"%d/%d",packcount,tmp->gets);
+                say("#%-4s %s  %s",tmpbuf2,tmp->description,tmpbuf1);
                 packcount++;
             }
             formatstats(tmpbuf1,0);
@@ -2308,59 +2297,26 @@ void listcommand(from, args)
 char *from;
 char *args;
 {
-    /*int   sent=0;*/
     int   count=0;
     int   delay=0;
     int   packcount=1;
-    char  reverse=22;
     char  byteschar;
     char  tmpbuf1[mybufsize];
     char  tmpbuf2[mybufsize/2];
+    char  tmpbuf3[mybufsize/16];
     float mult;
-    /*char  *word;*/
     Packs *tmp;
     void (*func)()=(void(*)()) sendlist;
-    /*Files *tmp1;
 
-    word=next_arg(args,&args);
-    if (word) {
-        if (packs) {
-            for (tmp=packs;tmp;tmp=tmp->next) {
-                if (matchmcommand(word,packcount)) {
-                    if (tmp->minspeed>0.0) 
-                        send_to_server("NOTICE %s :Pack: %d  Description: %s  Min: %.2f kB/s",
-                                       from,packcount,tmp->description,tmp->minspeed);
-                    else send_to_server("NOTICE %s :Pack: %d  Description: %s",from,
-                                        packcount,tmp->description);
-                    send_to_server("NOTICE %s :kBytes      File",from);
-                    sent++;
-                    for (tmp1=tmp->files;tmp1;tmp1=tmp1->next) {
-                        sprintf(tmpbuf1,"%-11.2f",(float) (tmp1->size)/1024.0);
-                        send_to_server("NOTICE %s :%s %s",from,tmpbuf1,tmp1->file);
-                    }
-                    send_to_server("NOTICE %s :----------- ---------------",from);
-                }
-                packcount++;
-            }
-            if (sent) {
-                send_to_server("NOTICE %s :%s Received %.2f kB  Sent %.2f kB",
-                               from,CdccString,BytesReceived/1024.0,BytesSent/1024.0);
-            }
-            else send_to_server("NOTICE %s :No packs found matching %s",from,word);
-        }
-        else send_to_server("NOTICE %s :Sorry, there are no files offered",from);
-    }
-    else { */
     if (packs) {
         for (tmp=packs;tmp;tmp=tmp->next) count++;
-        send_to_server("NOTICE %s :%s %c %d PACK%s OFFERED %c  /CTCP %s CDCC %cSEND%c N for pack N",
-                       from,CdccString,reverse,count,count==1?empty_string:"S",
-                       reverse,get_server_nickname(from_server),bold,bold);
+        send_to_server("NOTICE %s :%s    %d PACK%s OFFERED   /CTCP %s CDCC SEND N for pack N",
+                       from,CdccString,count,count==1?empty_string:"S",
+                       get_server_nickname(from_server));
         for (tmp=packs;tmp;tmp=tmp->next) {
             if (tmp->minspeed>0.0)
-                sprintf(tmpbuf1,"%c/%cmin %.2f kB/s%c]%c",bold,bold,tmp->minspeed,
-                        bold,bold);
-            else sprintf(tmpbuf1,"%c]%c",bold,bold);
+                sprintf(tmpbuf1,"/min %.2f kB/s]",tmp->minspeed);
+            else strcpy(tmpbuf1,"]");
             if (tmp->totalbytes>1048575) {
                 byteschar='M';
                 mult=1024.0;
@@ -2369,11 +2325,12 @@ char *args;
                 byteschar='k';
                 mult=1.0;
             }
-            sprintf(tmpbuf2,"%c[%c%.2f %cB%c/%c%d file%s%s",bold,bold,
-                    (float) (tmp->totalbytes)/(1024.0*mult),byteschar,bold,bold,
-                    tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",tmpbuf1);
-            sprintf(tmpbuf1,"-INV %d NOTICE %s :%c#%c%-3d %-28s  %s",delay,from,bold,
-                    bold,packcount,tmp->description,tmpbuf2);
+            sprintf(tmpbuf2,"[%d file%s/%.2f %cB%s",
+                    tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
+                    (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf1);
+            sprintf(tmpbuf3,"%d/%dx",packcount,tmp->gets);
+            sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
+                    tmp->description,tmpbuf2);
             timercmd("FTIMER",tmpbuf1,(char *) func);
             if (tmp->next && !(packcount%3)) delay+=LIST_DELAY;
             packcount++;
@@ -2384,8 +2341,8 @@ char *args;
             timercmd("FTIMER",tmpbuf1,(char *) func);
         }
     }
-    else if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, there are no files offered",from);
-/*    }*/
+    else if (!CTCPCloaking)
+        send_to_server("NOTICE %s :Sorry, there are no files offered",from);
 }
 
 /* Send pack that they request */
@@ -2500,16 +2457,15 @@ int  resend;
                                    CmdsColors[COLCDCC].color4,Colors[COLOFF],
                                    CmdsColors[COLCDCC].color3,Colors[COLOFF]);
 #else
-                if (!queue) say("Cdcc %ssent %s %s : %c[%c%s%c]%c",resend?"re":"",from,
-                                tmpbuf3,bold,bold,tmpbuf2,bold,bold);
-                else say("Cdcc %ssent %s %s : %c[%c%s%c]%c, %d file%s in queue",
-                         resend?"re":"",from,tmpbuf3,bold,bold,tmpbuf2,bold,bold,queue,
-                         queue==1?"":"s");
+                if (!queue) say("Cdcc %ssent %s %s : [%s]",resend?"re":"",from,
+                                tmpbuf3,tmpbuf2);
+                else say("Cdcc %ssent %s %s : [%s], %d file%s in queue",
+                         resend?"re":"",from,tmpbuf3,tmpbuf2,queue,queue==1?"":"s");
                 if (queuesent) say("Cdcc queue is full");
 #endif
 /****** Coded by Zakath ******/
                 if (CdccReqTog && CdccRequest)
-                    send_to_server("NOTICE %s :I need : %c%s%c",from,bold,CdccRequest,bold);
+                    send_to_server("NOTICE %s :I need : %s",from,CdccRequest);
 /*****************************/
             }
             if (!sent && !CTCPCloaking) send_to_server("NOTICE %s :No packs found matching %s",from,word);
@@ -2717,17 +2673,17 @@ time_t timenow;
         say("%skB/s%s/%smin %.2f kB/s%s)",tmpbuf2,Colors[COLOFF],
             CmdsColors[COLCDCC].color5,Client->minspeed,Colors[COLOFF]);
 #else
-        say("Cdcc closing slow dcc %s %s to %s (rate %.2f kB/s%c/%cmin %.2f kB/s)",
+        say("Cdcc closing slow dcc %s %s to %s (rate %.2f kB/s/min %.2f kB/s)",
             dcc_types[Client->flags&DCC_TYPES],tmpstr,Client->user,rate,
-            bold,bold,Client->minspeed);
+            Client->minspeed);
 #endif
         if (!CTCPCloaking) {
             oldserver=from_server;
             from_server=Client->server;
             if (CheckServer(from_server))
-                send_to_server("NOTICE %s :Cdcc %s %s auto closed, dcc was too slow (rate %.2f kB/s%c/%cmin %.2f kB/s)",
+                send_to_server("NOTICE %s :Cdcc %s %s auto closed, dcc was too slow (rate %.2f kB/s/min %.2f kB/s)",
                                Client->user,dcc_types[Client->flags&DCC_TYPES],tmpstr,
-                               rate,bold,bold,Client->minspeed);
+                               rate,Client->minspeed);
             from_server=oldserver;
         }
         Client->flags|=DCC_DELETE;
