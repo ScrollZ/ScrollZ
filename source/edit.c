@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.4 1998-09-16 20:09:01 f Exp $
+ * $Id: edit.c,v 1.5 1998-10-21 18:20:20 f Exp $
  */
 
 #include "irc.h"
@@ -227,6 +227,7 @@ extern  char  *ScrollZlame1;
 
 extern  void  AutoNickComplete _((char *, char *, ChannelList *));
 extern  void  NoWindowChannel _((void));
+extern  int   CheckServer _((int));
 
 extern  void  ListFriends _((char *, char *, char *));
 extern  void  ListAutoBanKicks _((char *, char *, char *));
@@ -2762,12 +2763,16 @@ send_text(org_nick, line, command)
                             }
                         }
                         if (!my_stricmp(command,"NOTICE")) {
-                                sprintf(tmpbuf,"-> -%s- %s",nick,line);
-                                malloc_strcpy(&LastNoticeSent,tmpbuf);
+                            sprintf(tmpbuf,"-> -%s- %s",nick,line);
+                            if (CheckServer(from_server))
+                                malloc_strcpy(&(server_list[from_server].LastNoticeSent),
+                                              tmpbuf);
                         }
                         else {
                             sprintf(tmpbuf,"-> [-%s-] %s",nick,line);
-                            malloc_strcpy(&LastMessageSent,tmpbuf);
+                            if (CheckServer(from_server))
+                                malloc_strcpy(&(server_list[from_server].LastMessageSent),
+                                              tmpbuf);
                         }
 /****************************************************************************/
 			if ((key = is_crypted(nick)) != NULL)
