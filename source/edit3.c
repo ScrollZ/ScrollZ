@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.16 1999-01-08 17:25:57 f Exp $
+ * $Id: edit3.c,v 1.17 1999-01-10 20:15:23 f Exp $
  */
 
 #include "irc.h"
@@ -107,7 +107,6 @@ extern char *chars;
 extern char global_track[];
 #endif
 
-int InLogo=1;
 static FILE *helpfile;
 static char tmpbufhlp[mybufsize/32];
 static int  DontHold=0;
@@ -160,7 +159,7 @@ char *command;
 char *args;
 char *subargs;
 {
-#ifdef WANTANSI
+#ifdef __linux__
     put_it("                                                      ;; *,");
     put_it("                                           `*i,     ;;'_gi **");
     put_it("  .m˜$˜y,                           ,Úgi$$i¿ `Ù*l,'',ÚS$7'  `Ù$        ,i,");
@@ -171,15 +170,15 @@ char *subargs;
     put_it("`* `4SS$7'`Y$$SSS$$ÚS$7'      `l$S$   `y$S$7;     ;4$S$S$ $S$`$$SSS$$$SSS$³ ;;");
     put_it("  ;; `4$b,  `À*$$'ÚSS$          $S$    ;S$$i       i$S$S$ $S$ ;Ù'    ,d$S7' **");
     put_it("   *`  `4S$b,_    $S$i        , $S$ _,d$SS$i       iS$$S$ $S$      ,dSS$' *',");
-    put_it(",,Ù\"     `À4SS$b,_ÀS$$      ,d$b$S$`7$Sb,4$$;     ;$$S$S$ $S$   ,d$$$SSSS$b¿`Ù;");
-    put_it("* Ú$b,      `À$SSS$ÀS$$bsssd$$SS$S$ ³`7$$b$SSb,_,dS$$'$S$ $S$,d$S$7Ù'^`ÀY$SS $;");
-    put_it("$,`$SS$b,     ;$S$Ù$,`À*$$$$i*Ù'$S$;* *`7$$SSSSS$i*Ù',`$SS$S$ `$'      ;SS$Ù,$;");
-    put_it("`$,`À$S$$b,_,d$SÙ'i..$$i.....Ú*,S$$L     `7$$b, .,Ú*    `$SS$'       ,d$S$' $'.");
-    put_it(" `* .`À*$SSS$iÙ' . ......... . ;;;;;;;::::ÄÄÄÄÄ::;;;;;;,d$S$' Ú,_  _,dSS$' ÚÄÄ;");
-    put_it("  ####### [1;37ms[0m ### [1;37mc[0m ### [1;37mr[0m ### [1;37mo[0m ### [1;37ml[0m ### [1;37ml[0m ### [1;37mz[0m #######  `À$b, `³$$$$$$7'  ³  ³");
-    put_it("  ` ``  ` ```  ` ` ```````````` ` ` `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    `Àib, `À**Ù'    ³  ³");
-    put_it("                        ÚÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ ³  ;");
-    put_it("                        ÀÄÄÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ[sairoku!rmrs]Ä³ÄÄÙ");
+    put_it(",,Ù\"     `À4SS$b,_ÀS$$      ,d$b$S$`7$Sb,4$$;     ;$$S$S$ $S$   ,d$$$SSSS$b¿`Ù");
+    put_it("* Ú$b,      `À$SSS$ÀS$$bsssd$$SS$S$ ³`7$$b$SSb,_,dS$$'$S$ $S$,d$S$7Ù'^`ÀY$SS $");
+    put_it("$,`$SS$b,     ;$S$Ù$,`À*$$$$i*Ù'$S$;* *`7$$SSSSS$i*Ù',`$SS$S$ `$'      ;SS$Ù,$");
+    put_it("`$,`À$S$$b,_,d$SÙ'i..$$i.....Ú*,S$$L     `7$$b, .,Ú*    `$SS$'       ,d$S$' $'");
+    put_it(" `* .`À*$SSS$iÙ' . ......... . ;;;;;;;::::ÄÄÄÄÄ::;;;;;;,d$S$' Ú,_  _,dSS$' ÚÄ;");
+    put_it("  ####### s ### c ### r ### o ### l ### l ### z #######  `À$b, `³$$$$$$7'  ³ ³");
+    put_it("  ` ``  ` ```  ` ` ```````````` ` ` `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    `Àib, `À**Ù'    ³ ³");
+    put_it("                        ÚÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ ³ ;");
+    put_it("                        ÀÄÄÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ[sairoku!rmrs]Ä³ÄÙ");
     put_it("                                                                           ; ");
 #else
     put_it("");
@@ -204,8 +203,7 @@ char *subargs;
     put_it("    type /SZINFO for more information");
     put_it("");
     put_it("");
-#endif /* WANTANSI */
-    InLogo=0;
+#endif /* __linux__ */
 }
 
 /* Saves message into ScrollZ.save file */
