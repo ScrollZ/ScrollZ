@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.7 1999-03-04 22:06:15 f Exp $
+ * $Id: window.c,v 1.8 1999-04-13 16:40:20 f Exp $
  */
 
 #include "irc.h"
@@ -3280,6 +3280,7 @@ Window *wind;
 {
     Window *tmp;
 
+    if (!wind) return((Window *) 0);
     for (tmp=curr_scr_win->screen->window_list;tmp;tmp=tmp->next)
         if (tmp->server==wind->server && tmp==wind) return(tmp);
     for (tmp=invisible_list;tmp;tmp=tmp->next)
