@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.36 2001-07-01 09:11:49 f Exp $
+ * $Id: cdcc.c,v 1.37 2001-07-21 18:58:45 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2292,12 +2292,12 @@ int  msg;
         strcat(tmpbuf4,tmpbuf3);
     }
 #else
-    if (args && *args) strcpy(tmpbuf1,args);
-    else *tmpbuf1='\0';
-    sprintf(tmpbuf4,"Cdcc%s request received from %s (%s)",tmpbuf1,from,FromUserHost);
+    sprintf(tmpbuf4,"Cdcc%s request received from %s (%s)",args,nick,FromUserHost);
     if (to && is_channel(to)) {
-        sprintf(tmpbuf3," to %s",to);
-        strcat(tmpbuf4,tmpbuf3);
+        char buf[mybufsize];
+
+        sprintf(buf," to %s",to);
+        strcat(tmpbuf4,buf);
     }
 #endif
     if (away_set || LogOn) AwaySave(tmpbuf4,SAVECTCP);

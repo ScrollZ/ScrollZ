@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.30 2001-01-22 18:20:57 f Exp $
+ * $Id: window.c,v 1.31 2001-07-21 18:58:45 f Exp $
  */
 
 #include "irc.h"
@@ -1538,7 +1538,7 @@ delete_window(window)
 	malloc_strcpy(&tmp, buffer);
 	realloc_channels(window);
 /**************************** PATCHED by Flier ******************************/
-#ifdef OPERVISION
+#if defined(OPERVISION) && defined(WANTANSI)
         if (OperV && !strcmp(buffer,"OV")) OperV=0;
 #endif
 /****************************************************************************/

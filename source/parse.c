@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.40 2001-07-01 09:14:31 f Exp $
+ * $Id: parse.c,v 1.41 2001-07-21 18:58:45 f Exp $
  */
 
 #include "irc.h"
@@ -922,8 +922,8 @@ p_quit(from, ArgList)
         int     netsplit;
 #ifdef WANTANSI
         char    *colnick;
-        NickList *joiner;
 #endif
+        NickList *joiner;
 #ifdef EXTRAS
         typedef struct winlist_str Winlist;
         struct winlist_str {
