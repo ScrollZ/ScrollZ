@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.16 2001-07-01 09:11:14 f Exp $
+dnl @(#)$Id: configure.in,v 1.17 2001-07-01 09:20:10 f Exp $
 
-AC_REVISION($Revision: 1.16 $)dnl
+AC_REVISION($Revision: 1.17 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -53,7 +53,8 @@ dnl grok the version number - from source/irc.c
 dnl
 
 VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*SCROLLZ_VERSION[ 	]*"/s///p' -e '/#define SCROLLZ_VERSION/q' < ${srcdir}/source/irc.c`
-echo this is ScrollZ version $VERSION
+IRCIIVERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c`
+echo this is ScrollZ version $VERSION + ircII version $IRCIIVERSION
 echo
 AC_SUBST(VERSION)
 
@@ -61,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.16 2001-07-01 09:11:14 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.17 2001-07-01 09:20:10 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
