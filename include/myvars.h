@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.27 2001-08-30 17:46:43 f Exp $
+ * $Id: myvars.h,v 1.28 2001-09-17 14:35:14 f Exp $
  */
 
 #include "mystructs.h"
@@ -268,6 +268,7 @@ extern int    ARinWindow;
 extern int    BKList;
 extern int    OrigNickQuiet;
 extern int    OrigNickSent;
+extern int    OrigNickNumber;
 #ifdef EXTRAS
 extern int    ShowSignAllChan;
 #endif
