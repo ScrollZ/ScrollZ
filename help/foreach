@@ -1,4 +1,4 @@
-!	 $Id: foreach,v 1.5 2003-09-21 15:45:33 f Exp $
+!	 $Id: foreach,v 1.6 2003-09-21 16:02:36 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,8 +7,8 @@
 ! information.
 !
 Usage: FOREACH <structure> <variable> { <commands> }
-       FE <structure> <variable> { <commands> }
-       FOR <structure> <variable> { <commands> }
+       FE (<list>) <variable> { <commands> }
+       FOR (<commence>, <evaluation>, <iteration>) { <commands> }
   This causes <commands> to be executed once for each 
   element in the structure.  The aliases inside the {} 
   are not expanded until execution unless the leading { 
@@ -41,10 +41,10 @@ Usage: FOREACH <structure> <variable> { <commands> }
     1 2 one two 
     2 1 two one
     2 2 two two
-  Another example using FOREACH:
+  Another example using FE:
     assign blue one two three
     alias showblue {
-      foreach ($blue) $ii {
+      fe ($blue) ii {
         echo $ii
       }
     }
@@ -52,6 +52,15 @@ Usage: FOREACH <structure> <variable> { <commands> }
     one
     two
     three
+  And an example for FOR:
+    for (@count=1,count<5,@count++) {
+      echo count is now $count
+    }
+  Output:
+    count is now 1
+    count is now 2
+    count is now 3
+    count is now 4
 
 Note:
   When using this format the {} in the foreach must be on separate 
