@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.52 2000-12-10 10:12:35 f Exp $
+ * $Id: edit3.c,v 1.53 2000-12-19 21:08:30 f Exp $
  */
 
 #include "irc.h"
@@ -1681,7 +1681,6 @@ char *message;
 /* Loads ScrollZ.save file */
 int ScrollZLoad()
 {
-    int  i;
     int  lineno;
     int  number;
     int  ulnumber=0;
@@ -1699,12 +1698,6 @@ int ScrollZLoad()
     struct words *wordnew;
 
     if (!OrigNick) malloc_strcpy(&OrigNick,nickname);
-    if (!AutoReplyBuffer) {
-        i=strlen(nickname)>3?3:strlen(nickname);
-        AutoReplyBuffer=(char *) new_malloc(i+1);
-        strmcpy(AutoReplyBuffer,nickname,i);
-        AutoReplyBuffer[i]='\0';
-    }
     say("Loading ScrollZ.save file...");
     filepath=OpenCreateFile("ScrollZ.save",0);
     if (!filepath || (usfile=fopen(filepath,"r"))==NULL) {
@@ -2511,6 +2504,11 @@ void InitVars() {
     malloc_strcpy(&BKChannels,"*");
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
+    if (!AutoReplyBuffer) {
+        i=strlen(nickname)>3?3:strlen(nickname);
+        AutoReplyBuffer=(char *) new_malloc(i+1);
+        strmcpy(AutoReplyBuffer,nickname,i);
+    }
     defban='B';
     inSZNotify=0;
     inSZLinks=0;
