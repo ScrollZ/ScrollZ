@@ -1,4 +1,4 @@
-!	 $Id: arinwin,v 1.3 2002-02-20 20:03:23 f Exp $
+!	 $Id: arinwin,v 1.4 2002-03-05 18:07:17 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
@@ -10,8 +10,8 @@ Usage: ARINWIN on|user|both|off
 
   If set to on auto-reply is also shown in current window.
   If set to user auto-reply is shown in window with level USERLOG4.
-  If set to both auto-reply is shown both in current window and
-  in window with level USERLOG4.
+  If set to both auto-reply is always shown in window with level
+  USERLOG4 (even when channel is your current channel).
 
 See also:
   REPWORD
