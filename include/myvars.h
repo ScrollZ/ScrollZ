@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.9 1999-07-18 12:48:50 f Exp $
+ * $Id: myvars.h,v 1.10 1999-08-22 12:32:37 f Exp $
  */
 
 #include "mystructs.h"
@@ -171,6 +171,7 @@ extern char   *DefaultABK;
 extern char   *DefaultSK;
 #ifdef ACID
 extern char   *DefaultKill;
+extern char   *ForceJoinChannels;
 #endif
 extern char   *PermUserMode;
 extern char   *AutoReplyString;
@@ -278,6 +279,9 @@ extern int    OperV;
 #endif
 #ifdef CELE
 extern int    SentAway;
+#endif
+#ifdef ACID
+extern int    ForceJoin;
 #endif
 /*****************************/
 extern time_t LastCheck;
