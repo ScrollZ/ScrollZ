@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.70 2001-11-01 20:12:15 f Exp $
+ * $Id: edit.c,v 1.71 2001-11-17 10:50:48 f Exp $
  */
 
 #include "irc.h"
@@ -2826,7 +2826,7 @@ send_text(org_nick, line, command)
         int     iscrypted;
         char    thing;
         char    *mynick=get_server_nickname(from_server);
-        char    tmpbuf[mybufsize+1];
+        char    tmpbuf[BIG_BUFFER_SIZE+1];
         char    *stampbuf=TimeStamp(2);
 
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
