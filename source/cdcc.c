@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.8 1998-10-25 18:28:00 f Exp $
+ * $Id: cdcc.c,v 1.9 1998-11-12 18:43:02 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -210,11 +210,10 @@ char *subargs;
     int  i;
     int  com=0;
 
-    if (!(args && *args)) {
+    if (!(word=new_next_arg(args,&args))) {
         showdccsmcommand(15);
         return;
     }
-    word=new_next_arg(args,&args);
     len=strlen(word);
     for (i=0;CdccCommands[i].command && CdccCommands[i].function;i++)
         if (!my_strnicmp(CdccCommands[i].command,word,len)) {
@@ -349,7 +348,9 @@ char *line;
 static void channelsmcommand(line)
 char *line;
 {
-    if (line && *line) malloc_strcpy(&CdccChannels,line);
+    char *channels;
+
+    if ((channels=new_next_arg(line,&line))) malloc_strcpy(&CdccChannels,channels);
     if (CdccChannels) {
         if (!my_stricmp(CdccChannels,"current"))
             PrintSetting("Cdcc channels","current channel",empty_string,empty_string);
@@ -439,12 +440,13 @@ char *line;
 static void uldirmcommand(line)
 char *line;
 {
+    char *newdir;
     char *fullname=(char *) 0;
     char tmpbuf[mybufsize/4];
 
     getcwd(tmpbuf,mybufsize);
-    if (*line) {
-        fullname=expand_twiddle(line);
+    if ((newdir=new_next_arg(line,&line))) {
+        fullname=expand_twiddle(newdir);
         if (!chdir(fullname)) malloc_strcpy(&CdccUlDir,fullname);
         else {
 #ifdef WANTANSI
@@ -468,12 +470,13 @@ char *line;
 static void dldirmcommand(line)
 char *line;
 {
+    char *newdir;
     char *fullname=(char *) 0;
     char tmpbuf[mybufsize/4];
 
     getcwd(tmpbuf,mybufsize);
-    if (*line) {
-        fullname=expand_twiddle(line);
+    if ((newdir=new_next_arg(line,&line))) {
+        fullname=expand_twiddle(newdir);
         if (!chdir(fullname)) malloc_strcpy(&CdccDlDir,fullname);
         else {
 #ifdef WANTANSI
@@ -714,14 +717,17 @@ int  count;
 static void closemcommand(line)
 char *line;
 {
+    char *word;
+
     if (!ClientList) {
         say("No dccs to close");
         return;
     }
-    if (line && *line) close2mcommand(NULL,line);
+    if ((word=new_next_arg(line,&line))) close2mcommand(NULL,word);
     else {
         showdccsmcommand(15);
-        add_wait_prompt("What to close (1-6,3 or *) ? ",close2mcommand,line,WAIT_PROMPT_LINE);
+        add_wait_prompt("What to close (1-6,3 or *) ? ",
+                        close2mcommand,line,WAIT_PROMPT_LINE);
     }
 }
 
@@ -744,7 +750,8 @@ char *line;
             flags=Client->flags;
             if (matchmcommand(line,packcount)) {
                 count++;
-                sprintf(tmpbuf,"%s %s %s",dcc_types[flags&DCC_TYPES],Client->user,Client->description);
+                sprintf(tmpbuf,"%s %s %s",dcc_types[flags&DCC_TYPES],Client->user,
+                        Client->description);
                 dcc_close(tmpbuf);
             }
         }
@@ -760,11 +767,14 @@ char *line;
 static void doffermcommand(line)
 char *line;
 {
+    char *word;
+
     if (packs) {
-        if (line && *line) doffer2mcommand(NULL,line);
+        if ((word=new_next_arg(line,&line))) doffer2mcommand(NULL,word);
         else {
             ShowPacks(NULL);
-            add_wait_prompt("Doffer what pack (1-6,3 or * for all) ? ",doffer2mcommand,line,WAIT_PROMPT_LINE);
+            add_wait_prompt("Doffer what pack (1-6,3 or * for all) ? ",
+                            doffer2mcommand,line,WAIT_PROMPT_LINE);
         }
     }
     else say("No packs created");
@@ -786,8 +796,7 @@ char *line;
     Packs *tmp3;
     char  *tmpstr=(char *) 0;
 
-    tmpstr=new_next_arg(line,&line);
-    if (tmpstr) {
+    if ((tmpstr=new_next_arg(line,&line))) {
         for (tmp=packs;tmp;tmp=tmp3) {
             tmp3=tmp->next;
             packcount++;
@@ -1021,8 +1030,7 @@ char *line;
     ChannelList *chan=server_list[curr_scr_win->server].chan_list;
 
     if (packs) {
-        if (line && *line) tmpchan=new_next_arg(line,&line);
-        else tmpchan=CdccChannels;
+        if (!(tmpchan=new_next_arg(line,&line))) tmpchan=CdccChannels;
         if (!tmpchan) {
             say("You must set CDCC CHANNELS first");
             return;
@@ -1079,8 +1087,7 @@ char *line;
     ChannelList *chan=server_list[curr_scr_win->server].chan_list;
 
     if (packs) {
-        if (line && *line) tmpchan=new_next_arg(line,&line);
-        else tmpchan=CdccChannels;
+        if (!(tmpchan=new_next_arg(line,&line))) tmpchan=CdccChannels;
         if (!tmpchan) {
             say("You must set CDCC CHANNELS first");
             return;
@@ -1112,9 +1119,8 @@ char *line;
     char *desc;
     Packs *tmp;
 
-    if (*line) {
-        if (packs) {
-            pack=new_next_arg(line,&line);
+    if (packs) {
+        if ((pack=new_next_arg(line,&line))) {
             if (pack && *pack=='#') pack++;
             number=atoi(pack);
             desc=line;
@@ -1127,9 +1133,9 @@ char *line;
             }
             say("Invalid pack number %d",number);
         }
-        else say("No packs created");
+        else PrintUsage("CDCC RENPACK #packno new description");
     }
-    else PrintUsage("CDCC RENPACK #packno new description");
+    else say("No packs created");
 }
 #endif
 
@@ -1229,8 +1235,8 @@ char *line;
     Files *tmpfile;
     Files *lastfile;
 
-    if (line && *line) file=line;
-    else file="ScrollZ.offer";
+    file=new_next_arg(line,&line);
+    if (!file) file="ScrollZ.offer";
     if (!(filepath=OpenCreateFile(file,1)) || (fp=fopen(filepath,"r"))==NULL) {
 #ifdef WANTANSI
         say("%sError%s: Can't open file %s !",
@@ -1372,8 +1378,8 @@ char *line;
     Files *tmpfile;
 
     if (packs) {
-        if (line && *line) file=line;
-        else file="ScrollZ.offer";
+        file=new_next_arg(line,&line);
+        if (!file) file="ScrollZ.offer";
         if (!(filepath=OpenCreateFile(file,1)) || (fp=fopen(filepath,"w"))==NULL) {
 #ifdef WANTANSI
             say("%sError%s: Can't open file %s !",
@@ -1411,7 +1417,8 @@ char *line;
         else malloc_strcpy(&CdccRequest,line);    /* It works */
     }
     if (!CdccReqTog) PrintSetting("Cdcc request","OFF",empty_string,empty_string);
-    else if (CdccRequest && CdccReqTog) PrintSetting("Cdcc request",CdccRequest,empty_string,empty_string);
+    else if (CdccRequest && CdccReqTog) PrintSetting("Cdcc request",CdccRequest,
+                                                     empty_string,empty_string);
 }
 
 /**********************************************************************
@@ -2165,7 +2172,9 @@ char *file;
 static void getmcommand(line)
 char *line;
 {
-    if (line && *line) get2mcommand(NULL,line);
+    char *word;
+
+    if ((word=new_next_arg(line,&line))) get2mcommand(NULL,word);
     else {
         showdccsmcommand(66);
         add_wait_prompt("What to get (1-6,3 or * for all) ",get2mcommand,
