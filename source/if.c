@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.c,v 1.6 2002-01-21 21:37:35 f Exp $
+ * $Id: if.c,v 1.7 2002-01-21 22:26:59 f Exp $
  */
 
 #include "irc.h"
@@ -571,51 +571,51 @@ fec(command, args, subargs)
  and the others are ignored, so placement of your switches are
  rather important:  Put your most general ones last. */
 #ifndef LITE
-void switchcmd(command,args,subargs)
+void switchcmd(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    char *control,*body,*header,*commands;
+    char *control, *body, *header, *commands;
     int af;
 
-    if (!(control=next_expr(&args,'('))) {
+    if (!(control = next_expr(&args, '('))) {
         yell("SWITCH: String to be matched not found where expected");
         return;
     }
-    control=expand_alias((char *) 0,control,subargs,&af,NULL);
+    control = expand_alias(NULL, control, subargs, &af, NULL);
     if (get_int_var(DEBUG_VAR) & DEBUG_EXPANSIONS)
-        yell("%s expression expands to: (%s)",command,control);
-    if (!(body=next_expr(&args,'{'))) {
+        yell("%s expression expands to: (%s)", command, control);
+    if (!(body = next_expr(&args, '{'))) {
         yell("SWITCH: Execution body not found where expected");
         new_free(&control);
         return;
     }
     while (body && *body) {
-        int hooked=0;
+        int hooked = 0;
 
-        while (*body=='(') {
-            if (!(header=next_expr(&body,'('))) {
+        while (*body == '(') {
+            if (!(header = next_expr(&body, '('))) {
                 yell("SWITCH: Case label not found where expected");
                 new_free(&control);
                 return;
             }
-            header=expand_alias((char *) 0,header,subargs,&af,NULL);
+            header = expand_alias(NULL, header, subargs, &af, NULL);
             if (get_int_var(DEBUG_VAR) & DEBUG_EXPANSIONS)
-                yell("%s expression expands to: (%s)",command,header);
-            if (wild_match(header,control)) hooked=1;
+                yell("%s expression expands to: (%s)", command, header);
+            if (wild_match(header,control)) hooked = 1;
             new_free(&header);
-            if (*body==';') body++;
+            if (*body == ';') body++;
         }
-        if (!(commands=next_expr(&body,'{'))) {
+        if (!(commands = next_expr(&body, '{'))) {
             say("SWITCH: case body not found where expected");
             return;
         }
         if (hooked) {
-            parse_line(NULL,commands,subargs,0,0);
+            parse_line(NULL, commands, subargs, 0, 0, 0);
             return;
         }
-        if (*body==';') body++;
+        if (*body == ';') body++;
     }
 }
 
@@ -625,19 +625,19 @@ char *args;
 char *subargs;
 {
     int value;
-    char *num_expr=NULL;
+    char *num_expr = NULL;
 
     while (isspace(*args)) args++;
-    if (*args=='(') {
+    if (*args == '(') {
         int argsused;
         char *tmp_val;
-        char *dumb_copy=(char *) 0;
-        char *sa=subargs?subargs:empty_string;
+        char *dumb_copy = NULL;
+        char *sa = subargs ? subargs : empty_string;
 
-        num_expr=next_expr(&args,'(');
-        malloc_strcpy(&dumb_copy,num_expr);
-        tmp_val=parse_inline(dumb_copy,sa,&argsused);
-        value=atoi(tmp_val);
+        num_expr = next_expr(&args, '(');
+        malloc_strcpy(&dumb_copy, num_expr);
+        tmp_val = parse_inline(dumb_copy, sa, &argsused);
+        value = atoi(tmp_val);
         new_free(&tmp_val);
         new_free(&dumb_copy);
     }
@@ -645,17 +645,17 @@ char *subargs;
         int af;
         char *tmp_val;
 
-        num_expr=new_next_arg(args, &args);
-        tmp_val=expand_alias((char *) 0,num_expr,subargs,&af,NULL);
-        value=atoi(tmp_val);
+        num_expr = new_next_arg(args, &args);
+        tmp_val = expand_alias(NULL, num_expr, subargs, &af, NULL);
+        value = atoi(tmp_val);
         new_free(&tmp_val);
     }
     else {
         say("REPEAT: missing args");
         return;
     }
-    if (value<=0) return;
-    while (value--) parse_line(NULL,args,subargs,0,0);
+    if (value <= 0) return;
+    while (value--) parse_line(NULL, args, subargs, 0, 0, 0);
 }
 #endif /* LITE */
 /****************************************************************************/

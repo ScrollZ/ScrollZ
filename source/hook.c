@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.11 2002-01-21 21:37:35 f Exp $
+ * $Id: hook.c,v 1.12 2002-01-21 22:23:51 f Exp $
  */
 
 #include "irc.h"
@@ -473,7 +473,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 {
 #endif
 	Hook	*tmp, **list;
-		*name = (char *) 0;
+	char	*name = (char *) 0;
 	int	RetVal = 1;
 	unsigned int	display;
 	int	i,

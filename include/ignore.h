@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.h,v 1.2 2002-01-21 21:37:35 f Exp $
+ * $Id: ignore.h,v 1.3 2002-01-21 22:27:26 f Exp $
  */
 
 #ifndef __ignore_h_
@@ -42,7 +42,7 @@
 	int	ignore_combo _((int, int));
 	int	double_ignore _((char *, char *, int));
 	void	ignore _((char *, char *, char *));
-	int	get_ignore_type _((u_char *));
+	int	get_ignore_type _((char *));
 
 extern	int	ignore_usernames;
 extern	char	highlight_char;
