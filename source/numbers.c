@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.27 2000-09-24 17:10:34 f Exp $
+ * $Id: numbers.c,v 1.28 2000-10-30 17:17:20 f Exp $
  */
 
 #include "irc.h"
@@ -83,6 +83,7 @@ extern void PrintMap _((void));
 extern void ChannelCreateTime _((char *, char **));
 extern void NoSuchServer4SPing _((char *, char **));
 extern void PurgeChannel _((char *, int));
+extern void CdccTimeWarning _((void));
 #ifdef ACID
 extern void TryChannelJoin _((void));
 #endif
@@ -1332,7 +1333,11 @@ numbered_command(from, comm, ArgList)
                         TimeReply(from,ArgList);
                         break;
                 case 422:
-                        if (!usersloaded) ScrollZLoad();
+                        if (!usersloaded) {
+                            ScrollZLoad();
+                            if (PlistTime<3600 || NlistTime<3600)
+                                CdccTimeWarning();
+                        }
                         break;
 /****************************************************************************/
 
@@ -1415,7 +1420,11 @@ numbered_command(from, comm, ArgList)
 			}
 			set_server_motd(parsing_server_index, 0);
 /**************************** PATCHED by Flier ******************************/
-                        if (!usersloaded) ScrollZLoad();
+                        if (!usersloaded) {
+                            ScrollZLoad();
+                            if (PlistTime<3600 || NlistTime<3600)
+                                CdccTimeWarning();
+                        }
 /****************************************************************************/
 			break;
 
