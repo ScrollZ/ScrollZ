@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.49 2001-01-21 20:59:58 f Exp $
+ * $Id: edit4.c,v 1.50 2001-02-06 20:42:14 f Exp $
  */
 
 #include "irc.h"
@@ -758,7 +758,7 @@ void HandleTabNext() {
     if (dotabcompl) {
         if (*tmpstr) {
             /* option to complete channel name */
-            if (*tmpstr=='#') {
+            if (is_channel(tmpstr)) {
                 for (nickstr=tmpbuf;*tmpstr;) *nickstr++=*tmpstr++;
                 *nickstr=0;
                 len=strlen(tmpbuf);
