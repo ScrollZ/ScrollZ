@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.h,v 1.3 2001-08-02 18:34:52 f Exp $
+ * $Id: whois.h,v 1.4 2002-06-03 16:50:05 f Exp $
  */
 
 #ifndef __whois_h_
@@ -44,7 +44,7 @@
 #endif /* HAVE_STDARG_H */
 	void	add_ison_to_whois _((char *, void (*) (WhoisStuff *, char *, char *)));
 /**************************** PATCHED by Flier ******************************/
-	void	add_userhost_to_whois _((char *, void (*) (WhoisStuff *, char *, char *)));
+        void	add_userhost_to_whois _((char *, void (*) (WhoisStuff *, char *, char *)));
 /****************************************************************************/
         void	whois_name _((char *, char **));
 	void	whowas_name _((char *, char **));
@@ -52,7 +52,8 @@
 	void	whois_server _((char *, char **));
 	void	whois_oper _((char *, char **));
 /**************************** Patched by Flier ******************************/
-	void	whois_admin _((char *, char **));
+        void	whois_admin _((char *, char **));
+        void	whois_identified _((char *, char **));
 /****************************************************************************/
 	void	whois_lastcom _((char *, char **));
 	void	whois_nickname _((WhoisStuff *, char *, char *));
@@ -75,7 +76,7 @@
 	void	ison_notify _((WhoisStuff *, char *, char *));
 /**************************** PATCHED by Flier ******************************/
 	/*void	no_such_nickname _((char *, char **));*/
-	void	no_such_nickname _((char *, char **, int));
+        void	no_such_nickname _((char *, char **, int));
 /****************************************************************************/
 
 extern	int	beep_on_level;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.63 2002-06-03 16:43:24 f Exp $
+ * $Id: numbers.c,v 1.64 2002-06-03 16:50:05 f Exp $
  */
 
 #include "irc.h"
@@ -1177,6 +1177,12 @@ numbered_command(from, comm, ArgList)
 	case 319:		/* #define RPL_WHOISCHANNELS    319 */
 		whois_channels(from, ArgList);
 		break;
+
+/**************************** Patched by Flier ******************************/
+	case 320:
+                whois_identified(from, ArgList);
+                break;
+/****************************************************************************/
 
 	case 321:		/* #define RPL_LISTSTART        321 */
 		ArgList[0] = "Channel\0Users\0Topic";
