@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.44 2001-12-22 18:32:27 f Exp $
+ * $Id: server.c,v 1.45 2001-12-23 16:45:46 f Exp $
  */
 
 #include "irc.h"
@@ -1626,7 +1626,11 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 				/*say("\t%d) %s %d%s", i,*/
 				say("\t%c%d) %s %d%s%s",
+#ifdef HAVE_SSL
                                         server_list[i].enable_ssl ? '!' : ' ',
+#else
+                                        ' ',
+#endif
                                         i,
 /****************************************************************************/
 					server_list[i].name,
@@ -1643,7 +1647,11 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (was %s)", i,*/
 					say("\t%c%d) %s %d (was %s)",
+#ifdef HAVE_SSL
                                                 server_list[i].enable_ssl ? '!' : ' ',
+#else
+                                                ' ',
+#endif
                                                 i,
 /****************************************************************************/
 						server_list[i].name,
@@ -1653,7 +1661,11 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (%s)", i,*/
 					say("\t%c%d) %s %d (%s)%s",
+#ifdef HAVE_SSL
                                                 server_list[i].enable_ssl ? '!' : ' ',
+#else
+                                                ' ',
+#endif
                                                 i,
 /****************************************************************************/
 						server_list[i].name,
