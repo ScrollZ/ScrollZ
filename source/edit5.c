@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.91 2002-02-25 18:18:05 f Exp $
+ * $Id: edit5.c,v 1.92 2002-02-25 18:22:19 f Exp $
  */
 
 #include "irc.h"
@@ -1585,19 +1585,8 @@ int  iscrypted;
     }
 #else  /* WANTANSI */
     if (!isitme || ShowNick) {
-        if (!isitme && AutoReplyBuffer) {
-            strmcpy(tmpbuf1,AutoReplyBuffer,sizeof(tmpbuf1));
-            currentar=tmpbuf1;
-            do {
-                newar=strchr(currentar,',');
-                if (newar) *newar='\0';
-                snprintf(tmpbuf3,sizeof(tmpbuf3),"*%s*",currentar);
-                foundar=wild_match(tmpbuf3,tmpbuf4);
-                if (newar) newar++;
-                currentar=newar;
-            }
-            while (currentar && !foundar);
-        }
+        if (!isitme && AutoReplyBuffer)
+            foundar=AutoReplyMatch(tmpbuf4);
         *tmpbuf2='\0';
         if (ExtPub) {
             strmcpy(tmpbuf2,"",sizeof(tmpbuf2));
