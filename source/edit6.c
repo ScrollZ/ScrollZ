@@ -49,7 +49,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.4 1998-10-21 18:30:42 f Exp $
+ * $Id: edit6.c,v 1.5 1998-10-21 19:42:09 f Exp $
  */
 
 #include "irc.h"
@@ -2075,7 +2075,6 @@ void CleanUpScrollZVars() {
     new_free(&StampChannels);
     new_free(&EncryptPassword);
     new_free(&StatsFilter);
-    new_free(&LastJoin);
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
     new_free(&VirtualHost);
@@ -2101,7 +2100,7 @@ void CleanUpScrollZVars() {
 }
 
 /* Clean up all stuff from memory on exit */
-void CleanUp(void) {
+void CleanUp() {
     int i;
     char tmpbuf[mybufsize/32];
     struct list *tmplist;
