@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.27 2000-08-22 16:53:04 f Exp $
+ * $Id: operv.c,v 1.28 2000-08-24 17:50:36 f Exp $
  */
 
 #include "irc.h"
@@ -690,25 +690,19 @@ char *from;
         if (strlen(word1) && word1[strlen(word1)-1]=='.')
             word1[strlen(word1)-1]='\0';
         strcpy(word2,OVgetword(0,7,tmpline));  /* killer  */
-        strcpy(word3,OVgetword(0,9,tmpline));  /* path  */
-        strcpy(word4,OVgetword(0,10,tmpline)); /* reason  */
         /* check for server kill first */
         if (index(word2,'.')) {
-            tmp=word4;
-            if (*tmp=='(') {
-                tmp++;
-            }
-            else tmp=empty_string;
+            strcpy(word3,OVgetword(9,0,tmpline));  /* path  */
 #ifdef OGRE 
             sprintf(tmpbuf,"[      %skill%s] %sserver%s: %s%s%s from %s%s%s (%s)",
                     CmdsColors[COLOV].color2,Colors[COLOFF],
                     CmdsColors[COLOV].color6,Colors[COLOFF],
                     CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],tmp);
+                    CmdsColors[COLOV].color5,word2,Colors[COLOFF],word3);
 #else
             sprintf(tmpbuf,"Server kill received for %s%s%s from %s%s%s (%s)",
                     CmdsColors[COLOV].color1,word1,Colors[COLOFF],
-                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],tmp);
+                    CmdsColors[COLOV].color2,word2,Colors[COLOFF],word3);
 #endif
         }
         else {
@@ -717,6 +711,8 @@ char *from;
             char *tmpuh=NULL;
             char *userhost=word3;
 
+            strcpy(word3,OVgetword(0,9,tmpline));  /* path  */
+            strcpy(word4,OVgetword(10,0,tmpline)); /* reason  */
             /* check for foreing kill (more than one !) */
             while (*tmp && (tmp=index(tmp,'!'))) {
                 foreign++;
