@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.10 1998-11-15 20:21:45 f Exp $
+ * $Id: edit5.c,v 1.11 1998-11-20 21:00:53 f Exp $
  */
 
 #include "irc.h"
@@ -2097,10 +2097,11 @@ char *nick;
 }
 
 /* Colored chat */
-void PrintChatMsg(client,line,bytes)
+void PrintChatMsg(client,line,bytes,iscrypted)
 DCC_list *client;
 char *line;
 int  bytes;
+int  iscrypted;
 {
     char thing;
     char tmpbuf[mybufsize/4];
@@ -2109,14 +2110,18 @@ int  bytes;
     char tmpbuf2[mybufsize/4];
 #endif
 #endif
+    char thingleft[mybufsize/128];
+    char thingright[mybufsize/128];
 
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
+    sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
+    sprintf(thingright,"%c%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
-    sprintf(tmpbuf,"%s%c%s%s%s%s%s%c%s",
-            CmdsColors[COLDCCCHAT].color2,thing,Colors[COLOFF],
+    sprintf(tmpbuf,"%s%s%s%s%s%s%s%s%s",
+            CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color1,client->user,Colors[COLOFF],
-            CmdsColors[COLDCCCHAT].color2,thing,Colors[COLOFF]);
+            CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF]);
 #ifdef TDF
     sprintf(tmpbuf2,"<[%s%s%s]%s%s,%s%s>",
             CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF],
@@ -2127,7 +2132,7 @@ int  bytes;
     put_it("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
 #endif /* TDF */
 #else  /* WANTANSI */
-    put_it("%c%s%c %s",thing,client->user,thing,line);
+    put_it("%s%s%s %s",thingleft,client->user,thingright,line);
 #endif /* WANTANSI */
     if (bytes>512 && (away_set || LogOn)) {
         sprintf(tmpbuf,"DCC CHAT from %s is %d bytes long",client->user,bytes);
@@ -2136,27 +2141,32 @@ int  bytes;
 }
 
 /* Prints my chat messages */
-void PrintMyChatMsg(nick,line)
+void PrintMyChatMsg(nick,line,iscrypted)
 char *nick;
 char *line;
+int  iscrypted;
 {
     char thing;
 #ifdef WANTANSI
     char tmpbuf[mybufsize/4];
 #endif
+    char thingleft[mybufsize/128];
+    char thingright[mybufsize/128];
 
     if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
     else thing='=';
+    sprintf(thingleft,"%s%c",iscrypted?"*":"",thing);
+    sprintf(thingright,"%c%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
-    sprintf(tmpbuf,"%s[%s%s%c%s%s%s%s%s%c%s%s]%s",
+    sprintf(tmpbuf,"%s[%s%s%s%s%s%s%s%s%s%s%s]%s",
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF],
-            CmdsColors[COLDCCCHAT].color2,thing,Colors[COLOFF],
+            CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color5,nick,Colors[COLOFF],
-            CmdsColors[COLDCCCHAT].color2,thing,Colors[COLOFF],
+            CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF]);
     put_it("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
 #else
-    put_it("[%c%s%c] %s",thing,nick,thing,line);
+    put_it("[%c%s%c] %s",thingleft,nick,thingright,line);
 #endif
 }
 
