@@ -1,4 +1,4 @@
-!	 $Id: ignore,v 1.5 2003-04-16 17:13:44 f Exp $
+!	 $Id: ignore,v 1.6 2004-04-25 10:01:34 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -9,6 +9,7 @@
 Usage: IGNORE [<nick>] [-|+|^][<message type>]
        IGNORE [<user@host>] [-][<message type>]
        IGNORE [<nick>!#channel] [-][<message type>]
+       IGNORE [<user@host>!#channel] [-][<message type>]
 
   The standard form of IGNORE allows you to specify which type of
   messages you wish to ignore from a user.  The message type
@@ -29,9 +30,10 @@ Usage: IGNORE [<nick>] [-|+|^][<message type>]
   You can ignore by nickname or by specifying a userid@hostname
   format.  The third form allows you to ignore by nickname only
   on matching channels (useful to ignore publics from certain
-  users only on one channel for example).  Wildcards may be used
-  in all formats.  You can specify multiple types of messages to
-  ignore on the command line.
+  users only on one channel for example).  The fourth form allows
+  you to ignore by user@host only on matching channels.
+  Wildcards may be used in all formats.  You can specify multiple
+  types of messages to ignore on the command line.
   Preceeding a type with a - indicates removal of ignoring of
   that type of message.  For example:
     IGNORE BigCheese MSGS INVITES
