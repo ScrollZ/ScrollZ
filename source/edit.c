@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.34 2000-07-17 15:23:24 f Exp $
+ * $Id: edit.c,v 1.35 2000-07-23 07:43:27 f Exp $
  */
 
 #include "irc.h"
@@ -3441,13 +3441,7 @@ load(command, args, subargs)
 				malloc_strcat(&expand_z, ZSUFFIX);
 			}
 #endif /*ZCAT*/
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZ32
-                        if (strlen(expanded)<2 || *(expanded+1)!=':')
-#else
 			if (*expanded != '/')
-#endif
-/****************************************************************************/
 			{
 				filename = path_search(expanded, ircpath);
 #ifdef ZCAT
