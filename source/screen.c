@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.18 2001-09-03 17:48:12 f Exp $
+ * $Id: screen.c,v 1.19 2001-09-28 16:31:13 f Exp $
  */
 
 #include "irc.h"
@@ -1372,7 +1372,7 @@ split_up_line(str)
 				break;
 /**************************** Patched by Flier ******************************/
 			case '|':	/* possible word break if time stamp is set to max */
-                                if (Stamp==2 && indent==0 && pos<8) indent=-1;
+                                if (Stamp==2 && indent==0 && pos<30) indent=-1;
                                 lbuf[pos++] = *ptr;
                                 col++;
                                 break;
