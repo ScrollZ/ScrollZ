@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.8 2000-09-24 17:10:34 f Exp $
+ * $Id: help.c,v 1.9 2001-12-30 09:28:48 f Exp $
  */
 
 /*
@@ -143,7 +143,7 @@ selectent(entry)
 {
 	if (*(entry->d_name) == '.')
 		return (0);
-	if (my_strnicmp(entry->d_name, this_arg, strlen(this_arg)))
+	if (my_strnicmp((char *) entry->d_name, this_arg, strlen(this_arg)))
 		return (0);
 	else
 	{

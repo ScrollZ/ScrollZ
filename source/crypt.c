@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.9 2001-12-23 17:13:44 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.10 2001-12-30 09:30:20 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -212,7 +212,7 @@ restart:
 		}
 #endif
 
-		if ((keystr = next_arg(args, &args)) != NULL)
+		if ((keystr = next_arg(args, (char **) &args)) != NULL)
 		{
 			add_to_crypt(nick, keystr, enc, dec, type);
 			say("%s added to the %s crypt", nick, type);
