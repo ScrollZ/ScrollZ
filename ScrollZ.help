@@ -329,6 +329,7 @@ Usage $3ADDW channels word$0 [$3comment$0]
 Channels is a list of channels, separated with comma. You can use * and ?
 in channels. Note that this will kick unopped people only unless you turn
 on $4KICKOPS$0. This won't kick users with +F flag set (no flood checking).
+You can use * and ? in word, example: $4ADDW #blek *^C* mIRC sucks$0
 Also look at $2REMW$0, $2LISTW$0 and $2KICKOPS$0
 :CHPASS        Change user's password
 Usage $3CHPASS filter password$0
