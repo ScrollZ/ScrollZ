@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.8 1998-10-21 19:36:02 f Exp $
+ * $Id: edit3.c,v 1.9 1998-10-22 17:02:21 f Exp $
  */
 
 #include "irc.h"
@@ -159,7 +159,7 @@ char *command;
 char *args;
 char *subargs;
 {
-#ifdef __linux__
+#ifdef WANTANSI
     put_it("[0m[0;25;37;40m");
     put_it("               [1;30mÜ[0m                                    [34m [0m    [1;30m [0;36;40m    [0m     [36mÞ[0m");
     put_it("             [1;30mÜÛÝ[0m      [1;30mßßßß  ÛÛÛÜÜÜÜ[0m   [1;30mÜÜÜÜÜÜ[0;33;40m°°[0m [1;32;46m°²[40mÛ[33mÛ[0m [34m [0m    [36m [1;33mÛÛ[32mÛ[46m²[0;36;40m    [1mÜ[46m°[0m");
@@ -395,7 +395,7 @@ char *subargs;
                 CmdsColors[COLSETTING].color5,NHProtChannels,Colors[COLOFF]);
         strcpy(tmpbuf3,CmdsColors[COLSETTING].color2);
 #else
-        sprintf(tmpbuf2,"ON%c for channels : %c%s%c",bold,bold,NHProtChannels,
+        sprintf(tmpbuf2,"ON for channels : %c%s%c",bold,NHProtChannels,
                 bold);
 #endif
         switch (NHDisp) {
@@ -463,7 +463,7 @@ char *subargs;
             CmdsColors[COLSETTING].color2,ctime((time_t *) &(tmpchan->time.tv_sec)),
             Colors[COLOFF]);
 #else  /* HAVETIMEOFDAY */
-        say("Channel created in memory at %s%.24%s",
+        say("Channel created in memory at %s%.24s%s",
             CmdsColors[COLSETTING].color2,ctime(&(tmpchan->time)),Colors[COLOFF]);
 #endif /* HAVETIMEOFDAY */
         sprintf(tmpbuf,"Ops         : %s%-5d%sDeops      : %s%-5d%sServops    : ",
@@ -493,10 +493,10 @@ char *subargs;
 #else  /* WANTANSI */
         say("Statistics for channel %s :",tmpchan->channel);
 #ifdef HAVETIMEOFDAY
-        say("Channel created in memory at %c%.24%c",
+        say("Channel created in memory at %c%.24s%c",
             bold,ctime((time_t *) &(tmpchan->time.tv_sec)),bold);
 #else  /* HAVETIMEOFDAY */
-        say("Channel created in memory at %c%.24%c",
+        say("Channel created in memory at %c%.24s%c",
             bold,ctime(&(tmpchan->time)),bold);
 #endif /* HAVETIMEOFDAY */
         sprintf(tmpbuf,"Ops         : %c%-5d%cDeops      : %c%-5d%cServops    : ",
