@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.12 2000-04-10 15:58:49 f Exp $
+ * $Id: window.c,v 1.13 2000-07-10 15:53:40 f Exp $
  */
 
 #include "irc.h"
@@ -3381,7 +3381,7 @@ win_list_channels(window)
 
 /**************************** PATCHED by Flier ******************************/
 /* Try to find given window in window list */
-Window *FindWindow(wind)
+Window *FindWindowByPtr(wind)
 Window *wind;
 {
     Window *tmp;
