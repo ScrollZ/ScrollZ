@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.91 2002-05-08 18:13:04 f Exp $
+ * $Id: irc.c,v 1.92 2002-05-15 18:25:23 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -1402,6 +1402,10 @@ irc_io(prompt, func, my_use_input, loop)
 			timeptr = &right_away;
 		Debug((7, "irc_io: selecting with %ld:%ld timeout", timeptr->tv_sec,
 			timeptr->tv_usec));
+/**************************** Patched by Flier ******************************/
+                if (!hold_over)
+                    cursor_to_input();
+/****************************************************************************/
 		switch (new_select(&rd, &wd, timeptr))
 		{
 		case 0:
@@ -1439,8 +1443,11 @@ irc_io(prompt, func, my_use_input, loop)
 				real_sig_user1();
 				do_sig_user1 = 0;
 			}
-			if (!hold_over)
-				cursor_to_input();
+/**************************** Patched by Flier ******************************/
+                        /* moved above */
+			/*if (!hold_over)
+				cursor_to_input();*/
+/****************************************************************************/
 			break;
 		default:
 #ifndef _Windows
