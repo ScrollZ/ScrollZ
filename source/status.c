@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.7 1998-11-26 19:33:31 f Exp $
+ * $Id: status.c,v 1.8 1998-12-10 18:40:10 f Exp $
  */
 
 #include "irc.h"
@@ -2180,7 +2180,7 @@ Window	*window;
     else if ((chan=lookup_channel(channel,curr_scr_win->server,0))==NULL)
         malloc_strcpy(&ptr,empty_string);
     else {
-        StripAnsi(chan->topicstr?chan->topicstr:empty_string,topicbuf,2);
+        StripAnsi(chan->topicstr?chan->topicstr:empty_string,topicbuf,3);
         malloc_strcpy(&ptr,topicbuf);
     }
     return(ptr);
