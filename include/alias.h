@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.h,v 1.2 1999-02-15 21:18:17 f Exp $
+ * $Id: alias.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __alias_h_
@@ -63,7 +63,7 @@
 	int	word_count _((char *));
 
 extern	char	alias_illegals[];
-extern	char	FAR command_line[];
+extern	char	*command_line;
 
 struct	ArgPosTag
 {

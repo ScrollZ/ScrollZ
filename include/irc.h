@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: irc.h,v 1.5 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __irc_h
@@ -46,6 +46,12 @@
 #endif
 /****************************************************************************/
 
+#ifdef __MSDOS__
+#define IRCQUICK_NAME "/ircquick.rc"
+#else
+#define IRCQUICK_NAME "/.ircquick"
+#endif
+
 /*
  * Here you can set the in-line quote character, normally backslash, to
  * whatever you want.  Note that we use two backslashes since a backslash is
@@ -59,6 +65,9 @@
 
 #include "defs.h"
 #include "config.h"
+#ifdef NeXT
+#   include <libc.h>
+#endif
 #include <stdio.h>
 #include <ctype.h>
 #ifdef _Windows
@@ -175,7 +184,7 @@
 #if 0 /* blundernet */
 #define NICKNAME_LEN 9
 #endif
-#define NAME_LEN 80
+#define NAME_LEN 255
 #define REALNAME_LEN 50
 #define PATH_LEN 1024
 
@@ -292,8 +301,8 @@ extern	int	send_text_flag;
 extern	int	irc_io_loop;
 extern	int	break_io_processing;
 extern	int	use_flow_control;
-extern	char	*joined_nick;
-extern	char	*public_nick;
+extern	u_char	*joined_nick;
+extern	u_char	*public_nick;
 extern	char	empty_string[];
 extern	char	*zero;
 extern	char	*one;
@@ -303,11 +312,12 @@ extern	char	internal_version[];
 extern	char	FAR buffer[];
 extern	char	*nickname;
 extern	char	*ircrc_file;
+extern	char	*ircquick_file;
 extern	char	FAR hostname[];
 extern	char	FAR realname[];
 extern	char	FAR username[];
 extern	char	*send_umode;
-extern	char	*last_notify_nick;
+extern	u_char	*last_notify_nick;
 extern	int	away_set;
 extern	int	background;
 extern	char	*my_path;
@@ -323,7 +333,6 @@ extern	char	*who_file;
 extern	char	*who_nick;
 extern	char	*who_real;
 extern	char	*cannot_open;
-extern	char	global_all_off[];
 extern	int	dumb;
 extern	int	use_input;
 extern	time_t	idle_time;
@@ -341,6 +350,7 @@ extern	struct	in_addr	local_ip_address;
  * XXX some of these should move to a new notice.h
  */
  	int	irc_io _((char *, void (*)(u_int, char*), int, int));
+ 	void	set_irchost _((void));
 	void	new_stty _((char *));
 	int	wild_match _((char *, char *));
 	int	is_channel _((char *));
@@ -352,6 +362,7 @@ extern	struct	in_addr	local_ip_address;
 	void	got_initial_version _((char *));
 	void	maybe_load_ircrc _((void));
 	void	load_ircrc _((void));
+ 	void	load_ircquick _((void));
 	void	parse_notice _((char *, char **));
  	void	irc_quit _((u_int, char *));
 

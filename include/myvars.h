@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.16 2000-07-17 15:23:24 f Exp $
+ * $Id: myvars.h,v 1.17 2000-08-09 19:31:20 f Exp $
  */
 
 #include "mystructs.h"
@@ -275,7 +275,6 @@ extern int    CdccSendNum;
 extern int    CdccRecvNum;
 extern int    AwayMsgNum;
 extern char   *URLBuffer;
-extern char   *VirtualHost;
 #if defined(EXTRAS) || defined(FLIER)
 extern int    AutoInv;
 #endif

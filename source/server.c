@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.18 2000-05-14 07:57:56 f Exp $
+ * $Id: server.c,v 1.19 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -99,7 +99,7 @@ extern	WhoisQueue	*WQ_tail;
 
 	int	primary_server = -1;
 	int	from_server = -1;
-	int	attempting_to_connect= 0;
+	int	attempting_to_connect = 0;
 	int	never_connected = 1;		/* true until first connection
 						 * is made */
 	int	connected_to_server = 0;	/* true when connection is
@@ -254,7 +254,6 @@ int  buflen;
  * 2) If the server wasn't a primary server, connect_to_server() is called to
  * try to keep that connection alive. 
  */
-
 void
 do_server(rd, wd)
 	fd_set	*rd, *wd;
@@ -362,9 +361,9 @@ do_server(rd, wd)
 						server_list[old_serv].flags |= LOGGED_IN;
 						server_list[old_serv].connected = 1;
 #if 1
- 						get_connected(old_serv, 1);
+						get_connected(old_serv);
 #else
- 						/* get_connected(old_serv, 1);
+						/* get_connected(old_serv);
 						   should be used only for
 						   primary_server -Sol */
 						/* connect_to_server(server_list[old_serv].name, server_list[old_serv].port, server_list[server].nickname, -1);
@@ -377,7 +376,7 @@ do_server(rd, wd)
 						while ((tmp = traverse_all_windows(&flag)) != (Window *) 0)
 							if (tmp->server == i)
 							{
-								set_window_server(tmp->refnum, old_serv, WIN_ALL);
+								window_set_server(tmp->refnum, old_serv, WIN_ALL);
 								break;
 							}
 						}
@@ -403,7 +402,7 @@ a_hack:
 							times = 0;
 						}
 						else
- 							get_connected(i, 0);
+							get_connected(i);
 					}
 					else
 					{
@@ -416,7 +415,7 @@ a_hack:
 							times = 0;
   						}
 						else
- 							get_connected(i, 0);
+							get_connected(i);
 					}
 				}
 				else if (server_list[i].eof)
@@ -631,16 +630,7 @@ add_to_server_list(server, port, password, nick, overwrite)
 					new_free(&(server_list[from_server].password));
 			}
 			if (nick && *nick)
-/**************************** PATCHED by Flier ******************************/
-                        {
-				/*malloc_strcpy(&(server_list[from_server].nickname), nick);*/
-                            char *tmpnick=(char *) 0;
-
-                            malloc_strcpy(&tmpnick,nick);
-                            malloc_strcpy(&(server_list[from_server].nickname),tmpnick);
-                            new_free(&tmpnick);
-                        }
-/****************************************************************************/
+				malloc_strcpy(&(server_list[from_server].nickname), nick);
 		}
 		if ((int) strlen(server) > (int) strlen(server_list[from_server].name))
 			malloc_strcpy(&(server_list[from_server].name), server);
@@ -738,7 +728,7 @@ remove_from_server_list(i)
         }
 /****************************************************************************/
 
-	/* update all he structs with server in them */
+	/* update all the structs with server in them */
 	channel_server_delete(i);	/* fix `higher' servers */
 	clear_channel_list(i);
 #ifndef _Windows
@@ -782,9 +772,19 @@ parse_server_info(name, port, password, nick, extra)
 		**nick,
 		**extra;
 {
-	char *ptr;
+	char *ptr, *ename, *savename = (char *) 0;
 
-	*port = *password = *nick = NULL;
+	*port = *password = *nick = *extra = NULL;
+	/* check for [i:p:v:6]:port style */
+	if (**name == '[')
+	{
+		if ((ename = index((*name)+1, ']')))
+		{
+			*ename = '\0';
+			savename = *name + 1;
+			*name = ename + 1;	/* now points to empty or : we hope */
+		}
+ 	}
 	if ((ptr = (char *) index(*name, ':')) != NULL)
 	{
 		*(ptr++) = (char) 0;
@@ -825,6 +825,8 @@ parse_server_info(name, port, password, nick, extra)
 			}
 		}
 	}
+	if (savename)
+		*name = savename;
 }
 
 /*
@@ -914,8 +916,17 @@ connect_to_server_direct(server_name, port, nick)
 	char	*nick;
 {
 	int	new_des;
+#ifdef INET6
+/*
+	struct	sockaddr_storage	localaddr;
+*/
+/* For IPv4 only DCC */
+	char	strlhost[1025];
+	struct	addrinfo h, *r, *r0;
+#else
 	struct sockaddr_in localaddr;
 	int	address_len;
+#endif
 
 	using_server_process = 0;
 	oper_command = 0;
@@ -928,21 +939,37 @@ connect_to_server_direct(server_name, port, nick)
 		new_des = connect_by_number(port, server_name, 1);
 	if (new_des < 0)
 	{
-		say("Unable to connect to port %d of server %s: %s", port,
-				server_name, errno ? strerror(errno) :
-				"unknown host");
+		char *e = NULL;
+		switch (new_des)
+		{
+		default:
+		case -2:
+			e = "Unknown host";
+			errno = 0;
+			break;
+		case -3:
+			e = "socket";
+			break;
+		case -4:
+			e = "connect";
+			break;
+		}
+			
+		say("Unable to connect to port %d of server %s: %s%s%s", port, server_name, e,
+		    errno ? ": " : "", errno ? strerror(errno) : "");
 		if (from_server != -1 && server_list[from_server].read != -1)
-			say("Connection to server %s resumed...",
-					server_list[from_server].name);
+			say("Connection to server %s resumed...", server_list[from_server].name);
 		return (-1);
 	}
 #ifdef HAVE_SYS_UN_H
 	if (*server_name != '/')
 #endif /* HAVE_SYS_UN_H */
 	{
+#ifndef INET6
 		address_len = sizeof(struct sockaddr_in);
 		getsockname(new_des, (struct sockaddr *) &localaddr,
 				&address_len);
+#endif
 	}
 	update_all_status();
 	add_to_server_list(server_name, port, (char *) 0, nick, 1);
@@ -953,7 +980,25 @@ connect_to_server_direct(server_name, port, nick)
 	}
 	else
 		server_list[from_server].read = new_des;
+#ifdef INET6
+/* DCC works _only_ via IPv4, so we put IPv4 address here */
+	gethostname(strlhost, sizeof(strlhost));
+	memset(&h, 0, sizeof(h));
+	h.ai_family = AF_INET;
+	h.ai_socktype = SOCK_STREAM;
+	if (getaddrinfo(strlhost, "0", &h, &r0) == 0)
+	{
+		struct sockaddr_in tmps;
+		for (r = r0; r; r = r->ai_next) {
+			memcpy(&tmps, r->ai_addr, r->ai_addrlen);
+			server_list[from_server].local_addr.s_addr = tmps.sin_addr.s_addr;
+			freeaddrinfo(r0);
+			break;
+		}
+	}
+#else
 	server_list[from_server].local_addr.s_addr = localaddr.sin_addr.s_addr;
+#endif
 	server_list[from_server].operator = 0;
 	return (0);
 }
@@ -1101,8 +1146,13 @@ connect_to_server(server_name, port, nick, c_server)
 	int	c_server;
 {
 	int	server_index;
+#ifdef INET6
+	struct	sockaddr_storage	sa;
+	int salen = sizeof( struct sockaddr_storage );
+#else
 	struct sockaddr_in	sa;
 	int salen = sizeof( struct sockaddr_in );
+#endif
 
 /**************************** PATCHED by Flier ******************************/
         LastServer=time((time_t *) 0);
@@ -1110,7 +1160,7 @@ connect_to_server(server_name, port, nick, c_server)
  	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
 	server_index = find_in_server_list(server_name, port, nick);
-	attempting_to_connect++;
+	attempting_to_connect = 1;
 	/*
 	 * check if the server doesn't exist, or that we're not already
 	 * connected to it.
@@ -1125,6 +1175,9 @@ connect_to_server(server_name, port, nick, c_server)
 				port = irc_port;
 		}
 		say("Connecting to port %d of server %s", port, server_name);
+
+		load_ircquick();
+
 /**************************** PATCHED by Flier ******************************/
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index>=0) {
@@ -1175,7 +1228,7 @@ connect_to_server(server_name, port, nick, c_server)
 			server_index = connect_to_server_direct(server_name, port, nick);
 		if (server_index)
 		{
-			attempting_to_connect--;
+			attempting_to_connect = 0;
  			restore_message_from();
 			return -1;
 		}
@@ -1309,10 +1362,8 @@ irc2_login_to_server(server)
  * resurected (eg. connection to server failed).
  */
 void
-get_connected(server, oldconn)
+get_connected(server)
 	int	server;
-	int	oldconn;
-/****************************************************************************/
 {
 	int	s,
 		ret = -1;
@@ -1354,11 +1405,8 @@ get_connected(server, oldconn)
  		if (from_server != -1) {
  			int flags;
 
- 			flags = (already_connected ? 0 : WIN_TRANSFER) | (oldconn ? WIN_OLDCONN : 0);
- 			set_window_server(-1, from_server, flags);
-/**************************** PATCHED by Flier ******************************/
-                        if (flags&WIN_OLDCONN) switch_channels(0,(char *) 0);
-/****************************************************************************/
+			flags = (already_connected ? 0 : WIN_TRANSFER);
+			window_set_server(-1, from_server, flags);
  		}
 	}
 	else
@@ -1520,7 +1568,7 @@ servercmd(command, args, subargs)
 		*nick = (char *) 0;
 	int	port_num,
 		i,
-		new_server_flags = WIN_TRANSFER;
+		new_server_flags;
 
 	if ((server = next_arg(args, &args)) != NULL)
 	{
@@ -1533,7 +1581,7 @@ servercmd(command, args, subargs)
 			 */
 			if (*++server == '\0')
 			{
- 				get_connected(primary_server - 1, 0);
+				get_connected(primary_server - 1);
 				return;
 			}
 			upper(server);
@@ -1604,6 +1652,8 @@ servercmd(command, args, subargs)
 			}
 			else
 				port_num = -1;
+
+			extra = (char *) 0;
 		}
  
 		if (nick && *nick)
@@ -1629,9 +1679,9 @@ servercmd(command, args, subargs)
 			}
 			else
 /**************************** PATCHED by Flier ******************************/
- 				/*get_connected(primary_server + 1, 0);*/
+				/*get_connected(primary_server + 1);*/
                                 get_connected(primary_server+1+
-                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0,0);
+                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0);
 /****************************************************************************/
 			return;
 		}
@@ -1672,17 +1722,21 @@ servercmd(command, args, subargs)
 			i = find_in_server_list(server, port_num, nick);
 		if (i != -1 && is_server_connected(i))
 		{
-			new_server_flags &= ~WIN_TRANSFER;
-			/* We reset the log level only if the "new" server
-			   already has windows associated with it : here it's
-			   equivalent to its already being connected. -Sol */
+			/*
+			 * We reset the log level only if the "new" server
+			 * already has windows associated with it : here it's
+			 * equivalent to its already being connected. -Sol
+			 */
+			new_server_flags = 0;
 		}
+		else
+			new_server_flags = WIN_TRANSFER;
 		if (connect_to_server(server, port_num, nick, primary_server) != -1)
 		{
 			if (primary_server > -1 && from_server != primary_server &&
 			    !server_list[from_server].away && server_list[primary_server].away)
 				malloc_strcpy(&server_list[from_server].away, server_list[primary_server].away);
-			set_window_server(-1, from_server, new_server_flags);
+			window_set_server(-1, from_server, new_server_flags);
 		}
 	}
 	else
@@ -1905,8 +1959,10 @@ get_server_itsname(server_index)
 		server_index = primary_server;
 	if (server_list[server_index].itsname)
 		return server_list[server_index].itsname;
-	else
+	else if (server_list[server_index].name)
 		return server_list[server_index].name;
+	else
+		return "<None>";
 }
 
 void

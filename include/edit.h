@@ -31,15 +31,15 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.h,v 1.2 1999-02-15 21:18:25 f Exp $
+ * $Id: edit.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __edit_h_
 #define __edit_h_
 
-extern	char	*sent_nick;
-extern	char	*sent_body;
-extern	char	*recv_nick;
+extern	u_char	*sent_nick;
+extern	u_char	*sent_body;
+extern	u_char	*recv_nick;
 
 	void	load _((char *, char *, char *));
 	void	send_text _((char *, char *, char *));
@@ -60,9 +60,10 @@ extern	char	*recv_nick;
  	void	meta2_char _((u_int, char *));
  	void	meta3_char _((u_int, char *));
  	void	meta4_char _((u_int, char *));
-/**************************** PATCHED by Flier ******************************/
-        void	meta5_char _((u_int, char *));
-/****************************************************************************/
+ 	void	meta5_char _((u_int, char *));
+ 	void	meta6_char _((u_int, char *));
+ 	void	meta7_char _((u_int, char *));
+ 	void	meta8_char _((u_int, char *));
  	void	quote_char _((u_int, char *));
  	void	type_text _((u_int, char *));
  	void	parse_text _((u_int, char *));

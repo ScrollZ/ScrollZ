@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.7 2000-04-12 20:04:40 f Exp $
+ * $Id: hook.c,v 1.8 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -176,6 +176,7 @@ extern	int	load_depth;
 	{ "WIDELIST",		(Hook *) 0,	1,	0,	HF_LOOKONLY },
 	{ "WINDOW",		(Hook *) 0,	2,	0,	HF_NORECURSE },
 	{ "WINDOW_KILL",	(Hook *) 0,	1,	0,	0 },
+	{ "WINDOW_SWAP",	(Hook *) 0,	2,	0,	0 }
 };
 
 static char	*

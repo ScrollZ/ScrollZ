@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: acconfig.h,v 1.5 2000-08-09 19:31:20 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -122,6 +122,9 @@
 /* define this if you have an unknown hpux version (pre ver 7) */
 #undef HPUXUNKNOWN
 
+/* define this if you want experimental IPv6 support */
+#undef INET6
+
 /* define this if an unsigned long is 32 bits */
 #undef UNSIGNED_LONG32
 
@@ -196,12 +199,26 @@
    Also, you must define connect, getsockname, bind, accept, listen, and
    select to their R-versions. */
 #undef SOCKS
+#undef SOCKS4
+#undef SOCKS5
 #undef connect
 #undef getsockname
 #undef bind
 #undef accept
 #undef listen
 #undef select
+#undef dup
+#undef dup2
+#undef fclose
+#undef gethostbyname
+#undef getpeername
+#undef read
+#undef recv
+#undef recvfrom
+#undef rresvport
+#undef send
+#undef sendto
+#undef shutdown
 
 /*
  * Are we doing non-blocking connects?  Note:  SOCKS support precludes
@@ -210,6 +227,11 @@
 #if (defined(NBLOCK_POSIX) || defined(NBLOCK_BSD) || defined(NBLOCK_SYSV)) && \
 	!defined(SOCKS)
 # define NON_BLOCKING_CONNECTS
+#endif
+
+/* AIX is Special.  This turns on Berkeley sockets which makes wserv work. */
+#ifdef _AIX
+# define COMPAT_43
 #endif
 
 /* define these to the ZCAT program/args of your choice */
@@ -230,6 +252,24 @@
  */
 #undef HAVE_DEV_RANDOM
 #undef DEV_RANDOM_PATH
+
+/* define to `int' if <sys/types.h> doesn't define */
+#undef ssize_t
+
+/* define this if you have IPv6 API support */
+#undef INET6
+
+/* define this if you have vasprintf(3) */
+#undef HAVE_VASPRINTF
+
+/* define this if you have vsnprintf(3) */
+#undef HAVE_VSNPRINTF
+
+/* define this if you have snprintf(3) */
+#undef HAVE_SNPRINTF
+
+/* define this if you have crypt(3) */
+#undef HAVE_CRYPT
 
 /**************************** PATCHED by Flier ******************************/
 /* define this if you have gettimeofday() */

@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.21 2000-04-18 16:03:01 f Exp $
+ * $Id: dcc.c,v 1.22 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -1513,10 +1513,7 @@ dcc_getfile(args)
 		dcc_erase(Client);
 		return;
 	}
-	Client->flags |= DCC_TWOCLIENTS;
-	Client->bytes_sent = Client->bytes_read = 0L;
-	if (!dcc_open(Client))
-		return;
+
 /**************************** PATCHED by Flier ******************************/
 	/*if (0 == (fullname = expand_twiddle(Client->description)))
 		malloc_strcpy(&fullname, Client->description);*/
@@ -1530,19 +1527,24 @@ dcc_getfile(args)
             malloc_strcat(&fullname,"/");
         }
         malloc_strcat(&fullname,fullname1);
+        new_free(&fullname1);
         for (nospaces=fullname;nospaces && *nospaces;nospaces++)
             if (*nospaces==' ') *nospaces='_';
         OverWrite(&fullname,Client);
 /****************************************************************************/
-	if (-1 == (Client->file = open(fullname,
-				O_BINARY | O_WRONLY | O_TRUNC | O_CREAT, 0644)))
+
+	Client->file = open(fullname, O_BINARY | O_WRONLY | O_TRUNC | O_CREAT, 0644);
+	new_free(&fullname);
+	if (-1 == Client->file)
 	{
 		say("Unable to open %s: %s", Client->description,
 				errno ? strerror(errno) : "<No Error>");
-		new_close(Client->read);
-		dcc_erase(Client);
-	}
-	new_free(&fullname);
+                return;
+        }
+	Client->flags |= DCC_TWOCLIENTS;
+	Client->bytes_sent = Client->bytes_read = 0L;
+	if (!dcc_open(Client))
+		close(Client->file);
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -1596,10 +1598,6 @@ dcc_regetfile(args)
 		dcc_erase(Client);
 		return;
 	}
-	Client->flags |= DCC_TWOCLIENTS;
-	Client->bytes_sent = Client->bytes_read = 0L;
-	if (!dcc_open(Client))
-		return;
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef EXTRA_STUFF
@@ -1612,38 +1610,43 @@ dcc_regetfile(args)
             malloc_strcat(&fullname,"/");
         }
         malloc_strcat(&fullname,fullname1);
+        new_free(&fullname1);
 /****************************************************************************/
-	if (-1 == (Client->file = open(fullname,
-				O_BINARY | O_WRONLY | O_CREAT, 0644)))
+
+        Client->file = open(fullname, O_BINARY | O_WRONLY | O_CREAT, 0644);
+	new_free(&fullname);
+	if (-1 == Client->file)
 	{
 		say("Unable to open %s: %s", Client->description,
 				errno ? strerror(errno) : "<No Error>");
-		new_close(Client->read);
-		dcc_erase(Client);
+                return;
 	}
+	Client->flags |= DCC_TWOCLIENTS;
+	Client->bytes_sent = Client->bytes_read = 0L;
 
-	/* seek to the end of the file about to be resumed */
-	lseek(Client->file, 0, SEEK_END);
+        if (dcc_open(Client)) {
+            /* seek to the end of the file about to be resumed */
+            lseek(Client->file, 0, SEEK_END);
 
-	/* get the size of our file to be resumed */
-	fstat(Client->file, &buf);
-        Client->resendoffset = buf.st_size;
-        say("Telling remote we want to start at %ld bytes",Client->resendoffset);
+            /* get the size of our file to be resumed */
+            fstat(Client->file, &buf);
+            Client->resendoffset = buf.st_size;
+            say("Telling remote we want to start at %ld bytes",Client->resendoffset);
 /**************************** PATCHED by Flier ******************************/
-	/*Client->bytes_sent=buf.st_size;*/
+            /*Client->bytes_sent=buf.st_size;*/
 /****************************************************************************/
 
-	transfer_orders.packet_id = DCC_PACKETID;
-	transfer_orders.byteoffset = buf.st_size;
-	transfer_orders.byteorder = byteordertest();
+            transfer_orders.packet_id = DCC_PACKETID;
+            transfer_orders.byteoffset = buf.st_size;
+            transfer_orders.byteorder = byteordertest();
 
-        /* send a packet to the sender with transfer resume instructions */
-	send(Client->read, &transfer_orders, sizeof(transfer_orders), 0);
-
-        new_free(&fullname);
+            /* send a packet to the sender with transfer resume instructions */
+            send(Client->read, &transfer_orders, sizeof(transfer_orders), 0);
+        }
+        else
+            close(Client->file);
 }
 /****************************************************************************/
-
 
 void
 register_dcc_offer(user, type, description, address, port, size)

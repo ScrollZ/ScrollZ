@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: log.c,v 1.4 1999-02-15 21:19:47 f Exp $
+ * $Id: log.c,v 1.5 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -49,8 +49,10 @@
 extern void StripAnsi _((char *, char *, int));
 /****************************************************************************/
 
+#if 0
 #if defined(POSIX)
 # define fchmod(path, mode) chmod(path, mode)
+#endif
 #endif
 
 FILE	*irclog_fp = (FILE *) 0;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.10 2000-03-08 17:22:08 f Exp $
+ * $Id: screen.c,v 1.11 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -95,7 +95,11 @@ static	char	display_highlight _((int));
 static	char	display_bold _((int));
 static	void	add_to_window _((Window *, char *));
 static	u_int	create_refnum _((void));
-static	char	*next_line_back _((Window *, int));
+/**************************** PATCHED by Flier ******************************/
+/*static	void	redraw_window _((Window *, int, int));*/
+void redraw_window _((Window *, int, int));
+/****************************************************************************/
+static	char	*next_line_back _((Window *));
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -195,9 +199,7 @@ create_new_screen()
 	new->visible_windows = 0;
 	new->window_stack = NULL;
         new->meta1_hit = new->meta2_hit = new->meta3_hit = new->meta4_hit = 0;
-/**************************** PATCHED by Flier ******************************/
-        new->meta5_hit=0;
-/****************************************************************************/
+	new->meta5_hit = new->meta6_hit = new->meta7_hit = new->meta8_hit = 0;
 	new->quote_hit = new->digraph_hit = new->inside_menu = 0;
 	new->buffer_pos = new->buffer_min_pos = 0;
 	new->input_buffer[0] = '\0';
@@ -257,6 +259,7 @@ set_current_screen(screen)
 		current_screen = screen;
 	else
 		current_screen = screen_list;
+	term_set_fp(current_screen->fpout);
 }
 
 /*
@@ -378,7 +381,7 @@ scroll_window(window)
 
 			for (i = 0; i < do_scroll; i++)
 			{
-				new_free (&window->top_of_display->line);
+				new_free(&window->top_of_display->line);
 				window->top_of_display =
 					window->top_of_display->next;
 			}
@@ -386,7 +389,7 @@ scroll_window(window)
 			{
  				if (term_scroll(window->top + window->menu.lines, window->top + window->menu.lines + window->cursor - 1, do_scroll))
 				{
-					if(current_screen->visible_windows == 1)
+					if (current_screen->visible_windows == 1)
 					{
 						int	i;
 						Window	*tmp;
@@ -414,7 +417,7 @@ scroll_window(window)
 						current_screen->cursor_window = tmp;
 					}
 					else
-						redraw_window(window, 1);
+						redraw_window(window, 1, 0);
 				}
 				window->cursor -= do_scroll;
 				term_move_cursor(0, window->cursor + window->top + window->menu.lines);
@@ -452,7 +455,7 @@ display_highlight(flag)
 {
 	static	int	highlight = OFF;
 
-	fflush(current_screen->fpout);
+	term_flush();
 	if (flag == highlight)
 		return (flag);
 	switch (flag)
@@ -493,7 +496,7 @@ display_bold(flag)
 {
 	static	int	bold = OFF;
 
-	fflush(current_screen->fpout);
+	term_flush();
 	if (flag == bold)
 		return (flag);
 	switch (flag)
@@ -746,11 +749,9 @@ rite(window, str, show, redraw, backscroll, logged)
 #endif
 /****************************************************************************/
 
-	if (!backscroll && window->scrolled_lines)
+	if (!redraw && !backscroll && window->scrolled_lines)
 		window->new_scrolled_lines++;
-#if 0
-	if (window->hold_mode && window->hold_on_next_rite && !redraw && !backscroll && window->line_cnt >= window->display_size)
-#endif
+
 	if (window->hold_mode && window->hold_on_next_rite && !redraw && !backscroll)
 	{
 		/* stops output from going to the window */
@@ -838,7 +839,7 @@ rite(window, str, show, redraw, backscroll, logged)
 		{
 			if ((who_level & window->notify_level)
 			    || ((window->notify_level & LOG_BEEP)
-				&& strchr (str, '\007')))
+				&& index(str, '\007')))
 			{
 				window->miscflags |= WINDOW_NOTIFIED;
 				if (window->miscflags & WINDOW_NOTIFY)
@@ -1074,7 +1075,7 @@ recalculate_windows()
 	extra;
 	Window	*tmp;
 	
-	if (dumb)
+	if (dumb || current_screen->visible_windows == 0)
 		return;
 
 	base_size = ((LI - 1) / current_screen->visible_windows) - 1;
@@ -1157,9 +1158,10 @@ clear_all_windows(unhold)
  * be redrawn.
  */
 void
-redraw_window(window, just_one)
+redraw_window(window, just_one, backscroll)
 	Window	*window;
 	int	just_one;
+	int	backscroll;
 {
 	Display *tmp;
 	int	i;
@@ -1179,7 +1181,8 @@ redraw_window(window, just_one)
 	{
 		StartPoint = 0;
 		if (window->scrolled_lines)
-			display_lastlog_lines(window->scrolled_lines-window->display_size + 1, window->scrolled_lines, window);
+			display_lastlog_lines(window->scrolled_lines - window->display_size,
+			    window->scrolled_lines, window);
 	}
 	if (window->menu.menu)
 		ShowMenuByWindow(window, just_one ? SMF_ERASE : 0);
@@ -1197,7 +1200,7 @@ redraw_window(window, just_one)
 		if (i < StartPoint)
 			continue;
 		if (tmp->line)
-			rite(window, tmp->line, 1, 1, 0, 0);
+			rite(window, tmp->line, 1, 1, backscroll, 0);
 		else
 		{
 			if (just_one)
@@ -1285,14 +1288,20 @@ split_up_line(str)
 		beep_max,
 		tab_cnt = 0,
 		tab_max,
-		line = 0;
+		line = 0,
+		need_free = 0;
  	size_t	len;
 
 	bzero(lbuf, sizeof(lbuf));
 	for (i = 0; i < MAXIMUM_SPLITS; i++)
 		new_free(&output[i]);
 	if (!*str)
-		malloc_strcpy(&str, " ");	/* special case to make blank lines show up */
+	{
+		/* special case to make blank lines show up */
+		str = (char *) 0;	/* make sure we don't try to free someone else's data! */
+		malloc_strcpy(&str, " ");
+		need_free = 1;
+	}
 
 	beep_max = get_int_var(BEEP_VAR) ? get_int_var(BEEP_MAX_VAR) : -1;
 	tab_max = get_int_var(TAB_VAR) ? get_int_var(TAB_MAX_VAR) : -1;
@@ -1304,7 +1313,7 @@ split_up_line(str)
  		/*if (*ptr <= 32 || (*ptr > 127 && *ptr <= 160))*/
 		if (*ptr <= 32)
 /****************************************************************************/
-		{
+		{	/* Isn't that if above a bit latin1-specific? */
 			switch (*ptr)
 			{
 			case '\007':	/* bell */
@@ -1486,6 +1495,8 @@ split_up_line(str)
 			malloc_strcpy(&temp, &(lbuf[start]));
 		malloc_strcpy(&output[line++], temp);
 	}
+	if (need_free)
+		new_free(&str);
 	new_free(&cont);
 	new_free(&temp);
 	return output;
@@ -1512,6 +1523,8 @@ add_to_window(window, str)
 
 	if (flag)
 	{
+		size_t	len = strlen(str);
+		char	*my_str = new_malloc(len + 2);
 		char	**lines;
 		int	logged;
 
@@ -1519,9 +1532,11 @@ add_to_window(window, str)
 		add_to_lastlog(window, str);
 		display_highlight(OFF);
 		display_bold(OFF);
-		strmcat(str, global_all_off, BIG_BUFFER_SIZE - 1);
+		bcopy(str, my_str, len);
+		my_str[len] = ALL_OFF;
+		my_str[len + 1] = '\0';
 		logged = islogged(window);
-		for (lines = split_up_line(str); *lines; lines++)
+		for (lines = split_up_line(my_str); *lines; lines++)
 		{
 			rite(window, *lines, 0, 0, 0, logged);
 			if (logged == 1)
@@ -1533,6 +1548,7 @@ add_to_window(window, str)
  		attrset(A_NORMAL);
 #endif /* SZNCURSES */
 /****************************************************************************/
+		new_free(&my_str);
 		term_flush();
 	}
 }
@@ -1621,10 +1637,20 @@ add_to_screen(incoming)
 	}
 	if (dumb)
 	{
+		if (translation)
+		{
+			unsigned char *ptr = (unsigned char *) incoming;
+
+			while (*ptr)
+			{
+				*ptr = transToClient[*ptr];
+				ptr++;
+			}
+		}
 		add_to_lastlog(curr_scr_win, incoming);
 		if (do_hook(WINDOW_LIST, "%u %s", curr_scr_win->refnum, incoming))
 			puts(incoming);
-		fflush(current_screen->fpout);
+  		term_flush();
 		return;
 	}
 	if (in_window_command)
@@ -1742,9 +1768,9 @@ update_all_windows()
 			r_status = tmp->update & REDRAW_STATUS;
 			u_status = tmp->update & UPDATE_STATUS;
 			if (full_window)
-				redraw_window(tmp, 1);
+				redraw_window(tmp, 1, 0);
 			else if (fast_window)
-				redraw_window(tmp, 0);
+				redraw_window(tmp, 0, 0);
 			if (r_status)
 				update_window_status(tmp, 1);
 			else if (u_status)
@@ -1841,6 +1867,7 @@ new_window()
 	new->held = OFF;
 	new->last_held = OFF;
 	new->current_channel = 0;
+	new->bound_channel = 0;
 	new->query_nick = 0;
 	new->hold_on_next_rite = 0;
 	new->status_line[0] = NULL;
@@ -1918,6 +1945,7 @@ create_additional_screen()
 	char	*ircxterm[IRCXTERM_MAX];
 	char	*ircxterm_env;
 	char	*xterm = (char *) 0;
+	char	*def_xterm = get_string_var(XTERM_PATH_VAR);
 	int	ircxterm_num;
 	char	*p, *q;
 	int	i;
@@ -1930,12 +1958,15 @@ create_additional_screen()
 	}
 #endif
 
+	if (!def_xterm)
+		def_xterm = "xterm";
+
 	ircxterm_num = 0;
 	p = ircxterm_env = getenv("IRCXTERM");
 	if (p)
 	{
 		q = ircxterm_env + strlen(ircxterm_env);
-		while (p < q)
+		while (p < q && ircxterm_num < IRCXTERM_MAX)
 		{
 			while (':' == *p)
 				p++;
@@ -1953,7 +1984,7 @@ create_additional_screen()
 	}
 	else
 	{
-		ircxterm[ircxterm_num] = "xterm";
+		ircxterm[ircxterm_num] = def_xterm;
 		ircxterm_num++;
 	}
 
@@ -1978,7 +2009,7 @@ create_additional_screen()
 		screen_type = ST_XTERM;
 		if (0 == strncmp(termvar, "sun", 3))
 		{
-			xterm = "xterm";
+			xterm = def_xterm;
 		}
 		else
 		{
@@ -2117,6 +2148,7 @@ create_additional_screen()
 			return (Window *) 0;
 		current_screen->fpin = current_screen->fpout =
 			fdopen(current_screen->fdin, "r+");
+		term_set_fp(current_screen->fpout);
 		new_close(s);
 		unlink(sockaddr->sun_path);
 		old_timeout = dgets_timeout(5);
@@ -2149,10 +2181,32 @@ create_additional_screen()
 }
 #endif /* WINDOW_CREATE */
 
+/*
+ * below here is magic.  this is where the real work of scrolling
+ * backwards and forwards through the history is done.  basically,
+ * what happens is some functions are called from other code to
+ * make scroll requests:  forward, back, start, end.  these functions
+ * do some minor house keeping, and then call the function
+ * display_lastlog_lines() to do the real work.  note that these
+ * functions call display_lastlog_lines() with lastlog line numbers,
+ * which is possibly (probably) not the same as the number of lines
+ * "Lastlog" lines in the window's history.  display_lastlog_lines()
+ * uses repeated calls to the function next_line_back() which does
+ * the work for splitting each "Lastlog" entry up into lines to be
+ * displayed on the screen.  when the desired position is found,
+ * these lines are written to the screen.
+ */
+
+/*
+ * call initially with a non-NULL "window" argument to initialise
+ * the count.  then, each further call to next_line_back() will
+ * return the next line of the screen output, going backwards
+ * through the lastlog history.  use use split_up_line() from earlier
+ * in this file to do the actual splitting of each individiual line.
+ */
 static	char	*
-next_line_back(window, skip)
+next_line_back(window)
 	Window	*window;
- 	int	skip;
 {
 	static	int	row;
 	static	Lastlog	*LogLine;
@@ -2176,13 +2230,6 @@ next_line_back(window, skip)
 		LogLine = window->lastlog_head;
 		row = -1;
 	}
- 	if (skip)
- 	{
- 		if (LogLine)
- 			LogLine = LogLine->next;
- 		row = -1;
- 		return NULL;
- 	}
 	if (row <= 0)
 	{
 		for (row = 0; ScreenLines[row]; row++)
@@ -2203,6 +2250,9 @@ next_line_back(window, skip)
 	return ScreenLines[--row];
 }
 
+/*
+ * in window "window", display the lastlog lines from "start" to "end".
+ */
 static	void
 display_lastlog_lines(start, end, window)
 	int	start,
@@ -2213,23 +2263,23 @@ display_lastlog_lines(start, end, window)
 	char	*Line;
 	int	i;
 
-	(void)next_line_back(window, 0);
+	(void)next_line_back(window);
 
 	for (i = window->new_scrolled_lines; i--;)
-		(void)next_line_back(NULL, 1);
+		(void)next_line_back(NULL);
 
  	/* WTF is this? -krys */
 	for (i = 0, Disp = window->top_of_display; i < window->display_size;
 			Disp = Disp->next, i++)
 		if (Disp->linetype)
-			(void)next_line_back(NULL, 0);
+			(void)next_line_back(NULL);
 
 	for (i = 0; i < start; i++)
-		(void)next_line_back(NULL, 1);
+		(void)next_line_back(NULL);
 
 	for (; i < end; i++)
 	{
-		if (!(Line = next_line_back(NULL, 0)))
+		if (!(Line = next_line_back(NULL)))
 			break;
 		term_move_cursor(0, window->top + window->menu.lines +
 			window->scrolled_lines - i - 1);
@@ -2237,6 +2287,10 @@ display_lastlog_lines(start, end, window)
 	}
 }
 
+/*
+ * scrollback_{back,forw}wards_lines: scroll the named distance, called by
+ * internal functions here.
+ */
 static	void
 scrollback_backwards_lines(ScrollDist)
 	int	ScrollDist;
@@ -2253,16 +2307,26 @@ scrollback_backwards_lines(ScrollDist)
 	Debug((3, "scrolled_lines = %d", window->scrolled_lines));
 	window->scrolled_lines += ScrollDist;
 
-	Debug((3, "going to term_scroll(%d, %d, %d)",window->top + window->menu.lines,
-			window->top + window->menu.lines + window->display_size - 1, -ScrollDist));
-	term_scroll(window->top + window->menu.lines, window->top + window->menu.lines + window->display_size - 1, -ScrollDist);
+	Debug((3, "going to term_scroll(%d, %d, %d)",
+	    window->top + window->menu.lines,
+	    window->top + window->menu.lines + window->display_size - 1,
+	    -ScrollDist));
+	term_scroll(window->top + window->menu.lines,
+	    window->top + window->menu.lines + window->display_size - 1,
+	    -ScrollDist);
 
-	Debug((3, "scrolled_lines = %d, new_scrolled_lines = %d, display_size = %d", window->scrolled_lines,
-			window->new_scrolled_lines, window->display_size));
+	Debug((3, "scrolled_lines=%d, new_scrolled_lines=%d, display_size=%d",
+	    window->scrolled_lines,
+	    window->new_scrolled_lines,
+	    window->display_size));
 
-	Debug((3, "going to display_lastlog_lines(%d, %d, %s)", window->scrolled_lines - ScrollDist,
-			window->scrolled_lines, window->name));
-	display_lastlog_lines(window->scrolled_lines - ScrollDist, window->scrolled_lines, window);
+	Debug((3, "going to display_lastlog_lines(%d, %d, %s)",
+	    window->scrolled_lines - ScrollDist,
+	    window->scrolled_lines,
+	    window->name));
+	display_lastlog_lines(window->scrolled_lines - ScrollDist,
+	    window->scrolled_lines,
+	    window);
 	cursor_not_in_display();
 	update_input(UPDATE_JUST_CURSOR);
 }
@@ -2285,19 +2349,30 @@ scrollback_forwards_lines(ScrollDist)
 
 	Debug((3, "scrolled_lines = %d", window->scrolled_lines));
 	window->scrolled_lines -= ScrollDist;
-	Debug((3, "going to term_scroll(%d, %d, %d)", window->top + window->menu.lines,
-			window->top + window->menu.lines + window->display_size - 1, ScrollDist));
-	term_scroll(window->top + window->menu.lines, window->top + window->menu.lines + window->display_size - 1, ScrollDist);
+	Debug((3, "going to term_scroll(%d, %d, %d)",
+	    window->top + window->menu.lines,
+	    window->top + window->menu.lines + window->display_size - 1,
+	    ScrollDist));
+	term_scroll(window->top + window->menu.lines,
+	    window->top + window->menu.lines + window->display_size - 1,
+	    ScrollDist);
 
-	Debug((3, "scrolled_lines = %d, new_scrolled_lines = %d, display_size = %d", window->scrolled_lines,
-			window->new_scrolled_lines, window->display_size));
+	Debug((3, "scrolled_lines=%d, new_scrolled_lines=%d, display_size=%d",
+	    window->scrolled_lines,
+	    window->new_scrolled_lines,
+	    window->display_size));
+
 	if (window->scrolled_lines < window->display_size)
-		redraw_window(window, ScrollDist + window->scrolled_lines - window->display_size);
+		redraw_window(window,
+		    ScrollDist + window->scrolled_lines - window->display_size, 1);
 
-	Debug((3, "going to display_lastlog_lines(%d, %d, %s)", window->scrolled_lines - window->display_size,
-			window->scrolled_lines - window->display_size + ScrollDist, window->name));
+	Debug((3, "going to display_lastlog_lines(%d, %d, %s)",
+	    window->scrolled_lines - window->display_size,
+	    window->scrolled_lines - window->display_size + ScrollDist,
+	    window->name));
 	display_lastlog_lines(window->scrolled_lines - window->display_size,
-			window->scrolled_lines - window->display_size + ScrollDist, window);
+	    window->scrolled_lines - window->display_size + ScrollDist,
+	    window);
 	cursor_not_in_display();
 	update_input(UPDATE_JUST_CURSOR);
 
@@ -2311,6 +2386,10 @@ scrollback_forwards_lines(ScrollDist)
 	}
 }
 
+/*
+ * scrollback_{forw,back}wards: scrolls the window up or down half the screen.
+ * these are called when the respective key are pressed.
+ */
 void
 scrollback_forwards(key, ptr)
  	u_int	key;
@@ -2333,7 +2412,10 @@ scrollback_backwards(key, ptr)
 /****************************************************************************/
 }
 
-
+/*
+ * scrollback_end: exits scrollback mode and moves the display back
+ * to the end of the scrollback buffer.
+ */
 void
 scrollback_end(key, ptr)
  	u_int	key;
@@ -2353,8 +2435,8 @@ scrollback_end(key, ptr)
 		scrollback_forwards_lines(window->scrolled_lines);
 	else
 	{
-		window->scrolled_lines = 0;
-		redraw_window(window, 1);
+		window->scrolled_lines = window->new_scrolled_lines = 0;
+		redraw_window(window, 1, 1);
 		cursor_not_in_display();
 		update_input(UPDATE_JUST_CURSOR);
 		if (window->hold_mode)
@@ -2366,8 +2448,7 @@ scrollback_end(key, ptr)
 
 /*
  * scrollback_start: moves the current screen back to the start of
- * the scrollback buffer..  there are probably cases this doesn't
- * quite work.. -phone, april 1993.
+ * the scrollback buffer.
  */
 void
 scrollback_start(key, ptr)
@@ -2375,6 +2456,8 @@ scrollback_start(key, ptr)
 	char *	ptr;
 {
 	Window	*window;
+	Display	*Disp;
+	int	num_lines = 0, i;
 
 	window = curr_scr_win;
 	if (!window->lastlog_size)
@@ -2383,13 +2466,32 @@ scrollback_start(key, ptr)
 		return;
 	}
 
-	if (window->lastlog_size < window->display_size)
-		scrollback_backwards_lines(window->lastlog_size);
+	Debug((3, "scrollback_start: new_scrolled_lines=%d display_size=%d", window->new_scrolled_lines, window->display_size));
+	/*
+	 * work out how many lines there are in the lastlog.
+	 */
+	(void)next_line_back(window);
+
+	for (i = window->new_scrolled_lines; i--; num_lines++)
+		(void)next_line_back(NULL);
+
+	for (i = 0, Disp = window->top_of_display; i < window->display_size;
+			Disp = Disp->next, i++)
+		if (Disp->linetype)
+			(void)next_line_back(NULL);
+
+	while (next_line_back(NULL))
+		num_lines++;
+
+	Debug((3, "  num_lines ends up as %d", num_lines));
+	if (num_lines < window->display_size)
+		scrollback_backwards_lines(num_lines);
 	else
 	{
-		window->scrolled_lines = window->lastlog_size;
-		display_lastlog_lines(window->scrolled_lines -
-			window->display_size, window->scrolled_lines, window);
+		window->scrolled_lines = num_lines;
+		Debug((3, "going to display_lastlog_lines(%d, %d, %s)", num_lines - window->display_size, window->scrolled_lines, window->name));
+		display_lastlog_lines(num_lines - window->display_size,
+		    window->scrolled_lines, window);
 		cursor_not_in_display();
 		update_input(UPDATE_JUST_CURSOR);
 		window->new_scrolled_lines = 0;
@@ -2398,10 +2500,4 @@ scrollback_start(key, ptr)
 		else
 			hold_mode(window, OFF, 0);
 	}
-}
-
-RETSIGTYPE
-sig_refresh_screen()
-{
-	refresh_screen(0, (char *) 0);
 }

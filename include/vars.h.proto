@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.4 1998-11-18 21:02:58 f Exp $
+ * $Id: vars.h.proto,v 1.5 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __vars_h_
@@ -62,8 +62,8 @@ extern	int	loading_global;
 #define ON 1
 #define TOGGLE 2
 
-#define	DEBUG_COMMANDS		0x0001
-#define	DEBUG_EXPANSIONS	0x0002
+#define DEBUG_COMMANDS		0x0001
+#define DEBUG_EXPANSIONS	0x0002
 #define DEBUG_FUNCTIONS		0x0004
 
 /* indexes for the irc_variable array */
@@ -74,7 +74,7 @@ extern	int	loading_global;
 #define BEEP_MAX_VAR $
 #define BEEP_ON_MSG_VAR $
 #define BEEP_WHEN_AWAY_VAR $
-#define	BOLD_VIDEO_VAR $
+#define BOLD_VIDEO_VAR $
 #define CHANNEL_NAME_WIDTH_VAR $
 #define CLIENTINFO_VAR $
 #define CLOCK_VAR $
@@ -90,7 +90,7 @@ extern	int	loading_global;
 /**************************** PATCHED by Flier ******************************/
 #define DCC_PORTS_VAR $
 /****************************************************************************/
-#define	DEBUG_VAR $
+#define DEBUG_VAR $
 #define DISPLAY_VAR $
 /**************************** PATCHED by Flier ******************************/
 #define DISPLAY_ANSI_VAR $
@@ -122,6 +122,7 @@ extern	int	loading_global;
 #define INPUT_PROTECTION_VAR $
 #define INSERT_MODE_VAR $
 #define INVERSE_VIDEO_VAR $
+#define IRCHOST_VAR $
 #define LASTLOG_VAR $
 /**************************** PATCHED by Flier ******************************/
 #define LASTLOG_ANSI_VAR $
@@ -131,6 +132,7 @@ extern	int	loading_global;
 #define LOG_VAR $
 #define LOGFILE_VAR $
 #define MAIL_VAR $
+#define MAKE_NOTICE_MSG_VAR $
 /**************************** PATCHED by Flier ******************************/
 #define MAX_MODES_VAR $
 /****************************************************************************/
@@ -141,6 +143,7 @@ extern	int	loading_global;
 #define	MENU_VAR $
 #define MINIMUM_SERVERS_VAR $
 #define MINIMUM_USERS_VAR $
+#define NO_ASK_NICKNAME_VAR $
 #define NO_CTCP_FLOOD_VAR $
 #define NOTIFY_HANDLER_VAR $
 #define NOTIFY_LEVEL_VAR $
@@ -229,6 +232,7 @@ extern	int	loading_global;
 #define VERBOSE_CTCP_VAR $
 #define WARN_OF_IGNORES_VAR $
 #define XTERM_OPTIONS_VAR $
+#define XTERM_PATH_VAR $
 #define NUMBER_OF_VARIABLES $
 
 #endif /* __vars_h_ */

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.h,v 1.2 1999-02-15 21:18:21 f Exp $
+ * $Id: dcc.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 /*
@@ -104,4 +104,5 @@ struct transfer_struct {
         unsigned char byteordertest _((void));
 /****************************************************************************/
 
+	extern	DCC_list	*ClientList;
 #endif /* __dcc_h_ */

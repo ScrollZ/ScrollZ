@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.23 2000-07-04 17:35:30 f Exp $
+ * $Id: parse.c,v 1.24 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -117,32 +117,32 @@ static time_t LastNickFlood=0;
 #define	MAXPARA	15	/* Taken from the ircd */
 
 static	void	BreakArgs _((char *, char **, char **));
-static	void	linreply _((char **));
-static	void	ping _((char **));
-static	void	topic _((char *, char **));
+static	void	p_linreply _((char **));
+static	void	p_ping _((char **));
+static	void	p_topic _((char *, char **));
 static	void	p_wall _((char *, char **));
-static	void	wallops _((char *, char **));
+static	void	p_wallops _((char *, char **));
 static	void	p_privmsg _((char *, char **));
-static	void	msgcmd _((char *, char **));
+/*static	void	p_msgcmd _((char *, char **));*/
 static	void	p_quit _((char *, char **));
-static	void	pong _((char *, char **));
-static	void	error _((char *, char **));
+static	void	p_pong _((char *, char **));
+static	void	p_error _((char *, char **));
 static	void	p_channel _((char *, char **));
 static	void	p_invite _((char *, char **));
-static	void	server_kill _((char *, char **));
+static	void	p_server_kill _((char *, char **));
 static	void	p_nick _((char *, char **));
-static	void	mode _((char *, char **));
-static	void	kick _((char *, char **));
-static	void	part _((char *, char **));
+static	void	p_mode _((char *, char **));
+static	void	p_kick _((char *, char **));
+static	void	p_part _((char *, char **));
 
 /*
  * joined_nick: the nickname of the last person who joined the current
  * channel 
  */
-	char	*joined_nick = (char *) 0;
+	u_char	*joined_nick = (u_char *) 0;
 
 /* public_nick: nick of the last person to send a message to your channel */
-	char	*public_nick = (char *) 0;
+	u_char	*public_nick = (u_char *) 0;
 
 /* User and host information from server 2.7 */
 	char	*FromUserHost = (char *) 0;
@@ -267,7 +267,7 @@ beep_em(beeps)
 
 /* in response to a TOPIC message from the server */
 static	void
-topic(from, ArgList)
+p_topic(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -328,7 +328,7 @@ topic(from, ArgList)
 }
 
 static	void
-linreply(ArgList)
+p_linreply(ArgList)
 	char	**ArgList;
 {
 	PasteArgs(ArgList, 0);
@@ -377,7 +377,7 @@ p_wall(from, ArgList)
 }
 
 static	void
-wallops(from, ArgList)
+p_wallops(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -614,7 +614,7 @@ p_privmsg(from, Args)
 	if (is_channel(to))
 	{
 		message_from(to, LOG_MSG);
-		malloc_strcpy(&public_nick, from);
+		malloc_strcpy((char **) &public_nick, from);
 		if (!is_on_channel(to, parsing_server_index, from))
 		{
 			log_type = LOG_PUBLIC;
@@ -696,6 +696,7 @@ p_privmsg(from, Args)
             }
         }
 /****************************************************************************/
+	level = set_lastlog_msg_level(log_type);
 	ptr = do_ctcp(from, to, ptr);
 	if (!ptr || !*ptr)
 		goto out;
@@ -706,7 +707,6 @@ p_privmsg(from, Args)
             goto out;
         }
 /****************************************************************************/
-        level = set_lastlog_msg_level(log_type);
 	if ((flag != DONT_IGNORE) && (ignore_usernames & ignore_type) && !FromUserHost)
 		add_to_whois_queue(from, whois_ignore_msgs, "%s", ptr);
 	else
@@ -727,7 +727,7 @@ p_privmsg(from, Args)
 		case MSG_LIST:
 			if (!no_flood)
 				break;
-			malloc_strcpy(&recv_nick, from);
+			malloc_strcpy((char **) &recv_nick, from);
 			if (away_set)
 				beep_em(get_int_var(BEEP_WHEN_AWAY_VAR));
 /**************************** PATCHED by Flier ******************************/
@@ -757,7 +757,8 @@ p_privmsg(from, Args)
 /****************************************************************************/
 			break;
 		case PUBLIC_LIST:
-			doing_privmsg = 1;
+			if (get_int_var(MAKE_NOTICE_MSG_VAR))
+				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
                         DecryptMessage(ptr,to);
 /****************************************************************************/
@@ -771,7 +772,8 @@ p_privmsg(from, Args)
 			doing_privmsg = 0;
 			break;
 		case PUBLIC_OTHER_LIST:
-			doing_privmsg = 1;
+			if (get_int_var(MAKE_NOTICE_MSG_VAR))
+				doing_privmsg = 1;
 /**************************** PATCHED by Flier ******************************/
                         DecryptMessage(ptr,to);
 /****************************************************************************/
@@ -795,8 +797,9 @@ out:
  	restore_message_from();
 }
 
+#if 0
 static	void
-msgcmd(from, ArgList)
+p_msgcmd(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -826,21 +829,23 @@ msgcmd(from, ArgList)
 	text = do_ctcp(from, channel, ArgList[0]);
 	if (!text || !*text)
 		return;
-	malloc_strcpy(&public_nick, from);
+	malloc_strcpy((char **) &public_nick, from);
 	log_type = set_lastlog_msg_level(LOG_PUBLIC);
 	no_flooding = check_flooding(from, PUBLIC_FLOOD, text);
  	save_message_from();
         message_from(channel, LOG_PUBLIC);
 	if (is_current_channel(channel, parsing_server_index, 0))
 	{
-		doing_privmsg = 1;
+		if (get_int_var(MAKE_NOTICE_MSG_VAR))
+				doing_privmsg = 1;
 		if (no_flooding && do_hook(PUBLIC_LIST, "%s %s %s", from, channel, text))
 			put_it("%s<%s>%s %s", high, from, high, text);
 		doing_privmsg = 0;
 	}
 	else
 	{
-		doing_privmsg = 1;
+		if (get_int_var(MAKE_NOTICE_MSG_VAR))
+				doing_privmsg = 1;
 		if (no_flooding && do_hook(PUBLIC_OTHER_LIST, "%s %s %s", from,
 				channel, text))
 			put_it("%s<%s:%s>%s %s", high, from, channel, high,
@@ -852,6 +857,7 @@ msgcmd(from, ArgList)
 		beep_em(1);
 	set_lastlog_msg_level(log_type);
 }
+#endif
 
 /*ARGSUSED*/
 static	void
@@ -964,7 +970,7 @@ p_quit(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-pong(from, ArgList)
+p_pong(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1064,7 +1070,7 @@ pong(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-error(from, ArgList)
+p_error(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1086,9 +1092,6 @@ p_channel(from, ArgList)
 	int	chan_oper = 0, chan_voice = 0;
 /**************************** PATCHED by Flier ******************************/
         int     donelj=0;
-#ifdef WANTANSI
-        char    *colnick;
-#endif
         char    tmpbuf[mybufsize+1];
         NickList *joiner=NULL;
         ChannelList *chan;
@@ -1118,38 +1121,12 @@ p_channel(from, ArgList)
 
 			}
 		}
-		malloc_strcpy(&joined_nick, from);
+		malloc_strcpy((char **) &joined_nick, from);
 	}
 	else
 	{
+		channel = zero;
 		join = 0;
-		if ((channel = real_channel()) == (char *) 0)
-			return;
-		if (!is_on_channel(channel, parsing_server_index, from))
-			return;
- 		save_message_from();
-		message_from(channel, LOG_CRAP);
-/***************************** PATCHED by Flier **************************/	
-		/*if (flag != IGNORED && do_hook(LEAVE_LIST, "%s %s", from, channel))
-			say("%s has left channel %s", from, channel);*/
-                if ((double_ignore(channel,NULL,IGNORE_CRAP))==IGNORED) goto out;
-                if (flag != IGNORED && do_hook(LEAVE_LIST, "%s %s", from, channel)) {
-#ifdef WANTANSI
-                    joiner=CheckJoiners(from,channel,from_server,NULL);
-                    if (joiner && joiner->shitlist && joiner->shitlist->shit)
-                        colnick=CmdsColors[COLLEAVE].color5;
-                    else if (joiner && joiner->frlist && joiner->frlist->privs)
-                        colnick=CmdsColors[COLLEAVE].color4;
-                    else colnick=CmdsColors[COLLEAVE].color1;
-                    say("%s%s%s has left channel %s%s%s",colnick,from,Colors[COLOFF],
-                        CmdsColors[COLLEAVE].color2,channel,Colors[COLOFF]);
-#else
-                    say("%s has left channel %s", from, channel);
-#endif
-                }
-out:
-/*************************************************************************/	
- 		restore_message_from();
         }
 	if (!my_stricmp(from, get_server_nickname(parsing_server_index)))
 	{
@@ -1345,13 +1322,13 @@ p_invite(from, ArgList)
 /**********************************************************************/
  			restore_message_from();
 			malloc_strcpy(&invite_channel, ArgList[1]);
-			malloc_strcpy(&recv_nick, from);
+			malloc_strcpy((char **) &recv_nick, from);
 		}
 	}
 }
 
 static	void
-server_kill(from, ArgList)
+p_server_kill(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1381,7 +1358,7 @@ server_kill(from, ArgList)
 }
 
 static	void
-ping(ArgList)
+p_ping(ArgList)
 	char	**ArgList;
 {
 	PasteArgs(ArgList, 0);
@@ -1453,7 +1430,7 @@ p_nick(from, ArgList)
 }
 
 static	void
-mode(from, ArgList)
+p_mode(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1511,7 +1488,7 @@ mode(from, ArgList)
 }
 
 static	void
-kick(from, ArgList)
+p_kick(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1643,7 +1620,7 @@ kick(from, ArgList)
 }
 
 static	void
-part(from, ArgList)
+p_part(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -1805,51 +1782,51 @@ irc2_parse_server(line)
 /**************************** PATCHED by Flier ******************************/
         }
 /****************************************************************************/
+	else if (strcmp(comm, "NAMREPLY") == 0)
+		funny_namreply(from, ArgList);
 	else if (strcmp(comm, "WHOREPLY") == 0)
 		whoreply(from, ArgList);
 	else if (strcmp(comm, "NOTICE") == 0)
 		parse_notice(from, ArgList);
+	/* everything else is handled locally */
 	else if (strcmp(comm, "PRIVMSG") == 0)
 		p_privmsg(from, ArgList);
-	else if (strcmp(comm, "NAMREPLY") == 0)
-		funny_namreply(from, ArgList);
 	else if (strcmp(comm, "JOIN") == 0)
 		p_channel(from, ArgList);
 	else if (strcmp(comm, "PART") == 0)
-		part(from, ArgList);
-		/* CHANNEL will go away with 2.6 */
+		p_part(from, ArgList);
 	else if (strcmp(comm, "CHANNEL") == 0)
 		p_channel(from, ArgList);
 	else if (strcmp(comm, "MSG") == 0)
- 		msgcmd(from, ArgList);
+		/*p_msgcmd(from, ArgList)*/;
 	else if (strcmp(comm, "QUIT") == 0)
 		p_quit(from, ArgList);
 	else if (strcmp(comm, "WALL") == 0)
 		p_wall(from, ArgList);
 	else if (strcmp(comm, "WALLOPS") == 0)
-		wallops(from, ArgList);
+		p_wallops(from, ArgList);
 	else if (strcmp(comm, "LINREPLY") == 0)
-		linreply(ArgList);
+		p_linreply(ArgList);
 	else if (strcmp(comm, "PING") == 0)
-		ping(ArgList);
+		p_ping(ArgList);
 	else if (strcmp(comm, "TOPIC") == 0)
-		topic(from, ArgList);
+		p_topic(from, ArgList);
 	else if (strcmp(comm, "PONG") == 0)
-		pong(from, ArgList);
+		p_pong(from, ArgList);
 	else if (strcmp(comm, "INVITE") == 0)
 		p_invite(from, ArgList);
 	else if (strcmp(comm, "NICK") == 0)
 		p_nick(from, ArgList);
 	else if (strcmp(comm, "KILL") == 0)
-		server_kill(from, ArgList);
+		p_server_kill(from, ArgList);
 	else if (strcmp(comm, "MODE") == 0)
-		mode(from, ArgList);
+		p_mode(from, ArgList);
 	else if (strcmp(comm, "KICK") == 0)
-		kick(from, ArgList);
+		p_kick(from, ArgList);
 	else if (strcmp(comm, "ERROR") == 0)
-		error(from, ArgList);
+		p_error(from, ArgList);
 	else if (strcmp(comm, "ERROR:") == 0) /* Server bug makes this a must */
-		error(from, ArgList);
+		p_error(from, ArgList);
 	else
 	{
 		PasteArgs(ArgList, 0);

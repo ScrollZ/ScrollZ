@@ -31,12 +31,15 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: lastlog.h,v 1.2 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __lastlog_h_
 #define __lastlog_h_
 
+/*
+ * this list must agree with the list in lastlog.c
+ */
 #define LOG_NONE	0x000000
 #define LOG_CURRENT	0x000000
 #define LOG_CRAP	0x000001
@@ -56,6 +59,7 @@
 #define LOG_USER3	0x004000
 #define LOG_USER4	0x008000
 #define LOG_BEEP	0x010000
+#define LOG_HELP	0x020000
 
 #define LOG_ALL (LOG_CRAP | LOG_PUBLIC | LOG_MSG | LOG_NOTICE | LOG_WALL | \
 		LOG_WALLOP | LOG_NOTES | LOG_OPNOTE | LOG_SNOTE | LOG_ACTION | \

@@ -31,15 +31,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.3 1999-02-15 21:19:49 f Exp $
+ * $Id: mail.c,v 1.4 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
 #include "newio.h"
-
-#ifdef NeXT		/* ugly hack 'cause configure don't grok it -phone */
-# define SYSDIR
-#endif
 
 #if defined(HAVE_DIRENT_H) || defined(_POSIX_SOURCE)
 # include <dirent.h>
@@ -66,7 +62,6 @@
 # include <lan/net_types.h>
 #endif /* !ESIX */
 
-/* #if (defined(ISC) || defined(POSIX) || defined (UNICOS)) && !defined(_IBMR2) */
 #ifdef HAVE_SYS_FCNTL_H
 # include <sys/fcntl.h>
 #endif /* HAVE_SYS_FCNTL_H */

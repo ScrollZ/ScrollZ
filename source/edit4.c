@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.37 2000-07-20 19:06:15 f Exp $
+ * $Id: edit4.c,v 1.38 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -165,7 +165,6 @@ static struct bans *tmpbanlist;
 static int listcount;
 
 extern NotifyList *notify_list;
-extern DCC_list *ClientList;
 
 extern char *chars;
 extern NickList *tabnickcompl;
@@ -219,20 +218,20 @@ int  print;
                 CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF],tmpbuf2);
 #else  /* TDF */
         sprintf(tmpbuf3,"  %s [%s%s%s]",tmpbuf2,
-                CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF]);
+                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #endif /* TDF */
     }
     else *tmpbuf3='\0';
 #endif /* CELECOSM */
 #else  /* WANTANSI */
     sprintf(tmpbuf1,"%c%s%c %s",thing,nick,thing,message);
-    if (ExtMes && userhost) sprintf(tmpbuf3,"  (%s) [%s]",userhost,update_clock(GET_TIME));
+    if (ExtMes && userhost) sprintf(tmpbuf3,"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
     else *tmpbuf3='\0';
 #endif /* WANTANSI */
     if (print) put_it("%s%s",tmpbuf1,tmpbuf3);
     StripAnsi(message,tmpbuf3,2);
     if (!(userhost && *userhost)) userhost=empty_string;
-    sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(GET_TIME));
+    sprintf(tmpbuf1,"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(0,0,GET_TIME));
     malloc_strcpy(&(server_list[from_server].LastMessage),tmpbuf1);
     sprintf(tmpbuf1,"*%s* %s  (%s)",nick,tmpbuf3,userhost);
     if (away_set || LogOn) {
@@ -372,14 +371,14 @@ char *channel;
 #ifdef WANTANSI
             sprintf(tmpbuf2,"%sNetjoined%s at %s%s%s : ",
                     CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                    CmdsColors[COLNETSPLIT].color2,update_clock(GET_TIME),Colors[COLOFF]);
+                    CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF]);
             say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
                 CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
 #else
             say("Netjoined at %s : [%s <- %s]",
-                update_clock(GET_TIME),tmpstr,server);
+                update_clock(0,0,GET_TIME),tmpstr,server);
 #endif
         }
     }
@@ -1822,17 +1821,17 @@ char *text;
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
                 colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
         put_it("%s %s<%s%s%s>",CelerityNtfy,tmpbuf1,
-               CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+               CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
         sprintf(tmpbuf1,"Sign%sOn%s detected: %s%s%s %s ",
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
                 colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
         put_it("%s %s[%s%s%s]",CelerityNtfy,tmpbuf1,
-               CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+               CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
         put_it("%s SignOn detected: %s (%s) [%s]",CelerityNtfy,
-               wistuff->nick,tmpbuf1,update_clock(GET_TIME));
+               wistuff->nick,tmpbuf1,update_clock(0,0,GET_TIME));
 #endif /* WANTANSI */
     }
     sprintf(tmpbuf1,"Signon by %s (%s@%s) detected",wistuff->nick,wistuff->user,
@@ -1852,15 +1851,15 @@ time_t timenow;
     put_it("%s [sign%soff%s]  %s%s%s <%s%s%s>",CelerityNtfy,
            CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
            CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
     put_it("%s Sign%sOff%s detected: %s%s%s [%s%s%s]",CelerityNtfy,
            CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
            CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-    put_it("%s SignOff detected: %s [%s]",CelerityNtfy,nick,update_clock(GET_TIME));
+    put_it("%s SignOff detected: %s [%s]",CelerityNtfy,nick,update_clock(0,0,GET_TIME));
 #endif /* WANTANSI */
     sprintf(tmpbuf1,"Signoff by %s detected",nick);
     AwaySave(tmpbuf1,SAVENOTIFY);
@@ -1896,17 +1895,17 @@ int isfriend;
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
             colnick,nick,Colors[COLOFF],tmpbuf2);
     put_it("%s <%s%s%s>",tmpbuf1,
-           CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
     sprintf(tmpbuf1,"%s Sign%sOff%s detected: %s%s%s %s",CelerityNtfy,
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
             colnick,nick,Colors[COLOFF],tmpbuf2);
     put_it("%s [%s%s%s]",tmpbuf1,
-           CmdsColors[COLNOTIFY].color3,update_clock(GET_TIME),Colors[COLOFF]);
+           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
     put_it("%s SignOff detected: %s (%s) [%s]",CelerityNtfy,
-           nick,userhost,update_clock(GET_TIME));
+           nick,userhost,update_clock(0,0,GET_TIME));
 #endif /* WANTANSI */
     sprintf(tmpbuf1,"Signoff by %s (%s) detected",nick,userhost);
     AwaySave(tmpbuf1,SAVENOTIFY);
@@ -2124,7 +2123,7 @@ ChannelList *chan;
                     }
                 }
             }
-            if (!opped && !(tmp->chanop) && !(tmp->voice)) {
+            if (!opped && !(tmp->chanop) && !(tmp->hasvoice)) {
                 if (tmp->frlist && ((tmp->frlist->privs)&FLVOICE) &&
                     (((tmp->frlist->privs)&FLAUTOOP) || ((tmp->frlist->privs)&FLINSTANT)))
                 {

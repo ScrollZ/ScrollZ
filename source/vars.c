@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.7 1999-02-15 21:20:24 f Exp $
+ * $Id: vars.c,v 1.8 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -184,6 +184,7 @@ static	IrcVariable irc_variable[] =
 	{ "INPUT_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_INPUT_PROTECTION, NULL, input_warning, 0, 0 },
 	{ "INSERT_MODE",		BOOL_TYPE_VAR,	DEFAULT_INSERT_MODE, NULL, update_all_status, 0, 0 },
 	{ "INVERSE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_INVERSE_VIDEO, NULL, NULL, 0, 0 },
+	{ "IRCHOST",                    STR_TYPE_VAR,   0, NULL, set_irchost, 0, 0 },
 	{ "LASTLOG",			INT_TYPE_VAR,	DEFAULT_LASTLOG, NULL, set_lastlog_size, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "LASTLOG_ANSI",		BOOL_TYPE_VAR,	1, NULL, NULL, 0, 0 },
@@ -193,6 +194,7 @@ static	IrcVariable irc_variable[] =
 	{ "LOG",			BOOL_TYPE_VAR,	DEFAULT_LOG, NULL, logger, 0, 0 },
  	{ "LOGFILE",			STR_TYPE_VAR,	0, NULL, set_log_file, 0, VF_NODAEMON },
 	{ "MAIL",			INT_TYPE_VAR,	DEFAULT_MAIL, NULL, update_all_status, 0, VF_NODAEMON },
+	{ "MAKE_NOTICE_MSG",		BOOL_TYPE_VAR,	DEFAULT_MAKE_NOTICE_MSG, NULL, NULL, 0, 0},
 /**************************** PATCHED by Flier ******************************/
         { "MAX_MODES",                  INT_TYPE_VAR,   DEFAULT_MAX_MODES, NULL, SetMaxModes, 0, 0 },
 /****************************************************************************/
@@ -203,6 +205,7 @@ static	IrcVariable irc_variable[] =
 	{ "MENU",			STR_TYPE_VAR,	0, NULL, set_menu, 0, 0 },
 	{ "MINIMUM_SERVERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_SERVERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "MINIMUM_USERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_USERS, NULL, NULL, 0, VF_NODAEMON },
+	{ "NO_ASK_NICKNAME",		BOOL_TYPE_VAR,	DEFAULT_NO_ASK_NICKNAME, NULL, NULL, 0, 0 },
 	{ "NO_CTCP_FLOOD",		BOOL_TYPE_VAR,	DEFAULT_NO_CTCP_FLOOD, NULL, NULL, 0, 0 },
 	{ "NOTIFY_HANDLER",		STR_TYPE_VAR, 	0, 0, set_notify_handler, 0, 0 },
 	{ "NOTIFY_LEVEL",		STR_TYPE_VAR,	0, NULL, set_notify_level, 0, 0 },
@@ -295,6 +298,7 @@ static	IrcVariable irc_variable[] =
 	{ "VERBOSE_CTCP",		BOOL_TYPE_VAR,	DEFAULT_VERBOSE_CTCP, NULL, NULL, 0, 0 },
 	{ "WARN_OF_IGNORES",		BOOL_TYPE_VAR,	DEFAULT_WARN_OF_IGNORES, NULL, NULL, 0, 0 },
 	{ "XTERM_OPTIONS", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
+	{ "XTERM_PATH", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ (char *) 0, 0, 0, 0, 0, 0, 0 }
 };
 
@@ -355,6 +359,7 @@ init_variables()
 	set_string_var(STATUS_WINDOW_VAR, DEFAULT_STATUS_WINDOW);
 	set_string_var(USER_INFO_VAR, DEFAULT_USERINFO);
 	set_string_var(XTERM_OPTIONS_VAR, DEFAULT_XTERM_OPTIONS);
+	set_string_var(XTERM_PATH_VAR, DEFAULT_XTERM_PATH);
 	set_alarm(DEFAULT_CLOCK_ALARM);
 	set_beep_on_msg(DEFAULT_BEEP_ON_MSG);
 	set_string_var(STATUS_NOTIFY_VAR, DEFAULT_STATUS_NOTIFY);

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.42 2000-07-17 15:23:24 f Exp $
+ * $Id: edit2.c,v 1.43 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -113,6 +113,7 @@
 extern NotifyList *notify_list;
 extern int CO;
 extern time_t start_time;
+extern char *source_host;
 
 NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 void DoDops _((char *, char *, int));
@@ -220,7 +221,7 @@ char *subargs;
             else comment=DefaultLK;
             for (tmp=chan->nicks;tmp;tmp=tmp->next) {
                 if (tmp->chanop) continue;
-                if (tmp->voice && !all) continue;
+                if (tmp->hasvoice && !all) continue;
 #ifdef CELE
                 sprintf(tmpbuf2,"KICK %s %s :%s %s\r\n",channel,tmp->nick,
                         comment,CelerityL);
@@ -632,7 +633,7 @@ int servernum;
     windowcmd(NULL,tmpbuf,NULL);
     if (change && tmp) {
         swap_window(oldwindow,tmp);
-        redraw_window(oldwindow,0);
+        redraw_window(oldwindow,1,0);
     }
 }
 
@@ -1208,7 +1209,7 @@ char *subargs;
                 }
                 break;
             case 2: /* normal */
-                if (!(tmp->voice) && !(tmp->chanop) && !friendok && !shitted)
+                if (!(tmp->hasvoice) && !(tmp->chanop) && !friendok && !shitted)
 #ifdef WANTANSI
                     colorstr=CmdsColors[COLCSCAN].color5;
 #else
@@ -1220,7 +1221,7 @@ char *subargs;
                 }
                 break;
             case 3: /* voiced */
-                if (tmp->voice && !(tmp->chanop) && !friendok && !shitted)
+                if (tmp->hasvoice && !(tmp->chanop) && !friendok && !shitted)
 #ifdef WANTANSI
                     colorstr=CmdsColors[COLCSCAN].color4;
 #else
@@ -1263,7 +1264,7 @@ char *subargs;
             if (shitted) colorstr=CmdsColors[COLCSCAN].color6;
             else if (friendok) colorstr=CmdsColors[COLCSCAN].color2;
             else if (tmp->chanop) colorstr=CmdsColors[COLCSCAN].color3;
-            else if (tmp->voice) colorstr=CmdsColors[COLCSCAN].color4;
+            else if (tmp->hasvoice) colorstr=CmdsColors[COLCSCAN].color4;
             else colorstr=CmdsColors[COLCSCAN].color5;
         }
 #endif /* WANTANSI */
@@ -1282,7 +1283,7 @@ char *subargs;
             buflen+=strlen(tmpbuf4)+1;
 #endif /* NEWCSCAN */
         }
-        else if (tmp->voice) {
+        else if (tmp->hasvoice) {
             sprintf(tmpbuf4,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
             malloc_strcat(&users,tmpbuf4);
 #ifndef NEWCSCAN
@@ -3273,7 +3274,7 @@ char *stat;
                 last=whowas->nicklist;
                 last->next=tmp->next;
                 last->chanop=tmp->chanop;
-                last->voice=tmp->voice;
+                last->hasvoice=tmp->hasvoice;
                 last->curo=tmp->curo;
                 last->curk=tmp->curk;
                 last->curn=tmp->curn;
@@ -3848,7 +3849,7 @@ char *subargs;
     newhname=new_next_arg(args,&args);
 #ifndef JIMMIE
     if (newhname) {
-        malloc_strcpy(&VirtualHost,newhname);
+        malloc_strcpy(&source_host,newhname);
         ReconnectServer(NULL,NULL,NULL);
     }
     else PrintUsage("NEWHOST <Virtual Host>");

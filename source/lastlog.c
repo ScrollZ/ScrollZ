@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.4 1999-11-14 14:27:49 f Exp $
+ * $Id: lastlog.c,v 1.5 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -70,7 +70,7 @@ static	char	*levels[] =
 	"WALLS",	"WALLOPS",	"NOTES",	"OPNOTES",
 	"SNOTES",	"ACTIONS",	"DCC",		"CTCP",
 	"USERLOG1",	"USERLOG2",	"USERLOG3",	"USERLOG4",
-	"BEEP"
+	"BEEP",		"HELP"
 };
 #define NUMBER_OF_LEVELS (sizeof(levels) / sizeof(char *))
 
@@ -210,7 +210,7 @@ remove_from_lastlog(window)
 		if (tmp)
 			tmp->next = (Lastlog *) 0;
 		else
-			window->lastlog_head = window->lastlog_tail;
+			window->lastlog_head = (Lastlog *) 0;
 		window->lastlog_size--;
 	}
 	else

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.35 2000-07-23 07:43:27 f Exp $
+ * $Id: edit.c,v 1.36 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -92,7 +92,7 @@ static	void	show_timer _((char *));
 static	int	create_timer_ref _((int));
 static	void	get_history _((int));
 static	void	oper_password_received _((char *, char *));
-static	char	*do_channel _((char *));
+static	char	*do_channel _((char *, int));
 static	void	send_action _((char *, char *));
 
 TimerList *PendingTimers = (TimerList *) 0;
@@ -113,11 +113,11 @@ TimerList *PendingTimers = (TimerList *) 0;
 #define MAX_LOAD_DEPTH 10
 
 /* recv_nick: the nickname of the last person to send you a privmsg */
-	char	*recv_nick = NULL;
+	u_char	*recv_nick = NULL;
 
 /* sent_nick: the nickname of the last person to whom you sent a privmsg */
-	char	*sent_nick = NULL;
-	char	*sent_body = NULL;
+	u_char	*sent_nick = NULL;
+	u_char	*sent_body = NULL;
 
 /* Used to keep down the nesting of /LOADs and to determine if we
  * should activate the warning for /ONs if the NOVICE variable is set.
@@ -142,6 +142,7 @@ static	WaitCmd	*start_wait_list = NULL,
 static	void	sendlinecmd _((char *, char *, char *));
 static	void	do_send_text _((char *, char *, char *));
 static	void	funny_stuff _((char *, char *, char *));
+static	void	catter _((char *, char *, char *));
 static	void	cd _((char *, char *, char *));
 static	void	e_wall _((char *, char *, char *));
 static	void	send_squery _((char *, char *, char *));
@@ -360,7 +361,6 @@ extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
 extern	void  ServerPing _((char *, char *, char *));
 #ifdef CELE
-extern	void  ExecCat _((char *, char *, char *));
 extern	void  ExecUptime _((char *, char *, char *));
 extern	void  CTCPFing _((char *, char *, char *));
 extern  void  Cquickstat _((char *, char *, char *));
@@ -405,7 +405,7 @@ static	IrcCommand *find_command _((char *, int *));
 #define SERVERREQ	0x0010
 
 /*
- * irc_command: all the availble irc commands:  Note that the first entry has
+ * irc_command: all the available irc commands:  Note that the first entry has
  * a zero length string name and a null server command... this little trick
  * makes "/ blah blah blah" to always be sent to a channel, bypassing queries,
  * etc.  Neato.  This list MUST be sorted.
@@ -459,9 +459,7 @@ static	IrcCommand FAR irc_command[] =
 #endif
  	{ "BYE",	"QUIT",		e_quit,			NONOVICEABBREV },
   { "C", 		NULL, 		CurrentChanMode, 	SERVERREQ },
-#ifdef CELE
-  { "CAT", 		NULL, 		ExecCat, 		0 },
-#endif
+	{ "CAT",	NULL,		catter,			0 },
 	{ "CD",		NULL,		cd,			0 },
   { "CDBAN", 		NULL, 		CdBan, 			SERVERREQ },
   { "CDCC", 		NULL, 		Cdcc, 			0 },
@@ -1112,10 +1110,10 @@ waitcmd(command, args, subargs)
 	{
 		WaitCmd	*new;
 
-		sprintf(buffer, "%s %s", procindex, args);
+		sprintf(buffer, "%s %s", procindex, args);			/* XXX uses global buffer */
 		new = (WaitCmd *) new_malloc(sizeof(WaitCmd));
 		new->stuff = NULL;
-		malloc_strcpy(&new->stuff, buffer);
+		malloc_strcpy(&new->stuff, buffer);			/* XXX uses global buffer */
 		new->next = NULL;
 		if (end_wait_list)
 			end_wait_list->next = new;
@@ -1241,12 +1239,10 @@ my_echo(command, args, subargs)
 {
 	unsigned int	display;
 	int	lastlog_level = 0;
+	int	from_level = 0;
 	char	*flag_arg;
 	int	temp;
 	Window *old_to_window;
-/**************************** PATCHED by Flier ******************************/
-        int     old_who_level=who_level;
-/****************************************************************************/
 
  	save_message_from();
 	old_to_window = to_window;
@@ -1264,9 +1260,7 @@ my_echo(command, args, subargs)
 				if ((temp = parse_lastlog_level(flag_arg)) != 0)
 				{
 					lastlog_level = set_lastlog_msg_level(temp);
-/**************************** PATCHED by Flier ******************************/
-                                        who_level=temp;
-/****************************************************************************/
+					from_level = message_from_level(temp);
 				}
 				break;
 			case 'W':
@@ -1278,6 +1272,7 @@ my_echo(command, args, subargs)
 				else
 					to_window = get_window_by_name(flag_arg);
  				lastlog_level = set_lastlog_msg_level(LOG_CRAP);
+				from_level = message_from_level(LOG_CRAP);
 				break;
 			}
 			if (!args)
@@ -1290,9 +1285,8 @@ my_echo(command, args, subargs)
 	window_display = display;
 	if (lastlog_level)
 		set_lastlog_msg_level(lastlog_level);
-/**************************** PATCHED by Flier ******************************/
-        who_level=old_who_level;
-/****************************************************************************/
+	if (from_level)
+		message_from_level(from_level);
  	restore_message_from();
 	to_window = old_to_window;
 }
@@ -1476,8 +1470,8 @@ save_settings(command, args, subargs)
 		really_save(ircrc_file, "y"); /* REAL dumb!  -lynx */
 	else
 	{
-		sprintf(buffer, "Really write %s? ", ircrc_file);
-		add_wait_prompt(buffer, really_save, ircrc_file,
+		sprintf(buffer, "Really write %s? ", ircrc_file);			/* XXX uses global buffer */
+		add_wait_prompt(buffer, really_save, ircrc_file,			/* XXX uses global buffer */
 				WAIT_PROMPT_LINE);
 	}
 }
@@ -1487,8 +1481,9 @@ save_settings(command, args, subargs)
  * returns the channel's name if not
  */
 static	char *
-do_channel(chan)
+do_channel(chan, force)
 	char	*chan;
+	int force;
 {
 	ChannelList	*channel;
 	char		*old;
@@ -1504,19 +1499,13 @@ do_channel(chan)
         if (channel && channel->connected==CHAN_JOINING) return(NULL);
 /****************************************************************************/
 
-	if (is_on_channel(chan, curr_scr_win->server,
-		get_server_nickname(curr_scr_win->server)))
+	if (is_bound(chan, curr_scr_win->server) && channel && channel->window != curr_scr_win)
+		say("Channel %s is bound", chan);
+	else if (is_on_channel(chan, curr_scr_win->server, get_server_nickname(curr_scr_win->server)))
 	{
-		if (is_bound(chan, curr_scr_win->server) && channel && channel->window != curr_scr_win)
-			say("Channel %s is bound", chan);
-		else
-		{
-			is_current_channel(chan,
-				curr_scr_win->server,
- 				(int)curr_scr_win->refnum);
-			say("You are now talking to channel %s", set_channel_by_refnum(0, chan));
-			update_all_windows();
-		}
+		is_current_channel(chan, curr_scr_win->server, 1);
+		say("You are now talking to channel %s", set_channel_by_refnum(0, chan));
+		update_all_windows();
 	}
 	else
 	{
@@ -1527,9 +1516,12 @@ do_channel(chan)
 				send_to_server("PART %s", old);
 		}
 		add_channel(chan, from_server, CHAN_JOINING, (ChannelList *) 0);
+		force = 1;
+	}
+	if (force)
 		return chan;
-        }
-	return (char *) 0;
+	else
+		return (char *) 0;
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -1565,6 +1557,7 @@ e_channel(command, args, subargs)
  	size_t	len;
 	char	*chanstr = (char *) 0,
 		*ptr;
+ 	int 	force = 0;
 /**************************** PATCHED by Flier ******************************/
         char    *chankey;
 /****************************************************************************/
@@ -1584,11 +1577,17 @@ e_channel(command, args, subargs)
         if ((chan = next_arg(args, &args)) != NULL)
 	{
 		len = strlen(chan);
+		if (my_strnicmp(chan, "-force", len) == 0)
+		{
+			force = 1;
+			if ((chan = next_arg(args, &args)) == NULL)
+				list_channels();	/* XXX: allow /alias join join -force */
+		}
 		if (my_strnicmp(chan, "-invite", len) == 0)
 		{
 			if (invite_channel)
 			{
-				if ((ptr = do_channel(invite_channel)))
+				if ((ptr = do_channel(invite_channel, force)))
 /**************************** PATCHED by Flier ******************************/
 					/*send_to_server("%s %s %s", command, invite_channel, args);*/
                                 {
@@ -1614,7 +1613,7 @@ e_channel(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
                         ptr=fix_channel(ptr);
 /****************************************************************************/
-                        if ((ptr = do_channel(ptr)))
+       			if ((ptr = do_channel(ptr, force)))
 /**************************** PATCHED by Flier ******************************/
 				/*send_to_server("%s %s %s", command, ptr, args);*/
                         {
@@ -1624,11 +1623,11 @@ e_channel(command, args, subargs)
 /****************************************************************************/
 			while ((ptr = strtok(NULL, ",")))
 /**************************** PATCHED by Flier ******************************/
-				/*if ((ptr = do_channel(ptr)))
+				/*if ((ptr = do_channel(ptr, force)))
 					send_to_server("%s %s %s", command, ptr, args);*/
                         {
                             ptr=fix_channel(ptr);
-                            if ((ptr=do_channel(ptr))) {
+                            if ((ptr=do_channel(ptr,force))) {
                                 chankey=CheckJoinKey(ptr);
                                 send_to_server("%s %s %s %s",command,ptr,args,chankey);
                             }
@@ -1836,10 +1835,10 @@ userhost(command, args, subargs)
 		else
 		{
 			if (n++)
-				strmcat(buffer, " ", BIG_BUFFER_SIZE);
+				strmcat(buffer, " ", BIG_BUFFER_SIZE);	/* XXX uses global buffer */
 			else
-				*buffer = '\0';
-			strmcat(buffer, nick, BIG_BUFFER_SIZE);
+				*buffer = '\0';			/* XXX uses global buffer */
+			strmcat(buffer, nick, BIG_BUFFER_SIZE);	/* XXX uses global buffer */
 		}
 	}
 	if (n)
@@ -1848,7 +1847,7 @@ userhost(command, args, subargs)
 		char	*s, *t;
 		int	i;
 
-		malloc_strcpy(&the_list, buffer);
+		malloc_strcpy(&the_list, buffer);			/* XXX uses global buffer */
 		s = t = the_list;
 		while (n)
 		{
@@ -1859,13 +1858,13 @@ userhost(command, args, subargs)
 				*(s - 1) = '\0';
 			else
 				n--;
-			strcpy(buffer, t);
+			strcpy(buffer, t);			/* XXX uses global buffer */
 			t = s;
 
 			if (userhost_cmd)
-				add_to_whois_queue(buffer, userhost_cmd_returned, "%s", args);
+				add_to_whois_queue(buffer, userhost_cmd_returned, "%s", args);			/* XXX uses global buffer */
 			else
-				add_to_whois_queue(buffer, USERHOST_USERHOST, 0);
+				add_to_whois_queue(buffer, USERHOST_USERHOST, 0);			/* XXX uses global buffer */
 		}
 		new_free(&the_list);
 	}
@@ -2100,7 +2099,7 @@ query(command, args, subargs)
 	{
 		if (strcmp(nick, ".") == 0)
 		{
-			if (!(nick = sent_nick))
+			if (!(nick = (char *) sent_nick))
 			{
 				say("You have not messaged anyone yet");
 				goto out;
@@ -2108,7 +2107,7 @@ query(command, args, subargs)
 		}
 		else if (strcmp(nick, ",") == 0)
 		{
-			if (!(nick = recv_nick))
+			if (!(nick = (char *) recv_nick))
 			{
 				say("You have not recieved a message from \
 						anyone yet");
@@ -2336,7 +2335,7 @@ e_privmsg(command, args, subargs)
 	{
 		if (strcmp(nick, ".") == 0)
 		{
-			if (!(nick = sent_nick))
+			if (!(nick = (char *) sent_nick))
 			{
 				say("You have not sent a message to anyone yet");
 				return;
@@ -2345,7 +2344,7 @@ e_privmsg(command, args, subargs)
 
 		else if (strcmp(nick, ",") == 0)
 		{
-			if (!(nick = recv_nick))
+			if (!(nick = (char *) recv_nick))
 			{
 				say("You have not received a message from anyone yet");
 				return;
@@ -2531,7 +2530,7 @@ send_channel_nargs(command, args, subargs)
  	if (!args || !strcmp(args, "*"))
  	{
  		if(s)
- 			args=s;
+ 			args = s;
   		else
  		{
  			say("You aren't on a channel in this window");
@@ -2564,7 +2563,7 @@ send_channel_2args(command, args, subargs)
 	if (!args || !strcmp(args, "*"))
 	{
 		if(s)
-			args=s;
+			args = s;
 		else
 		{
 			say("You aren't on a channel in this window");
@@ -2572,7 +2571,7 @@ send_channel_2args(command, args, subargs)
 		}
 	}
 
-	if(arg1 && *arg1)
+	if (arg1 && *arg1)
 		arg1 = next_arg(arg1, &comment);
 	
 	send_to_server("%s %s %s %c%s",
@@ -2600,8 +2599,8 @@ send_channel_1arg(command, args, subargs)
 
 	if (!args || !strcmp(args, "*"))
 	{
-		if(s)
-			args=s;
+		if (s)
+			args = s;
 		else
 		{
 			say("You aren't on a channel in this window");
@@ -2653,6 +2652,16 @@ send_text(org_nick, line, command)
         if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
         else thing='-';
 /****************************************************************************/
+	if (dumb && translation)
+	{
+		ptr = line;
+		while (*ptr)
+		{
+			*ptr = transFromClient[*(unsigned char*) ptr];
+			ptr++;
+		}
+	}
+
 	*nick_list = '\0';
 	malloc_strcpy(&nick, org_nick);
 	free_nick = ptr = nick;
@@ -2677,7 +2686,7 @@ send_text(org_nick, line, command)
 #endif /* _Windows */
 		if (!*line)
 			continue; /* lynx */
-		if (in_on_who)
+		if (in_on_who && *nick != '=') /* allow dcc messages anyway */
 		{
 			say("You may not send messages from ON WHO, ON WHOIS, or ON JOIN");
 			continue;
@@ -2731,8 +2740,7 @@ send_text(org_nick, line, command)
 		{
 			int	current;
 
-			current = is_current_channel(nick,
-					curr_scr_win->server, 0);
+			current = is_current_channel(nick, curr_scr_win->server, 0);
 			if (!command || strcmp(command, "NOTICE"))
 			{
 				check_away = 1;
@@ -2744,7 +2752,6 @@ send_text(org_nick, line, command)
 			}
 			else
 			{
-				check_away = 0;
 				lastlog_level = set_lastlog_msg_level(LOG_NOTICE);
 				message_from(nick, LOG_NOTICE);
 				list_type = SEND_NOTICE_LIST;
@@ -2804,12 +2811,12 @@ send_text(org_nick, line, command)
 				else
 					strcpy(nick_list, nick);
 			}
-			do_final_send = 1;
 		}
 		else
 		{
 			if (!command || strcmp(command, "NOTICE"))
 			{
+ 				check_away = 1;
 				lastlog_level = set_lastlog_msg_level(LOG_MSG);
 				command = "PRIVMSG";
 				message_from(nick, LOG_MSG);
@@ -2914,14 +2921,14 @@ send_text(org_nick, line, command)
 			if (get_int_var(WARN_OF_IGNORES_VAR) && (is_ignored(nick, IGNORE_MSGS) == IGNORED))
 				say("Warning: You are ignoring private messages from %s", nick);
 
-			malloc_strcpy(&sent_nick, nick);
-			if (check_away && server_list[curr_scr_win->server].away && get_int_var(AUTO_UNMARK_AWAY_VAR))
-				away("AWAY", empty_string, empty_string);
-			do_final_send = 1;
+			malloc_strcpy((char **) &sent_nick, nick);
 		}
+		do_final_send = 1;
 	}
+	if (check_away && server_list[curr_scr_win->server].away && get_int_var(AUTO_UNMARK_AWAY_VAR))
+		away("AWAY", empty_string, empty_string);
 
-	malloc_strcpy(&sent_body, line);
+	malloc_strcpy((char **) &sent_body, line);
 	if (do_final_send)
 		send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick_list, line);
 	new_free(&free_nick);
@@ -3013,9 +3020,9 @@ command_completion(key, ptr)
 			}
 			if ((alias_cnt == 1) && (cmd_cnt == 0))
 			{
-				sprintf(buffer, "%c%s %s", firstcmdchar,
+				sprintf(buffer, "%c%s %s", firstcmdchar,		/* XXX uses global buffer */
 					aliases[0], rest);
-				set_input(buffer);
+				set_input(buffer);					/* XXX uses global buffer */
 				new_free(&(aliases[0]));
 				new_free(&aliases);
 				update_input(UPDATE_ALL);
@@ -3024,67 +3031,67 @@ command_completion(key, ptr)
 			    ((cmd_cnt == 1) && (alias_cnt == 1) &&
 			    (strcmp(aliases[0], command[0].name) == 0)))
 			{
-				sprintf(buffer, "%c%s%s %s", firstcmdchar,
+				sprintf(buffer, "%c%s%s %s", firstcmdchar,		/* XXX uses global buffer */
 					do_aliases ? "" : &firstcmdchar,
 					command[0].name, rest);
-				set_input(buffer);
+				set_input(buffer);					/* XXX uses global buffer */
 				update_input(UPDATE_ALL);
 			}
 			else
 			{
-				*buffer = (char) 0;
+				*buffer = (char) 0;			/* XXX uses global buffer */
 				if (command)
 				{
 					say("Commands:");
-					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);
+					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);			/* XXX uses global buffer */
 					c = 0;
 					for (i = 0; i < cmd_cnt; i++)
 					{
-						strmcat(buffer, command[i].name,
+						strmcat(buffer, command[i].name,			/* XXX uses global buffer */
 							BIG_BUFFER_SIZE);
 						for (len =
 						    strlen(command[i].name);
 						    len < 15; len++)
-							strmcat(buffer, " ",
+							strmcat(buffer, " ",			/* XXX uses global buffer */
 							    BIG_BUFFER_SIZE);
 						if (++c == 4)
 						{
-							say("%s", buffer);
-							strmcpy(buffer, "\t",
+							say("%s", buffer);			/* XXX uses global buffer */
+							strmcpy(buffer, "\t",			/* XXX uses global buffer */
 							    BIG_BUFFER_SIZE);
 							c = 0;
 						}
 					}
 					if (c)
-						say("%s", buffer);
+						say("%s", buffer);			/* XXX uses global buffer */
 				}
 				if (aliases)
 				{
 					say("Aliases:");
-					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);
+					strmcpy(buffer, "\t", BIG_BUFFER_SIZE);			/* XXX uses global buffer */
 					c = 0;
 					for (i = 0; i < alias_cnt; i++)
 					{
-						strmcat(buffer, aliases[i],
+						strmcat(buffer, aliases[i],			/* XXX uses global buffer */
 							BIG_BUFFER_SIZE);
 						for (len = strlen(aliases[i]);
 								len < 15; len++)
-							strmcat(buffer, " ",
+							strmcat(buffer, " ",			/* XXX uses global buffer */
 							    BIG_BUFFER_SIZE);
 						if (++c == 4)
 						{
-							say("%s", buffer);
-							strmcpy(buffer, "\t",
+							say("%s", buffer);			/* XXX uses global buffer */
+							strmcpy(buffer, "\t",			/* XXX uses global buffer */
 							    BIG_BUFFER_SIZE);
 							c = 0;
 						}
 						new_free(&(aliases[i]));
 					}
-					if ((int) strlen(buffer) > 1)
-						say("%s", buffer);
+					if ((int) strlen(buffer) > 1)			/* XXX uses global buffer */
+						say("%s", buffer);			/* XXX uses global buffer */
 					new_free(&aliases);
 				}
-				if (!*buffer)
+				if (!*buffer)			/* XXX uses global buffer */
 					term_beep();
 			}
 		}
@@ -3140,10 +3147,10 @@ parse_line(name, org_line, args, hist_flag, append_flag)
 					&line);
 			if (!line && append_flag && !args_flag && args && *args)
 			{
- 				lbuf = (char *) new_malloc(BIG_BUFFER_SIZE+1);
- 				strmcpy(lbuf, stuff, BIG_BUFFER_SIZE);
- 				strmcat(lbuf, " ", BIG_BUFFER_SIZE);
- 				strmcat(lbuf, args, BIG_BUFFER_SIZE);
+				lbuf = (char *) new_malloc(strlen(stuff) + 1 + strlen(args) + 1);
+				strcpy(lbuf, stuff);
+				strcat(lbuf, " ");
+				strcat(lbuf, args);
   				new_free(&stuff);
  				stuff = lbuf;
 			}
@@ -3498,7 +3505,7 @@ load(command, args, subargs)
 #endif
 					if (stat_buf.st_mode & IS_EXECUTABLE)
 					{
-						say("%s is executable and may not be loaded", expanded);
+						yell("*** %s is executable and may not be loaded", expanded);
 						status_update(1);
 						load_depth--;
 #ifdef ZCAT
@@ -3538,7 +3545,7 @@ load(command, args, subargs)
 						args = NULL;
 					for (;;)
 					{
- 						if (fgets(lbuf, BIG_BUFFER_SIZE / 2, fp))
+						if (fgets(lbuf, BIG_BUFFER_SIZE / 2, fp))	/* XXX need better /load policy, but this will do for now */
 	{
  		size_t	len;
 		char	*ptr;
@@ -3811,15 +3818,41 @@ sendlinecmd(command, args, subargs)
 	from_server = server;
 }
 
-/**************************** PATCHED by Flier ******************************/
+/*ARGSUSED*/
+void
+meta8_char(key, ptr)
+	u_int	key;
+	char *	ptr;
+{
+	current_screen->meta8_hit = 1;
+}
+
+/*ARGSUSED*/
+void
+meta7_char(key, ptr)
+	u_int	key;
+	char *	ptr;
+{
+	current_screen->meta7_hit = 1;
+}
+
+/*ARGSUSED*/
+void
+meta6_char(key, ptr)
+	u_int	key;
+	char *	ptr;
+{
+	current_screen->meta6_hit = 1;
+}
+
+/*ARGSUSED*/
 void
 meta5_char(key, ptr)
- 	u_int	key;
+	u_int	key;
 	char *	ptr;
 {
 	current_screen->meta5_hit = 1;
 }
-/****************************************************************************/
 
 /*ARGSUSED*/
 void
@@ -3919,7 +3952,7 @@ edit_char(ikey)
 			current_screen->promptlist->type == WAIT_PROMPT_KEY)
 	{
 		oldprompt = current_screen->promptlist;
-		(*oldprompt->func)(oldprompt->data, &key);
+		(*oldprompt->func)(oldprompt->data, (char *)&key);
 		set_input(empty_string);
 		current_screen->promptlist = oldprompt->next;
 		new_free(&oldprompt->data);
@@ -4029,6 +4062,37 @@ edit_char(ikey)
 
 /*ARGSUSED*/
 static	void
+catter(command, args, subargs)
+	char *command;
+	char *args;
+	char *subargs;
+{
+	char *target = next_arg(args, &args);
+
+	if (target && args && *args)
+	{
+		char *text = args;
+		FILE *fp = fopen(target, "r+");
+
+		if (!fp)
+		{
+			fp = fopen(target, "w");
+			if (!fp)
+			{
+				say("CAT: error: '%s': %s", target, strerror(errno));
+				return;
+		}	}
+		
+		fseek(fp, 0, SEEK_END);
+		fprintf(fp, "%s\n", text),
+		fclose(fp);
+	}
+	else
+		say("Usage: /CAT <destfile> <line>");
+}
+
+/*ARGSUSED*/
+static	void
 cd(command, args, subargs)
 	char	*command,
 		*args,
@@ -4055,11 +4119,8 @@ cd(command, args, subargs)
 		else
 			say("CD: No such user");
 	}
-	getcwd(buffer, BIG_BUFFER_SIZE+1);
-	/* is this more portable? *shrug*. i chose BIG_BUFFER_SIZE+1 
-	   because it's more readable -cgw- */
-	/* getcwd((char *)buffer, sizeof((char *)buffer)); */
-	say("Current directory: %s", buffer);
+	getcwd(buffer, BIG_BUFFER_SIZE+1);			/* XXX uses global buffer */
+	say("Current directory: %s", buffer);			/* XXX uses global buffer */
 }
 
 static	void
@@ -4742,7 +4803,8 @@ pingcmd(command, args, subargs)
 		*subargs;
 {
 /**************************** PATCHED by Flier ******************************/
-	/*sprintf(buffer, "%s PING %ld", args, time(NULL));*/
+	/*sprintf(buffer, "%s PING %ld", args, (long)time(NULL));*/
+        /* XXX uses global buffer */
         char *target;
 #ifdef  HAVETIMEOFDAY
         struct timeval  timeofday;
@@ -4756,12 +4818,13 @@ pingcmd(command, args, subargs)
         }
 #ifdef  HAVETIMEOFDAY
         gettimeofday(&timeofday,NULL);
-        sprintf(buffer, "%s PING %ld %ld", target,timeofday.tv_sec,timeofday.tv_usec);
+        sprintf(buffer, "%s PING %ld %ld", target,
+                (long) timeofday.tv_sec,(long) timeofday.tv_usec);
 #else
-        sprintf(buffer, "%s PING %ld", target, time(NULL));
+        sprintf(buffer, "%s PING %ld",target, (long) time(NULL));
 #endif
 /****************************************************************************/
-	ctcp(command, buffer, empty_string);
+	ctcp(command, buffer, empty_string);			/* XXX uses global buffer */
 }
 
 static	void

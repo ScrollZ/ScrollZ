@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.3 1999-02-15 21:20:08 f Exp $
+ * $Id: queue.c,v 1.4 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -247,12 +247,12 @@ make_new_queue(afterqueue, name)
 	if (!name)
 		return (Queue *) 0;
 	tmp = (Queue *) new_malloc(sizeof(Queue));
-	upper(name);
 
 	tmp->next = afterqueue;
 	tmp->first = (CmdList *) 0;
 	tmp->name = (char *) 0;
 	malloc_strcpy(&tmp->name, name);
+	upper(tmp->name);
 	return tmp;
 }
 	

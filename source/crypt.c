@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.6 1999-10-04 19:21:37 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.7 2000-08-09 19:31:20 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -102,7 +102,7 @@ add_to_crypt(nick, keystr, enc, dec, type)
 	if ((new = (Crypt *) remove_from_list((List **) &crypt_list, nick)) != NULL)
 	{
 		new_free(&(new->nick));
-		bzero(new->key->key, strlen(new->key->key));		/* wipe it out */
+		bzero(new->key->key, strlen((char *) new->key->key));		/* wipe it out */
 		new_free(&(new->key->key));
 		new_free(&(new->key));
 		new_free(&new);
@@ -110,10 +110,10 @@ add_to_crypt(nick, keystr, enc, dec, type)
 	new = (Crypt *) new_malloc(sizeof(Crypt));
 	new->key = (crypt_key *) new_malloc(sizeof(*new->key));
 	new->nick = (char *) 0;
-	new->key->key = (char *) 0;
+	new->key->key = (u_char *) 0;
 	new->key->type = type;
 	malloc_strcpy(&(new->nick), nick);
-	malloc_strcpy(&(new->key->key), keystr);
+	malloc_strcpy((char **) &(new->key->key), keystr);
 	new->key->crypt = enc;
 	new->key->decrypt = dec;
 	add_to_list((List **) &crypt_list, (List *) new);
@@ -132,7 +132,7 @@ remove_crypt(nick)
 	if ((tmp = (Crypt *) list_lookup((List **) &crypt_list, nick, !USE_WILDCARDS, REMOVE_FROM_LIST)) != NULL)
 	{
 		new_free(&tmp->nick);
-		bzero(tmp->key->key, strlen(tmp->key->key));		/* wipe it out */
+		bzero(tmp->key->key, strlen((char *) tmp->key->key));		/* wipe it out */
 		new_free(&tmp->key->key);
 		new_free(&tmp->key);
 		new_free(&tmp);
@@ -169,18 +169,24 @@ encrypt_cmd(command, args, subargs)
 		*args,
 		*subargs;
 {
-	CryptFunc enc = NULL, dec = NULL;
-	char	*type = NULL;
+	CryptFunc enc = DEFAULT_CRYPTER, dec = DEFAULT_DECRYPTER;
+	char	*type = DEFAULT_CRYPTYPE;
 	char	*nick,
 		*keystr;
+	int	showkeys = 0;
 
 restart:
 	if ((nick = next_arg(args, &args)) != NULL)
 	{
-		if (0)
-			;
+ 		size_t len = strlen(nick);
+
+ 		if (my_strnicmp(nick, "-showkeys", len) == 0)
+ 		{
+ 			showkeys = 1;
+ 			goto restart;
+ 		}
 #ifdef USE_CAST
-		else if (my_strnicmp(nick, "-cast", 5) == 0)
+ 		else if (my_strnicmp(nick, "-cast", len) == 0)
 		{
 			enc = cast_encrypt_str;
 			dec = cast_decrypt_str;
@@ -190,7 +196,7 @@ restart:
 #endif
 
 #ifdef USE_SED
-		else if (my_strnicmp(nick, "-sed", 5) == 0)
+		else if (my_strnicmp(nick, "-sed", len) == 0)
 		{
 			enc = sed_encrypt_str;
 			dec = sed_decrypt_str;
@@ -198,12 +204,6 @@ restart:
 			goto restart;
 		}
 #endif
-		else
-		{
-			enc = DEFAULT_CRYPTER;
-			dec = DEFAULT_DECRYPTER;
-			type = DEFAULT_CRYPTYPE;
-		}
 
 		if ((keystr = next_arg(args, &args)) != NULL)
 		{
@@ -226,7 +226,10 @@ restart:
 
 			say("The crypt:");
 			for (tmp = crypt_list; tmp; tmp = tmp->next)
-				put_it("%s with key %s type %s", tmp->nick, tmp->key->key, tmp->key->type);
+				if (showkeys)
+					put_it("%s with key %s type %s", tmp->nick, tmp->key->key, tmp->key->type);
+				else
+					put_it("%s type %s", tmp->nick, tmp->key->type);
 		}
 		else
 			say("The crypt is empty");
@@ -308,7 +311,7 @@ do_crypt(str, key, flag, type)
 			new_close(out[1]);
 			new_close(in[0]);
 			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR) == 0)
-				write(in[1], key->key, strlen(key->key));
+				write(in[1], key->key, strlen((char *) key->key));
 			write(in[1], ptr, c);
 			new_close(in[1]);
 			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);

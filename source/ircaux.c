@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.6 2000-07-23 07:39:37 f Exp $
+ * $Id: ircaux.c,v 1.7 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -58,14 +58,16 @@
 /**************************** PATCHED by Flier ******************************/
 int DCCLowPort;
 int DCCHighPort;
-
-/* Patched by Zakath */
-extern	char	*VirtualHost;
-extern	struct	in_addr VirtualAddr;
-/* ***************** */
 /****************************************************************************/
 
+#ifdef INET6
+extern	char	FAR MyHostName[];
+#else
 extern	struct	in_addr	MyHostAddr;
+#endif
+extern  char *source_host;
+
+static int bind_local_addr _((char *, char *, int, int));
 
 #ifdef	ALLOC_DEBUG
 # ifdef  _IBMR2
@@ -233,7 +235,7 @@ new_free(iptr)
 }
 
 #define WAIT_BUFFER 2048
-static char *pointers[WAIT_BUFFER], **current = pointers;
+static char * FAR wait_pointers[WAIT_BUFFER] = {0}, **current_wait_ptr = wait_pointers;
 
 /*
  * wait_new_free: same as new_free() except that free() is postponed.
@@ -242,11 +244,11 @@ void
 wait_new_free(ptr)
 	char	**ptr;
 {
-	if (*current)
-		new_free(current);
-	*current++ = *ptr;
-	if (current >= pointers + WAIT_BUFFER)
-		current = pointers;
+	if (*current_wait_ptr)
+		new_free(current_wait_ptr);
+	*current_wait_ptr++ = *ptr;
+	if (current_wait_ptr >= wait_pointers + WAIT_BUFFER)
+		current_wait_ptr = wait_pointers;
 	*ptr = (char *) 0;
 }
 
@@ -259,10 +261,10 @@ really_free(level)
 {
 	if (level != 0)
 		return;
-	for (current = pointers; current < pointers + WAIT_BUFFER; current++)
-		if (*current)
-			new_free(current);
-	current = pointers;
+	for (current_wait_ptr = wait_pointers; current_wait_ptr < wait_pointers + WAIT_BUFFER; current_wait_ptr++)
+		if (*current_wait_ptr)
+			new_free(current_wait_ptr);
+	current_wait_ptr = wait_pointers;
 }
 
 char	*
@@ -439,6 +441,10 @@ malloc_strcpy(ptr, src)
 	char	**ptr;
 	char	*src;
 {
+	/* no point doing anything else */
+	if (src == *ptr)
+		return;
+
 	new_free(ptr);
 	if (src)
 	{
@@ -462,6 +468,27 @@ malloc_strcat(ptr, src)
 		new = (char *) new_malloc(strlen(*ptr) + strlen(src) + 1);
 		strcpy(new, *ptr);
 		strcat(new, src);
+		new_free(ptr);
+		*ptr = new;
+	}
+	else
+		malloc_strcpy(ptr, src);
+}
+
+void
+malloc_strcat_ue(ptr, src)
+	char	**ptr;
+	char	*src;
+{
+	char	*new;
+
+	if (*ptr)
+	{
+		size_t len = strlen(*ptr) + strlen(src) + 1;
+
+		new = (char *) new_malloc(len);
+		strcpy(new, *ptr);
+		strmcat_ue(new, src, len);
 		new_free(ptr);
 		*ptr = new;
 	}
@@ -498,10 +525,10 @@ lower(s)
 	return t;
 }
 
-#if 0
+#if 0	/* no users right now */
 /* case insensitive string searching */
 char    *
-stristr(source, search)
+my_stristr(source, search)
 	char    *source,
 	        *search;
 {
@@ -545,7 +572,7 @@ stristr(source, search)
 }
 /* case insensitive string searching from the end */
 char    *
-rstristr(source,search)
+my_rstristr(source,search)
 	char    *source,
 	        *search;
 {
@@ -649,12 +676,34 @@ connect_by_number(service, host, nonblocking)
 {
 	int	s = -1;
 	char	buf[100];
+#ifndef INET6
 	struct	sockaddr_in server;
 	struct	hostent *hp;
+#else
+	char	strhost[1025], strservice[32];
+	struct	sockaddr_storage server;
+	struct	addrinfo hints, *res, *res0;
+	int	err = -1;
 
+	strncpy(strhost, host, sizeof(strhost) - 1);
+	strhost[sizeof(strhost) - 1] = 0;
+	sprintf(strservice, "%d", service);
+	strservice[sizeof(strservice) - 1] = 0;
+#endif
+
+#ifndef SA_LEN
+#define SA_LEN(x)	(x)->sa_len
+#endif
 	if (service == -2)
 	{
+#ifdef INET6
+		server = (*(struct sockaddr_storage *) host);
+		getnameinfo((struct sockaddr *)&server, SA_LEN((struct sockaddr *)&server),
+				strhost, sizeof(strhost), strservice, sizeof(strservice),
+				NI_NUMERICHOST|NI_NUMERICSERV);
+#else
 		server = (*(struct sockaddr_in *) host);
+#endif
 	}
 	else if (service > 0)
 	{
@@ -663,6 +712,7 @@ connect_by_number(service, host, nonblocking)
 			gethostname(buf, sizeof(buf));
 			host = buf;
 		}
+#ifndef INET6
 		if ((server.sin_addr.s_addr = inet_addr(host)) == -1)
 		{
 			if ((hp = gethostbyname(host)) != NULL)
@@ -678,30 +728,60 @@ connect_by_number(service, host, nonblocking)
 		else
 			server.sin_family = AF_INET;
 		server.sin_port = (unsigned short) htons(service);
+#endif
 	}
+#ifdef INET6
+	memset(&hints, 0, sizeof(hints));
+	if (service == -1)
+		hints.ai_socktype = SOCK_DGRAM;
+	else
+		hints.ai_socktype = SOCK_STREAM;
+	/* If strhost is empty then probably DCC connection was requested.
+	 * In this case we must use AF_INET */
+	errno = 0;
+	if (strlen(strhost) == 0)
+	{
+		hints.ai_family = AF_INET;
+		err = getaddrinfo(NULL, strservice, &hints, &res0);
+	}
+	else
+	{
+		hints.ai_family = AF_UNSPEC;
+		err = getaddrinfo(strhost, strservice, &hints, &res0);
+	}
+	if (err != 0)
+	{
+#if 0
+		/* zero errno to get "unknown host" error message */
+		errno = 0;
+#endif
+		return (-2);
+	}
+	err = -1;
+	for (res = res0; res; res = res->ai_next) {
+		if ((s = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
+				continue;
+		if (service != -1)
+			set_socket_options(s);
+#else
 	if (((service == -1) && ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0)) ||
 	    ((service != -1) && ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)))
 		return (-3);
-/**************************** PATCHED by Flier ******************************/
-/* Virtual Hosting, Patched by Zakath */
-        if (service>0 && VirtualHost) {
-            struct hostent *blah;
-            struct sockaddr_in localaddr;
-
-            if ((blah=gethostbyname(VirtualHost))==NULL) new_free(&VirtualHost);
-            else bcopy(blah->h_addr,(char *) &VirtualAddr,sizeof(VirtualAddr));
-            bzero(&localaddr, sizeof(struct sockaddr_in));
-            localaddr.sin_family=AF_INET;
-            localaddr.sin_addr=VirtualAddr;
-            localaddr.sin_port=0;
-            bind(s,(struct sockaddr *) &localaddr,sizeof(localaddr));
-        }
-/* ********************************* */
-/****************************************************************************/
 	if (service != -1)
 		set_socket_options(s);
+#endif
 	if (service <= 0 && service != -2)
 	{
+#ifdef INET6
+		if (bind_local_addr(NULL, "0", s, res->ai_family) < 0)
+			return -2;
+		freeaddrinfo(res0);
+		if (listen(s, 1) == -1)
+		{
+			new_close(s);
+			return -4;
+		}
+#else
 /**************************** PATCHED by Flier ******************************/
                 int newsock;
 /****************************************************************************/
@@ -735,7 +815,32 @@ connect_by_number(service, host, nonblocking)
 /****************************************************************************/
 		service = sizeof(localaddr);
 		getsockname(s, (struct	sockaddr *) &localaddr, &service);
+#endif
 		return (s);
+	}
+	if (source_host)
+	{
+#ifdef INET6
+		int retcode;
+		if ((retcode = bind_local_addr(MyHostName, "0", s, res->ai_family)) < 0)
+		{
+			/* this fail must be ignored because maybe
+			 * res->ai_family != MyHostName's family (ie. hapens in DCC req) */
+			if (retcode != -10)
+			{
+				freeaddrinfo(res0);
+				return -3;
+			}
+		}
+#else
+		struct	sockaddr_in localaddr;
+
+		bzero(&localaddr, sizeof localaddr);
+		localaddr.sin_family = AF_INET;
+		localaddr.sin_addr = MyHostAddr;
+		if (bind(s, (struct sockaddr *)&localaddr, sizeof localaddr) == -1)
+			return -3;
+#endif
 	}
 #if defined(PRIV_PORT) || defined(PRIV_PORT_ULC)
 #ifdef PRIV_PORT_ULC
@@ -744,16 +849,26 @@ connect_by_number(service, host, nonblocking)
 	/* attempt to bind to a privileged port */
 	if (geteuid() == 0)
 	{
+		int     portnum;
+#ifndef INET6
 		struct	sockaddr_in localaddr;
-		int	portnum;
 
 		localaddr = server;
 		localaddr.sin_addr.s_addr=INADDR_ANY;
+#endif
 		for (portnum = 1023; portnum > 600; portnum--)
 		{
+#ifdef INET6
+			char portbuf[32];
+
+			sprintf(portbuf, "%d", portnum);
+			portbuf[sizeof(portbuf) - 1] = 0;
+			if (bind_local_addr(NULL, portbuf, s, res->ai_family) < 0)
+#else
 			localaddr.sin_port = htons(portnum);
 			if (bind(s, (struct sockaddr *) &localaddr,
 					sizeof(localaddr)) != -1)
+#endif
 				break;
 		}
 	}
@@ -764,6 +879,9 @@ connect_by_number(service, host, nonblocking)
 #ifdef NON_BLOCKING_CONNECTS
 	if (nonblocking && set_non_blocking(s) < 0)
 	{
+#ifdef INET6
+		freeaddrinfo(res0);
+#endif
 #ifdef ESIX
 		t_close(s);
 		unmark_socket(s);
@@ -772,10 +890,17 @@ connect_by_number(service, host, nonblocking)
 		return -4;
 	}
 #endif /* NON_BLOCKING_CONNECTS */
+#ifdef INET6
+	if (connect(s, res->ai_addr, res->ai_addrlen) < 0)
+#else
 	if (connect(s, (struct sockaddr *) &server, sizeof(server)) < 0)
+#endif
 	{
 		if (!(errno == EINPROGRESS && nonblocking))
 		{
+#ifdef INET6
+			continue;
+#endif
 #ifdef ESIX
 			t_close(s);
 			unmark_socket(s);
@@ -783,9 +908,79 @@ connect_by_number(service, host, nonblocking)
 			new_close(s);
 			return -4;
 		}
+#ifdef INET6
+		err = 0;
+		break;
+#endif
 	}
+#ifdef INET6
+	} /* for () */
+	if (err < 0) {
+#ifdef ESIX
+		t_close(s);
+		unmark_socket(s);
+#endif /* ESIX */
+		new_close(s);
+		return -4;
+	}
+#endif
 	return s;
 }
+
+#ifdef INET6
+/*
+ * Binds to specified socket, host, port using specified family.
+ * Returns:
+ * 0   if everythins is OK
+ * -2  if host wasn't found
+ * -10 if family type wasn't supported for specified host
+ */
+static int
+bind_local_addr(localhost, localport, fd, family)
+	char *localhost;
+	char *localport;
+	int fd;
+	int family;
+{
+	struct  addrinfo hintsx, *resx, *res0x;
+	int     err = -1;
+
+	memset(&hintsx, 0, sizeof(hintsx));
+	hintsx.ai_family = family;
+	hintsx.ai_socktype = SOCK_STREAM;
+	hintsx.ai_flags = AI_PASSIVE;
+	err = getaddrinfo(localhost, localport, &hintsx, &res0x);
+
+	if (err != 0)
+#if defined(__linux__) && 0
+		/*
+		 * Due to bug in glibc implementation in getaddrinfo() we always
+		 * return -10.   This will be fixed, soon
+		 */
+		return -10;
+#else
+	{
+		if (err == EAI_ADDRFAMILY)
+			return -10;
+		else
+			return -2;
+	}
+#endif
+	err = -1;
+	for (resx = res0x; resx; resx = resx->ai_next)
+	{
+		if (bind(fd, resx->ai_addr, resx->ai_addrlen) == 0)
+		{
+			err = 0;
+			break;
+		}
+	}
+	freeaddrinfo(res0x);
+	if (err < 0)
+		return -2;
+	return 0;
+}
+#endif
 
 char	*
 next_arg(str, new_ptr)
@@ -796,7 +991,7 @@ next_arg(str, new_ptr)
 
 	if ((ptr = sindex(str, "^ ")) != NULL)
 	{
-		if ((str = sindex(ptr, " ")) != NULL)
+		if ((str = index(ptr, ' ')) != NULL)
 			*str++ = (char) 0;
 		else
 			str = empty_string;
@@ -1473,9 +1668,9 @@ zcat(name)
 		setuid(getuid());
 		setgid(getgid());
 #ifdef ZARGS
-		execl(ZCAT, ZCAT, ZARGS, name, NULL);
+		execlp(ZCAT, ZCAT, ZARGS, name, NULL);
 #else
-		execl(ZCAT, ZCAT, name, NULL);
+		execlp(ZCAT, ZCAT, name, NULL);
 #endif
 		exit(0);
 	default:

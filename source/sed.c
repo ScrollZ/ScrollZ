@@ -50,7 +50,7 @@ sed_encrypt_str(str, len, key)
 	char	mix,
 		tmp;
 
-	key_len = strlen(key->key);
+	key_len = strlen((char *) key->key);
 	key_pos = 0;
 	mix = 0;
 	for (i = 0; i < *len; i++)
@@ -75,7 +75,7 @@ sed_decrypt_str(str, len, key)
 	char	mix,
 		tmp;
 
-	key_len = strlen(key->key);
+	key_len = strlen((char *) key->key);
 	key_pos = 0;
 	/*    mix = key->key[key_len-1]; */
 	mix = 0;

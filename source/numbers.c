@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.19 2000-07-09 09:31:44 f Exp $
+ * $Id: numbers.c,v 1.20 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -520,7 +520,7 @@ reset_nickname()
 	if (already_doing_reset_nickname)
 		return;
 	say("You have specified an illegal nickname");
-	if (!dumb)
+	if (!dumb && !get_int_var(NO_ASK_NICKNAME_VAR))
 	{
 		already_doing_reset_nickname = 1;
 		say("Please enter your nickname");
@@ -922,7 +922,7 @@ numbered_command(from, comm, ArgList)
 			    (user_cnt < get_int_var(MINIMUM_USERS_VAR)))
 			{
 				say("Trying better populated server...");
- 				get_connected(from_server + 1, 0);
+				get_connected(from_server + 1);
 			}
 		}
  		break;
@@ -1144,7 +1144,7 @@ numbered_command(from, comm, ArgList)
 		close_server(parsing_server_index, empty_string);
 		window_check_servers();
 		if (!connected_to_server)
- 			get_connected(parsing_server_index + 1, 0);
+			get_connected(parsing_server_index + 1);
 		break;
 
 	case 464:		/* #define ERR_PASSWDMISMATCH   464 */

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.3 1999-08-07 12:56:18 f Exp $
+ * $Id: struct.h,v 1.4 2000-08-09 19:31:20 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -144,8 +144,8 @@ typedef struct nick_stru
 	struct	nick_stru	*next;	/* pointer to next nickname entry */
 	char	*nick;			/* nickname of person on channel */
 	int	chanop;			/* True if the given nick has chanop */
+ 	int	hasvoice;		/* Has voice? (Notice this is a bit unreliable if chanop) */
 /**************************** PATCHED by Flier ******************************/
-        int     voice;
         char    *userhost;
         struct  friends *frlist;
         struct  autobankicks *shitlist;
@@ -189,8 +189,8 @@ typedef	struct	WindowStru
 
 	char	*prompt;		/* A prompt string, usually set by EXEC'd process */
 /**************************** PATCHED by Flier ******************************/
-	/*char	*status_line[2];*/	/* The status lines string */
-	char	*status_line[3];	/* The status lines string */
+	/*char	*status_line[2];*/	/* The status lines strings */
+	char	*status_line[3];	/* The status lines strings */
 /****************************************************************************/
 
 	int	double_status;		/* Display the 2nd status line ?*/
@@ -200,8 +200,9 @@ typedef	struct	WindowStru
 					 * structure */
 
 	char	*current_channel;	/* Window's current channel */
+ 	char	*bound_channel;		/* Channel that belongs in this window */
 	char	*query_nick;		/* User being QUERY'ied in this window */
-	NickList	*nicks;		/* List of nicks that will go to window */
+ 	NickList *nicks;		/* List of nicks that will go to window */
 	int	window_level;		/* The LEVEL of the window, determines what
 					 * messages go to it */
 
@@ -297,9 +298,10 @@ typedef	struct	ScreenStru
 	int	meta2_hit;			/* above, for meta2 */
 	int	meta3_hit;			/* above, for meta3 */
 	int	meta4_hit;			/* above, for meta4 */
-/**************************** PATCHED by Flier ******************************/
-	int	meta5_hit;			/* above, for meta5 */
-/****************************************************************************/
+ 	int	meta5_hit;			/* above, for meta5 */
+ 	int	meta6_hit;			/* above, for meta6 */
+ 	int	meta7_hit;			/* above, for meta7 */
+ 	int	meta8_hit;			/* above, for meta8 */
 	int	quote_hit;			/* true if a key bound to
 						 * QUOTE_CHARACTER has been
 						 * hit. */
@@ -365,7 +367,6 @@ typedef	struct	channel_stru
 	NickList	*nicks;		/* pointer to list of nicks on channel */
 	int	status;			/* different flags */
 #define CHAN_CHOP	0x01
-#define	CHAN_BOUND	0x02
 #define	CHAN_NAMES	0x04
 #define	CHAN_MODE	0x08
 /**************************** PATCHED by Flier ******************************/

@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: debug.c,v 1.2 1998-09-10 17:44:42 f Exp $
+ * $Id: debug.c,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 /*
@@ -91,5 +91,6 @@ debug(level, format, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 				arg5, arg6, arg7, arg8, arg9);
 #endif
 	fputc('\n', stderr);
+	fflush(stderr);
 }
 #endif /* DEBUG */

@@ -32,15 +32,15 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircflush.c,v 1.2 1998-09-10 17:45:28 f Exp $
+ * $Id: ircflush.c,v 1.3 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
 #include <sys/wait.h>
 
 #ifndef __linux__
-# ifdef __svr4__
-#  include <sys/termios.h>
+# if defined(__SVR4) || defined(HAVE_TERMIOS_H)
+#  include <termios.h>
 # else
 #  include <sgtty.h>	/* SVR4 => sgtty = yuk */
 # endif /* SOLARIS */

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.2 1999-02-15 21:18:39 f Exp $
+ * $Id: ircterm.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -117,7 +117,8 @@ extern	int	CO,
 #  include <sys/param.h>
 #  define TPUTSRETVAL int
 #  define TPUTSARGVAL char
-#  ifdef SEEKLIMIT32	/* XXX HACK HACK HACK !IRIX5 */
+# endif
+# if (defined(__sgi) && defined(SEEKLIMIT32)) || defined(__osf__) || defined(__SVR4)
 /*
  * XXX
  *
@@ -125,12 +126,13 @@ extern	int	CO,
  * please tell me (use the `ircbug' command).  thanks.
  */
 char *tgetstr(char *, char **);
-#  endif /* SEEKLIMIT32 */
-# else /* __sgi */
-#  if defined(__linux__) || defined(_AIX) || defined(__GNU__)
+# endif
+# ifndef __sgi
+#  if defined(__linux__) || defined(_AIX) || defined(__GNU__) || defined(__FreeBSD__) || (defined(__NetBSD_Version__) && __NetBSD_Version__ >= 104100000)
 #   define TPUTSRETVAL int
 #   define TPUTSARGVAL int
 #  else
+#   define TPUTSVOIDRET 1
 #   define TPUTSRETVAL void
 #   define TPUTSARGVAL int
 #  endif /* __linux || _AIX */
@@ -175,6 +177,7 @@ char *tgetstr(char *, char **);
 /****************************************************************************/
 
 	RETSIGTYPE	term_cont _((void));
+ 	void	term_set_fp _((FILE *));
 	int	term_echo _((int));
 	void	term_init _((void));
 	int	term_resize _((void));

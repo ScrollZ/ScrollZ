@@ -31,7 +31,7 @@
  *
  * see the copyright file, or type help ircii copyright
  *
- * $Id: screen.h,v 1.2 1999-02-15 21:18:50 f Exp $
+ * $Id: screen.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __screen_h_
@@ -72,15 +72,16 @@
  	void	scrollback_backwards _((u_int, char *));
  	void	scrollback_end _((u_int, char *));
  	void	scrollback_start _((u_int, char *));
-	RETSIGTYPE	sig_refresh_screen _((void));
 	int	check_screen_redirect _((char *));
 	void	kill_screen _((Screen *));
 	int	is_main_screen _((Screen *));
 	int	rite _((Window *, char *, int, int, int, int));
 	ShrinkInfo	resize_display _((Window *));
-	void	redraw_window _((Window *, int));
 	void	redraw_all_windows _((void));
 	void	add_to_screen _((char *));
+/**************************** PATCHED by Flier ******************************/
+	void	redraw_window _((Window *, int, int));
+/****************************************************************************/
 
 extern	Window	*to_window;
 extern	Screen	*current_screen;

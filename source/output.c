@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.4 1999-10-04 19:21:37 f Exp $
+ * $Id: output.c,v 1.5 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -45,6 +45,7 @@
 #include "vars.h"
 #include "input.h"
 #include "ircterm.h"
+#include "ircaux.h"
 #include "lastlog.h"
 #include "window.h"
 #include "screen.h"
@@ -57,19 +58,45 @@
 /****************************************************************************/
 
 	int	in_help = 0;
+	int	do_refresh_screen;
 
+/*
+ * i'm *not* going to litter the code with #ifdef's in the code that
+ * has no <stdarg.h> for the chance of finding vasprintf().
+ */
+#if defined(HAVE_VASPRINTF) && defined(HAVE_STDARG_H)
+
+static	char	*putbuf;
+
+# define PUTBUF_SPRINTF(f, v) 				\
+if (vasprintf(&putbuf, f, v) == -1)			\
+{	/* EEK */					\
+	write(1, "out of memory?\n\r\n\r", 19);		\
+	return;						\
+}							\
+
+# define PUTBUF_END	free(putbuf);
+
+#else
 /* make this buffer *much* bigger than needed */
-/**************************** PATCHED by Flier ******************************/
-/*static	char	FAR putbuf[BIG_BUFFER_SIZE + 1] = "";*/
-static	char	FAR putbuf[2*BIG_BUFFER_SIZE + 1] = "";
-/****************************************************************************/
+static	char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
+
+# if defined(HAVE_VSNPRINTF)
+#  define PUTBUF_SPRINTF(f, v) vsnprintf(putbuf, sizeof putbuf, f, v);
+# else
+#  define PUTBUF_SPRINTF(f, v) vsprintf(putbuf, f, v);
+# endif /* HAVE_VSNPRINTF */
+
+# define PUTBUF_END
+
+#endif /* HAVE_VASPRINTF && HAVE_STDARG_H */
 
 /*
  * refresh_screen: Whenever the REFRESH_SCREEN function is activated, this
  * swoops into effect 
  */
 /*ARGSUSED*/
-RETSIGTYPE
+void
 refresh_screen(key, ptr)
  	u_int	key;
 	char *	ptr;
@@ -162,13 +189,14 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	{
 #ifdef HAVE_STDARG_H
 		va_start(vl, format);
-		vsprintf(putbuf, format, vl);
+		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
 #else
 		sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
 		add_to_screen(putbuf);
+		PUTBUF_END
 	}
 }
 
@@ -198,33 +226,29 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 #endif /* HAVE_STDARG_H */
 	if (window_display)
 	{
+		char *fmt = (char *) 0;
+
 /**************************** PATCHED by Flier ******************************/
-		/*putbuf[0] = putbuf[1] = putbuf[2] = '*';
-		putbuf[3] = ' ';*/
+                if (ScrollZstr && *ScrollZstr) {
+                    malloc_strcpy(&fmt,ScrollZstr);
+                    malloc_strcat(&fmt," ");
+                }
+                else malloc_strcpy(&fmt,empty_string);
 /****************************************************************************/
+                malloc_strcat(&fmt, format);
+                format = fmt;
 #ifdef HAVE_STDARG_H
 		va_start(vl, format);
-/**************************** PATCHED by Flier ******************************/
-		/* vsprintf(&putbuf[4], format, vl); */
-                if (ScrollZstr && *ScrollZstr) {
-                    sprintf(putbuf,"%s ",ScrollZstr);
-                    vsprintf(&putbuf[strlen(putbuf)],format,vl);
-                }
-                else vsprintf(putbuf,format,vl);
-/****************************************************************************/
+ 		PUTBUF_SPRINTF(format, vl)
 		va_end(vl);
 #else
-/**************************** PATCHED by Flier ******************************/
-		/* sprintf(&putbuf[4], format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); */
-                if (ScrollZstr && *ScrollZstr) {
-                    sprintf(putbuf,"%s ",ScrollZstr);
-                    sprintf(&putbuf[strlen(putbuf)],format,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
-                }
-                else sprintf(putbuf,format,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
-/****************************************************************************/
+  		sprintf(buf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
 		add_to_screen(putbuf);
+		PUTBUF_END
+		if (fmt)
+			new_free(&fmt);
 	}
 }
 
@@ -250,13 +274,14 @@ yell(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 #endif
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
-	vsprintf(putbuf, format, vl);
+	PUTBUF_SPRINTF(format, vl)
 	va_end(vl);
 #else
 	sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 	add_to_log(irclog_fp, putbuf);
 	add_to_screen(putbuf);
+	PUTBUF_END
 }
 
 
@@ -282,14 +307,17 @@ help_put_it(topic, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
 		*arg10;
 {
 #endif
+	int	lastlog_level;
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
-	vsprintf(putbuf, format, vl);
+	PUTBUF_SPRINTF(format, vl)
 	va_end(vl);
 #else
 	sprintf(putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
-	in_help = 1;
+
+        in_help = 1;
+	lastlog_level = set_lastlog_msg_level(LOG_HELP);
 	if (do_hook(HELP_LIST, "%s %s", topic, putbuf))
 	{
 		if (window_display)
@@ -298,5 +326,7 @@ help_put_it(topic, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9,
 			add_to_screen(putbuf);
 		}
 	}
+	(void) set_lastlog_msg_level(lastlog_level);
 	in_help = 0;
+	PUTBUF_END
 }

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.9 1999-02-15 21:20:18 f Exp $
+ * $Id: status.c,v 1.10 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -199,12 +199,25 @@ static	struct itimerval clock_timer = { { 10L, 0L }, { 1L, 0L } };
 static	struct itimerval off_timer = { { 0L, 0L }, { 0L, 0L } };
 
 static	RETSIGTYPE alarmed _((void));
+	int	do_status_alarmed;
 
 /* alarmed: This is called whenever a SIGALRM is received and the alarm is on */
+/*
+ * XXX this is evil; we should set up a flag and make irc_io() do this work
+ * for us OUTSIDE of signal context!
+ */
 static	RETSIGTYPE
 alarmed()
 {
-	say("The time is %s", update_clock(GET_TIME));
+	do_status_alarmed = 1;
+}
+
+void
+real_status_alarmed()
+{
+	char	time_str[16];
+
+	say("The time is %s", update_clock(time_str, 16, GET_TIME));
 	term_beep();
 	term_beep();
 	term_beep();
@@ -357,7 +370,9 @@ set_alarm(str)
 
 /* update_clock: figures out the current time and returns it in a nice format */
 char	*
-update_clock(flag)
+update_clock(buf, len, flag)
+	char	*buf;
+	size_t	len;
 	int	flag;
 {
 	static	char	time_str[10];
@@ -416,6 +431,11 @@ update_clock(flag)
 		server = from_server;
 		from_server = primary_server;
 		sprintf(time_str, "%02d:%02d%s", time_val->tm_hour, time_val->tm_min, merid);
+		if (buf)
+		{
+			strncpy(buf, time_str, len - 1);
+			buf[len - 1] = '\0';
+		}
 		if (tmp_min != min || tmp_hour != hour)
 		{
 			hour = tmp_hour;
@@ -424,10 +444,15 @@ update_clock(flag)
 		}
 		do_hook(IDLE_LIST, "%ld", (t - idle_time) / 60L);
 		from_server = server;
-		return (time_str);
+		flag = GET_TIME;
+	}
+	if (buf)
+	{
+		strncpy(buf, time_str, len - 1);
+		buf[len - 1] = '\0';
 	}
 	if (flag == GET_TIME)
-		return(time_str);
+		return(buf ? buf : time_str);
 	else
 		return ((char *) 0);
 }
@@ -437,7 +462,7 @@ void
 reset_clock(unused)
 	char	*unused;
 {
-	update_clock(RESET_TIME);
+	update_clock(0, 0, RESET_TIME);
 	update_all_status();
 }
 
@@ -1301,7 +1326,7 @@ make_status(window)
 				term_move_cursor(RealPosition, window->bottom
 						 + k - window->double_status);
 */
-				output_line(lbuf, NULL, i);
+				output_line((char *)lbuf, NULL, i);
 				cursor_in_display();
 				if (term_clear_to_eol())
 					term_space_erase(len);
@@ -1336,6 +1361,7 @@ status_server(window)
 	char	*ptr = NULL,
 		*rest,
 		*name;
+	char	lbuf[BIG_BUFFER_SIZE];
 
 	if (connected_to_server != 1)
 	{
@@ -1345,29 +1371,30 @@ status_server(window)
 			{
 				name = get_server_name(window->server);
 				rest = (char *) index(name, '.');
-				if (rest != NULL && my_strnicmp(name, "irc", 3) != 0)
+				if (rest != NULL && my_strnicmp(name, "irc", 3) != 0 &&
+				    my_strnicmp(name, "icb", 3) != 0)
 				{
 					if (is_number(name))
-						sprintf(buffer, server_format, name);
+						sprintf(lbuf, server_format, name);
 					else
 					{
 						*rest = '\0';
-						sprintf(buffer, server_format, name);
+						sprintf(lbuf, server_format, name);
 						*rest = '.';
 					}
 				}
 				else
-					sprintf(buffer, server_format, name);
+					sprintf(lbuf, server_format, name);
 			}
 			else
-				*buffer = '\0';
+				*lbuf = '\0';
 		}
 		else
-			strcpy(buffer, " No Server");
+			strcpy(lbuf, " No Server");
 	}
 	else
-		*buffer = '\0';
-	malloc_strcpy(&ptr, buffer);
+		*lbuf = '\0';
+	malloc_strcpy(&ptr, lbuf);
 	return (ptr);
 }
 
@@ -1379,8 +1406,10 @@ status_group(window)
 
 	if (window->server_group && group_format)
 	{
-		sprintf(buffer, group_format, find_server_group_name(window->server_group));
-		malloc_strcpy(&ptr, buffer);
+		char	lbuf[BIG_BUFFER_SIZE];
+
+		sprintf(lbuf, group_format, find_server_group_name(window->server_group));
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1399,13 +1428,15 @@ status_query_nick(window)
 
 	if (window->query_nick && query_format)
 	{
+		char	lbuf[BIG_BUFFER_SIZE];
+
 /**************************** PATCHED by Flier ******************************/
-		/*sprintf(buffer, query_format, window->query_nick);*/
+		/*sprintf(lbuf, query_format, window->query_nick);*/
                 if (buflen>mybufsize/4) buflen=mybufsize/4;
 		strmcpy(tmpbuf,window->query_nick,buflen);
-		sprintf(buffer,query_format,tmpbuf);
+		sprintf(lbuf,query_format,tmpbuf);
 /****************************************************************************/
-		malloc_strcpy(&ptr, buffer);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1453,8 +1484,10 @@ status_notify_windows(window)
 	}
 	if (doneone && notify_format)
 	{
-		sprintf(buffer, notify_format, buf2);
-		malloc_strcpy(&ptr, buffer);
+		char	lbuf[BIG_BUFFER_SIZE];
+
+		sprintf(lbuf, notify_format, buf2);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1471,8 +1504,11 @@ status_clock(window)
 	    (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    (window == window->screen->current_window)))
 	{
-		sprintf(buffer, clock_format, update_clock(GET_TIME));
-		malloc_strcpy(&ptr, buffer);
+		char	lbuf[BIG_BUFFER_SIZE];
+		char	time_str[16];
+
+		sprintf(lbuf, clock_format, update_clock(time_str, 16, GET_TIME));
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1491,8 +1527,10 @@ status_mode(window)
 		mode = get_channel_mode(window->current_channel,window->server);
 		if (mode && *mode && mode_format)
 		{
-			sprintf(buffer, mode_format, mode);
-			malloc_strcpy(&ptr, buffer);
+			char	lbuf[BIG_BUFFER_SIZE];
+
+			sprintf(lbuf, mode_format, mode);
+			malloc_strcpy(&ptr, lbuf);
 			return (ptr);
 		}
 	}
@@ -1528,8 +1566,10 @@ status_umode(window)
 		*c++ = '\0';
 		if (*localbuf != '\0' && umode_format)
 		{
-			sprintf(buffer, umode_format, localbuf);
-			malloc_strcpy(&ptr, buffer);
+			char	lbuf[BIG_BUFFER_SIZE];
+
+			sprintf(lbuf, umode_format, localbuf);
+			malloc_strcpy(&ptr, lbuf);
 		}
 		else
 			malloc_strcpy(&ptr, empty_string);
@@ -1581,9 +1621,11 @@ status_hold_lines(window)
 	num = window->held_lines - window->held_lines%10;
 	if (num)
 	{
+		char	lbuf[BIG_BUFFER_SIZE];
+
 		sprintf(localbuf, "%d", num);
-		sprintf(buffer, hold_lines_format, localbuf);
-		malloc_strcpy(&ptr, buffer);
+		sprintf(lbuf, hold_lines_format, localbuf);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1601,6 +1643,8 @@ status_channel(window)
 	s = window->current_channel;
 	if (s && chan_is_connected(s, window->server))
 	{
+		char	lbuf[BIG_BUFFER_SIZE];
+
 		if (get_int_var(HIDE_PRIVATE_CHANNELS_VAR) &&
 		    is_channel_mode(window->current_channel,
 				MODE_PRIVATE | MODE_SECRET,
@@ -1614,8 +1658,8 @@ status_channel(window)
 			channel[num] = (char) 0;
 		/* num = atoi(channel); */
 		ptr = (char *) 0;
-		sprintf(buffer, channel_format, channel);
-		malloc_strcpy(&ptr, buffer);
+		sprintf(lbuf, channel_format, channel);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 	{
@@ -1636,8 +1680,10 @@ status_mail(window)
 	    (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    (window == window->screen->current_window)))
 	{
-		sprintf(buffer, mail_format, number);
-		malloc_strcpy(&ptr, buffer);
+		char	lbuf[BIG_BUFFER_SIZE];
+
+		sprintf(lbuf, mail_format, number);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
@@ -1840,8 +1886,10 @@ status_refnum(window)
 		malloc_strcpy(&ptr, window->name);
 	else
 	{
-		sprintf(buffer, "%u", window->refnum);
-		malloc_strcpy(&ptr, buffer);
+		char	lbuf[BIG_BUFFER_SIZE];
+
+		sprintf(lbuf, "%u", window->refnum);
+		malloc_strcpy(&ptr, lbuf);
 	}
 	return (ptr);
 }

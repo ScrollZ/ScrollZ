@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#)$Id: crypt.h,v 1.3 1999-10-04 19:21:37 f Exp $
+ * @(#)$Id: crypt.h,v 1.4 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __crypt_h_
@@ -51,7 +51,7 @@ typedef void (*CryptFunc) _((char **, int *, crypt_key *));
 
 struct crypt_key
 {
-	char		*key;
+	u_char		*key;
 	char		*type;
 	CryptFunc	crypt;
 	CryptFunc	decrypt;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.10 1999-10-31 11:04:43 f Exp $
+ * $Id: notice.c,v 1.11 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -214,7 +214,7 @@ parse_server_notice(from, to, line)
 				(user_cnt < get_int_var(MINIMUM_USERS_VAR)))
 		{
 			say("Trying better populated server...");
- 			get_connected(parsing_server_index + 1, 0);
+			get_connected(parsing_server_index + 1);
 		}
         }
 #ifdef BROKEN_SCANF
@@ -360,6 +360,27 @@ load_ircrc()
 	}
 	else if (get_int_var(NOVICE_VAR))
 		say("If you have not already done so, please read the new user information with /HELP NEWUSER");
+}
+
+/*
+ * load the initial .ircquick
+ */
+void
+load_ircquick()
+{
+	static	int done = 0;
+
+	if (done++)
+		return;
+	if (access(ircquick_file, R_OK) == 0)
+	{
+		char lbuf[BIG_BUFFER_SIZE+1];
+
+		strmcpy(lbuf,ircquick_file,BIG_BUFFER_SIZE);
+		strmcat(lbuf," ",BIG_BUFFER_SIZE);
+		strmcat(lbuf,args_str,BIG_BUFFER_SIZE);
+		load(empty_string, lbuf, empty_string);
+	}
 }
 
 /*

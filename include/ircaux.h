@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.h,v 1.3 1999-02-15 21:18:37 f Exp $
+ * $Id: ircaux.h,v 1.4 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __ircaux_h_
@@ -39,7 +39,6 @@
 
 #include <stdio.h>
 
-	char	*check_nickname _((char *));
 	char	*next_arg _((char *, char **));
 	char	*new_next_arg _((char *, char **));
 	char	*expand_twiddle _((char *));
@@ -57,6 +56,7 @@
  	char	*new_realloc _((char *, size_t));
 	void	malloc_strcpy _((char **, char *));
 	void	malloc_strcat _((char **, char *));
+ 	void	malloc_strcat_ue _((char **, char *));
 	void	new_free _((void *));
 	void	wait_new_free _((char **));
 	FILE	*zcat _((char *));
@@ -64,6 +64,10 @@
 	int	connect_by_number _((int, char *, int));
 	int	my_stricmp _((char *, char *));
  	int	my_strnicmp _((char *, char *, size_t));
+#if 0
+	char    *my_stristr _((char *, char *));
+ 	char    *my_rstristr _((char *, char *));
+#endif
 	int	set_non_blocking _((int));
 	int	set_blocking _((int));
 	int	scanstr _((char *, char *));
@@ -71,5 +75,8 @@
  	void	strmcpy _((char *, char *, size_t));
  	void	strmcat _((char *, char *, size_t));
  	void	strmcat_ue _((char *, char *, size_t));
+/**************************** PATCHED by Flier ******************************/
+	char	*check_nickname _((char *));
+/****************************************************************************/
 
 #endif /* __ircaux_h_ */

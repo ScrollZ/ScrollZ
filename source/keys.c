@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.4 2000-07-10 15:54:15 f Exp $
+ * $Id: keys.c,v 1.5 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -166,12 +166,22 @@ show_binding(c, meta)
 		map = meta4_keys;
 		meta_str = "META4-";
 		break;
-/**************************** PATCHED by Flier ******************************/
-        case 5:
+	case 5:
 		map = meta5_keys;
 		meta_str = "META5-";
 		break;
-/****************************************************************************/
+	case 6:
+		map = meta6_keys;
+		meta_str = "META6-";
+		break;
+	case 7:
+		map = meta7_keys;
+		meta_str = "META7-";
+		break;
+	case 8:
+		map = meta8_keys;
+		meta_str = "META8-";
+		break;
 	default:
 		map = keys;
 		meta_str = empty_string;
@@ -258,13 +268,26 @@ parse_key(key_str)
 			strcpy((char *) key_str, (char *) key_str + 6);
 			meta = 4;
 		}
-/**************************** PATCHED by Flier ******************************/
 		else if (strncmp(cmd, "META5-", 6) == 0)
 		{
 			strcpy((char *) key_str, (char *) key_str + 6);
 			meta = 5;
 		}
-/****************************************************************************/
+		else if (strncmp(cmd, "META6-", 6) == 0)
+		{
+			strcpy((char *) key_str, (char *) key_str + 6);
+			meta = 6;
+		}
+		else if (strncmp(cmd, "META7-", 6) == 0)
+		{
+			strcpy((char *) key_str, (char *) key_str + 6);
+			meta = 7;
+		}
+		else if (strncmp(cmd, "META8-", 6) == 0)
+		{
+			strcpy((char *) key_str, (char *) key_str + 6);
+			meta = 8;
+		}
 		else if (keys[(u_char) *key_str].index == META1_CHARACTER)
 		{
 			meta = 1;
@@ -285,13 +308,26 @@ parse_key(key_str)
 			meta = 4;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
-/**************************** PATCHED by Flier ******************************/
 		else if (keys[(u_char) *key_str].index == META5_CHARACTER)
 		{
 			meta = 5;
 			strcpy((char *) key_str, (char *) key_str + 1);
 		}
-/****************************************************************************/
+		else if (keys[(u_char) *key_str].index == META6_CHARACTER)
+		{
+			meta = 6;
+			strcpy((char *) key_str, (char *) key_str + 1);
+		}
+		else if (keys[(u_char) *key_str].index == META7_CHARACTER)
+		{
+			meta = 7;
+			strcpy((char *) key_str, (char *) key_str + 1);
+		}
+		else if (keys[(u_char) *key_str].index == META8_CHARACTER)
+		{
+			meta = 8;
+			strcpy((char *) key_str, (char *) key_str + 1);
+		}
 		else
 		{
 			say("Illegal key sequence: %s is not a meta-key", display_key(*key_str));
@@ -335,11 +371,18 @@ bind_it(function, string, key, meta)
 	case 4:
 		km = meta4_keys;
 		break;
-/**************************** PATCHED by Flier ******************************/
 	case 5:
 		km = meta5_keys;
 		break;
-/****************************************************************************/
+	case 6:
+		km = meta6_keys;
+		break;
+	case 7:
+		km = meta7_keys;
+		break;
+	case 8:
+		km = meta8_keys;
+		break;
 	default:
 		km = keys;
 	}
@@ -526,14 +569,30 @@ bindcmd(command, args, subargs)
 					(meta4_keys[i].index != SELF_INSERT))
 				show_binding(i, 4);
 		}
-/**************************** PATCHED by Flier ******************************/
 		for (i = 0; i < charsize; i++)
 		{
 			if ((meta5_keys[i].index != NOTHING) &&
 					(meta5_keys[i].index != SELF_INSERT))
 				show_binding(i, 5);
 		}
-/****************************************************************************/
+		for (i = 0; i < charsize; i++)
+		{
+			if ((meta6_keys[i].index != NOTHING) &&
+					(meta6_keys[i].index != SELF_INSERT))
+				show_binding(i, 6);
+		}
+		for (i = 0; i < charsize; i++)
+		{
+			if ((meta7_keys[i].index != NOTHING) &&
+					(meta7_keys[i].index != SELF_INSERT))
+				show_binding(i, 7);
+		}
+		for (i = 0; i < charsize; i++)
+		{
+			if ((meta8_keys[i].index != NOTHING) &&
+					(meta8_keys[i].index != SELF_INSERT))
+				show_binding(i, 8);
+		}
 	}
 }
 
@@ -585,11 +644,18 @@ rbindcmd(command, args, subargs)
 		for (i = 0; i < charsize; i++)
 			if (f == meta4_keys[i].index)
 				show_binding(i, 4);
-/**************************** PATCHED by Flier ******************************/
 		for (i = 0; i < charsize; i++)
 			if (f == meta5_keys[i].index)
 				show_binding(i, 5);
-/****************************************************************************/
+		for (i = 0; i < charsize; i++)
+			if (f == meta6_keys[i].index)
+				show_binding(i, 6);
+		for (i = 0; i < charsize; i++)
+			if (f == meta7_keys[i].index)
+				show_binding(i, 7);
+		for (i = 0; i < charsize; i++)
+			if (f == meta8_keys[i].index)
+				show_binding(i, 8);
 	}
 }
 
@@ -693,6 +759,10 @@ KeyMapNames FAR key_names[] =
 	{ "META2_CHARACTER",		meta2_char },
 	{ "META3_CHARACTER",		meta3_char },
 	{ "META4_CHARACTER",		meta4_char },
+	{ "META5_CHARACTER",		meta5_char },
+	{ "META6_CHARACTER",		meta6_char },
+	{ "META7_CHARACTER",		meta7_char },
+	{ "META8_CHARACTER",		meta8_char },
 	{ "NEXT_WINDOW",		next_window },
 	{ "NOTHING",			NULL },
 	{ "PARSE_COMMAND",		parse_text },
@@ -724,12 +794,10 @@ KeyMapNames FAR key_names[] =
         { "NICK_COMPLETION",            InsertNick },
         { "LASTJOINER_KICK",            LastJoinerKick },
         { "ACCEPT_LAST_CHAT",           AcceptLastChat },
-	{ "META5_CHARACTER",		meta5_char },
 	{ "INSERT_TABKEY_NEXT",	        HandleTabNext },
 	{ "INSERT_TABKEY_PREV",	        HandleTabPrev }
 /****************************************************************************/
 };
-
 
 KeyMap	FAR keys[] =
 {
@@ -1061,7 +1129,6 @@ KeyMap	FAR keys[] =
 	{ SELF_INSERT,		0, 0,	(char *) 0 }
 /*	{ DELETE_PREVIOUS_WORD,	0, 0,	(char *) 0 } */
 };
-
 
 KeyMap	FAR meta1_keys[] =
 {
@@ -2543,6 +2610,879 @@ KeyMap	FAR meta5_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 },
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
+
+KeyMap	FAR meta6_keys[] =
+{
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 8 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 16 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 24 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 32 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 40 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 48 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 56 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 64 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 72 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 80 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 88 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 96 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 104 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,	        0, 0,	(char *) 0 },	/* 112 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 120 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 128 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 136 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 144 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 152 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 160 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 168 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 176 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 184 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 192 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 200 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 208 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 216 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 224 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 232 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 240 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 248 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 }
+};
+
+KeyMap	FAR meta7_keys[] =
+{
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 8 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 16 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 24 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 32 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 40 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 48 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 56 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 64 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 72 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 80 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 88 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 96 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 104 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,	        0, 0,	(char *) 0 },	/* 112 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 120 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 128 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 136 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 144 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 152 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 160 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 168 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 176 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 184 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 192 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 200 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 208 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 216 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 224 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 232 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 240 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 248 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 }
+};
+
+KeyMap	FAR meta8_keys[] =
+{
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 8 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 16 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 24 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 32 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 40 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 48 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 56 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 64 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 72 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 80 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 88 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 96 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 104 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,	        0, 0,	(char *) 0 },	/* 112 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 120 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 128 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 136 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 144 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 152 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 160 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 168 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 176 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 184 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 192 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 200 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 208 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 216 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 224 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 232 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 240 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+
+	{ NOTHING,		0, 0,	(char *) 0 },	/* 248 */
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 },
+	{ NOTHING,		0, 0,	(char *) 0 }
+};
 /****************************************************************************/
 
 /*
@@ -2580,12 +3520,22 @@ write_binding(c, meta, fp, do_all)
 		map = meta4_keys;
 		meta_str = "META4-";
 		break;
-/**************************** PATCHED by Flier ******************************/
 	case 5:
 		map = meta5_keys;
 		meta_str = "META5-";
 		break;
-/****************************************************************************/
+	case 6:
+		map = meta6_keys;
+		meta_str = "META6-";
+		break;
+	case 7:
+		map = meta7_keys;
+		meta_str = "META7-";
+		break;
+	case 8:
+		map = meta8_keys;
+		meta_str = "META8-";
+		break;
 	default:
 		map = keys;
 		meta_str = empty_string;
@@ -2626,8 +3576,12 @@ save_bindings(fp, do_all)
 		write_binding((unsigned char) i, 3, fp, do_all);
 	for (i = 0; i < charsize; i++)
 		write_binding((unsigned char) i, 4, fp, do_all);
-/**************************** PATCHED by Flier ******************************/
 	for (i = 0; i < charsize; i++)
-		write_binding(i, 5, fp, do_all);
-/****************************************************************************/
+		write_binding((unsigned char) i, 5, fp, do_all);
+	for (i = 0; i < charsize; i++)
+		write_binding((unsigned char) i, 6, fp, do_all);
+	for (i = 0; i < charsize; i++)
+		write_binding((unsigned char) i, 7, fp, do_all);
+	for (i = 0; i < charsize; i++)
+		write_binding((unsigned char) i, 8, fp, do_all);
 }

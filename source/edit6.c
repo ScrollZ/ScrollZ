@@ -32,7 +32,6 @@
  HashFunc            Used to calculate hash value
  ScrollZInfo         Shows some ScrollZ related information
  ChannelCreateTime   Channel creation time (numeric 329)
- ExecCat             Cat's a file (by Zakath)
  ExecUptime          Displays your systems uptime
  CTCPFing            CTCP Finger's someone.
  NoSuchServer4SPing  Checks whether we tried to ping non existing server
@@ -61,7 +60,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.61 2000-07-17 15:23:24 f Exp $
+ * $Id: edit6.c,v 1.62 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -202,7 +201,6 @@ extern char *HelpPathVar;
 extern char *CelerityNtfy;
 extern char *chars;
 
-extern DCC_list *ClientList;
 extern time_t   start_time;
 
 #if defined(EXTRAS) || defined(FLIER)
@@ -1833,21 +1831,6 @@ char **ArgList;
 }
 
 #ifdef CELE
-/* concatenate a file */
-void ExecCat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
-{
-    char tmpbuf[mybufsize/4];
-
-    if (args && *args) {
-        sprintf(tmpbuf,"cat %s",args);
-        execcmd(NULL,tmpbuf,NULL);
-    }
-    else PrintUsage("CAT filename");
-}
-
 /* displays your system's uptime */
 void ExecUptime(command,args,subargs)
 char *command;
@@ -1939,7 +1922,7 @@ char *stuff;
         chan->FriendList && (tmpnick=CheckJoiners(nick,channel,from_server,chan))) {
         if (tmpnick->frlist && ((tmpnick->frlist->privs)&FLAUTOOP)) {
             if (voice && ((tmpnick->frlist->privs)&FLVOICE)) {
-                if (!(tmpnick->chanop) && !(tmpnick->voice)) mode='v';
+                if (!(tmpnick->chanop) && !(tmpnick->hasvoice)) mode='v';
             }
             else if (((tmpnick->frlist->privs)&FLOP) && !(tmpnick->chanop)) mode='o';
             if (mode!=' ') send_to_server("MODE %s +%c %s",channel,mode,nick);
@@ -2116,7 +2099,6 @@ void CleanUpScrollZVars() {
 #endif
     new_free(&AutoReplyBuffer);
     new_free(&OrigNick);
-    new_free(&VirtualHost);
     new_free(&HelpPathVar);
     new_free(&CelerityNtfy);
     new_free(&URLBuffer);

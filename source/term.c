@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.6 1999-10-04 19:21:38 f Exp $
+ * $Id: term.c,v 1.7 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -110,11 +110,11 @@
 # undef TIOCGETC
 #endif /* ISC22 */
 
-#if defined(POSIX) && !defined(sun) && !defined(_IBMR2)
+#if !defined(sun) && !defined(_IBMR2)
 # ifdef HAVE_SYS_TTOLD_H
 #  include <sys/ttold.h>
 # endif /* HAVE_SYS_TTOLD_H */
-#endif /* POSIX && !sun && !_IBMR2 */
+#endif /* && !sun && !_IBMR2 */
 
 /* Missing on ConvexOS, idea picked from SunOS */
 #if defined(__convex__) && !defined(LPASS8)
@@ -241,6 +241,7 @@ int	CO = 79,
  */
 int	term_reset_flag = 0;
 
+static	FILE	*term_fp = 0;
 static	int	term_echo_flag = 1;
 static	int	li,
 		co;
@@ -278,6 +279,13 @@ term_echo(flag)
 	return (old_echo);
 }
 
+void
+term_set_fp(fp)
+	FILE	*fp;
+{
+	term_fp = fp;
+}
+
 /*
  * term_putchar: puts a character to the screen, and displays control
  * characters as inverse video uppercase letters.  NOTE:  Dont use this to
@@ -287,67 +295,69 @@ void
 term_putchar(i)
  	u_int	i;
 {
-	unsigned char	c = (unsigned char)i;
+	unsigned char	c = (unsigned char)i & 0xff;
+	int		so = 0;
 
 	if (term_echo_flag)
 	{
 		if (translation)
  			c = transToClient[(int)c];
 /**************************** PATCHED by Flier ******************************/
-		/*if (c < 32)*/
+		/*if (c < 0x20)*/
 #ifdef WANTANSI
 		if (c==0x1B) fputc(c, (current_screen?current_screen->fpout:stdout));
-                else if (c < 32)
+                else if (c<0x20)
 #else
-                if (c < 32)
+                if (c<0x20)
 #endif
 /****************************************************************************/
 		{
-			term_standout_on();
-			c = (c & 127) | 64;
-/**************************** PATCHED by Flier ******************************/
-			/*fputc(c, (current_screen?current_screen->fpout:stdout));*/
-#ifdef SZNCURSES
- 			addch(c);
-#else
-			fputc(c, (current_screen?current_screen->fpout:stdout));
-#endif /* SZNCURSES */
-/****************************************************************************/
-			term_standout_off();
+			c |= 0x40; so = 1;
 		}
-		else if ((c & 0x7f) == '\177')
+		/* These are latin1/ascii -specific. They are made
+		 * to prevent dos-ascii umlaut characters to cause
+		 * a linefeed. They are turned to latin1 umlauts
+		 * instead.
+		 */ /* Bisqwit */
+		switch (c) {
+		case 0x7f: c = '?';  so = 1; break;
+		case 0x84: c = 0xe4; so = 1; break;
+		case 0x8e: c = 0xc4; so = 1; break;
+		case 0x94: c = 0x76; so = 1; break;
+		case 0x99: c = 0xd6; so = 1; break;
+		}
+
+		if (so)
 		{
 			term_standout_on();
-			c = '?';
 /**************************** PATCHED by Flier ******************************/
-			/*fputc(c, (current_screen?current_screen->fpout:stdout));*/
+			/*fputc(c, term_fp);*/
 #ifdef SZNCURSES
  			addch(c);
 #else
-			fputc(c, (current_screen?current_screen->fpout:stdout));
+			fputc(c, term_fp);
 #endif /* SZNCURSES */
 /****************************************************************************/
 			term_standout_off();
 		}
 		else
 /**************************** PATCHED by Flier ******************************/
-			/*fputc(c, (current_screen?current_screen->fpout:stdout));*/
+			/*fputc(c, term_fp);*/
 #ifdef SZNCURSES
  			addch(c);
 #else
-			fputc(c, (current_screen?current_screen->fpout:stdout));
+			fputc(c, term_fp);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	}
 	else
 	{
-		c = ' ';
 /**************************** PATCHED by Flier ******************************/
-		/*fputc(c, (current_screen?current_screen->fpout:stdout));*/
+		/*fputc(' ', term_fp);*/
 #ifdef SZNCURSES
- 		addch(c);
+ 		addch(' ');
 #else
-		fputc(c, (current_screen?current_screen->fpout:stdout));
+		fputc(' ', term_fp);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	}
@@ -372,11 +382,11 @@ term_puts(str, len)
         i=len;
 #else
 /****************************************************************************/
-	for (i = 0; *str && (i < len); str++, i++)
+	for (i = 0; *str && (i < len); i++)
 /**************************** PATCHED by Flier ******************************/
- 		/*term_putchar((u_int)*str);*/
+		/*term_putchar((u_int)*str++);*/
                 /* We need this for high ascii characters! */
- 		term_putchar((u_char) *str);
+ 		term_putchar((u_char) *str++);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	return (i);
@@ -388,29 +398,28 @@ putchar_x(c)
 	TPUTSARGVAL	c;
 {
 /**************************** PATCHED by Flier ******************************/
-	/*fputc(c, (current_screen?current_screen->fpout:stdout));*/
+	/*fputc(c, term_fp);*/
 #ifdef SZNCURSES
         addch(c);
         refresh();
 #else
-        fputc(c, (current_screen?current_screen->fpout:stdout));
+	fputc(c, term_fp);
 #endif /* SZNCURSES */
-
-#ifdef __linux__
-        return(1);
-#endif
 /****************************************************************************/
+#ifndef TPUTSVOIDRET	/* what the hell is this value used for anyway? */
+	return (0);
+#endif
 }
 
 void
 term_flush()
 {
 /**************************** PATCHED by Flier ******************************/
-	/*fflush((current_screen?current_screen->fpout:stdout));*/
+	/*fflush(term_fp);*/
 #ifdef SZNCURSES
  	refresh();
 #else
-	fflush((current_screen?current_screen->fpout:stdout));
+	fflush(term_fp);
 #endif /* SZNCURSES */
 /****************************************************************************/
 }
@@ -892,13 +901,12 @@ void
 term_space_erase(x)
 	int	x;
 {
-	char	c = ' ';
 	int	i,
 		cnt;
 
 	cnt = CO - x;
 	for (i = 0; i < cnt; i++)
-		fputc(c, (current_screen?current_screen->fpout:stdout));
+		fputc(' ', term_fp);
 }
 
 /*
@@ -1168,9 +1176,7 @@ term_LE_cursor_left()
 static	int
 term_BS_cursor_left()
 {
-	char	c = '\010';
-
-	fputc(c, (current_screen ? current_screen->fpout : stdout));
+	fputc('\010', term_fp);
 	return (0);
 }
 

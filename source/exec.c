@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.5 2000-07-10 15:52:56 f Exp $
+ * $Id: exec.c,v 1.6 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -531,7 +531,9 @@ list_processes()
 {
 	Process	*proc;
 	int	i;
+	int     lastlog_level;
 
+	lastlog_level = set_lastlog_msg_level(LOG_CRAP);
 	if (process_list)
 	{
 		say("Process List:");
@@ -551,6 +553,7 @@ list_processes()
 	}
 	else
 		say("No processes are running");
+	set_lastlog_msg_level(lastlog_level);
 }
 
 void
@@ -745,10 +748,10 @@ add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refn
 }
 
 /*
-* kill_process: sends the given signal to the process specified by the given
-* index into the process table.  After the signal is sent, the process is
-* deleted from the process table 
-*/
+ * kill_process: sends the given signal to the process specified by the given
+ * index into the process table.  After the signal is sent, the process is
+ * deleted from the process table
+ */
 static	void
 kill_process(kill_index, sig)
 	int	kill_index,
@@ -774,10 +777,10 @@ kill_process(kill_index, sig)
 #    ifdef HAVE_GETSID
 		pgid = getsid(process_list[kill_index]->pid);
 #    else
-#     if defined(ISC) || defined(MUNIX) || defined(BROKEN_GETPGRP) /* || defined(POSIX) */
-		pgid = process_list[kill_index]->pid;		   /* XXX SunOS 4 is mostly */
-#     else							   /* POSIX, but has a real */
-		pgid = getpgrp(process_list[kill_index]->pid);	   /* getpgrp. */
+#     if defined(ISC) || defined(MUNIX) || defined(BROKEN_GETPGRP)
+		pgid = process_list[kill_index]->pid;
+#     else
+		pgid = getpgrp(process_list[kill_index]->pid);
 #     endif /* ISC || MUNIX || BROKEN_GETPGRP */
 #    endif /* HAVE_GETSID */
 #   endif /* mips */
@@ -817,9 +820,9 @@ is_logical_unique(logical)
 }
 
 /*
-* start_process: Attempts to start the given process using the SHELL as set
-* by the user. 
-*/
+ * start_process: Attempts to start the given process using the SHELL as set
+ * by the user.
+ */
 static	void
 start_process(name, logical, redirect, who, refnum)
 	char	*name,
@@ -949,11 +952,11 @@ start_process(name, logical, redirect, who, refnum)
 }
 
 /*
-* text_to_process: sends the given text to the given process.  If the given
-* process index is not valid, an error is reported and 1 is returned.
-* Otherwise 0 is returned. 
-* Added show, to remove some bad recursion, phone, april 1993
-*/
+ * text_to_process: sends the given text to the given process.  If the given
+ * process index is not valid, an error is reported and 1 is returned.
+ * Otherwise 0 is returned.
+ * Added show, to remove some bad recursion, phone, april 1993
+ */
 int
 text_to_process(proc_index, text, show)
 	int	proc_index;
@@ -982,9 +985,9 @@ text_to_process(proc_index, text, show)
 }
 
 /*
-* is_process_running: Given an index, this returns true if the index referes
-* to a currently running process, 0 otherwise 
-*/
+ * is_process_running: Given an index, this returns true if the index referes
+ * to a currently running process, 0 otherwise
+ */
 int
 is_process_running(proc_index)
 	int	proc_index;
@@ -997,9 +1000,9 @@ is_process_running(proc_index)
 }
 
 /*
-* lofical_to_index: converts a logical process name to it's approriate index
-* in the process list, or -1 if not found 
-*/
+ * logical_to_index: converts a logical process name to it's approriate index
+ * in the process list, or -1 if not found
+ */
 int
 logical_to_index(logical)
 	char	*logical;
@@ -1017,9 +1020,9 @@ logical_to_index(logical)
 }
 
 /*
-* get_process_index: parses out a process index or logical name from the
-* given string 
-*/
+ * get_process_index: parses out a process index or logical name from the
+ * given string
+ */
 int
 get_process_index(args)
 	char	**args;
@@ -1078,10 +1081,12 @@ execcmd(command, args, subargs)
  	size_t	len;
 	Process	*proc;
 
+/**************************** PATCHED by Flier *****************************/
 #ifdef SZ32
         say("/EXEC not supported under Windows till I figure things out!");
         return;
 #endif
+/***************************************************************************/
 	if (get_int_var(EXEC_PROTECTION_VAR) && (send_text_flag != -1))
 	{
 		say("Attempt to use EXEC from within an ON function!");

@@ -1,6 +1,6 @@
 dnl configure.in for ircii
 dnl
-dnl Copyright (c) 1993-1998 Matthew R. Green.
+dnl Copyright (c) 1993-2000 Matthew R. Green.
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,28 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.5 1999-10-04 19:21:37 f Exp $
+dnl @(#)$Id: configure.in,v 1.6 2000-08-09 19:31:20 f Exp $
 
-AC_REVISION($Revision: 1.5 $)dnl
-AC_INIT(source/irc.c)
+AC_REVISION($Revision: 1.6 $)dnl
+AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
+
+# So many systems seem to need this that it is better do it here automatically.
+if test "x$prefix" != xNONE; then
+  if test -d "$prefix/lib"; then
+    LIBS="-L${prefix}/lib $LIBS"
+  fi
+else
+  if test -d "$ac_default_prefix/lib"; then
+    LIBS="-L${ac_default_prefix}/lib $LIBS"
+  fi
+fi
 
 dnl
 dnl grok the version number - from source/irc.c
 dnl
 
-VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < source/irc.c` 
+VERSION=`sed -n -e 's/"$//' -e '/#define[ 	]*IRCII_VERSION[ 	]*"/s///p' -e '/#define IRCII_VERSION/q' < ${srcdir}/source/irc.c` 
 echo this is ircii version $VERSION
 echo
 AC_SUBST(VERSION)
@@ -50,7 +61,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.5 1999-10-04 19:21:37 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.6 2000-08-09 19:31:20 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -59,6 +70,14 @@ dnl
 AC_PROG_CC
 AC_PROG_CPP
 AC_ISC_POSIX
+
+dnl
+dnl setup variables
+dnl
+srcdir=`(cd $srcdir; pwd)`
+AC_SUBST(srcdir)
+objdir=`pwd`
+AC_SUBST(objdir)
 
 dnl
 dnl check for NeXT.. and -bsd switch
@@ -73,8 +92,6 @@ AC_EGREP_CPP(yes,
 
 if test -n "$nextstep"; then
   AC_MSG_RESULT(yes)
-  CFLAGS="$CFLAGS -posix"
-  LIBS="$LIBS -lposix"
 else
   AC_MSG_RESULT(no)
 fi
@@ -193,16 +210,6 @@ if test -n "$ultrix"; then
   test -z "$GCC" && CC="$CC -YBSD"
 else
   AC_MSG_RESULT(no)
-  AC_MSG_CHECKING(for POSIX.1)
-  AC_EGREP_CPP(yes, [
-#include <sys/types.h>
-#include <unistd.h>
-main () {
-#ifdef _POSIX_VERSION
-  yes
-#endif
-}
-], AC_DEFINE(POSIX) AC_MSG_RESULT(yes); posix=1, AC_MSG_RESULT(no))
 fi
 
 AC_MSG_CHECKING(for sequent/ptx)
@@ -216,8 +223,9 @@ AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/ti
 AC_CHECK_HEADERS(unistd.h fcntl.h string.h memory.h netdb.h limits.h)dnl non sys/ ones
 AC_CHECK_HEADERS(stdarg.h varargs.h, break)dnl look for varadic function header
 AC_CHECK_HEADERS(process.h termcap.h)dnl others
-if test -n "$ultrix"; then
+if test -n "$ultrix" -o -n "$nextstep"; then
   # POSIX termios is broken on Ultrix so don't look for it.
+  # NEXTSTEP POSIX is broken so don't look for it.
   AC_CHECK_HEADERS(termio.h sgtty.h, break)dnl sigh.
 else
   AC_CHECK_HEADERS(termios.h termio.h sgtty.h, break)dnl sigh.
@@ -235,6 +243,9 @@ AC_CHECK_FUNC(strerror,, AC_DEFINE(NEED_STRERROR))
 AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
 AC_CHECK_FUNC(uname, AC_DEFINE(HAVE_UNAME),)
 AC_CHECK_FUNC(writev, AC_DEFINE(HAVE_WRITEV),)
+AC_CHECK_FUNC(vasprintf, AC_DEFINE(HAVE_VASPRINTF),)
+AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF),)
+AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF),)
 
 AC_HEADER_STDC
 AC_HEADER_TIME
@@ -245,6 +256,7 @@ AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
+AC_CHECK_TYPE(ssize_t,int)
 
 if test x$ac_cv_header_sys_twg_config_h = xyes
 then
@@ -302,10 +314,10 @@ dnl
 dnl work out wait type..
 dnl
 
-if test x$posix != x1
-then
-AC_MSG_CHECKING(for bsd wait)
-AC_TRY_LINK([
+AC_CHECK_FUNC(waitpid,,
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING(for bsd wait)
+  AC_TRY_LINK([
 #include <sys/types.h>
 #include <sys/wait.h>
 ],[
@@ -315,13 +327,11 @@ AC_TRY_LINK([
   y = WEXITSTATUS(x);
 #endif
 ],
-  AC_DEFINE(BSDWAIT)
-  bsdwait=1
-  AC_MSG_RESULT(yes),
-  AC_MSG_RESULT(no)
-  AC_CHECK_FUNC(waitpid,,
+    AC_DEFINE(BSDWAIT)
+    bsdwait=1
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no)
     AC_DEFINE(NEED_WAITPID)))
-fi
 
 dnl
 dnl checking for select()
@@ -346,22 +356,32 @@ then
   AC_DEFINE(INCLUDE_CURSES_H)
 else
   olibs="$LIBS"
+  case "$(uname -s)" in
+    Linux*)
+      if test -d /usr/include/ncurses; then
+	CFLAGS="-I/usr/include/ncurses $CFLAGS"
+      fi
+      ;;
+  esac
   AC_CHECK_LIB(termcap, tgetent, LIBS="-ltermcap $olibs",
-    AC_CHECK_LIB(termlib, tgetent, LIBS="-ltermlib $olibs",
-      AC_CHECK_LIB(curses, tgetent, LIBS="-lcurses $olibs",
-        AC_CHECK_LIB(xtermcap, tgetent, LIBS="-lxtermcap $olibs",
-          AC_MSG_WARN(i can not find tgetent.  you might need to help me)))))
+    AC_CHECK_LIB(tinfo, tgetent, LIBS="-ltinfo $olibs",
+      AC_CHECK_LIB(termlib, tgetent, LIBS="-ltermlib $olibs",
+        AC_CHECK_LIB(curses, tgetent, LIBS="-lcurses $olibs",
+          AC_CHECK_LIB(xtermcap, tgetent, LIBS="-lxtermcap $olibs",
+            AC_MSG_WARN(i can not find tgetent.  you might need to help me))))))
   AC_MSG_CHECKING(for tputs in curses.h)
   AC_EGREP_CPP([tputs( |	|\()],[#include <curses.h>
 ], AC_DEFINE(INCLUDE_CURSES_H) AC_MSG_RESULT(yes), blahhack=1; AC_MSG_RESULT(no))
 fi
 
-if test x$blahhack = x1
-then
-  AC_MSG_CHECKING(for tputs in term.h)
-  AC_EGREP_CPP([tputs( |	|\()],[#include <term.h>
-], AC_DEFINE(INCLUDE_TERM_H) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-fi
+dnl <term.h> is broken on most systems; ignoreit.
+
+dnl if test x$blahhack = x1
+dnl then
+dnl   AC_MSG_CHECKING(for tputs in term.h)
+dnl   AC_EGREP_CPP([tputs( |	|\()],[#include <term.h>
+dnl ], AC_DEFINE(INCLUDE_TERM_H) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+dnl fi
 
 dnl
 dnl signal handling
@@ -554,7 +574,7 @@ main()
 postcode=') != -1)) {
 		signal(SIGALRM, alarmed);
 		alarm(3);
-		recvfrom(f, b, 12, 0, (struct sockaddr *) x, &l);
+		recvfrom(f, b, 12, 0, (struct sockaddr *)x, &l);
 		alarm(0);
 		exit(0);
 	}
@@ -672,16 +692,13 @@ if test ! -n "$bindir";
 then
 	bindir=\${exec_prefix}/bin
 fi
+AC_SUBST(bindir)
 
 if test ! -n "$IRCLIB";
 then
-	IRCLIB=\${prefix}/share/irc
+	IRCLIB=\${datadir}/irc
 fi
-
-if test -n "$nextstep";
-then
-  LIBS=`echo $LIBS | sed -e 's/-lposix/-lsys_s -lposix/'`
-fi
+AC_SUBST(IRCLIB)
 
 if test "x$exec_prefix" = "xNONE"; then
   if test "x$prefix" = "xNONE"; then
@@ -714,7 +731,7 @@ AC_ARG_WITH(cast,
       CAST_SRC=cast.c
       ;;
   esac ],
-  if test -f source/cast.c; then
+  if test -f ${srcdir}/source/cast.c; then
     AC_MSG_RESULT(yes)
     AC_DEFINE_UNQUOTED(USE_CAST, 1)
     CAST_SRC=cast.c
@@ -722,6 +739,7 @@ AC_ARG_WITH(cast,
     AC_MSG_RESULT(no)
   fi
 )
+AC_SUBST(CAST_SRC)
 
 AC_MSG_CHECKING(for /dev/urandom)
 if test -c /dev/urandom; then
@@ -752,42 +770,397 @@ AC_ARG_WITH(default-server,
   AC_MSG_RESULT(none)
 )
 
+AC_CHECK_LIB(c, crypt,
+  [AC_DEFINE(HAVE_CRYPT)
+   LIBS="-lc $LIBS"],
+  AC_CHECK_LIB(crypt, crypt,
+    [AC_DEFINE(HAVE_CRYPT)
+     LIBS="-lcrypt $LIBS"],
+    AC_CHECK_LIB(des, des,
+      [AC_DEFINE(HAVE_CRYPT)
+       LIBS="-ldes $LIBS"])))
+
 AC_MSG_CHECKING(whether to support SOCKS)
 AC_ARG_WITH(socks,
-[  --with-socks[=PATH]     Compile with SOCKS firewall traversal support.],
+[  --with-socks            Compile with SOCKS firewall traversal support.],
 [ case "$withval" in
   no)
     AC_MSG_RESULT(no)
     ;;
-  *)
+  yes)
     AC_MSG_RESULT(yes)
+    AC_CHECK_LIB(socks5, SOCKSconnect, [
+	    socks=5
+	    LIBS="-lsocks5 $LIBS"], [
+	AC_CHECK_LIB(socks, Rconnect, [
+	    socks=4
+	    LIBS="-lsocks $LIBS"], [
+		AC_MSG_ERROR(Could not find socks library.  You must first install socks.) ] ) ] )
+    ;;
+  esac ],
+  AC_MSG_RESULT(no)
+)
+
+if test "x$socks" = "x"; then
+	AC_MSG_CHECKING(whether to support SOCKS5)
+	AC_ARG_WITH(socks5,
+	[  --with-socks5[=PATH]    Compile with SOCKS5 firewall traversal support.],
+	[ case "$withval" in
+	  no)
+	    AC_MSG_RESULT(no)
+	    ;;
+	  *)
+	    AC_MSG_RESULT(yes)
+	    socks=5
+	    if test "x$withval" = "xyes"; then
+	      withval="-lsocks5"
+	    else
+	      if test -d "$withval"; then
+		if test -d "$withval/include"; then
+		  CFLAGS="$CFLAGS -I$withval/include"
+		else
+		  CFLAGS="$CFLAGS -I$withval"
+		fi
+	        if test -d "$withval/lib"; then
+		  withval="-L$withval/lib -lsocks5"
+		else
+		  withval="-L$withval -lsocks5"
+		fi
+	      fi
+	    fi
+	    LIBS="$withval $LIBS"
+	    # If Socks was compiled with Kerberos support, we will need
+	    # to link against kerberos libraries.  Temporarily append
+	    # to LIBS.  This is harmless if there is no kerberos support.
+	    TMPLIBS="$LIBS"
+	    LIBS="$LIBS $KERBEROS_LIBS"
+	    AC_TRY_LINK([],
+	                [ SOCKSconnect(); ],
+			[],
+			[ AC_MSG_ERROR(Could not find the $withval library.  You must first install socks5.) ])
+	    LIBS="$TMPLIBS"
+	    ;;
+	  esac ],
+	  AC_MSG_RESULT(no)
+	)
+fi
+
+if test "x$socks" = "x"; then
+	AC_MSG_CHECKING(whether to support SOCKS4)
+	AC_ARG_WITH(socks4,
+	[  --with-socks4[=PATH]    Compile with SOCKS4 firewall traversal support.],
+	[ case "$withval" in
+	  no)
+	    AC_MSG_RESULT(no)
+	    ;;
+	  *)
+	    AC_MSG_RESULT(yes)
+	    socks=4
+	    if test "x$withval" = "xyes"; then
+	      withval="-lsocks"
+	    else
+	      if test -d "$withval"; then
+	        withval="-L$withval -lsocks"
+	      fi
+	    fi
+	    LIBS="$withval $LIBS"
+	    AC_TRY_LINK([],
+	                [ Rconnect(); ],
+			[],
+			[ AC_MSG_ERROR(Could not find the $withval library.  You must first install socks.) ])
+	    ;;
+	  esac ],
+	  AC_MSG_RESULT(no)
+	)
+fi
+
+
+
+if test "x$socks" = "x4"; then
     AC_DEFINE(SOCKS)
+    AC_DEFINE(SOCKS4)
     AC_DEFINE(connect, Rconnect)
     AC_DEFINE(getsockname, Rgetsockname)
     AC_DEFINE(bind, Rbind)
     AC_DEFINE(accept, Raccept)
     AC_DEFINE(listen, Rlisten)
     AC_DEFINE(select, Rselect)
-    if test "x$withval" = "xyes"; then
-      withval="-lsocks"
-    fi
-    olibs="$LIBS"
-    LIBS="$LIBS -L$libdir $withval"
-    AC_TRY_LINK([],
-      [ Rconnect(); ],
-      [ LIBS="$olibs -L\${libdir} $withval" ],
-      [ LIBS="$LIBS -L$libdir $withval -lresolv"
-	AC_TRY_LINK([],
-          [ Rconnect(); ],
-          [ LIBS="$olibs -L\${libdir} $withval -lresolv" ],
-            AC_MSG_ERROR(Could not find the $withval library.  You must first install socks.)
-        )
-      ]
-    )
-    ;;
+fi
+
+if test "x$socks" = "x5"; then
+    AC_DEFINE(SOCKS)
+    AC_DEFINE(SOCKS5)
+    AC_DEFINE(connect,SOCKSconnect)
+    AC_DEFINE(getsockname,SOCKSgetsockname)
+    AC_DEFINE(getpeername,SOCKSgetpeername)
+    AC_DEFINE(bind,SOCKSbind)
+    AC_DEFINE(accept,SOCKSaccept)
+    AC_DEFINE(listen,SOCKSlisten)
+    AC_DEFINE(select,SOCKSselect)
+    AC_DEFINE(recvfrom,SOCKSrecvfrom)
+    AC_DEFINE(sendto,SOCKSsendto)
+    AC_DEFINE(recv,SOCKSrecv)
+    AC_DEFINE(send,SOCKSsend)
+    AC_DEFINE(read,SOCKSread)
+    AC_DEFINE(write,SOCKSwrite)
+    AC_DEFINE(rresvport,SOCKSrresvport)
+    AC_DEFINE(shutdown,SOCKSshutdown)
+    AC_DEFINE(listen,SOCKSlisten)
+    AC_DEFINE(close,SOCKSclose)
+    AC_DEFINE(dup,SOCKSdup)
+    AC_DEFINE(dup2,SOCKSdup2)
+    AC_DEFINE(fclose,SOCKSfclose)
+    AC_DEFINE(gethostbyname,SOCKSgethostbyname)
+fi
+
+AC_MSG_CHECKING([whether to enable ipv6])
+if test "x$socks" = "x4" -o "x$socks" = "x5"; then
+AC_MSG_RESULT(no, bacause you enabled SOCKS$socks support)
+else
+AC_ARG_ENABLE(ipv6,
+[  --enable-ipv6                Enable ipv6 (with ipv4) support
+  --disable-ipv6                Disable ipv6 support],
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       ipv6=no
+       ;;
+  *)   AC_MSG_RESULT(yes)
+       AC_DEFINE(INET6)
+       ipv6=yes
+       ;;
   esac ],
+
+  AC_TRY_RUN([ /* AF_INET6 avalable check */
+#include <sys/types.h>
+#include <sys/socket.h>
+main()
+{
+ if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
+   exit(1);
+ else
+   exit(0);
+}
+],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(INET6)
+  ipv6=yes,
   AC_MSG_RESULT(no)
-)
+  ipv6=no,
+  AC_MSG_RESULT(no)
+  ipv6=no
+))
+
+ipv6type=unknown
+ipv6lib=none
+ipv6trylibc=no
+
+if test "x$ipv6" = "xyes"; then
+        AC_MSG_CHECKING([ipv6 stack type])
+        for i in inria kame linux-glibc linux-libinet6 toshiba v6d zeta; do
+                case $i in
+                inria)
+                        dnl http://www.kame.net/
+                        AC_EGREP_CPP(yes, [dnl
+#include <netinet/in.h>
+#ifdef IPV6_INRIA_VERSION
+yes
+#endif],
+                                [ipv6type=$i;
+				AC_DEFINE(INET6)])
+                        ;;
+                kame)
+                        dnl http://www.kame.net/
+                        AC_EGREP_CPP(yes, [dnl
+#include <netinet/in.h>
+#ifdef __KAME__
+yes
+#endif],
+                                [ipv6type=$i;
+                                ipv6lib=inet6;
+                                ipv6libdir=/usr/local/v6/lib;
+                                ipv6trylibc=yes;
+				AC_DEFINE(INET6)])
+                        ;;
+                linux-glibc)
+                        dnl http://www.v6.linux.or.jp/
+                        AC_EGREP_CPP(yes, [dnl
+#include <features.h>
+#if defined(__GLIBC__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 1
+yes
+#endif],
+                                [ipv6type=$i;
+				AC_DEFINE(INET6)])
+                        ;;
+                linux-libinet6)
+                        dnl http://www.v6.linux.or.jp/
+                        if test -d /usr/inet6 -o -f /usr/include/netinet/ip6.h; then
+                                ipv6type=$i
+                                ipv6lib=inet6
+                                ipv6libdir=/usr/inet6/lib
+                                ipv6trylibc=yes;
+                                CFLAGS="-I/usr/inet6/include $CFLAGS"
+				AC_DEFINE(INET6)
+                        fi
+                        ;;
+                toshiba)
+                        AC_EGREP_CPP(yes, [dnl
+#include <sys/param.h>
+#ifdef _TOSHIBA_INET6
+yes
+#endif],
+                                [ipv6type=$i;
+                                ipv6lib=inet6;
+                                ipv6libdir=/usr/local/v6/lib;
+				AC_DEFINE(INET6)])
+                        ;;
+                v6d)
+                        AC_EGREP_CPP(yes, [dnl
+#include </usr/local/v6/include/sys/v6config.h>
+#ifdef __V6D__
+yes
+#endif],
+                                [ipv6type=$i;
+                                ipv6lib=v6;
+                                ipv6libdir=/usr/local/v6/lib;
+                                CFLAGS="-I/usr/local/v6/include $CFLAGS"])
+                        ;;
+                zeta)
+                        AC_EGREP_CPP(yes, [dnl
+#include <sys/param.h>
+#ifdef _ZETA_MINAMI_INET6
+yes
+#endif],
+                                [ipv6type=$i;
+                                ipv6lib=inet6;
+                                ipv6libdir=/usr/local/v6/lib;
+				AC_DEFINE(INET6)])
+                        ;;
+                esac
+                if test "x$ipv6type" != "xunknown"; then
+                        break
+                fi
+        done
+        AC_MSG_RESULT($ipv6type)
+fi
+if test "x$ipv6" = "xyes" -a "x$ipv6lib" != "xnone"; then
+        if test -d "$ipv6libdir" -a -f "$ipv6libdir/lib$ipv6lib.a"; then
+                LIBS="-L$ipv6libdir -l$ipv6lib $LIBS"
+                AC_MSG_RESULT(You have $ipv6lib library, using it)
+        else
+                if test "x$ipv6trylibc" = "xyes"; then
+                        AC_MSG_RESULT([You do not have (need) $ipv6lib library, using libc])
+                else
+                        AC_MSG_ERROR(Fatal: no $ipv6lib library found.  cannot continue.
+You need to fetch lib$ipv6lib.a from appropriate
+ipv6 kit and compile beforehand.)
+                fi
+        fi
+fi
+AC_MSG_CHECKING(getaddrinfo bug)
+AC_TRY_RUN([
+#include <sys/types.h>
+#include <netdb.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+main()
+{
+  int passive, gaierr, inet4 = 0, inet6 = 0;
+  struct addrinfo hints, *ai, *aitop;
+  char straddr[INET6_ADDRSTRLEN], strport[16];
+
+  for (passive = 0; passive <= 1; passive++) {
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_flags = passive ? AI_PASSIVE : 0;
+    hints.ai_socktype = SOCK_STREAM;
+    if ((gaierr = getaddrinfo(NULL, "54321", &hints, &aitop)) != 0) {
+      (void)gai_strerror(gaierr);
+      goto bad;
+    }
+    for (ai = aitop; ai; ai = ai->ai_next) {
+      if (ai->ai_addr == NULL ||
+          ai->ai_addrlen == 0 ||
+          getnameinfo(ai->ai_addr, ai->ai_addrlen,
+                      straddr, sizeof(straddr), strport, sizeof(strport),
+                      NI_NUMERICHOST|NI_NUMERICSERV) != 0) {
+        goto bad;
+      }
+      switch (ai->ai_family) {
+      case AF_INET:
+        if (strcmp(strport, "54321") != 0) {
+          goto bad;
+        }
+        if (passive) {
+          if (strcmp(straddr, "0.0.0.0") != 0) {
+            goto bad;
+          }
+        } else {
+          if (strcmp(straddr, "127.0.0.1") != 0) {
+            goto bad;
+          }
+        }
+        inet4++;
+        break;
+      case AF_INET6:
+        if (strcmp(strport, "54321") != 0) {
+          goto bad;
+        }
+        if (passive) {
+          if (strcmp(straddr, "::") != 0) {
+            goto bad;
+          }
+        } else {
+          if (strcmp(straddr, "::1") != 0) {
+            goto bad;
+          }
+        }
+        inet6++;
+        break;
+      case AF_UNSPEC:
+        goto bad;
+        break;
+      default:
+        /* another family support? */
+        break;
+      }
+    }
+  }
+
+  if (inet6 != 2 || inet4 != 2)
+    goto bad;
+
+  if (aitop)
+    freeaddrinfo(aitop);
+  exit(0);
+
+ bad:
+  if (aitop)
+    freeaddrinfo(aitop);
+  exit(1);
+}
+],
+AC_MSG_RESULT(good)
+buggygetaddrinfo=no,
+AC_MSG_RESULT(buggy)
+buggygetaddrinfo=yes,
+AC_MSG_RESULT(buggy)
+buggygetaddrinfo=yes)
+fi
+
+if test "x$buggygetaddrinfo" = "xyes"; then
+        if test "x$ipv6" = "xyes" -a "x$ipv6type" != "xlinux"; then
+                AC_MSG_ERROR(Fatal: You must get working getaddrinfo() function.)
+                AC_MSG_ERROR(       or you can specify "--disable-ipv6".)
+                exit 1
+        elif test "x$ipv6type" = "xlinux"; then
+                AC_MSG_ERROR(Warning: getaddrinfo() implementation on your system seems be buggy.)
+                AC_MSG_ERROR(         Better upgreade your system library to newest version)
+                AC_MSG_ERROR([         of GNU C library (aka glibc).])
+        fi
+fi
 
 if test -n "$hpux"
 then
@@ -798,15 +1171,15 @@ else
 fi
 if test "x$COPY_DIRECTORY" = "xpax";
 then
-    INSTALL_HELP_CMD='cd help; pax -r -w . $(HELP_DIR)'
+    INSTALL_HELP_CMD='cd $(topdir)/help; pax -r -w -s ";.*/\.?CVS$$;;" -s ";.*/\.?CVS/.*;;" . $(HELP_DIR)'
 else
     if test "x$COPY_DIRECTORY" = "xtar";
     then
-	INSTALL_HELP_CMD='cd help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
+	INSTALL_HELP_CMD='cd $(topdir)/help; tar -cf - . | ( cd $(HELP_DIR); tar -xf - )'
     else
 	if test "x$COPY_DIRECTORY" = "xcpio";
 	then
-	    INSTALL_HELP_CMD='cd help; find . -print | cpio -pdu $(HELP_DIR)'
+	    INSTALL_HELP_CMD='cd $(topdir)/help; find . -print | cpio -pdu $(HELP_DIR)'
 	else
 	    INSTALL_HELP_CMD="@echo \"I couldn't figure out a way to install the help files.\""
 	fi
@@ -841,22 +1214,25 @@ case "x$ZCAT" in
     ZARGS="-dc"
     ;;
 esac
-AC_SUBST(ZCAT)
-AC_SUBST(ZSUFFIX)
-AC_SUBST(ZARGS)
-	
+AC_DEFINE_UNQUOTED(ZCAT,"$ZCAT")
+AC_DEFINE_UNQUOTED(ZSUFFIX,"$ZSUFFIX")
+if test x"$ZARGS" != x; then
+  AC_DEFINE_UNQUOTED(ZARGS,"$ZARGS")
+fi
+
 AC_FIND_PROGRAM(SENDMAIL,sendmail,/usr/lib:/usr/sbin:/usr/ucblib)
 
 AC_SUBST(RM)
 AC_SUBST(LN)
-AC_SUBST(IRCLIB)
-AC_SUBST(bindir)
-AC_SUBST(CAST_SRC)
-AC_OUTPUT(Makefile ircbug include/Makefile source/Makefile)
+AC_OUTPUT(Makefile include/Makefile source/Makefile ircbug)
+
+#if test ! -f config.h; then
+#  cp ${srcdir}/include/config.h.dist config.h
+#fi
 
 echo
-echo well there we are, you now might want to look in include/config.h
-echo and see if there is anything you might want to tune, else you can
+echo well there we are, you now might want to look in config.h and 
+echo see if there is anything you might want to tune, else you can
 echo just run a make here..  good luck!
 echo
 

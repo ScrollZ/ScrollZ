@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.37 2000-07-20 18:43:10 f Exp $
+ * $Id: edit5.c,v 1.38 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -876,7 +876,7 @@ int  netsplit;
 #else  /* CELECOSM */
         sprintf(tmpbuf2,"%sNetsplit detected%s at %s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color2,update_clock(GET_TIME),Colors[COLOFF]);
+                CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #endif /* CELECOSM */
         say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
             CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
@@ -884,7 +884,7 @@ int  netsplit;
             CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
 #else  /* WANTANSI */
         say("Netsplit detected at %s : [%s <- %s]",
-            update_clock(GET_TIME),tmpstr,server);
+            update_clock(0,0,GET_TIME),tmpstr,server);
 #endif /* WANTANSI */
 #ifdef CELECOSM
         say("hit control-f to view split clients");
@@ -1323,10 +1323,10 @@ int  print;
         if (chan->Stamp) {
 #ifdef WANTANSI
             sprintf(stampbuf,"%s(%s%s%s)%s ",
-                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],update_clock(GET_TIME),
+                    CmdsColors[COLPUBLIC].color2,Colors[COLOFF],update_clock(0,0,GET_TIME),
                     CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
 #else
-            sprintf(stampbuf,"(%s) ",update_clock(GET_TIME));
+            sprintf(stampbuf,"(%s) ",update_clock(0,0,GET_TIME));
 #endif
         }
     }
@@ -2156,7 +2156,7 @@ int  iscrypted;
             CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF]);
 #ifdef TDF
     sprintf(tmpbuf2,"<[%s%s%s]%s%s,%s%s>",
-            CmdsColors[COLMSG].color4,update_clock(GET_TIME),Colors[COLOFF],
+            CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],
             CmdsColors[COLDCC].color4,client->addr,client->port,Colors[COLOFF]);
     put_it("%s %s%s%s %s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF],
            tmpbuf2);
@@ -2417,9 +2417,9 @@ char *buffer;
     if (joiner->shitlist && joiner->shitlist->shit) colnick=CmdsColors[COLCSCAN].color6;
     else if (joiner->frlist && joiner->frlist->privs) colnick=CmdsColors[COLCSCAN].color2;
     else if (joiner->chanop) colnick=CmdsColors[COLCSCAN].color3;
-    else if (joiner->voice) colnick=CmdsColors[COLCSCAN].color4;
+    else if (joiner->hasvoice) colnick=CmdsColors[COLCSCAN].color4;
     *thing='\0';
-    if (joiner->voice) {
+    if (joiner->hasvoice) {
         sprintf(thing,"%s+%s",CmdsColors[COLNICK].color5,Colors[COLOFF]);
         count--;
     }
@@ -2543,8 +2543,8 @@ char *subargs;
                     ((listfl&SLSTNOP) && !(joiner->chanop)) ||
                     ((listfl&SLSTFRND) && joiner->frlist && joiner->frlist->privs) ||
                     ((listfl&SLSTNFRND) && (!(joiner->frlist) || !(joiner->frlist->privs))) ||
-                    ((listfl&SLSTVOIC) && joiner->voice) ||
-                    ((listfl&SLSTNVOIC) && !(joiner->voice) && !(joiner->chanop)) ||
+                    ((listfl&SLSTVOIC) && joiner->hasvoice) ||
+                    ((listfl&SLSTNVOIC) && !(joiner->hasvoice) && !(joiner->chanop)) ||
                     ((listfl&SLSTSHIT) && joiner->shitlist && joiner->shitlist->shit) ||
                     ((listfl&SLSTNSHIT) && (!(joiner->shitlist) || !(joiner->shitlist->shit))) ||
                     ((listfl&SLSTALL))) {

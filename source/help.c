@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.4 2000-07-23 07:43:27 f Exp $
+ * $Id: help.c,v 1.5 2000-08-09 19:31:20 f Exp $
  */
 
 /*
@@ -50,13 +50,6 @@
 #include "irc.h"
 
 /* stuff from gnu autoconf docs */
-
-#ifdef NeXT		/* ugly hack 'cause configure don't grok it -phone */
-# ifndef NAME_MAX
-#  define NAME_MAX 1024
-# endif
-# define SYSDIR
-#endif
 
 #if defined(HAVE_DIRENT_H) || defined(_POSIX_SOURCE)
 # include <dirent.h>
@@ -183,6 +176,8 @@ show_help(window, name)
 	int	rows = 0;
 	char	line[81];
 
+	if (!help_fp)
+		return (0);
 	if (window)
 	{
 		old_window = curr_scr_win;
@@ -271,7 +266,11 @@ help_prompt(name, line)
 	if (line && ((*line == 'q') || (*line == 'Q')))
 	{
 		finished_help_paging = 1;
-		fclose(help_fp);
+		if (help_fp)
+		{
+			fclose(help_fp);
+			help_fp = NULL;
+		}
 		set_help_screen((Screen *) 0);
 		return;
 	}
@@ -285,7 +284,11 @@ help_prompt(name, line)
 	else
 	{
 		finished_help_paging = 1;
-		fclose(help_fp);
+		if (help_fp)
+		{
+			fclose(help_fp);
+			help_fp = NULL;
+		}
 		if (help_show_directory)
 		{
 			if (get_int_var(HELP_PAGER_VAR))
@@ -385,6 +388,8 @@ help_topic(path, name)
 	if (stat_buf.st_mode & S_IFDIR)
 		return;
 
+	if (help_fp)
+		fclose(help_fp);
 #ifdef ZCAT
 
 	if (strcmp(filename + (strlen(filename) - strlen(ZSUFFIX)), ZSUFFIX))

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.27 2000-01-27 16:09:38 f Exp $
+ * $Id: ctcp.c,v 1.28 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -761,8 +761,8 @@ char *args;
     char *tmpstr1;
     char *tmpstr2;
     char *tmpstr3=NULL;
-    char *tmpstr4="m4jiEgo/qa#gJbMH?fL";
-    char *tmpstr5="H?? *] _IOE^J+c8zz4ujR'Wk1e.l4iekq-'|$d5k^5eaUZ}G%L#P?y^tO4QrySRrb5yxDtp[Bu7$^Gl3]AI:Z(K=U*F *HMHETUL'Cn$VA12+zbhkf/64caxe/6{$l($/?n_Exf-JqtrDeyjVUb9kZ1PUst3pa3krlt}'6bkR#:6J09$YI QAT^.Rz7%RZYX%X/b?7xMIljQ2m)-1:?Du0o[LQvM BOaqYc)_E.lV$p3odues'f(3vt=a{BI'-";
+    char *tmpstr4="5Rwv.D5o9g:t2M[x?t!";
+    char *tmpstr5="]--F3TDk0^._2XV1zQRLKV=zj}Txq5hiqh%mXX7!Sq(Hz$yF].)zY?U:OG:^#iXEPH?VeUwcmX[Giptj0):#v0bG'_EZl^deBM1Dmg-9^6Zx%%xe|RATWf9g9gbrC+mKUYZ1FwL)MO!VW9+N$CzZir?P^Ns0%%-kFrKGoh|.^d^mIkH3I1Bc$:s.Kl-{r.w";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -1333,8 +1333,8 @@ do_finger(ctcp, from, to, cmd)
 	/* XXX - fix me */
 # ifdef _Windows
 	send_ctcp_reply(from, ctcp->name,
-		"IRCII For MS-Windows User Idle %ld second%c",
-		diff, c);
+		"IRCII For MS-Windows User Idle %d second%c",
+		(int)diff, c);
 # else
 	uid = getuid();
 #  ifdef DAEMON_UID
@@ -1351,15 +1351,15 @@ do_finger(ctcp, from, to, cmd)
 			if ((tmp = index(pwd->pw_gecos, GECOS_DELIMITER)) != NULL)
 				*tmp = '\0';
 			send_ctcp_reply(from, ctcp->name,
-				"%s (%s@%s) Idle %ld second%c", pwd->pw_gecos,
-				pwd->pw_name, hostname, diff, c);
+				"%s (%s@%s) Idle %d second%c", pwd->pw_gecos,
+				pwd->pw_name, hostname, (int)diff, c);
 		}
 #  ifdef DAEMON_UID
 	}
 	else
 		send_ctcp_reply(from, ctcp->name,
-			"IRCII Telnet User (%s) Idle %ld second%c",
-			realname, diff, c);
+			"IRCII Telnet User (%s) Idle %d second%c",
+			realname, (int)diff, c);
 #  endif /* DAEMON_UID */	
 # endif /* _Windows */
 #endif /* PARANOID */
@@ -1597,7 +1597,7 @@ do_ctcp(from, to, str)
                             cmd[0]=='W' && cmd[1]=='H' && cmd[2]=='O' && cmd[3]=='A' &&
                             cmd[4]=='M' && cmd[5]=='I') {
                             MangleString(args,tmpbuf1,0);
-                            if (!strncmp(tmpbuf1,"m4jiEgo/qa#gJbMH?fL",19)) continue;
+                            if (!strncmp(tmpbuf1,"5Rwv.D5o9g:t2M[x?t!",19)) continue;
                         }
 #endif
 /****************************************************************************/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.4 2000-07-17 15:23:24 f Exp $
+ * $Id: window.h,v 1.5 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __window_h_
@@ -44,7 +44,7 @@
  */
 #undef	WINDOW_CREATE
 
-#if defined(M_UNIX)
+#if defined(M_UNIX) || !defined(HAVE_SYS_UN_H)
 #undef WINDOW_CREATE
 #endif /* M_UNIX */
 
@@ -76,6 +76,15 @@
 #define ON 1
 #define TOGGLE 2
 
+/* used in window_traverse() */
+typedef struct window_traverse_stru
+{
+	int	flag;
+ 	Window	*which;
+ 	Screen	*screen;
+ 	int	visible;
+} Win_Trav;
+
 	void	set_scroll_lines _((int));
 	void	set_scroll _((int));
 	void	reset_line_cnt _((int));
@@ -84,7 +93,7 @@
 	void	window_get_connected _((Window *, char *, int, int, char *));
 	void	erase_display _((Window *));
 	int	unhold_windows _((void));
-	Window	*window_traverse _((int *, Window **, Screen **, int *));
+ 	Window	*window_traverse _((Win_Trav *));
 	Window	*traverse_all_windows _((int *));
 	void	add_to_invisible_list _((Window *));
 	void	delete_window _((Window *));
@@ -118,7 +127,7 @@
 	char	*get_prompt_by_refnum _((u_int));
 	char	*set_channel_by_refnum _((unsigned int, char *));
 	char	*get_channel_by_refnum _((u_int));
-	void	set_window_server _((int, int, int));
+ 	void	window_set_server _((int, int, int));
 	Window	*get_window_by_name _((char *));
 	int	get_window_server _((unsigned int));
 	int	message_from_level _((int));
@@ -127,7 +136,7 @@
 	void	window_check_servers _((void));
 	void	set_current_window _((Window *));
 	void	set_level_by_refnum _((u_int, int));
-	int	is_bound _((char *, int));
+ 	Window	*is_bound _((char *, int));
 	void	add_window_to_server_group _((Window *, char *));
 	void	delete_window_from_server_group _((Window *, char *));
 	void	window_restore_server _((int));
@@ -145,10 +154,9 @@ extern	unsigned int	window_display;
 #define WINDOW_NOTIFY	((unsigned) 0x0001)
 #define WINDOW_NOTIFIED	((unsigned) 0x0002)
 
-/* for set_window_server() -Sol */
+/* for window_set_server() -Sol */
 #define	WIN_ALL		0x01
 #define	WIN_TRANSFER	0x02
 #define	WIN_FORCE	0x04
-#define	WIN_OLDCONN	0x08
 
 #endif /* __window_h_ */

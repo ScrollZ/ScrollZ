@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.7 2000-01-27 16:04:06 f Exp $
+ * $Id: alias.c,v 1.8 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -51,6 +51,13 @@
 #include "server.h"
 #include "output.h"
 #include "names.h"
+
+/*
+ * define this to use the old way of managing allocations
+ * inside the guts of alias handling (static buffers, not
+ * malloc & realloc'ed ones).
+ */
+#undef USE_OLD_ALIAS_ALLOC
 
 /**************************** Patched by Flier ******************************/
 #include "sys/stat.h"
@@ -92,54 +99,61 @@ static	void	do_alias_string _((void));
 static	Alias	*find_alias _((Alias **, char *, int, int *));
 static	void	insert_alias _((Alias **, Alias *));
 static	char	*alias_arg _((char **, u_int *));
-static	char	*built_in_alias _((int));
 static	char	*find_inline _((char *));
-static	char	*call_function _((char *, char *, char *, int *));
+static	u_char	*built_in_alias _((int));
+static	u_char	*call_function _((char *, char *, char *, int *));
+#ifndef USE_OLD_ALIAS_ALLOC
+static	void	expander_addition _((char **, char *, int, char *));
+static	char	*alias_special_char _((char *, char **, char *, char *, char *, int *));
+#else /* USE_OLD_ALIAS_ALLOC */
 static	void	expander_addition _((char *, char *, int, char *));
 static	char	*alias_special_char _((char *, char *, char *, char *, char *, int *));
+#endif /* USE_OLD_ALIAS_ALLOC */
 
-static	char	*alias_detected _((void));
-static	char	*alias_sent_nick _((void));
-static	char	*alias_recv_nick _((void));
-static	char	*alias_msg_body _((void));
-static	char	*alias_joined_nick _((void));
-static	char	*alias_public_nick _((void));
-static	char	*alias_dollar _((void));
-static	char	*alias_channel _((void));
-static	char	*alias_server _((void));
-static	char	*alias_query_nick _((void));
-static	char	*alias_target _((void));
-static	char	*alias_nick _((void));
-static	char	*alias_invite _((void));
-static	char	*alias_cmdchar _((void));
-static	char	*alias_line _((void));
-static	char	*alias_away _((void));
-static	char	*alias_oper _((void));
-static	char	*alias_chanop _((void));
-static	char	*alias_modes _((void));
-static	char	*alias_buffer _((void));
-static	char	*alias_time _((void));
-static	char	*alias_version _((void));
-static	char	*alias_currdir _((void));
-static	char	*alias_current_numeric _((void));
-static	char	*alias_server_version _((void));
+static	u_char	*alias_detected _((void));
+static	u_char	*alias_sent_nick _((void));
+static	u_char	*alias_recv_nick _((void));
+static	u_char	*alias_msg_body _((void));
+static	u_char	*alias_joined_nick _((void));
+static	u_char	*alias_public_nick _((void));
+static	u_char	*alias_dollar _((void));
+static	u_char	*alias_channel _((void));
+static	u_char	*alias_server _((void));
+static	u_char	*alias_query_nick _((void));
+static	u_char	*alias_target _((void));
+static	u_char	*alias_nick _((void));
+static	u_char	*alias_invite _((void));
+static	u_char	*alias_cmdchar _((void));
+static	u_char	*alias_line _((void));
+static	u_char	*alias_away _((void));
+static	u_char	*alias_oper _((void));
+static	u_char	*alias_chanop _((void));
+static	u_char	*alias_modes _((void));
+static	u_char	*alias_buffer _((void));
+static	u_char	*alias_time _((void));
+static	u_char	*alias_version _((void));
+static	u_char	*alias_currdir _((void));
+static	u_char	*alias_current_numeric _((void));
+static	u_char	*alias_server_version _((void));
 
 /**************************** Patched by Flier ******************************/
-static	char	*alias_ScrollZ_version _((void));
+static	u_char	*alias_ScrollZ_version _((void));
 /*static	char	*function_pattern _((void));
 static	char	*function_chops _((void));
 static	char	*function_chnops _((void));*/
 /* Patched by Zakath */
 #ifdef CELE
-static	char	*alias_Celerity_version _((void));
+static	u_char	*alias_Celerity_version _((void));
 #endif
 /* ***************** */
+
+static char locbuf[2*mybufsize];
 /****************************************************************************/
 
 typedef struct
 {
 	char	name;
-	char	*(*func) _((void));
+ 	u_char	*(*func) _((void));
 }	BuiltIns;
 
 static	FAR BuiltIns built_in[] =
@@ -192,96 +206,104 @@ static	FAR BuiltIns built_in[] =
 	{ (char) 0,	 NULL }
 };
 
-	char	FAR command_line[BIG_BUFFER_SIZE+1];
+ 	char	*command_line = (char *) 0;
 
-	char	*function_left _((unsigned char *));
-	char	*function_right _((unsigned char *));
-	char	*function_mid _((unsigned char *));
-	char	*function_rand _((unsigned char *));
-	char	*function_srand _((unsigned char *));
-	char	*function_time _((unsigned char *));
-	char	*function_stime _((unsigned char *));
-	char	*function_index _((unsigned char *));
-	char	*function_rindex _((unsigned char *));
-	char	*function_match _((unsigned char *));
-	char	*function_rmatch _((unsigned char *));
-	char	*function_userhost _((unsigned char *));
-	char	*function_strip _((unsigned char *));
-	char	*function_encode _((unsigned char *));
-	char	*function_decode _((unsigned char *));
-	char	*function_ischannel _((unsigned char *));
-	char	*function_ischanop _((unsigned char *));
-	char	*function_word _((unsigned char *));
-	char	*function_winnum _((unsigned char *));
-	char	*function_winnam _((unsigned char *));
- 	char	*function_winvisible _((unsigned char *));
- 	char	*function_winserver _((unsigned char *));
- 	char	*function_winservergroup _((unsigned char *));
-	char	*function_connect _((unsigned char *));
-	char	*function_listen _((unsigned char *));
-	char	*function_tdiff _((unsigned char *));
-	char	*function_toupper _((unsigned char *));
-	char	*function_tolower _((unsigned char *));
-	char	*function_channels _((unsigned char *));
-	char	*function_servers _((unsigned char *));
-	char    *function_servertype _((unsigned char *));
-	char	*function_curpos _((unsigned char *));
-	char	*function_onchannel _((unsigned char *));
-	char	*function_pid _((unsigned char *));
-	char	*function_ppid _((unsigned char *));
+	u_char	*function_left _((u_char *));
+	u_char	*function_right _((u_char *));
+	u_char	*function_mid _((u_char *));
+	u_char	*function_rand _((u_char *));
+	u_char	*function_srand _((u_char *));
+	u_char	*function_time _((u_char *));
+	u_char	*function_stime _((u_char *));
+	u_char	*function_index _((u_char *));
+	u_char	*function_rindex _((u_char *));
+	u_char	*function_match _((u_char *));
+	u_char	*function_rmatch _((u_char *));
+	u_char	*function_userhost _((u_char *));
+	u_char	*function_strip _((u_char *));
+	u_char	*function_encode _((u_char *));
+	u_char	*function_decode _((u_char *));
+	u_char	*function_ischannel _((u_char *));
+	u_char	*function_ischanop _((u_char *));
+#ifdef HAVE_CRYPT
+	u_char	*function_crypt _((u_char *));
+#endif /* HAVE_CRYPT */
+	u_char	*function_hasvoice _((u_char *));
+	u_char	*function_dcclist _((u_char *));
+	u_char	*function_chatpeers _((u_char *));
+	u_char	*function_word _((u_char *));
+	u_char	*function_winnum _((u_char *));
+	u_char	*function_winnam _((u_char *));
+	u_char	*function_winrows _((u_char *));
+	u_char	*function_wincols _((u_char *));
+	u_char	*function_winvisible _((u_char *));
+	u_char	*function_winserver _((u_char *));
+	u_char	*function_winservergroup _((u_char *));
+	u_char	*function_connect _((u_char *));
+	u_char	*function_listen _((u_char *));
+	u_char	*function_tdiff _((u_char *));
+	u_char	*function_toupper _((u_char *));
+	u_char	*function_tolower _((u_char *));
+	u_char	*function_channels _((u_char *));
+	u_char	*function_servers _((u_char *));
+	u_char	*function_servertype _((u_char *));
+	u_char	*function_curpos _((u_char *));
+	u_char	*function_onchannel _((u_char *));
+	u_char	*function_pid _((u_char *));
+	u_char	*function_ppid _((u_char *));
 /**************************** PATCHED by Flier ******************************/
 #ifndef CELESCRP
-	char	*function_chanusers _((unsigned char *));
+	u_char	*function_chanusers _((u_char *));
 #endif
 /****************************************************************************/
-        char	*function_idle _((unsigned char *));
- 	char	*function_querynick _((unsigned char *));
+	u_char	*function_idle _((u_char *));
+	u_char	*function_querynick _((u_char *));
 #ifdef HAVE_STRFTIME
-	char	*function_strftime _((unsigned char *));
-#endif
+	u_char	*function_strftime _((u_char *));
+#endif /* HAVE_STRFTIME */
 /**************************** Patched by Flier ******************************/
-        char    *function_open _((unsigned char *));
-        char    *function_close _((unsigned char *));
-        char    *function_write _((unsigned char *));
-        char    *function_read _((unsigned char *));
-        char    *function_eof _((unsigned char *));
-        char    *function_rename _((unsigned char *));
-        char    *function_intuhost _((unsigned char *));
-        char    *function_checkuser _((unsigned char *));
-        char    *function_checkshit _((unsigned char *));
-        char    *function_stripansi _((unsigned char *));
+        u_char  *function_open _((u_char *));
+        u_char  *function_close _((u_char *));
+        u_char  *function_write _((u_char *));
+        u_char  *function_read _((u_char *));
+        u_char  *function_eof _((u_char *));
+        u_char  *function_rename _((u_char *));
+        u_char  *function_intuhost _((u_char *));
+        u_char  *function_checkuser _((u_char *));
+        u_char  *function_checkshit _((u_char *));
+        u_char  *function_stripansi _((u_char *));
 #ifndef CELESCRP
-	char	*function_isvoiced _((unsigned char *));
-        char	*function_uhost _((unsigned char *));
-	char	*function_hhost _((unsigned char *));
-	char	*function_topic _((unsigned char *));
-	char	*function_strlen _((unsigned char *));
-        char	*function_strnum _((unsigned char *));
+	u_char	*function_isvoiced _((u_char *));
+        u_char	*function_uhost _((u_char *));
+	u_char	*function_hhost _((u_char *));
+	u_char	*function_topic _((u_char *));
+	u_char	*function_strlen _((u_char *));
+        u_char	*function_strnum _((u_char *));
 #endif
-        char	*function_fsize _((unsigned char *));
+        u_char	*function_fsize _((u_char *));
 #ifndef CELESCRP
-        char	*function_sar _((unsigned char *));
-        char	*function_cdccslots _((unsigned char *));
-        char	*function_cdccqslots _((unsigned char *));
-        char	*function_url _((unsigned char *));
-        char	*function_strstr _((unsigned char *));
-        char	*function_szvar _((unsigned char *));
+        u_char	*function_sar _((u_char *));
+        u_char	*function_cdccslots _((u_char *));
+        u_char	*function_cdccqslots _((u_char *));
+        u_char	*function_url _((u_char *));
+        u_char	*function_strstr _((u_char *));
+        u_char	*function_szvar _((u_char *));
 #endif
 #ifdef COUNTRY
-        char	*function_country _((unsigned char *));
+        u_char	*function_country _((u_char *));
 #endif
 #ifdef WANTANSI
-        char    *function_color _((unsigned char *));
+        u_char  *function_color _((u_char *));
 #endif
-/*        char    *function_pattern _((unsigned char *));
-        char    *function_chops _((unsigned char *));
-        char    *function_chnops _((unsigned char *));*/
+    /*  u_char  *function_pattern _((u_char *));
+        u_char  *function_chops _((u_char *));
+        u_char  *function_chnops _((u_char *));  */
 /****************************************************************************/
 
 typedef struct
 {
 	char	*name;
-	char	*(*func) _((unsigned char *));
+	u_char	*(*func) _((u_char *));
 }	BuiltInFunctions;
 
 static BuiltInFunctions	FAR built_in_functions[] =
@@ -319,15 +341,22 @@ static BuiltInFunctions	FAR built_in_functions[] =
 /****************************************************************************/
 	{ "ISCHANNEL",		function_ischannel },
 	{ "ISCHANOP",		function_ischanop },
+#ifdef HAVE_CRYPT
+	{ "CRYPT",		function_crypt },
+#endif /* HAVE_CRYPT */
 /**************************** PATCHED by Flier ******************************/
 #ifndef CELESCRP
-        { "ISVOICED",		function_isvoiced },
+ 	{ "HASVOICE",		function_hasvoice },
 #endif
 /****************************************************************************/
+ 	{ "DCCLIST",		function_dcclist },
+ 	{ "CHATPEERS",		function_chatpeers },
 	{ "WORD",		function_word },
 	{ "WINNUM",		function_winnum },
 	{ "WINNAM",		function_winnam },
  	{ "WINVIS",		function_winvisible },
+	{ "WINROWS",		function_winrows },
+	{ "WINCOLS",		function_wincols },
  	{ "WINSERVER",		function_winserver },
  	{ "WINSERVERGROUP",	function_winservergroup },
 	{ "CONNECT",		function_connect },
@@ -399,9 +428,9 @@ static	char	*alias_string = (char *) 0;
 static	int	eval_args;
 
 /* function_stack and function_stkptr - hold the return values from functions */
-static	char	* FAR function_stack[128] =
+static	u_char	* FAR function_stack[128] =
 { 
-	(char *) 0
+	(u_char *) 0
 };
 static	int	function_stkptr = 0;
 
@@ -525,7 +554,7 @@ add_alias(type, name, stuff)
 		{
 			if (function_stack[function_stkptr])
 				new_free(&function_stack[function_stkptr]);
-			malloc_strcpy(&function_stack[function_stkptr], stuff);
+			malloc_strcpy((char **) &function_stack[function_stkptr], stuff);
 			return;
 		}
 		if ((ptr = sindex(name, alias_illegals)) != NULL)
@@ -604,17 +633,17 @@ word_count(str)
 	}
 }
 
-static	char	*
+static	u_char	*
 built_in_alias(c)
 	int	c;
 {
 	BuiltIns	*tmp;
-	char	*ret = (char *) 0;
+	u_char	*ret = (u_char *) 0;
 
  	for (tmp = built_in; tmp->name; tmp++)
  		if ((char)c == tmp->name)
 		{
-			malloc_strcpy(&ret, tmp->func());
+			malloc_strcpy((char **) &ret, (char *) tmp->func());
 			break;
 		}
  	return (ret);
@@ -641,7 +670,7 @@ find_inline(str)
  		malloc_strcpy(&ret, nalias->stuff);
 		return (ret);
 	}
-	if ((strlen(str) == 1) && (ret = built_in_alias(*str)))
+	if ((strlen(str) == 1) && (ret = (char *) built_in_alias(*str)))
 		return(ret);
 	if ((ret = make_string_var(str)) != NULL)
 		return (ret);
@@ -655,15 +684,15 @@ find_inline(str)
 	return (ret);
 }
 
-static	char	*
+static	u_char	*
 call_function(name, f_args, args, args_flag)
 	char	*name,
 		*f_args,
 		*args;
 	int	*args_flag;
 {
-	unsigned char	*tmp;
-	char	*result = (char *) 0;
+	u_char	*tmp;
+	u_char	*result = (u_char *) 0;
 	char	*sub_buffer = (char *) 0;
 	int	builtnum;
 	char	*debug_copy = (char *) 0;
@@ -671,11 +700,11 @@ call_function(name, f_args, args, args_flag)
 
 	malloc_strcpy(&cmd, name);
 	upper(cmd);
-	tmp = (unsigned char *) expand_alias((char *) 0, f_args, args, args_flag, NULL);
+	tmp = (u_char *) expand_alias((char *) 0, f_args, args, args_flag, NULL);
 	if (get_int_var(DEBUG_VAR) & DEBUG_FUNCTIONS)
 		malloc_strcpy(&debug_copy, (char *) tmp);
 	for (builtnum = 0; built_in_functions[builtnum].name != NULL &&
-			strcmp(built_in_functions[builtnum].name, cmd);
+			strcmp((char *) built_in_functions[builtnum].name, cmd);
 			builtnum++)
 		;
  	new_free(&cmd);
@@ -687,14 +716,14 @@ call_function(name, f_args, args, args_flag)
 		strcpy(sub_buffer, name);
 		strcat(sub_buffer, " ");
 		strcat(sub_buffer, (char *) tmp);
-		function_stack[++function_stkptr] = (char *) 0;
+		function_stack[++function_stkptr] = (u_char *) 0;
 		parse_command(sub_buffer, 0, empty_string);
 		new_free(&sub_buffer);
 		eval_args=1;
 		result = function_stack[function_stkptr];
-		function_stack[function_stkptr] = (char *) 0;
+		function_stack[function_stkptr] = (u_char *) 0;
 		if (!result)
-			malloc_strcpy(&result, empty_string);
+			malloc_strcpy((char **) &result, empty_string);
 		function_stkptr--;
 	}
 	if (debug_copy)
@@ -704,7 +733,7 @@ call_function(name, f_args, args, args_flag)
 		new_free(&debug_copy);
 	}
 	new_free(&tmp);
-	return result;
+	return (result);
 }
 
 
@@ -797,7 +826,7 @@ next_unit(str, args, arg_flag, stage)
  			ptr = MatchingBracket(right, (int)LEFT_PAREN, (int)RIGHT_PAREN);
 			if (ptr)
 				*ptr++ = '\0';
-			result1 = call_function(str, right, args, arg_flag);
+			result1 = (char *)call_function(str, right, args, arg_flag);
 			if (ptr && *ptr)
 			{
 				malloc_strcat(&result1, ptr);
@@ -872,7 +901,7 @@ next_unit(str, args, arg_flag, stage)
                                 }
 			    	result1 = find_inline(tptr);
                                 if (!result1) 
-                                        malloc_strcpy(&result1,zero);
+                                        malloc_strcpy(&result1, zero);
 
                                 {           /* This isnt supposed to be
                                                 attached to the if, so
@@ -1439,7 +1468,7 @@ char	*str;
 		upper_lim = arg_list_size - 1;
 	}
 	if (upper_lim < lower_lim)
-                return empty_string;
+                return (empty_string);
 	if (lower_lim >= arg_list_size)
 		lower_lim = arg_list_size - 1;
 	else if (lower_lim < 0)
@@ -1495,7 +1524,11 @@ do_alias_string()
  */
 static	void	
 expander_addition(buff, add, length, quote_em)
+#ifndef USE_OLD_ALIAS_ALLOC
+	char	**buff,
+#else /* USE_OLD_ALIAS_ALLOC */
 	char	*buff,
+#endif /* USE_OLD_ALIAS_ALLOC */
 		*add;
 	int	length;
 	char	*quote_em;
@@ -1507,18 +1540,27 @@ expander_addition(buff, add, length, quote_em)
 	{
 		sprintf(format, "%%%d.%ds", -length, (length < 0 ? -length :
 			length));
-		sprintf(buffer, format, add);
-		add = buffer;
+		sprintf(buffer, format, add);	/* XXX global buffer */
+		add = buffer;			/* XXX global buffer */
 	}
 	if (quote_em)
 	{
 		ptr = double_quote(add, quote_em);
+#ifndef USE_OLD_ALIAS_ALLOC
+		malloc_strcat(buff, ptr);
+#else /* USE_OLD_ALIAS_ALLOC */
 		strmcat(buff, ptr, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 		new_free(&ptr);
 	}
+#ifndef USE_OLD_ALIAS_ALLOC
+	else if (add && *add)
+	        malloc_strcat(buff, add);
+#else /* USE_OLD_ALIAS_ALLOC */
 	else
                 if (buff)
 		        strmcat(buff, add, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 }
 
 /* MatchingBracket returns the next unescaped bracket of the given type */
@@ -1552,7 +1594,7 @@ MatchingBracket(string, left, right)
  * the $ in a line of text. The special characters are described more fulling
  * in the help/ALIAS file.  But they are all handled here. Paremeters are the
  * name of the alias (if applicable) to prevent deadly recursion, a
- * destination buffer (of size BIG_BUFFER_SIZE) to which things are appended,
+ * destination buffer (that we are malloc_str*ing) to which things are appended,
  * a ptr to the string (the first character of which is the special
  * character, the args to the alias, and a character indication what
  * characters in the string should be quoted with a backslash).  It returns a
@@ -1565,7 +1607,11 @@ MatchingBracket(string, left, right)
 static	char	*
 alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 	char	*name;
+#ifndef USE_OLD_ALIAS_ALLOC
+	char	**lbuf;
+#else /* USE_OLD_ALIAS_ALLOC */
  	char	*lbuf;
+#endif /* USE_OLD_ALIAS_ALLOC */
 	char	*ptr;
 	char	*args;
 	char	*quote_em;
@@ -1585,9 +1631,11 @@ alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 		{
 			*(tmp++) = (char) 0;
 			length = atoi(ptr);
+#ifdef USE_OLD_ALIAS_ALLOC
  			/* XXX hack to avoid core dumps */
  			if (length > ((BIG_BUFFER_SIZE * 5) / 3))
  				length = ((BIG_BUFFER_SIZE * 5) / 3);
+#endif /* USE_OLD_ALIAS_ALLOC */
 			ptr = tmp;
 			c = *ptr;
 		}
@@ -1602,7 +1650,11 @@ alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 	{
 	case LEFT_PAREN:
 		{
+#ifndef USE_OLD_ALIAS_ALLOC
+			char	*sub_buffer = (char *) 0;
+#else /* USE_OLD_ALIAS_ALLOC */
 			char	sub_buffer[BIG_BUFFER_SIZE+1];
+#endif /* USE_OLD_ALIAS_ALLOC */
 
  			if ((ptr = MatchingBracket(tmp, (int)LEFT_PAREN,
  			    (int)RIGHT_PAREN)) || (ptr = (char *) index(tmp,
@@ -1610,10 +1662,18 @@ alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 				*(ptr++) = (char) 0;
 			tmp = expand_alias((char *) 0, tmp, args, args_flag,
 				NULL);
+#ifndef USE_OLD_ALIAS_ALLOC
+			malloc_strcpy(&sub_buffer, empty_string);
+			alias_special_char((char *) 0, &sub_buffer, tmp,
+#else /* USE_OLD_ALIAS_ALLOC */
 			*sub_buffer = (char) 0;
 			alias_special_char((char *) 0, sub_buffer, tmp,
+#endif /* USE_OLD_ALIAS_ALLOC */
 				args, quote_em,args_flag);
  			expander_addition(lbuf, sub_buffer, length, quote_em);
+#ifndef USE_OLD_ALIAS_ALLOC
+			new_free(&sub_buffer);
+#endif /* not USE_OLD_ALIAS_ALLOC */
 			new_free(&tmp);
 			*args_flag = 1;
 		}
@@ -1738,14 +1798,18 @@ alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
  */
 
 char	*
-expand_alias(name, string, args,args_flag, more_text)
+expand_alias(name, string, args, args_flag, more_text)
 	char	*name,
 		*string,
 		*args;
 	int	*args_flag;
 	char	**more_text;
 {
+#ifndef USE_OLD_ALIAS_ALLOC
+	char	*lbuf = (char *) 0,
+#else /* USE_OLD_ALIAS_ALLOC */
 	char	lbuf[BIG_BUFFER_SIZE + 1],
+#endif /* USE_OLD_ALIAS_ALLOC */
 		*ptr,
 		*stuff = (char *) 0,
 		*free_stuff;
@@ -1754,18 +1818,34 @@ expand_alias(name, string, args,args_flag, more_text)
 	char	ch;
 	int	quote_cnt = 0;
 	int	is_quote = 0;
- 	void	(*str_cat) _((char *, char *, size_t));
+#ifndef USE_OLD_ALIAS_ALLOC
+	void	(*str_cat) _((char **, char *));
+#else /* USE_OLD_ALIAS_ALLOC */
+	void	(*str_cat) _((char *, char *, size_t));
+#endif /* USE_OLD_ALIAS_ALLOC */
 
 	if (*string == '@' && more_text)
 	{
+#ifndef USE_OLD_ALIAS_ALLOC
+		str_cat = malloc_strcat;
+#else /* USE_OLD_ALIAS_ALLOC */
 		str_cat = strmcat;
+#endif /* USE_OLD_ALIAS_ALLOC */
 		*args_flag = 1; /* Stop the @ command from auto appending */
 	}
 	else
+#ifndef USE_OLD_ALIAS_ALLOC
+		str_cat = malloc_strcat_ue;
+#else /* USE_OLD_ALIAS_ALLOC */
 		str_cat = strmcat_ue;
+#endif /* USE_OLD_ALIAS_ALLOC */
 	malloc_strcpy(&stuff, string);
 	free_stuff = stuff;
- 	*lbuf = (char) 0;
+#ifndef USE_OLD_ALIAS_ALLOC
+	malloc_strcpy(&lbuf, empty_string);
+#else /* USE_OLD_ALIAS_ALLOC */
+	*lbuf = (char) 0;
+#endif /* USE_OLD_ALIAS_ALLOC */
 	eval_args = 1;
 	ptr = stuff;
 	if (more_text)
@@ -1794,7 +1874,11 @@ expand_alias(name, string, args,args_flag, more_text)
 				break;
 			}
 			*(ptr++) = (char) 0;
- 			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#ifndef USE_OLD_ALIAS_ALLOC
+			(*str_cat)(&lbuf, stuff);
+#else /* USE_OLD_ALIAS_ALLOC */
+			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 			while (*ptr == '^')
 			{
 				ptr++;
@@ -1810,7 +1894,11 @@ expand_alias(name, string, args,args_flag, more_text)
 				quote_str[quote_cnt] = (char) 0;
 			}
 			quote_em = quote_str;
- 			stuff = alias_special_char(name, lbuf, ptr, args,
+#ifndef USE_OLD_ALIAS_ALLOC
+			stuff = alias_special_char(name, &lbuf, ptr, args,
+#else /* USE_OLD_ALIAS_ALLOC */
+			stuff = alias_special_char(name, lbuf, ptr, args,
+#endif /* USE_OLD_ALIAS_ALLOC */
 				quote_em, args_flag);
 			if (stuff)
 				new_free(&quote_str);
@@ -1830,7 +1918,11 @@ expand_alias(name, string, args,args_flag, more_text)
 		case LEFT_BRACE:
 			ch = *ptr;
 			*ptr = '\0';
- 			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#ifndef USE_OLD_ALIAS_ALLOC
+			(*str_cat)(&lbuf, stuff);
+#else /* USE_OLD_ALIAS_ALLOC */
+			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 			stuff = ptr;
 			*args_flag = 1;
  			if (!(ptr = MatchingBracket(stuff + 1, (int)ch,
@@ -1845,7 +1937,11 @@ expand_alias(name, string, args,args_flag, more_text)
 			*stuff = ch;
 			ch = *ptr;
 			*ptr = '\0';
- 			strmcat(lbuf, stuff, BIG_BUFFER_SIZE);
+#ifndef USE_OLD_ALIAS_ALLOC
+			malloc_strcat(&lbuf, stuff);
+#else /* USE_OLD_ALIAS_ALLOC */
+			strmcat(lbuf, stuff, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 			stuff = ptr;
 			*ptr = ch;
 			break;
@@ -1859,10 +1955,18 @@ expand_alias(name, string, args,args_flag, more_text)
 		}
 	}
 	if (stuff)
- 		(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#ifndef USE_OLD_ALIAS_ALLOC
+		(*str_cat)(&lbuf, stuff);
+#else /* USE_OLD_ALIAS_ALLOC */
+		(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
+#endif /* USE_OLD_ALIAS_ALLOC */
 	ptr = (char *) 0;
 	new_free(&free_stuff);
- 	malloc_strcpy(&ptr, lbuf);
+#ifndef USE_OLD_ALIAS_ALLOC
+	ptr = lbuf;
+#else /* USE_OLD_ALIAS_ALLOC */
+	malloc_strcpy(&ptr, lbuf);
+#endif /* USE_OLD_ALIAS_ALLOC */
 	if (get_int_var(DEBUG_VAR) & DEBUG_EXPANSIONS)
 		yell("Expanded [%s] to [%s]",
 			string, ptr);
@@ -2150,203 +2254,205 @@ save_aliases(fp, do_all)
 }
 
 /* The Built-In Alias expando functions */
-static	char	*
+static	u_char	*
 alias_line()
 {
-	return (get_input());
+	return ((u_char *) get_input());
 }
 
-static	char	*
+static	u_char	*
 alias_buffer()
 {
-	return (cut_buffer);
+	return ((u_char *) cut_buffer);
 }
 
-static	char	*
+static	u_char	*
 alias_time()
 {
-	return (update_clock(GET_TIME));
+	static char timestr[16];
+
+	return ((u_char *) update_clock(timestr, 16, GET_TIME));
 }
 
-static	char	*
+static	u_char	*
 alias_dollar()
 {
-	return ("$");
+	return ((u_char *) "$");
 }
 
-static	char	*
+static	u_char	*
 alias_detected()
 {
 	return (last_notify_nick);
 }
 
-static	char	*
+static	u_char	*
 alias_nick()
 {
- 	return (from_server >= 0) ? get_server_nickname(from_server) : nickname;
+	return (u_char *) ((from_server >= 0) ? get_server_nickname(from_server) : nickname);
 }
 
-static	char	*
+static	u_char	*
 alias_away()
 {
- 	return (from_server >= 0) ? server_list[from_server].away : empty_string;
+	return (u_char *) ((from_server >= 0) ? server_list[from_server].away : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_sent_nick()
 {
-	return (sent_nick) ? sent_nick : empty_string;
+	return (sent_nick) ? sent_nick : (u_char *) empty_string;
 }
 
-static	char	*
+static	u_char	*
 alias_recv_nick()
 {
-	return (recv_nick) ? recv_nick : empty_string;
+	return (recv_nick) ? recv_nick : (u_char *) empty_string;
 }
 
-static	char	*
+static	u_char	*
 alias_msg_body()
 {
-	return (sent_body) ? sent_body : empty_string;
+	return (sent_body) ? sent_body : (u_char *) empty_string;
 }
 
-static	char	*
+static	u_char	*
 alias_joined_nick()
 {
-	return (joined_nick) ? joined_nick : empty_string;
+	return (joined_nick) ? joined_nick : (u_char *) empty_string;
 }
 
-static	char	*
+static	u_char	*
 alias_public_nick()
 {
-	return (public_nick) ? public_nick : empty_string;
+	return (public_nick) ? public_nick : (u_char *) empty_string;
 }
 
-static	char	*
+static	u_char	*
 alias_channel()
 {
 	char	*tmp;
 
-	return (tmp = get_channel_by_refnum(0)) ? tmp : zero;
+	return (u_char *) ((tmp = get_channel_by_refnum(0)) ? tmp : zero);
 }
 
-static	char	*
+static	u_char	*
 alias_server()
 {
-	return (parsing_server_index != -1) ?
+	return (u_char *) ((parsing_server_index != -1) ?
 		get_server_itsname(parsing_server_index) :
 		(get_window_server(0) != -1) ?
-			get_server_itsname(get_window_server(0)) : empty_string;
+ 			get_server_itsname(get_window_server(0)) : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_query_nick()
 {
 	char	*tmp;
 
-	return (tmp = query_nick()) ? tmp : empty_string;
+	return (u_char *) ((tmp = query_nick()) ? tmp : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_target()
 {
 	char	*tmp;
 
-	return (tmp = get_target_by_refnum(0)) ? tmp : empty_string;
+	return (u_char *) ((tmp = get_target_by_refnum(0)) ? tmp : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_invite()
 {
-	return (invite_channel) ? invite_channel : empty_string;
+	return (u_char *) ((invite_channel) ? invite_channel : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_cmdchar()
 {
-	static	char	thing[2];
-	char	*cmdchars;
+	static	u_char	thing[2];
+	u_char	*cmdu_chars;
 
-	if ((cmdchars = get_string_var(CMDCHARS_VAR)) == (char *) 0)
-		cmdchars = DEFAULT_CMDCHARS;
-	thing[0] = cmdchars[0];
-	thing[1] = (char) 0;
-	return(thing);
+	if ((cmdu_chars = get_string_var(CMDCHARS_VAR)) == (u_char *) 0)
+		cmdu_chars = DEFAULT_CMDCHARS;
+	thing[0] = cmdu_chars[0];
+	thing[1] = (u_char) 0;
+ 	return (thing);
 }
 
-static	char	*
+static	u_char	*
 alias_oper()
 {
- 	return (from_server >= 0 && get_server_operator(from_server)) ?
-		get_string_var(STATUS_OPER_VAR) : empty_string;
+	return (u_char *) ((from_server >= 0 && get_server_operator(from_server)) ?
+		get_string_var(STATUS_OPER_VAR) : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_chanop()
 {
-	char	*tmp;
+	u_char	*tmp;
 
- 	return (from_server >= 0 && (tmp = get_channel_by_refnum(0)) &&
+	return (u_char *) ((from_server >= 0 && (tmp = get_channel_by_refnum(0)) &&
  			get_channel_oper(tmp, from_server)) ?
-		"@" : empty_string;
+ 		"@" : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_modes()
 {
-	char	*tmp;
+	u_char	*tmp;
 
- 	return (from_server >= 0 && (tmp = get_channel_by_refnum(0))) ?
-		get_channel_mode(tmp, from_server) : empty_string;
+	return (u_char *) ((from_server >= 0 && (tmp = get_channel_by_refnum(0))) ?
+		get_channel_mode(tmp, from_server) : empty_string);
 }
 
-static	char	*
+static	u_char	*
 alias_version()
 {
-	return (internal_version);
+	return (u_char *) (internal_version);
 }
 
-static	char	*
+static	u_char	*
 alias_currdir()
 {
-	static	char	dirbuf[1024];
+	static	u_char	dirbuf[1024];
 
-        getcwd(dirbuf, BIG_BUFFER_SIZE+1);
+        getcwd((char *) dirbuf, 1024+1);
 	return (dirbuf);
 }
 
-static	char	*
+static	u_char	*
 alias_current_numeric()
 {
-	static	char	number[4];
+	static	u_char	number[4];
 
-	sprintf(number, "%03d", -current_numeric);
+	sprintf((char *) number, "%03d", -current_numeric);
 	return (number);
 }
 
-static	char	*
+static	u_char	*
 alias_server_version()
 {
 	char	*s;
 
- 	return (curr_scr_win->server >= 0 &&
+	return (u_char *) ((curr_scr_win->server >= 0 &&
  			(s = server_list[curr_scr_win->server].version_string)) ?
- 		s : empty_string;
+		s : empty_string);
 }
 
 /**************************** PATCHED by Flier ******************************/
-static char *alias_ScrollZ_version() {
-    static char tmpbuf[mybufsize/16];
+static u_char *alias_ScrollZ_version() {
+    static u_char tmpbuf[mybufsize/16];
 
-    sprintf(tmpbuf,"%s [%s]",ScrollZver1,VersionInfo);
+    sprintf((char *) tmpbuf,"%s [%s]",ScrollZver1,VersionInfo);
     return(tmpbuf);
 }
 
 #ifdef CELE
-static char *alias_Celerity_version() {
-    static char tmpbuf[32];
+static u_char *alias_Celerity_version() {
+    static u_char tmpbuf[32];
 
-    sprintf(tmpbuf,"%s",CelerityVersion);
+    sprintf((char *) tmpbuf,"%s",CelerityVersion);
     return(tmpbuf);
 }
 #endif
@@ -2428,11 +2534,11 @@ alias(command, args, subargs)
 
 
 
-char	*
+u_char	*
 function_left(input)
-	unsigned char	*input;
+ 	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*count;
 	int	cvalue;
 
@@ -2443,15 +2549,15 @@ function_left(input)
 		cvalue = 0;
 	if ((int) strlen((char *) input) > cvalue)
 		input[cvalue] = '\0';
-	malloc_strcpy(&result, (char *) input);
-	return result;
+	malloc_strcpy((char **) &result, (char *) input);
+	return (result);
 }
 
-char	*
+u_char	*
 function_right(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*count;
 	int	cvalue;
 	int	len;
@@ -2463,15 +2569,15 @@ function_right(input)
 		cvalue = 0;
 	if ((len = (int) strlen((char *) input)) > cvalue)
 		input += len - cvalue;
-	malloc_strcpy(&result, (char *) input);
-	return result;
+	malloc_strcpy((char **) &result, (char *) input);
+	return (result);
 }
 
-char	*
+u_char	*
 function_mid(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*mid_index;
 	int	ivalue;
 	char	*count;
@@ -2493,8 +2599,8 @@ function_mid(input)
 		*input = '\0';
 	if ((int) strlen((char *) input) > cvalue)
 		input[cvalue] = '\0';
-	malloc_strcpy(&result, (char *) input);
-	return result;
+	malloc_strcpy((char **) &result, (char *) input);
+	return (result);
 }
 
 /* patch from Sarayan to make $rand() better */
@@ -2540,11 +2646,11 @@ randm(l)
 }*/
 /****************************************************************************/
 
-char	*
+u_char	*
 function_rand(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	tmp[40];
 /**************************** PATCHED by Flier ******************************/
 	/*long	tempin;*/
@@ -2561,61 +2667,61 @@ function_rand(input)
         sprintf(tmp,"%d",(input && *input)?rand()%value:rand());
 /****************************************************************************/
 #endif /* _Windows */
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_srand(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
 /**************************** PATCHED by Flier ******************************/
 	/*if (input && *input)
 		(void) randm(atol((char *) input));
 	else
-		(void) randm((time_t) time(NULL));*/
+		(void) randm((long) time(NULL));*/
 	if (input && *input) srand(atol((char *) input));
 	else srand(time((time_t *) 0));
 /****************************************************************************/
-	malloc_strcpy(&result, empty_string);
-	return result;
+	malloc_strcpy((char **) &result, empty_string);
+	return (result);
 }
 
 /*ARGSUSED*/
-char	*
+u_char	*
 function_time(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	time_t	ltime;
 	char	tmp[40];
 
 	(void) time(&ltime);
-	sprintf(tmp, "%ld", ltime);
-	malloc_strcpy(&result, tmp);
-	return result;
+	sprintf(tmp, "%ld", (long)ltime);
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_stime(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	time_t	ltime;
 
 	ltime = atol((char *) input);
-	malloc_strcpy(&result, ctime(&ltime));
-	result[strlen(result) - 1] = (char) 0;
-	return result;
+	malloc_strcpy((char **) &result, ctime(&ltime));
+	result[strlen((char *) result) - 1] = (u_char) 0;
+	return (result);
 }
 
-char	*
+u_char	*
 function_tdiff(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	time_t	ltime;
 	time_t	days,
 		hours,
@@ -2652,15 +2758,15 @@ function_tdiff(input)
 		sprintf(tstr, "%ld second%s", (long) seconds, (seconds==1)?"":"s");
 		tstr += strlen(tstr);
 	}
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_index(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*schars;
 	char	*iloc;
 	int	ival;
@@ -2670,15 +2776,15 @@ function_index(input)
 	iloc = (schars) ? sindex((char *) input, schars) : NULL;
 	ival = (iloc) ? iloc - (char *) input : -1;
 	sprintf(tmp, "%d", ival);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_rindex(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*schars;
 	char	*iloc;
 	int	ival;
@@ -2688,15 +2794,15 @@ function_rindex(input)
  	iloc = (schars) ? srindex((char *) input, schars) : NULL;
  	ival = (iloc) ? iloc - (char *) input : -1;
 	sprintf(tmp, "%d", ival);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_match(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*pattern;
 	char	*word;
 	int	current_match;
@@ -2719,15 +2825,15 @@ function_match(input)
 		}
 	}
 	sprintf(tmp, "%d", match);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_rmatch(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*pattern;
 	char	*word;
 	int	current_match;
@@ -2750,32 +2856,39 @@ function_rmatch(input)
 		}
 	}
 	sprintf(tmp, "%d", match);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
 /*ARGSUSED*/
-char	*
+u_char	*
 function_userhost(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
-	malloc_strcpy(&result, FromUserHost ? FromUserHost : empty_string);
-	return result;
+	malloc_strcpy((char **) &result, FromUserHost ? FromUserHost : empty_string);
+	return (result);
 }
 
-char	*
+u_char	*
 function_strip(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	static	char	FAR result[BIG_BUFFER_SIZE+1];
-	char	*retval = (char *) 0;
+	char	tmpbuf[128], *result;
+	u_char	*retval = (u_char *) 0;
 	char	*chars;
 	char	*cp, *dp;
+	size_t len = 0;
 
 	if ((chars = next_arg((char *) input, (char **) &input)) && input)
 	{
+		len = strlen((char *) input);
+		if (len > 127)
+			result = (char *) new_malloc(len);
+		else
+			result = tmpbuf;
+
 		for (cp = (char *) input, dp = result; *cp; cp++)
 		{
 			if (!index(chars, *cp))
@@ -2783,41 +2896,42 @@ function_strip(input)
 		}
 		*dp = '\0';
 	}
-	malloc_strcpy(&retval, result);
-	return retval;
+	malloc_strcpy((char **) &retval, result);
+	if (len > 127)
+		new_free(&result);	/* we could use this copy, but it might be extra-long */
+	return (retval);
 }
 
-char	*
+u_char	*
 function_encode(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	static unsigned char	FAR result[BIG_BUFFER_SIZE+1];
-	char	*retval = (char *) 0;
-	unsigned char	*c;
+	u_char	*result;
+	u_char	*c;
 	int	i = 0;
 
+ 	result = (u_char *) new_malloc(strlen((char *) input) * 2 + 1);
 	for (c = input; *c; c++)
 	{
 		result[i++] = (*c >> 4) + 0x41;
 		result[i++] = (*c & 0x0f) + 0x41;
 	}
 	result[i] = '\0';
-	malloc_strcpy(&retval, (char *) result);
-	return retval;
+ 	return (result);
 }
 
 
-char	*
+u_char	*
 function_decode(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	static unsigned	char	FAR result[BIG_BUFFER_SIZE+1];
-	char	*retval = (char *) 0;
-	unsigned char	*c;
-	unsigned char	d,e;
+	u_char	*result;
+	u_char	*c;
+	u_char	d,e;
 	int	i = 0;
 
 	c = input;
+	result = (u_char *) new_malloc(strlen((char *) input) / 2 + 2);
 	while((d = *c) && (e = *(c+1)))
 	{
 		result[i] = ((d - 0x41) << 4) | (e - 0x41);
@@ -2825,41 +2939,156 @@ function_decode(input)
 		i++;
 	}
 	result[i] = '\0';
-	malloc_strcpy(&retval, (char *) result);
-	return retval;
+	return (result);
 }
 
-char	*
+u_char	*
 function_ischannel(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
-	malloc_strcpy(&result, is_channel((char *) input) ? one : zero);
-	return result;
+	malloc_strcpy((char **) &result, is_channel((char *) input) ? one : zero);
+	return (result);
 }
 
-char	*
+u_char	*
 function_ischanop(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*nick;
 	char	*channel = NULL;
 
 	if (!(nick = next_arg((char *) input, &channel)))
-		malloc_strcpy(&result, zero);
+		malloc_strcpy((char **) &result, zero);
 	else
-		malloc_strcpy(&result, is_chanop(channel, nick) ? one : zero);
-	return result;
+		malloc_strcpy((char **) &result, is_chanop(channel, nick) ? one : zero);
+	return (result);
 }
 
+#ifdef HAVE_CRYPT
+#if 0
+extern char *crypt(const char *key, const char *salt);
+#endif
 
-char	*
-function_word(input)
-	unsigned char	*input;
+u_char *
+function_crypt(input)
+	u_char *input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (char *)0;
+	char	*salt;
+	char	*key = NULL;
+
+	if (!(salt = next_arg((char *) input, &key)))
+		malloc_strcpy((char **) &result, zero);
+	else
+		malloc_strcpy((char **) &result, crypt(key, salt));
+	return (result);
+}
+#endif /* HAVE_CRYPT */
+
+u_char *
+function_hasvoice(input)
+	u_char *input;
+{
+	u_char	*result = (u_char *)0;
+	char	*nick;
+	char	*channel = NULL;
+
+	if (!(nick = next_arg((char *) input, &channel)))
+		malloc_strcpy((char **) &result, zero);
+	else
+		malloc_strcpy((char **) &result, has_voice(channel, nick) ? one : zero);
+	return (result);
+}
+
+u_char *
+function_dcclist(Nick)
+	u_char *Nick;
+{
+	u_char *result;
+	DCC_list *Client;
+	size_t len = 0;
+	int i;
+	
+	if (!Nick)
+	{
+		malloc_strcpy((char **)&result, zero);
+		return (result);
+	}
+	
+	for (i = 0, Client = ClientList; Client != NULL; Client = Client->next)
+		if (!my_stricmp((char *) Nick, Client->user))
+			len += 3;
+
+	result = (u_char *) new_malloc(len + 1);
+
+	for (i = 0, Client = ClientList; Client != NULL; Client = Client->next)
+		if (!my_stricmp((char *) Nick, Client->user))
+		{
+			int b = Client->flags;
+			int a = (b & DCC_TYPES);
+			
+			result[i++] = (a == DCC_CHAT)			? 'C' /* CHAT */
+					: (a == DCC_FILEOFFER)		? 'S' /* SEND */
+					: (a == DCC_FILEREAD)		? 'G' /* GET */
+/**************************** PATCHED by Flier ******************************/
+					//: (a == DCC_TALK)		? 'T' /* TALK */
+					//: (a == DCC_SUMMON)		? 'U' /* SUMMON */
+/****************************************************************************/
+					: (a == DCC_RAW_LISTEN)		? 'L' /* RAW_LISTEN */
+					: (a == DCC_RAW)      		? 'R' /* RAW */
+					:				  'x';
+						
+			result[i++] = (b & DCC_DELETE)			? 'C' /* CLOSED */
+					: (b & DCC_ACTIVE)		? 'A' /* ACTIVE */
+					: (b & DCC_WAIT)		? 'W' /* WAITING */
+					: (b & DCC_OFFER)		? 'O' /* OFFERED */
+					:				  'x';
+						
+			result[i++] = ' ';
+		}
+	
+	result[i] = '\0';
+	
+	return (result);
+}
+
+u_char *
+function_chatpeers(dummy)
+	u_char *dummy;
+{
+	u_char *result;
+	DCC_list *Client;
+	int	notfirst = 0;
+	size_t len = 0;
+	
+	/* calculate size */
+	for (Client = ClientList; Client != NULL; Client = Client->next)
+		if ((Client->flags & (DCC_CHAT|DCC_ACTIVE)) == (DCC_CHAT|DCC_ACTIVE))
+			len += (strlen(Client->user) + 1);
+	result = (u_char *) new_malloc(len);
+	*result = '\0';
+
+	for (Client = ClientList; Client != NULL; Client = Client->next)
+		if ((Client->flags & (DCC_CHAT|DCC_ACTIVE)) == (DCC_CHAT|DCC_ACTIVE))
+		{
+			if (notfirst)
+				strcat((char *) result, ",");
+			else
+				notfirst = 1;
+			strcat((char *) result, Client->user);
+		}
+
+	return (result);
+}
+
+u_char	*
+function_word(input)
+	u_char	*input;
+{
+	u_char	*result = (u_char *) 0;
 	char	*count;
 	int	cvalue;
 	char	*word;
@@ -2870,115 +3099,159 @@ function_word(input)
 	else
 		cvalue = 0;
 	if (cvalue < 0)
-		malloc_strcpy(&result, empty_string);
+		malloc_strcpy((char **) &result, empty_string);
 	else
 	{
 		for (word = next_arg((char *) input, (char **) &input); word && cvalue--;
 				word = next_arg((char *) input, (char **) &input))
 			;
-		malloc_strcpy(&result, (word) ? word : empty_string);
+		malloc_strcpy((char **) &result, (word) ? word : empty_string);
 	}
-	return result;
+	return (result);
 }
 
-char	*
+u_char	*
 function_querynick(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	Window	*win;
 
 	if (input && isdigit(*input))
-		win = get_window_by_refnum((u_int)atoi(input));
+		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
-	malloc_strcpy(&result, win ? win->query_nick : "-1");
-	return result;
+	malloc_strcpy((char **) &result, win ? win->query_nick : "-1");
+	return (result);
 }
 
-char	*
+u_char	*
 function_winserver(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	tmp[10];
 	Window	*win;
 
 	if (input && isdigit(*input))
-		win = get_window_by_refnum((u_int)atoi(input));
+		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
 	sprintf(tmp, "%d", win ? win->server : -1);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_winservergroup(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	tmp[10];
 	Window	*win;
 
 	if (input && isdigit(*input))
-		win = get_window_by_refnum((u_int)atoi(input));
+		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
 	sprintf(tmp, "%d", win ? win->server_group : -1);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_winvisible(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	tmp[10];
 	Window	*win;
 
 	if (input && isdigit(*input))
-		win = get_window_by_refnum((u_int)atoi(input));
+		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
 	sprintf(tmp, "%d", win ? win->visible : -1);
-	malloc_strcpy(&result, tmp);
-	return result;
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_winnum(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	tmp[10];
 
-	sprintf(tmp, "%d", curr_scr_win ? curr_scr_win->refnum : -1);
-	malloc_strcpy(&result, tmp);
-	return result;
+	sprintf(tmp, "%d", curr_scr_win ? (int)curr_scr_win->refnum : -1);
+	malloc_strcpy((char **) &result, tmp);
+	return (result);
 }
 
-char	*
+u_char	*
 function_winnam(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	Window	*win;
 
 	if (input && isdigit(*input))
-		win = get_window_by_refnum((u_int)atoi(input));
+		win = get_window_by_refnum((u_int)atoi((char *) input));
 	else
 		win = curr_scr_win;
-	malloc_strcpy(&result, (win && win->name) ? win->name : empty_string);
-	return result;
+	malloc_strcpy((char **) &result, (win && win->name) ? win->name : empty_string);
+	return (result);
 }
 
-char	*
-function_connect(input)
-	unsigned char	*input;
+/*
+ * returns the current window's display (len) size counting for double
+ * status bars, etc.. -Toasty
+ */
+u_char    *
+function_winrows(input)
+        u_char   *input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
+
+	if (curr_scr_win)
+	{
+		char	tmp[10];
+
+		sprintf(tmp, "%d", curr_scr_win->display_size);
+		malloc_strcpy((char **) &result, tmp);
+	}
+	else
+		malloc_strcpy((char **) &result, "-1");
+	return (result);
+}
+
+/*
+ * returns the current screen's (since all windows have the same
+ * column/width) column value -Toasty
+ */
+u_char	*
+function_wincols(input)
+	u_char	*input;
+{
+	u_char	*result = (u_char *) 0;
+
+	if (curr_scr_win)
+	{
+		char	tmp[10];
+
+		sprintf(tmp, "%d", current_screen->co);
+		malloc_strcpy((char **) &result, tmp);
+	}
+	else
+		malloc_strcpy((char **) &result, "-1");
+	return (result);
+}
+
+u_char	*
+function_connect(input)
+	u_char	*input;
+{
+	u_char	*result = (u_char *) 0;
 	char	*host;
 
 #ifdef DAEMON_UID
@@ -2987,71 +3260,71 @@ function_connect(input)
 	else
 #endif
 		if ((host = next_arg((char *) input, (char **) &input)) != NULL)
- 			result = dcc_raw_connect(host, (u_int) atoi((char *) input));
-	return result;
+			result = (u_char *) dcc_raw_connect(host, (u_int) atoi((char *) input));
+	return (result);
 }
 
 
-char	*
+u_char	*
 function_listen(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
 #ifdef DAEMON_UID
 	if (getuid() == DAEMON_UID)
-		malloc_strcpy(&result, zero);
+		malloc_strcpy((char **) &result, zero);
 	else
 #endif
- 		result = dcc_raw_listen((u_int) atoi((char *) input));
-	return result;
+		result = (u_char *) dcc_raw_listen((u_int) atoi((char *) input));
+	return (result);
 }
 
-char	*
+u_char	*
 function_toupper(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*new = (char *) 0,
+	u_char	*new = (u_char *) 0,
 		*ptr;
 
 	if (!input)
-		return empty_string;
-	malloc_strcpy(&new, (char *) input);
+		return (u_char *) empty_string;
+	malloc_strcpy((char **) &new, (char *) input);
 	for (ptr = new; *ptr; ptr++)
 		*ptr = islower(*ptr) ? toupper(*ptr) : *ptr;
 	return new;
 }
 
-char	*
+u_char	*
 function_tolower(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*new = (char *) 0,
+	u_char	*new = (u_char *) 0,
 		*ptr;
 
 	if (!input)
-		return empty_string;
-	malloc_strcpy(&new, (char *) input);
+		return (u_char *) empty_string;
+	malloc_strcpy((char **) &new, (char *) input);
 	for (ptr = new; *ptr; ptr++)
 		*ptr = (isupper(*ptr)) ? tolower(*ptr) : *ptr;
 	return new;
 }
 
-char	*
+u_char	*
 function_curpos(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*new = (char *) 0,
+	u_char	*new = (u_char *) 0,
 		pos[4];
 
-	sprintf(pos, "%d", current_screen->buffer_pos);
-	malloc_strcpy(&new, pos);
+	sprintf((char *) pos, "%d", current_screen->buffer_pos);
+	malloc_strcpy((char **) &new, (char *) pos);
 	return new;
 }
 
-char	*
+u_char	*
 function_channels(input)
-	unsigned char	*input;
+	u_char	*input;
 {
 	Window	*window;
 
@@ -3061,22 +3334,23 @@ function_channels(input)
 	else
 		window = curr_scr_win;
 
-	return create_channel_list(window);
+	return (u_char *) create_channel_list(window);
 }
 
-char	*
+u_char	*
 function_servers(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	return create_server_list();
+	return (u_char *) create_server_list();
 }
 
-char	*
+u_char	*
 function_servertype(input)
-	unsigned char	*input;
+	u_char	*input;
 {
 	int server;
-	char *s, *result = NULL;
+	char *s;
+	u_char *result = NULL;
 
 	if (from_server < 0)
 		server = primary_server;
@@ -3109,46 +3383,46 @@ function_servertype(input)
 			break;
 		}
 
-	malloc_strcpy(&result, s);
-	return result;
+	malloc_strcpy((char **) &result, s);
+	return (result);
 }
 
-char	*
+u_char	*
 function_onchannel(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	char	*nick;
 	char	*channel = NULL;
 
  	if (from_server < 0 || !(nick = next_arg((char *) input, &channel)))
-		malloc_strcpy(&result, zero);
+		malloc_strcpy((char **) &result, zero);
 	else
-		malloc_strcpy(&result,
+		malloc_strcpy((char **) &result,
 			is_on_channel(channel, from_server, nick) ? one : zero);
-	return result;
+	return (result);
 }
 
-char	*
+u_char	*
 function_pid(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
-	sprintf(buffer, "%d", (int) getpid());
-	malloc_strcpy(&result, buffer);
-	return result;
+	sprintf(buffer, "%d", (int) getpid());		/* XXX global buffer */
+	malloc_strcpy((char **) &result, buffer);			/* XXX global buffer */
+	return (result);
 }
 
-char	*
+u_char	*
 function_ppid(input)
-	unsigned char	*input;
+	u_char	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 
-	sprintf(buffer, "%d", (int) getppid());
-	malloc_strcpy(&result, buffer);
-	return result;
+	sprintf(buffer, "%d", (int) getppid());		/* XXX global buffer */
+	malloc_strcpy((char **) &result, buffer);			/* XXX global buffer */
+	return (result);
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -3158,13 +3432,13 @@ function_ppid(input)
    .nick otherwise */
 #ifndef CELESCRP
 /****************************************************************************/
-char	*
+u_char	*
 function_chanusers(input)
-	unsigned char	*input;
+	u_char	*input;
 {
 	ChannelList	*chan;
 	NickList	*nicks;
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
 	int	len = 0;
 	int	notfirst = 0;
 /**************************** PATCHED by Flier ******************************/
@@ -3174,47 +3448,44 @@ function_chanusers(input)
 
 /**************************** PATCHED by Flier ******************************/
 	/*chan = lookup_channel((char *) input, from_server, CHAN_NOUNLINK);*/
-        channel=new_next_arg(input,(char **) &input);
+        channel=new_next_arg((char *) input,(char **) &input);
         chan=lookup_channel(channel,from_server,CHAN_NOUNLINK);
         if (input && *input=='1') nickst=1;
 /****************************************************************************/
 	if ((ChannelList *) 0 == chan)
-		return (char *) 0;
+		return (u_char *) 0;
 
 	*buffer = '\0';
 
 	for (nicks = chan->nicks; nicks; nicks = nicks->next)
-	{
 /**************************** PATCHED by Flier ******************************/
-		/*len += strlen(nicks->nick);
-		if (len > BIG_BUFFER_SIZE)*/
-		len+=strlen(nicks->nick)+1;
+        {
+/****************************************************************************/
+		len += (strlen(nicks->nick) + 1);
+/**************************** PATCHED by Flier ******************************/
                 if (nickst) len++;
-		if (len>BIG_BUFFER_SIZE-100)
+        }
 /****************************************************************************/
-		{
-			malloc_strcat(&result, buffer);
-			*buffer = '\0';
-			len = 0;
-/**************************** PATCHED by Flier ******************************/
-                        if (strlen(result)>2*BIG_BUFFER_SIZE-100) break;
-/****************************************************************************/
-		}
+	result = (u_char *) new_malloc(len + 1);
+	*result = '\0';
+
+        for (nicks = chan->nicks; nicks; nicks = nicks->next)
+	{
 		if (notfirst)
-			strcat(buffer, " ");
+			strcat((char *)result, " ");
 		else
 			notfirst = 1;
 /**************************** PATCHED by Flier ******************************/
                 if (nickst) {
-                    if (nicks->chanop) strcat(buffer,"@");
-                    else if (nicks->voice) strcat(buffer,"+");
-                    else strcat(buffer,".");
+                    if (nicks->chanop) strcat((char *) result,"@");
+                    else if (nicks->hasvoice) strcat((char *) result,"+");
+                    else strcat((char *) result,".");
                 }
 /****************************************************************************/
-		strcat(buffer, nicks->nick);
+		strcat((char *)result, nicks->nick);
         }
-        malloc_strcat(&result, buffer);
-	return result;
+
+        return (result);
 }
 /**************************** PATCHED by Flier ******************************/
 #endif /* CELESCRP */
@@ -3224,9 +3495,9 @@ function_chanusers(input)
  * strftime() patch from hari (markc@arbld.unimelb.edu.au)
  */
 #ifdef HAVE_STRFTIME
-char	*
+u_char	*
 function_strftime(input)
-	unsigned char 	*input;
+	u_char 	*input;
 {
 	char	result[128];
 	time_t	ltime;
@@ -3244,17 +3515,17 @@ function_strftime(input)
 		tm = localtime(&ltime);
 		if (strftime(result, 128, fmt, tm))
 		{
-			char *	s = (char *) 0;
+			u_char	*s = (u_char *) 0;
 
-			malloc_strcpy(&s, result);
+			malloc_strcpy((char **) &s, result);
 			return s;
 		}
 		else
-			return (char *) 0;
+			return (u_char *) 0;
 	}
 	else
 	{
-		return (char *) 0;
+		return (u_char *) 0;
 	}
 }
 #endif
@@ -3263,141 +3534,140 @@ function_strftime(input)
 /*
  * idle() patch from scottr (scott.reynolds@plexus.com)
  */
-char	*
+u_char	*
 function_idle(input)
-	unsigned char 	*input;
+	u_char 	*input;
 {
-	char	*result = (char *) 0;
+	u_char	*result = (u_char *) 0;
+	char	lbuf[20];
 
-	sprintf(buffer, "%ld", (long)(time(0) - idle_time));
-	malloc_strcpy(&result, buffer);
-	return result;
+	sprintf(lbuf, "%ld", (long)(time(0) - idle_time));
+	malloc_strcpy((char **) &result, lbuf);
+	return (result);
 }
 
 /**************************** Patched by Flier ******************************/
-char *function_open(words)
-unsigned char *words;
+u_char *function_open(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *filename=(char *) 0;
 
     filename=next_arg((char *) words,(char **) &words);
     if (words && *words) {
         *(words+1)='\0';
         upper(words);
-        if (*words=='R') sprintf(buffer,"%d",OpenFileRead(filename));
+        if (*words=='R') sprintf(locbuf,"%d",OpenFileRead(filename));
         else if (*words=='W' || *words=='A')
-            sprintf(buffer,"%d",OpenFileWrite(filename,words));
+            sprintf(locbuf,"%d",OpenFileWrite(filename,words));
     }
-    else strcpy(buffer,"-1");
-    malloc_strcpy(&result,buffer);
+    else strcpy(locbuf,"-1");
+    malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
 
-char *function_close(words)
-unsigned char *words;
+u_char *function_close(words)
+u_char *words;
 {
     char *args=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        sprintf(buffer,"%d",FileClose(atoi(args)));
+        sprintf(locbuf,"%d",FileClose(atoi(args)));
     }
-    else strcpy(buffer,"-1");
-    malloc_strcpy(&result,buffer);
+    else strcpy(locbuf,"-1");
+    malloc_strcpy((char **) &result,locbuf);
     return(result);
 }	
 
-char *function_read(words)
-unsigned char *words;
+u_char *function_read(words)
+u_char *words;
 {
     char *args=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        return(FileRead(atoi(args)));
+        malloc_strcpy((char **) &result,FileRead(atoi(args)));
     }
-    else {
-        malloc_strcpy(&result,"-1");
-        return(result);
-    }
-}	
-
-char *function_write(words)
-unsigned char *words;
-{
-    char *args=(char *) 0;
-    char *result=(char *) 0;
-
-    if (words && *words) {
-        args=next_arg((char *) words,(char **) &words);
-        if (words && *words) sprintf(buffer,"%d",FileWrite(atoi(args),words));
-        else strcpy(buffer,"-1");
-    }
-    else strcpy(buffer,"-1");
-    malloc_strcpy(&result,buffer);
+    else malloc_strcpy((char **) &result,"-1");
     return(result);
 }
 
-char *function_eof(words)
-unsigned char *words;
+u_char *function_write(words)
+u_char *words;
 {
     char *args=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
-        sprintf(buffer,"%d",FileEof(atoi(args)));
+        if (words && *words) sprintf(locbuf,"%d",FileWrite(atoi(args),words));
+        else strcpy(locbuf,"-1");
     }
-    else strcpy(buffer,"-1");
-    malloc_strcpy(&result,buffer);
+    else strcpy(locbuf,"-1");
+    malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
 
-char *function_rename(words)
-unsigned char *words;
+u_char *function_eof(words)
+u_char *words;
+{
+    char *args=(char *) 0;
+    u_char *result=(char *) 0;
+
+    if (words && *words) {
+        args=next_arg((char *) words,(char **) &words);
+        sprintf(locbuf,"%d",FileEof(atoi(args)));
+    }
+    else strcpy(locbuf,"-1");
+    malloc_strcpy((char **) &result,locbuf);
+    return(result);
+}
+
+u_char *function_rename(words)
+u_char *words;
 {
     char *oldname=(char *) 0;
     char *newname=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (words && *words) {
         oldname=next_arg((char *) words,(char **) &words);
         newname=next_arg((char *) words,(char **) &words);
         if (newname && *newname) {
-            sprintf(buffer,"%d",rename(oldname,newname));
-            malloc_strcpy(&result,buffer);
+            sprintf(locbuf,"%d",rename(oldname,newname));
+            malloc_strcpy((char **) &result,locbuf);
         }
-        else malloc_strcpy(&result,"-1");
+        else malloc_strcpy((char **) &result,"-1");
     }
-    else malloc_strcpy(&result,"-1");
+    else malloc_strcpy((char **) &result,"-1");
     return(result);
 }	
 
-char *function_intuhost(words)
-unsigned char *words;
+u_char *function_intuhost(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *args=(char *) 0;
     NickList *joiner;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
         joiner=CheckJoiners(args,0,from_server,NULL);
-        if (joiner && joiner->userhost) sprintf(buffer,"%s!%s",joiner->nick,joiner->userhost);
-        else strcpy(buffer,"-1");
-        malloc_strcpy(&result,buffer);
+        if (joiner && joiner->userhost) sprintf(locbuf,"%s!%s",joiner->nick,joiner->userhost);
+        else strcpy(locbuf,"-1");
+        malloc_strcpy((char **) &result,locbuf);
     }
-    else malloc_strcpy(&result,"-1");
+    else malloc_strcpy((char **) &result,"-1");
     return(result);
 }
 
-char *function_checkuser(words)
-unsigned char *words;
+u_char *function_checkuser(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *args=(char *) 0;
     struct friends *tmpfriend;
 
@@ -3405,73 +3675,73 @@ unsigned char *words;
         args=next_arg((char *) words,(char **) &words);
         if (words && *words) {
             if ((tmpfriend=CheckUsers(args,words))) {
-                *buffer='\0';
-                BuildPrivs(tmpfriend,buffer);
-                strcat(buffer," ");
-                strcat(buffer,tmpfriend->userhost);
-                strcat(buffer," ");
-                strcat(buffer,tmpfriend->channels);
-                malloc_strcpy(&result,buffer);
+                *locbuf='\0';
+                BuildPrivs(tmpfriend,locbuf);
+                strcat(locbuf," ");
+                strcat(locbuf,tmpfriend->userhost);
+                strcat(locbuf," ");
+                strcat(locbuf,tmpfriend->channels);
+                malloc_strcpy((char **) &result,locbuf);
                 return(result);
             }
         }
     }
-    malloc_strcpy(&result,"-1");
+    malloc_strcpy((char **) &result,"-1");
     return(result);
 }
 
-char *function_checkshit(words)
-unsigned char *words;
+u_char *function_checkshit(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *args=(char *) 0;
     struct autobankicks *abk;
 
     if (words && *words) {
         args=next_arg((char *) words,(char **) &words);
         if (words && *words) {
-            *buffer='\0';
+            *locbuf='\0';
             if ((abk=CheckABKs(args,words))!=NULL) {
-                if ((abk->shit)&1) strcat(buffer,"K");
-                if ((abk->shit)&2) strcat(buffer,"B");
-                if ((abk->shit)&4) strcat(buffer,"I");
-                if ((abk->shit)&8) strcat(buffer,"P");
-                if ((abk->shit)&16) strcat(buffer,"D");
-                strcat(buffer," ");
-                strcat(buffer,abk->userhost);
-                strcat(buffer," ");
-                strcat(buffer,abk->channels);
-                strcat(buffer," ");
-                strcat(buffer,abk->reason);
+                if ((abk->shit)&1) strcat(locbuf,"K");
+                if ((abk->shit)&2) strcat(locbuf,"B");
+                if ((abk->shit)&4) strcat(locbuf,"I");
+                if ((abk->shit)&8) strcat(locbuf,"P");
+                if ((abk->shit)&16) strcat(locbuf,"D");
+                strcat(locbuf," ");
+                strcat(locbuf,abk->userhost);
+                strcat(locbuf," ");
+                strcat(locbuf,abk->channels);
+                strcat(locbuf," ");
+                strcat(locbuf,abk->reason);
             }
-            else strcpy(buffer,"-1");
-            malloc_strcpy(&result,buffer);
+            else strcpy(locbuf,"-1");
+            malloc_strcpy((char **) &result,locbuf);
         }
-        else malloc_strcpy(&result,"-1");
+        else malloc_strcpy((char **) &result,"-1");
     }
-    else malloc_strcpy(&result,"-1");
+    else malloc_strcpy((char **) &result,"-1");
     return(result);
 }
 
-char *function_stripansi(words)
-unsigned char *words;
+u_char *function_stripansi(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (words && *words) {
-        StripAnsi(words,buffer,0);
-        malloc_strcpy(&result,buffer);
+        StripAnsi(words,locbuf,0);
+        malloc_strcpy((char **) &result,locbuf);
     }
-    else malloc_strcpy(&result,empty_string);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 
-/*char *function_pattern(words)
-unsigned char *words;
+/*u_char *function_pattern(words)
+u_char *words;
 {
     char    *tmpstr;
     char    *pattern;
-    char    *result=(char *) 0;
+    u_char  *result=(char *) 0;
 
     *tmpbuf='\0';
     if ((pattern=next_arg((char *) words,(char **) &words))) {
@@ -3482,16 +3752,16 @@ unsigned char *words;
             }
         }
         tmpbuf[strlen(tmpbuf)-1]='\0';
-        malloc_strcpy(&result,tmpbuf);
+        malloc_strcpy((char **) &result,tmpbuf);
     } 
-    else malloc_strcpy(&result,empty_string);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 
-char *function_chops(words)
-unsigned char *words;
+u_char *function_chops(words)
+u_char *words;
 {
-    char *nicks=(char *) 0;
+    u_char *nicks=(char *) 0;
     char *curr_chan;
     int  count=0;
     NickList *tmp;
@@ -3504,12 +3774,12 @@ unsigned char *words;
     if (!curr_chan) curr_chan=empty_string;
     if ((tmpbuf[0]==0) || (!strcmp(tmpbuf,"*"))) strmcpy(tmpbuf,curr_chan,mybufsize/2);
     if (tmpbuf[0]==0 || tmpbuf[0]=='0') {
-        malloc_strcpy(&nicks,tmpbuf2);
+        malloc_strcpy((char **) &nicks,tmpbuf2);
         return(nicks);
     }
     chan=lookup_channel(tmpbuf,curr_scr_win->server,0);
     if (!chan) {
-        malloc_strcpy(&nicks,tmpbuf2);
+        malloc_strcpy((char **) &nicks,tmpbuf2);
         return(nicks);
     }
     for (tmp=chan->nicks;tmp;tmp=tmp->next) {
@@ -3519,7 +3789,7 @@ unsigned char *words;
             strcat(tmpbuf2," ");
             if (count>50) {
                 tmpbuf2[strlen(tmpbuf2)-1]='\0';
-                malloc_strcat(&nicks,tmpbuf2);
+                malloc_strcat((char **) &nicks,tmpbuf2);
                 *tmpbuf2='\0';
                 count=0;
             }
@@ -3527,15 +3797,15 @@ unsigned char *words;
     }
     if (count) {
         tmpbuf2[strlen(tmpbuf2)-1]='\0';
-        malloc_strcat(&nicks,tmpbuf2);
+        malloc_strcat((char **) &nicks,tmpbuf2);
     }
     return(nicks);
 }
 
-char *function_chnops(words)
-unsigned char *words;
+u_char *function_chnops(words)
+u_char *words;
 {
-    char *nicks=(char *) 0;
+    u_char *nicks=(char *) 0;
     char *curr_chan;
     int  count=0;
     NickList *tmp;
@@ -3548,12 +3818,12 @@ unsigned char *words;
     if (!curr_chan) curr_chan=empty_string;
     if ((tmpbuf[0]==0) || (!strcmp(tmpbuf,"*"))) strmcpy(tmpbuf,curr_chan,mybufsize/2);
     if (tmpbuf[0]==0 || tmpbuf[0]=='0') {
-        malloc_strcpy(&nicks,tmpbuf2);
+        malloc_strcpy((char **) &nicks,tmpbuf2);
         return(nicks);
     }
     chan=lookup_channel(tmpbuf,curr_scr_win->server,0);
     if (!chan) {
-        malloc_strcpy(&nicks,tmpbuf2);
+        malloc_strcpy((char **) &nicks,tmpbuf2);
         return(nicks);
     }
     for (tmp=chan->nicks;tmp;tmp=tmp->next) {
@@ -3563,7 +3833,7 @@ unsigned char *words;
             strcat(tmpbuf2," ");
             if (count>50) {
                 tmpbuf2[strlen(tmpbuf2)-1]='\0';
-                malloc_strcat(&nicks,tmpbuf2);
+                malloc_strcat((char **) &nicks,tmpbuf2);
                 *tmpbuf2='\0';
                 count=0;
             }
@@ -3571,15 +3841,15 @@ unsigned char *words;
     }
     if (count) {
         tmpbuf2[strlen(tmpbuf2)-1]='\0';
-        malloc_strcat(&nicks,tmpbuf2);
+        malloc_strcat((char **) &nicks,tmpbuf2);
     }
     return(nicks);
 }*/
 
-char *function_color(words)
-unsigned char *words;
+u_char *function_color(words)
+u_char *words;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 #ifdef WANTANSI
     int  colnum=0;
     int  eventnum=0;
@@ -3594,108 +3864,108 @@ unsigned char *words;
         }
         if (eventnum>=1 && eventnum<=NUMCMDCOLORS && colnum>=1 && colnum<=6) {
             eventnum--;
-            malloc_strcpy(&result,Colors[COLOFF]);
+            malloc_strcpy((char **) &result,Colors[COLOFF]);
             switch (colnum) {
-                case 1 : malloc_strcat(&result,CmdsColors[eventnum].color1);
+                case 1 : malloc_strcat((char **) &result,CmdsColors[eventnum].color1);
                 break;
-                case 2 : malloc_strcat(&result,CmdsColors[eventnum].color2);
+                case 2 : malloc_strcat((char **) &result,CmdsColors[eventnum].color2);
                 break;
-                case 3 : malloc_strcat(&result,CmdsColors[eventnum].color3);
+                case 3 : malloc_strcat((char **) &result,CmdsColors[eventnum].color3);
                 break;
-                case 4 : malloc_strcat(&result,CmdsColors[eventnum].color4);
+                case 4 : malloc_strcat((char **) &result,CmdsColors[eventnum].color4);
                 break;
-                case 5 : malloc_strcat(&result,CmdsColors[eventnum].color5);
+                case 5 : malloc_strcat((char **) &result,CmdsColors[eventnum].color5);
                 break;
-                case 6 : malloc_strcat(&result,CmdsColors[eventnum].color6);
+                case 6 : malloc_strcat((char **) &result,CmdsColors[eventnum].color6);
                 break;
             }
         }
         else {
-            malloc_strcpy(&result,Colors[COLOFF]);
-            strcpy(buffer,tmp);
-            tmp=buffer;
+            malloc_strcpy((char **) &result,Colors[COLOFF]);
+            strcpy(locbuf,tmp);
+            tmp=locbuf;
             for (;*tmp;tmp++)
                 if (*tmp==',') {
                     *tmp++='\0';
-                    if (!tmpstr) tmpstr=buffer;
+                    if (!tmpstr) tmpstr=locbuf;
                     if ((colnum=ColorNumber(tmpstr))!=-1) 
-                        malloc_strcat(&result,Colors[colnum]);
+                        malloc_strcat((char **) &result,Colors[colnum]);
                     tmpstr=tmp;
                 }
-            if (!tmpstr) tmpstr=buffer;
+            if (!tmpstr) tmpstr=locbuf;
             if (tmpstr)
                 if ((colnum=ColorNumber(tmpstr))!=-1)
-                    malloc_strcat(&result,Colors[colnum]);
+                    malloc_strcat((char **) &result,Colors[colnum]);
         }
     }
-    else malloc_strcpy(&result,empty_string);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 #else
-    malloc_strcpy(&result,empty_string);
+    malloc_strcpy((char **) &result,empty_string);
     return(result);
 #endif
 }
 
 #ifndef CELESCRP
-char *function_uhost(input)
-unsigned char *input;
+u_char *function_uhost(input)
+u_char *input;
 {
     char *tmp;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     
-    if ((tmp=index(input,'!'))) malloc_strcpy(&result,tmp+1);
-    else malloc_strcpy(&result,empty_string);
+    if ((tmp=index(input,'!'))) malloc_strcpy((char **) &result,tmp+1);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 
-char *function_hhost(input)
-unsigned char *input;
+u_char *function_hhost(input)
+u_char *input;
 {
     char *tmp;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
-    if ((tmp=index(input,'@'))) malloc_strcpy(&result,tmp+1);
-    else malloc_strcpy(&result,empty_string);
+    if ((tmp=index(input,'@'))) malloc_strcpy((char **) &result,tmp+1);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 
-char *function_topic(input)
-unsigned char *input;
+u_char *function_topic(input)
+u_char *input;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *channel;
     ChannelList *chan;
 
     if ((channel=next_arg((char *) input,(char **) &channel)) &&
         (chan=lookup_channel(channel,from_server,0)) && chan->topicstr) {
-        if (chan->topicwho) sprintf(buffer,"%s %ld ",chan->topicwho,chan->topicwhen);
-        else sprintf(buffer,"unknown 0 ");
-        strcat(buffer,chan->topicstr);
-        malloc_strcpy(&result,buffer);
+        if (chan->topicwho) sprintf(locbuf,"%s %ld ",chan->topicwho,chan->topicwhen);
+        else sprintf(locbuf,"unknown 0 ");
+        strcat(locbuf,chan->topicstr);
+        malloc_strcpy((char **) &result,locbuf);
     }
-    else malloc_strcpy(&result,empty_string);
+    else malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 
-char *function_strlen(input)
-unsigned char *input;
+u_char *function_strlen(input)
+u_char *input;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (input && *input) {
-        sprintf(buffer,"%d",strlen(input));
-        malloc_strcpy(&result,buffer);
+        sprintf(locbuf,"%d",strlen(input));
+        malloc_strcpy((char **) &result,locbuf);
     }
-    else malloc_strcpy(&result,"0");
+    else malloc_strcpy((char **) &result,"0");
     return(result);
 }
 
-char *function_strnum(input)
-unsigned char *input;
+u_char *function_strnum(input)
+u_char *input;
 {
     int  count=0;
     char *tmp=input;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (tmp && *tmp) {
         while (*tmp) {
@@ -3706,33 +3976,33 @@ unsigned char *input;
             }
             if (*tmp) tmp++;
         }
-        sprintf(buffer,"%d",count);
-        malloc_strcpy(&result,buffer);
+        sprintf(locbuf,"%d",count);
+        malloc_strcpy((char **) &result,locbuf);
     }
-    else malloc_strcpy(&result,"0");
+    else malloc_strcpy((char **) &result,"0");
     return(result);
 }
 #endif /* CELESCRP */
 
-char *function_fsize(input)
-unsigned char *input;
+u_char *function_fsize(input)
+u_char *input;
 {
     int  fexists;
     char *filename=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     struct stat statbuf;
 
     if (input && *input) {
         if (!(filename=expand_twiddle(input))) malloc_strcpy(&filename,input);
         fexists=stat(filename,&statbuf);
         new_free(&filename);
-        if (fexists==-1) malloc_strcpy(&result,"-1");
+        if (fexists==-1) malloc_strcpy((char **) &result,"-1");
         else {
-            sprintf(buffer,"%ld",statbuf.st_size);
-            malloc_strcpy(&result,buffer);
+            sprintf(locbuf,"%ld",statbuf.st_size);
+            malloc_strcpy((char **) &result,locbuf);
         }
     }
-    else malloc_strcpy(&result,"-1");
+    else malloc_strcpy((char **) &result,"-1");
     return(result);
 }
 
@@ -3747,8 +4017,8 @@ unsigned char *input;
    Returns empty string on error
 */
 #ifndef CELESCRP
-char *function_sar(word)
-unsigned char *word;
+u_char *function_sar(word)
+u_char *word;
 {
     int	variable=0,global=0,searchlen;
     unsigned int display=window_display;
@@ -3757,25 +4027,25 @@ unsigned char *word;
     char *value=(char *) 0;
     char *svalue;
     char *search=(char *) 0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *replace=(char *) 0;
     char *pointer=(char *) 0;
     Alias *tmp;
 
     while (((*word=='r') && (variable=1)) || ((*word=='g') && (global=1))) word++;
     if (!(word && *word)) {
-        malloc_strcpy(&result,empty_string);
+        malloc_strcpy((char **) &result,empty_string);
         return(result);
     }
     delimiter=*word;
     search=word+1;
     if (!(replace=strchr(search,delimiter))) {
-        malloc_strcpy(&result,empty_string);
+        malloc_strcpy((char **) &result,empty_string);
         return(result);
     }
     *replace++='\0';
     if (!(data=strchr(replace,delimiter))) {
-        malloc_strcpy(&result,empty_string);
+        malloc_strcpy((char **) &result,empty_string);
         return(result);
     }
     *data++='\0';
@@ -3786,7 +4056,7 @@ unsigned char *word;
     else malloc_strcpy(&value,data);
     if (!value || !*value) {
         if (value) new_free(&value);
-        malloc_strcpy(&result,empty_string);
+        malloc_strcpy((char **) &result,empty_string);
         return(result);
     }
     svalue=value;
@@ -3797,8 +4067,8 @@ unsigned char *word;
         while ((pointer=strstr(pointer,search))) {
             pointer[0]=pointer[searchlen]=0;
             pointer+=searchlen+1;
-            malloc_strcat(&result,value);
-            malloc_strcat(&result,replace);
+            malloc_strcat((char **) &result,value);
+            malloc_strcat((char **) &result,replace);
             value=pointer;
             if (!*pointer) break;
         }
@@ -3807,12 +4077,12 @@ unsigned char *word;
         if ((pointer=strstr(pointer,search))) {
             pointer[0]=pointer[searchlen]=0;
             pointer+=searchlen+1;
-            malloc_strcat(&result,value);
-            malloc_strcat(&result,replace);
+            malloc_strcat((char **) &result,value);
+            malloc_strcat((char **) &result,replace);
             value=pointer;
         }
     }
-    malloc_strcat(&result,value);
+    malloc_strcat((char **) &result,value);
     if (variable)  {
         window_display=0;
         add_alias(VAR_ALIAS,data,result);
@@ -3824,11 +4094,11 @@ unsigned char *word;
 #endif /* CELESCRP */
 
 #ifdef COUNTRY
-char *function_country(input)
-unsigned char *input;
+u_char *function_country(input)
+u_char *input;
 {
     int i;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     struct domain_str {
         char *id;
         char *description;
@@ -4091,89 +4361,89 @@ unsigned char *input;
     };
 
     if (input && *input) {
-        strcpy(buffer,input);
-        upper(buffer);
+        strcpy(locbuf,input);
+        upper(locbuf);
         for (i=0;domain[i].id;i++)
-            if (!strcmp(domain[i].id,buffer)) {
-                malloc_strcpy(&result,domain[i].description);
+            if (!strcmp(domain[i].id,locbuf)) {
+                malloc_strcpy((char **) &result,domain[i].description);
                 return(result);
             }
     }
-    malloc_strcpy(&result,"Unknown");
+    malloc_strcpy((char **) &result,"Unknown");
     return(result);
 }
 #endif
 
 #ifndef CELESCRP
-char *function_cdccslots(input)
-unsigned char *input;
+u_char *function_cdccslots(input)
+u_char *input;
 {
     int  slots=0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     slots=CdccLimit-TotalSendDcc();
     if (slots<0) slots=0;
-    sprintf(buffer,"%d",slots);
-    malloc_strcpy(&result,buffer);
+    sprintf(locbuf,"%d",slots);
+    malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
 
-char *function_cdccqslots(input)
-unsigned char *input;
+u_char *function_cdccqslots(input)
+u_char *input;
 {
     int  slots=0;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
 
     if (CdccQueueLimit) slots=CdccQueueLimit-TotalQueue();
     else slots=10;
     if (slots<0) slots=0;
-    sprintf(buffer,"%d",slots);
-    malloc_strcpy(&result,buffer);
+    sprintf(locbuf,"%d",slots);
+    malloc_strcpy((char **) &result,locbuf);
     return(result);
 }
 
-char *function_url(input)
-unsigned char *input;
+u_char *function_url(input)
+u_char *input;
 {
     int urlnum=99;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     struct urlstr *tmpurl=urllist;
 
-    if (!tmpurl) malloc_strcpy(&result,"0");
+    if (!tmpurl) malloc_strcpy((char **) &result,"0");
     else {
         if (input && *input) urlnum=atoi(input);
         while (tmpurl && tmpurl->next && urlnum--) tmpurl=tmpurl->next;
-        malloc_strcpy(&result,tmpurl->urls);
+        malloc_strcpy((char **) &result,tmpurl->urls);
     }
     return(result);
 }
 
-char *function_strstr(input)
-unsigned char *input;
+u_char *function_strstr(input)
+u_char *input;
 {
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     char *tmpstr=(char *) 0;
     char *findstr=(char *) 0;
 
     if (input && *input) {
-        strcpy(buffer,&input[1]);
-        if ((tmpstr=index(buffer,*input))) {
+        strcpy(locbuf,&input[1]);
+        if ((tmpstr=index(locbuf,*input))) {
             *tmpstr++='\0';
             if (*tmpstr) tmpstr++;
             else tmpstr=(char *) 0;
         }
-        if (tmpstr) findstr=strstr(buffer,tmpstr);
+        if (tmpstr) findstr=strstr(locbuf,tmpstr);
     }
     if (!findstr) findstr=empty_string;
-    malloc_strcpy(&result,findstr);
+    malloc_strcpy((char **) &result,findstr);
     return(result);
 }
 
-char *function_szvar(input)
-unsigned char *input;
+u_char *function_szvar(input)
+u_char *input;
 {
     int  i;
-    char *result=(char *) 0;
+    u_char *result=(char *) 0;
     struct commands {
         char *command;
         int  type;  /* 1=numeric   2=string   3=on channels/off */
@@ -4243,6 +4513,7 @@ unsigned char *input;
 #endif
         { "COMPRESS"       , 3, &CompressModes   , &CompressModesChannels },
         { "STAMP"          , 3, &Stamp           , &StampChannels         },
+        { "ARINWIN"        , 1, &ARinWindow      , NULL                   },
 #ifdef WANTANSI
         { "MIRC"           , 1, &DisplaymIRC     , NULL                   },
 #endif
@@ -4250,60 +4521,46 @@ unsigned char *input;
     };
 
     if (input && *input) {
-        strcpy(buffer,input);
-        upper(buffer);
+        strcpy(locbuf,(char *) input);
+        upper(locbuf);
         for (i=0;command_list[i].command;i++)
-            if (!strcmp(command_list[i].command,buffer)) break;
+            if (!strcmp(command_list[i].command,locbuf)) break;
         if (!(command_list[i].command)) {
-            malloc_strcpy(&result,empty_string);
+            malloc_strcpy((char **) &result,empty_string);
             return(result);
         }
-        *buffer='\0';
+        *locbuf='\0';
         switch (command_list[i].type) {
             case 1:
                 /* Cdcc limit is special case */
                 if (!strcmp(command_list[i].command,"CDCCLIMIT"))
-                    sprintf(buffer,"%d %d",*(command_list[i].ivar),CdccQueueLimit);
+                    sprintf(locbuf,"%d %d",*(command_list[i].ivar),CdccQueueLimit);
                 /* Floodp is special case */
                 else if (!strcmp(command_list[i].command,"FLOODP"))
-                    sprintf(buffer,"%d %d %d",
+                    sprintf(locbuf,"%d %d %d",
                             *(command_list[i].ivar),FloodMessages,FloodSeconds);
-                else sprintf(buffer,"%d",*(command_list[i].ivar));
+                else sprintf(locbuf,"%d",*(command_list[i].ivar));
                 break;
             case 2:
                 /* Bantype is special case */
                 if (!strcmp(command_list[i].command,"BANTYPE")) {
-                    *buffer=defban;
-                    *(buffer+1)='\0';
+                    *locbuf=defban;
+                    *(locbuf+1)='\0';
                 }
-                else if (*(command_list[i].svar)) strcpy(buffer,*(command_list[i].svar));
+                else if (*(command_list[i].svar)) strcpy(locbuf,*(command_list[i].svar));
                 break;
             case 3:
                 if (*(command_list[i].ivar) && *(command_list[i].svar))
-                    sprintf(buffer,"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
-                else strcpy(buffer,"0");
+                    sprintf(locbuf,"%d %s",*(command_list[i].ivar),*(command_list[i].svar));
+                else strcpy(locbuf,"0");
                 break;
         }
-        if (*buffer) {
-            malloc_strcpy(&result,buffer);
+        if (*locbuf) {
+            malloc_strcpy((char **) &result,locbuf);
             return(result);
         }
     }
-    malloc_strcpy(&result,empty_string);
-    return(result);
-}
-
-/* by Zakath */
-char *function_isvoiced(input)
-unsigned char *input;
-{
-    char *nick;
-    char *result=(char *) 0;
-    char *channel=(char *) 0;
-
-    if ((nick=next_arg((char *) input,(char **) &channel)))
-        malloc_strcpy(&result,is_voiced(channel,nick)?"1":"0");
-    else malloc_strcpy(&result,"0");
+    malloc_strcpy((char **) &result,empty_string);
     return(result);
 }
 #endif /* CELESCRP */
@@ -4334,12 +4591,12 @@ char *name;
     Alias *tmp;
     Alias *tmprem;
 
-    sprintf(buffer,"%s.",name);
-    namelen=strlen(buffer);
+    sprintf(locbuf,"%s.",name);
+    namelen=strlen(locbuf);
     for (tmp=alias_list[VAR_ALIAS];tmp;) {
         tmprem=tmp;
         tmp=tmp->next;
-        if (!strncmp(tmprem->name,buffer,namelen))
+        if (!strncmp(tmprem->name,locbuf,namelen))
             if ((tmprem=find_alias(&(alias_list[VAR_ALIAS]),tmprem->name,1,NULL))) {
                 new_free(&(tmprem->name));
                 new_free(&(tmprem->stuff));

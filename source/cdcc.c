@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.26 2000-04-12 20:06:30 f Exp $
+ * $Id: cdcc.c,v 1.27 2000-08-09 19:31:20 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -193,7 +193,6 @@ static CdccCom CdccCommands[]={
 };
 
 extern char *dcc_types[];
-extern DCC_list *ClientList;
 
 /************************************************************************
  * Cdcc: parse cdcc command line, and send off to correct function      *

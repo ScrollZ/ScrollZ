@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.2 1999-02-15 21:18:45 f Exp $
+ * $Id: names.h,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __names_h_
@@ -49,18 +49,20 @@
  * MODE_STRING refers to the bits in the mode bitmask.  the letters
  * and numbers need to match up.
  */
-#define MODE_STRING	"aiklmnpqrst"
+#define MODE_STRING	"aciklmnpqrstR"
 #define MODE_ANONYMOUS	((u_long) 0x0001)
-#define MODE_INVITE	((u_long) 0x0002)
-#define MODE_KEY	((u_long) 0x0004)
-#define MODE_LIMIT	((u_long) 0x0008)
-#define MODE_MODERATED	((u_long) 0x0010)
-#define MODE_MSGS	((u_long) 0x0020)
-#define MODE_PRIVATE	((u_long) 0x0040)
-#define MODE_QUIET	((u_long) 0x0080)
-#define MODE_REOP	((u_long) 0x0100)
-#define MODE_SECRET	((u_long) 0x0200)
-#define MODE_TOPIC	((u_long) 0x0400)
+#define MODE_COLOURLESS	((u_long) 0x0002)
+#define MODE_INVITE	((u_long) 0x0004)
+#define MODE_KEY	((u_long) 0x0008)
+#define MODE_LIMIT	((u_long) 0x0010)
+#define MODE_MODERATED	((u_long) 0x0020)
+#define MODE_MSGS	((u_long) 0x0040)
+#define MODE_PRIVATE	((u_long) 0x0080)
+#define MODE_QUIET	((u_long) 0x0100)
+#define MODE_REOP	((u_long) 0x0200)
+#define MODE_SECRET	((u_long) 0x0400)
+#define MODE_TOPIC	((u_long) 0x0800)
+#define MODE_REGONLY	((u_long) 0x1000)
 
 /* for lookup_channel() */
 #define	CHAN_NOUNLINK	1
@@ -68,6 +70,7 @@
 
 	int	is_channel_mode _((char *, int, int));
 	int	is_chanop _((char *, char *));
+ 	int	has_voice _((char *, char *));
 	ChannelList	*lookup_channel _((char *, int, int));
 	char	*get_channel_mode _((char *, int));
 #ifdef	INCLUDE_UNUSED_FUNCTIONS
@@ -86,7 +89,6 @@
  	void	switch_channels _((u_int, char *));
 	char	*what_channel _((char *, int));
 	char	*walk_channels _((char *, int, int));
-	char	*real_channel _((void));
 	void	rename_nick _((char *, char *, int));
 /**************************** PATCHED by Flier ******************************/
         /*void	update_channel_mode _((char *, int, char *));*/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.5 1999-10-04 19:21:37 f Exp $
+ * $Id: server.h,v 1.6 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __server_h_
@@ -116,7 +116,7 @@ typedef	unsigned	short	ServerType;
 	void	add_to_server_list _((char *, int, char *, char *, int));
 	void	build_server_list _((char *));
 	int	connect_to_server _((char *, int, char *, int));
-	void	get_connected _((int, int));
+	void	get_connected _((int));
 	int	read_server_file _((void));
 	void	display_server_list _((void));
 	void	do_server _((fd_set *, fd_set *));

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.11 2000-07-10 15:53:40 f Exp $
+ * $Id: names.c,v 1.12 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -80,6 +80,7 @@ extern NickList *tabnickcompl;
 /* from names.h */
 static	char	mode_str[] = MODE_STRING;
 
+static	int	same_channel _((ChannelList *, char *));
 static	void	free_channel _((ChannelList **));
 static	void	show_channel _((ChannelList *));
 /**************************** PATCHED by Flier ******************************/
@@ -119,6 +120,43 @@ clear_channel(chan)
 /****************************************************************************/
 }
 
+/*
+ * we need this to deal with !channels.
+ */
+static	int
+same_channel(channel, chan2)
+	ChannelList *channel;
+	char	*chan2;
+{
+	size_t	len, len2;
+
+	/* take the easy way out */
+	if (*channel->channel != '!' && *chan2 != '!')
+		return (!my_stricmp(channel->channel, chan2));
+
+	/*
+	 * OK, so what we have is channel = "!fooo" and chan2 = "!JUNKfoo".
+	 */
+	len = strlen(channel->channel);	
+	len2 = strlen(chan2);	
+
+	/* bail out on known stuff */
+	if (len > len2)
+		return (0);
+	if (len == len2)
+		return (!my_stricmp(channel->channel, chan2));
+
+	/*
+	 * replace the channel name if we are the same!
+	 */
+	if (!my_stricmp(channel->channel + 1, chan2 + 1 + (len2 - len)))
+	{
+		malloc_strcpy(&channel->channel, chan2);
+		return (1);
+	}
+	return (0);
+}
+
 extern	ChannelList *
 lookup_channel(channel, server, do_unlink)
 	char	*channel;
@@ -133,7 +171,7 @@ lookup_channel(channel, server, do_unlink)
  	chan = server_list[server].chan_list;
 	while (chan)
 	{
-		if (chan->server == server && !my_stricmp(chan->channel, channel))
+		if (chan->server == server && same_channel(chan, channel))
 		{
 			if (do_unlink == CHAN_UNLINK)
 			{
@@ -168,7 +206,15 @@ add_channel(channel, server, connected, copy)
         int     resetchan=0;
         Window  *newwin;
         WhowasChanList *whowaschan;
+/****************************************************************************/
 
+	/*
+	 * avoid adding channel "0"
+	 */
+	if (channel[0] == '0' && channel[1] == '\0')
+		return;
+
+/**************************** PATCHED by Flier ******************************/
         if ((whowaschan=check_whowas_chan_buffer(channel,1))) {
             if ((new=lookup_channel(channel,server,CHAN_UNLINK))) {
                 new_free(&(new->channel));
@@ -182,13 +228,15 @@ add_channel(channel, server, connected, copy)
             }
             new=whowaschan->channellist;
             /* try to rejoin in correct window */
-            if (!(newwin=FindWindowByPtr(new->window)) || newwin->refnum!=whowaschan->refnum)
-                new->window=(Window *) 0;
+            if (!(new->window=is_bound(channel,server))) {
+                if (!(newwin=FindWindowByPtr(new->window)) ||
+                    newwin->refnum!=whowaschan->refnum)
+                    new->window=(Window *) 0;
+            }
             new->next=(ChannelList *) 0;
             do_add=1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
             new_free(&whowaschan);
-            if (new->status&(CHAN_LIMBO|CHAN_BOUND)) new->status=CHAN_BOUND;
         }
         else
 /****************************************************************************/
@@ -205,19 +253,19 @@ add_channel(channel, server, connected, copy)
 		new->limit = 0;
 		new->i_mode = 0;
 		new->i_limit = -1;
-		new->window = curr_scr_win;
+		if ((new->window = is_bound(channel, server)) == (Window *) 0)
+			new->window = curr_scr_win;
 		do_add = 1;
 		add_to_list((List **) &server_list[server].chan_list, (List *) new);
 /**************************** PATCHED by Flier ******************************/
                 new->creationtime=time((time_t *) 0);
                 resetchan=1;
 /****************************************************************************/
-        } else if (new->status & (CHAN_LIMBO|CHAN_BOUND))
-		new->status = CHAN_BOUND;
+	} else if (new->status & CHAN_LIMBO)
+		new->status &= ~CHAN_LIMBO;
         if (do_add || (connected == CHAN_JOINED))
 	{
 		new->server = server;
-		new->status &= CHAN_BOUND;
 /**************************** PATCHED by Flier ******************************/
                 new->gotbans=0;
                 new->gotwho=0;
@@ -266,7 +314,6 @@ add_channel(channel, server, connected, copy)
 		new->mode = copy->mode;
 		new->limit = copy->limit;
 		new->window = copy->window;
-		new->status = copy->status & CHAN_BOUND;
 		malloc_strcpy(&new->key, copy->key);
 	}
 	new->connected = connected;
@@ -357,8 +404,8 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 	NickList *new;
 	ChannelList *chan;
 	int	ischop = oper;
+	int	hasvoice = voice;
 /**************************** PATCHED by Flier ******************************/
-        int     isvoice=voice;
         char    tmpbuf[mybufsize/4];
         time_t  timenow;
 	NickList *tmp;
@@ -372,14 +419,11 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
         if (chan)
 /****************************************************************************/
 	{
-/**************************** PATCHED by Flier ******************************/
-		/*if (*nick == '+')
-			nick++;*/
-                if (*nick == '+') {
+		if (*nick == '+')
+		{
+			hasvoice = 1;
 			nick++;
-                        isvoice=1;
-                }
-/****************************************************************************/
+		}
 		if (*nick == '@')
 		{
 			nick++;
@@ -399,7 +443,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 			}
 			ischop = 1;
 /**************************** PATCHED by Flier ******************************/
-                        if (isvoice) chan->status|=CHAN_VOICE;
+                        if (hasvoice) chan->status|=CHAN_VOICE;
 /****************************************************************************/
 		}
 
@@ -414,6 +458,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
 		new = (NickList *) new_malloc(sizeof(NickList));
 		new->nick = (char *) 0;
 		new->chanop = ischop;
+		new->hasvoice = hasvoice;
 		malloc_strcpy(&(new->nick), nick);
 		add_to_list((List **) &(chan->nicks), (List *) new);*/
 		tmp=(NickList *) remove_from_list((List **) &(chan->nicks),nick);
@@ -456,7 +501,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, voice,userhost,tmpchan)
                 }
                 malloc_strcpy(&(new->nick), nick);
                 new->chanop=ischop;
-                new->voice=isvoice;
+		new->hasvoice=hasvoice;
                 new->curo=0;
                 new->curk=0;
                 new->curn=0;
@@ -658,7 +703,7 @@ char    *servmodes;
                     if (*mode_string=='a' || *mode_string=='i' || *mode_string=='k' ||
                         *mode_string=='l' || *mode_string=='m' || *mode_string=='n' ||
                         *mode_string=='p' || *mode_string=='q' || *mode_string=='s' ||
-                        *mode_string=='t') {
+                        *mode_string=='t' || *mode_string=='c' || *mode_string=='R') {
                         if (compadd!=add) {
                             if (add) *compmodeadd++='+';
                             else *compmodeadd++='-';
@@ -680,6 +725,9 @@ char    *servmodes;
 			break;
 		case 'a':
 			value = MODE_ANONYMOUS;
+			break;
+		case 'c':
+			value = MODE_COLOURLESS;
 			break;
 		case 'i':
 			value = MODE_INVITE;
@@ -890,6 +938,11 @@ char    *servmodes;
 			break;
 		case 'v':
 /**************************** PATCHED by Flier ******************************/
+			/*person = next_arg(rest, &rest);
+			ThisNick = (NickList *) list_lookup((List **) nicks, person, !USE_WILDCARDS, !REMOVE_FROM_LIST);
+			if (ThisNick)
+				ThisNick->hasvoice = add;
+			break;*/
 			if ((person=next_arg(rest, &rest)) && !my_stricmp(person,mynick))
 				if (add)
 					*chop |= CHAN_VOICE;
@@ -902,8 +955,8 @@ char    *servmodes;
                             strcat(servline," ");
                         }
                         if (check && chan->CompressModes && ThisNick) {
-                            if ((add && !(ThisNick->voice)) ||
-                                (!add && ThisNick->voice)) {
+                            if ((add && !(ThisNick->hasvoice)) ||
+                                (!add && ThisNick->hasvoice)) {
                                 if (compadd!=add) {
                                     if (add) *compmodeadd++='+';
                                     else *compmodeadd++='-';
@@ -915,7 +968,7 @@ char    *servmodes;
                             }
                         }
                         if (ThisNick) {
-                            ThisNick->voice=add;
+                            ThisNick->hasvoice=add;
                             if (ThisNick->frlist) privs=ThisNick->frlist->privs;
                             else privs=0;
                             if (check && chan->FriendList && (privs&(FLPROT)) &&
@@ -1113,6 +1166,9 @@ char    *servmodes;
  		case 'O': /* this is a weird special case */
   			(void) next_arg(rest, &rest);
   			break;
+		case 'R':
+			value = MODE_REGONLY;
+			break;
 		}
 		if (add)
 			*mode |= value;
@@ -1351,22 +1407,11 @@ remove_channel(channel, server)
 
 	if (channel)
 	{
-/**************************** PATCHED by Flier ******************************/
- 		/*if ((tmp = lookup_channel(channel, server, CHAN_NOUNLINK)))
-  		{
-  			if (tmp->status & CHAN_BOUND)
-  				tmp->status |= CHAN_LIMBO;
-  			else
- 			{
- 				tmp = lookup_channel(channel, server, CHAN_UNLINK);
-  				free_channel(&tmp);
- 			}
-  		}*/
-                if ((tmp=lookup_channel(channel,server,CHAN_UNLINK))) {
-                    if (tmp->status&CHAN_BOUND) tmp->status|=CHAN_LIMBO;
-                    free_channel(&tmp);
-                }
-/****************************************************************************/
+		if ((tmp = lookup_channel(channel, server, CHAN_NOUNLINK)))
+		{
+			tmp = lookup_channel(channel, server, CHAN_UNLINK);
+			free_channel(&tmp);
+		}
 
 		(void)is_current_channel(channel, server, -1);
 	}
@@ -1575,28 +1620,26 @@ is_chanop(channel, nick)
 	return 0;
 }
 
-/**************************** PATCHED by Flier ******************************/
-/* by Zakath */
-int is_voiced(channel, nick)
-char *channel;
-char *nick;
+int
+has_voice(channel, nick)
+	char	*channel;
+	char	*nick;
 {
-    ChannelList *chan;
-    NickList *Nick;
+	ChannelList *chan;
+	NickList *Nick;
 
-    if ((chan=lookup_channel(channel,from_server,CHAN_NOUNLINK)) &&
-        (chan->connected==CHAN_JOINED) &&
-            /* channel may be "surviving" from a disconnect/connect
-                                               check here too -Sol */
+	if ((chan = lookup_channel(channel, from_server, CHAN_NOUNLINK)) &&
+		(chan->connected == CHAN_JOINED) &&
+		/* channel may be "surviving" from a disconnect/connect
+						   check here too -Sol */
 /**************************** PATCHED by Flier ******************************/
-                    /*(Nick=(NickList *) list_lookup((List **) &(chan->nicks),
-            nick,!USE_WILDCARDS,!REMOVE_FROM_LIST)) && Nick->voice)*/
-                    (Nick=find_in_hash(chan,nick)) && Nick->voice)
+			/*(Nick = (NickList *) list_lookup((List **) &(chan->nicks),
+		nick, !USE_WILDCARDS, !REMOVE_FROM_LIST)) && (Nick->chanop || Nick->hasvoice))*/
+                (Nick=find_in_hash(chan,nick)) && Nick->hasvoice)
 /****************************************************************************/
-            return 1;
-    return 0;
+		return 1;
+	return 0;
 }
-/****************************************************************************/
 
 static	void
 show_channel(chan)
@@ -1726,20 +1769,6 @@ switch_channels(key, ptr)
 			}
 		}
 	}
-}
-
-/* XXX this function should be removed as it is based on 6+ years old irc */
-/* real_channel: returns your "real" channel (your non-multiple channel) */
-char	*
-real_channel()
-{
-	ChannelList *tmp;
-
-	if (server_list[from_server].chan_list)
-		for (tmp = server_list[from_server].chan_list; tmp; tmp = tmp->next)
-			if (tmp->server == from_server && *(tmp->channel) != '#')
-				return (tmp->channel);
-	return ((char *) 0);
 }
 
 void

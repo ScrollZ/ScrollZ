@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.22 2000-01-27 16:03:00 f Exp $
+ * $Id: SZdist.c,v 1.23 2000-08-09 19:31:20 f Exp $
  */
 
 #include <stdio.h>
@@ -62,8 +62,8 @@
 
 #define mybufsize 1024
 
-char *int_ver="20000127";
-char *ver="ircII 4.4J+ScrollZ v1.8i6 (27.1.2000)+Cdcc v1.8";
+char *int_ver="20000808";
+char *ver="ircII 4.4S+ScrollZ v1.8j (8.8.2000)+Cdcc v1.8";
 char *chars="ABCDEFGHIJ.*[]0123|abcdefghijrstuvwxyzKLMNOPQ!#$^?():'_-{}/=+klmnopq456789RSTUVWXYZ% ";
 char *defsfile="include/defs.h";
 char *defsoldfile="include/defs.h.old";

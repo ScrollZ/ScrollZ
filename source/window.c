@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.14 2000-07-17 15:23:25 f Exp $
+ * $Id: window.c,v 1.15 2000-08-09 19:31:21 f Exp $
  */
 
 #include "irc.h"
@@ -122,11 +122,10 @@ static	void	grow_window _((Window *, int));
 static	Window	*get_next_window _((void));
 static	Window	*get_previous_window _((void));
 static	void	delete_other_windows _((void));
-static	void	bind_channel _((char *, int));
-static	void	unbind_channel _((char *, int));
-static	void	list_bound_channels _((Window *));
+static	void	bind_channel _((char *, Window *));
+static	void	unbind_channel _((char *, Window *));
 static	void	irc_goto_window _((int));
-static	void	list_a_window _((Window *, int));
+static	void	list_a_window _((Window *, int, int));
 static	void	list_windows _((void));
 static	void	show_window _((Window *));
 static	void	push_window_by_refnum _((u_int));
@@ -149,7 +148,7 @@ static	void	win_list_channels _((Window *));
  * null after all windows have been returned.  It should generally be used as
  * follows: 
  *
- * flag = 1; while(tmp = traverse_all_windows(&flag)) { code here } 
+ * flag = 1; while(tmp = traverse_all_windows(&flag)) { code here }
  *
  * Major revamp by phone (phone@coombs.anu.edu.au), December 1992.
  */
@@ -185,7 +184,8 @@ traverse_all_windows(flag)
 	 * traverse_all_windows()'s is called properly), else move on to
 	 * the next window
 	 */
- 	if (foo) {
+	if (foo)
+	{
 		if (!which)
 			return (Window *) 0;
 		else
@@ -229,35 +229,32 @@ traverse_all_windows(flag)
  * null after all windows have been returned.  It should generally be used as
  * follows: 
  *
- * int flag = 1;
- * int visible = 1;
- * Screen *screen;
- * Window *which;
- * while(tmp = window_traverse(&flag, &which, &screen, &visible))
+ * Win_Trav stuff;
+ * Window *tmp;
+ *
+ * stuff.flag = 1;
+ * while ((tmp = window_traverse(&stuff)))
  *	{ code here } 
  *
  * this version is recursive.
  */
 Window	*
-window_traverse(flag, which, screen, visible)
-	int	*flag;
-	Window	**which;
-	Screen	**screen;
-	int	*visible;
+window_traverse(stuff)
+	Win_Trav *stuff;
 {
 	int	foo = 1;
 
 	/* First call, return the current window basically */
-	if (*flag)
+	if (stuff->flag)
 	{
-		*flag = 0;
-		*visible = 1;
+		stuff->flag = 0;
+		stuff->visible = 1;
 		if (!screen_list)
 			return (Window *) 0;
-		*screen = screen_list;
-		*which = (*screen)->window_list;
-		if (*which)
-			return (*which);
+		stuff->screen = screen_list;
+		stuff->which = stuff->screen->window_list;
+		if (stuff->which)
+			return (stuff->which);
 		else
 			foo = 0;
 	}
@@ -270,104 +267,41 @@ window_traverse(flag, which, screen, visible)
 	 * traverse_all_windows()'s is called properly), else move on to
 	 * the next window
 	 */
-	if (foo) {
-		if (!*which)
+	if (foo)
+	{
+		if (!stuff->which)
 			return (Window *) 0;
 		else
-			*which = (*which)->next;
+			stuff->which = stuff->which->next;
 	}
 
-	if (!*which)
+	if (!stuff->which)
 	{
-		while (*screen)
+		while (stuff->screen)
 		{
-			*screen = (*screen)->next;
-			if (*screen && (*screen)->alive)
+			stuff->screen = stuff->screen->next;
+			if (stuff->screen && stuff->screen->alive)
 				break;
 		}
-		if (*screen)
-			*which = (*screen)->window_list;
+		if (stuff->screen)
+			stuff->which = stuff->screen->window_list;
 	}
 
-	if (*which)
-		return (*which);
+	if (stuff->which)
+		return (stuff->which);
 	/* 
 	 * Got to the end of the visible list..  so we do the invisible list..
 	 * Should also mean, that we've got to the end of all the visible
 	 * screen..
 	 */
-	if (*visible)
+	if (stuff->visible)
 	{
-		*visible = 0;
-		*which = invisible_list;
-		return (*which);
+		stuff->visible = 0;
+		stuff->which = invisible_list;
+		return (stuff->which);
 	}
 	return ((Window *) 0);
 }
-
-#if 0
-/*
- * New version of traverse_all_windows that doesn't require that you don't
- * use it non-recusively.  Pass it a NULL pointer initially, and it will 
- * return 0 when it has finished, and also the address of an int, that is
- * initally 1
- */
-static	int
-new_window_traverse(window, visible)
-	Window	**window;
-	int	*visible;
-{
-	Screen	*screen,
-		*old_screen;
-
-	if (!*window)
-	{
-		if (!(screen = screen_list))
-		{
-			*visible = 0;
-			if (!invisible_list)
-				return 0;
-			*window = invisible_list;
-			return 1;
-		}
-		for (;screen && !screen->alive; screen = screen->next)
-			;
-		if (!screen)
-		{
-			*visible = 0;
-			if (!invisible_list)
-				return 0;
-			*window = invisible_list;
-			return 1;
-		}
-	}
-	else
-	{
-		if ((*window)->next)
-		{
-			*window = (*window)->next;
-			return 1;
-		}
-		if (!*visible)
-			return 0;
-		for (old_screen = screen = (*window)->screen;
-				screen && !screen->alive; screen = screen->next)
-			;
-		if (!screen)
-		{
-			*visible = 0;
-			if (!invisible_list)
-				return 0;
-			*window = invisible_list;
-			return 1;
-		}
-		if (screen == old_screen)
-			return 0;
-	}
-	*window = screen->current_window;
-	return (*window) ? 1 : 0;
-}
-#endif
 
 void
 add_window_to_server_group(window, group)
@@ -610,7 +544,8 @@ swap_channels_win_ptr(v_window, window)
 {
 	ChannelList	*chan;
 
- 	if (v_window->server != -1) {
+	if (v_window->server != -1)
+	{
 		for (chan = server_list[v_window->server].chan_list;
 		     chan; chan = chan->next)
 			if (chan->window == v_window)
@@ -695,6 +630,8 @@ swap_window(v_window, window)
 
 	v_window->update |= REDRAW_DISPLAY_FULL | REDRAW_STATUS;
 	window->update |= REDRAW_DISPLAY_FULL | REDRAW_STATUS;
+
+	do_hook(WINDOW_SWAP_LIST, "%d %d", v_window->refnum, window->refnum);
 }
 
 /*
@@ -834,7 +771,8 @@ grow_window(window, offset)
 /*
  * the message_from stack structure.
  */
-struct mfstack {
+struct mfstack
+{
 	char	*who_from;	/* saved from */
  	int	who_level;	/* saved level */
  	struct mfstack *next;	/* next in the list */
@@ -844,7 +782,7 @@ struct mfstack {
  * save_message_from: this is used to save (for later restoration) the
  * who_from variable.  This comes in handy very often when a routine might
  * call another routine that might change who_from.   Note that if you
- * call this routined, you *must* call restore_message_from().
+ * call this routine, you *must* call restore_message_from().
  */
 void
 save_message_from()
@@ -867,11 +805,14 @@ restore_message_from()
 {
  	struct mfstack *mfs = mfstack_head.next;
 
- 	if (mfs == NULL) {
+	if (mfs == NULL)
+	{
  		/*yell("--- restore_message_from: NULL next pointer, fudging..");*/
  		malloc_strcpy(&who_from, NULL);
  		who_level = 0;
- 	} else {
+	}
+	else
+	{
  		malloc_strcpy(&who_from, mfs->who_from);
  		who_level = mfs->who_level;
  		mfstack_head.next = mfs->next;
@@ -1094,7 +1035,6 @@ set_current_window(window)
 
 	refnum = current_screen->last_window_refnum;
 	if (curr_scr_win)
-
 	{
 		curr_scr_win->update |= UPDATE_STATUS;
 		current_screen->last_window_refnum = curr_scr_win->refnum;
@@ -1531,7 +1471,6 @@ realloc_channels(window)
 				if (chan->window == window)
 				{
 					chan->window = tmp;
-					chan->status &= ~CHAN_BOUND;
 					if (!tmp->current_channel)
 						set_channel_by_refnum(tmp->refnum, chan->channel);
 				}
@@ -1540,7 +1479,6 @@ realloc_channels(window)
 	for (chan = server_list[window->server].chan_list; chan; chan = chan->next)
 	{
 		chan->window = (Window *) 0;
-		chan->status &= ~CHAN_BOUND;
 	}
 }
 
@@ -1642,7 +1580,10 @@ delete_other_windows()
 	{
 		next = tmp->next;
 		if (tmp != cur)
+		{
 			delete_window(tmp);
+			update_all_windows();
+		}
 		tmp = next;
 	}
 }
@@ -1710,7 +1651,8 @@ update_window_status(window, refresh)
 		return;
 	if (window == (Window *) 0)
 		window = curr_scr_win;
-	if (refresh) {
+	if (refresh)
+	{
 		new_free(&window->status_line[0]);
 		new_free(&window->status_line[1]);
 /**************************** PATCHED by Flier ******************************/
@@ -1872,63 +1814,99 @@ is_current_channel(channel, server, delete)
 	return (found);
 }
 
-extern	int
+extern	Window *
 is_bound(channel, server)
 	char	*channel;
 	int	server;
 {
-	ChannelList	*tmp;
+	Win_Trav stuff;
+	Window *tmp;
 
-	if ((tmp = lookup_channel(channel, server, CHAN_NOUNLINK)))
-		return (tmp->status & CHAN_BOUND);
+	stuff.flag = 1;
+	while ((tmp = window_traverse(&stuff)))
+	{
+		if (tmp->server == server && tmp->bound_channel &&
+		    !my_stricmp(channel, tmp->bound_channel))
+			return tmp;
+	}
 
-	return 0;
+	return (Window *) 0;
 }
 
 static void
-bind_channel(channel, server)
+bind_channel(channel, window)
 	char	*channel;
-	int	server;
+	Window	*window;
 {
-	ChannelList	*chan;
+	Win_Trav stuff;
+	Window *tmp;
 
-	for (chan = server_list[server].chan_list; chan; chan = chan->next)
-		if (!my_stricmp(channel, chan->channel))
-			chan->status |= CHAN_BOUND;
-}
-
-static void
-unbind_channel(channel, server)
-	char	*channel;
-	int	server;
-{
-	ChannelList	*chan;
-
-	for (chan = server_list[server].chan_list; chan; chan = chan->next)
-		if (!my_stricmp(channel, chan->channel))
-			chan->status &= ~CHAN_BOUND;
-}
-
-static	void
-list_bound_channels(window)
-	Window *window;
-{
-	ChannelList	*chan;
-	int		started = 0;
-
-	for (chan = server_list[window->server].chan_list; chan;
-		chan = chan->next)
-		if ((chan->status & CHAN_BOUND) && chan->window == window)
+	/* check it isn't bound on this server elsewhere */
+	stuff.flag = 1;
+	while ((tmp = window_traverse(&stuff)))
+	{
+		if (tmp->server != window->server && tmp == window)
+			continue;
+		if (!my_stricmp(tmp->bound_channel, channel))
 		{
-			if (!started)
-			{
-				say("Window %d is bound to channel(s) :", window->refnum);
-				started = 1;
-			}
-			say("\t%s", chan->channel);
+			say("Channel %s is already bound to window %s", channel, window->name);
+			return;
 		}
-	if (!started)
-		say("No channel bound to window %d", window->refnum);
+	}
+	if (is_on_channel(channel, window->server, get_server_nickname(window->server)))
+	{
+		is_current_channel(channel, window->server, (int)window->refnum);
+		set_channel_by_refnum(0, channel);
+	}
+	/* XXX fix this */
+#if 0
+	else
+	{
+		int	server, sg = -1, fsg = -2;	/* different */
+
+		server = from_server;
+		from_server = window->server;
+
+		if (server_list[server].server_group)
+			sg = find_server_group(server_list[server].server_group, 0);
+		if (server_list[from_server].server_group)
+			fsg = find_server_group(server_list[server].server_group, 0);
+
+		if (sg == 0 || fsg == 0)
+			yell("--- huh. coudn't find server groups");
+
+		if (sg == fsg)
+		{
+			switch (get_server_version(window->server)) {
+			case ServerICB:
+				icb_put_group(channel);
+				break;
+			/* XXX make this use a key? */
+			/* XXX by factoring out the "JOIN/CHANNEL" code to a module */
+			case Server2_5:
+				send_to_server("CHANNEL %s", channel);
+				break;
+			default:
+				send_to_server("JOIN %s", channel);
+			}
+			add_channel(channel, from_server, CHAN_JOINING, (ChannelList *) 0);
+			from_server = server;
+		}
+	}
+#endif
+	malloc_strcpy(&window->bound_channel, channel);
+}
+
+static void
+unbind_channel(channel, window)
+	char	*channel;
+	Window	*window;
+{
+
+	window = is_bound(channel, window->server);
+	if (!window)
+		return;
+	new_free(&window->bound_channel);
 }
 
 /*
@@ -1946,7 +1924,7 @@ unsigned int	refnum;
 }
 
 /*
- * set_window_server:  This sets the server of the given window to server. 
+ * window_set_server:  This sets the server of the given window to server.
  * If refnum is -1 then we are setting the primary server and all windows
  * that are set to the current primary server are changed to server.  The misc
  * flag is ignored in this case.  If refnum is not -1, then that window is
@@ -1957,18 +1935,18 @@ unsigned int	refnum;
  * force a 'sticky' behaviour of the window. -Sol
  */
 void
-set_window_server(refnum, server, misc)
+window_set_server(refnum, server, misc)
 	int	refnum;
 	int	server;
 	int	misc;
 {
 	int	old_serv;
- 	Window	*window = 0, *ptr, *new_win = (Window *) 0;
+	Window	*window = 0, *ptr, *new_win = (Window *) 0;
 	ChannelList *tmp;
 	int	moved = 0;
 	int	flag = 1;
 
-        if (refnum == -1)
+	if (refnum == -1)
 	{
 		old_serv = primary_server;
 		primary_server = server;
@@ -1976,35 +1954,32 @@ set_window_server(refnum, server, misc)
 	}
 	else
 	{
- 		window = get_window_by_refnum((u_int)refnum);
+		window = get_window_by_refnum((u_int)refnum);
 		old_serv = window->server;
 	}
 
 	if (server == old_serv)
 		return;
 
-	if (misc & WIN_ALL)	/* Moving all windows associated with
-				   old_serv -Sol */
+	/* Moving all windows associated with old_serv -Sol */
+	if (misc & WIN_ALL)
 	{
 		if ((misc & WIN_TRANSFER) && (old_serv >= 0))
- 		{
- 			if (misc & WIN_OLDCONN)
- 			{
- 				/* Move channels too -Sol */
-                        	for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
-                                {
-					if (!moved)	/* If we're here, it means
-							   we're going to transfer
-							   channels to the new server,
-							   so we dump old channels
-							   first, but only once -Sol */
-					{
-						moved++;
-						clear_channel_list(server);
-	                                }
-					add_channel(tmp->channel, server, CHAN_LIMBO, tmp);
-                	        }
-                        }
+		{
+			for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
+			{
+				/* XXX: moved is always 0 at this point */
+				if (!moved)	/* If we're here, it means
+						   we're going to transfer
+						   channels to the new server,
+						   so we dump old channels
+						   first, but only once -Sol */
+				{
+					moved++;
+					clear_channel_list(server);
+				}
+				add_channel(tmp->channel, server, CHAN_LIMBO, tmp);
+			}
 #ifdef NON_BLOCKING_CONNECTS
 			if (server_list[old_serv].flags & CLOSE_PENDING)
 				server_list[old_serv].flags |= CLEAR_PENDING;
@@ -2017,6 +1992,11 @@ set_window_server(refnum, server, misc)
 			{
 				ptr->prev_server = ptr->server;
 				ptr->server = server;
+				/*
+				 * XXX we could save this to old_current_channel and use
+				 * that after other checks to decide where a channel should
+				 * go, maybe??
+				 */
 				if (ptr->current_channel)
 					new_free(&ptr->current_channel);
 			}
@@ -2024,34 +2004,41 @@ set_window_server(refnum, server, misc)
 		return;
 	}
 
-	/* We are setting only some windows of the old server : let's look
-	   for a window of that server that is not being moved.
-	   refnum == -1 has been dealt with above so window is defined. -Sol */
+	/*
+	 * We are setting only some windows of the old server : let's look
+	 * for a window of that server that is not being moved.
+	 * refnum == -1 has been dealt with above so window is defined. -Sol
+	 */
 
 	flag = 1;
 	while ((ptr = traverse_all_windows(&flag)) != (Window *) 0)
 		if ((ptr != window) && (!ptr->server_group || (ptr->server_group != window->server_group)) && (ptr->server == old_serv))
 		{
-			new_win = ptr;	/* Possible relocation -Sol */
+			/* Possible relocation -Sol */
+			new_win = ptr;
+
+			/* Immediately retain window if no group -Sol */
 			if (!ptr->server_group)
-				break;	/* Immediately retain window
-					   if no group -Sol */
+				break;
 		}
 
-	if (!new_win)	/* No relocation : we're closing last windows for
-			   old_serv -Sol */
+	/* No relocation : we're closing last windows for old_serv -Sol */
+	if (!new_win)
 	{
-		set_window_server(refnum, server, misc | WIN_ALL);
+		window_set_server(refnum, server, misc | WIN_ALL);
 		return;
 	}
 
-	/* Now that we know that server still has at least one window open,
-	   move what we're supposed to -Sol */
+	/*
+	 * Now that we know that server still has at least one window open,
+	 * move what we're supposed to -Sol
+	 */
 
 	if ((misc & WIN_TRANSFER) && (old_serv >= 0))
 		for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
- 			if ((tmp->window == window) || (window->server_group && (tmp->window->server_group == window->server_group))) {	/* Found a channel to
-							   be relocated -Sol */
+			if ((tmp->window == window) || (window->server_group && (tmp->window->server_group == window->server_group)))
+			{
+				/* Found a channel to be relocated -Sol */
 				if (tmp->window->sticky || (misc & WIN_FORCE))
 				{	/* This channel moves -Sol */
 					int	old = from_server;
@@ -2071,7 +2058,7 @@ set_window_server(refnum, server, misc)
 				}
 				else
 					tmp->window = new_win;
- 			}
+			}
 
 	flag = 1;
 	while ((ptr = traverse_all_windows(&flag)) != (Window *) 0)
@@ -2098,17 +2085,16 @@ set_channel_by_refnum(refnum, channel)
 	char	*channel;
 {
 	Window	*tmp;
-	int flag = 1;
-	int visible = 1;
-	Screen *screen;
-	Window *tmp2, *window;
+	Window *tmp2;
+	Win_Trav stuff;
 
 	if ((tmp = get_window_by_refnum(refnum)) == (Window *) 0)
 		tmp = curr_scr_win;
 	if (channel && strcmp(channel, zero) == 0)
 		channel = (char *) 0;
 
-	while ((tmp2 = window_traverse(&flag, &window, &screen, &visible)))
+	stuff.flag = 1;
+	while ((tmp2 = window_traverse(&stuff)))
 		if (tmp2->server == tmp->server && my_stricmp(tmp2->current_channel, channel) == 0)
 			new_free(&tmp2->current_channel);
 
@@ -2308,23 +2294,23 @@ hide_other_windows()
 
 #define WIN_FORM "%%-4s %%-%u.%us %%-%u.%us  %%-%u.%us %%-9.9s %%-10.10s %%s%%s"
 static	void
-list_a_window(window, len)
+list_a_window(window, len, clen)
 	Window	*window;
 	int	len;
+	int	clen;
 {
 	char	tmp[10];
 
 	sprintf(tmp, "%-4u", window->refnum);
  	sprintf(buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
-			len, get_int_var(CHANNEL_NAME_WIDTH_VAR),
-			get_int_var(CHANNEL_NAME_WIDTH_VAR));
+			len, clen, clen);
 /**************************** PATCHED by Flier ******************************/
 	/*say(buffer, tmp, get_server_nickname(window->server),
 			window->name?window->name:"<None>",
 			window->current_channel ?
 				window->current_channel : "<None>",
 			window->query_nick ? window->query_nick : "<None>",
-			get_server_itsname(window->server),
+			window->server != -1 ? get_server_itsname(window->server) : "<None>",
 			bits_to_lastlog_level(window->window_level),
 			(window->visible) ? "" : " Hidden");*/
         say(buffer, tmp, get_server_nickname(window->server),
@@ -2348,25 +2334,25 @@ list_windows()
 	Window	*tmp;
 	int	flag = 1;
 	int	len = 4;
+	int	clen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
+	int	check_clen = clen == 0;
 
 	while ((tmp = traverse_all_windows(&flag)) != NULL)
 	{
 		if (tmp->name && ((int) strlen(tmp->name) > len))
 			len = strlen(tmp->name);
+		if (check_clen == 0)
+			continue;
+		if (tmp->current_channel && ((int) strlen(tmp->current_channel) > clen))
+			clen = strlen(tmp->current_channel);
 	}
  	sprintf(buffer, WIN_FORM, 9, 9, len, len,	/* XXX: 9 is old NICKNAME_LEN */
-		get_int_var(CHANNEL_NAME_WIDTH_VAR),
-		get_int_var(CHANNEL_NAME_WIDTH_VAR));
+		clen, clen);
 	say(buffer, "Ref", "Nick", "Name", "Channel", "Query", "Server",
 		"Level", empty_string);
 	flag = 1;
 	while ((tmp = traverse_all_windows(&flag)) != NULL)
-		list_a_window(tmp, len);
-#if 0
-	tmp = NULL
-	while ((new_window_traverse(&tmp, &flag)) != NULL)
-		list_a_window(tmp, len);
-#endif
+		list_a_window(tmp, len, clen);
 }
 
 /* show_window: This makes the given window visible.  */
@@ -2450,11 +2436,17 @@ show_stack()
 	Window	*win;
 	int	flag = 1;
 	int	len = 4;
+	int	clen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
+	int	check_clen = clen == 0;
 
 	while ((win = traverse_all_windows(&flag)) != NULL)
 	{
 		if (win->name && ((int) strlen(win->name) > len))
 			len = strlen(win->name);
+		if (check_clen == 0)
+			continue;
+		if (win->current_channel && ((int) strlen(win->current_channel) > clen))
+			clen = strlen(win->current_channel);
 	}
 	say("Window stack:");
 	tmp = current_screen->window_stack;
@@ -2462,7 +2454,7 @@ show_stack()
 	{
 		if ((win = get_window_by_refnum(tmp->refnum)) != NULL)
 		{
-			list_a_window(win, len);
+			list_a_window(win, len, clen);
 			tmp = tmp->next;
 		}
 		else
@@ -2797,12 +2789,7 @@ windowcmd(command, args, subargs)
 			}
 		}
 		else if (strncmp("HOLD_MODE", cmd, len) == 0)
-		{
-			if (get_boolean("HOLD_MODE",&args,&(window->hold_mode)))
-				break;
-			else
- 				set_int_var(HOLD_MODE_VAR, (u_int)window->hold_mode);
-		}
+			get_boolean("HOLD_MODE", &args, &(window->hold_mode));
 		else if (strncmp("LASTLOG_LEVEL", cmd, len) == 0)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
@@ -3003,10 +2990,13 @@ windowcmd(command, args, subargs)
 
  						server = from_server;
  						from_server = window->server;
- 						if (get_server_version(window->server) == Server2_5)
- 							send_to_server("CHANNEL %s%s%s", arg, key ? " " : empty_string, key);
- 						else
- 							send_to_server("JOIN %s%s%s", arg, key ? " " : empty_string, key);
+						switch (get_server_version(window->server)) {
+						case Server2_5:
+							send_to_server("CHANNEL %s%s%s", arg, key ? " " : empty_string, key);
+							break;
+						default:
+							send_to_server("JOIN %s%s%s", arg, key ? " " : empty_string, key);
+						}
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
  						from_server = server;
  					}
@@ -3088,17 +3078,13 @@ windowcmd(command, args, subargs)
 					say("BIND: %s is not a valid channel name", arg);
 				else
 				{
-					if (is_on_channel(arg, window->server, get_server_nickname(window->server)))
-					{
- 						is_current_channel(arg, window->server, (int)window->refnum);
-						set_channel_by_refnum(0, arg);
-						bind_channel(arg, window->server);
-						say("Channel %s bound to window %d", arg, window->refnum);
-					}
+					bind_channel(arg, window);
+					say("Channel %s bound to window %d", arg, window->refnum);
 				}
 			}
 			else
-				list_bound_channels(window);
+				if (window->bound_channel)
+					say("Channel %s is bound to window %d", window->bound_channel, window->refnum);
 		}
 		else if (strncmp("UNBIND", cmd, len) == 0)
 		{
@@ -3107,7 +3093,7 @@ windowcmd(command, args, subargs)
 				if (is_bound(arg, window->server))
 				{
 					say("Channel %s is no longer bound", arg);
-					unbind_channel(arg, window->server);
+					unbind_channel(arg, window);
 				}
 				else
 					say("Channel %s is not bound", arg);
@@ -3214,7 +3200,8 @@ windowcmd(command, args, subargs)
 		say("\tNotify level is %s", bits_to_lastlog_level(window->notify_level));
 		if (window->server_group)
 			say("\tServer Group is (%d) %s", window->server_group, find_server_group_name(window->server_group));
-			/* say("\tServer Group is (%d) %s", window->server_group, server_group_list[window->server_group - 1].name); List was sorted !! -Sol */
+		if (window->bound_channel)
+			say("\tBound Channel is %s", window->bound_channel);
 		if (window->nicks)
 		{
  			NickList *ntmp;
@@ -3306,9 +3293,10 @@ window_get_connected(window, arg, narg, preserve, args)
 		{
 			if (port_num == -1) /* Could be "/serv +1:6664" -Sol */
 				port_num = server_list[i].port;
+			if (nick == NULL)
+				nick = server_list[i].nickname;
 		}
-		else
-		if ((i = find_in_server_list(arg, port_num, nick)) != -1)
+		else if ((i = find_in_server_list(arg, port_num, nick)) != -1)
 			port_num = server_list[i].port;
 	}
 	else
@@ -3342,9 +3330,9 @@ window_get_connected(window, arg, narg, preserve, args)
 
 		if (!connect_to_server(arg, port_num, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
- 			set_window_server((int)window->refnum, from_server, new_server_flags);
+			window_set_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */
-			/* Not always necessary. See set_window_server. -Sol */
+			/* Not always necessary. See window_set_server. -Sol */
 			if (!preserve && window->current_channel)
 				new_free(&window->current_channel);
 			update_all_status();
@@ -3362,9 +3350,9 @@ window_get_connected(window, arg, narg, preserve, args)
 
 		if (!connect_to_server(get_server_name(i), server_list[i].port, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
- 			set_window_server((int)window->refnum, from_server, new_server_flags);
+			window_set_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */
-			/* Not always necessary. See set_window_server. -Sol */
+			/* Not always necessary. See window_set_server. -Sol */
 			if (!preserve && window->current_channel)
 				new_free(&window->current_channel);
 			update_all_status();

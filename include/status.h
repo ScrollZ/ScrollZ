@@ -31,18 +31,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: status.h,v 1.2 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __status_h_
 #define __status_h_
 
+extern	int	do_status_alarmed;
+
 	void	make_status _((Window *));
 	void	set_alarm _((char *));
-	char	*update_clock _((int));
+ 	char	*update_clock _((char *, size_t, int));
 	void	reset_clock _((char *));
 	void	build_status _((char *));
 	void	status_update _((int));
+ 	void	real_status_alarmed _((void));
 /**************************** PATCHED by Flier ******************************/
 #ifdef CELE
 	void	Cquick_status _((char *, int));

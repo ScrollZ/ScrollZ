@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircsig.c,v 1.3 1999-02-15 21:19:41 f Exp $
+ * $Id: ircsig.c,v 1.4 2000-08-09 19:31:21 f Exp $
  */
 
 /*
@@ -57,7 +57,7 @@ my_signal(sig_no, sig_handler, misc_flags)
 	 * have to (void *) this because of strict type checking
 	 * on some systems -glen
 	 */
-        sa.sa_handler = (void *)sig_handler;
+        sa.sa_handler = (void (*)_((int))) sig_handler;
 
         sigemptyset(&sa.sa_mask);
         sigaddset(&sa.sa_mask, sig_no);

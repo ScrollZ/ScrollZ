@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.31 2000-07-17 15:23:24 f Exp $
+ * $Id: irc.c,v 1.32 2000-08-09 19:31:20 f Exp $
  */
 
-#define IRCII_VERSION	"4.4J"
+#define IRCII_VERSION	"4.4S"
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.
@@ -45,7 +45,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 /*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"20000127"
+#define INTERNAL_VERSION	"20000808"
 /****************************************************************************/
 
 #include "irc.h"
@@ -132,7 +132,6 @@ char	oper_command = 0;	/* true just after an oper() command is
 				 * an oper() command and one generated when
 				 * connecting to a new server */
 
-char	global_all_off[2];		/* lame kludge to get around lameness */
 char	FAR MyHostName[80];	       	/* The local machine name. Used by
 					 * DCC TALK */
 	struct	in_addr	MyHostAddr;	/* The local machine address */
@@ -141,6 +140,7 @@ extern	char	*last_away_nick;
 char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
 	FAR buffer[BIG_BUFFER_SIZE + 1],/* multipurpose buffer */
 	*ircrc_file = (char *) 0,	/* full path .ircrc file */
+	*ircquick_file = (char *)0,	/* full path .ircquick file */
 	*my_path = (char *) 0,		/* path to users home dir */
 	*irc_path = (char *) 0,		/* paths used by /load */
 	*irc_lib = (char *) 0,		/* path to the ircII library */
@@ -148,9 +148,10 @@ char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
 	FAR hostname[NAME_LEN + 1],    	/* name of current host */
 	FAR realname[REALNAME_LEN + 1],	/* real name of user */
 	FAR username[NAME_LEN + 1],    	/* usernameof user */
+	*source_host = NULL,		/* specify a specific source host
+					 * for multi-homed machines */
 	*send_umode = NULL,		/* sent umode */
 	*args_str = (char *) 0,		/* list of command line args */
-	*last_notify_nick = (char *) 0,	/* last detected nickname */
 	empty_string[] = "",		/* just an empty string */
 	*who_name = (char *) 0,		/* extra /who switch info */
 	*who_file = (char *) 0,		/* extra /who switch info */
@@ -160,6 +161,7 @@ char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
 	*who_real = (char *) 0,		/* extra /who switch info */
 	*cannot_open = (char *) 0,	/* extra /who switch info */
 	*cut_buffer = (char *) 0;	/* global cut_buffer */
+u_char	*last_notify_nick = (u_char *) 0; /* last detected nickname */
 #ifdef IPCHECKING
 char    *channel_join = (char *) 0;     /* channel we are joining */
 #endif
@@ -172,7 +174,10 @@ char    *channel_join = (char *) 0;     /* channel we are joining */
         time_t  start_time;
 
 static	RETSIGTYPE	cntl_c _((void));
-static	RETSIGTYPE	sig_user1 _((void)) ;
+static	RETSIGTYPE	sig_user1 _((void));
+static	RETSIGTYPE	sig_refresh_screen _((void));
+static	void		real_sig_user1 _((void));
+static	int		do_sig_user1;
 /**************************** PATCHED by Flier ******************************/
 /*#ifdef	DO_USER2
 static	RETSIGTYPE	sig_user2 _((void)) ;
@@ -185,8 +190,9 @@ static	RETSIGTYPE	cntl_y _((void));
 #ifdef CORECATCH
 static	RETSIGTYPE	coredump _((void)) ;
 #endif /* CORECATCH */
+static	void	process_hostname _((void));
 /**************************** PATCHED by Flier ******************************/
-/*static	time_t		TimerTimeout _((void));*/
+/*static	time_t	TimerTimeout _((void));*/
 #if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
 static struct timeval TimerTimeout _((void));
 #else
@@ -211,6 +217,7 @@ static	int	cntl_c_hit = 0;
 
 static	char	FAR switch_help[] =
 "Usage: irc [switches] [nickname] [server list] \n\
+  The [nickname] can be at most 9 characters long on some server\n\
   The [server list] is a whitespace separate list of server name\n\
   The [switches] may be any or all of the following\n\
    -c <channel>\tjoins <channel> o startup\n\
@@ -222,18 +229,12 @@ static	char	FAR switch_help[] =
    -s\t\tdon't use separate server processes (ircio)\n\
    -S\t\tuse separate server processes (ircio)\n\
    -d\t\truns IRCII in \"dumb\" terminal mode\n\
-   -q\t\tdoes not load .scrollzrc\n\
+   -q\t\tdoes not load .scrollzrc and not .ircquick\n\
    -a\t\tadds default servers and command line servers to server list\n\
-   -b\t\tload .scrollzrc before connecting to a server\n";
-
-static	char	FAR switch_help_l[] =
-#ifdef COMMAND_LINE_L
-"   -l <file>\tloads <file> in place of your .scrollzrc\n\
+   -b\t\tload .scrollzrc before connecting to a server\n\
+   -l <file>\tloads <file> in place of your .scrollzrc\n\
+   -I <file>\tloads <file> in place of your .ircquick\n\
    -L <file>\tloads <file> in place of your .scrollzrc and expands $ expandos\n";
-#else
-"";
-#endif
-
 /**************************** PATCHED by Flier ******************************/
 extern void Logo _((char *, char *, char *));
 extern void CheckTimeMinute _((void));
@@ -274,7 +275,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII 4.4J+ScrollZ v1.8i6 (27.1.2000)+Cdcc v1.8";
+char  *ScrollZver="ircII 4.4S+ScrollZ v1.8j (8.8.2000)+Cdcc v1.8";
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
@@ -322,10 +323,8 @@ char  *OrigNick=(char *) 0;
 char *AcidVersion="OperMods v1.0 by acidflash";
 #endif
 /****** Coded by Zakath ******/
-char  *VirtualHost=(char *) 0;
 char  *HelpPathVar=(char *) 0;
 char  *CelerityNtfy=(char *) 0;
-struct in_addr VirtualAddr;
 struct urlstr *urllist;
 int   AwayMsgNum=0;
 int   CdccPackNum=0;
@@ -699,6 +698,12 @@ sig_user1()
 #ifdef SYSVSIGNALS
 	(void) sigfunc *(SIGUSR1, (sigfunc *) sig_user1, 0);
 #endif /* SYSVSIGNALS */
+	do_sig_user1++;
+}
+
+static void
+real_sig_user1()
+{
 	say("Got SIGUSR1, closing DCC connections and EXECed processes");
 	close_all_dcc();
 #ifndef _Windows
@@ -716,7 +721,7 @@ sig_user2()
 	(void) MY_SIGNAL(SIGUSR2, (sigfunc *) sig_user2, 0);
 #endif /* SYSVSIGNALS */
 /**************************** PATCHED by Flier ******************************/
-	/*say("Got SIGUSR2, jumping to normal loop");
+	/*say("Got SIGUSR2, jumping to normal loop");	 unsafe
 	longjmp(outta_here);*/
  	say("Got SIGUSR2, reloading ScrollZ.save");
  	Reset(NULL,NULL,NULL);
@@ -732,9 +737,15 @@ static RETSIGTYPE
 cntl_y()
 {
 	(void) MY_SIGNAL(SIGQUIT, (sigfunc *) cntl_y, 0);
-	edit_char(25); /* Ctrl-Y */
+	edit_char(25); /* Ctrl-Y */	/* unsafe */
 }
 #endif
+
+static RETSIGTYPE
+sig_refresh_screen()
+{
+	do_refresh_screen++;
+}
 
 /* shows the version of irc */
 static	void
@@ -742,6 +753,26 @@ show_version()
 {
 	printf("ircII version %s (%s)\n\r", irc_version, internal_version);
 	exit (0);
+}
+
+/*
+ * process_hostname: Called at startup and to deal with /SET IRCHOST changes.
+ */
+static void
+process_hostname()
+{
+#ifndef INET6
+	struct hostent *hp;
+#endif
+
+	if (source_host)
+		strncpy(MyHostName, source_host, sizeof(MyHostName)-1);
+	else
+		gethostname(MyHostName, sizeof(MyHostName));
+#ifndef INET6
+	if ((hp = gethostbyname(MyHostName)) != NULL)
+		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
+#endif
 }
 
 /* get_arg: used by parse_args() to get an argument after a switch */
@@ -779,7 +810,6 @@ parse_args(argv, argc)
 	int	add_servers = 0;
 	char	*channel = (char *) NULL;
 	struct	passwd	*entry;
-	struct	hostent	*hp;
 	int	minus_minus = 0;
 /**************************** PATCHED by Flier ******************************/
         char    *CloakCommand=(char *) 0;
@@ -794,14 +824,6 @@ parse_args(argv, argc)
 	ac = 1;
 	strmcpy(buffer, argv[0], BIG_BUFFER_SIZE);
 	strmcat(buffer, " ", BIG_BUFFER_SIZE);
-/**************************** PATCHED by Flier ******************************/
-/* Patched by Zakath */
-/* Moved here by Flier so we can override environment variable with -H */
-	if ((ptr=getenv("IRCHOST"))) malloc_strcpy(&VirtualHost,ptr);
-/* ***************** */
-        /* for Da_P */
-        if ((ptr=getenv("VIRTIP"))) malloc_strcpy(&VirtualHost,ptr);
-/****************************************************************************/
 	while ((arg = argv[ac++]) != (char *) NULL)
 	{
 		strmcat(buffer, argv[ac-1], BIG_BUFFER_SIZE);
@@ -817,11 +839,6 @@ parse_args(argv, argc)
 				case 'C':
                                         malloc_strcpy(&CloakCommand,get_arg(arg,argv[ac],&ac));
 					break;
-/* Patched by Zakath */
-				case 'H':
-                                        malloc_strcpy(&VirtualHost,get_arg(arg,argv[ac],&ac));
-					break;
-/* ***************** */
 /****************************************************************************/
 				case 'v':
 					show_version();
@@ -851,6 +868,13 @@ parse_args(argv, argc)
 				case 'd':
 					dumb = 1;
 					break;
+				case 'h':
+/**************************** PATCHED by Flier ******************************/
+				case 'H':
+/****************************************************************************/
+					malloc_strcpy(&source_host, get_arg(arg,
+							argv[ac], &ac));
+					break;
 #ifdef DEBUG
 				case 'D':
 					setdlevel(atoi(get_arg(arg, argv[ac],
@@ -873,8 +897,8 @@ parse_args(argv, argc)
 							exit(-1);
 						}
 					}
+					break;
 #endif /* DEBUG */
-#ifdef COMMAND_LINE_L
 				case 'l':
 					malloc_strcpy(&ircrc_file, get_arg(arg,
 							argv[ac], &ac));
@@ -884,7 +908,9 @@ parse_args(argv, argc)
 							argv[ac], &ac));
 					malloc_strcat(&ircrc_file," -");
 					break;
-#endif /* COMMAND_LINE_L */
+				case 'I':
+					malloc_strcpy(&ircquick_file,get_arg(arg, argv[ac], &ac));
+					break;
 				case 'a':
 					add_servers = 1;
 					break;
@@ -907,15 +933,15 @@ parse_args(argv, argc)
 					{
 						while ((arg = argv[ac++]) != NULL)
 						{
-							strmcat(command_line, arg, BIG_BUFFER_SIZE);
-							strmcat(command_line, " ", BIG_BUFFER_SIZE);
+							malloc_strcat(&command_line, arg);
+							malloc_strcat(&command_line, " ");	/* a bit wasteful; only at startup */
 						}
 						command_line[strlen(command_line)-1] = '\0';
 					}
 					minus_minus = 1;
 					break;
 				default:
-					fprintf(stderr, "%s%s", switch_help, switch_help_l);
+					fprintf(stderr, "%s", switch_help);
 					exit(1);
 				}
 			}
@@ -944,7 +970,14 @@ parse_args(argv, argc)
 	else
 		malloc_strcpy(&irc_lib, IRCLIB);
 
+	/* -h overrides environment variable */
+	if ((char *) 0 == source_host && (char *) 0 != (ptr = getenv("IRCHOST")))
+		malloc_strcpy(&source_host, ptr);
+
 	if ((char *) 0 == ircrc_file && (char *) 0 != (ptr = getenv("IRCRC")))
+		malloc_strcpy(&ircrc_file, ptr);
+
+	if ((char *) 0 == ircquick_file && (char *) 0 != (ptr = getenv("IRCQUICK")))
 		malloc_strcpy(&ircrc_file, ptr);
 
  	if ((nickname == 0 || *nickname == '\0') && (char *) 0 != (ptr = getenv("IRCNICK")))
@@ -1017,7 +1050,7 @@ parse_args(argv, argc)
 					!= NULL)
 				*ptr = '\0';
 #endif /* GECOS_DELIMITER */
-			if ((ptr = strchr(entry->pw_gecos, '&')) == NULL)
+			if ((ptr = index(entry->pw_gecos, '&')) == NULL)
 				strmcpy(realname, entry->pw_gecos, REALNAME_LEN);
 			else {
  				size_t len = ptr - entry->pw_gecos;
@@ -1058,9 +1091,13 @@ parse_args(argv, argc)
 	}
 	if ((char *) 0 != (ptr = getenv("IRCUSER")))
 		strmcpy(username, ptr, REALNAME_LEN);
-	gethostname(MyHostName, sizeof(MyHostName));
-	if ((hp = gethostbyname(MyHostName)) != NULL)
-		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
+
+/**************************** PATCHED by Flier ******************************/
+        /* for Da_P */
+        if ((ptr=getenv("VIRTIP"))) malloc_strcpy(&source_host,ptr);
+/****************************************************************************/
+
+        process_hostname();
  	if (nickname == 0 || *nickname == '\0')
  		malloc_strcpy(&nickname, username);
 /**************************** PATCHED by Flier ******************************/
@@ -1080,6 +1117,13 @@ parse_args(argv, argc)
 			strlen(IRCRC_NAME) + 1);
 		strcpy(ircrc_file, my_path);
 		strcat(ircrc_file, IRCRC_NAME);
+	}
+	if ((char *) 0 == ircquick_file)
+	{
+		ircquick_file = (char *) new_malloc(strlen(my_path) +
+			strlen(IRCQUICK_NAME) + 1);
+		strcpy(ircquick_file, my_path);
+		strcat(ircquick_file, IRCQUICK_NAME);
 	}
 /**************************** PATCHED by Flier ******************************/
         if (CloakCommand) {
@@ -1342,6 +1386,21 @@ irc_io(prompt, func, my_use_input, loop)
  				edit_char((u_int)'\003');
 				cntl_c_hit = 0;
 			}
+			if (do_status_alarmed)
+			{
+				real_status_alarmed();
+				do_status_alarmed = 0;
+			}
+			if (do_refresh_screen)
+			{
+				refresh_screen(0, (char *) 0);
+				do_refresh_screen = 0;
+			}
+			if (do_sig_user1)
+			{
+				real_sig_user1();
+				do_sig_user1 =0;
+			}
 			if (!hold_over)
 				cursor_to_input();
 			break;
@@ -1520,7 +1579,7 @@ irc_io(prompt, func, my_use_input, loop)
 				timeptr = &cursor_timeout;
 		set_current_screen(old_current_screen);
 
-		if (update_clock(0))
+		if (update_clock(0, 0, 0))
 		{
 			if (get_int_var(CLOCK_VAR) || check_mail_status())
 			{
@@ -1645,6 +1704,7 @@ main(argc, argv, envp)
 /**************************** PATCHED by Flier ******************************/
         printf("Process [%d] connected to tty [%s]\n",getpid(),ttyname(0));
 /****************************************************************************/
+	term_set_fp(stdout);
 	if (dumb)
 		new_window();
 	else
@@ -1751,13 +1811,9 @@ main(argc, argv, envp)
 /**************************** Patched by Flier ******************************/
         Logo(NULL,NULL,NULL);
 /****************************************************************************/
-	global_all_off[0] = ALL_OFF;
-	global_all_off[1] = '\0';
 	if (bflag)
 		load_ircrc();
-        get_connected(0, 0);
-	/* set_window_server(0, primary_server, 0); */
-	/* Already done in get_connected() -Sol */
+	get_connected(0);
         if (channel)
 	{
 		char    *ptr;
@@ -1780,4 +1836,22 @@ main(argc, argv, envp)
 /****************************************************************************/
 #endif /* _Windows */
  	return 0;
+}
+
+/* 
+ * set_irchost: This sets the source host for subsequent connections.
+ */
+void
+set_irchost ()
+{
+	char *irchost;
+
+	irchost = get_string_var(IRCHOST_VAR);
+
+	if (!irchost || !*irchost)
+		source_host = NULL;
+	else
+		malloc_strcpy(&source_host, irchost);
+
+	process_hostname();
 }

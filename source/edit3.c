@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.40 2000-07-17 19:27:59 f Exp $
+ * $Id: edit3.c,v 1.41 2000-08-09 19:31:20 f Exp $
  */
 
 #include "irc.h"
@@ -434,7 +434,7 @@ char *subargs;
         for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
             users++;
             if (tmpnick->chanop) ops++;
-            if (tmpnick->voice) voice++;
+            if (tmpnick->hasvoice) voice++;
         }
 #ifdef WANTANSI
         say("Statistics for channel %s%s%s :",

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.7 1999-06-14 17:47:02 f Exp $
+ * $Id: config.h,v 1.8 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __config_h_
@@ -71,18 +71,6 @@
  * from another in the mail spool file when using UNIX_MAIL.
  */
 #define MAIL_DELIMITER "From "
-
-/* Thanks to Allanon a very useful feature, when this is defined, ircII will
- * be able to read help files in compressed format (it will recognize the .Z)
- * If you undefine this you will spare some code, though, so better only
- * set if you are sure you are going to keep your help-files compressed.
- */
-#define ZCAT "/bin/zcat"
-
-/* Define ZSUFFIX in case we are using ZCAT */
-#ifdef ZCAT
-# define ZSUFFIX ".gz"
-#endif /* ZCAT */
 
 /* Make ^Z stop the irc process by default,
  * if undefined, ^Z will self-insert by default
@@ -170,12 +158,14 @@
 #define DEFAULT_LASTLOG_LEVEL "ALL DCC"
 #define DEFAULT_LOG 0
 #define DEFAULT_LOGFILE "IrcLog"
+#define DEFAULT_MAKE_NOTICE_MSG 1
 #define DEFAULT_MAIL 1
 #define DEFAULT_MAX_MODES 4
 #define DEFAULT_MAX_RECURSIONS 10
 #define DEFAULT_MAX_WALLOP_NICKS 10
 #define DEFAULT_MINIMUM_SERVERS 0
 #define DEFAULT_MINIMUM_USERS 0
+#define DEFAULT_NO_ASK_NICKNAME 0
 #define DEFAULT_NO_CTCP_FLOOD 1
 #define DEFAULT_NOTIFY_HANDLER "NOISY"
 #define DEFAULT_NOTIFY_LEVEL "ALL DCC"
@@ -230,6 +220,7 @@
 #define DEFAULT_VERBOSE_CTCP 1
 #define DEFAULT_WARN_OF_IGNORES 1
 #define DEFAULT_XTERM_OPTIONS NULL
+#define DEFAULT_XTERM_PATH "xterm"
 
 #define DEFAULT_STATUS_USER4 ""
 #define DEFAULT_STATUS_USER5 ""

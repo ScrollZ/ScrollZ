@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.6 2000-05-14 07:57:56 f Exp $
+ * $Id: notify.c,v 1.7 2000-08-09 19:31:21 f Exp $
  */
 
 /*
@@ -356,7 +356,7 @@ notify_mark(nick, flag, doit)
 				 * into our array  ;)
 				 */
 				malloc_strcpy(&(tmp->nick), nick);
-				malloc_strcpy(&last_notify_nick, nick);
+				malloc_strcpy((char **) &last_notify_nick, nick);
 				tmp->flag = 1;
 			}
 		}

@@ -1,11 +1,19 @@
-@(#)$Id: INSTALL,v 1.2 1998-11-18 20:51:30 f Exp $
+@(#)$Id: INSTALL,v 1.3 2000-08-09 19:31:20 f Exp $
 
 to compile ircii
 
   o  using configure:
-      - in the same directory that this file is in, type `./configure'.
+      - we recommend that you create an object directory in the same
+	directory that this file is in.  you should then cd into your
+        new directory and run the `configure' script in the source
+	directory.  eg:
+
+	% mkdir obj-sparc
+	% cd obj-sparc
+	% ../configure
+
 	if you are using an old version of system v, you might need
-	`sh configure'.
+	`sh ../configure'.
 
       - this script tries to guess various things about your system
         that are important to it compiling.  it creates various files
@@ -20,7 +28,7 @@ to compile ircii
 
       - when this has finished, you might want to check the Makefile
         for the places ircii will be installed.  the defaults are
-        /usr/local/lib, /usr/local/bin and /usr/local/man.  you can
+        /usr/local/share, /usr/local/bin and /usr/local/man.  you can
         either do `make prefix=/local' or set it with configure, by
         calling configure with the `--prefix=/local' switch.
 
@@ -34,7 +42,7 @@ to compile ircii
 	cipher and use the old cipher (strongly *not* recommended),
 	use the `--without-cast' flag to configure.
 
-  o  to compiling ircii, type `make' in the main ircii directory.
+  o  to compiling ircii, type `make' in your object directory.
      this will compile the `irc', `ircflush', `ircio', and `wserv'
      programs that reside in the source sub directory.
 
@@ -43,10 +51,15 @@ to compile ircii
      translation tables, help files, and the ircii manual page.  if
      you don't install the scripts then ircii becomes much less usable.
 
-  o  you can now delete the object files and binaries from the source
+  o  you can now delete the object files and binaries from your object
      directory with `make clean'.  `make distclean' will also delete
      any file that `configure' created.  this is useful for then
      using the same sources to compile on a different architecture.
+
+  o  there is a relatively "lame" Makefile generated if you try to use
+     the old method of "./configure && make" while in the ircii root
+     directory.  if you're using the old method, you're probably not
+     even going to read this file...
 
 
 notes on SOCKS support.
@@ -89,14 +102,6 @@ notes on portability and bugs.
      Makefile files that may need to be applied.  these can be applied
      by running `patch -p0 < qnx.pach' in the ircii directory.
 
-  o  some versions of nextstep (3.x?) require some serious kludges
-     to get ircii to compile and work.  if you have problems with
-     missing __environ, __NXArgc, etc, run the make command again
-     with "make CFLAGS=-O" (or "make CFLAGS='-g\ -O'" if you want
-     debugging as well) for the final link, and see if that works.
-     if not, you'll have to hack around with various flags, or the
-     LIBS variable in the Makefile.
-
   o  apparently you will get errors of "__inet_addr" or "__inet_ntoa"
      as being undefined, if you have BIND version 8 installed into
      /usr/local (the default) and you use gcc.  this is caused by the
@@ -108,3 +113,8 @@ notes on portability and bugs.
   o  on solaris systems with libresolv patches incorporated may see
      instability (crashes) in the client.  (sunos 5.5.1 patches
      103680-01, 103683-01, 103686-01, 103743-01, and 103663-01).
+
+  o  Under NEXTSTEP, after you have run configure, you can change the
+     CFLAGS and add "-arch m68k -arch i486 -arch hppa -arch sparc" (without
+     the quotes) to create a multiple architecture binary for all supported
+     hardware platforms.

@@ -4,12 +4,463 @@
  *
  * Matthew Green, 1993.
  *
- * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998, 1999.
+ * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000.
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.5 1999-10-04 19:21:36 f Exp $
+ * @(#)$Id: ChangeLog,v 1.6 2000-08-09 19:31:20 f Exp $
  */
+
+4.4S
+Fri Mar 17 15:07:25 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		properly fix the terrible bug in send_text().
+
+4.4R
+Fri Mar 17 02:19:20 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		fix a terrible bug in send_text().
+
+4.4Q
+Thu Mar 16 23:58:40 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/ctcp.c:
+		avoid using %ld as an argument to send_ctcp_reply().
+
+Thu Mar 16 22:55:12 EST 2000 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, Makefile.in:
+		use a find & chmod chain to ensure the permissions
+		of the installed help files is correct.
+
+Sun Mar  5 08:04:22 EET 2000 - Joel Yliluoma <bisqwit@iki.fi>
+	configure, configure.in, acconfig.h:
+		add $crypt() function.
+		source/screen.c:
+		fixed the mirc colour support again.
+		(something had broken it)
+	help/cat:
+		add help file for this.
+
+Wed Feb 23 00:06:05 EET 2000 - Joel Yliluoma <bisqwit@iki.fi>
+	source/alias.c, help/alias/functions:
+		added crypt() support and help files.
+
+Thu Mar 16 12:36:40 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		deal with /join, /invite, /who, /nick and /topic again.
+
+Wed Mar 15 14:18:30 EST 2000 - glen mccready <gkm@pobox.com>
+	include/ircterm.h, source/term.c, source/irc.c, source/screen.c:
+		streamline term.c fp handling.  use term_flush()
+		where appropriate rather than calling fflush()
+		directly.  there's a div by zero work around, too.
+
+4.4P
+Wed Mar 15 17:51:07 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/screen.c, source/irc.c, include/irc.h:
+		in add_to_window(), don't add something to the end
+		of a string, but allocate our own buffer to do this,
+		and then add the ALL_OFF char.  eliminte the char []
+		`global_all_off'.  fixes off-by-one errors caused
+		by vasprintf() support for output.c.
+	source/irc.c:
+		fix PR#428: /set -irchost dumps core.
+
+Sat Mar 11 17:31:43 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/encrypt, source/crypt.c:
+		unless the new -showkeys option is specified to the
+		/encrypt command, do not show the keys for each user.
+
+Sat Mar 11 15:33:06 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/set/lastlog_level, include/lastlog.h, script/screen,
+	source/lastlog.c, source/output.c:
+		add lastlog level HELP, that is where all HELP
+		messages are sent to.
+
+Fri Mar  3 20:38:59 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/status.h source/alias.c source/irc.c source/status.c:
+		change update_clock() to take a buffer and a length to
+		write a string to, rather than using a static buffer.
+	source/screen.c:
+		in rite(), do not increase new_scrolled_lines if we
+		are redrawing.
+	source/screen.c:
+		in split_up_lines(), if we get a string that seems to
+		be empty, don't pass it to malloc_strcpy() because we
+		don't have a handle on the owner of the string.  in
+		this case, we copy " " and then free it later.
+
+Fri Mar  3 12:24:59 EST 2000 - matthew green <mrg@eterna.com.au>
+	configure, configure.in, include/crypt.h, include/defs.h.in,
+	include/edit.h, include/irc.h, include/ircterm.h, source/alias.c,
+	source/cast.c, source/crypt.c, source/edit.c, source/icb.c,
+	source/irc.c, source/ircsig.c, source/log.c, source/notify.c,
+	source/parse.c, source/screen.c, source/sed.c, source/status.c:
+		remove solaris warnings.  part of this changed meant going
+		to more unsigned char uses in alias.c.  ideally, we should
+		use unsigned chars everywhere but calling stdlib functions
+		will cause warnings.
+	source/help.c:
+		manage the opening and closing of FILE *help_fp in a much
+		saner way to stop it ever being used in an unstable fashion.
+
+Fri Mar  3 02:29:06 EST 2000 - matthew green <mrg@eterna.com.au>
+	help/bind/meta5_character, help/bind/meta6_character, help/bind/keys,
+	help/bind/meta7_character, help/bind/meta8_character, include/edit.h,
+	include/keys.h, include/keys.h.proto, include/struct.h, source/edit.c,
+	source/empty_metakeys.inc, source/keys.c, source/screen.c:
+		add meta[5678]_character /bindings.  we split the
+		initialiser for meta[35678] out into empty_makekeys.inc
+		because we use it 5 times.
+
+Fri Mar  3 00:59:01 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		in redraw_window(), if we have scrolled lines, lets
+		redraw all of the displayed lines, rather than skipping
+		the last line.  in scrollback_end(), reset
+		new_scrolled_lines to 0 as well.  in scrollback_start(),
+		call a series of next_line_back() calls to find out how
+		many (output) lines there are in the last log (as opposed
+		to individual lastlog entries, which may span several
+		output lines), so that scrollback_start() can actually
+		work correctly now.
+
+4.4O
+Thu Mar  2 23:15:18 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/debug.c:
+		fflush(stderr); at the end of debug() -- just to make
+		sure debug messages get written out in a timely fashion.
+	include/screen.h, source/screen.c:
+		make redraw_window() static to screen.c; it was the only
+		user anyway.
+	source/screen.c:
+		modify redraw_window() to take an additional "backscroll"
+		parameter and pass true in this parameter when calling the
+		function from back/forward scrolling functions, and false
+		elsewhere.  remove the "int skip" parameter from the
+		next_line_back() function.  it causes the function to skip
+		lines for what appears to be no good reason, and this is,
+		in addition to the above change to redraw_window() have
+		cause the majority of scroll bugs.
+
+Thu Mar  2 00:17:18 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/server.c:
+		add support for [server]:port addreses, including
+		[IP:v6] style ones, so that one can use IPv6 addresses
+		as well as ports, nicks, etc.
+	include/irc.h, include/vars.h.proto, include/vars.h, source/irc.c,
+	source/vars.c:
+		implement /set irchost; from <tristan@ethereal.net>
+	help/set/irchost:
+		add documentation for above.
+	include/config.h.dist, include/config.h.lynx, include/vars.h,
+	include/vars.h.proto, source/numbers.c, source/vars.c,
+	help/set/no_ask_nickname:
+		implement /set no_ask_password on; stops reset_nickname()
+		in numbers.c from prompting the user for a password, so
+		that a script can take care of the error instead.
+	include/output.h, include/status.h, source/irc.c,
+	source/output.c, source/screen.c, source/status.c:
+		convert all signal handlers (except for coredump()) to
+		the `set a variable, return, and let someone else perform
+		the task we want' style.  ie, don't be unsafe in signal
+		handlers and call things like stdio and malloc!
+	source/icb.c:
+		handle many /ignore requests.
+
+Wed Mar  1 21:17:19 EST 2000 - matthew green <mrg@eterna.com.au>
+	Makefile.in, configure, configure.in:
+		ignore CVS dirs when installing things more
+		carefully.  support `$DESTDIR' in Makefile.in
+		(this from Arkadiusz Miskiewicz <misiek@pld.org.pl>),
+		and use @libdir@ and @mandir@ rather than using
+		${prefix}/foo for these.
+	source/ircaux.c:
+		use index(foo, ' '); over sindex(foo, " "); from
+		Mark Mielke <mark@mielke.cc>.
+	source/edit.c, help/exec.c:
+		fix typos; from Mark Mielke <mark@mielke.cc>.
+	source/status.c:
+		remove the uses of the global "buffer" from status.c.
+		inspired by a PR from Mark Mielke <mark@mielke.cc>
+	source/edit.c, source/screen.c:
+		make sure we translate everything, even in dumb mode,
+		everywhere.  from: Alexander Trump <assa@assa.tlt.ru>.
+	source/edit.c:
+		fix /set auto_unmark_away variable; it has been broken
+		for at least 5 years.  fixes PR#377.
+	source/alias.c, help/alias/functions:
+		implement wincols() and winrows() functions that return
+		the number of columns and rows (respectively) in the
+		current window, or -1.
+	source/wserv.c, configure.in, configure, acconfig.h:
+		fix AIX support.  mostly from Graovac
+		<ddavid@lamar.ColoState.EDU>.
+	source/server.c, source/window.c:
+		server_itsname() return "<None>" for no server name.
+	source/edit.c:
+		yell() not say() when we don't load an executable file.
+	script/2.8script:
+		remove some damage.
+	source/names.c:
+		avoid adding channel "0" to the channel list. PR#277
+	source/exec.c:
+		/exec output is level crap by default; make it so.
+	source/dcc.c:
+		if a /dcc get fails because we couldn't create the
+		local file, _don't_ delete the offer from our list!
+	source/queue.c:
+		for `/queue' when no queue commands have ever been
+		run, we used to dump core from calling toupper("Top").
+		call toupper() on the copied string rather than on
+		the passed in string.h, and then copying.  PR#403
+	source/names.c, include/names.h:
+		add support for +c (colourless) and +R (registered
+		users only) channel modes.  from jim efaw in PR#420.
+	source/names.c:
+		add support to properly join !channels.
+	source/crypt.c:
+		fix /encrypt -sed when cast support also enabled.
+		from Jim Efaw <jimefaw@eggroll.com>.
+
+Tue Feb 29 19:52:50 EST 2000 - matthew green <mrg@eterna.com.au>
+	acconfig.h, configure, configure.in, include/defs.h.in,
+	source/output.c:
+		add checks for vasprintf(3), vsnprintf(3) and
+		snprintf(3) (the latter not used in the ircII
+		yet?).  rework the screen output routines (yell(),
+		say(), put_it() and help_put_it() to use vasprintf()
+		if it exists, then fallback vsnprintf() and finally
+		back to vsprintf() like the old code.  this should
+		allow lines with extremely large output (such as
+		many-kilobyte aliases) to be displayed correctly
+		(vasprintf()) or at least truncated (vsnprintf())
+		and not dumping core.
+
+Mon Feb 28 12:09:24 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/alias.h, source/alias.c, source/irc.c:
+		malloc_str*() the space for char *command_line,
+		rather than having a buffer in bss.
+	include/ircaux.h, source/ircaux.c:
+		add a malloc_strcat_ue() that unescapes backslashes
+		(like strmcat_ue()).
+	source/alias.c:
+		modify expander_addition() and alias_special_char()
+		to take a malloc() maintained buffer, rather than a
+		BIG_BUFFER_SIZE one, by replacing str*() calls with
+		malloc_str*() calls in many places.  remove a hack
+		that would try to stop core dumps when this buffer
+		became overflowed that now should never happen.
+		modify alias_expand() to use the changed functions
+		from above, including malloc_strcat_ue().  also,
+		remove BIG_BUFFER_SIZE from the rest of alias.c:
+		alias_currdir(), function_strip(), function_encode(),
+		function_decode(), function_dcclist(), 
+		function_chatpeers(), function_chanusers(),
+		note: function_pid(), function_ppid() and
+		function_idle() all use the global "buffer" still.
+	source/edit.c:
+		remove a dependancy on BIG_BUFFER_SIZE in parse_line().
+		note all the uses of BIG_BUFFER_SIZE and the global
+		"buffer".  yes, it is time to get rid of the global
+		buffer and the BIG_BUFFER_SIZE define.
+
+
+Sun Feb 27 18:46:01 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/window.c, include/window.h:
+		add a 'Win_Trav' that we use in window_traverse()
+		now, as our status of where we are in traversal.
+		note that we have to set:
+			Win_Trav stuff;
+			stuff.flag = 1;
+		before calling window_traverse initially.
+	include/vars.h.proto, include/vars.h, source/screen.c,
+	source/vars.c, help/set/xterm_path:
+		add /set xterm_path <path>
+
+Sun Feb 27 18:02:08 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/window.c:
+		fix window_get_connected() to note the nick to use
+		once a server is found, if the nick isn't already
+		specified.  fixes problem with multiple server:port
+		combinations with different nicks.
+
+4.4N
+Sun Feb 27 12:36:35 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/window.h, source/server.c, source/window.c:
+		rename set_window_server() to window_set_server().
+	source/window.c, source/server,c. source/notice.c,
+	source/irc.c, source/numbers.c, include/server.h:
+		retire WIN_OLDCONN flag.  this means we can revert
+		get_connected() to take only one argument.  in
+		window_set_server(), always transfer the channels
+		to the new server if WIN_TRANSFER, because
+		WIN_OLDCONN is now gone.
+
+Sat Feb 26 13:41:31 EST 2000 - matthew green <mrg@eterna.com.au>
+	script/icb, source/edit.c:
+		deal with /join, /invite, /who, /nick and /topic in
+		the script.
+	source/parse.c:
+		give all static functions a `p_' prefix like about
+		1/2 of them already have.
+
+Sun Feb 13 03:00:37 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/hook.h, include/hook.h.proto, source/hook.c,
+	source/window.c, help/on/window_swap:
+		add new hook WINDOW_SWAP that is triggered when ever
+		a window is swapped.
+	include/struct.h, source/edit.c, source/names.c, source/screen.c,
+	source/window.c:
+		revert /window bind to original behavior: property of
+		a window, not a channel.
+
+Tue Feb  1 16:40:18 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/icb.c:
+		deal with the fact that ICB groups can be renamed.
+
+Mon Jan 31 15:01:41 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/icb.c, source/edit.c:
+		change icb_put_msg2() to honour window_dislay, and
+		using this implement /whois for ICB mode (as
+		"/m server whereis").
+
+4.4M
+Fri Jan  7 09:55:29 EST 2000 - matthew green <mrg@eterna.com.au>
+	acconfig.h, configure, configure.in, include/defs.h.in,
+	source/irc.c, source/ircaux.c, source/server.c:
+		add IPv6 support from Arkadiusz Miskiewicz
+		<misiek@misiek.eu.org> as given in PR#402.
+	source/icb.c:
+		make SHOW_CHANNEL_NAMES work on ICB.
+
+Tue Dec 21 02:38:00 EET 1999 - Joel Yliluoma <bisqwit@iki.fi>
+	source/edit.c, help/cat:
+		added /CAT command to easify avoiding security
+		risks when otherwise /exec cat would be used.
+		/CAT adds a line to specified file (to end).
+
+Sat Dec 18 22:32:18 EST 1999 - matthew green <mrg@eterna.com.au>
+	help/icb:
+		fix some typoes from <kleink@serpens.swb.de> in
+		PR#395.
+	Makefile.in:
+		regenerate dependancies after adding ircflush.c
+		to the list of them.  this fixes PR#396.
+	configure.in:
+		s/PREFIX/prefix/ so that it it works.
+	ircbug.in:
+		automatically determine how to suppress newlines,
+		fixing PR#398.
+	source/edit.c:
+		re-set from_level correctly in my_echo; fixes PR#387,
+		#399 and #412 (patch supplied in this one from Hans
+		Hasselaar <hansh@ircnet.dk>).
+
+Thu Dec  9 21:42:41 EST 1999 - matthew green <mrg@eterna.com.au>
+	script/default:
+		new script that is a suggested default `.ircrc'
+		for people to use.
+	script/times:
+		new script that adds times to msgs, dcc and channel
+		traffic.
+	script/otherstatus:
+		new script to let you have a bold or underlined
+		status bar.
+	all the above are derived from parts of mrg's setup.
+
+Thu Dec  9 15:08:09 EST 1999 - matthew green <mrg@eterna.com.au>
+	soruce/icb.c:
+		one can now send long lines and have them broken
+		up correctly. 
+
+Sat Oct 23 06:10:21 EEST 1999 - Joel Yliluoma <bisqwit@iki.fi>
+        source/screen.c
+                fixed the mirc colour support, did not work correctly.
+        help/set/make_notice_msg
+                described MAKE_NOTICE_MSG
+
+Wed Oct 20 21:11:56 EST 1999 - matthew green <mrg@eterna.com.au>
+	help/load/screen, help/load/tabkey, scripts/tabkey,
+	scripts/screen:
+		move default ^X^X binding to `screen' script, and
+		make it swap scripts, like screen(1) does.
+
+Wed Sep  8 03:07:24 EEST 1999 - Joel Yliluoma <bisqwit@iki.fi>
+        source/parse.c, source/vars.c, include/vars.h.proto
+                added boolean set MAKE_NOTICE_MSG
+                
+Sat Sep  4 19:03:22 EEST 1999 - Joel Yliluoma <bisqwit@iki.fi>
+        help/alias/functions
+                described the hasvoice() and dcclist() functions.
+                described the chatpeers() function.
+        source/alias.c
+                added chatpeers() function.
+
+Sun Jul 25 05:50:15 EEST 1999 - Joel Yliluoma <bisqwit@iki.fi>
+        source/alias.c, source/names.c, source/irc.c
+                added .ircquick file support.
+                added hasvoice() and dcclist() functions.
+
+4.4L
+Mon Aug 23 21:43:51 EST 1999 - matthew green <mrg@eterna.com.au>
+	configure.in, configure, source/ircaux.c, include/config.h.dist,
+	include/config.h.lynx, include/defs.h.in:
+		fix up ZCAT/ZSUFFIX auto-finding support to work and
+		be used.
+	Makefile.in:
+		set help & translation paths properly when building
+		both help.c and translation.c.
+
+Mon Aug 23 19:52:26 EST 1999 - matthew green <mrg@eterna.com.au>
+	configure.in, configure, acconfig.h, include/defs.h.in:
+		add SOCKS version 5 support (from agc@netbsd.org).
+	Makefile.in:
+		fix some more $(srcdir) lossage with autoconf
+		and autoheader runs.
+	source/server.c:
+		make sure varaiable is not uninitialised (from
+		agc@netbsd.org).
+
+Mon Aug 23 12:30:29 EST 1999 - matthew green <mrg@eterna.com.au>
+	configure.in, configure, Makefile.in, include/Makefile.in,
+	include/config.h, source/Makefile.in:
+		add support for building outside of the source
+		tree, largely from glen.  config.h.dist is copied
+		to the build tree now.  neat.
+
+4.4K
+Sun Aug 22 04:07:03 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/irc.c:
+		fix usage string to be a real C string again.
+	source/icb.c:
+		fix an off by one error in long msg handling.
+
+Sun Aug 22 01:32:35 EST 1999 - matthew green <mrg@eterna.com.au>
+	INSTALL, configure, configure.in, include/irc.h, source/help.c,
+	source/mail.c, source/wserv.c:
+		add patches from Gerben_Wierda@RnA.nl to fix NeXT
+		support.
+	source/window.c:
+		apply PR#378 from forcer: WINDOW KILL_OTHERS crashes
+		with more than 2 windows.
+	source/ircaux.c:
+		do not copy a string onto itself.  it fails.  fixes
+		several PRs: 379, 380, 381, 385, 386, 388 and 390.
+	include/ircterm.h
+		FreeBSD uses int/int for tputs function too.  maybe
+		ncurses does?
+	acconfig.h, configure, configure.in, include/defs.h.in:
+		apply patch from Tod McQuillin <devin@lm.com> in
+		PR#382 to fake a `ssize_t' for older systems.
+	source/window.c:
+		deal with CHANNEL_NAME_WIDTH == 0.  fixes PR#384.
+	configure, configure.in:	
+		--datadir is now used and sets where $IRCLIB exists
+		(as ${datadir}/irc).  fixes PR#383.
+
+Wed Jul 21 09:48:45 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/edit.c, help/brick:
+		add `/brick channel nick' command.
 
 4.4J
 Thu Jul 15 12:18:44 EST 1999 - matthew green <mrg@eterna.com.au>

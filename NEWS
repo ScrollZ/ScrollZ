@@ -1,7 +1,50 @@
-@(#)$Id: NEWS,v 1.3 1999-10-04 19:21:37 f Exp $
+@(#)$Id: NEWS,v 1.4 2000-08-09 19:31:20 f Exp $
 
 Changes since ircII 4.4:
 
+  o  new /cat command.
+  o  new $chatpeers() function.
+  o  new /set make_notice_msg variable.
+  o  /encrypt -showkeys option added.
+  o  lastlog level HELP added.
+  o  more bugs fixed.
+  o  additional /bind-able metakeys: meta5_character,
+     meta6_character, meta7_character, meta8_character
+  o  forward and backward scroll *really* works!
+  o  scrolling directly to the start also works!
+  o  most /ignore requests are now honoured by the ICB mode.
+  o  new /set no_ask_password variable added.
+  o  new /set xterm_path variable added.
+  o  new /set irchost variable added.
+  o  IPv6 [se:ve:er]:port support added.
+  o  translation table support in dumb mode.
+  o  new $wincols() and $winrows() functions which return the
+     number of columns and rows in this window.
+  o  /set auto_unmark_away fixed after many years
+  o  bunches of bugs fixed
+  o  if /dcc get fails due to local permissions, the offer is not
+     removed any longer, allowing the problem to be fixed.
+  o  +c (colourless) and +R (registered users only) channel modes
+  o  IRC 2.10 !channels supported
+  o  vasprintf(3) support
+  o  aliases of dynamic sizes!
+  o  channels *really* should stay attached to windows properly
+     and hang around after reconnects, etc.
+  o  /join bug is gone
+  o  new /on window_swap that is triggered when you swap windows.
+  o  /window bind has original behaviour; stick to windows not
+     channels.
+  o  ICB support extended.
+  o  IPv6 support has been integrated.
+  o  added hasvoice() and dcclist() functions. See help.
+  o  .ircquick file support for separate files to be executed
+     between and after connection to server.
+  o  standard GNU configure --srcdir and object directory support
+     has been added.
+  o  many more bugs have been fixed.
+  o  $servertype() function has been added, which returns ICB or IRC,
+     including server version.
+  o  SOCKS version 5 support has been added.
   o  ICB support had been added.
   o  CAST-128 support has been changed from EBC mode to CBC mode,
      which make sit incompatible with interium releases of 4.4-Lite.

@@ -33,7 +33,7 @@
  *
  * This file is automatically created from keys.h.proto.
  *
- * $Id: keys.h.proto,v 1.2 1999-02-15 21:18:41 f Exp $
+ * $Id: keys.h.proto,v 1.3 2000-08-09 19:31:20 f Exp $
  */
 
 #ifndef __keys_h_
@@ -62,6 +62,10 @@
 #define META2_CHARACTER $
 #define META3_CHARACTER $
 #define META4_CHARACTER $
+#define META5_CHARACTER $
+#define META6_CHARACTER $
+#define META7_CHARACTER $
+#define META8_CHARACTER $
 #define NEXT_WINDOW $
 #define NOTHING $
 #define PARSE_COMMAND $
@@ -92,7 +96,6 @@
 #define NICK_COMPLETION $
 #define LASTJOINER_KICK $
 #define ACCEPT_LAST_CHAT $
-#define META5_CHARACTER $
 #define INSERT_TABKEY_NEXT $
 #define INSERT_TABKEY_PREV $
 /****************************************************************************/
@@ -118,11 +121,11 @@ extern	KeyMap	keys[],
 		meta1_keys[],
 		meta2_keys[],
 		meta3_keys[],
-/**************************** PATCHED by Flier ******************************/
-		/*meta4_keys[];*/
 		meta4_keys[],
-		meta5_keys[];
-/****************************************************************************/
+		meta5_keys[],
+		meta6_keys[],
+		meta7_keys[],
+		meta8_keys[];
 extern	KeyMapNames key_names[];
 
  	void	(* get_send_line _((void))) _((u_int, char*));
