@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.115 2004-08-31 15:05:52 f Exp $
+ * $Id: irc.c,v 1.116 2004-09-08 16:13:17 f Exp $
  */
 
 #define IRCII_VERSION	"20040831"	/* YYYYMMDD */
@@ -1556,7 +1556,7 @@ irc_io(prompt, func, my_use_input, loop)
 /**************************** PATCHED by Flier ******************************/
 					/*if (read(screen->fdin, lbuf, 1))*/
 #ifdef SZNCURSES
- 					if (term_read(lbuf,1))
+ 					if (term_read(lbuf, 1))
 #else
  					if (read(screen->fdin, lbuf, 1))
 #endif /* SZNCURSES */
@@ -1589,7 +1589,7 @@ irc_io(prompt, func, my_use_input, loop)
 				/*else if ((n = read(screen->fdin, loc_buffer,
 						BIG_BUFFER_SIZE)) != 0)*/
 #ifdef SZNCURSES
- 				else if ((n=term_read(loc_buffer,BIG_BUFFER_SIZE))!=0)
+ 				else if ((n = term_read(loc_buffer, BIG_BUFFER_SIZE)) != 0)
 #else
 				else if ((n = read(screen->fdin, loc_buffer,
 					      BIG_BUFFER_SIZE)) != 0)
@@ -1665,13 +1665,13 @@ irc_io(prompt, func, my_use_input, loop)
                         CheckTimeMinute();
                         CheckCdccTimers();
                         SetStampFormat(NULL);
-                        if (from_server>=0 && from_server<number_of_servers) {
+                        if (from_server >= 0 && from_server < number_of_servers) {
 #if defined(CELE)
-                            gettimeofday(&PingSent,NULL);
-                            if (PingSent.tv_sec-start_time>30)
+                            gettimeofday(&PingSent, NULL);
+                            if (PingSent.tv_sec - start_time > 30)
 #else
-                                PingSent=time((time_t *) 0);
-                            if (PingSent-start_time>30)
+                                PingSent = time(NULL);
+                            if (PingSent - start_time > 30)
 #endif
                                 send_to_server("PING szlagmeter");
                         }
@@ -1680,12 +1680,12 @@ irc_io(prompt, func, my_use_input, loop)
 /**************************** PATCHED by Flier ******************************/
                 /* update time stamp if necessary */
                 if (Stamp) SetStampFormat(NULL);
-                if (DoOrigNick) {
+                if (DoOrigNick && (time(NULL) >= (LastNick + OrigNickDelay))) {
                     if (OrigNickChange && OrigNick && DoOrigNick) {
-                        char *curnick=get_server_nickname(from_server);
+                        char *curnick = get_server_nickname(from_server);
 
-                        if (curnick && !CheckChannel2(OrigNick,curnick)) SwitchNick();
-                        LastNick=time(NULL);
+                        if (curnick && !CheckChannel2(OrigNick, curnick)) SwitchNick();
+                        LastNick = time(NULL);
                     }
                 }
 /****************************************************************************/
