@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.7 1998-10-31 18:27:27 f Exp $
+ * $Id: ctcp.c,v 1.8 1998-11-15 17:44:51 f Exp $
  */
 
 #include "irc.h"
@@ -1074,7 +1074,7 @@ do_sed(ctcp, from, to, args)
 		crypt_who = to;
 	else
 		crypt_who = from;
-	if ((key = is_crypted(crypt_who)) && !(msg = crypt_msg(args, key, 0)))
+	if ((key = is_crypted(crypt_who)) && (msg = crypt_msg(args, key, 0)))
 	{
 		malloc_strcpy(&ret, msg);
 		sed = 1;
