@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.31 2000-02-11 16:33:29 f Exp $
+ * $Id: edit5.c,v 1.32 2000-04-13 17:41:30 f Exp $
  */
 
 #include "irc.h"
@@ -2194,7 +2194,7 @@ int  iscrypted;
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF]);
     put_it("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
 #else
-    put_it("[%c%s%c] %s",thingleft,nick,thingright,line);
+    put_it("[%s%s%s] %s",thingleft,nick,thingright,line);
 #endif
 }
 
