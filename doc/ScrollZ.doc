@@ -1,10 +1,11 @@
   The ScrollZ IRC Client User Guide
   by JustMe_
-  v1.2, 15 October 1997
+  Updated by Flier
+  v1.3, 1 August 2001
 
-  This document describes how to install and use ScrollZ IRC client. It
-  is the first document which a new ScrollZ user should read to get
-  started.
+  This document describes how to install and use ScrollZ IRC client.
+  It is the first document which a new ScrollZ user should read to
+  get things started.
 
   0.  Contents
 
@@ -130,7 +131,7 @@
   Of course one has to type in another directory if they opted to use
   another directory for ScrollZ stuff in step 3.1. If you want to use
   ircII help files and keep them in directory other than
-  /usr/local/lib/irc/help/ be sure to add something like
+  /usr/local/share/scrollz/help/ be sure to add something like
   'set help_path /home/user/irc/help/'.
 
   3.3.  Coexistence with other IRC clients
@@ -160,26 +161,26 @@
                          massv, modelock, modeunlock, msay and ranlk.
      BETTERTIMER  T      timer accurate to 0.01s (default accuracy is 1s)
      GENX         G      different look of whois
-     FET          F      slightly different look of whois
      NEWCSCAN     C      formatted cscan, similar to that of BitchX
      ACID         I      invite on notify for non +i channels
-     MGS                 sorted nicks in cscan + terminate command
+     SORTEDNICKS  N      sorted nicks in cscan
      SCKICKS      S      scatter (funny) kicks
      OPERVISION   OV     for IRC Opers
-     TOOLIE       C-BOX  compile with Toolie C-BOX in client
-     HYPERDCC     D      compile with HyperDCC by Annatar
+     CELE         cy     compile with celerity in client
+     HYPERDCC     D      compile with HyperDCC (faster DCC) by Annatar
      VILAS        V      no ScrollZ trademarks in kicks and away msgs
      JIMMIE       J      better newhost command
      CTCPPAGE     P      CTCP PAGE for friends by Bighead
-     TDF          X      diff. msgs, chat msgs and CDCC
-     SZWINK       W      fet's script
+     TDF          X      different msgs, chat msgs and CDCC
      COUNTRY      Y      adds $country() function
+     OGRE         Z      different OV cosmetics
+     OPER         OPER   for IRC Opers
 
   You can check which options was your copy of ScrollZ compiled with by
-  typing '/version' and look for string enclosed in []'s. Upper case
-  letters mean that option was disable while lower case letters denote
-  disabled options. Flags like G, F, I, V, J and X are not shown.
-  My personal recommendation are flags A, C-BOX and D.
+  typing '/version' and look for string enclosed in []'s. Scripts can
+  check for availability of certain features by examining the value of
+  '$J'. Upper case letters mean that option was disable while lower
+  case letters denote disabled options.
 
   3.5.  Setting up environment variables
 
@@ -193,8 +194,15 @@
      * IRCNAME   - sets gecos (shown in whois)
      * IRCPATH   - much like 'set load_path'
      * IRCHOST   - sets virtual host
-     * IRC_HOST  - for broken dcc sends
      * IRCUSER   - sets username (if your ident allows it)
+     * IRCRC     - sets rc file (instead of .scrollzrc)
+     * IRCQUICK  - sets quickrc file (instead of .scrollzquick)
+     * DCCHOST   - IP address for DCC sends
+     * VIRTIP    - sets IP address for client (system wide)
+     * HOME      - sets home directory
+     * MAIL      - sets mail file
+     * TERM      - sets terminal type
+     * USER      - sets username (if your ident allows it)
 
   Usually they can be set in ~/.profile file like this :
 
@@ -227,7 +235,7 @@
 
   Here are exceptions to this rule :
 
-     * DEFSERVER    - sets default server
+     * DEFSERVER    - sets default server (for /S command)
      * DEFSIGNOFF   - sets default sign-off message
      * DEFSETAWAY   - sets default away reason
      * DEFSETBACK   - sets default back reason
@@ -241,10 +249,7 @@
      * DEFLK        - sets default lame-kick message
      * DEFABK       - sets default auto-ban-kick message
      * DEFSK        - sets default scatter-kick message
-     * AUTOOPTIME   - sets default auto-op time
-     * SHOWWALLOP   - sets whether you want to see to which nicks was
-                      wall-op message sent to
-     * USERMODE     - sets default usermode
+     * DEFKILL      - sets default kill message
 
   You can edit 'ScrollZ.save' file in order to change those options. Don't
   forget to do '/reload' after editing file for changes to take effect.
@@ -271,6 +276,7 @@
   Commands that control shit list are :
 
      addbk     - add person to shit list
+     bklist    - sets shit list on/off
      listbk    - list people on shit list
      rembk     - remove person from shit list
 
@@ -330,27 +336,30 @@
   Apart from ircII logging ScrollZ has logging on its own too. For more
   info try '/shelp awaysave'. Normally ScrollZ would log events to
   'ScrollZ.away' only if you're set away - but you can change this with
-  '/logon' command.
+  '/logon' command. You can set the file to log to by modifying the
+  AWAY_FILE variable (example: '/set away_file ~/.away.log').
 
   4.8.  Other useful hints
 
   Small things that will make your life with ScrollZ easier are :
 
-     * get used to Ctrl+T key - what the hell is that you ask ? Well
+     * get used to Tab key - what the hell is that you ask ? Well
        let me show how to use it. Say you want to send a file to 3
        people from your current channel. Go and type
-       '/cdcc send file1 file2, n1<Ctrl+T> n2<Ctrl+T> n3<Ctrl+T>'
+       '/cdcc send file1 file2, n1<Tab> n2<Tab> n3<Tab>'
        where "n1", "n2" and "n3" are first two letters of first, second
        and third nick, respectively. Get it ? It expands the last word
        to nick if it finds a match for first two letters - if more nicks
-       start with same prefix simply press Ctrl+T more times. Of course
+       start with same prefix simply press Tab few more times. Of course
        you don't need to type first two letters of a nick, it can be any
-       number (except 0 of course).
+       number (except 0 of course). You can complete channel names in
+       much the same way.
 
-     * TAB key, it acts much like ircII tabkey script - when someone
+     * Tab key, it acts much like ircII tabkey script - when someone
        sends you a msg his/her nick gets stored into an array and if you
-       want to reply to that message just press TAB. ScrollZ will store
-       up to 10 nicks for you.
+       want to reply to that message just press Tab. ScrollZ will store
+       up to 10 nicks for you. WARNING: this behaviour only works if
+       your input line is empty!
 
      * turn auto-completion on ('/autocompl on :' for example) and learn
        how to use it
@@ -424,11 +433,10 @@
      * meta5 has been added
      * F1, ..., F12 can be bound like '/bind f1 ..', ..., '/bind F12 ..',
        respectively
-     * TAB/Ctrl+I is bound to insert_tabkey
+     * Tab/Ctrl+I is bound to insert_tabkey_next
      * Ctrl+K is bound to lastjoiner_kick
      * Ctrl+N is bound to accept_last_chat
      * Ctrl+R is bound to insert_autoreply
-     * Ctrl+T is bound to nick_completion
      * Ctrl+X is bound to switch_channels
      * Ctrl+Z is bound to stop_irc
      * End is bound to scroll_end
@@ -468,11 +476,11 @@
   Additional bind choices are (together with their default bindings) :
 
      * insert_autoreply    - Ctrl+R
-     * nick_completion     - Ctrl+T
      * lastjoiner_kick     - Ctrl+K
      * accept_last_chat    - Ctrl+N
      * meta5_character     - read some 10 lines up
-     * insert_tabkey       - Tab/Ctrl+I
+     * insert_tabkey_next  - Tab/Ctrl+I
+     * insert_tabkey_prev
 
   6.  Things not found in ircII
 
@@ -481,6 +489,11 @@
   List of variables that can be set via '/set' command and can't be found
   in ircII help (they are ScrollZ specific remember ?) :
 
+     * auto_reconnect      - automatically reconnect to server after
+                             disconnect ?
+     * away_file           - name of the away file
+     * beep_on_mail        - beep when new mail arrives ?
+     * dcc_ports           - ports to use for DCC (example: 1500-1505)
      * display_ansi        - display ANSI colors ?
      * high_ascii          - display high ASCII characters ?
      * lastlog_ansi        - log ANSI colors ? ('/lastlog' command)
@@ -488,10 +501,14 @@
                              in one mode line
      * max_wallop_nicks    - max. number of nicks to send wall-op msg
                              to in one msg line
+     * notify_string       - replaces *** in notify events
      * scrollz_string      - replaces *** from ircII
+     * status_channelcount - format for %U in status bar
+     * status_uptime       - format for %1 in status bar
      * status_format3      - sets 3rd status bar line (use
                              '/window double 3' to turn it on and
                              '/window double 2' to turn it off)
+     * status_userX, X=4-9 - user status variables
      * status_reverse      - if you want to use background colors for
                              status_format turn this off
 
@@ -517,10 +534,10 @@
      * %U   - use '/set status_channelcount' to format it, %O is repla-
               ced with number of chan ops on current channel, %N with
               number of non-ops and %T with total number of users
-     * %!00 - status_user
-     * %!01 - status_user1
+     * %!0 - status_user
+     * %!1 - status_user1
        ...    ...
-     * %!19 - status_user19
+     * %!9 - status_user9
 
   7.  Additional stuff for scripters
 
