@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.14 1999-02-17 17:55:02 f Exp $
+ * $Id: edit.c,v 1.15 1999-02-24 20:03:10 f Exp $
  */
 
 #include "irc.h"
@@ -432,6 +432,7 @@ static	IrcCommand FAR irc_command[] =
 #if defined(EXTRAS) || defined(FLIER)
   { "AUTOINV", 		"AUTOINV", 	OnOffCommand, 		0 },
 #endif
+  { "AUTOOPDELAY", 	"AUTOOPDELAY", 	NumberCommand, 		0 },
  	{ "AWAY",	"AWAY",		away,			SERVERREQ },
   { "AWAYSAVE", 	NULL, 		AwaySaveToggle, 	0 },
   { "AWAYT", 		"AWAYT", 	NumberCommand, 		0 },
