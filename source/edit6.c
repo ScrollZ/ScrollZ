@@ -54,7 +54,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.28 1999-03-19 18:14:21 f Exp $
+ * $Id: edit6.c,v 1.29 1999-03-25 17:05:36 f Exp $
  */
 
 #include "irc.h"
@@ -814,9 +814,8 @@ char *subargs;
 {
     int  i;
     int  add=!strcmp(command,"ADD")?1:0;
-    int  done=0;
     int  count=0;
-    int  privs;
+    int  privs=0;
     char *filter;
     char *flags;
     char tmpbuf[mybufsize/4];
@@ -826,44 +825,39 @@ char *subargs;
     flags=new_next_arg(args,&args);
     if (filter && flags) {
         while (*flags) {
-            privs=0;
-            if (*flags=='I' || *flags=='i') privs=FLINVITE;
-            else if (*flags=='C' || *flags=='c') privs=FLCHOPS;
-            else if (*flags=='V' || *flags=='v') privs=FLVOICE;
-            else if (*flags=='O' || *flags=='o') privs=FLOP;
-            else if (*flags=='A' || *flags=='a') privs=FLAUTOOP;
-            else if (*flags=='U' || *flags=='u') privs=FLUNBAN;
-            else if (*flags=='P' || *flags=='p') privs=FLPROT;
-            else if (*flags=='D' || *flags=='d') privs=FLCDCC;
-            else if (*flags=='G' || *flags=='g') privs=FLGOD;
-            else if (*flags=='J' || *flags=='j') privs=FLJOIN;
-            else if (*flags=='F' || *flags=='f') privs=FLNOFLOOD;
-            else if (*flags=='X' || *flags=='x') privs=FLINSTANT;
-            if (privs) {
-                for (i=1,tmpfriend=frlist;tmpfriend;i++,tmpfriend=tmpfriend->next)
-                    if ((*filter=='#' && matchmcommand(filter,i)) ||
-                        wild_match(tmpfriend->userhost,filter) ||
-                        wild_match(filter,tmpfriend->userhost)) {
-                        if (add) {
-                            if (!((tmpfriend->privs)&privs)) {
-                                tmpfriend->privs|=privs;
-                                if (!done) count++;
-                            }
-                        }
-                        else {
-                            if ((tmpfriend->privs)&privs) {
-                                tmpfriend->privs&=(~privs);
-                                if (!done) count++;
-                            }
-                        }
-                    }
-                if (!done) {
-                    say("%d out of %d userlist entries changed",count,i-1);
-                    done=1;
-                }
-            }
+            if (*flags=='I' || *flags=='i') privs|=FLINVITE;
+            else if (*flags=='C' || *flags=='c') privs|=FLCHOPS;
+            else if (*flags=='V' || *flags=='v') privs|=FLVOICE;
+            else if (*flags=='O' || *flags=='o') privs|=FLOP;
+            else if (*flags=='A' || *flags=='a') privs|=FLAUTOOP;
+            else if (*flags=='U' || *flags=='u') privs|=FLUNBAN;
+            else if (*flags=='P' || *flags=='p') privs|=FLPROT;
+            else if (*flags=='D' || *flags=='d') privs|=FLCDCC;
+            else if (*flags=='G' || *flags=='g') privs|=FLGOD;
+            else if (*flags=='J' || *flags=='j') privs|=FLJOIN;
+            else if (*flags=='F' || *flags=='f') privs|=FLNOFLOOD;
+            else if (*flags=='X' || *flags=='x') privs|=FLINSTANT;
             flags++;
         }
+        for (i=1,tmpfriend=frlist;tmpfriend;i++,tmpfriend=tmpfriend->next) {
+            if ((*filter=='#' && matchmcommand(filter,i)) ||
+                    wild_match(tmpfriend->userhost,filter) ||
+                    wild_match(filter,tmpfriend->userhost)) {
+                if (add) {
+                    if (((tmpfriend->privs)&privs)!=privs) {
+                        tmpfriend->privs|=privs;
+                        count++;
+                    }
+                }
+                else {
+                    if ((tmpfriend->privs)&privs) {
+                        tmpfriend->privs&=(~privs);
+                        count++;
+                    }
+                }
+            }
+        }
+        say("%d out of %d userlist entries changed",count,i-1);
     }
     else {
         sprintf(tmpbuf,"%sFFLAG filter|#number flaglist",command);
