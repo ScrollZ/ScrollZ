@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.45 2002-05-04 16:54:23 f Exp $
+ * $Id: operv.c,v 1.46 2003-04-15 19:48:27 f Exp $
  */
 
 #include "irc.h"
@@ -33,6 +33,7 @@
 #if defined(OPERVISION) && defined(WANTANSI)
 
 extern void PrintUsage _((char *));
+extern char *TimeStamp _((int));
 
 /* Variables needed for caching */
 static  int  NewNotice; /* 1 if we are parsing new notice, 0 otherwise */
@@ -64,15 +65,15 @@ char *subargs;
     char tmpbuf[mybufsize/4+1];
     unsigned int display;
 
-    tmp=next_arg(args,&args);
-    ovts=next_arg(args,&args);
+    tmp=new_next_arg(args,&args);
+    ovts=new_next_arg(args,&args);
     if (tmp) {
 	if (!my_stricmp("ON",tmp) || !my_stricmp("HERE",tmp)) {
             if (!my_stricmp("HERE",tmp)) incurwin=1;
-            if (ovts && !my_stricmp("NOTS",ovts)) OVTS=0;
-            else OVTS=1;
+            if (ovts && !my_stricmp("TS",ovts)) OVTS=1;
+            else OVTS=0;
             if (ovts && !my_stricmp("NOMODES",ovts)) nomodes=ovts;
-            else nomodes=next_arg(args,&args);
+            else nomodes=new_next_arg(args,&args);
             if (nomodes && !my_stricmp("NOMODES",nomodes)) sendmodes=0;
 	    if (OperV && !incurwin)
                 say("OperVision is already turned on");
@@ -120,9 +121,9 @@ char *subargs;
 		say("OperVision is now disabled");
 	    }
 	}
-	else PrintUsage("OV on [nots] [nomodes]/here [nots] [nomodes]/off [nomodes]");
+	else PrintUsage("OV on [nots] [nomodes]/here [ts] [nomodes]/off [nomodes]");
     }
-    else PrintUsage("OV on [nots] [nomodes]/here [nots] [nomodes]/off [nomodes]");
+    else PrintUsage("OV on [nots] [nomodes]/here [ts] [nomodes]/off [nomodes]");
 }
 
 /* Takes (u@h), removes (), colorizes, returns u@h */
@@ -1294,17 +1295,31 @@ char *from;
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
     if (OVTS) curtime=update_clock(0,0,GET_TIME);
-    else curtime=empty_string;
-    if (from)
-        put_it("[%s%s%s%s%s%s%s] Opermsg from %s%s%s: %s",
-                CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
-                OVTS?"|":empty_string,
-                CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
-                CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
-    else put_it("[%s%s%s%s%s%s%s] %s",
-                CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
-                OVTS?"|":empty_string,
-                CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
+    else curtime=TimeStamp(2);
+    if (from) {
+        if (OVTS)
+            put_it("[%s%s%s%s%s%s%s] Opermsg from %s%s%s: %s",
+                    CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
+                    OVTS?"|":empty_string,
+                    CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
+                    CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+        else
+            put_it("%s[%s%s%s] Opermsg from %s%s%s: %s",
+                    curtime,
+                    CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],
+                    CmdsColors[COLOV].color1,from,Colors[COLOFF],tmpbuf);
+    }
+    else {
+        if (OVTS)
+            put_it("[%s%s%s%s%s%s%s] %s",
+                    CmdsColors[COLOV].color1,curtime,Colors[COLOFF],
+                    OVTS?"|":empty_string,
+                    CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
+        else
+            put_it("%s[%s%s%s] %s",
+                    curtime,
+                    CmdsColors[COLOV].color6,OVsvdmn(servername),Colors[COLOFF],tmpbuf);
+    }
 #ifdef MULTI_SERVER_OV
     to_window=oldwin;
 #endif
