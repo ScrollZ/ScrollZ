@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.22 1999-05-04 16:02:03 f Exp $
+ * $Id: edit.c,v 1.23 1999-05-07 17:52:36 f Exp $
  */
 
 #include "irc.h"
@@ -228,6 +228,7 @@ extern  char  *ScrollZlame1;
 extern  void  AutoNickComplete _((char *, char *, ChannelList *));
 extern  void  NoWindowChannel _((void));
 extern  int   CheckServer _((int));
+extern  char  *CheckJoinKey _((char *));
 
 extern  void  ListFriends _((char *, char *, char *));
 extern  void  ListAutoBanKicks _((char *, char *, char *));
@@ -1542,6 +1543,9 @@ e_channel(command, args, subargs)
  	size_t	len;
 	char	*chanstr = (char *) 0,
 		*ptr;
+/**************************** PATCHED by Flier ******************************/
+        char    *chankey;
+/****************************************************************************/
 
 	if (get_server_version(from_server) == Server2_5)
 		command = "CHANNEL";
@@ -1563,7 +1567,14 @@ e_channel(command, args, subargs)
 			if (invite_channel)
 			{
 				if ((ptr = do_channel(invite_channel)))
-					send_to_server("%s %s %s", command, invite_channel, args);
+/**************************** PATCHED by Flier ******************************/
+					/*send_to_server("%s %s %s", command, invite_channel, args);*/
+                                {
+                                    chankey=CheckJoinKey(invite_channel);
+                                    send_to_server("%s %s %s %s",command,invite_channel,
+                                                   args,chankey);
+                                }
+/****************************************************************************/
 				else
 					say("You are already on %s ?", invite_channel);
 			}
@@ -1582,15 +1593,23 @@ e_channel(command, args, subargs)
                         ptr=fix_channel(ptr);
 /****************************************************************************/
                         if ((ptr = do_channel(ptr)))
-				send_to_server("%s %s %s", command, ptr, args);
+/**************************** PATCHED by Flier ******************************/
+				/*send_to_server("%s %s %s", command, ptr, args);*/
+                        {
+                            chankey=CheckJoinKey(ptr);
+                            send_to_server("%s %s %s %s",command,ptr,args,chankey);
+                        }
+/****************************************************************************/
 			while ((ptr = strtok(NULL, ",")))
 /**************************** PATCHED by Flier ******************************/
 				/*if ((ptr = do_channel(ptr)))
 					send_to_server("%s %s %s", command, ptr, args);*/
                         {
-                                ptr=fix_channel(ptr);
-				if ((ptr=do_channel(ptr)))
-                                        send_to_server("%s %s %s",command,ptr,args);
+                            ptr=fix_channel(ptr);
+                            if ((ptr=do_channel(ptr))) {
+                                chankey=CheckJoinKey(ptr);
+                                send_to_server("%s %s %s %s",command,ptr,args,chankey);
+                            }
                         }
 /****************************************************************************/
 

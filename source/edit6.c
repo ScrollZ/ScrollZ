@@ -51,10 +51,12 @@
  FilterTrace         Filtered trace
  DoFilterTrace       Actual filtered trace
  FormatTime          Format time in compressed format
+ AddJoinKey          Store key for later join
+ CheckJoinKey        Check key for join
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.29 1999-03-25 17:05:36 f Exp $
+ * $Id: edit6.c,v 1.30 1999-05-07 17:52:36 f Exp $
  */
 
 #include "irc.h"
@@ -175,6 +177,13 @@ static struct commands {
 #endif
     { NULL          , NULL            , NULL                   , NULL                         , NULL }
 };
+
+#define NUM_JOIN_KEYS 10
+static int joinkeycount=0;
+static struct joinkeystr {
+    char *key;
+    char *channel;
+} joinkeys[NUM_JOIN_KEYS];
 
 extern char *ScrollZlame1;
 extern char *HelpPathVar;
@@ -2384,4 +2393,110 @@ int timediff;
     sprintf(timebuf,"%dd%dh%dm%ds",timediff/86400,(timediff/3600)%24,(timediff/60)%60,
             timediff%60);
     return(timebuf);
+}
+
+/* Store key for later join */
+void AddJoinKey(clienttype,notice)
+int clienttype;
+char *notice;
+{
+    int i;
+    static int joinkeyinit=0;
+    char *key=(char *) 0;
+    char *tmpstr=(char *) 0;
+    char *channel=(char *) 0;
+    char tmpbuf[mybufsize/4+1];
+
+    /* initalize */
+    if (!joinkeyinit) {
+        for (i=0;i<NUM_JOIN_KEYS;i++) {
+            joinkeys[i].key=(char *) 0;
+            joinkeys[i].channel=(char *) 0;
+        }
+        joinkeyinit=1;
+    }
+    strmcpy(tmpbuf,notice,mybufsize/4);
+    notice=tmpbuf;
+    switch (clienttype) {
+        case 1: /* ScrollZ */
+            channel=notice+30;
+            tmpstr=channel;
+            while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+            if (*tmpstr) {
+                *tmpstr++='\0';
+                if (!strncmp(tmpstr,"(key is ",8)) {
+                    tmpstr+=8;
+                    key=tmpstr;
+                    while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+                    tmpstr--;
+                    if (*tmpstr==')') *tmpstr='\0';
+                }
+            }
+            break;
+        case 2: /* Pupette */
+            key=notice+16;
+            tmpstr=key;
+            while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+            if (*tmpstr) {
+                *tmpstr++='\0';
+                if (!strncmp(tmpstr,"to join ",8)) {
+                    tmpstr+=8;
+                    channel=tmpstr;
+                }
+            }
+            break;
+        case 3: /* C-ToolZ */
+            break;
+        case 4: /* BitchX */
+            channel=notice+22;
+            tmpstr=channel;
+            while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
+            if (*tmpstr) tmpstr--;
+            if (*tmpstr=='.') {
+                *tmpstr++='\0';
+                if (!strncmp(tmpstr," Key is [",9)) {
+                    tmpstr+=9;
+                    key=tmpstr;
+                    while (*tmpstr) tmpstr++;
+                    tmpstr--;
+                    if (*tmpstr=='') {
+                        *tmpstr--='\0';
+                        if (*tmpstr==']') *tmpstr='\0';
+                    }
+                }
+            }
+            break;
+        default:
+            return;
+    }
+    if (!key || !(*key) || !channel || !(*channel)) return;
+    for (i=0;i<joinkeycount;i++)
+        if (!my_stricmp(joinkeys[i].channel,channel)) break;
+    if (i<joinkeycount) {
+        new_free(&(joinkeys[i].key));
+        new_free(&(joinkeys[i].channel));
+        joinkeycount=i;
+    }
+    malloc_strcpy(&joinkeys[joinkeycount].key,key);
+    malloc_strcpy(&joinkeys[joinkeycount].channel,channel);
+    joinkeycount++;
+    if (joinkeycount>=NUM_JOIN_KEYS) joinkeycount=0;
+    say("Adding channel %s and key %s to join list",channel,key);
+}
+
+/* Check key for join */
+char *CheckJoinKey(channel)
+char *channel;
+{
+    int i;
+    char *key=empty_string;
+
+    if (channel) {
+        for (i=0;i<joinkeycount;i++)
+            if (joinkeys[i].channel && !my_stricmp(joinkeys[i].channel,channel))
+                break;
+        if (i<joinkeycount && joinkeys[i].key)
+            key=joinkeys[i].key;
+    }
+    return(key);
 }

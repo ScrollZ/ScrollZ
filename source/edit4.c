@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.18 1999-03-18 19:25:22 f Exp $
+ * $Id: edit4.c,v 1.19 1999-05-07 17:52:36 f Exp $
  */
 
 #include "irc.h"
@@ -155,6 +155,7 @@ extern void FixColorAnsi _((char *));
 extern int  CheckServer _((int));
 extern void CdccQueueNickChange _((char *, char *));
 extern char *FormatTime _((int));
+extern void AddJoinKey _((int, char *));
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -881,8 +882,15 @@ int  print;
             savemessage=1;
         }
     }
-    if (!foundchan || (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,nick,
-                                            notice+(wallop-tmpbuf+1)))) {
+    /* Check for invite notices which might hold key */
+    if (!print) {
+        if (!strncmp(notice,"You have been ctcp invited to ",30)) AddJoinKey(1,notice);
+        else if (!strncmp(notice,"Use channel key ",16)) AddJoinKey(2,notice);
+        else if (!strncmp(notice,"Ctcp-inviting you to ",22)) AddJoinKey(4,notice);
+    }
+    if (!foundchan ||
+        (foundchan && do_hook(CHANNEL_WALLOP,"%s %s %s",foundchan->channel,nick,
+                              notice+(wallop-tmpbuf+1)))) {
         if (foundchan || (!foundchan && !print)) hooked=0;
         if (print) {
 #ifdef WANTANSI
