@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.38 2001-12-19 17:37:23 f Exp $
+ * $Id: server.c,v 1.39 2001-12-19 18:16:03 f Exp $
  */
 
 #include "irc.h"
@@ -984,6 +984,9 @@ connect_to_server_direct(server_name, port, nick)
 #endif /* HAVE_SYS_UN_H */
 /**************************** PATCHED by Flier ******************************/
 		/*new_des = connect_by_number(port, server_name, 1);*/
+#ifdef HAVE_SSL
+                if (*server_name == '!') server_name++;
+#endif
 		new_des=connect_by_number(port,server_name,1,0);
 /****************************************************************************/
 	if (new_des < 0)
@@ -1302,6 +1305,7 @@ connect_to_server(server_name, port, nick, c_server)
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
                         SSLconnect = 0;
+                        if (*server_name == '!') server_list[server_index].enable_ssl = 1;
 #endif
 /****************************************************************************/
 			return -1;
@@ -1336,7 +1340,7 @@ connect_to_server(server_name, port, nick, c_server)
 		}
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (SSLconnect) {
+                if (SSLconnect || *server_name == '!') {
                     server_list[from_server].enable_ssl = 1;
                     server_list[from_server].flags |= SSL_CONNECT;
                 }
