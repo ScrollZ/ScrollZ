@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.31 2001-07-25 17:48:30 f Exp $
+ * $Id: SZdist.c,v 1.32 2001-08-01 17:24:06 f Exp $
  */
 
 #include <stdio.h>
@@ -74,7 +74,7 @@ char *BETTERTIMERfiles="edit.o edit6.o";
 char *GENXfiles="edit5.o whois.o";
 char *NEWCSCANfiles="edit2.o";
 char *ACIDfiles="edit.o edit2.o edit3.o edit5.o edit6.o screen.o vars.o window.o";
-char *SORTEDNICKfiles="edit5.o names.o";
+char *SORTEDNICKSfiles="edit5.o names.o";
 char *SCKICKSfiles="edit.o edit3.o edit4.o";
 char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
  window.o";
