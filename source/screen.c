@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.30 2003-01-08 20:00:54 f Exp $
+ * $Id: screen.c,v 1.31 2003-04-16 17:27:26 f Exp $
  */
 
 #include "irc.h"
@@ -1651,15 +1651,15 @@ add_to_screen(incoming)
 
         if (!get_int_var(DISPLAY_ANSI_VAR)) {
             StripAnsi(incoming, buffer, 0);
-            strmcpy(incoming, buffer, sizeof(incoming));
+            strmcpy(incoming, buffer, strlen(incoming) - 1);
         }
 #ifdef WANTANSI
         else {
-            if (DisplaymIRC) {
-                ConvertmIRC(incoming, tmpbuf1);
-                incoming = tmpbuf1;
-            }
-            FixColorAnsi(incoming);
+            if (DisplaymIRC) ConvertmIRC(incoming, tmpbuf1);
+            else strmcpy(tmpbuf1, incoming, sizeof(tmpbuf1));
+            FixColorAnsi(tmpbuf1);
+            strmcat(tmpbuf1, Colors[COLOFF], sizeof(tmpbuf1));
+            incoming = tmpbuf1;
         }
 #endif
 /****************************************************************************/
