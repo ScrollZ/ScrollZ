@@ -22,7 +22,7 @@
  * have comments on this code, send e-mail to:
  * flier@scrollz.com
  * 
- * $Id: SZdist.c,v 1.40 2002-05-20 17:17:40 f Exp $
+ * $Id: SZdist.c,v 1.41 2003-05-04 18:06:06 f Exp $
  */
 
 #include <stdio.h>
@@ -45,18 +45,17 @@
 #define SCKICKS        (1<<6)
 #define OPERVISION     (1<<7)
 #define CELE           (1<<8)
-#define HYPERDCC       (1<<9)
-#define VILAS          (1<<10)
-#define JIMMIE         (1<<11)
-#define CTCPPAGE       (1<<12)
-#define TDF            (1<<13)
-#define COUNTRY        (1<<14)
-#define OPER           (1<<15)
-#define OGRE           (1<<16)
-#define SZ32           (1<<17)
-#define LITE           (1<<18)
-#define ALTPUBLICS     (1<<19)
-#define MIRCRESUME     (1<<20)
+#define VILAS          (1<<9)
+#define JIMMIE         (1<<10)
+#define CTCPPAGE       (1<<11)
+#define TDF            (1<<12)
+#define COUNTRY        (1<<13)
+#define OPER           (1<<14)
+#define OGRE           (1<<15)
+#define SZ32           (1<<16)
+#define LITE           (1<<17)
+#define ALTPUBLICS     (1<<18)
+#define MIRCRESUME     (1<<19)
 #define NUMDEFS        (MIRCRESUME)
 
 #define mybufsize 1024
@@ -78,7 +77,6 @@ char *OPERVISIONfiles="edit.o edit3.o edit5.o funny.o notice.o operv.o parse.o\
  window.o";
 char *CELEfiles="alias.o cdcc.o celerity.o edit.o edit2.o edit3.o edit4.o edit5.o\
  edit6.o input.o numbers.o operv.o parse.o server.o status.o vars.o whois.o";
-char *HYPERDCCfiles="cdcc.o dcc.o edit.o edit4.o edit6.o";
 char *VILASfiles="edit2.o edit6.o";
 char *JIMMIEfiles="edit2.o";
 char *CTCPPAGEfiles="ctcp.o";
@@ -177,7 +175,6 @@ char **argv;
             else if (strstr(buf,"SCKICKS")) choice|=SCKICKS;
             else if (strstr(buf,"OPERVISION")) choice|=OPERVISION;
 	    else if (strstr(buf,"CELE")) choice|=CELE;
-	    else if (strstr(buf,"HYPERDCC")) choice|=HYPERDCC;
 	    else if (strstr(buf,"VILAS")) choice|=VILAS;
 	    else if (strstr(buf,"JIMMIE")) choice|=JIMMIE;
 	    else if (strstr(buf,"CTCPPAGE")) choice|=CTCPPAGE;
@@ -202,8 +199,6 @@ char **argv;
             else if (*tmp1=='c') choice&=~NEWCSCAN;
             if (*tmp1=='S') choice|=SCKICKS;
             else if (*tmp1=='s') choice&=~SCKICKS;
-            if (*tmp1=='D') choice|=HYPERDCC;
-            else if (*tmp1=='d') choice&=~HYPERDCC;
             if (*tmp1=='P') choice|=CTCPPAGE;
             else if (*tmp1=='p') choice&=~CTCPPAGE;
             if (*tmp1=='Y') choice|=COUNTRY;
@@ -280,8 +275,6 @@ char **argv;
                onoffstr(choice&OPERVISION,onoffbuf));
 	printf(" [1mJ[0m - CELE          %s - Compile with Celerity C-script\n",
 	       onoffstr(choice&CELE,onoffbuf));
-	printf(" [1mK[0m - HYPERDCC      %s - Compile with HyperDCC by Annatar\n",
-	       onoffstr(choice&HYPERDCC,onoffbuf));
 	printf(" [1mL[0m - VILAS         %s - No ScrollZ trademarks in ctcps\n",
 	       onoffstr(choice&VILAS,onoffbuf));
 	printf(" [1mM[0m - JIMMIE        %s - Better NEWHOST (lists all hostnames)\n",
@@ -339,9 +332,6 @@ char **argv;
 		case 'J': if ((choice&CELE)) choice&=~CELE;
 			  else choice|=CELE;
 			  break;
-		case 'K': if ((choice&HYPERDCC)) choice&=~HYPERDCC;
-			  else choice|=HYPERDCC;
-			  break;
 		case 'L': if ((choice&VILAS)) choice&=~VILAS;
 			  else choice|=VILAS;
 			  break;
@@ -394,7 +384,6 @@ char **argv;
             else if (i==SCKICKS) addtobuf(SCKICKSfiles,tmpbuf,choice,oldchoice,i);
             else if (i==OPERVISION) addtobuf(OPERVISIONfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==CELE) addtobuf(CELEfiles,tmpbuf,choice,oldchoice,i);
-	    else if (i==HYPERDCC) addtobuf(HYPERDCCfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==VILAS) addtobuf(VILASfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==JIMMIE) addtobuf(JIMMIEfiles,tmpbuf,choice,oldchoice,i);
 	    else if (i==CTCPPAGE) addtobuf(CTCPPAGEfiles,tmpbuf,choice,oldchoice,i);
@@ -470,9 +459,6 @@ char **argv;
 	if (choice&CELE) fprintf(fpout,"#define CELE\n");
 	else fprintf(fpout,"#undef CELE\n");
         fprintf(fpout,"#include \"celerity.h\"\n");
-	fprintf(fpout,"\n/* Define this if you want HyperDCC by Annatar in the client */\n");
-	if (choice&HYPERDCC) fprintf(fpout,"#define HYPERDCC\n");
-	else fprintf(fpout,"#undef HYPERDCC\n");
 	fprintf(fpout,"\n/* Define this if you don't want ScrollZ trademarks in CTCPs */\n");
 	if (choice&VILAS) fprintf(fpout,"#define VILAS\n");
 	else fprintf(fpout,"#undef VILAS\n");

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.106 2003-05-01 15:07:14 f Exp $
+ * $Id: irc.c,v 1.107 2003-05-04 18:06:50 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -495,11 +495,6 @@ char VersionInfo[] = {
     'S',
 #else
     's',
-#endif
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-    'D',
-#else
-    'd',
 #endif
 #ifdef CTCPPAGE
     'P',

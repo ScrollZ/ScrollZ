@@ -376,9 +376,6 @@
 #undef CELE
 #include "celerity.h"
 
-/* Define this if you want HyperDCC by Annatar in the client */
-#undef HYPERDCC
-
 /* Define this if you don't want ScrollZ trademarks in KICKs and AWAY msgs */
 #undef VILAS
 
