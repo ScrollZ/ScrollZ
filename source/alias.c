@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.33 2003-01-08 20:00:54 f Exp $
+ * $Id: alias.c,v 1.34 2003-04-27 18:37:26 f Exp $
  */
 
 #include "irc.h"
@@ -82,6 +82,7 @@ extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern void BuildPrivs _((struct friends *, char *));
 extern void PrintUsage _((char *));
 extern int  ColorNumber  _((char *));
+extern char *TimeStamp _((int));
 #ifndef CELESCRP
 extern int  TotalSendDcc _((void));
 extern int  TotalQueue _((void));
@@ -306,6 +307,7 @@ static	FAR BuiltIns built_in[] =
         u_char	*function_url _((u_char *));
         u_char	*function_strstr _((u_char *));
         u_char	*function_szvar _((u_char *));
+        u_char	*function_stamp _((u_char *));
 #endif
 #ifdef COUNTRY
         u_char	*function_country _((u_char *));
@@ -328,6 +330,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 {
 /**************************** Patched by Flier ******************************/
 	{ "UH",                 function_intuhost },
+	{ "STAMP",              function_stamp },
 /****************************************************************************/
 	{ "LEFT",		function_left },
 	{ "RIGHT",		function_right },
@@ -4888,6 +4891,17 @@ u_char *input;
     return(result);
 }
 #endif /* !CELESCRP && !LITE */
+
+u_char *function_stamp(input)
+u_char *input;
+{
+    u_char *result = NULL;
+    char *stampbuf = TimeStamp(0);
+
+    if (stampbuf) malloc_strcpy((char **) &result, stampbuf);
+    else malloc_strcpy((char **) &result,empty_string);
+    return(result);
+}
 
 /* Removes all aliases */
 void DumpAliases(type)
