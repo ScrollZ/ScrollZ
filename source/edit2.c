@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.4 1998-09-16 20:10:14 f Exp $
+ * $Id: edit2.c,v 1.5 1998-09-20 14:40:17 f Exp $
  */
 
 #include "irc.h"
@@ -137,6 +137,7 @@ int  AddLast _((List *, List *));
 extern struct friends *FindMatch _((char *, char *));
 extern void ClearKey _((char *, char *, char *));
 extern int  CheckChannel _((char *, char *));
+extern int  CheckChannel2 _((char *, char *));
 extern void UnbanIt _((char *, char *, int));
 extern int  AddBan _((char *, char *, int, char *, time_t, ChannelList *));
 extern void AwaySave _((char *, int));
@@ -1351,7 +1352,7 @@ char *line;
 
     while (count<curr_scr_win->display_size && tmpfriendlist!=NULL) {
         countall++;
-        if ((*line=='#' && CheckChannel(line,tmpfriendlist->channels)) ||
+        if ((*line=='#' && CheckChannel2(line,tmpfriendlist->channels)) ||
             wild_match(line,tmpfriendlist->userhost) ||
             wild_match(tmpfriendlist->userhost,line)) {
             listcount++;
