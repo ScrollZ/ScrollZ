@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.28 2000-11-01 10:13:27 f Exp $
+ * $Id: window.c,v 1.29 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -685,11 +685,9 @@ move_window(window, offset)
 		tmp->next->prev = last;
 	else
 		current_screen->window_list_end = last;
-	if (offset < 0)
-		win_pos = (current_screen->visible_windows + offset + win_pos) %
-		    current_screen->visible_windows;
-	else
-		win_pos = (offset + win_pos) % current_screen->visible_windows;
+	win_pos = (offset + win_pos) % window->screen->visible_windows;
+	if (win_pos < 0)
+		win_pos = window->screen->visible_windows + win_pos;
 	last = (Window *) 0;
 	for (pos = 0, tmp = current_screen->window_list;
 	    pos != win_pos; tmp = tmp->next, pos++)
@@ -3022,7 +3020,7 @@ windowcmd(command, args, subargs)
 		else if (strncmp("SERVER", cmd, len) == 0)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
-				window_get_connected(window, arg, -1, 0, args);
+				window_get_connected(window, arg, -1, args);
 			else
 				say("SERVER: You must specify a server");
 		}
@@ -3292,6 +3290,16 @@ windowcmd(command, args, subargs)
                         }
 /****************************************************************************/
 		}
+		else if (my_strncmp("NOSTATUS", cmd, len) == 0)
+		{
+			int current = window->double_status;
+
+			window->double_status = -1;
+			window->display_size += current - window->double_status;
+			recalculate_window_positions();
+			update_all_windows();
+			build_status((u_char *) NULL);
+		}
 		else
 			say("Unknown WINDOW command: %s", arg);
 		new_free(&cmd);
@@ -3390,18 +3398,17 @@ set_underline_video(value)
 }
 
 void
-window_get_connected(window, arg, narg, preserve, args)
+window_get_connected(window, arg, narg, args)
 	Window	*window;
 	char	*arg;
 	int	narg;
-	int	preserve;
 	char	*args;
 {
 	int	i,
 		port_num,
 		new_server_flags = WIN_TRANSFER;
 	char	*port,
-		*password,
+		*password = NULL,
 		*nick = NULL,
 		*extra = NULL;
 
@@ -3470,16 +3477,6 @@ window_get_connected(window, arg, narg, preserve, args)
 			malloc_strcpy(&connect_next_nick, nick);
 		if (password && *password)
 			malloc_strcpy(&connect_next_password, password);
-
-		if (!connect_to_server(arg, port_num, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
-		{
-			window_set_server((int)window->refnum, from_server, new_server_flags);
-			/* window->window_level = LOG_DEFAULT; */
-			/* Not always necessary. See window_set_server. -Sol */
-			if (!preserve && window->current_channel)
-				new_free(&window->current_channel);
-			update_all_status();
-		}
 	}
 	else
 	{
@@ -3491,15 +3488,14 @@ window_get_connected(window, arg, narg, preserve, args)
 		if (((i = find_in_server_list(get_server_name(i), port_num, nick)) != -1) && is_server_connected(i))
 			new_server_flags &= ~WIN_TRANSFER;
 
-		if (!connect_to_server(get_server_name(i), server_list[i].port, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
-		{
-			window_set_server((int)window->refnum, from_server, new_server_flags);
-			/* window->window_level = LOG_DEFAULT; */
-			/* Not always necessary. See window_set_server. -Sol */
-			if (!preserve && window->current_channel)
-				new_free(&window->current_channel);
-			update_all_status();
-		}
+		arg = get_server_name(i);
+		port_num = server_list[i].port;
+	}
+
+	if (!connect_to_server(arg, port_num, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
+	{
+		window_set_server((int)window->refnum, from_server, new_server_flags);
+		update_all_status();
 	}
 	window_check_servers();
 /**************************** PATCHED by Flier ******************************/

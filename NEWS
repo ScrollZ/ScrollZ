@@ -1,7 +1,9 @@
-@(#)$Id: NEWS,v 1.5 2000-08-14 20:38:13 f Exp $
+@(#)$Id: NEWS,v 1.6 2001-01-22 18:19:01 f Exp $
 
 Changes since ircII 4.4:
 
+  o  new /window nostatus for no status line at all.
+  o  new /set hide_channel_keys variable.
   o  new /set {fore,back}ground_colour variables.
   o  new /set xterm_geomoptstr variable.
   o  no more (insecure) ``priviledge port'' support.

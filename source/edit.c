@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.52 2001-01-15 17:44:07 f Exp $
+ * $Id: edit.c,v 1.53 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -1712,6 +1712,7 @@ e_channel(command, args, subargs)
 		else
 		{
 			malloc_strcpy(&chanstr, chan);
+			chan = chanstr;
 
 			if (get_int_var(NOVICE_VAR))
 				chanstr = strtok(chanstr, ",");
@@ -1720,7 +1721,7 @@ e_channel(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
                         ptr=fix_channel(ptr);
 /****************************************************************************/
-       			if ((ptr = do_channel(ptr, force)))
+			if ((ptr = do_channel(ptr, force)) && *ptr)
 /**************************** PATCHED by Flier ******************************/
 				/*send_to_server("%s %s %s", command, ptr, args);*/
                         {
@@ -1730,18 +1731,18 @@ e_channel(command, args, subargs)
 /****************************************************************************/
 			while ((ptr = strtok(NULL, ",")))
 /**************************** PATCHED by Flier ******************************/
-				/*if ((ptr = do_channel(ptr, force)))
+				/*if ((ptr = do_channel(ptr, force)) && *ptr)
 					send_to_server("%s %s %s", command, ptr, args);*/
                         {
                             ptr=fix_channel(ptr);
-                            if ((ptr=do_channel(ptr,force))) {
+                            if ((ptr=do_channel(ptr,force)) && *ptr) {
                                 chankey=CheckJoinKey(ptr);
                                 send_to_server("%s %s %s %s",command,ptr,args,chankey);
                             }
                         }
 /****************************************************************************/
 
-			new_free(&chanstr);
+			new_free(&chan);
 		}
 	}
 	else

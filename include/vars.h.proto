@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.8 2001-01-14 11:04:52 f Exp $
+ * $Id: vars.h.proto,v 1.9 2001-01-22 18:19:01 f Exp $
  */
 
 #ifndef __vars_h_
@@ -113,6 +113,7 @@ extern	int	loading_global;
 #define HELP_PATH_VAR $
 #define HELP_PROMPT_VAR $
 #define HELP_WINDOW_VAR $
+#define HIDE_CHANNEL_KEYS_VAR $
 #define HIDE_PRIVATE_CHANNELS_VAR $
 #define HIGHLIGHT_CHAR_VAR $
 /**************************** PATCHED by Flier ******************************/

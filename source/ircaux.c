@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.11 2000-11-07 17:46:10 f Exp $
+ * $Id: ircaux.c,v 1.12 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -593,6 +593,7 @@ connect_by_number(service,host,nonblocking,dccget)
 {
 	int	s = -1;
 	char	buf[100];
+	int	err = -1;
 #ifndef INET6
 	struct	sockaddr_in server;
 	struct	hostent *hp;
@@ -600,7 +601,6 @@ connect_by_number(service,host,nonblocking,dccget)
 	char	strhost[1025], strservice[32];
 	struct	sockaddr_storage server;
 	struct	addrinfo hints, *res, *res0;
-	int	err = -1;
 
 	strncpy(strhost, host, sizeof(strhost) - 1);
 	strhost[sizeof(strhost) - 1] = 0;
@@ -799,10 +799,11 @@ connect_by_number(service,host,nonblocking,dccget)
 	}
 #endif /* NON_BLOCKING_CONNECTS */
 #ifdef INET6
-	if (connect(s, res->ai_addr, res->ai_addrlen) < 0)
+	err = connect(s, res->ai_addr, res->ai_addrlen);
 #else
-	if (connect(s, (struct sockaddr *) &server, sizeof(server)) < 0)
+	err = connect(s, (struct sockaddr *) &server, sizeof(server));
 #endif
+	if (err < 0)
 	{
 		if (!(errno == EINPROGRESS && nonblocking))
 		{

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.16 2000-09-24 17:10:34 f Exp $
+ * $Id: status.c,v 1.17 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -1131,24 +1131,39 @@ void
 make_status(window)
 	Window	*window;
 {
-	int	i,
-	len,
-	k,
-	RJustifyPos = -1,
-	RealPosition;
+	int	i, len, k, l,
+		RJustifyPos = -1,
+		RealPosition;
 	u_char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*func_value[MAX_FUNCTIONS];
+	int	final;
 /**************************** PATCHED by Flier ******************************/
         int     change=1;
 /****************************************************************************/
 
-/**************************** PATCHED by Flier ******************************/
-        /*for (k = 0 ; k < ((window->double_status) ? 2 : 1); k++)*/
-        for (k = 0 ; k < (window->double_status)+1; k++)
+	switch (window->double_status) {
+	case -1:
+		new_free(&window->status_line[0]);
+		new_free(&window->status_line[1]);
+		goto out;
+	case 0:
+		new_free(&window->status_line[1]);
+		final = 1;
+		break;
+	case 1:
+		final = 2;
+		break;
+/**************************** Patched by Flier ******************************/
+	case 2:
+		final = 3;
+		break;
 /****************************************************************************/
+	default:
+		yell("--- make_status: unknown window->double value %d", window->double_status);
+		final = 1;
+	}
+	for (k = 0 ; k < final; k++)
 	{
-		int l;
-
 		if (k)
 /**************************** PATCHED by Flier ******************************/
 			/*l = 2;*/
@@ -1342,6 +1357,7 @@ make_status(window)
 			}
 		}
 	}
+out:
 	cursor_to_input();
 }
 

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.20 2000-12-10 10:12:35 f Exp $
+ * $Id: names.c,v 1.21 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -46,9 +46,9 @@
 #include "list.h"
 #include "output.h"
 #include "notify.h"
+#include "vars.h"
 
 /**************************** PATCHED by Flier ******************************/
-#include "vars.h"
 #include "myvars.h"
 #include "whowas.h"
 
@@ -254,8 +254,12 @@ add_channel(channel, server, connected, copy)
                 new->creationtime=time((time_t *) 0);
                 resetchan=1;
 /****************************************************************************/
-	} else if (new->status & CHAN_LIMBO)
-		new->status &= ~CHAN_LIMBO;
+	}
+        else
+        {
+		if (new->connected != CHAN_LIMBO && new->connected != CHAN_JOINING)
+			yell("--- add_channel: add_channel found channel not CHAN_LIMBO/JOINING: %s", new->channel);
+        }
         if (do_add || (connected == CHAN_JOINED))
 	{
 		new->server = server;
@@ -553,7 +557,7 @@ recreate_mode(chan)
 		mode /= 2;
 		mode_pos++;
 	}
-	if (chan->key)
+	if (chan->key && !get_int_var(HIDE_CHANNEL_KEYS_VAR))
 	{
 		*s++ = ' ';
 		strcpy(s, chan->key);

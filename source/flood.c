@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.6 1999-10-03 09:30:57 f Exp $
+ * $Id: flood.c,v 1.7 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -106,8 +106,8 @@ check_flooding(nick, type, line)
 	flood_time = time(0);
         if (i == users)
 	{
-		tmp = &(flood[pos]);
 		pos = (pos + 1) % users;
+		tmp = &(flood[pos]);
  		tmp->nick = 0;
  		malloc_strcpy(&tmp->nick, nick);
 		tmp->type = type;

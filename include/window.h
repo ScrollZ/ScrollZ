@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.7 2000-08-28 22:43:33 f Exp $
+ * $Id: window.h,v 1.8 2001-01-22 18:19:01 f Exp $
  */
 
 #ifndef __window_h_
@@ -90,7 +90,7 @@ typedef struct window_traverse_stru
 	void	reset_line_cnt _((int));
 	void	set_continued_line _((char *));
 	void	set_underline_video _((int));
-	void	window_get_connected _((Window *, char *, int, int, char *));
+	void	window_get_connected _((Window *, char *, int, char *));
 	void	erase_display _((Window *));
 	int	unhold_windows _((void));
  	Window	*window_traverse _((Win_Trav *));

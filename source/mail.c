@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.7 2000-08-21 18:41:40 f Exp $
+ * $Id: mail.c,v 1.8 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -94,28 +94,24 @@ static	void
 init_mail()
 {
 	char	*tmp_mail_path;
-	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if (mail_path)
 		return; /* why do it 2000 times?  -lynx */
 
 #ifdef UNIX_MAIL
 	if ((tmp_mail_path = getenv("MAIL")) != NULL)
-		strmcpy(buffer, tmp_mail_path, BIG_BUFFER_SIZE);
-				/*then use it - Goodi */
+		malloc_strcpy(&mail_path, tmp_mail_path);
 	else
 	{
-		strmcpy(buffer, UNIX_MAIL, BIG_BUFFER_SIZE);
-		strmcat(buffer, "/", BIG_BUFFER_SIZE);
-		strmcat(buffer, username, BIG_BUFFER_SIZE);
+		malloc_strcpy(&mail_path, UNIX_MAIL);
+		malloc_strcat(&mail_path, "/");
+		malloc_strcat(&mail_path, username);
 	}
-	malloc_strcpy(&mail_path, buffer);
 #else
 # ifdef AMS_MAIL
-	strmcpy(buffer, my_path, BIG_BUFFER_SIZE);
-	strmcat(buffer, "/", BIG_BUFFER_SIZE);
-	strmcat(buffer, AMS_MAIL, BIG_BUFFER_SIZE);
-	malloc_strcpy(&mail_path, buffer);
+	malloc_strcpy(&mail_path, my_path);
+	malloc_strcat(&mail_path, "/");
+	malloc_strcat(&mail_path, AMS_MAIL);
 # endif /* AMS_MAIL */
 #endif /* UNIX_MAIL */
 }

@@ -8,8 +8,49 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.7 2000-08-14 20:38:13 f Exp $
+ * @(#)$Id: ChangeLog,v 1.8 2001-01-22 18:19:01 f Exp $
  */
+
+4.4Z
+Thu Aug 31 22:19:55 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/window.c:
+		fix "/window new move -3".  patch from
+		<jnelson@epicsol.org> in PR#477.
+	source/flood.c:	
+		apply forcer's hack-patch to work around the problem
+		described in PR#471.
+	source/names.c:
+		avoid using CHAN_LIMBO as a bit flag, cuz it isn't.  part
+		of PR#472.
+
+Thu Aug 10 10:50:23 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/edit.c:
+		allocate enough space in the ICB /whois for the string to
+		be written.  found by moof/libefence.
+
+4.4Y
+Sat Aug  5 22:19:20 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/window.c, source/server.c, include/window.h:
+		in window_get_connected(), don't kill the current window's
+		version of current_channel.  if that is going to happen,
+		window_set_server() will do it.  fixes my PR#442.
+
+Sat Aug  5 15:12:39 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/window.c, help/window/nostatus:
+		implement /window nostatus to entirely disable the
+		status line.  can be confusing with mulitle visible windows
+		with nostatus!  inspired by PR#455.
+
+Sat Aug  5 14:36:58 EST 2000 - matthew green <mrg@eterna.com.au>
+	source/ircaux.c:
+		set "err" in all cases, so we know when we have actually
+		succeeded.  fixes connections to the local machine.
+
+Fri Aug  4 17:42:13 EST 2000 - matthew green <mrg@eterna.com.au>
+	include/config.h.dist, include/vars.h, include/vars.h.proto,
+	source/names.c, source/vars.c:
+		add /set hide_channel_keys {on|off}, inspired by PR#467
+		(whose patch was based on over 5 year old code).
 
 4.4X
 Fri Aug  4 12:18:10 EST 2000 - matthew green <mrg@eterna.com.au>

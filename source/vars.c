@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.12 2001-01-14 11:06:52 f Exp $
+ * $Id: vars.c,v 1.13 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -171,6 +171,7 @@ static	IrcVariable irc_variable[] =
 	{ "HELP_PATH",			STR_TYPE_VAR,	0, NULL, NULL, 0, VF_EXPAND_PATH|VF_NODAEMON },
 	{ "HELP_PROMPT",		BOOL_TYPE_VAR,	DEFAULT_HELP_PROMPT, NULL, NULL, 0, 0 },
 	{ "HELP_WINDOW",		BOOL_TYPE_VAR,	DEFAULT_HELP_WINDOW, NULL, NULL, 0, 0 },
+	{ "HIDE_CHANNEL_KEYS",		BOOL_TYPE_VAR,	DEFAULT_HIDE_CHANNEL_KEYS, NULL, update_all_status, 0, 0 },
 	{ "HIDE_PRIVATE_CHANNELS",	BOOL_TYPE_VAR,	DEFAULT_HIDE_PRIVATE_CHANNELS, NULL, update_all_status, 0, 0 },
 	{ "HIGHLIGHT_CHAR",		STR_TYPE_VAR,	0, NULL, set_highlight_char, 0, 0 },
 /**************************** PATCHED by Flier ******************************/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.31 2001-01-17 19:41:44 f Exp $
+ * $Id: server.c,v 1.32 2001-01-22 18:19:01 f Exp $
  */
 
 #include "irc.h"
@@ -1718,7 +1718,7 @@ servercmd(command, args, subargs)
 					server, port_num,
 					password ? password : empty_string,
 					nick ? nick : empty_string);
-				window_get_connected(curr_scr_win, servinfo, -1, 0, (char *) 0);
+				window_get_connected(curr_scr_win, servinfo, -1, (char *) 0);
 			}
 			else
 /**************************** PATCHED by Flier ******************************/
@@ -1747,7 +1747,7 @@ servercmd(command, args, subargs)
 			if (current_screen && curr_scr_win && curr_scr_win->prev_server != -1)
 			{
 				window_restore_server(curr_scr_win->prev_server);
-				window_get_connected(curr_scr_win, NULL, curr_scr_win->server, 0, (char *) 0);
+				window_get_connected(curr_scr_win, NULL, curr_scr_win->server, (char *) 0);
 			}
 			else
 				say("No server previously in use in this window");

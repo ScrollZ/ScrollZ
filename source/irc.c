@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.45 2001-01-14 11:06:24 f Exp $
+ * $Id: irc.c,v 1.46 2001-01-22 18:19:01 f Exp $
  */
 
-#define IRCII_VERSION	"4.4X"
+#define IRCII_VERSION	"4.4Z"
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.
@@ -45,7 +45,7 @@
  */
 /**************************** PATCHED by Flier ******************************/
 /*#define INTERNAL_VERSION	"19970414"*/
-#define INTERNAL_VERSION	"20000815"
+#define INTERNAL_VERSION	"20010122"
 /****************************************************************************/
 
 #include "irc.h"
@@ -203,7 +203,6 @@ static	void	quit_response _((char *, char *));
 static	void	show_version _((void));
 static	char	*get_arg _((char *, char *, int *));
 static	char	*parse_args _((char **, int));
-static	u_char	buffer[BIG_BUFFER_SIZE+1];	/* local to irc.c */
 
 static	int	cntl_c_hit = 0;
 
@@ -816,6 +815,9 @@ parse_args(argv, argc)
 	int	add_servers = 0;
 	char	*channel = (char *) NULL;
 	struct	passwd	*entry;
+#ifdef _Windows
+	u_char	buffer[BIG_BUFFER_SIZE];
+#endif
 /**************************** PATCHED by Flier ******************************/
 	/*int	minus_minus = 0;*/
         char    *CloakCommand=(char *) 0;
@@ -823,12 +825,12 @@ parse_args(argv, argc)
 
 	*realname = '\0';
 	ac = 1;
-	strmcpy(buffer, argv[0], BIG_BUFFER_SIZE);
-	strmcat(buffer, " ", BIG_BUFFER_SIZE);
+	malloc_strcpy(&args_str, argv[0]);
+	malloc_strcat(&args_str, " ");
 	while ((arg = argv[ac++]) != (char *) NULL)
 	{
-		strmcat(buffer, argv[ac-1], BIG_BUFFER_SIZE);
-		strmcat(buffer, " ", BIG_BUFFER_SIZE);
+		malloc_strcat(&args_str, argv[ac-1]);
+		malloc_strcat(&args_str, " ");
 		if ((*arg == '-') != '\0')
 		{
 /**************************** PATCHED by Flier ******************************/
@@ -966,7 +968,6 @@ parse_args(argv, argc)
 			break;*/
 /****************************************************************************/
 	}
-	malloc_strcpy(&args_str, buffer);
 /**************************** PATCHED by Flier ******************************/
 /* Patched by Zakath */
 	if ((ptr=getenv("IRCHELP"))) malloc_strcpy(&HelpPathVar,ptr);
@@ -1793,21 +1794,24 @@ main(argc, argv, envp)
 		malloc_strcat(&motd, MOTD_FILE);
 		if (stat_file(motd, &motd_stat) == 0)
 		{
-			strmcpy(buffer, my_path, BIG_BUFFER_SIZE);
+			u_char	*s = (u_char *) 0;
+
+			malloc_strcpy(&s, my_path);
 #ifdef __MSDOS__
-			strmcat(buffer, "/ircmotd.red", BIG_BUFFER_SIZE);
+			malloc_strcat(&s, "/ircmotd.red");
 #else
-			strmcat(buffer, "/.ircmotd", BIG_BUFFER_SIZE);
+			malloc_strcat(&s, "/.ircmotd");
 #endif /* __MSDOS__ */
-			if (stat_file(buffer, &my_stat))
+			if (stat_file(s, &my_stat))
 			{
 				my_stat.st_atime = 0L;
 				my_stat.st_mtime = 0L;
 			}
-			unlink(buffer);
-			if ((des = open(buffer, O_CREAT, S_IREAD | S_IWRITE))
+			unlink(s);
+			if ((des = open(s, O_CREAT, S_IREAD | S_IWRITE))
 					!= -1)
 				new_close(des);
+			new_free(&s);
 			if (motd_stat.st_mtime > my_stat.st_mtime)
 			{
 				put_file(motd);
