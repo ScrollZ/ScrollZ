@@ -1,0 +1,5 @@
+Usage: IGTIME number_of_seconds
+  Sets ignore time (it is used when auto ignoring on floods)
+
+See also:
+  FLOODP

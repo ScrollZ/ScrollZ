@@ -1,0 +1,13 @@
+Usage: BAN nick|filter [nick|filter] ...
+  Deops and bans user on current channel
+
+See also:
+  BANTYPE
+  BK
+  BKI
+  BKT
+  UNBAN
+  TBAN
+  CDBAN
+  SB
+  DOBANS

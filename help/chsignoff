@@ -1,0 +1,5 @@
+Usage: CHSIGNOFF on channels|off
+  Channels is a list of channels separated by , (like : #te,#chan*).
+  When set to on, client will display list of channels when user
+  quits IRC. When set to off normal signoff message appears.
+  

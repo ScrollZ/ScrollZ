@@ -1,0 +1,4 @@
+Usage: MSAY [#channels] text
+  Channels is list of channels separated with comma, you can
+  include * and ?.
+  

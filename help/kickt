@@ -1,0 +1,6 @@
+Usage: KICKT number_of_seconds
+  Sets mass kick timer
+
+See also:
+  KICKS
+  KPROT

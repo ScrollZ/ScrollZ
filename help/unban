@@ -1,0 +1,12 @@
+Usage: UNBAN nick
+  Unbans user on your current channel
+
+See also:
+  BANTYPE
+  BAN
+  BK
+  BKI
+  BKT
+  TBAN
+  CDBANS
+  DOBANS

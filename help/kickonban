@@ -1,0 +1,5 @@
+Usage: KICKONBAN on channels|off
+  This is here to protect channel from netsplit hackers that split in
+  but are banned on your server. It will not kick users from your friend
+  list.
+  

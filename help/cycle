@@ -1,0 +1,3 @@
+Usage: CYCLE [[#]channel]
+  Without arguments it will cycle current channel.
+  

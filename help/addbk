@@ -1,0 +1,14 @@
+Usage: ADDBK nick|filter channels shit-level [comment]
+  Filter can include * and ?. When used with nick client will create entry
+  that will use pattern like *!user@*.domain.
+  Channels is a list of channels separated by ',' where nick will be 
+  shitted. You can use * and ? (like : #chat*,#tes?,#chan).
+  Comment is used as kick comment.
+  Available shit-levels are: D=DEOP, K=KICK, B=BBAN, I=IGNORE and
+  P=PERMBAN.
+  
+See also:
+  BKLIST
+  REMBK
+  LISTBK
+  LEVELS

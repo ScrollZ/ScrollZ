@@ -1,0 +1,27 @@
+Usage: CDCC GET [pattern]
+  Example :
+  #   Type    Nick      Status          kb/s Completed Arguments
+  #1  GET     I1        Offered                        test1
+  #2  GET     I1        Offered                        test2
+  #3  GET     I1        Offered                        test3
+  #4  GET     I1        Offered                        test4
+  #5  GET     I1        Offered                        test5
+  #6  GET     I1        Offered                        test6
+  Your answer           Means
+  *                     All dccs
+  1                     Dcc #1
+  3-5                   Dccs from #3 to #5
+  -3                    All dccs from #1 to #3
+  3-                    All dcss from #3 to #6
+  You can enter multiple sets (like : -2,4,5-6).
+  Separator can be anything other than digits and -.
+  
+See also:
+  CDCC
+  SEND
+  CDCC
+  RESEND
+  CDCC
+  PSEND
+  CDCC
+  CLOSE

@@ -1,0 +1,9 @@
+Usage: AWAYT time_in_minutes
+  Default auto-away time is 10. Setting this to 0 disables auto-away.
+  
+See also:
+  PLAYBACK
+  REMLOG
+  SETAWAY
+  SETBACK
+  SHOWAWAY

@@ -1,0 +1,6 @@
+Usage: WKILL who_filter kill_pattern [reason]
+  Kills users matching filter with who
+
+See also:
+  MKILL
+  TKILL

@@ -1,0 +1,9 @@
+Usage: COLOR event color1 color2 color3 color4 color5
+  Available events are WARNING, JOIN, MSG, NOTICE, NETSPLIT, INVITE,
+  MODE, SETTING, HELP, LEAVE, NOTIFY, CTCP, KICK, DCC, WHO, WHOIS,
+  PUBLIC, CDCC, LINKS, DCCCHAT and CSCAN. Available colors are BOLD,
+  UNDERLINE, FLASH, REVERSE, BLACK, RED, GREEN, YELLOW, BLUE, PURPLE,
+  CYAN and WHITE. You can also set background colors by appending BG
+  to color name (example : REDBG). You can combine colors together,
+  use comma to separate them (example : BOLD,YELLOW).
+  

@@ -1,0 +1,10 @@
+Usage: REMLOG [OFF]
+  If OFF is given no notice will be shown on screen whether delete
+  was sucessful or not.
+  
+See also:
+  AWAYT
+  PLAYBACK
+  SETAWAY
+  SETBACK
+  SHOWAWAY

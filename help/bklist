@@ -1,0 +1,8 @@
+Usage: BKLIST on channels|off
+  Toggles shit list on/off
+
+See also:
+  ADDBK
+  LISTBK
+  REMBK
+  LEVELS

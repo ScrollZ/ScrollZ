@@ -1,0 +1,5 @@
+Usage: BITCH on channels|off
+  Channels is a list of channels separated by , (like : #te,#chan*).
+  When set to on, only people from userlist with OP or AUTOOP access are
+  allowed to be channel operators on such channels.
+  

@@ -1,0 +1,6 @@
+Usage: IDLETIME time
+  Sets idle kick timeout in minutes
+
+See also:
+  IDLEKICK
+  SHOWIDLE

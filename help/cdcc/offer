@@ -1,0 +1,23 @@
+Usage: CDCC OFFER [pattern1 pattern2 , speed , description]
+  First you enter what file(s) to add to pack (for more info on
+  how to select files to add refer to CDCC SEND). Then you must
+  enter pack description. Pack description will show when you
+  offer the pack(s).
+  
+See also:
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  PLIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST
+  CDCC
+  LIMIT

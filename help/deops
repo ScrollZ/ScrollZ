@@ -1,0 +1,6 @@
+Usage: DEOPS number_of_deops
+  Sets mass deop sensor
+
+See also:
+  DEOPT
+  DPROT

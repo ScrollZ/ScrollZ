@@ -1,0 +1,9 @@
+Usage: URLCATCH on|auto|quiet|off
+  If set to AUTO, client will look for publics with *tp:/*.* in them and
+  use NOTEPAD to save such entries. QUIET works the same, the only
+  difference is that no message will be printed about stored URLs. When set
+  to ON, you can use URL to save last grabbed URL.
+  
+See also:
+  URL
+  NOTEPAD

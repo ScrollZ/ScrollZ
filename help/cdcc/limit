@@ -1,0 +1,9 @@
+Usage: CDCC LIMIT limit [queue limit]
+  This is valid for for CDCC SEND, CDCC RESEND and when people request
+  offered files from you. You can get arround this by using DCC SEND.
+  Queue number is used to set limit for queue. Setting it to zero allows
+  for unlimited queue size.
+  
+See also:
+  CDCC
+  QUEUE

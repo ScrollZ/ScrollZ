@@ -1,0 +1,19 @@
+Usage: CDCC LIST [pattern]
+  It also displays pack description and number of files in
+  pack and their sizes.
+  
+See also:
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  PLIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST

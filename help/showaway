@@ -1,0 +1,11 @@
+Usage: SHOWAWAY on channels|off
+  When you do SETAWAY or SETBACK client will send all the channels you
+  are on notification that you're now away or that you have returned.
+  It applies to auto set away too.
+  
+See also:
+  AWAYT
+  PLAYBACK
+  REMLOG
+  SETAWAY
+  SETBACK

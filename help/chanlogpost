@@ -1,0 +1,7 @@
+Usage: CHANLOGPOST postfix
+  If postfix is a minus ('-') the postfix is removed.
+  
+See also:
+  CHANLOG
+  CHANLOGDIR
+  CHANLOGPREFIX

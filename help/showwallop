@@ -1,0 +1,5 @@
+Usage: SHOWWALLOP on|off
+  If set to on show a list of included/excluded nicks with each wallop
+  
+See also:
+  WALL

@@ -1,0 +1,6 @@
+Usage: KICKS number_of_kicks
+  Sets mass kick sensor
+
+See also:
+  KICKT
+  KPROT

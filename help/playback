@@ -1,0 +1,6 @@
+Usage: PLAYBACK [-R] [pattern]
+  Plays back stored messages without marking you as not being away.
+  If -R is passed as an argument, messages will be played in
+  reverse order. Optional pattern may include * and ?. If used,
+  only entries matching pattern will be shown.
+  

@@ -1,0 +1,19 @@
+Usage: CDCC DOFFER [pattern]
+  You just have to enter set of pack(s) to deoffer (for more info
+  on how to choose what pack(s) to deoffer refer to CDCC PSEND).
+  
+See also:
+  CDCC
+  OFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  PLIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST

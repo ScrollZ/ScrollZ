@@ -1,0 +1,11 @@
+Usage: CDCC CLOSE [pattern]
+  You just have to enter what dcc(s) you want to close (for more
+  info on how to choose what dcc(s) to close refer to CDCC GET).
+  
+See also:
+  CDCC
+  SEND
+  CDCC
+  RESEND
+  CDCC
+  GET

@@ -1,0 +1,18 @@
+Usage: ADDFCHAN filter|#number channel
+  Number is the same as in TBAN or CDCC GET. Example :
+  #-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+  from 12 and on. Numbers for entries are shown with LISTF. Note
+  that channel must match the one in userlist entry if you wish to
+  remove it (no wildcards are allowed). If #number is does not start
+  with digit, it is considered a channel name, and in that case all
+  channel will be added to all entries that match #number.
+  
+See also:
+  ADDF
+  ADDFFLAG
+  REMF
+  REMFCHAN
+  REMFFLAG
+  LISTF
+  FRLIST
+  LEVELS

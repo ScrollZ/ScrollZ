@@ -1,0 +1,7 @@
+Usage: CHANLOGDIR path
+  If path is a minus ('-') first directory from SET LOAD_PATH is used.
+  
+See also:
+  CHANLOG
+  CHANLOGPOST
+  CHANLOGPREFIX

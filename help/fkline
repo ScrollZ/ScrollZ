@@ -1,0 +1,4 @@
+Usage: FKLINE [-TEMP] filter [server]
+  When -TEMP is specified STATS k is sent instead of usual STATS K.
+  On some servers STATS k returns only temporary K: lines.
+  

@@ -1,0 +1,3 @@
+Usage: INV nick [[#]channel]
+  If no channel is given it will invite nick to current channel
+  

@@ -1,0 +1,9 @@
+Usage: KPROT on channels|off
+  This will react only on people that have access lower than P or G and
+  if mass kick protection is ON. When number of kicks doubles KICKS, user
+  will be kicked if KICKONFLOOD is ON.
+  
+See also:
+  KICKONFLOOD
+  KICKS
+  KICKT

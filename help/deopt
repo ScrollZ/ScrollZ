@@ -1,0 +1,6 @@
+Usage: DEOPT number_of_seconds
+  Sets mass deop timer
+
+See also:
+  DEOPS
+  DPROT

@@ -1,0 +1,4 @@
+Usage: FLLINE [-NAME] filter
+  When -NAME is specified STATS l is sent instead of usual STATS L.
+  STATS l returns hostnames instead of IP addresses.
+  

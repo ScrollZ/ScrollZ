@@ -1,0 +1,6 @@
+Usage: TKILL pattern [reason]
+  Kills users matching filter with trace
+
+See also:
+  MKILL
+  WKILL

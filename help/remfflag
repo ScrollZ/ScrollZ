@@ -1,0 +1,15 @@
+Usage: REMFFLAG filter|#number flaglist
+  Number is the same as in TBAN or CDCC GET. Example :
+  #-2,4,6-8,12- will operate on user entries 1,2,6,7,8 and all entries
+  from 12 and on. Numbers for entries are shown with LISTF. Flaglist is
+  a list of flags you wish to add or remove.
+  
+See also:
+  ADDF
+  ADDFFLAG
+  ADDFCHAN
+  REMF
+  REMFCHAN
+  LISTF
+  FRLIST
+  LEVELS

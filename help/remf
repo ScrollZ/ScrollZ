@@ -1,0 +1,16 @@
+Usage: REMF nick|filter
+  Filter can include * and ? or start with #. If it starts with
+  #, you can use filters like in Cdcc and TBAN. Example :
+  #-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
+  from 12 on. Numbers for entries are shown with LISTF.
+  Channel matching is also performed if filter starts with #,
+  in this case entries with channel match will be removed.
+  
+See also:
+  ADDF
+  ADDFFLAG
+  ADDFCHAN
+  REMFFLAG
+  REMFCHAN
+  LISTF
+  FRLIST

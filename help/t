@@ -1,0 +1,5 @@
+Usage: T [#channel] [topic]
+  If no arguments are given it will display current channel's topic,
+  otherwise it will set topic on channel you have specified.
+  T #channel will unset topic.
+  

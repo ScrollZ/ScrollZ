@@ -1,0 +1,5 @@
+Usage: COMPRESS on channels|off
+  Channels is a list of channels separated by , (like : #te,#chan*).
+  When set to on, client will suppress output of modes that don't have
+  any effect (example: oping user that is already opped).
+  

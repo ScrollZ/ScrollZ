@@ -1,0 +1,8 @@
+Usage: MK [#channel] nick1 [nick2] ... [:reason]
+  Kicks multiple nicks at the same time
+
+See also:
+  K
+  LK
+  MULTK
+  RANLK

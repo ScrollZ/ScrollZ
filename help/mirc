@@ -1,0 +1,5 @@
+Usage: MIRC on|off|strip
+  When set to ON, client will translate mIRC colors to ANSI colors.
+  When set to OFF, no translation will be performed. When set to
+  STRIP annoying mIRC color crap will be stripped from output.
+  

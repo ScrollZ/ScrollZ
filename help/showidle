@@ -1,0 +1,8 @@
+Usage: SHOWIDLE [channels [filter]]
+  Shows idle time for specified channel. If no channel is given current
+  channel is used. If filter is given, idle time for users matching filter
+  is displayed.
+  
+See also:
+  IDLEKICK
+  IDLETIME

@@ -1,0 +1,4 @@
+Usage: NOCHAT [nick]
+  If no nick is given, client will close chat connection to
+  last user that requested it.
+  

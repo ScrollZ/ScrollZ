@@ -1,0 +1,10 @@
+Usage: CDCC SECURE on|off
+  If turned ON, only people from your friends list that have D access
+  will be able to get offered files. If turned OFF, everyone will be able
+  to get your offered files. The same rules apply if CDCC AUTOGET is
+  turned on.
+  
+See also:
+  ADDF
+  REMF
+  LISTF

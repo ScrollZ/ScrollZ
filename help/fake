@@ -1,0 +1,5 @@
+Usage: FAKE on channels|off
+  Toggles fake modes display on/off
+
+See also:
+  SERVNOTICE

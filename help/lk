@@ -1,0 +1,8 @@
+Usage: LK [-ALL]
+  When -ALL is specified all non opped users will be kicked.
+  
+See also:
+  K
+  MK
+  MULTK
+  RANLK

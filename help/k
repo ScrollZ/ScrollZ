@@ -1,0 +1,9 @@
+Usage: K nick [reason]
+  Kicks user from your current channel
+
+See also:
+  FBK
+  FK
+  MK
+  MULTK
+  RANLK

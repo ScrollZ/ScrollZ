@@ -1,0 +1,23 @@
+Usage: ADDF nick|filter channels access [password]
+  Filter can include * and ?. When used with nick client will create entry
+  that will use pattern like *!user@*.domain.
+  Channels is a list of channels separated by ',' where nick will have
+  access to CTCP commands. You can use * and ? (example : #chat*,#tes?).
+  Available access modes are I=INVITE, C=CHOPS, O=OP, H=HOP, A=AUTOOP,
+  U=UNBAN, X=INSTANT OP, P=PROT, G=GOD, V=VOICE, D=CDCC, J=JOIN,
+  F=FLOOD or ALL (example : ICOAU stands for INVITE CHOPS OP AUTOOP and
+  UNBAN). Client will auto invite users from notify list if they have I,
+  C, O and U privileges and don't have a password set. They can
+  access CTCP OPEN if they have I, O and U flags set).
+  
+See also:
+  ADDFFLAG
+  ADDFCHAN
+  REMF
+  REMFFLAG
+  REMFCHAN
+  LISTF
+  FRLIST
+  LEVELS
+  AUTOINV
+  CHPASS.

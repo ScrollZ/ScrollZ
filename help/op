@@ -1,0 +1,5 @@
+Usage: OP [#channel] nick1 nick2 nick3 ...
+  Ops line of nicks on your current channel
+
+See also:
+  DOP

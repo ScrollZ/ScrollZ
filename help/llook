@@ -1,0 +1,7 @@
+Usage: LLOOK [-LOAD filename|-SAVE filename]
+  When no args are give LINKS info is stored internally. -SAVE will
+  save this information to a file. -LOAD will restore this information
+  from a file previously saved with -SAVE.
+  
+See also:
+  LLOOKUP

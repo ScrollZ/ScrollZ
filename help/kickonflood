@@ -1,0 +1,10 @@
+Usage: KICKONFLOOD on channels|off
+  Toggles whether to kick on deop/kick flood or not
+
+See also:
+  DPROT
+  DEOPS
+  DEOPT
+  KPROT
+  KICKS
+  KICKT

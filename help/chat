@@ -1,0 +1,4 @@
+Usage: CHAT [nick]
+  If no nick is given, client will attempt to establish chat connection
+  with last user that requested it.
+  

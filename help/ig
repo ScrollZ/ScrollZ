@@ -1,0 +1,10 @@
+Usage: IG [-T time] nick [type]
+  This will ignore by user@domain. If no type is given it will ignore ALL.
+  Ignore will take place for IGTIME seconds unless -T is given.
+  In that case, ignore will last time seconds.
+  Other types are : MSGS,NOTICES,PUBLIC,INVITES,WALLOPS,
+                    NOTES,CTCP,CRAP,ALL,NONE.
+  
+See also:
+  NOIG
+  IGTIME

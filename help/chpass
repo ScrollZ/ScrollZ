@@ -1,0 +1,8 @@
+Usage: CHPASS filter password
+  Filter can include * and ? or start with #. If it starts with #
+  entries with numbers matching expression that follows # will
+  be changed. To remove a password use - (minus).
+  
+See also:
+  ADDF
+  REMF.

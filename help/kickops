@@ -1,0 +1,11 @@
+Usage: KICKOPS on channels|off
+  When set to on, channel operators will be kicked on word-kick and
+  filter-kick. When set to off, only non channel operators will be
+  kicked on word-kick and filter-kick.
+  
+See also:
+  ADDW
+  FBK
+  FK
+  LISTW
+  REMW

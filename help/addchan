@@ -1,0 +1,7 @@
+Usage: ADDCHAN setting channel
+  This is used to add channel for specified setting. Possible
+  settings are: AJOIN, AREJOIN, BITCH, DPROT, FAKE, FRLIST, KICKONBAN,
+  KICKONFLOOD, KICKOPS, KPROT, NHPROT, NPROT and SHOWAWAY.
+  
+See also:
+  REMCHAN

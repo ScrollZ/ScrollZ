@@ -1,0 +1,2 @@
+Usage: FCLINE filter [server]
+  Does STATS c with filter

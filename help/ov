@@ -1,0 +1,7 @@
+Usage: OV on [nots] [nomodes]|here [nots] [nomodes]|off [nomodes]
+  When enabled client will create a new window which will receive
+  all IRC operator related stuff. If enabled with here IRC
+  operator related stuff goes to current window. Time stamping
+  is enabled by default. If NOTS is given, time stamping is
+  disabled. If NOMODES is given, no user modes will be sent.
+  

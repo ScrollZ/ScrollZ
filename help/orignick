@@ -1,0 +1,9 @@
+Usage: ORIGNICK on nick [QUIET]|off
+  Client will try to switch to nick specified after ON. Use ORIGNTIME
+  to define how often it does that. If QUIET is specified messages
+  indicating who has your wanted nick will be supressed. Multiple
+  nicks can be specified by separating them with comma (example:
+  john,doe). Client will use nicks in the specified order.
+  
+See also:
+  ORIGNTIME

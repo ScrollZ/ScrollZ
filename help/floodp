@@ -1,0 +1,9 @@
+Usage: FLOODP on|off|max #messages #seconds
+  If set to on, users that flood you will be ignored for seconds set with
+  IGTIME. If set to off, no action is performed on flood. If set to max
+  and you receive at least #messages in #seconds, client will change
+  nick to prevent further flooding. Make sure you set this high enough to
+  prevent false flood attack detection.
+  
+See also:
+  IGTIME

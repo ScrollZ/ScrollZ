@@ -1,0 +1,6 @@
+Usage: CDCC STATS on|off
+  Toggles whether to show Cdcc stats on CDCC PLIST
+
+See also:
+  CDCC
+  PLIST

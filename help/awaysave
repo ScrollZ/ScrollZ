@@ -1,0 +1,9 @@
+Usage: AWAYSAVE [-]type
+  Type is any of the following : MSG, NOTICE, MASS, COLL, CDCC, DCC,
+  PROT, HACK, SRVMODE, CTCP, FLOOD, INVITE, KILL, KICK, SERVER, FAKE,
+  AREPLY, CHAT, NOTIFY, SENTMSG or ALL. You can specify multiple
+  types by separating them with space. You can turn it off by specifying
+  NONE. If preceeded by minus such events will not be saved. Note that
+  effects accumulate so if you specify only one type it will be added
+  to current set.
+  

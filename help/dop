@@ -1,0 +1,5 @@
+Usage: DOP [#channel] nick1 nick2 nick3 ...
+  Deops line of nicks on your current channel
+
+See also:
+  OP

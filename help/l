@@ -1,0 +1,6 @@
+Usage: L [#channel[,[#]channel2,[#]channel3...]] [reason]
+  If no channel is given it will leave current channel. Note that
+  specifying reason only works for some servers (notably 2.9).
+  
+See also:
+  J

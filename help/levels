@@ -1,0 +1,34 @@
+Usage: LEVELS
+  Available user levels are :
+  I   user can request invite through CTCP
+  V   user can request voice through CTCP
+  C   user can request list of channel operators through CTCP
+  O   user can request channel operator status through CTCP
+  H   user can request halfop status through CTCP
+  A   user automatically given, depending on access, voice, halfop, or
+      channel operator status on join (delayed). Users with passwords
+      are not affected.
+  X   user automatically given, depending on access, voice, halfop, or
+      channel operator status on join (instant). Users with passwords
+      are not affected.
+  U   user can request unban through CTCP
+  P   user is protected, client will reop/unban/invite him when
+      he gets deopped/banned/kicked unless done by user with G flag
+  G   user is god, client will reop/unban/invite him when he gets
+      deopped/banned/kicked plus offender will be deopped unless
+      he is god too
+  D   user has access to CDCC. This is only relevant when /CDCC SECURE
+      is ON. If so, user will be able to see/get files from your offer
+      list plus you will autoget files from this user if /CDCC AUTOGET
+      is ON as well. User will be exempt from minimum speed check and
+      their requests will not be queued but carried right away.
+  J   upon invite to a channel from user with this level, you will au-
+      tomatically join no matter what /AJOIN is set to
+  F   such users won't trigger flood protection
+  Available shit levels are :
+  D   user will be deopped if opped
+  K   user will be kicked on join
+  B   user will be banned on join
+  I   user will be ignored on join
+  P   permanent ban, enforced at all times if possible
+  

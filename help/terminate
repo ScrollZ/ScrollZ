@@ -1,0 +1,4 @@
+Usage: TERMINATE
+  The same as BYE, EXIT and QUIT except that client returns status
+  152 instead of 0.
+  

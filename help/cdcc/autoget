@@ -1,0 +1,10 @@
+Usage: CDCC AUTOGET on|off|always
+  Always will auto-get regardless of warnings.
+  
+See also:
+  CDCC
+  GET
+  CDCC
+  CLOSE
+  CDCC
+  SECURE

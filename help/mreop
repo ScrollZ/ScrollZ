@@ -1,0 +1,9 @@
+Usage: MREOP [-F] [-A] [#channel]
+  If passed -F only friends with the O flag set will be reopped.
+  -A will re-op all users.
+  
+See also:
+  MDOP
+  MOP
+  MASSV
+  MASSDV

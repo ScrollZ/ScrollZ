@@ -1,0 +1,6 @@
+Usage: REMN nick [nick ...]
+  Removes user from your notify list
+
+See also:
+  ADDN
+  LISTN

@@ -1,0 +1,19 @@
+Usage: ENCRMSG [-PASS master password] [-CLEAR] [-SHOW] [target [key]]
+  Communication with nick/channel will be encrypted using key. Both
+  parties have to use the same key for encryption/decryption to work.
+  If only nick is specified you will be prompted for a password. If
+  nick is prepended with a '-' encrypted communication with that nick
+  is ended. If neither user nor key are given all users in encryption
+  list are listed. DCC CHAT sessions can be encrypted if nick starts
+  with '='. Use '-' as first character in key if you want to communicate
+  with users of ScrollZ v1.8j and older. Whenever encrypted communication
+  is used publics and private messages are prepended with [!]. DCC CHAT
+  messages are encrypted if nick is enclosed in *. Warning: messages are
+  cut at 304 characters to avoid decryption problems when IRC server cuts
+  the message. To see the passwords used for encryption specify -SHOW.
+  To clear the encryption list specify -CLEAR. You can set master
+  password with command PASSWD. Use -PASS to specify master password
+  on a command line.
+  
+See also:
+  PASSWD

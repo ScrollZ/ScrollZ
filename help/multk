@@ -1,0 +1,8 @@
+Usage: MULTK [#channels] nick [reason]
+  Kicks nick from multiple channels
+
+See also:
+  K
+  LK
+  MK
+  RANLK

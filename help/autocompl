@@ -1,0 +1,12 @@
+Usage: AUTOCOMPL on string|auto string|off
+  If set to on or auto, client will do the nick completion for you on
+  public messages. If public message starts with 'blah:' client will
+  search for nick starting with 'blah' on current channel and insert
+  that nick in place of 'blah'. If more than one nick matches blah,
+  public message is left untouched (unless someone has nick that exactly
+  matches blah, in that case client will use their full nick). When set
+  to auto, client will use first nick that matches. Second argument with
+  on or auto is string that'll be inserted on right side of the nick.
+  If set to off, message is left untouched. 
+  right side of the nick.
+  

@@ -1,0 +1,5 @@
+Usage: ORIGNTIME number_of_seconds
+  Define how often to attempt to switch to wanted nick
+
+See also:
+  ORIGNICK

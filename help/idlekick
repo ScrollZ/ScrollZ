@@ -1,0 +1,7 @@
+Usage: IDLEKICK on|auto channels|off
+  This will not kick friends, channel operators or voiced users.
+  If set to auto, all non opped users will be kicked.
+  
+See also:
+  IDLETIME
+  SHOWIDLE

@@ -1,0 +1,5 @@
+Usage: HOP [#channel] nick1 nick2 nick3 ...
+  Halfops line of nicks on your current channel
+
+See also:
+  DHOP

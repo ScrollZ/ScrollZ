@@ -1,0 +1,7 @@
+Usage: DIRLSM [nick|#channel]
+  If no nick/channel is specified it will redirect to current channel.
+  
+See also:
+  DIRLM
+  DIRLN
+  DIRLSN

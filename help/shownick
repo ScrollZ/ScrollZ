@@ -1,0 +1,5 @@
+Usage: SHOWNICK on|off
+  If set to on, client will show your nick when sending out public messages
+  like it does for other people. When set to off, it will act like plain
+  vanilla client.
+  

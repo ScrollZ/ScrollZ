@@ -1,0 +1,11 @@
+Usage: FRLIST on channels|off
+  Toggles friend list on/off
+
+See also:
+  ADDF
+  ADDFFLAG
+  ADDFCHAN
+  REMF
+  REMFFLAG
+  REMFCHAN
+  LISTF

@@ -1,0 +1,7 @@
+Usage: CDCC DLDIR
+  All the files that people send to you will be saved to this dir if it
+  is set. Current directory will be used otherwise.
+  
+See also:
+  CDCC
+  ULDIR

@@ -1,0 +1,4 @@
+Usage: SHOWSIGN
+  When set to ON signoff message for user will be shown for all channels
+  user was member of.
+  

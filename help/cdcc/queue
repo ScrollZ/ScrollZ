@@ -1,0 +1,14 @@
+Usage: CDCC QUEUE [LIST [filter]]|[REMOVE filter]|[FLUSH]
+  Without arguments it will list number of files in queue. If you pass it
+  LIST it will show you detailed list with filename and who is it sending
+  file to. If filter is passed after LIST, only files that go to nicks
+  matching filter will be listed. Filter can include * and ?. You can
+  remove files from queue by specifying filter after REMOVE. Filter is
+  the same as in CDCC GET. FLUSH will force the queue to be flushed
+  in case it is stuck for some reason.
+  
+See also:
+  CDCC
+  LIMIT
+  CDCC
+  GET

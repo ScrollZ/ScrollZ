@@ -1,0 +1,9 @@
+Usage: MASSV [-F] [-A] [#channel]
+  If passed -F only friends with the V flag set will be voiced.
+  -A will voice all users.
+  
+See also:
+  MOP
+  MREOP
+  MDOP
+  MASSDV

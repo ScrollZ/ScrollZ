@@ -1,0 +1,9 @@
+Usage: MOP [-F] [-A] [#channel]
+  If passed -F only friends with the O flag set will be opped.
+  -A will op all users.
+  
+See also:
+  MDOP
+  MREOP
+  MASSV
+  MASSDV

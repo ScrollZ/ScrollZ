@@ -1,0 +1,24 @@
+Usage: CDCC LOAD [file name]
+  If no file name is given, ScrollZ.offer is used.
+  
+See also:
+  CDCC
+  SAVE
+  CDCC
+  PLIST
+  CDCC
+  PTIME
+  CDCC
+  NTIME
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  NOTICE
+  CDCC
+  REQUEST

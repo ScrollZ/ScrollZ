@@ -1,0 +1,11 @@
+Usage: WALL [#channel] [+nick|-nick] text
+  Words starting with - will be checked against nicks on channel
+  and if matched, those nicks will be excluded from wall-op notice.
+  The same is true for words starting with + except that those
+  nicks will be included in wall-op notice. If channel is omitted,
+  current channel is used.
+  
+See also:
+  SET
+  MAX_WALLOP_NICKS
+  SHOWWALLOP

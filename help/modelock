@@ -1,0 +1,9 @@
+Usage: MODELOCK [#channel mode]
+  Acceptable modes are +aints, -aintskl and +l number. Several channels
+  can be specified at once, separate them with comma. Every channel's
+  name must start with #. Stored modes for all channels are shown if
+  no arguments are given.
+  
+See also:
+  MC
+  MODEUNLOCK

@@ -1,0 +1,10 @@
+Usage: FK filter [reason]
+  Filter may include * and ? (example : *.com or *.uni-??.*).
+  
+See also:
+  K
+  LK
+  MULTK
+  MK
+  RANLK
+  KICKOPS

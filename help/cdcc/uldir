@@ -1,0 +1,7 @@
+Usage: CDCC ULDIR
+  All the files that you send to people will be read from this dir if it
+  is set. Current directory will be used otherwise.
+  
+See also:
+  CDCC
+  DLDIR

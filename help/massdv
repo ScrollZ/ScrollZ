@@ -1,0 +1,9 @@
+Usage: MASSDV [-F] [-A] [#channel]
+  If passed -F friends with the V flag set will not be devoiced.
+  -A will devoice all users.
+  
+See also:
+  MOP
+  MREOP
+  MDOP
+  MASSV

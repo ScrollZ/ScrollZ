@@ -1,0 +1,19 @@
+Usage: CDCC REQUEST text|OFF
+  Just pass it what you'd like leechers to send to you and whenever client
+  receives SEND request, it will send them notice saying what you need.
+  
+See also:
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  PLIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE

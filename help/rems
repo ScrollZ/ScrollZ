@@ -1,0 +1,6 @@
+Usage: REMS server[:port] or REMS server [port]
+  Removes given server from server list
+
+See also:
+  ADDS
+  LISTS

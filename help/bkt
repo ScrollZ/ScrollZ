@@ -1,0 +1,14 @@
+Usage: BKT [-T unban time] nick [#channel] [comment]
+  By default user will be unbanned after 6 seconds. You can override
+  the default setting with -T option.
+  
+See also:
+  BANTYPE
+  BAN
+  BK
+  BKI
+  UNBAN
+  TBAN
+  CDBAN
+  SB
+  DOBANS

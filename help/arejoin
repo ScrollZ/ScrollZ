@@ -1,0 +1,4 @@
+Usage: AREJOIN on channels|off
+  Channels is a list of channels separated by , (like : #te,#chan*).
+  Client will rejoin such channels on kick.
+  

@@ -1,0 +1,6 @@
+Usage: NEWHOST [hostname] || [[#]number]
+  Changes your hostname on the fly and reconnects to server. When no
+  arguments are passed and client was compiled with -DJIMMIE, all
+  available hostnames will be listed. With this option, you can also
+  specify new hostname as [#]number.
+  

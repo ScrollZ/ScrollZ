@@ -1,0 +1,5 @@
+Usage: J [#]channel[,[#]channel2,[#]channel3...]
+  Joins channels
+
+See also:
+  L

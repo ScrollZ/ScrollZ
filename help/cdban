@@ -1,0 +1,13 @@
+Usage: CDBAN
+  Clears bans on current channel
+
+See also:
+  BANTYPE
+  BAN
+  BK
+  BKI
+  BKT
+  UNBAN
+  TBAN
+  SB
+  DOBANS

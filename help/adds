@@ -1,0 +1,6 @@
+Usage: ADDS server[:port] or ADDS server [port]
+  Adds given server to server list
+
+See also:
+  LISTS
+  REMS

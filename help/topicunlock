@@ -1,0 +1,5 @@
+Usage: $TOPICUNLOCK [[#]channel]
+  Resets channel's topic lock
+
+See also:
+  TOPICLOCK

@@ -1,0 +1,9 @@
+Usage: SHOWUSER [-O] [-H] [-V] [-F] [-S] [#channels] filter filter...
+  -O lists channel operators, -H lists halfopped (+h) users, -V lists
+  voiced (+v) users, -F lists friends, and -S lists shitlisted people.
+  You can combine multiple flags together. If you prepend N before O,
+  H, V, F, or S people with that attribute NOT set will match. Filter can
+  include * and ?. Channels is a list of channels separated with ','
+  (it must start with #), it can include * and ?. Default is to list
+  all people on current channel.
+  

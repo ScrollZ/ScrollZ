@@ -1,0 +1,7 @@
+Usage: CHANLOGPREFIX prefix
+  If prefix is a minus ('-') the prefix is removed.
+  
+See also:
+  CHANLOG
+  CHANLOGDIR
+  CHANLOGPOST

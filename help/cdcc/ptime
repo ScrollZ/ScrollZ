@@ -1,0 +1,26 @@
+Usage: CDCC PTIME seconds
+  Sets time to pass between automatic CDCC PLIST output
+
+See also:
+  CDCC
+  PLIST
+  CDCC
+  CHAN
+  CDCC
+  NOTICE
+  CDCC
+  NTIME
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST

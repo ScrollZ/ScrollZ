@@ -1,0 +1,3 @@
+Usage: CDCC IDLE number_of_seconds
+  When set to zero, this function is disabled.
+  

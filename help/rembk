@@ -1,0 +1,10 @@
+Usage: REMBK nick|filter
+  Filter can include * and ? or start with #. If it starts with
+  #, you can use filters like in CDCC GET and TBAN. Example :
+  #-2,4,6-8,12- will delete user entries 1,2,6,7,8 and all entries
+  from 12 on. Entries number are shown in LISTBK.
+  
+See also:
+  ADDBK
+  BKLIST
+  LISTBK

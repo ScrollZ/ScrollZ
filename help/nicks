@@ -1,0 +1,6 @@
+Usage: NICKS number_of_nick_changes
+  Sets nick flood sensor
+
+See also:
+  NICKT
+  NPROT

@@ -1,0 +1,4 @@
+Usage: LOGON on|off
+  If you set it to ON, client will log events to ScrollZ.away
+  even if you are not set away.
+  

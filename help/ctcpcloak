@@ -1,0 +1,6 @@
+Usage: CTCPCLOAK on|off|hide
+  This is useful if you want to make other people think your client is
+  the usual one, not ScrollZ. When set to off, it will act like normal
+  ScrollZ. When set to on, it will sent replys like normal client would.
+  If set to hide no CTCP replies will be sent.
+  

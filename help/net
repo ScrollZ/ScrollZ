@@ -1,0 +1,14 @@
+Usage: NET server [port] [nickname] [username] [realname]
+  Creates a new window and connects it to specified server.
+  Default port is 6667.
+  ^W? Shows you this help screen.
+  ^WK Kills the current window.
+  ^WH Hides the current window.
+  ^WC Clears the current window.
+  ^WL Lists all windows.
+  ^WP Goes to the previous window.
+  ^WN Goes to the next window. 
+  ^WR Reduces window 1 line.
+  ^WG Grows window 1 line.
+  ^W<1-9> Changes to window number <1-9>.
+  

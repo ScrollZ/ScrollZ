@@ -1,0 +1,6 @@
+Usage: NICKT number_of_seconds
+  Sets nick flood timer
+
+See also:
+  NICKS
+  NPROT

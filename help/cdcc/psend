@@ -1,0 +1,27 @@
+Usage: CDCC PSEND [pattern , nick1 nick2]
+  First you have to create pack(s) with CDCC OFFER. Then you
+  enter nick(s) to send pack(s) to (like : nick1 nick2 nick3).
+  Then you enter set of pack(s) to send (for more info on how
+  to choose what pack(s) to send refer to CDCC GET).
+  
+See also:
+  CDCC
+  SEND
+  CDCC
+  RESEND
+  CDCC
+  GET
+  CDCC
+  CLOSE
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PLIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  LIMIT

@@ -1,0 +1,8 @@
+Usage: ARINWIN on|user|both|off
+  If set to on auto-reply is also shown in current window.
+  If set to user auto-reply is shown in window with level USERLOG4.
+  If set to both auto-reply is shown both in current window and
+  in window with level USERLOG4.
+  
+See also:
+  REPWORD

@@ -1,0 +1,3 @@
+Usage: P nick|#channel
+  If no arguments are given, current channel will be pinged
+  

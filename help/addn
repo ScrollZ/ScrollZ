@@ -1,0 +1,8 @@
+Usage: ADDN nick [nick ...]
+  If nick is of form nick!filter where filter is user@host mask, notify
+  will be triggered only by people matching filter. If only nick is
+  used ircII style notify is used.
+  
+See also:
+  REMN
+  LISTN

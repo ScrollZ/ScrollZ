@@ -1,0 +1,6 @@
+Usage: MKILL nick1 nick2 nick3 ... [:reason]
+  Kill multiple nicks at once
+
+See also:
+  WKILL
+  TKILL

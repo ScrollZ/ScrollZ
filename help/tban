@@ -1,0 +1,14 @@
+Usage: TBAN [[#]channel]
+  You can use following format: * for all bans or -2,4,6-8,10- (this
+  would remove bans 1,2,4,6,7,8 and all bans from 10 and on)
+  
+See also:
+  BAN
+  BANTYPE
+  BK
+  BKI
+  BKT
+  UNBAN
+  SB
+  CDBAN
+  DOBANS

@@ -1,0 +1,2 @@
+Usage: RE nick|#channel command
+  Redirects output to nick/channel

@@ -1,0 +1,17 @@
+Usage: KEYS
+  Cursor left/right moves cursor in input line left and right
+  Cursor up/down is for next/previous command
+  PageUp or Alt-P scrolls backward
+  PageDown or Alt-N scrolls forward
+  Control-B toggles bold on/off
+  Control-F shows netsplit information
+  Control-K ban kicks last user to join from current channel
+  Control-N accepts chat connection from last user to offer it
+  Control-R inserts nick that last triggered auto reply
+  Control-T is nick completion
+  Control-V toggles reverse on/off
+  Control-X switches channels
+  Control-_ toggles underline on/off
+  F1 this help
+  F2 will join last channel you have been invited to
+  

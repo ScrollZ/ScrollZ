@@ -1,0 +1,7 @@
+Usage: LISTBK [filter]
+  If no filter is given, * is used
+  
+See also:
+  ADDBK
+  BKLIST
+  REMBK

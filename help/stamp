@@ -1,0 +1,5 @@
+Usage: STAMP on|off|max
+  When set to on, client will output time in front of publics. When set
+  to MAX client will output time in front of a lot more events (kicks,
+  joins, topic changes, mode changes, ...).
+  

@@ -1,0 +1,9 @@
+Usage: REPWORD reply_trigger
+  Considered a good idea to set this to first few letters of your nick.
+  You can set multiple strings that will trigger auto reply, separate
+  them with ','. If string starts with '-' it will cause the line not
+  to match (example: *oo*,-*foo* would match all lines with *oo* except
+  those with *foo*).
+  
+See also:
+  ARINWIN

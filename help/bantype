@@ -1,0 +1,15 @@
+Usage: BANTYPE [N|B|E|H|S]
+  Available types are : N=Normal, B=Better, E=Elite, H=Host and S=Screw
+  Normal : nick!user@host       Better : *!user@host
+  Host   : *!*@host             Screw  : *!*@domain
+  Elite  : n?c?!??er@?o??
+  
+See also:
+  BAN
+  BK
+  BKI
+  BKT
+  UNBAN
+  SB
+  CDBAN
+  DOBANS

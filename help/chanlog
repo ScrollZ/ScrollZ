@@ -1,0 +1,7 @@
+Usage: CHANLOG on channels|off
+  Toggles per channel logging on/off
+
+See also:
+  CHANLOGDIR
+  CHANLOGPOST
+  CHANLOGPREFIX

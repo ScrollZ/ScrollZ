@@ -1,0 +1,13 @@
+Usage: BKI nick [#channel] [comment]
+  Like BK but also ignores user
+
+See also:
+  BANTYPE
+  BAN
+  BK
+  BKT
+  UNBAN
+  TBAN
+  CDBAN
+  SB
+  DOBANS

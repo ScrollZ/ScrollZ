@@ -1,0 +1,29 @@
+Usage: CDCC PLIST [channels]
+  It also displays pack description and number of files in pack
+  and their sizes. Client will automatically do CDCC PLIST every
+  CDCC PTIME seconds on the channels specified with CDCC CHAN. If
+  set to 0, automatic CDCC PLIST is disabled.
+  
+See also:
+  CDCC
+  PTIME
+  CDCC
+  CHAN
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST
+  CDCC
+  LIMIT
+  CDCC
+  STATS

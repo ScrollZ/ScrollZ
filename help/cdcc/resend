@@ -1,0 +1,16 @@
+Usage: CDCC RESEND [pattern1 pattern2 , nick1 nick2]
+  First you enter what file(s) you wanna resend. You can use
+  * and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). Then you
+  have to enter nick(s) (like : nick1 nick2 nick3).
+  
+See also:
+  CDCC
+  SEND
+  CDCC
+  PSEND
+  CDCC
+  GET
+  CDCC
+  CLOSE
+  CDCC
+  LIMIT

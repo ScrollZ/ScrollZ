@@ -1,0 +1,18 @@
+Usage: CDCC SEND [pattern1 pattern2 , nick1 nick2]
+  First you enter what file(s) you wanna send. You can use
+  * and ~ (like : ScrollZ.* test1?.zip ~/irc/irc). If you
+  want to send filenames with spaces in filename surround
+  filename by double quotes ("). Then you have to enter nick(s)
+  (like : nick1 nick2 nick3).
+  
+See also:
+  CDCC
+  RESEND
+  CDCC
+  PSEND
+  CDCC
+  GET
+  CDCC
+  CLOSE
+  CDCC
+  LIMIT

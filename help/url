@@ -1,0 +1,7 @@
+Usage: URL [-CLEAR] [http://...]
+  When you see a highlighted URL, type URL to save it to the notepad.
+  This will only work on the last grabbed URL. You may also give a URL
+  to this command. -CLEAR will clear url buffer.
+  
+See also:
+  URLCATCH

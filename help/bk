@@ -1,0 +1,13 @@
+Usage: BK nick [#channel] [comment]
+  Deops, bans and kicks user from your current channel
+
+See also:
+  BANTYPE
+  BAN
+  BKI
+  BKT
+  UNBAN
+  TBAN
+  CDBAN
+  SB
+  DOBANS

@@ -1,0 +1,25 @@
+Usage: CDCC CHAN channels
+  Channels is a list of channels separated by , you can include * and ?
+  (example : #test,#c*,-#boo). When set to current, PLIST will go to
+  current channel. + in front of channel name means CDCC NOTICE
+  format will be used for that channel.
+  
+See also:
+  CDCC
+  PLIST
+  CDCC
+  PTIME
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST

@@ -1,0 +1,3 @@
+Usage: AUTOOPDELAY time_in_seconds
+  Default auto-op time is 4. Setting this to 0 disables auto-op delay.
+  

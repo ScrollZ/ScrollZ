@@ -1,0 +1,3 @@
+Usage: FTRACE [-COUNT] filter [server]
+  With -COUNT only number of matches is reported.
+  

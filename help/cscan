@@ -1,0 +1,8 @@
+Usage: CSCAN [-H|-R] [[#]channel]
+  Without arguments it will show users for current channel. If -H is
+  passed as first argument, users will be listed in following order:
+  shitlisted users, normal users, voiced users (+v), channel operators
+  and at last your friends. If -R is passed as first argument, the
+  above order is reversed, friends showing up first and shitlisted
+  people showing up last.
+  

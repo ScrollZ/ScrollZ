@@ -1,0 +1,24 @@
+Usage: CDCC NTIME seconds
+  Sets time to pass between automatic CDCC NOTICE output
+
+See also:
+  CDCC
+  NOTICE
+  CDCC
+  PLIST
+  CDCC
+  CHAN
+  CDCC
+  OFFER
+  CDCC
+  DOFFER
+  CDCC
+  PSEND
+  CDCC
+  LIST
+  CDCC
+  LOAD
+  CDCC
+  SAVE
+  CDCC
+  REQUEST

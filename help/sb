@@ -1,0 +1,9 @@
+Usage: SB [[#]channel]
+  If no channel is given it will show bans on current channel.
+  
+See also:
+  BANTYPE
+  BAN
+  BK
+  BKI
+  BKT

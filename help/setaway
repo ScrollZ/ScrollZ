@@ -1,0 +1,11 @@
+Usage: SETAWAY [-C] [-H] [away message]
+  If -C is given, no text will be added to your message. If -H is given,
+  effect is the same as having SHOWAWAY set to OFF. If no message is
+  given default message (from ScrollZ.save) is used.
+  
+See also:
+  AWAYT
+  PLAYBACK
+  REMLOG
+  SETBACK
+  SHOWAWAY

@@ -1,0 +1,7 @@
+Usage: REMW channels word
+  Removes word from your word kicks list
+
+See also:
+  ADDW
+  LISTW
+  KICKOPS

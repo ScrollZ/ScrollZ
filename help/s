@@ -1,0 +1,3 @@
+Usage: S server to use
+  If no server is given default server (from ScrollZ.save) is used.
+  

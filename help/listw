@@ -1,0 +1,7 @@
+Usage: LISTW
+  Lists all the words on your word kicks list
+
+See also:
+  ADDW
+  REMW
+  KICKOPS

@@ -1,0 +1,10 @@
+Usage: NHPROT on channels|off quiet|medium|full
+  When set to OFF, no action will be taken on netsplit hacks. If ON,
+  it will deop people that are not on your friends list. Display type
+  toggles the info that is displayed when netsplit/netjoin occurs. If
+  set to QUIET, it will behave like normal client would. When set to
+  MEDIUM, only netsplit/netjoin will be reported. FULL level is like
+  MEDIUM but will display netsplit hacks too. People that left with
+  netsplit will be stored internally only if display level is set to
+  MEDIUM or FULL.
+  

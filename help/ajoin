@@ -1,0 +1,6 @@
+Usage: AJOIN on|auto channels|off
+  Channels is a list of channels separated by , (like : #te,#chan*).
+  If marked away and is set to "auto", client will try to join channels 
+  you specify every 500 seconds (channels with * and ? will be ignored).
+  When set to on, only auto join on invite will take place.
+  

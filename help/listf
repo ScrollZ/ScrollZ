@@ -1,0 +1,16 @@
+Usage: LISTF [filter]
+  If no filter is given, * is used. If filter starts with # and
+  a number follows it, entries matching given filter will be
+  shown, otherwise only entries where channel matches filter
+  will be shown. Else userhost matching is performed.
+  Can also have #s* as an argument to show
+  users with access in all channels that begin with 's'
+  
+See also:
+  ADDF
+  ADDFFLAG
+  ADDFCHAN
+  REMF
+  REMFFLAG
+  REMFCHAN
+  FRLIST

@@ -1,0 +1,10 @@
+Usage: ADDW channels word [comment]
+  Channels is a list of channels, separated with comma. You can use * and ?
+  in channels. Note that this will kick unopped people only unless you turn
+  on KICKOPS. This won't kick users with +F flag set (no flood checking).
+  You can use * and ? in word, example: ADDW #blek *^C* mIRC sucks
+  
+See also:
+  REMW
+  LISTW
+  KICKOPS

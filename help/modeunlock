@@ -1,0 +1,6 @@
+Usage: MODEUNLOCK [[#]channel]
+  Resets channel's lock mode
+
+See also:
+  MC
+  MODELOCK
