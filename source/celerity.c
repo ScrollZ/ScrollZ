@@ -4,7 +4,7 @@
  *  code:      jeremy roethel [xanth@3sheep.COM]
  *  cosmetics: sasha eysymontt [sage@3Sheep.COM]
  *
- *  $Id: celerity.c,v 1.1 1998-10-31 18:27:27 f Exp $
+ *  $Id: celerity.c,v 1.2 1999-06-14 17:40:29 f Exp $
  */
 /*
  * Cstatusbar()		- /set STATUSBAR #
@@ -59,7 +59,7 @@ int n;
 	    sprintf(newbar2,"%y1 %%1 %%> %%S%%H%%B%%I%%O%%F%%W l/%%2 ");
 	    sprintf(newbar3,"%y1 %%U [lj:%%3] %%> [DCC:s%%6:r%%5:o%%4] ");
 	}
-	else { 		/* bar 1 is the default 
+	else { 		*//* bar 1 is the default 
 	    sprintf(newbar0,"%y1 [OperVision] %%> %%!S ");
 	    sprintf(newbar1,"%y1 %%T %%*%%@%y3%%N %%#%%A %%Q %%> %%M %%1 ");
 	    sprintf(newbar2,"%y1 %%C%%+ %%U %%> %%S%%H%%B%%I%%O%%F %%W l/%%2 ");
