@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.4 1998-09-29 16:33:07 f Exp $
+ * $Id: ctcp.c,v 1.5 1998-10-07 20:32:49 f Exp $
  */
 
 #include "irc.h"
@@ -1506,9 +1506,6 @@ do_ctcp(from, to, str)
 /************************ PATCHED by Flier ***************************/
         char    *mynick=get_server_nickname(from_server);
         char    tmpbuf1[mybufsize/2];
-#ifdef JM
-        int     parseit=server_list[parsing_server_index].ctcp_flood_time?0:1;
-#endif
 /*********************************************************************/
 
 	flag = double_ignore(from, FromUserHost, IGNORE_CTCPS);
@@ -1516,15 +1513,7 @@ do_ctcp(from, to, str)
 	if (!in_ctcp_flag)
 		in_ctcp_flag = 1;
 	*ctcp_buffer = '\0';
-/**************************** PATCHED by Flier ******************************/
-        /*while ((cmd = index(str, CTCP_DELIM_CHAR)) != NULL)*/
-#ifdef JM
-        if (!parseit) strcpy(CTCP_Reply_Buffer,"a");
-        while (parseit && (cmd=index(str,CTCP_DELIM_CHAR))!=NULL)
-#else
-        while ((cmd=index(str,CTCP_DELIM_CHAR))!=NULL)
-#endif
-/****************************************************************************/
+        while ((cmd = index(str, CTCP_DELIM_CHAR)) != NULL)
 	{
 		if (messages > 3)
 			break;
@@ -1712,11 +1701,6 @@ do_ctcp(from, to, str)
                         if (no_flood == 0 || no_reply == 0)
                         {
 				cur_serv->ctcp_flood_time = 0;
-/**************************** PATCHED by Flier ******************************/
-#ifdef JM
-	                        if (parseit)
-#endif
-/****************************************************************************/
 				send_ctcp(ctcp_type[CTCP_NOTICE], from, NULL, "%s", CTCP_Reply_Buffer);
 			}
                 }
@@ -1724,11 +1708,6 @@ do_ctcp(from, to, str)
 	}
 	if (*str)
 		strcat(ctcp_buffer, str);
-/**************************** PATCHED by Flier ******************************/
-#ifdef JM
-        if (!parseit) *ctcp_buffer='\0';
-#endif
-/****************************************************************************/
 	return (ctcp_buffer);
 }
 
