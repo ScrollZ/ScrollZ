@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.110 2001-11-01 20:31:46 f Exp $
+ * $Id: edit6.c,v 1.111 2001-11-17 11:13:40 f Exp $
  */
 
 #include "irc.h"
@@ -97,6 +97,8 @@
 #include "parse.h"
 #include "myvars.h" 
 #include "whowas.h"
+
+#define SZMAXCRYPTSIZE 304
 
 void PrintUsage _((char *));
 #ifdef EXTRAS
@@ -2258,6 +2260,9 @@ char *user;
 
     if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
                                             !REMOVE_FROM_LIST))) {
+        /* cut long messages before irc server does it so we don't have
+           problems at the other end during decryption */
+        if (strlen(message)>SZMAXCRYPTSIZE) message[SZMAXCRYPTSIZE]='\0';
         return(EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1));
     }
     return(0);
