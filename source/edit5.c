@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.74 2001-08-31 15:40:58 f Exp $
+ * $Id: edit5.c,v 1.75 2001-09-10 21:24:53 f Exp $
  */
 
 #include "irc.h"
@@ -877,23 +877,28 @@ int  netsplit;
         server=new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
 #ifdef CELECOSM
-        sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s%s%s]%s - ",
-                CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color3,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
+        if (Stamp<2) sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s%s%s]%s - ",
+                             CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
+                             CmdsColors[COLNETSPLIT].color3,Colors[COLOFF],
+                             CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF],
+                             CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
+        else sprintf(tmpbuf2,"%snetsplit%s - ",CmdsColors[COLNETSPLIT].color1,Colors[COLOFF]);
 #else  /* CELECOSM */
-        sprintf(tmpbuf2,"%sNetsplit detected%s at %s%s%s : ",
+        sprintf(tmpbuf2,"%sNetsplit detected%s%s%s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+                Stamp<2?" at ":empty_string,
+                CmdsColors[COLNETSPLIT].color2,
+                Stamp<2?update_clock(0,0,GET_TIME):empty_string,
+                Colors[COLOFF]);
 #endif /* CELECOSM */
         say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
             CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
             CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
             CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
 #else  /* WANTANSI */
-        say("Netsplit detected at %s : [%s <- %s]",
-            update_clock(0,0,GET_TIME),tmpstr,server);
+        say("Netsplit detected%s%s : [%s <- %s]",
+            Stamp<2?" at ":empty_string,
+            Stamp<2?update_clock(0,0,GET_TIME):empty_string,tmpstr,server);
 #endif /* WANTANSI */
 #ifdef CELECOSM
         say("hit control-f to view split clients");

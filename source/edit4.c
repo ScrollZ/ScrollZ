@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.75 2001-09-10 21:16:10 f Exp $
+ * $Id: edit4.c,v 1.76 2001-09-10 21:24:53 f Exp $
  */
 
 #include "irc.h"
@@ -394,16 +394,20 @@ char *channel;
             tmpstr=tmpbuf1;
             server=new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
-            sprintf(tmpbuf2,"%sNetjoined%s at %s%s%s : ",
+            sprintf(tmpbuf2,"%sNetjoined%s%s%s%s%s : ",
                     CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                    CmdsColors[COLNETSPLIT].color2,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+                    Stamp<2?" at ":empty_string,
+                    CmdsColors[COLNETSPLIT].color2,
+                    Stamp<2?update_clock(0,0,GET_TIME):empty_string,
+                    Colors[COLOFF]);
             say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
                 CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
 #else
-            say("Netjoined at %s : [%s <- %s]",
-                update_clock(0,0,GET_TIME),tmpstr,server);
+            say("Netjoined%s%s : [%s <- %s]",
+                Stamp<2?" at ":empty_string,
+                Stamp<2?update_clock(0,0,GET_TIME):empty_string,tmpstr,server);
 #endif
         }
     }
