@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.10 1999-01-17 10:16:20 f Exp $
+ * $Id: dcc.c,v 1.11 1999-01-22 18:22:12 f Exp $
  */
 
 #include "irc.h"
@@ -797,12 +797,22 @@ dcc_open(Client)
 		{
 			/* patch to NOT send pathname accross */
 			char	*nopath;
+/**************************** PATCHED by Flier ******************************/
+                        /* convert spaces to _ so we can send files with spaces */
+                        char    *nospaces=(char *) 0;
+/****************************************************************************/
 
 			if ((Client->flags & DCC_FILEOFFER) &&
 			    (nopath = rindex(Client->description, '/')))
 				nopath++;
 			else
 				nopath = Client->description;
+/**************************** PATCHED by Flier ******************************/
+                        malloc_strcpy(&nospaces,nopath);
+                        nopath=nospaces;
+                        for (;nospaces && *nospaces;nospaces++)
+                            if (*nospaces==' ') *nospaces='_';
+/****************************************************************************/
 
 			/*
 			 * XXX
@@ -824,6 +834,9 @@ dcc_open(Client)
 			message_from(user, LOG_DCC);
 			say("Sent DCC %s request to %s", Type, user);
 			message_from((char *) 0, LOG_CURRENT);
+/**************************** PATCHED by Flier ******************************/
+                        new_free(&nopath);
+/****************************************************************************/
 		}
 		/*
 		 * Is this where dcc times are fucked up??  - phone
@@ -1266,7 +1279,10 @@ dcc_filesend(args)
 	}
 #endif
 	if (0 == (user = next_arg(args, &args)) ||
-	    0 == (filename = next_arg(args, &args)))
+/**************************** PATCHED by Flier ******************************/
+	    /*0 == (filename = next_arg(args, &args)))*/
+	    0 == (filename = new_next_arg(args, &args)))
+/****************************************************************************/
 	{
 		say("You must supply a nickname and filename for DCC SEND");
 		return;
@@ -1361,7 +1377,7 @@ dcc_resend(args)
 #endif
 
 	if (0 == (user = next_arg(args, &args)) ||
-	    0 == (filename = next_arg(args, &args)))
+	    0 == (filename = new_next_arg(args, &args)))
 	{
 		say("You must supply a nickname and filename for DCC RESEND");
 		return;
