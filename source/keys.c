@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.7 2000-09-24 17:10:34 f Exp $
+ * $Id: keys.c,v 1.8 2001-03-20 21:22:33 f Exp $
  */
 
 #include "irc.h"
@@ -53,7 +53,6 @@
 #include "myvars.h"
 
 extern void InsertAutoReply _((u_int, char *));
-extern void InsertNick _((u_int, char *));
 extern void LastJoinerKick _((u_int, char *));
 extern void AcceptLastChat _((u_int, char *));
 extern void HandleTabNext _((u_int, char *));
@@ -815,7 +814,6 @@ KeyMapNames FAR key_names[] =
 	/*{ "YANK_FROM_CUTBUFFER",	input_yank_cut_buffer }*/
 	{ "YANK_FROM_CUTBUFFER",	input_yank_cut_buffer },
 	{ "INSERT_AUTOREPLY",	        InsertAutoReply },
-        { "NICK_COMPLETION",            InsertNick },
         { "LASTJOINER_KICK",            LastJoinerKick },
         { "ACCEPT_LAST_CHAT",           AcceptLastChat },
 	{ "INSERT_TABKEY_NEXT",	        HandleTabNext },
@@ -862,10 +860,7 @@ KeyMap	FAR keys[] =
 	{ INSERT_AUTOREPLY,    	0, 0,	(char *) 0 },
 /****************************************************************************/
 	{ TOGGLE_STOP_SCREEN,	0, 0,	(char *) 0 },
-/**************************** PATCHED by Flier ******************************/
-	/*{ TRANSPOSE_CHARACTERS,	0, 0,	(char *) 0 },*/
-	{ NICK_COMPLETION,	0, 0,	(char *) 0 },
-/****************************************************************************/
+	{ TRANSPOSE_CHARACTERS,	0, 0,	(char *) 0 },
 	{ ERASE_LINE,		0, 0,	(char *) 0 },
 	{ SELF_INSERT,		0, 0,	(char *) 0 },
 /**************************** PATCHED by Flier ******************************/

@@ -55,7 +55,6 @@
  NotifyModeToggle    Toggles notify mode brief/verbose
  PingMe              Pings yourself
  NotePad             Lets you write down into a file
- InsertNick          Inserts next nick to input line
  URLCatchToggle      Toggles URL catcher on/off
  PrintLinksHead      Prints head of /LINKS
  CountAnsiInput      How many ansi chars are there in input line
@@ -74,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.57 2001-03-12 18:55:09 f Exp $
+ * $Id: edit5.c,v 1.58 2001-03-20 21:22:33 f Exp $
  */
 
 #include "irc.h"
@@ -185,7 +184,6 @@ static int listcount=0;
 #endif
 
 extern int CO;
-extern NickList *nickcompl;
 
 /* Returns pointer to friends list with matching entry */
 struct friends *FindMatch(userhost,channel)
@@ -2894,76 +2892,6 @@ char *subargs;
     umask(oldumask);
 }
 #endif
-
-/* Insert next nick completion */
-void InsertNick() {
-    int  len;
-    char *tmpstr;
-    char *channel=NULL;
-    char tmpbuf[mybufsize];
-    Screen *curscr=current_screen;
-    ChannelList *chan;
-
-    if (!CurrentNick) {
-        tmpstr=&(curscr->input_buffer[curscr->buffer_pos]);
-        if (*tmpstr==' ') tmpstr--;
-        while (*tmpstr!=' ' && tmpstr!=&curscr->input_buffer[curscr->buffer_min_pos])
-            tmpstr--;
-        if (*tmpstr==' ') tmpstr++;
-        strcpy(tmpbuf,tmpstr);
-        tmpstr=tmpbuf;
-        while (*tmpstr && *tmpstr!=' ') tmpstr++;
-        *tmpstr='\0';
-        malloc_strcpy(&CurrentNick,tmpbuf);
-        nickcompl=NULL;
-    }
-    len=strlen(CurrentNick);
-    /* option to insert channel name */
-    if (*CurrentNick=='#') {
-        chan=server_list[curr_scr_win->server].chan_list;
-        while (chan && my_strnicmp(CurrentNick,chan->channel,len)) chan=chan->next;
-        if (chan && !my_strnicmp(CurrentNick,chan->channel,len)) {
-            inSZNickCompl=1;
-            while (curscr->buffer_pos>curscr->buffer_min_pos  &&
-                   curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
-                input_backspace(0,(char *) 0);
-            }
-            inSZNickCompl=0;
-            for (tmpstr=chan->channel;*tmpstr;tmpstr++) 
-                input_add_character(*tmpstr,NULL);
-        }
-        new_free(&CurrentNick);
-        nickcompl=NULL;
-    }
-    else {
-        if (nickcompl && !(nickcompl->nick)) return;
-        if (!(channel=get_channel_by_refnum(0))) return;
-        if (!(chan=lookup_channel(channel,from_server,0))) return;
-        while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
-            nickcompl=nickcompl->next;
-        if (!nickcompl) {
-            nickcompl=chan->nicks;
-            while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
-                nickcompl=nickcompl->next;
-        }
-        if (nickcompl && !my_strnicmp(CurrentNick,nickcompl->nick,len)) {
-            inSZNickCompl=1;
-            while (curscr->buffer_pos>curscr->buffer_min_pos  &&
-                   curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
-                input_backspace(0,(char *) 0);
-            }
-            inSZNickCompl=0;
-            for (tmpstr=nickcompl->nick;*tmpstr;tmpstr++) 
-                input_add_character(*tmpstr,NULL);
-            nickcompl=nickcompl->next;
-            return;
-        }
-        if (!nickcompl) {
-            new_free(&CurrentNick);
-            nickcompl=NULL;
-        }
-    }
-}
 
 /* Toggles URL catcher on/off */
 void URLCatchToggle(command,args,subargs)

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.49 2001-02-26 17:32:12 f Exp $
+ * $Id: irc.c,v 1.50 2001-03-20 21:22:33 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -568,7 +568,6 @@ char VersionInfo[] = {
 #endif
     '\0'};
 /*****************************/
-struct NickList *nickcompl=NULL;
 struct NickList *tabnickcompl=NULL;
 #ifdef WANTANSI
 struct colorstr CmdsColors[NUMCMDCOLORS];
