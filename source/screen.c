@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.6 1999-02-15 21:20:12 f Exp $
+ * $Id: screen.c,v 1.7 1999-02-28 20:14:13 f Exp $
  */
 
 #include "irc.h"
@@ -1409,10 +1409,12 @@ split_up_line(str)
 		if (col >= CO)
 		{
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
                         while (*ptr && vt100Decode(*ptr)) {
                             lbuf[pos++] = *ptr++;
                             nd_cnt++;
                         }
+#endif
 /****************************************************************************/
 			/* one big long line, no word breaks */
 			if (word_break == 0)
