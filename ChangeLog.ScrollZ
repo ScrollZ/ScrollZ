@@ -74,6 +74,14 @@ ScrollZ v1.9.1
     ! compile using Apple GCC and IBM XLC (fix by TrN)
     ! crash when orignick kicks in and there are no servers in the
       list (reported by taliz)
+    ! annoying bug where a character with hex code 0xff was entered
+      in input prompt when input prompt was empty and a value of
+      DISPLAY_ANSI variable has changed
+    + support for numeric 379 (channel redirects on Freenode,
+      suggested by nms)
+    ! character translation screw up when scrolling back (ircII bug,
+      reported by KOBAN)
+    + translation tables to the tarball
 
 ------------------------------------------------------------------------------
 
