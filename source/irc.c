@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.103 2003-04-27 18:37:09 f Exp $
+ * $Id: irc.c,v 1.104 2003-04-29 15:43:36 f Exp $
  */
 
 #define IRCII_VERSION	"20020310"	/* YYYYMMDD */
@@ -473,6 +473,7 @@ struct timeval PingSent;
 #else
 time_t PingSent=0;
 #endif
+time_t LastTS=0;
 /****** Coded by Zakath ******/
 char VersionInfo[] = {
 #ifdef WANTANSI

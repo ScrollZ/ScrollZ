@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.23 2003-04-15 20:11:34 f Exp $
+ * $Id: vars.c,v 1.24 2003-04-29 15:43:36 f Exp $
  */
 
 #include "irc.h"
@@ -58,6 +58,7 @@
 
 extern char *HelpPathVar;
 extern char *TimeStampString;
+extern time_t LastTS;
 /****************************************************************************/
 
 /* IrcVariable: structure for each variable in the variable table */
@@ -1027,15 +1028,18 @@ char *tsformat;
 {
     int flag = 0;
     char *format = get_string_var(STAMP_FORMAT);
+    time_t timenow;
 #ifdef HAVE_STRFTIME
     char tmpstr[mybufsize / 2 + 1];
     struct tm *tm;
-    time_t timenow;
 #endif /* HAVE_STRFTIME */
 
+    timenow = time(NULL);
+    if (timenow <= LastTS)
+        return;
+    LastTS = timenow;
     new_free(&TimeStampString);
 #ifdef HAVE_STRFTIME
-    timenow = time(NULL);
     tm = localtime(&timenow);
     strftime(tmpstr, sizeof(tmpstr) - 1, format ? format : empty_string, tm);
     TimeStampString = expand_alias(NULL, tmpstr, empty_string, &flag, NULL);
