@@ -355,4 +355,7 @@
 
 /* Define this if you want irc oper stuff (not OperVision!) */
 #undef OPER
+
+/* Define this if you want ogre's cosmetics in OperVision */
+#define OGRE
 /****************************************************************************/
