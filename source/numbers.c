@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.15 1999-08-07 17:06:35 f Exp $
+ * $Id: numbers.c,v 1.16 1999-09-14 18:06:00 f Exp $
  */
 
 #include "irc.h"
@@ -696,6 +696,11 @@ cannot_join_channel(from, ArgList)
 		case 476:
 			strcat(buffer, " (Bad channel mask)");
 			break;
+/**************************** PATCHED by Flier ******************************/
+		case 477:
+			strcat(buffer, " (You must first identify yourself with NickServ to join that channel)");
+                        break;
+/****************************************************************************/
 		}
         	put_it("%s %s", numeric_banner(), buffer);
 	}
@@ -1176,6 +1181,9 @@ numbered_command(from, comm, ArgList)
  	case 474:		/* #define ERR_BANNEDFROMCHAN   474 */
  	case 475: 		/* #define ERR_BADCHANNELKEY    475 */
  	case 476:		/* #define ERR_BADCHANMASK      476 */
+/**************************** PATCHED by Flier ******************************/
+ 	case 477:
+/****************************************************************************/
  		cannot_join_channel(from, ArgList);
  		break;
 
