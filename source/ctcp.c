@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.17 1999-04-19 17:04:53 f Exp $
+ * $Id: ctcp.c,v 1.18 1999-04-27 10:47:13 f Exp $
  */
 
 #include "irc.h"
@@ -463,13 +463,13 @@ char *args;
             return(NULL);
         }
         if (!CheckJoiners(from,channel,from_server,chan)) {
-            send_to_server("INVITE %s %s",from,channel);
             if (chan->key) sprintf(tmpbuf1," (key is %s)",chan->key);
             else *tmpbuf1='\0';
 #ifndef VILAS
             send_to_server("NOTICE %s :You have been ctcp invited to %s%s -ScrollZ-",
                            from,channel,tmpbuf1);
 #endif
+            send_to_server("INVITE %s %s",from,channel);
         }
     }
     else notchanop(from,channel);
