@@ -6,10 +6,27 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
-    - debian subdirectory because it is provided by Debian
-    ! default compile time flags in defs.h.in
+    - debian subdirectory
+    ~ default compile time flags in defs.h.in
     + man page (contributed by Debian maintainer Mike Markley)
     ~ distclean now removes auto generated header files
+    ~ prefix/lib to prefix/share/scrollz
+    ! compile without -DWANTANSI
+    + EXTPUB to show status on public messages (@/+ in front of nick,
+      requested by entropy)
+    + WINDOW SIZE (requested by MadHack)
+    ~ changed .ircquick to .scrollzquick
+    + permanent ignores (the ones set with IGNORE command) are now saved
+      to ScrollZ.save (requested by ogre)
+    ! channel settings not being set upon join from .scrollzrc (thanks
+      to gamo for figuring this out)
+    + define for alphabetically sorted nicks in CSCAN to defs.h
+    ~ AUTORECON crash (reported by Lukasz Grochal)
+    - AUTORECON since it is handled by a SET
+    + anonymous channel topic handling on hybrid7 (reported by braneded)
+    + numeric 308 on hybrid7 (patch submitted by braneded)
+    ! -DCELECOSM without -DCELE compile (reported by braneded)
+    ! numeric 477 for IRCNet
 
 ------------------------------------------------------------------------------
 
