@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.74 2001-08-31 15:37:55 f Exp $
+ * $Id: edit4.c,v 1.75 2001-09-10 21:16:10 f Exp $
  */
 
 #include "irc.h"
@@ -1967,18 +1967,21 @@ char *text;
         sprintf(tmpbuf1,"[sign%son%s]  %s%s%s %s ",
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
                 colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
-        put_it("%s %s<%s%s%s>",CelerityNtfy,tmpbuf1,
-               CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        if (Stamp<2) put_it("%s %s<%s%s%s>",CelerityNtfy,tmpbuf1,
+                            CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        else say("%s",tmpbuf1);
 #else  /* CELECOSM */
         sprintf(tmpbuf1,"Sign%sOn%s detected: %s%s%s %s ",
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
                 colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
-        put_it("%s %s[%s%s%s]",CelerityNtfy,tmpbuf1,
-               CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        if (Stamp<2) put_it("%s %s[%s%s%s]",CelerityNtfy,tmpbuf1,
+                            CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        else say("%s",tmpbuf1);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-        put_it("%s SignOn detected: %s (%s) [%s]",CelerityNtfy,
-               wistuff->nick,tmpbuf1,update_clock(0,0,GET_TIME));
+        if (Stamp<2) put_it("%s SignOn detected: %s (%s) [%s]",CelerityNtfy,
+                            wistuff->nick,tmpbuf1,update_clock(0,0,GET_TIME));
+        else say("SignOn detected: %s (%s)",wistuff->nick,tmpbuf1);
 #endif /* WANTANSI */
     }
     sprintf(tmpbuf1,"Signon by %s (%s@%s) detected",wistuff->nick,wistuff->user,
@@ -1995,18 +1998,25 @@ time_t timenow;
 
 #ifdef WANTANSI
 #ifdef CELECOSM
-    put_it("%s [sign%soff%s]  %s%s%s <%s%s%s>",CelerityNtfy,
-           CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    if (Stamp<2) put_it("%s [sign%soff%s]  %s%s%s <%s%s%s>",CelerityNtfy,
+                        CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    else say("[sign%soff%s]  %s%s%s",
+             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
+             CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF]);
 #else  /* CELECOSM */
-    put_it("%s Sign%sOff%s detected: %s%s%s [%s%s%s]",CelerityNtfy,
-           CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
-           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    if (Stamp<2) put_it("%s Sign%sOff%s detected: %s%s%s [%s%s%s]",CelerityNtfy,
+                        CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    else say("Sign%sOff%s detected: %s%s%s",
+             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
+             CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-    put_it("%s SignOff detected: %s [%s]",CelerityNtfy,nick,update_clock(0,0,GET_TIME));
+    if (Stamp<2) put_it("%s SignOff detected: %s [%s]",CelerityNtfy,nick,update_clock(0,0,GET_TIME));
+    else say("SignOff detected: %s",nick);
 #endif /* WANTANSI */
     sprintf(tmpbuf1,"Signoff by %s detected",nick);
     AwaySave(tmpbuf1,SAVENOTIFY);
@@ -2038,21 +2048,24 @@ int isfriend;
     else colnick=CmdsColors[COLNOTIFY].color1;
     ColorUserHost(userhost,CmdsColors[COLNOTIFY].color2,tmpbuf2,1);
 #ifdef CELECOSM
-    sprintf(tmpbuf1,"%s [sign%soff%s]  %s%s%s %s",CelerityNtfy,
+    sprintf(tmpbuf1,"[sign%soff%s]  %s%s%s %s",
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
             colnick,nick,Colors[COLOFF],tmpbuf2);
-    put_it("%s <%s%s%s>",tmpbuf1,
-           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    if (Stamp<2) put_it("%s %s <%s%s%s>",CelerityNtfy,tmpbuf1,
+                        CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    else say("%s",tmpbuf1);
 #else  /* CELECOSM */
-    sprintf(tmpbuf1,"%s Sign%sOff%s detected: %s%s%s %s",CelerityNtfy,
+    sprintf(tmpbuf1,"Sign%sOff%s detected: %s%s%s %s",
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
             colnick,nick,Colors[COLOFF],tmpbuf2);
-    put_it("%s [%s%s%s]",tmpbuf1,
-           CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    if (Stamp<2) put_it("%s %s [%s%s%s]",CelerityNtfy,tmpbuf1,
+                        CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+    else say("%s",tmpbuf1);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-    put_it("%s SignOff detected: %s (%s) [%s]",CelerityNtfy,
-           nick,userhost,update_clock(0,0,GET_TIME));
+    if (Stamp<2) put_it("%s SignOff detected: %s (%s) [%s]",CelerityNtfy,
+                        nick,userhost,update_clock(0,0,GET_TIME));
+    else say("SignOff detected: %s (%s)",nick,userhost);
 #endif /* WANTANSI */
     sprintf(tmpbuf1,"Signoff by %s (%s) detected",nick,userhost);
     AwaySave(tmpbuf1,SAVENOTIFY);
