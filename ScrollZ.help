@@ -68,14 +68,16 @@ with '='. Use '-' as first character in key if you want to communicate
 with users of ScrollZ v1.8j and older. Whenever encrypted communication
 is used publics and private messages are prepended with [!]. DCC CHAT
 messages are encrypted if nick is enclosed in *.
+:FILINE        Does STATS I with filter
+Usage $3FILINE filter$0 [$3server$0]
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
 Usage $3FKLINE$0 [$3-TEMP$0] $3filter$0 [$3server$0]
 When $3-TEMP$0 is specified $4STATS k$0 is sent instead of usual $4STATS K$0.
 On some servers STATS k returns only temporary K: lines.
-:FILINE        Does STATS I with filter
-Usage $3FILINE filter$0 [$3server$0]
+:FTRACE        Does TRACE with filter
+Usage $3FTRACE filter$0 [$3server$0]
 :IG            Ignores user
 Usage $3IG$0 [$3-T time$0] $3nick$0 [$3type$0]
 This will ignore by user@domain. If no type is given it will ignore $4ALL$0.
@@ -674,6 +676,9 @@ Usage $3SHOWNICK on$0|$3off$0
 If set to on, client will show your nick when sending out public messages
 like it does for other people. When set to off, it will act like plain
 vanilla client.
+:SHOWSIGN      Toggles whether to display signoff message in all channels
+When set to $3ON$0 signoff message for user will be shown for all channels
+user was member of.
 :STAMP         Toggles time stamping on publics on/off
 Usage $3STAMP on$0|$3off$0|$3max$0
 When set to on, client will output time in front of publics. When set
