@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.5 1998-11-01 12:02:56 f Exp $
+ * $Id: config.h,v 1.6 1999-02-17 17:57:53 f Exp $
  */
 
 #ifndef __config_h_
@@ -237,7 +237,7 @@
 #define DEFAULT_STATUS_USER7 ""
 #define DEFAULT_STATUS_USER8 ""
 #define DEFAULT_STATUS_USER9 ""
-#define DEFAULT_STATUS_CHANNELCOUNT "(O:%o N:%n T:%t)"
+#define DEFAULT_STATUS_CHANNELCOUNT "[O:%o N:%n T:%t]"
 #define DEFAULT_STATUS_UPTIME "[up %dd %hh %mm]"
 
 #define DEFAULT_TRUNCATE_PUBLIC_CHANNEL 1
@@ -307,7 +307,7 @@
 
 #define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
 #define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
-#define DEFAULT_STATUS_CHANNELCOUNT "(O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6)"
+#define DEFAULT_STATUS_CHANNELCOUNT "[O:%y8%o%y6 N:%y8%n%y6 T:%y8%t%y6]"
 #define DEFAULT_STATUS_CLOCK "[time %y7%T%y6]"
 
 #if defined(OPERVISION)
