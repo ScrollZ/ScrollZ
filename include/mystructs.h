@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.2 1998-10-31 18:26:02 f Exp $
+ * $Id: mystructs.h,v 1.3 1998-11-15 20:14:46 f Exp $
  */
 
 /* don't change!! */
@@ -130,6 +130,12 @@ struct spingstr {
     char *servername;
     long sec;
     long usec;
+};
+
+struct encrstr {
+    struct encrstr *next;
+    char *user;
+    char *key;
 };
 
 #ifdef WANTANSI
