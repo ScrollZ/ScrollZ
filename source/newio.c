@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.8 2001-12-18 20:17:14 f Exp $
+ * $Id: newio.c,v 1.9 2001-12-22 18:03:54 f Exp $
  */
 
 #include "irc.h"
@@ -361,11 +361,11 @@ dgets(str, len, des, specials, decrypt)
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
 int SSL_dgets(str, len, des, specials, ssl_fd)
-	char	*str;
-	int	len;
-	int	des;
-	char	*specials;
-	SSL	*ssl_fd;
+char	*str;
+int	len;
+int	des;
+char	*specials;
+SSL	*ssl_fd;
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -376,6 +376,8 @@ int SSL_dgets(str, len, des, specials, ssl_fd)
 	int	i,
 		j;
 
+        if (!ssl_fd)
+            return(0);
 	init_io();
 	if (io_rec[des] == (MyIO *) 0)
 	{
@@ -412,16 +414,8 @@ int SSL_dgets(str, len, des, specials, ssl_fd)
 				dgets_errno = 0;
 				return (-1);
 			default:
-#ifdef ESIX
-				if (io_rec[des]->flags & IO_SOCKET)
-					c = recv(des, io_rec[des]->buffer +
-					  io_rec[des]->write_pos,
-					  IO_BUFFER_SIZE-io_rec[des]->write_pos,
-					  0);
-				else
-#endif /* ESIX */
-					c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
-					             IO_BUFFER_SIZE-io_rec[des]->write_pos);
+				c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
+				             IO_BUFFER_SIZE-io_rec[des]->write_pos);
 /**************************** PATCHED by Flier ******************************/
 #ifdef BNCCRYPT
                                 if (decrypt) DecryptBNC(io_rec[des]->buffer+io_rec[des]->write_pos,c);
