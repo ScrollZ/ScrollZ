@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: menu.c,v 1.4 2000-08-14 20:38:13 f Exp $
+ * $Id: menu.c,v 1.5 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -131,7 +131,7 @@ load_menu(FileName)
 	MenuOption **NewOptions;
 	char	*line, *command;
 	char	*name, *func;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	linenum = 0;
 	int	CurTotal = 0;
 	int	FuncNum;

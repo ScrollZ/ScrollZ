@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.12 2000-08-14 20:38:14 f Exp $
+ * $Id: screen.c,v 1.13 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -274,7 +274,7 @@ window_redirect(who, server)
 	char	*who;
 	int	server;
 {
-	char	buf[BIG_BUFFER_SIZE];
+	char	buf[BIG_BUFFER_SIZE+1];
 
 	if (who)
 		sprintf(buf, "%04d%s", server, who);
@@ -1573,7 +1573,7 @@ add_to_screen(incoming)
 {
 	int	flag;
 	Window	*tmp;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 /**************************** PATCHED by Flier ******************************/
         char tmpbuf[BIG_BUFFER_SIZE+1];
 #ifdef WANTANSI
@@ -1950,7 +1950,7 @@ create_additional_screen()
 	char	*xterm = (u_char *) 0;
 	char	*def_xterm = get_string_var(XTERM_PATH_VAR);
 	char	*p, *q;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	ircxterm_num;
 	char	*p, *q;
 	int	i;

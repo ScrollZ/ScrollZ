@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.22 2000-08-14 20:38:14 f Exp $
+ * $Id: server.c,v 1.23 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -123,7 +123,7 @@ close_server(server_index, message)
 	int	server_index;
 	char	*message;
 {
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	i,
 		min,
 		max;
@@ -1048,7 +1048,7 @@ connect_to_server_process(server_name, port, nick)
 	char	*path,
 		*name = (char *) 0,
 		*s;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	old_timeout;
 
 	path = IRCIO_PATH;
@@ -1447,7 +1447,7 @@ read_server_file()
 	FILE *fp;
 	char format[11];
 	char *file_path = (char *) 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	malloc_strcpy(&file_path, irc_lib);
 	malloc_strcat(&file_path, SERVERS_FILE);
@@ -1777,7 +1777,7 @@ flush_server()
 	int	flushing = 1;
 	int	des;
 	int	old_timeout;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if ((des = server_list[from_server].read) == -1)
 		return;
@@ -2315,7 +2315,7 @@ create_server_list()
 {
 	int	i;
 	char	*value = (char *) 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	*buffer = '\0';
 	for (i = 0; i < number_of_servers; i++)

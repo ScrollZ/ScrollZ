@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.14 2000-08-19 16:36:05 f Exp $
+ * $Id: status.c,v 1.15 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1363,7 +1363,7 @@ status_server(window)
 	char	*ptr = NULL,
 		*rest,
 		*name;
-	char	lbuf[BIG_BUFFER_SIZE];
+	char	lbuf[BIG_BUFFER_SIZE+1];
 
 	if (connected_to_server != 1)
 	{
@@ -1408,7 +1408,7 @@ status_group(window)
 
 	if (window->server_group && group_format)
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		sprintf(lbuf, group_format, find_server_group_name(window->server_group));
 		malloc_strcpy(&ptr, lbuf);
@@ -1430,7 +1430,7 @@ status_query_nick(window)
 
 	if (window->query_nick && query_format)
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 /**************************** PATCHED by Flier ******************************/
 		/*sprintf(lbuf, query_format, window->query_nick);*/
@@ -1486,7 +1486,7 @@ status_notify_windows(window)
 	}
 	if (doneone && notify_format)
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		sprintf(lbuf, notify_format, buf2);
 		malloc_strcpy(&ptr, lbuf);
@@ -1506,7 +1506,7 @@ status_clock(window)
 	    (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    (window == window->screen->current_window)))
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 		char	time_str[16];
 
 		sprintf(lbuf, clock_format, update_clock(time_str, 16, GET_TIME));
@@ -1529,7 +1529,7 @@ status_mode(window)
 		mode = get_channel_mode(window->current_channel,window->server);
 		if (mode && *mode && mode_format)
 		{
-			char	lbuf[BIG_BUFFER_SIZE];
+			char	lbuf[BIG_BUFFER_SIZE+1];
 
 			sprintf(lbuf, mode_format, mode);
 			malloc_strcpy(&ptr, lbuf);
@@ -1568,7 +1568,7 @@ status_umode(window)
 		*c++ = '\0';
 		if (*localbuf != '\0' && umode_format)
 		{
-			char	lbuf[BIG_BUFFER_SIZE];
+			char	lbuf[BIG_BUFFER_SIZE+1];
 
 			sprintf(lbuf, umode_format, localbuf);
 			malloc_strcpy(&ptr, lbuf);
@@ -1623,7 +1623,7 @@ status_hold_lines(window)
 	num = window->held_lines - window->held_lines%10;
 	if (num)
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		sprintf(localbuf, "%d", num);
 		sprintf(lbuf, hold_lines_format, localbuf);
@@ -1645,7 +1645,7 @@ status_channel(window)
 	s = window->current_channel;
 	if (s && chan_is_connected(s, window->server))
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		if (get_int_var(HIDE_PRIVATE_CHANNELS_VAR) &&
 		    is_channel_mode(window->current_channel,
@@ -1682,7 +1682,7 @@ status_mail(window)
 	    (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    (window == window->screen->current_window)))
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		sprintf(lbuf, mail_format, number);
 		malloc_strcpy(&ptr, lbuf);
@@ -1888,7 +1888,7 @@ status_refnum(window)
 		malloc_strcpy(&ptr, window->name);
 	else
 	{
-		char	lbuf[BIG_BUFFER_SIZE];
+		char	lbuf[BIG_BUFFER_SIZE+1];
 
 		sprintf(lbuf, "%u", window->refnum);
 		malloc_strcpy(&ptr, lbuf);
@@ -1934,7 +1934,7 @@ status_make_printable(str, n)
 {
 	u_char	*s;
 	int	pos;
-	char	lbuf[BIG_BUFFER_SIZE];
+	char	lbuf[BIG_BUFFER_SIZE+1];
 
 	if (!str || !*str)
 		return;

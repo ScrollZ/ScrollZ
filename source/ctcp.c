@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.29 2000-08-14 20:38:13 f Exp $
+ * $Id: ctcp.c,v 1.30 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1115,7 +1115,7 @@ do_clientinfo(ctcp, from, to, cmd)
 {
 	int	i;
 	char	*ucmd = (char *) 0;
-	u_char	buffer[BIG_BUFFER_SIZE];
+	u_char	buffer[BIG_BUFFER_SIZE+1];
 
 /**************************** PATCHED by Flier ******************************/
         if (CTCPCloaking==1) {

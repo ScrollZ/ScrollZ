@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.6 2000-08-15 16:03:07 f Exp $
+ * $Id: mail.c,v 1.7 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -94,7 +94,7 @@ static	void
 init_mail()
 {
 	char	*tmp_mail_path;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if (mail_path)
 		return; /* why do it 2000 times?  -lynx */
@@ -236,7 +236,7 @@ check_mail()
 	char	tmp[8];
 	static	int	VirginProgram = 1;  /* It's its first time */
 	int	lastlog_level;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 #ifdef UNIX_MAIL
 	int	des;
 	int	blanks = 1;

@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.44 2000-08-20 18:41:14 f Exp $
+ * $Id: edit5.c,v 1.45 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -3253,7 +3253,7 @@ char *nicks;
     char *nick=(char *) 0;
     char *tmpstr=(char *) 0;
     char tmpbuf[mybufsize];
-    char buffer[BIG_BUFFER_SIZE];
+    char buffer[BIG_BUFFER_SIZE+1];
 
     strcpy(tmpbuf,nicks);
     tmpstr=tmpbuf;

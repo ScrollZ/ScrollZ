@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.7 2000-08-14 20:38:13 f Exp $
+ * $Id: exec.c,v 1.8 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -839,7 +839,7 @@ start_process(name, logical, redirect, who, refnum)
 	char	*shell,
 		*flag,
 		*arg;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 #ifdef DAEMON_UID
 	if (getuid() == DAEMON_UID)

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.18 2000-08-14 20:38:14 f Exp $
+ * $Id: window.c,v 1.19 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1492,7 +1492,7 @@ delete_window(window)
 	Window	*window;
 {
 	char	*tmp = (char *) 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if (window == (Window *) 0)
 		window = curr_scr_win;
@@ -2326,7 +2326,7 @@ list_a_window(window, len, clen)
 	int	clen;
 {
 	char	tmp[10];
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	sprintf(tmp, "%-4u", window->refnum);
  	sprintf(buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
@@ -2359,7 +2359,7 @@ static	void
 list_windows()
 {
 	Window	*tmp;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	flag = 1;
 	int	len = 4;
 	int	clen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
@@ -2726,7 +2726,7 @@ windowcmd(command, args, subargs)
  	size_t	len;
 	char	*arg,
 		*cmd = (char *) 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	no_args = 1;
 	Window	*window,
 		*tmp;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.9 2000-08-14 20:38:13 f Exp $
+ * $Id: alias.c,v 1.10 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1533,7 +1533,7 @@ expander_addition(buff, add, length, quote_em)
 	char	*quote_em;
 {
 	char	format[40],
-		buffer[BIG_BUFFER_SIZE],
+		buffer[BIG_BUFFER_SIZE+1],
 		*ptr;
 
 	if (length)

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.5 2000-08-14 20:38:13 f Exp $
+ * $Id: history.c,v 1.6 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -97,7 +97,7 @@ history_match(match)
 {
 	char	*ptr;
 	char	*match_str = (char *)NULL;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if (*(match + strlen(match) - 1) == '*')
 		malloc_strcpy(&match_str, match);
@@ -352,7 +352,7 @@ get_from_history_file(which)
 	int	which;
 {
 	char	*ptr;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	if (last_dir == -1)
 		last_dir = which;
@@ -452,7 +452,7 @@ history(command, args, subargs)
 	int	cnt,
 		max;
 	char	*value;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	History *tmp;
 
 	say("Command History:");
@@ -506,7 +506,7 @@ do_history(com, rest)
 	int	hist_num;
 	char	*ptr,
 		*ret = (char *)NULL;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	static	char	*last_com = (u_char *) 0;
 
 	if (!com || !*com)

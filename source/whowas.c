@@ -11,7 +11,7 @@
  *
  * Modified by Flier
  *
- * $Id: whowas.c,v 1.5 1999-07-24 12:40:50 f Exp $
+ * $Id: whowas.c,v 1.6 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -225,7 +225,7 @@ void synch_whowas_addshit(added)
 struct autobankicks *added;
 {
     WhowasList *tmp;
-    char user[BIG_BUFFER_SIZE];
+    char user[BIG_BUFFER_SIZE+1];
 
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.6 2000-08-10 17:45:14 f Exp $
+ * $Id: funny.c,v 1.7 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -132,8 +132,8 @@ void
 funny_print_widelist()
 {
 	int	i;
-	char	buffer1[BIG_BUFFER_SIZE];
-	char	buffer2[BIG_BUFFER_SIZE];
+	char	buffer1[BIG_BUFFER_SIZE+1];
+	char	buffer2[BIG_BUFFER_SIZE+1];
 	char	*ptr;
 
 	if (!wide_list)

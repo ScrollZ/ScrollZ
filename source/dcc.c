@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.23 2000-08-14 20:38:13 f Exp $
+ * $Id: dcc.c,v 1.24 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1918,7 +1918,7 @@ process_incoming_chat(Client)
 	struct	sockaddr_in	remaddr;
 	int	sra;
         char	tmp[BIG_BUFFER_SIZE+1];
- 	char	tmpuser[IRCD_BUFFER_SIZE];
+ 	char	tmpuser[IRCD_BUFFER_SIZE+1];
 	char	*s, *bufptr;
 	long	bytesread;
 	int	old_timeout;

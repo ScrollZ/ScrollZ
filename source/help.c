@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: help.c,v 1.7 2000-08-21 18:41:40 f Exp $
  */
 
 /*
@@ -341,7 +341,7 @@ help_topic(path, name)
 	char	*name;
 {
 	struct	stat	stat_buf;
-	char	filename[BIG_BUFFER_SIZE];
+	char	filename[BIG_BUFFER_SIZE+1];
 
 #ifdef ZCAT
 	char	*name_z = (char *) 0;
@@ -467,7 +467,7 @@ help_pause_add_line(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9
 {
 #endif
 
-	char	buf[BIG_BUFFER_SIZE];
+	char	buf[BIG_BUFFER_SIZE+1];
 
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
@@ -501,7 +501,7 @@ help_show_paused_topic(name, unused)
 	}
 	if (get_int_var(HELP_PROMPT_VAR))
 	{
-		char	buf[BIG_BUFFER_SIZE];
+		char	buf[BIG_BUFFER_SIZE+1];
 
 		sprintf(buf, "%s%sHelp? ", name, (name && *name) ? " " : "");
 		if (!dumb)
@@ -538,7 +538,7 @@ help_me(topics, args)
 	char	*help_paused_name = (char *) 0;
 	char	*temp;
 	char	tmp[BIG_BUFFER_SIZE+1];
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 #ifdef ZCAT
 	char	*arg_z = (char *) 0;

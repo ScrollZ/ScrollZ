@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.41 2000-08-19 16:35:39 f Exp $
+ * $Id: edit.c,v 1.42 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -1078,7 +1078,7 @@ waitcmd(command, args, subargs)
 	char	*procindex;
 	int	cmd = 0;
  	size_t	len;
-	u_char	buffer[BIG_BUFFER_SIZE];
+	u_char	buffer[BIG_BUFFER_SIZE+1];
 
 	while (args && *args == '-')
 	{
@@ -1406,7 +1406,7 @@ save_settings(command, args, subargs)
 		*args,
 		*subargs;
 {
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	char	*arg, *temp;
  	int	all = 1, save_force = 0;
 
@@ -1824,7 +1824,7 @@ userhost(command, args, subargs)
 		total = 0,
 		userhost_cmd = 0;
 	char	*nick;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	while ((nick = next_arg(args, &args)) != NULL)
 	{
@@ -2656,7 +2656,7 @@ send_text(org_nick, line, command)
 	int	check_away = 0;
 	char	the_thing;
 	char	*query_command = NULL;
-	char	nick_list[IRCD_BUFFER_SIZE];
+	char	nick_list[IRCD_BUFFER_SIZE+1];
 	int	do_final_send = 0;
 /**************************** PATCHED by Flier ******************************/
         char    thing;
@@ -2998,7 +2998,7 @@ command_completion(key, ptr)
 		*cmdchars,
 		*rest,
 		firstcmdchar = '/';
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	IrcCommand	*command;
 
 	malloc_strcpy(&line, get_input());
@@ -4129,7 +4129,7 @@ cd(command, args, subargs)
 		*args,
 		*subargs;
 {
-	char	lbuf[BIG_BUFFER_SIZE];
+	char	lbuf[BIG_BUFFER_SIZE+1];
 	char	*arg,
 		*expand;
 
@@ -4836,7 +4836,7 @@ pingcmd(command, args, subargs)
 		*args,
 		*subargs;
 {
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 /**************************** PATCHED by Flier ******************************/
 	/*sprintf(buffer, "%s PING %ld", args, (long)time(NULL));*/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.35 2000-08-20 16:34:46 f Exp $
+ * $Id: irc.c,v 1.36 2000-08-21 18:41:40 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -203,7 +203,7 @@ static	void	quit_response _((char *, char *));
 static	void	show_version _((void));
 static	char	*get_arg _((char *, char *, int *));
 static	char	*parse_args _((char **, int));
-static	u_char	buffer[BIG_BUFFER_SIZE];	/* local to irc.c */
+static	u_char	buffer[BIG_BUFFER_SIZE+1];	/* local to irc.c */
 
 static	int	cntl_c_hit = 0;
 

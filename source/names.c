@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.15 2000-08-19 15:57:36 f Exp $
+ * $Id: names.c,v 1.16 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -546,7 +546,7 @@ recreate_mode(chan)
 	int	mode_pos = 0,
 		mode;
 	static	char	*s;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	buffer[0] = '\0';	 /* paranoia */
 	s = buffer;
@@ -1643,7 +1643,7 @@ show_channel(chan)
 		len;
 	char	*nicks = (char *) 0;
 	char	*s;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	s = recreate_mode(chan);
 	*buffer = (char) 0;
@@ -1920,7 +1920,7 @@ create_channel_list(window)
 {
 	ChannelList	*tmp;
 	char	*value = (char *) 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	*buffer = '\0';
 	for (tmp = server_list[window->server].chan_list; tmp; tmp = tmp->next)

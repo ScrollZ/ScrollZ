@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.5 2000-08-14 20:38:13 f Exp $
+ * $Id: ignore.c,v 1.6 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -126,7 +126,7 @@ ignore_nickname(nick, type, flag, timedignore)
 	Ignore	*new;
 	char	*msg,
 		*ptr;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 
 	while (nick)
 	{
@@ -343,7 +343,7 @@ ignore_list(nick)
 {
 	Ignore	*tmp;
  	size_t	len = 0;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 /**************************** PATCHED by Flier ******************************/
         int     i;
 /****************************************************************************/
@@ -361,7 +361,7 @@ ignore_list(nick)
 		for (i=1,tmp=ignored_nicks;tmp;i++,tmp=tmp->next)
 /****************************************************************************/
 		{
-			char	s[BIG_BUFFER_SIZE];
+			char	s[BIG_BUFFER_SIZE+1];
 
 			if (nick)
 			{

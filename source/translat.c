@@ -18,7 +18,7 @@
  * the far east.  8-)
  * Kare H. Pettersson.
  *
- * $Id: translat.c,v 1.4 2000-08-14 20:38:14 f Exp $
+ * $Id: translat.c,v 1.5 2000-08-21 18:41:40 f Exp $
  */
 
 #include "irc.h"
@@ -145,7 +145,7 @@ set_translation(tablename)
 	FILE	*table;
 	u_char	temp_table[512];
 	char	*filename = (char *) 0, *s;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	buffer[BIG_BUFFER_SIZE+1];
 	int	inputs[8];
 	int	j,
 		c = 0;
