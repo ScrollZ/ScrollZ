@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.53 2001-01-06 19:17:13 f Exp $
+ * $Id: edit2.c,v 1.54 2001-01-07 20:10:18 f Exp $
  */
 
 #include "irc.h"
@@ -852,8 +852,7 @@ char *subargs;
             }
         }
         chan=lookup_channel(channel,curr_scr_win->server,0);
-        if (!chan) return;
-        if ((chan->status)&CHAN_CHOP) {
+        if (chan && (chan->status)&CHAN_CHOP) {
             if (args && *args) comment=args;
             else {
                 if (!my_stricmp(command,"BK")) comment=DefaultBK;
