@@ -61,7 +61,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.70 2000-10-30 17:41:25 f Exp $
+ * $Id: edit6.c,v 1.71 2000-12-04 19:22:45 f Exp $
  */
 
 #include "irc.h"
@@ -2366,13 +2366,16 @@ void DoFilterTrace(stuff)
 char *stuff;
 {
     char *nick;
-    char *host=(char *) 0;
+    char *host;
+    char *prevhost=stuff;
     char *tmpstr;
     char tmpbuf[mybufsize/4];
 
     nick=stuff;
-    if ((host=index(stuff,'['))) {
+    while ((host=index(prevhost,'['))) prevhost=host+1;
+    if (prevhost && !host) {
         tottcount++;
+        host=prevhost-1;
         *host++='\0';
         if ((tmpstr=index(host,']'))) *tmpstr='\0';
         else host=NULL;
@@ -2380,7 +2383,13 @@ char *stuff;
         sprintf(tmpbuf,"%s!%s",nick,host);
         if (wild_match(ftpattern,tmpbuf)) {
             mattcount++;
-            say("%s[%s]",nick,host);
+#ifdef WANTANSI
+            ColorUserHost(host,CmdsColors[COLWHO].color2,tmpbuf,0);
+            say("%s%-9s%s %s",
+                CmdsColors[COLWHO].color1,nick,Colors[COLOFF],tmpbuf);
+#else
+            say("%-9s %s",nick,tmpbuf);
+#endif
         }
     }
 }
