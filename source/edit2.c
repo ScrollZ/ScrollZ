@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.39 2000-04-14 18:10:54 f Exp $
+ * $Id: edit2.c,v 1.40 2000-04-16 09:33:00 f Exp $
  */
 
 #include "irc.h"
@@ -3831,6 +3831,8 @@ char *subargs;
 #ifdef __linux__
     int tmpsock;
     int oldumask;
+    char *curdev;
+    char *devtok;
     char devname[mybufsize/16+1];
     struct ifreq ifr;
 #endif /* __linux__ */
@@ -3866,31 +3868,37 @@ char *subargs;
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
     /* obtain device name */
-    if ((fp=fopen("/proc/net/dev","r"))==NULL) strcpy(devname,"eth");
-    else {
+    *devname='\0';
+    if ((fp=fopen("/proc/net/dev","r"))) {
         /* skip two lines of header */
         fgets(putbuf,mybufsize/4,fp);
         fgets(putbuf,mybufsize/4,fp);
         while (fgets(putbuf,sizeof(putbuf),fp)) {
             tmpstr=putbuf;
             while (*tmpstr && isspace(*tmpstr)) tmpstr++;
-            strmcpy(devname,tmpstr,mybufsize/16);
-            tmpstr=devname;
+            strmcpy(tmpbuf,tmpstr,mybufsize/16);
+            tmpstr=tmpbuf;
             while (*tmpstr && *tmpstr!=':') tmpstr++;
             *tmpstr='\0';
-            if (strcmp(devname,"lo")) {
-                if (strlen(devname)>0) {
+            if (strcmp(tmpbuf,"lo")) {
+                if (strlen(tmpbuf)>0) {
                     tmpstr--;
                     *tmpstr='\0';
+                    if (*devname) strcat(devname,",");
+                    strcat(devname,tmpbuf);
                 }
                 break;
             }
         }
         fclose(fp);
     }
+    if (!(*devname)) {
+        say("No suitable devices found, aborting");
+        return;
+    }
     oldumask=umask(0177);
     if ((fp=fopen(filename,"w"))==NULL) {
-        say("Error, can't open temporary file for writing");
+        say("Error, can't open temporary file for writing, aborting");
         unlink(filename);
         umask(oldumask);
         return;
@@ -3904,32 +3912,36 @@ char *subargs;
         return;
     }
     /* probe eth0 through eth3 */
-    for (i=0;i<4;i++) {
-        int isvalid;
-        int numinvalid=0;
+    devtok=devname;
+    while ((curdev=strtok(devtok,","))) {
+        devtok=(char *) 0;
+        for (i=0;i<4;i++) {
+            int isvalid;
+            int numinvalid=0;
 
-        sprintf(ifr.ifr_name,"%s%d",devname,i);
-        /* obtain destination address */
-        ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
-        isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
-        if (i==0 && isvalid<0) {
-            say("Error during ioctl for interface eth0, aborting");
-            fclose(fp);
-            unlink(filename);
-            close(tmpsock);
-            umask(oldumask);
-            return;
-        }
-        if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
-        for (count=0;count<1023;count++) {
-            sprintf(ifr.ifr_name,"%s%d:%d",devname,i,count);
+            sprintf(ifr.ifr_name,"%s%d",devname,i);
             /* obtain destination address */
             ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
-            if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
-            else numinvalid=0;
+            isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr);
+            if (i==0 && isvalid<0) {
+                say("Error during ioctl for device %s, aborting",ifr.ifr_name);
+                fclose(fp);
+                unlink(filename);
+                close(tmpsock);
+                umask(oldumask);
+                return;
+            }
             if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
-            /* abort when we detect 10 failed ioctl()s in sequence */
-            if (!tryall && numinvalid>9) break;
+            for (count=0;count<1023;count++) {
+                sprintf(ifr.ifr_name,"%s%d:%d",devname,i,count);
+                /* obtain destination address */
+                ioctl(tmpsock,SIOCGIFDSTADDR,&ifr);
+                if ((isvalid=ioctl(tmpsock,SIOCGIFADDR,&ifr))<0) numinvalid++;
+                else numinvalid=0;
+                if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
+                /* abort when we detect 10 failed ioctl()s in sequence */
+                if (!tryall && numinvalid>9) break;
+            }
         }
     }
     close(tmpsock);
