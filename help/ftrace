@@ -1,11 +1,14 @@
-!	 $Id: ftrace,v 1.4 2003-01-08 20:00:54 f Exp $
+!	 $Id: ftrace,v 1.5 2004-04-27 08:30:49 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: FTRACE [-COUNT] filter [server]
+Usage: FTRACE [-E|-G] [-COUNT] filter [server]
   Does TRACE with filter
 
+  With -E ETRACE is used instead of TRACE and match is made
+  on entire line returned by ircd. With -G ETRACE is used
+  and match is made on gecos field only.
   With -COUNT only number of matches is reported.
