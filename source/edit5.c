@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.86 2002-01-24 19:59:04 f Exp $
+ * $Id: edit5.c,v 1.87 2002-01-25 17:34:48 f Exp $
  */
 
 #include "irc.h"
@@ -187,8 +187,6 @@ static FILE *awayfile=NULL;
 #ifdef ACID
 static int listcount=0;
 #endif
-
-extern int CO;
 
 /* Returns pointer to friends list with matching entry */
 struct friends *FindMatch(userhost,channel)

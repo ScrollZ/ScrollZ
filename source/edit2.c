@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.77 2002-01-24 19:59:04 f Exp $
+ * $Id: edit2.c,v 1.78 2002-01-25 17:34:48 f Exp $
  */
 
 #include "irc.h"
@@ -112,7 +112,6 @@
 #endif /* JIMMIE */
 
 extern NotifyList *notify_list;
-extern int CO;
 extern time_t start_time;
 extern char *source_host;
 
@@ -1287,9 +1286,9 @@ char *subargs;
         if (strlen(tmp->nick) > len) len = strlen(tmp->nick);
     if (len <= 9) len = 9;
 #ifdef WANTANSI
-    width=(CO - (strlen(prefstr) - CountAnsi(prefstr, -1) + 7)) / (len + 2);
+    width=(current_screen->co - (strlen(prefstr) - CountAnsi(prefstr, -1) + 7)) / (len + 2);
 #else
-    width=(CO - (strlen(prefstr) + 7)) / (len + 2);
+    width=(current_screen->co - (strlen(prefstr) + 7)) / (len + 2);
 #endif /* WANTANSI */
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%%-%ds", len);
 #endif /* NEWCSCAN */
