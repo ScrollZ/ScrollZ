@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.21 1999-03-02 17:38:32 f Exp $
+ * $Id: edit2.c,v 1.22 1999-03-09 20:36:43 f Exp $
  */
 
 #include "irc.h"
@@ -400,7 +400,8 @@ int type;
         for (tmp=chan->nicks;tmp;tmp=tmp->next) {
             if (type==1 || type==4) isfriend=tmp->frlist && ((tmp->frlist->privs)&FLOP);
             else isfriend=tmp->frlist &&
-                    ((tmp->frlist->privs)&FLOP || (tmp->frlist->privs)&FLAUTOOP);
+                    ((tmp->frlist->privs)&FLOP || (tmp->frlist->privs)&FLAUTOOP ||
+                     (tmp->frlist->privs)&FLINSTANT);
             if (type<2 && !(tmp->chanop)) continue;
             if (type==4 && tmp->chanop) continue;
             if ((all || (!all && (type%2?!isfriend:isfriend))) &&
@@ -1658,7 +1659,7 @@ char *subargs;
     fprintf(usfile,"# ADDF   Nick!User@Host    Flags         Channels      [Password]\n");
     fprintf(usfile,"# where flags can be :\n");
     fprintf(usfile,"#       I=INVITE   C=CHOPS   O=OP      A=AUTO   U=UNBAN   P=PROT\n");
-    fprintf(usfile,"#       D=CDCC     G=GOD     V=VOICE   J=JOIN   F=NOFLOOD\n");
+    fprintf(usfile,"#       D=CDCC     G=GOD     V=VOICE   J=JOIN   F=NOFLOOD X=INSTANT OP/VOICE\n");
     fprintf(usfile,"# channels is a list of channels separated by ','  like #sex*,#test,#chan\n");
     fprintf(usfile,"#\n");
     for (tmpfriend=frlist,ulistcount=0;tmpfriend;tmpfriend=tmpfriend->next) {
@@ -2174,6 +2175,10 @@ char *buffer;
             case 'F':
                 i|=FLNOFLOOD;
                 break;
+            case 'x':
+            case 'X':
+                i|=FLINSTANT;
+                break;
         }
     }
     return(i);
@@ -2252,8 +2257,8 @@ char *buffer;
         tmpfriend->privs=i;
         synch_whowas_adduser(tmpfriend);
         sprintf(tmpbuf1,"Auto:%s  Prot:%s  No flood:%s  God:%s",
-                YNreply(i&FLAUTOOP),YNreply(i&FLPROT),YNreply(i&FLNOFLOOD),
-                YNreply(i&FLGOD));
+                YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
+                YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
         if (nick) {
             send_to_server("NOTICE %s :-ScrollZ- You have been added to my friends list with",nick);
             send_to_server("NOTICE %s :-ScrollZ- CTCP access of : %s",nick,tmpbuf2);
@@ -2271,7 +2276,8 @@ char *buffer;
         say("on channels %s%s%s",
             CmdsColors[COLSETTING].color5,chanlist,Colors[COLOFF]);
         sprintf(tmpbuf1,"Auto:%s%s%s  Prot:%s%s%s",
-                CmdsColors[COLSETTING].color2,YNreply(i&FLAUTOOP),Colors[COLOFF],
+                CmdsColors[COLSETTING].color2,
+                YNreply((i&FLAUTOOP)|(i&FLINSTANT)),Colors[COLOFF],
                 CmdsColors[COLSETTING].color2,YNreply(i&FLPROT),Colors[COLOFF]);
         say("%s  No flood:%s%s%s  God:%s%s%s",tmpbuf1,
             CmdsColors[COLSETTING].color2,YNreply(i&FLNOFLOOD),Colors[COLOFF],
