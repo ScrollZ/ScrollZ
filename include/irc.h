@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.6 2000-08-14 20:38:13 f Exp $
+ * $Id: irc.h,v 1.7 2000-08-21 18:59:43 f Exp $
  */
 
 #ifndef __irc_h
@@ -251,6 +251,10 @@
 #ifndef MIN
 # define MIN(a,b) ((a < b) ? (a) : (b))
 #endif
+
+#ifndef MAX
+# define MAX(a,b) ((a < b) ? (b) : (a))
+#endif /* MAX */
 
 /* flags used by who() and whoreply() for who_mask */
 #define WHO_OPS		0x0001
