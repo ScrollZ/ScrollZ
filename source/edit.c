@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.48 2000-12-04 19:51:22 f Exp $
+ * $Id: edit.c,v 1.49 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -817,7 +817,7 @@ static	IrcCommand FAR irc_command[] =
 #ifndef LITE
 	{ "STACK",	NULL,		stackcmd,		0 },
 #endif
-  { "STAMP",		"STAMP", 	ChannelCommand, 	0 },
+  { "STAMP",		"STAMP", 	OnOffCommand, 		0 },
  	{ "STATS",	"STATS",	send_comm,		SERVERREQ },
 #ifdef CELE
   { "STATUS", 		NULL, 		Cstatusbar, 		SERVERREQ },

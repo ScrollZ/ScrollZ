@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.51 2000-11-01 10:10:39 f Exp $
+ * $Id: edit3.c,v 1.52 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -1566,12 +1566,15 @@ char *command;
     else if (!my_stricmp(tmpbuf,"OFF")) *variable=0;
     else if (!strcmp(command,"MIRCCOLORS") && !my_stricmp(tmpbuf,"STRIP")) *variable=2;
     else if (!strcmp(command,"CDCC VERBOSE") && !my_stricmp(tmpbuf,"QUIET")) *variable=2;
+    else if (!strcmp(command,"STAMP") && !my_stricmp(tmpbuf,"MAX")) *variable=2;
     else {
         sprintf(tmpbuf,"in %s",command);
         if (!strcmp(command,"MIRCCOLORS"))
             PrintError("must be ON/OFF/STRIP",tmpbuf,lineno);
         else if (!strcmp(command,"CDCC VERBOSE"))
             PrintError("must be ON/OFF/VERBOSE",tmpbuf,lineno);
+        else if (!strcmp(command,"STAMP"))
+            PrintError("must be ON/OFF/MAX",tmpbuf,lineno);
         else PrintError("must be ON/OFF",tmpbuf,lineno);
         *loaderror=1;
     }
@@ -2204,7 +2207,7 @@ int ScrollZLoad()
             ChannelsSet(&pointer,&ShowSignoffChan,&SignoffChannels,&loaderror,lineno,"SIGNOFFCHANNELS",NULL);
 #endif
         else if (!strcmp("STAMP",tmpbuf3))
-            ChannelsSet(&pointer,&Stamp,&StampChannels,&loaderror,lineno,"STAMP",NULL);
+            OnOffSet(&pointer,&Stamp,&loaderror,lineno,"STAMP");
         else if (!strcmp("BANKICKLIST",tmpbuf3))
             ChannelsSet(&pointer,&BKList,&BKChannels,&loaderror,lineno,"BANKICKLIST",NULL);
         else if (!strcmp("NOTIFYSTR",tmpbuf3)) {
@@ -2395,7 +2398,6 @@ char *subargs;
             if (tmpchan->IdleKick) tmpchan->IdleKick=IdleKick;
 #endif
             tmpchan->CompressModes=CompressModes?CheckChannel(tmpchan->channel,CompressModesChannels):0;
-            tmpchan->Stamp=Stamp?CheckChannel(tmpchan->channel,StampChannels):0;
             tmpchan->BKList=BKList?CheckChannel(tmpchan->channel,BKChannels):0;
         }
     for (whowas=whowas_chan_list;whowas;whowas=whowas->next) {
@@ -2430,8 +2432,6 @@ char *subargs;
 #endif
         whowas->channellist->CompressModes=
             CompressModes?CheckChannel(whowas->channellist->channel,CompressModesChannels):0;
-        whowas->channellist->Stamp=
-            Stamp?CheckChannel(whowas->channellist->channel,StampChannels):0;
         whowas->channellist->BKList=
             BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
     }

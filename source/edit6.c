@@ -61,7 +61,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.71 2000-12-04 19:22:45 f Exp $
+ * $Id: edit6.c,v 1.72 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -178,7 +178,6 @@ static struct commands {
     { "ORIGNICK"    , &OrigNickChange , &OrigNick              , "Reverting to original nick" , ", wanted nick :" },
     { "SHOWAWAY"    , &ShowAway       , &ShowAwayChannels      , "Notifying on away/back"     , NULL },
     { "COMPRESS"    , &CompressModes  , &CompressModesChannels , "Compress modes"             , NULL },
-    { "STAMP"       , &Stamp          , &StampChannels         , "Time stamp publics"         , NULL },
     { "BKLIST"      , &BKList         , &BKChannels            , "Shit list"                  , NULL },
 #ifdef EXTRAS
     { "CHSIGNOFF"   , &ShowSignoffChan, &SignoffChannels       , "Show channels in signoff"   , NULL },
@@ -1203,6 +1202,7 @@ char *subargs;
         { "SECURE"      , &Security       , "Cdcc security" },
         { "SERVNOTICE"  , &ServerNotice   , "Server notices display" },
         { "SHOWNICK"    , &ShowNick       , "Showing nick on public messages" },
+        { "STAMP"       , &Stamp          , "Time stamp events" },
         { "STATS"       , &CdccStats      , "Cdcc stats in plist" },
         { "STATUS"      , &ShowDCCStatus  , "Cdcc showing on status bar" },
         { "VERBOSE"     , &CdccVerbose    , "Cdcc verbose mode" },
@@ -1218,16 +1218,22 @@ char *subargs;
     if (tmpstr) {
         if (!my_stricmp("ON",tmpstr)) *(command_list[i].var)=1;
         else if (!my_stricmp("OFF",tmpstr)) *(command_list[i].var)=0;
-        else if (!strcmp("MIRC",command_list[i].command) && !my_stricmp("STRIP",tmpstr)) 
+        else if (!strcmp("MIRC",command_list[i].command) &&
+                 !my_stricmp("STRIP",tmpstr)) 
             *(command_list[i].var)=2;
         else if (!strcmp("VERBOSE",command_list[i].command) &&
                  !my_stricmp("QUIET",tmpstr)) 
+            *(command_list[i].var)=2;
+        else if (!strcmp("STAMP",command_list[i].command) &&
+                 !my_stricmp("MAX",tmpstr)) 
             *(command_list[i].var)=2;
         else {
             if (!strcmp("MIRC",command_list[i].command))
                 sprintf(tmpbuf,"%s on/off/strip",command_list[i].command);
             else if (!strcmp("VERBOSE",command_list[i].command))
                 sprintf(tmpbuf,"%s on/off/quiet",command_list[i].command);
+            else if (!strcmp("STAMP",command_list[i].command))
+                sprintf(tmpbuf,"%s on/off/max",command_list[i].command);
             else sprintf(tmpbuf,"%s on/off",command_list[i].command);
             PrintUsage(tmpbuf);
             return;
@@ -1237,6 +1243,8 @@ char *subargs;
         PrintSetting(command_list[i].setting,"STRIP",empty_string,empty_string);
     else if (!strcmp("VERBOSE",command_list[i].command) && *(command_list[i].var)==2)
         PrintSetting(command_list[i].setting,"QUIET",empty_string,empty_string);
+    else if (!strcmp("STAMP",command_list[i].command) && *(command_list[i].var)==2)
+        PrintSetting(command_list[i].setting,"MAX",empty_string,empty_string);
     else if (*(command_list[i].var))
         PrintSetting(command_list[i].setting,"ON",empty_string,empty_string);
     else PrintSetting(command_list[i].setting,"OFF",empty_string,empty_string);
@@ -1342,10 +1350,7 @@ int setting;
                 case 14: chan->CompressModes=
                     CompressModes?CheckChannel(chan->channel,CompressModesChannels):0;
                     break;
-                case 15: chan->Stamp=
-                    Stamp?CheckChannel(chan->channel,StampChannels):0;
-                    break;
-                case 16: chan->BKList=
+                case 15: chan->BKList=
                     BKList?CheckChannel(chan->channel,BKChannels):0;
                     break;
 #ifdef EXTRAS
@@ -1396,10 +1401,7 @@ int setting;
             case 14: whowas->channellist->CompressModes=
                 CompressModes?CheckChannel(whowas->channellist->channel,CompressModesChannels):0;
                 break;
-            case 15: whowas->channellist->Stamp=
-                Stamp?CheckChannel(whowas->channellist->channel,StampChannels):0;
-                break;
-            case 16: whowas->channellist->BKList=
+            case 15: whowas->channellist->BKList=
                 BKList?CheckChannel(whowas->channellist->channel,BKChannels):0;
                 break;
 #ifdef EXTRAS
@@ -2088,7 +2090,6 @@ void CleanUpScrollZVars() {
     new_free(&SignoffChannels);
 #endif
     new_free(&CompressModesChannels);
-    new_free(&StampChannels);
     new_free(&BKChannels);
     new_free(&EncryptPassword);
 #ifdef OPER

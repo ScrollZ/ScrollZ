@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.10 2000-12-08 17:55:33 f Exp $
+ * $Id: output.c,v 1.11 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -253,19 +253,20 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		PUTBUF_INIT
 
 /**************************** PATCHED by Flier ******************************/
-                if (ScrollZstr && *ScrollZstr) {
-                    if (Stamp && !strcmp(StampChannels,"*")) {
+                if (Stamp==2) {
 #ifdef WANTANSI
-                        sprintf(stampbuf,"%s(%s%s%s)%s",
-                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
-                                update_clock(0,0,GET_TIME),
-                                CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
+                    sprintf(stampbuf,"%s(%s%s%s)%s",
+                            CmdsColors[COLPUBLIC].color2,Colors[COLOFF],
+                            update_clock(0,0,GET_TIME),
+                            CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
 #else
-                        sprintf(stampbuf,"(%s)",update_clock(0,0,GET_TIME));
+                    sprintf(stampbuf,"(%s)",update_clock(0,0,GET_TIME));
 #endif
-                        malloc_strcpy(&fmt,stampbuf);
-                    }
-                    else malloc_strcpy(&fmt,ScrollZstr);
+                    malloc_strcpy(&fmt,stampbuf);
+                    malloc_strcat(&fmt," ");
+                }
+                else if (ScrollZstr && *ScrollZstr) {
+                    malloc_strcpy(&fmt,ScrollZstr);
                     malloc_strcat(&fmt," ");
                 }
                 else malloc_strcpy(&fmt,empty_string);

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.51 2000-08-29 19:05:05 f Exp $
+ * $Id: edit2.c,v 1.52 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -1849,11 +1849,12 @@ char *subargs;
     if (ShowSignoffChan) fprintf(usfile,"ON %s\n",SignoffChannels);
     else fprintf(usfile,"OFF\n");
 #endif
-    fprintf(usfile,"STAMP           ");
-    if (Stamp) fprintf(usfile,"ON %s\n",StampChannels);
-    else fprintf(usfile,"OFF\n");
     fprintf(usfile,"BANKICKLIST     ");
     if (BKList) fprintf(usfile,"ON %s\n",BKChannels);
+    else fprintf(usfile,"OFF\n");
+    fprintf(usfile,"STAMP           ");
+    if (Stamp==2) fprintf(usfile,"MAX\n");
+    else if (Stamp) fprintf(usfile,"ON\n");
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"LOGON           ");
     if (LogOn) fprintf(usfile,"ON\n");

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.42 2000-10-31 09:01:48 f Exp $
+ * $Id: irc.c,v 1.43 2000-12-10 10:12:35 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -309,7 +309,6 @@ char  *IdleKickChannels=(char *) 0;
 char  *SignoffChannels=(char *) 0;
 #endif
 char  *CompressModesChannels=(char *) 0;
-char  *StampChannels=(char *) 0;
 char  *BKChannels=(char *) 0;
 #if defined(EXTRAS) || defined(FLIER)
 char  *AutoInvChannels;

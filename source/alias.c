@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.13 2000-10-09 17:37:23 f Exp $
+ * $Id: alias.c,v 1.14 2000-12-10 10:12:35 f Exp $
  */
 
 #include "irc.h"
@@ -4583,7 +4583,7 @@ u_char *input;
         { "CHSIGNOFF"      , 3, &ShowSignoffChan , &SignoffChannels       },
 #endif
         { "COMPRESS"       , 3, &CompressModes   , &CompressModesChannels },
-        { "STAMP"          , 3, &Stamp           , &StampChannels         },
+        { "STAMP"          , 1, &Stamp           , NULL                   },
         { "ARINWIN"        , 1, &ARinWindow      , NULL                   },
         { "BKLIST"         , 3, &BKList          , &BKChannels            },
 #ifdef WANTANSI
