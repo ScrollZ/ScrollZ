@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.22 1999-03-09 20:36:43 f Exp $
+ * $Id: edit2.c,v 1.23 1999-03-18 17:59:55 f Exp $
  */
 
 #include "irc.h"
@@ -3740,6 +3740,7 @@ char *subargs;
     int  i;
     int  type=1; /* default to Linux */
     int  count;
+    int  tryall=0;
     char *hname;
     char *tmpstr;
     char *chosenname=(char *) 0;
@@ -3769,6 +3770,11 @@ char *subargs;
     }
     else PrintUsage("NEWHOST <Virtual Host>");
 #else
+    /* if user passed -a they want to probe 1024 interfaces */
+    if (newhname && !my_strnicmp(newhname,"-A",2)) {
+        tryall=1;
+        newhname=NULL;
+    }
     /* figure out OS
        1 = Linux
        2 = BSD */
@@ -3823,7 +3829,7 @@ char *subargs;
             else numinvalid=0;
             if (isvalid==0) fprintf(fp,"inet %s\n",inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
             /* abort when we detect 10 failed ioctl()s in sequence */
-            if (numinvalid>9) break;
+            if (!tryall && numinvalid>9) break;
         }
     }
     close(tmpsock);
@@ -3861,9 +3867,11 @@ char *subargs;
     }
     fclose(fp);
     if (tmplist) {
+        countall=0;
+
         *putbuf='\0';
         /* let's print all available hostnames */
-        for (listnew=tmplist,i=1;listnew;i++) {
+        for (listnew=tmplist,i=1;listnew;i++,countall++) {
             tmplist=listnew;
             listnew=listnew->next;
             sprintf(tmpbuf,"%2d) %-35s",i,tmplist->servers);
@@ -3886,6 +3894,7 @@ char *subargs;
         if (!newhname) {
             if (count) say("%s",putbuf);
             say("Use /NEWHOST #number to select hostname");
+            if (countall==1) say("Use /NEWHOST -A to query more interfaces");
         }
     }
     else say("No valid hostnames found");
