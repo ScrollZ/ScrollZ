@@ -44,11 +44,12 @@
  SwitchNick          Try to switch nick
  MassKill	     Kills multiple nicks at once - by acidflash
  CheckServer         Check if server is valid
+ CleanUpScrollZVars  Clean up ScrollZ allocated variables
  CleanUp             Clean up memory on exit
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.2 1998-09-10 17:44:56 f Exp $
+ * $Id: edit6.c,v 1.3 1998-09-21 19:30:45 f Exp $
  */
 
 #include "irc.h"
@@ -161,6 +162,9 @@ static struct commands {
     { NULL          , NULL            , NULL                   , NULL                         , NULL }
 };
 
+extern char *ScrollZlame1;
+extern char *HelpPathVar;
+extern char *CelerityNtfy;
 extern char *chars;
 
 extern DCC_list *ClientList;
@@ -2036,6 +2040,70 @@ int server;
     return(0);
 }
 
+/* Clean up ScrollZ allocated variables */
+void CleanUpScrollZVars(void) {
+    new_free(&DefaultServer);
+    new_free(&ScrollZstr);
+    new_free(&ScrollZlame1);
+    new_free(&LastMessage);
+    new_free(&LastNotice);
+    new_free(&DefaultSignOff);
+    new_free(&DefaultSetAway);
+    new_free(&DefaultSetBack);
+    new_free(&DefaultUserinfo);
+    new_free(&DefaultFinger);
+    new_free(&AutoJoinChannels);
+    new_free(&CdccUlDir);
+    new_free(&CdccDlDir);
+    new_free(&WhoKilled);
+    new_free(&CdccChannels);
+    new_free(&AutoRejoinChannels);
+    new_free(&MDopWatchChannels);
+    new_free(&ShowFakesChannels);
+    new_free(&KickOnFloodChannels);
+    new_free(&KickWatchChannels);
+    new_free(&NHProtChannels);
+    new_free(&NickWatchChannels);
+    new_free(&ShowAwayChannels);
+    new_free(&KickOpsChannels);
+    new_free(&KickOnBanChannels);
+    new_free(&BitchChannels);
+    new_free(&FriendListChannels);
+#ifdef EXTRAS
+    new_free(&IdleKickChannels);
+    new_free(&SignoffChannels);
+#endif
+    new_free(&CompressModesChannels);
+    new_free(&StampChannels);
+    new_free(&EncryptPassword);
+    new_free(&StatsFilter);
+    new_free(&LastJoin);
+    new_free(&AutoReplyBuffer);
+    new_free(&OrigNick);
+    new_free(&LastMessageSent);
+    new_free(&LastNoticeSent);
+    new_free(&VirtualHost);
+    new_free(&HelpPathVar);
+    new_free(&CelerityNtfy);
+    new_free(&URLBuffer);
+    new_free(&CurrentNick);
+    new_free(&LastChat);
+    new_free(&CurrentDCC);
+    new_free(&DefaultK);
+    new_free(&DefaultBK);
+    new_free(&DefaultBKI);
+    new_free(&DefaultBKT);
+    new_free(&DefaultFK);
+    new_free(&DefaultLK);
+    new_free(&DefaultABK);
+    new_free(&DefaultSK);
+#ifdef ACID
+    new_free(&DefaultKill);
+#endif
+    new_free(&PermUserMode);
+    new_free(&AutoReplyString);
+}
+
 /* Clean up all stuff from memory on exit */
 void CleanUp(void) {
     int i;
@@ -2064,6 +2132,7 @@ void CleanUp(void) {
     CleanUpWhowas();
     CleanUpWindows();
     CleanUpVars();
+    CleanUpScrollZVars();
     inFlierNotify=1;
     strcpy(tmpbuf,"-");
     notify(NULL,tmpbuf,NULL);
