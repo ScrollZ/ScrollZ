@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.21 1999-04-28 16:12:57 f Exp $
+ * $Id: edit.c,v 1.22 1999-05-04 16:02:03 f Exp $
  */
 
 #include "irc.h"
@@ -4307,10 +4307,11 @@ timercmd(command, args, subargs)
 		*flag;
 /**************************** PATCHED by Flier ******************************/
 	/*time_t	current;*/
-#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
         int  count=0;
-        char *dot;
+        int  delaytime=0;
+        char *dot=(char *) 0;
         char *tmpstr;
+#if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
         char tmpbuf[mybufsize/32];
         struct  timeval current;
 #else
@@ -4423,17 +4424,49 @@ timercmd(command, args, subargs)
 	ntimer->in_on_who = in_on_who;
 /**************************** PATCHED by Flier ******************************/
 	/*ntimer->time = current + atol(waittime);*/
+        for (tmpstr=waittime;*tmpstr && !dot;tmpstr++) {
+            if (isdigit(*tmpstr))
+                count=10*count+(*tmpstr)-'0';
+            else
+                switch (*tmpstr) {
+                    case '.':
+                    case 's':
+                        delaytime+=count;
+                        count=0;
+                        dot=tmpstr;
+                        break;
+                    case 'm':
+                        count*=60;
+                        delaytime+=count;
+                        count=0;
+                        break;
+                    case 'h':
+                        count*=3600;
+                        delaytime+=count;
+                        count=0;
+                        break;
+                    case 'd':
+                        count*=86400;
+                        delaytime+=count;
+                        count=0;
+                        break;
+                }
+        }
+        if (count>0) delaytime+=count;
 #if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
-        ntimer->time.tv_sec=current.tv_sec+atol(waittime);
+        ntimer->time.tv_sec=current.tv_sec+delaytime;
         ntimer->time.tv_usec=current.tv_usec;
         if ((dot=index(waittime,'.'))) {
             dot++;
             strcpy(tmpbuf,dot);
             dot=tmpbuf;
             tmpstr=dot;
+            count=0;
             while (*tmpstr && count<6) {
-                tmpstr++;
-                count++;
+                if (isdigit(*tmpstr)) {
+                    tmpstr++;
+                    count++;
+                }
             }
             while (count<6) {
                 *tmpstr='0';
@@ -4448,7 +4481,7 @@ timercmd(command, args, subargs)
             ntimer->time.tv_usec-=1000000;
         }
 #else
-	ntimer->time=current+atol(waittime);
+	ntimer->time=current+delaytime;
 #endif
         ntimer->visible=visible;
         if (subargs) ntimer->func=(void *) subargs;
