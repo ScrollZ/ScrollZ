@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.11 1998-11-20 21:00:53 f Exp $
+ * $Id: edit5.c,v 1.12 1998-11-26 19:32:49 f Exp $
  */
 
 #include "irc.h"
@@ -829,6 +829,7 @@ int  printonly;
         else if (!what) {
             if (printonly && (*tmpstr<' ' || *tmpstr>'~')) {
                 if (printonly==1) continue;
+                if (*tmpstr==0x9B || *tmpstr==0x84) continue;
                 if (!(*tmpstr>'~' || *tmpstr==BOLD_TOG || *tmpstr==REV_TOG || *tmpstr==UND_TOG ||
                     *tmpstr==ALL_OFF)) continue;
             }
