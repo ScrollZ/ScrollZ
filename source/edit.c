@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.73 2002-01-07 19:18:16 f Exp $
+ * $Id: edit.c,v 1.74 2002-01-09 16:34:00 f Exp $
  */
 
 #include "irc.h"
@@ -2972,11 +2972,11 @@ send_text(org_nick, line, command)
                             PrintPublic(mynick, NULL, nick, line, 0, iscrypted);
                         chan = lookup_channel(nick, parsing_server_index, 0);
                         if (chan && chan->ChanLog && list_type == SEND_NOTICE_LIST) {
-                            sprintf(tmpbuf, "-%s:%s- %s", mynick, nick, line);
+                            sprintf(tmpbuf, "-%s- %s", mynick, line);
                             ChannelLogSave(tmpbuf, chan);
                         }
                         if ((away_set || LogOn) && my_stricmp(command, "NOTICE")) {
-                            sprintf(tmpbuf, "<%s:%s> %s", mynick, nick, line);
+                            sprintf(tmpbuf, "<%s> %s", mynick, line);
                             AwaySave(tmpbuf, SAVESENTMSG);
                         }
 /****************************************************************************/

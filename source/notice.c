@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.25 2002-01-07 19:18:16 f Exp $
+ * $Id: notice.c,v 1.26 2002-01-09 16:34:00 f Exp $
  */
 
 #include "irc.h"
@@ -342,7 +342,7 @@ parse_notice(from, Args)
                                                             if (chan && chan->ChanLog) {
                                                                 char tmpbuf3[mybufsize];
 
-                                                                sprintf(tmpbuf3, "-%s:%s- %s", from, to, line);
+                                                                sprintf(tmpbuf3, "-%s- %s", from, line);
                                                                 ChannelLogSave(tmpbuf3, chan);
                                                             }
     }

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.78 2002-01-08 17:55:45 f Exp $
+ * $Id: edit5.c,v 1.79 2002-01-09 16:34:00 f Exp $
  */
 
 #include "irc.h"
@@ -1558,7 +1558,7 @@ int  iscrypted;
     if (foundar) AddNick2AutoReply(nick);
     if (!isitme) Check4WordKick(line,joiner,isfriend,chan);
     if (chan && chan->ChanLog) {
-        sprintf(tmpbuf3,"<%s:%s> %s", nick, channel, line);
+        sprintf(tmpbuf3,"<%s> %s", nick, line);
         ChannelLogSave(tmpbuf3, chan);
     }
 }
