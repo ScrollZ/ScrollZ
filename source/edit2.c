@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.30 1999-07-18 12:50:08 f Exp $
+ * $Id: edit2.c,v 1.31 1999-07-24 12:41:48 f Exp $
  */
 
 #include "irc.h"
@@ -1849,7 +1849,7 @@ char *subargs;
     fprintf(usfile,"DEFLK           %s\n",DefaultLK);
     fprintf(usfile,"DEFABK          %s\n",DefaultABK);
     fprintf(usfile,"DEFSK           %s\n",DefaultSK);
-#ifdef ACID
+#ifdef OPER
     fprintf(usfile,"DEFKILL         %s\n",DefaultKill);
 #endif
     fprintf(usfile,"SHOWWALLOP      ");
@@ -2191,6 +2191,10 @@ char *buffer;
             case 'x':
             case 'X':
                 i|=FLINSTANT;
+                break;
+            case 'z':
+            case 'Z':
+                i|=FLWHOWAS;
                 break;
         }
     }
