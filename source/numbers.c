@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.48 2001-10-18 20:20:15 f Exp $
+ * $Id: numbers.c,v 1.49 2002-01-08 17:55:45 f Exp $
  */
 
 #include "irc.h"
@@ -60,6 +60,9 @@
 #ifdef ACID
 #include "whowas.h"
 #endif
+
+extern int  tottcount;
+extern int  mattcount;
 
 extern void OnBans _((char **, int));
 extern void EndOfBans _((char *, int));
@@ -93,8 +96,7 @@ extern void HandleStatsK _((char *, char *));
 extern void HandleStatsI _((char *, char *, char *));
 extern void HandleStatsC _((char *, char *, char *));
 extern void HandleStatsL _((char *, char *, char *));
-extern int  tottcount;
-extern int  mattcount;
+extern void ChannelLogSave _((char *, ChannelList *));
 #endif
 /* Patched by Zakath */
 #ifdef CELE
@@ -594,6 +596,9 @@ channel_topic(from, ArgList)
 		**ArgList;
 {
 	char	*topic, *channel;
+/**************************** Patched by Flier ******************************/
+        ChannelList *chan;
+/****************************************************************************/
 
  	save_message_from();
 	if (ArgList[1] && is_channel(ArgList[0]))
@@ -616,6 +621,17 @@ channel_topic(from, ArgList)
 		put_it("%sTopic: %s", numeric_banner(), ArgList[0]);
 /****************************************************************************/
 	}
+/**************************** Patched by Flier ******************************/
+        if (ChanLog) {
+            chan = lookup_channel(channel, parsing_server_index, 0);
+            if (chan && chan->ChanLog) {
+                char tmpbuf[mybufsize];
+
+                sprintf(tmpbuf, "Topic for %s: %s", channel, topic);
+                ChannelLogSave(tmpbuf, chan);
+            }
+        }
+/****************************************************************************/
  	restore_message_from();
 }
 

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.77 2002-01-07 19:18:16 f Exp $
+ * $Id: edit5.c,v 1.78 2002-01-08 17:55:45 f Exp $
  */
 
 #include "irc.h"
@@ -217,15 +217,21 @@ char **ArgList;
     ChannelList *chan;
 
     if (ArgList[1] && is_channel(ArgList[0]) && ArgList[2]) {
-        channel=ArgList[0];
-        if ((chan=lookup_channel(channel,from_server,0))) {
-            chan->topicwhen=atoi(ArgList[2]);
-            malloc_strcpy(&(chan->topicwho),ArgList[1]);
+        channel = ArgList[0];
+        if ((chan = lookup_channel(channel, parsing_server_index, 0))) {
+            chan->topicwhen = atoi(ArgList[2]);
+            malloc_strcpy(&(chan->topicwho), ArgList[1]);
             save_message_from();
             message_from(channel, LOG_CRAP);
-            put_it("%sSet by %s on %.19s",numeric_banner(),chan->topicwho,
+            put_it("%sSet by %s on %.19s", numeric_banner(), chan->topicwho,
                    ctime(&(chan->topicwhen)));
             restore_message_from();
+            if (chan->ChanLog) {
+                char tmpbuf[mybufsize];
+
+                sprintf(tmpbuf, "Set by %s on %.19s", chan->topicwho, ctime(&(chan->topicwhen)));
+                ChannelLogSave(tmpbuf, chan);
+            }
         }
     }
 }
@@ -2376,48 +2382,58 @@ void PrintSynch(chan)
 ChannelList *chan;
 {
 #ifdef HAVETIMEOFDAY
-    char tmpbuf1[mybufsize/16];
-    char tmpbuf2[mybufsize/32];
+    char tmpbuf1[mybufsize / 16];
+    char tmpbuf2[mybufsize / 32];
     struct timeval timenow;
 #endif
 
     if (!chan->gotbans || !chan->gotwho) return;
 #ifdef HAVETIMEOFDAY
-    gettimeofday(&timenow,NULL);
-    timenow.tv_sec-=chan->time.tv_sec;
-    if (timenow.tv_usec>=chan->time.tv_usec) timenow.tv_usec-=chan->time.tv_usec;
+    gettimeofday(&timenow, NULL);
+    timenow.tv_sec -= chan->time.tv_sec;
+    if (timenow.tv_usec >= chan->time.tv_usec) timenow.tv_usec -= chan->time.tv_usec;
     else {
-        timenow.tv_usec=timenow.tv_usec-chan->time.tv_usec+1000000;
+        timenow.tv_usec = timenow.tv_usec-chan->time.tv_usec + 1000000;
         timenow.tv_sec--;
     }
-    sprintf(tmpbuf2,"%06ld",timenow.tv_usec);
-    tmpbuf2[3]='\0';
-    sprintf(tmpbuf1,"%ld.%s",timenow.tv_sec,tmpbuf2);
+    sprintf(tmpbuf2, "%06ld", timenow.tv_usec);
+    tmpbuf2[3] = '\0';
+    sprintf(tmpbuf1, "%ld.%s", timenow.tv_sec, tmpbuf2);
 #ifndef CELEHOOK
-    if (do_hook(CHANNEL_SYNCH_LIST,"%s %s",chan->channel,tmpbuf1))
+    if (do_hook(CHANNEL_SYNCH_LIST, "%s %s", chan->channel, tmpbuf1))
 #endif /* CELEHOOK */
 #ifdef WANTANSI
         say("Join to %s%s%s is now %ssynched%s (%s seconds)",
-            CmdsColors[COLJOIN].color3,chan->channel,Colors[COLOFF],
-            CmdsColors[COLJOIN].color4,Colors[COLOFF],tmpbuf1);
+            CmdsColors[COLJOIN].color3, chan->channel, Colors[COLOFF],
+            CmdsColors[COLJOIN].color4, Colors[COLOFF], tmpbuf1);
 #else  /* WANTANSI */
         say("Join to %s is now %csynched%c (%s seconds)",
-            chan->channel,bold,bold,tmpbuf1);
+            chan->channel, bold, bold, tmpbuf1);
 #endif /* WANTANSI */
 #else  /* HAVETIMEOFDAY */
 #ifdef WANTANSI
 #ifndef CELEHOOK
-    if (do_hook(CHANNEL_SYNCH_LIST,"%s 0",chan->channel))
+    if (do_hook(CHANNEL_SYNCH_LIST, "%s 0", chan->channel))
 #endif /* CELEHOOK */
         say("Join to %s%s%s is now %ssynched%s",
-            CmdsColors[COLJOIN].color3,chan->channel,Colors[COLOFF],
-            CmdsColors[COLJOIN].color4,Colors[COLOFF]);
+            CmdsColors[COLJOIN].color3, chan->channel, Colors[COLOFF],
+            CmdsColors[COLJOIN].color4, Colors[COLOFF]);
 #else  /* WANTANSI */
-        say("Join to %s is now %csynched%c",chan->channel,bold,bold);
+        say("Join to %s is now %csynched%c", chan->channel, bold, bold);
 #endif /* WANTANSI */
 #endif /* HAVETIMEOFDAY */
     if (HAS_OPS(chan->status) && (chan->FriendList || chan->BKList))
-        HandleGotOps(get_server_nickname(from_server),chan);
+        HandleGotOps(get_server_nickname(from_server), chan);
+    if (chan && chan->ChanLog) {
+        char tmpbuf3[mybufsize];
+
+#ifdef HAVETIMEOFDAY
+        sprintf(tmpbuf3, "Join to %s is now synched (%s seconds)", chan->channel, tmpbuf1);
+#else  /* HAVETIMEOFDAY */
+        sprintf(tmpbuf3, "Join to %s is now synched", chan->channel);
+#endif  /* HAVETIMEOFDAY */
+        ChannelLogSave(tmpbuf3, chan);
+    }
 }
 
 /* Redirects last message/notice you have sent to current or specified channel */
@@ -3233,57 +3249,64 @@ char *filepath;
 }
 
 /* Prints names on channel join */
-void PrintNames(channel,nicks)
+void PrintNames(channel,nicks,chan)
 char *channel;
 char *nicks;
+ChannelList *chan;
 {
 #ifdef WANTANSI
-    int  addspace=0;
-    char *nick=(char *) 0;
-    char *tmpstr=(char *) 0;
+    int  addspace = 0;
+    char *nick = NULL;
+    char *tmpstr = NULL;
     char tmpbuf[mybufsize];
-    char buffer[BIG_BUFFER_SIZE+1];
+    char buffer[BIG_BUFFER_SIZE + 1];
 
-    strcpy(tmpbuf,nicks);
-    tmpstr=tmpbuf;
-    *buffer='\0';
-    while ((nick=new_next_arg(tmpstr,&tmpstr))) {
-        if (addspace) strcat(buffer," ");
-        else addspace=1;
-        if (*nick=='@') {
-            strcat(buffer,CmdsColors[COLNICK].color4);
-            strcat(buffer,"@");
-            strcat(buffer,Colors[COLOFF]);
-            strcat(buffer,CmdsColors[COLCSCAN].color3);
+    strcpy(tmpbuf, nicks);
+    tmpstr = tmpbuf;
+    *buffer = '\0';
+    while ((nick = new_next_arg(tmpstr, &tmpstr))) {
+        if (addspace) strcat(buffer, " ");
+        else addspace = 1;
+        if (*nick == '@') {
+            strcat(buffer, CmdsColors[COLNICK].color4);
+            strcat(buffer, "@");
+            strcat(buffer, Colors[COLOFF]);
+            strcat(buffer, CmdsColors[COLCSCAN].color3);
             nick++;
         }
-	else if (*nick=='%') {
-	    strcat(buffer,CmdsColors[COLNICK].color4);
-	    strcat(buffer,"%");
-	    strcat(buffer,Colors[COLOFF]);
-	    strcat(buffer,CmdsColors[COLCSCAN].color3);
+	else if (*nick == '%') {
+	    strcat(buffer, CmdsColors[COLNICK].color4);
+	    strcat(buffer, "%");
+	    strcat(buffer, Colors[COLOFF]);
+	    strcat(buffer, CmdsColors[COLCSCAN].color3);
 	    nick++;
 	}
-        else if (*nick=='+') {
-            strcat(buffer,CmdsColors[COLNICK].color5);
-            strcat(buffer,"+");
-            strcat(buffer,Colors[COLOFF]);
-            strcat(buffer,CmdsColors[COLCSCAN].color4);
+        else if (*nick == '+') {
+            strcat(buffer, CmdsColors[COLNICK].color5);
+            strcat(buffer, "+");
+            strcat(buffer, Colors[COLOFF]);
+            strcat(buffer, CmdsColors[COLCSCAN].color4);
             nick++;
         }
-        else strcat(buffer,CmdsColors[COLCSCAN].color5);
-        strcat(buffer,nick);
-        strcat(buffer,Colors[COLOFF]);
-        if (strlen(buffer)>=BIG_BUFFER_SIZE-100) {
-            say("Users on %s%s%s: %s",CmdsColors[COLCSCAN].color1,channel,Colors[COLOFF],buffer);
-            *buffer='\0';
+        else strcat(buffer, CmdsColors[COLCSCAN].color5);
+        strcat(buffer, nick);
+        strcat(buffer, Colors[COLOFF]);
+        if (strlen(buffer) >= BIG_BUFFER_SIZE - 100) {
+            say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, channel, Colors[COLOFF], buffer);
+            *buffer = '\0';
         }
     }
     if (*buffer)
-        say("Users on %s%s%s: %s",CmdsColors[COLCSCAN].color1,channel,Colors[COLOFF],buffer);
+        say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, channel, Colors[COLOFF], buffer);
 #else
-    say("Users on %s: %s",channel,nicks);
+    say("Users on %s: %s", channel, nicks);
 #endif
+    if (chan && chan->ChanLog) {
+        char tmpbuf[4 * mybufsize];
+
+        sprintf(tmpbuf, "Users on %s: %s", channel, nicks);
+        ChannelLogSave(tmpbuf, chan);
+    }
 }
 
 /* Initializes keys and default color scheme */

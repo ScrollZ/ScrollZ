@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.13 2001-08-31 15:37:55 f Exp $
+ * $Id: funny.c,v 1.14 2002-01-08 17:55:45 f Exp $
  */
 
 #include "irc.h"
@@ -51,12 +51,13 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 
-extern void PrintNames _((char *, char *));
+extern void PrintNames _((char *, char *, ChannelList *));
 extern void PrintSynch _((ChannelList *));
 extern int  IsIrcNetOperChannel _((char *));
 #if defined(OPERVISION) && defined(WANTANSI)
 extern void OperVisionReinit _((void));
 #endif
+extern void ChannelLogSave _((char *, ChannelList *));
 /****************************************************************************/
 
 static	char	*match_str = (char *) 0;
@@ -295,9 +296,9 @@ funny_namreply(from, Args)
 			/*say("Users on %s: %s", channel, line);
 		while ((nick = next_arg(line, &line)) != NULL)
 			add_to_channel(channel, nick, parsing_server_index, 0, 0);*/
-			PrintNames(channel,line);
-                while ((nick=next_arg(line,&line))!=NULL)
-                    add_to_channel(channel,nick,parsing_server_index,0,0,0,NULL,tmp);
+			PrintNames(channel, line, tmp);
+                while ((nick = next_arg(line, &line))!=NULL)
+                    add_to_channel(channel, nick, parsing_server_index, 0, 0, 0, NULL, tmp);
 /****************************************************************************/
 		tmp->status |= CHAN_NAMES;
  		goto out;
@@ -345,19 +346,19 @@ funny_namreply(from, Args)
 				}
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Pub", channel, line);*/
-				say("Users on %s are : %s",channel,line);
+				say("Users on %s are : %s", channel, line);
 /****************************************************************************/				
 				break;
 			case '*':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Prv", channel, line);*/
-				say("Users on %s are : %s",channel,line);
+				say("Users on %s are : %s", channel, line);
 /****************************************************************************/				
 				break;
 			case '@':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Sec", channel, line);*/
-				say("Users on %s are : %s",channel,line);
+				say("Users on %s are : %s", channel, line);
 /****************************************************************************/				
 				break;
 			}
@@ -405,6 +406,12 @@ funny_mode(from, ArgList)
                     else server_list[from_server].SZUnban=0;
                     server_list[from_server].SZWho--;
                     PrintSynch(tmp);
+                }
+                if (tmp && tmp->ChanLog) {
+                    char tmpbuf[mybufsize];
+
+                    sprintf(tmpbuf, "Mode for channel %s is %s", channel, mode);
+                    ChannelLogSave(tmpbuf, tmp);
                 }
 /****************************************************************************/
 		tmp->status |= CHAN_MODE;

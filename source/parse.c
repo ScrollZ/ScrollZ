@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.52 2002-01-07 19:18:16 f Exp $
+ * $Id: parse.c,v 1.53 2002-01-08 17:55:45 f Exp $
  */
 
 #include "irc.h"
@@ -280,24 +280,30 @@ p_topic(from, ArgList)
 {
 	int	flag;
 /**************************** PATCHED by Flier ******************************/
-        time_t  timenow=time((time_t *) 0);
+        time_t  timenow = time(NULL);
         ChannelList *chan;
 /****************************************************************************/				
 
         if (!from)
 		return;
 /**************************** PATCHED by Flier ******************************/
-        if (ArgList[0] && ArgList[1] && (chan=lookup_channel(ArgList[0],parsing_server_index,0))) {
+        if (ArgList[0] && ArgList[1] && (chan = lookup_channel(ArgList[0], parsing_server_index, 0))) {
+            char tmpbuf[mybufsize];
+
             chan->topic++;
-            if (*ArgList[1]) malloc_strcpy(&(chan->topicstr),ArgList[1]);
+            if (*ArgList[1]) malloc_strcpy(&(chan->topicstr), ArgList[1]);
             else new_free(&(chan->topicstr));
-            malloc_strcpy(&(chan->topicwho),from);
-            chan->topicwhen=timenow;
+            malloc_strcpy(&(chan->topicwho), from);
+            chan->topicwhen = timenow;
 #ifdef EXTRAS
-            CheckTopic(chan->channel,parsing_server_index,chan);
+            CheckTopic(chan->channel, parsing_server_index, chan);
 #endif
+            if (chan->ChanLog) {
+                sprintf(tmpbuf, "%s has changed the topic on channel %s to %s", from, ArgList[0], ArgList[1]);
+                ChannelLogSave(tmpbuf, chan);
+            }
         }
-        if ((double_ignore(ArgList[0],NULL,IGNORE_CRAP))==IGNORED) return;
+        if ((double_ignore(ArgList[0], NULL, IGNORE_CRAP)) == IGNORED) return;
 /****************************************************************************/				
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
 	if (flag == IGNORED)
@@ -312,9 +318,9 @@ p_topic(from, ArgList)
 			/*say("%s has changed the topic to %s", from, ArgList[0]);*/
                 {
                         if (*ArgList[0])
-                            say("%s has set the topic to %s",from, ArgList[0]);
+                            say("%s has set the topic to %s", from, ArgList[0]);
                         else
-                            say("%s has unset the topic",from);
+                            say("%s has unset the topic", from);
                 }
 /****************************************************************************/				
 	}
