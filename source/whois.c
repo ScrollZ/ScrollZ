@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.18 2003-01-08 20:00:54 f Exp $
+ * $Id: whois.c,v 1.19 2003-03-25 17:12:24 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -61,6 +61,10 @@ extern void PrintWhoIsUser _((char *, char *, char *, char *, char *, char *, ch
 extern void PrintWhoIsChannels _((char *, char *));
 extern void PrintWhoIsServer _((char *, char *, char *));
 extern void BuildPrivs _((struct friends *, char *));
+
+#ifdef WANTANSI
+extern void ColorUserHost _((char *, char *, char *, int));
+#endif
 
 #ifdef CELECOSM
 extern struct friends *whoisfriend;
@@ -694,6 +698,51 @@ char **ArgList;
 #else  /* WANTANSI */
                 put_it("%sIdentified: %s %s",
                        numeric_banner(), nick, ArgList[1]);
+#endif /* WANTANSI */
+            }
+        }
+    }
+}
+
+void whois_actually(from,ArgList)
+char *from;
+char **ArgList;
+{
+    if (!ignore_whois_crap) {
+        char *nick;
+
+        nick = ArgList[0];
+        if (nick) {
+            if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1])) {
+                char *ip;
+#ifdef WANTANSI
+                char tmpbuf[mybufsize / 2];
+                ColorUserHost(ArgList[3], CmdsColors[COLWHOIS].color2, tmpbuf, 0);
+#endif /* WANTANSI */
+
+                PasteArgs(ArgList, 3);
+                ip = index(ArgList[3], '[');
+                if (!ip) ip = empty_string;
+#ifdef WANTANSI
+#ifdef GENX
+                put_it("%s³ %sactually%s ³ %s %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], tmpbuf,
+                       CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
+#elif defined(CELECOSM)
+                put_it("%s%sactually%s:   %s %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], tmpbuf,
+                       CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
+#else  /* CELECOSM */
+                put_it("%s%sActually%s  : %s %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], tmpbuf,
+                       CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
+#endif /* GENX */
+#else  /* WANTANSI */
+                put_it("%sActually:   %s %s",
+                       numeric_banner(), ArgList[3], ip);
 #endif /* WANTANSI */
             }
         }

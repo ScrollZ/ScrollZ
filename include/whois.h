@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.h,v 1.5 2003-01-08 20:00:54 f Exp $
+ * $Id: whois.h,v 1.6 2003-03-25 17:12:24 f Exp $
  */
 
 #ifndef __whois_h_
@@ -54,6 +54,7 @@
 /**************************** Patched by Flier ******************************/
         void	whois_admin _((char *, char **));
         void	whois_identified _((char *, char **));
+        void	whois_actually _((char *, char **));
 /****************************************************************************/
 	void	whois_lastcom _((char *, char **));
 	void	whois_nickname _((WhoisStuff *, char *, char *));

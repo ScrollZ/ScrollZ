@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.68 2003-01-08 20:00:54 f Exp $
+ * $Id: numbers.c,v 1.69 2003-03-25 17:12:24 f Exp $
  */
 
 #include "irc.h"
@@ -1182,6 +1182,9 @@ numbered_command(from, comm, ArgList)
 	case 320: /* Open Projects Network */
 	case 330: /* QuakeNet */
                 whois_identified(from, ArgList);
+                break;
+	case 338:
+                whois_actually(from, ArgList);
                 break;
 /****************************************************************************/
 
