@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.48 1999-08-22 12:35:44 f Exp $
+ * $Id: edit6.c,v 1.49 1999-08-25 20:09:04 f Exp $
  */
 
 #include "irc.h"
@@ -119,8 +119,8 @@ extern void CleanUpWindows _((void));
 extern void CleanUpFlood _((void));
 extern void CleanUpVars _((void));
 extern void Dump _((char *, char *, char *));
-extern void EncryptString _((char *, char *, char *, int));
-extern void DecryptString _((char *, char *, char *, int));
+extern void EncryptString _((char *, char *, char *, int, int));
+extern void DecryptString _((char *, char *, char *, int, int));
 /* Patched by Zakath */
 extern void CeleAway _((int));
 
@@ -2353,7 +2353,7 @@ char *user;
 
     if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
                                             !REMOVE_FROM_LIST))) {
-        EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
+        EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1);
     }
     return(tmp?1:0);
 }
@@ -2367,7 +2367,7 @@ char *user;
 
     if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
                                             !REMOVE_FROM_LIST))) {
-        DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16);
+        DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1);
     }
     return(tmp?1:0);
 }
@@ -2671,7 +2671,7 @@ char *subargs;
             wild_match(filter,tmpfriend->userhost) ||
             wild_match(tmpfriend->userhost,filter)) {
             count++;
-            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16);
+            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
             malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
         }
     }
