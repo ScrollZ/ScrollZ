@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.57 2001-02-05 16:36:51 f Exp $
+ * $Id: edit3.c,v 1.58 2001-02-26 17:24:37 f Exp $
  */
 
 #include "irc.h"
@@ -161,29 +161,26 @@ char *command;
 char *args;
 char *subargs;
 {
-    char tmpbuf[mybufsize/32];
-
     put_it("");
     put_it("");
-    put_it("                                                            :");
-    put_it("                                                      `");
-    put_it("                                                    .   :   i");
-    put_it("                                                    .  ,i  ,l");
-    put_it("            .                                        \\,$$ ,$$");
-    put_it("          ,d$b\\\\                :i   ,/    _...__   ,d$$$ $$$  /b,..");
-    put_it(".,ss%%#+~`d$$$$$::         ,._     : ,d$$*s,`,,s%%%%%%s,.  `\\:::::: `\\$b, `~/s,.");
-    put_it("`\\$$$(   \\*~~`  .,s%%#b, l$$$::,     `\\$$$b \\$$$$/$$$b : $$i \\$$$$$b,  )$$$$7");
-    put_it("   `'*,, _ .,:b,`\\$$7   i$$$(:$$$:    )$$$i $  $  $$$$i  $$$  )$$$$$:: ,$$$7/");
-    put_it("            \\\\$$$b $(    ::LLL7 $$ _,,d$$$7`,$: $  $$$$$: $$i         ,*~~`");
-    put_it(".,s|b,.     :)$$$$i::        --:$$`'/$s,.,($$$$$$$\\PP$$i  $$l   .,s7`");
-    put_it("`\\$$$$$S#/  :$$$$$::i    ////: $$$i   d$$:i$$$$$$(  ,d+ : $$$,) $$(");
-    put_it("  `'*$$( .,d$$$7`,dl:.  )$$$) $$$l: i$$$(`*/$$$$$\\`,d$ $$$7 d$$$b,..  yyy");
-    put_it("        `^ ~~`` :: `~**`'*/`/*~`  :$$$$$$$ ``^''^`///$$ $$$ MYDKNIGHT> $$$");
-    bzero(tmpbuf,sizeof(tmpbuf));
-    memset(tmpbuf,' ',16-strlen(ScrollZver1));
-    put_it("           %s%s`                            ~*/.",
-           ScrollZver1,tmpbuf);
-    put_it("                                                            `");
+    put_it("      .dSSSSSSb..sSSs.  .SSSSb.  .sSb. SSS'.SS' .dSSS.");
+    put_it("    .SSSP'  `SSS. `SSS .S' `SSSS.S `SSS S'.SS .SSS'`SS.");
+    put_it("   .SSP'   .SS'SS  `SS SS    `SSSb  `SSS  SS.dSS'   XSS");
+    put_it("   SS'   .dSS' `S.  `S SS     SSSS  d`SS .SSSSP    .SS'");
+    put_it("   SS.   SSS'    .   ` SS    dSSP'  S SS SSSP     .SS'");
+    put_it("   `SSSb.~SS     .sSSb.SS .sSSP'S   S SS `SS     .SS'");
+    put_it("    `SSSSISS       `SSSSSSSSP'  S   S SS  SS    .SS'");
+    put_it("       `SSSSSS       `SSSS`SS. SS   S SS  SS  .SSS'                .S");
+    put_it("         s.XSSSS      `SS  `SS SS   S SS  SS  SSS'              .sSS");
+    put_it("    .    SSS `SSS      SS   `S.SS   S.SS  SS  SSS.   .       .sSS'");
+    put_it("    Sb   `SS  `SS  .SS SS    Sb`S   `SSS  S'.. SSS..s      .sSSS'");
+    put_it("    SSSb  `XS dSS  SSS SS    `Sb`bs.dSS.  dSS  `XSSb.    .sSSS'");
+    put_it("    `SSSSb. .dSS .dSS' SS     SSb.SSSS SSbSS SS SS`XSSb.dSSS'");
+    put_it("      `SSSSSSSS SSSS'.SS'   .dSSSS`SS' `SS'   SS    `SSSSS'");
+    put_it("                    dSS'   dSSSSS'    juice@3sheep");
+    put_it("                .sSSSS'   `juice'");
+    put_it("               SSSSSS      `SSP'         %s",ScrollZver1);
+    put_it("               `SSS'");
     put_it("    coding   : flier (flier@globecom.net)");
     put_it("    celerity : Zakath (jeremy@3Sheep.COM)");
     put_it("    patches  : acidflash (acid@hostu.net)");
