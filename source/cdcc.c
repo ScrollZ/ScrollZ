@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.49 2002-05-08 18:12:28 f Exp $
+ * $Id: cdcc.c,v 1.50 2002-12-05 20:17:29 f Exp $
  */
 
 #include "irc.h"
@@ -472,9 +472,9 @@ char *line;
 #ifdef WANTANSI
             say("%sError%s, can't cd into %s%s%s",
                 CmdsColors[COLWARNING].color1,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,line,Colors[COLOFF]);
+                CmdsColors[COLSETTING].color2,fullname,Colors[COLOFF]);
 #else
-            say("Error, can't cd into %s",line);
+            say("Error, can't cd into %s",fullname);
 #endif
         }
         new_free(&fullname);
@@ -502,9 +502,9 @@ char *line;
 #ifdef WANTANSI
             say("%sError%s, can't cd into %s%s%s",
                 CmdsColors[COLWARNING].color1,Colors[COLOFF],
-                CmdsColors[COLSETTING].color2,line,Colors[COLOFF]);
+                CmdsColors[COLSETTING].color2,fullname,Colors[COLOFF]);
 #else
-            say("Error, can't cd into %s",line);
+            say("Error, can't cd into %s",fullname);
 #endif
         }
         new_free(&fullname);
