@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.25 2000-02-29 16:58:30 f Exp $
+ * $Id: cdcc.c,v 1.26 2000-04-12 20:06:30 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -575,9 +575,10 @@ int type;
                 etatime=0;
             }
 #ifndef CELEHOOK
-            if (do_hook(DCC_LIST,"%d %s %s %c %.2f %ld %s %d %ld",count,
+            sprintf(tmpbuf1,"%.2f",rate);
+            if (do_hook(DCC_LIST,"%d %s %s %c %s %ld %s %d %ld",count,
                         dcc_types[flags],Client->user,dccstatus(Client->flags),
-                        rate,etatime,filename,fills,(long) Client->filesize)) {
+                        tmpbuf1,etatime,filename,fills,(long) Client->filesize)) {
 #endif
                 if (completed) {
                     if (LongStatus) {
@@ -968,8 +969,9 @@ ChannelList *chan;
             number=1;
             for (tmp=packs;tmp;tmp=tmp->next) {
 #ifndef CELEHOOK
-                if (do_hook(CDCC_PLIST,"%d %d %d %.2f %d %s",number,tmp->totalfiles,
-                            tmp->totalbytes,tmp->minspeed,tmp->gets,tmp->description)) {
+                sprintf(tmpbuf2,"%.2f",tmp->minspeed);
+                if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",number,tmp->totalfiles,
+                            tmp->totalbytes,tmpbuf2,tmp->gets,tmp->description)) {
 #endif
                     if (delay==-1) delay=0;
                     sprintf(tmpbuf2,"%d/%dx",number,tmp->gets);
@@ -998,8 +1000,8 @@ ChannelList *chan;
                 number++;
             }
 #ifndef CELEHOOK
-            if (do_hook(CDCC_PLIST_FOOTER,"%d %d %.0f %.0f",count,CdccStats,
-                        BytesReceived,BytesSent)) {
+            sprintf(tmpbuf2,"%.0f %.0f",BytesReceived,BytesSent);
+            if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf2)) {
 #endif
                 if (CdccStats) {
                     formatstats(tmpbuf2,1);
@@ -2381,9 +2383,10 @@ char *args;
                     (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf1);
             sprintf(tmpbuf3,"%d/%dx",packcount,tmp->gets);
 
+            sprintf(tmpbuf1,"%.2f",tmp->minspeed);
 #ifndef CELEHOOK
-            if (do_hook(CDCC_PLIST,"%d %d %d %.2f %d %s",packcount,tmp->totalfiles,
-                        tmp->totalbytes,tmp->minspeed,tmp->gets,tmp->description)) {
+            if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",packcount,tmp->totalfiles,
+                        tmp->totalbytes,tmpbuf1,tmp->gets,tmp->description)) {
 #endif
                 sprintf(tmpbuf1,"-INV %d NOTICE %s :#%-6s %s  %s",delay,from,tmpbuf3,
                         tmp->description,tmpbuf2);
@@ -2396,8 +2399,8 @@ char *args;
             packcount++;
         }
 #ifndef CELEHOOK
-        if (do_hook(CDCC_PLIST_FOOTER,"%d %d %.0f %.0f",count,CdccStats,
-                    BytesReceived,BytesSent)) {
+        sprintf(tmpbuf1,"%.0f %.0f",BytesReceived,BytesSent);
+        if (do_hook(CDCC_PLIST_FOOTER,"%d %d %s",count,CdccStats,tmpbuf1)) {
 #endif
             if (CdccStats) {
                 formatstats(tmpbuf2,1);
