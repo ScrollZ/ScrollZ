@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.33 2000-05-14 07:57:56 f Exp $
+ * $Id: edit5.c,v 1.34 2000-07-10 15:53:59 f Exp $
  */
 
 #include "irc.h"
@@ -528,7 +528,7 @@ char *buffer;
 
     *buffer='\0';
     if (CmdsColors[number].color1) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color1,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -539,7 +539,7 @@ char *buffer;
     else strcat(buffer,"WHITE");
     strcat(buffer,"  ");
     if (CmdsColors[number].color2) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color2,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -550,7 +550,7 @@ char *buffer;
     else strcat(buffer,"WHITE");
     strcat(buffer,"  ");
     if (CmdsColors[number].color3) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color3,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -561,7 +561,7 @@ char *buffer;
     else strcat(buffer,"WHITE");
     strcat(buffer,"  ");
     if (CmdsColors[number].color4) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color4,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -572,7 +572,7 @@ char *buffer;
     else strcat(buffer,"WHITE");
     strcat(buffer,"  ");
     if (CmdsColors[number].color5) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color5,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -583,7 +583,7 @@ char *buffer;
     else strcat(buffer,"WHITE");
     strcat(buffer,"  ");
     if (CmdsColors[number].color6) {
-        for (i=0;i<NUMCOLORS;i++) {
+        for (i=0;i<SZNUMCOLORS;i++) {
             if (strstr(CmdsColors[number].color6,Colors[i])) {
                 strcat(buffer,ColorName(i));
                 strcat(buffer,",");
@@ -713,7 +713,7 @@ char *colname;
 {
     int  i;
     char tmpbuf[mybufsize/4];
-    char *colornames[NUMCOLORS]={
+    char *colornames[SZNUMCOLORS]={
         "NORMAL","BOLD","UNDERLINE","FLASH","REVERSE",
         "BLACK","RED","GREEN","YELLOW","BLUE","PURPLE","CYAN","WHITE",
         "BLACKBG","REDBG","GREENBG","YELLOWBG","BLUEBG","PURPLEBG","CYANBG","WHITEBG",
@@ -723,8 +723,8 @@ char *colname;
     if (colname && *colname) {
         strcpy(tmpbuf,colname);
         upper(tmpbuf);
-        for (i=0;i<NUMCOLORS;i++) if (!strcmp(tmpbuf,colornames[i])) break;
-        return(i<NUMCOLORS?i:-1);
+        for (i=0;i<SZNUMCOLORS;i++) if (!strcmp(tmpbuf,colornames[i])) break;
+        return(i<SZNUMCOLORS?i:-1);
     }
     return(-1);
 }
@@ -3765,18 +3765,33 @@ void InitKeysColors() {
     /* Window refnum, ircop (*), away and server in OV */
     malloc_strcpy(&CmdsColors[COLSBAR1].color2,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color2,Colors[COLGREEN]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color2,Colors[COLBLUEBG]);
+#endif
     /* ChanOp (@) and via server */
     malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLPURPLE]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLBLUEBG]);
+#endif
     /* Usermode and query */
     malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLBLUEBG]);
+#endif
     /* Channel and lastjoin */
     malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLYELLOW]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
+#endif
     /* Turn all attributes (bold) off */
     malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
+#endif
 #else
     /* BAR */
     malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
@@ -3785,30 +3800,51 @@ void InitKeysColors() {
     /* Level 1 stuff (nick) */
     malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLCYAN]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLBLUEBG]);
+#endif
     /* Level 2 stuff (modes, names) */
     malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLBLUEBG]);
+#endif
     /* Level 3 stuff (info) */
     malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLNOBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
+#endif
     /* level 4 stuff (brackets) */
     malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
+#endif
 #endif
 
     /* Color2 of the statusbar */
     /* Nickname and time */
     malloc_strcpy(&CmdsColors[COLSBAR2].color1,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR2].color1,Colors[COLCYAN]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR2].color1,Colors[COLBLUEBG]);
+#endif
     /* Various stuff (uptime, lag, status flags) */
     malloc_strcpy(&CmdsColors[COLSBAR2].color2,Colors[COLCYAN]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR2].color2,Colors[COLBLUEBG]);
+#endif
     /* Hold */
     malloc_strcpy(&CmdsColors[COLSBAR2].color3,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSBAR2].color3,Colors[COLWHITE]);
+#ifdef SZ32
+    malloc_strcat(&CmdsColors[COLSBAR2].color3,Colors[COLBLUEBG]);
+#endif
     /* Window activity */
-    malloc_strcpy(&CmdsColors[COLSBAR2].color4,Colors[COLREDBG]);
+    malloc_strcpy(&CmdsColors[COLSBAR2].color4,Colors[COLYELLOW]);
     malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLYELLOW]);
+    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLREDBG]);
 
 #ifdef CELECOSM
     /* Celerity Colors - Used in cosmetics */
