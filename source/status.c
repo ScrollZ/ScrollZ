@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.28 2002-01-29 16:26:34 f Exp $
+ * $Id: status.c,v 1.29 2002-04-08 15:38:58 f Exp $
  */
 
 #include "irc.h"
@@ -2239,7 +2239,7 @@ Window	*window;
     if (!channel || !chan_is_connected(channel,window->server) ||
         (!get_int_var(SHOW_STATUS_ALL_VAR) && current_screen->current_window!=window))
         malloc_strcpy(&ptr,empty_string);
-    else if ((chan=lookup_channel(channel,curr_scr_win->server,0))==NULL)
+    else if ((chan=lookup_channel(channel,window->server,0))==NULL)
         malloc_strcpy(&ptr,empty_string);
     else {
         StripAnsi(chan->topicstr?chan->topicstr:empty_string,topicbuf,3);
