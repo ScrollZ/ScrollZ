@@ -65,7 +65,9 @@ If no key is given encrypted communication with nick/channel is
 ended. If neither user nor key are given all users in encryption
 list are listed. DCC CHAT sessions can be encrypted if nick starts
 with '='. Use '-' as first character in key if you want to communicate
-with users of ScrollZ v1.8j and older.
+with users of ScrollZ v1.8j and older. Whenever encrypted communication
+is used publics and private messages are prepended with [!]. DCC CHAT
+messages are encrypted if nick is enclosed in *.
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
