@@ -108,6 +108,7 @@ CDCC SAVE now saves number of gets for each pack, and CDCC LOAD restores it
 added AUTOOPDELAY (requested by enkil)
 fixed IGNORE * CRAP preventing client from caching topic (reported by
       Sparhawk)
+added new friend list flag X for instant op
 
 
 -------------------------------------------------------------------------------
