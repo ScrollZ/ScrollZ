@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.7 1998-10-21 18:27:09 f Exp $
+ * $Id: edit3.c,v 1.8 1998-10-21 19:36:02 f Exp $
  */
 
 #include "irc.h"
@@ -2261,7 +2261,7 @@ char *subargs;
 }
 
 /* Clean friends list, shit list and word-kick list */
-void CleanUpLists(void) {
+void CleanUpLists() {
     struct words *tmpword;
     struct friends *tmpfriend;
     struct autobankicks *tmpabk;
@@ -2454,7 +2454,6 @@ void InitVars() {
     malloc_strcpy(&KickOnFloodChannels,"*");
     malloc_strcpy(&KickOnBanChannels,"*");
     malloc_strcpy(&FriendListChannels,"*");
-    malloc_strcpy(&LastJoin,"none yet");
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
     defban='B';
