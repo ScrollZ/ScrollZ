@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.40 2001-11-01 20:16:37 f Exp $
+ * $Id: cdcc.c,v 1.41 2002-01-09 16:30:19 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -133,7 +133,6 @@ extern int  CheckChannel _((char *, char *));
 extern char *OpenCreateFile _((char *, int));
 extern struct friends *CheckUsers _((char *, char *));
 extern void ColorUserHost _((char *, char *, char *, int));
-extern void PrintPublic _((char *, char *, char *, char *, int));
 extern int  CheckServer _((int));
 
 extern void dcc_close _((char *));
