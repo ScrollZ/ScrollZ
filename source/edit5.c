@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.25 1999-04-28 16:12:57 f Exp $
+ * $Id: edit5.c,v 1.26 1999-05-21 17:06:51 f Exp $
  */
 
 #include "irc.h"
@@ -867,7 +867,7 @@ int  netsplit;
         server=new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
 #ifdef CELECOSM
-        sprintf(tmpbuf1,"%snetsplit%s %s[%s%s%s]%s - ",
+        sprintf(tmpbuf2,"%snetsplit%s %s[%s%s%s]%s - ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color3,CmdsColors[COLNETSPLIT].color2,
                 update_clock(GET_TIME),CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
