@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.101 2002-05-04 16:43:39 f Exp $
+ * $Id: edit4.c,v 1.102 2002-08-20 19:05:26 f Exp $
  */
 
 #include "irc.h"
@@ -456,7 +456,7 @@ ChannelList *chan;
     if (server_list[from_server].SZUnban < 2)
         server_list[from_server].SZUnban = 2;
     else server_list[from_server].SZUnban++;
-    server_list[from_server].SZWho++;
+    if (chan->gotwho == 0) server_list[from_server].SZWho++;
     tmpjoiner = CheckJoiners(nick, channel, from_server, chan);
     strmcpy(tmpbuf, nick, mybufsize / 4);
     strmcat(tmpbuf, "/", mybufsize/4);

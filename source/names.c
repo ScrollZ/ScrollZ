@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.45 2002-08-20 17:49:53 f Exp $
+ * $Id: names.c,v 1.46 2002-08-20 19:05:26 f Exp $
  */
 
 #include "irc.h"
@@ -2113,5 +2113,8 @@ mark_not_connected(server)
 	{
 		tmp->status = 0;
 		tmp->connected = CHAN_LIMBO;
+/**************************** Patched by Flier ******************************/
+                if (tmp->gotwho < 2) tmp->gotwho = 0;
+/****************************************************************************/
 	}
 }

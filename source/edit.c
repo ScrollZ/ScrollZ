@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.90 2002-04-07 16:42:01 f Exp $
+ * $Id: edit.c,v 1.91 2002-08-20 19:05:26 f Exp $
  */
 
 #include "irc.h"
@@ -1754,7 +1754,7 @@ e_channel(command, args, subargs)
                 if (my_strnicmp(chan, "-nowho", len) == 0) {
                     if ((chan = next_arg(args, &args)) == NULL)
                         goto out;	/* XXX: allow /alias join join -force */
-                    nowho = 1;
+                    nowho = 2;
                     len = MAX(2, strlen(chan));
 		}
 /****************************************************************************/
