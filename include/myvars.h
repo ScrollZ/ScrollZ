@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: myvars.h,v 1.2 1998-10-21 18:17:15 f Exp $
  */
 
 #include "mystructs.h"
@@ -116,8 +116,6 @@ extern char   *mydefaultserver;
 extern char   *ScrollZstr;
 extern char   *ScrollZver;
 extern char   *ScrollZlame;
-extern char   *LastMessage;
-extern char   *LastNotice;
 #ifdef EXTRA_STUFF
 extern char   *EString;
 #endif
@@ -155,8 +153,6 @@ extern char   *StatsFilter;
 extern char   *LastJoin;
 extern char   *AutoReplyBuffer;
 extern char   *OrigNick;
-extern char   *LastMessageSent;
-extern char   *LastNoticeSent;
 extern char   *CurrentNick;
 extern char   *LastChat;
 extern char   *CurrentDCC;
