@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.7 2000-08-22 17:40:27 f Exp $
+ * $Id: history.c,v 1.8 2001-06-07 20:48:08 f Exp $
  */
 
 #include "irc.h"
@@ -186,6 +186,10 @@ add_to_history_list(cnt, stuff)
 		new = command_history_tail;
 		command_history_tail = command_history_tail->prev;
 		command_history_tail->next = (History *) 0;
+/**************************** Patched by Flier ******************************/
+                /* fix possible crash in history search when history_tmp is freed */
+                if (history_tmp==new) history_tmp=(History *) 0;
+/****************************************************************************/
 		new_free(&new->stuff);
 		new_free(&new);
 		if (command_history_tail == (History *) 0)
@@ -293,6 +297,10 @@ set_history_size(size)
 		{
 			ptr = command_history_tail;
 			command_history_tail = ptr->prev;
+/**************************** Patched by Flier ******************************/
+                        /* fix possible crash in history search when history_tmp is freed */
+                        if (history_tmp==ptr) history_tmp=(History *) 0;
+/****************************************************************************/
 			new_free(&(ptr->stuff));
 			new_free(&ptr);
 		}
