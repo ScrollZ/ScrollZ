@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.5 2002-02-24 11:37:43 f Exp $
+!	 $Id: functions,v 1.6 2002-02-25 17:08:45 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -217,3 +217,6 @@ ScrollZ Functions
 
 Note:
   The argument separator for functions is the space character, not the comma.
+
+See Also:
+  ALIAS SZVAR
