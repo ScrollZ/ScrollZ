@@ -1,4 +1,4 @@
-!	 $Id: status_format,v 1.6 2002-02-24 10:14:30 f Exp $
+!	 $Id: status_format,v 1.7 2002-02-25 18:03:21 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -12,30 +12,40 @@ Usage: SET STATUS_FORMAT <format description for status line>
   this format line and replaced with various bits of status line
   information.  Each of these special characters is preceeded by
   a '%'.  Here is a list of these characters:
-       N          Your current nickname.
-       C          Your current channel.
-       R          Current window refnum or name.
-       W          Value of STATUS_WINDOW variable. *
-       +          Value of STATUS_MODE variable. *
-       Q          Value of STATUS_QUERY variable. *
-       I          Value of STATUS_INSERT variable. *
-       S          Value of STATUS_SERVER variable. *
-       F          Value of STATUS_NOTIFY variable. *
-       O          Value of STATUS_OVERWRITE variables. *
        A          Value of STATUS_AWAY variable. *
-       T          Value of STATUS_CLOCK variable. *
-       !00 - !09  Value of STATUS_USER,
-                  STATUS_USER1 to STATUS_USER9 variable. *
-       H          Value of STATUS_HOLD variable. *
-       *          Value of STATUS_OPER variable. *
-       @          Value of STATUS_CHANOP variable. *
-       M          Value of STATUS_MAIL variable. *
-       #	  Value of STATUS_UMODE variable.
        B	  Value of STATUS_HOLD_LINES variable. *
-       1	  Value of STATUS_UPTIME variable. *
-       Z	  Value of STATUS_LOADAVG variable (only in Cele). *
+       C          Your current channel.
+       D          Current status of user list (F=on, f=off). *
+       E          Current status of nethack protection: (N=on, n=off). *
+                          (q=quiet, m=medium, f=full)
+       F          Value of STATUS_NOTIFY variable. *
+       H          Value of STATUS_HOLD variable. *
+       I          Value of STATUS_INSERT variable. *
+       J          Current DCC status: G=DCC get,  g=DCC reget
+                                      S=DCC send, s=DCC resend
+                                      and the completion status. *
+       L          Current status of CTCP cloak (H=hide, K=on, k=off). *
+       M          Value of STATUS_MAIL variable. *
+       N          Your current nickname.
+       O          Value of STATUS_OVERWRITE variables. *
+       P          Current status of flood protection (M=max, P=on, p=off). *
+       Q          Value of STATUS_QUERY variable. *
+       R          Current window refnum or name.
+       S          Value of STATUS_SERVER variable. *
+       T          Value of STATUS_CLOCK variable. *
        U	  Value of STATUS_CHANNELCOUNT variable. *
        V          Current ircII version
+       W          Value of STATUS_WINDOW variable. *
+       Z	  Value of STATUS_LOADAVG variable (only in Cele). *
+       +          Value of STATUS_MODE variable. *
+       !00 - !09  Value of STATUS_USER,
+                  STATUS_USER1 to STATUS_USER9 variable. *
+       *          Value of STATUS_OPER variable. *
+       @          Value of STATUS_CHANOP variable. *
+       #	  Value of STATUS_UMODE variable.
+       >          Makes anything beyond it right justified.
+       %          Replaced by %
+       1	  Value of STATUS_UPTIME variable. *
        2          Current lag. *
        3          Last person to join the current channel. *
        4          Number of Cdcc packs offered. *
@@ -44,16 +54,6 @@ Usage: SET STATUS_FORMAT <format description for status line>
        7          Current status of Cdcc autoget (A=on, a=off). *
        8          Current status of Cdcc security (S=on, s=off). *
        9          Current channel's topic. *
-       D          Current status of user list (F=on, f=off). *
-       E          Current status of nethack protection: (N=on, n=off). *
-                          (q=quiet, m=medium, f=full)
-       L          Current status of CTCP cloak (H=hide, K=on, k=off). *
-       P          Current status of flood protection (M=max, P=on, p=off). *
-       J          Current DCC status: G=DCC get,  g=DCC reget
-                                      S=DCC send, s=DCC resend
-                                      and the completion status. *
-       >          Makes anything beyond it right justified.
-       %          Replaced by %
 
   Those marked with * are only displayed in the status line when
   certain conditions are met.  Please get help on the variables
@@ -89,6 +89,7 @@ Usage: SET STATUS_FORMAT <format description for status line>
 See Also:  
   SET STATUS_AWAY
   SET STATUS_CHANNEL
+  SET STATUS_CHANNELCOUNT
   SET STATUS_CHANOP
   SET STATUS_CLOCK
   SET STATUS_DQUERY
@@ -96,6 +97,7 @@ See Also:
   SET STATUS_HOLD
   SET STATUS_HOLD_LINES
   SET STATUS_INSERT
+  SET STATUS_LOADAVG
   SET STATUS_MAIL
   SET STATUS_MODE
   SET STATUS_NOTIFY
@@ -105,6 +107,7 @@ See Also:
   SET STATUS_REVERSE
   SET STATUS_SERVER
   SET STATUS_UMODE
+  SET STATUS_UPTIME
   SET STATUS_USER
   SET STATUS_WINDOW
   SET CLOCK
