@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.8 2000-09-24 17:10:34 f Exp $
+ * $Id: output.c,v 1.9 2000-09-24 17:14:33 f Exp $
  */
 
 #include "irc.h"
@@ -125,7 +125,7 @@ refresh_screen(key, ptr)
 void
 init_screen()
 {
-#ifndef LITE
+#if !defined(HAVE_VASPRINTF) || !defined(HAVE_STDARG_H)
         if (!putbuf) {
             putbuf=(char *) malloc(4*BIG_BUFFER_SIZE+1);
             *putbuf='\0';
