@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.31 2003-04-16 17:27:26 f Exp $
+ * $Id: screen.c,v 1.32 2004-01-03 21:04:37 f Exp $
  */
 
 #include "irc.h"
@@ -2350,6 +2350,10 @@ next_line_back(window)
 	static	int	row;
 	static	Lastlog	*LogLine;
 	char	**TheirLines;
+/**************************** PATCHED by Flier ******************************/
+        size_t  len;
+        char    *my_str = NULL;
+/****************************************************************************/
 	static	char	*ScreenLines[MAXIMUM_SPLITS] =
 	{ 
 		NULL, NULL, NULL, NULL,
@@ -2377,8 +2381,16 @@ next_line_back(window)
 			LogLine = LogLine->next;
 		if (!LogLine)
 			return NULL;
-		TheirLines = split_up_line(LogLine->msg);
 /**************************** Patched by Flier ******************************/
+		/*TheirLines = split_up_line(LogLine->msg);*/
+                /* don't translate the stored string, make a copy and translate
+                   that (fixes translation when scrolling backwards) */
+		len = strlen(LogLine->msg);
+		my_str = new_malloc(len + 1);
+		bcopy(LogLine->msg, my_str, len);
+		my_str[len] = '\0';
+		TheirLines = split_up_line(my_str);
+                new_free(&my_str);
 		/*for (row = 0; TheirLines[row]; row++)*/
                 /* don't walk past the array boundary - fix suggested by braneded */
 		for (row = 0; TheirLines[row] && row < MAXIMUM_SPLITS; row++)
