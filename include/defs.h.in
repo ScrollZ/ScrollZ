@@ -335,4 +335,7 @@
 
 /* Define this if you want $country() in the client */
 #undef COUNTRY
+
+/* Define this if you want irc oper stuff (not OperVision!) */
+#undef OPER
 /****************************************************************************/
