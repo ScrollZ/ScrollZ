@@ -14,7 +14,6 @@
  CheckTimeMinute     Checks for things every minute
  AddFriendPrivs      Adds/removes flags for userlist entries
  AddFriendChannel    Adds/removes channels for userlist entries
- ShowHelpLine        Prints a line of help text
  MassKick            Kickc multiple nicks at the same time
  ServerPing	     Pings a server for precise lag time accros net - Zakath
  OnOffCommand        Sets ScrollZ settings (on/off)
@@ -70,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.130 2002-02-02 10:38:22 f Exp $
+ * $Id: edit6.c,v 1.131 2002-02-21 17:25:04 f Exp $
  */
 
 #include "irc.h"
@@ -893,72 +892,6 @@ char *subargs;
         snprintf(tmpbuf,sizeof(tmpbuf),"%sFCHAN filter|#number channel",command);
         PrintUsage(tmpbuf);
     }
-}
-
-/* Prints one line of help text (does color rendering) */
-void ShowHelpLine(line)
-char *line;
-{
-    char tmpbuf[mybufsize/2];
-    register char *tmpstr1=line;
-    register char *tmpstr2=tmpbuf;
-
-    *tmpstr2='\0';
-    while (*tmpstr1) {
-        if (*tmpstr1=='$') {
-            tmpstr1++;
-            switch (*tmpstr1) {
-                case '0':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,Colors[COLOFF],sizeof(tmpbuf));
-#endif
-                    break;
-                case '1':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color1,sizeof(tmpbuf));
-#endif
-                    break;
-                case '2':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color2,sizeof(tmpbuf));
-#endif
-                    break;
-                case '3':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color3,sizeof(tmpbuf));
-#endif
-                    break;
-                case '4':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color4,sizeof(tmpbuf));
-#endif
-                    break;
-                case '5':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color5,sizeof(tmpbuf));
-#endif
-                    break;
-                case '6':
-#ifdef WANTANSI
-                    strmcat(tmpbuf,CmdsColors[COLHELP].color6,sizeof(tmpbuf));
-#endif
-                    break;
-                default:
-                    *tmpstr2=*tmpstr1;
-                    *(tmpstr2+1)='\0';
-                    break;
-            }
-            tmpstr2=&tmpbuf[strlen(tmpbuf)];
-        }
-        else {
-            *tmpstr2=*tmpstr1;
-            tmpstr2++;
-            *tmpstr2='\0';
-        }
-        if (*tmpstr1) tmpstr1++;
-    }
-    *tmpstr2='\0';
-    say("%s",tmpbuf);
 }
 
 /* Kicks multiple nicks at the same time */

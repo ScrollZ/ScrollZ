@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.88 2002-01-28 16:23:59 f Exp $
+ * $Id: edit5.c,v 1.89 2002-02-21 17:25:04 f Exp $
  */
 
 #include "irc.h"
@@ -612,7 +612,7 @@ FILE *usfile;
     fprintf(usfile,"# Colors settings\n");
     fprintf(usfile,"# COLOR   Code    Col1  Col2  Col3  Col4  Col5  Col6\n");
     fprintf(usfile,"# Codes:    WARNING,JOIN,MSG,NOTICE,NETSPLIT,INVITE,MODE,\n");
-    fprintf(usfile,"#           SETTING,HELP,LEAVE,NOTIFY,CTCP,KICK,DCC,WHO,\n");
+    fprintf(usfile,"#           SETTING,LEAVE,NOTIFY,CTCP,KICK,DCC,WHO,\n");
     fprintf(usfile,"#           WHOIS,PUBLIC,CDCC,LINKS,DCCCHAT,CSCAN,NICK,\n");
     fprintf(usfile,"#           ME,SBAR,SBAR2 and OV\n");
     fprintf(usfile,"# Colors:   OFF,BOLD,UNDERLINE,FLASH,REVERSE,NOBOLD\n");
@@ -645,9 +645,6 @@ FILE *usfile;
                 break;
             case COLSETTING:
                 fprintf(usfile,"COLOR  SETTING   %s\n",tmpbuf);
-                break;
-            case COLHELP:
-                fprintf(usfile,"COLOR  HELP      %s\n",tmpbuf);
                 break;
             case COLLEAVE:
                 fprintf(usfile,"COLOR  LEAVE     %s\n",tmpbuf);
@@ -1644,10 +1641,6 @@ int  create;
     if (!filename) return(NULL);
     if (!(path=get_string_var(LOAD_PATH_VAR))) path=".";
     if ((filepath=path_search(filename,path))) return(filepath);
-    if (!strcmp(filename,"ScrollZ.help")) {
-        if (!(path=get_string_var(HELP_PATH_VAR))) return(NULL);
-        if ((filepath=path_search(filename,path))) return(filepath);
-    }
     if (!create) return(NULL);
     strmcpy(tmpbuf,path,sizeof(tmpbuf));
     if ((filepath=index(tmpbuf,':'))) *filepath='\0';
@@ -2749,7 +2742,6 @@ char *subargs;
         else if (!my_stricmp(tmpstr,"INVITE")) colsetting=COLINVITE;
         else if (!my_stricmp(tmpstr,"MODE")) colsetting=COLMODE;
         else if (!my_stricmp(tmpstr,"SETTING")) colsetting=COLSETTING;
-        else if (!my_stricmp(tmpstr,"HELP")) colsetting=COLHELP;
         else if (!my_stricmp(tmpstr,"LEAVE")) colsetting=COLLEAVE;
         else if (!my_stricmp(tmpstr,"NOTIFY")) colsetting=COLNOTIFY;
         else if (!my_stricmp(tmpstr,"CTCP")) colsetting=COLCTCP;
@@ -3586,22 +3578,6 @@ void InitKeysColors() {
     /* Channels */
     malloc_strcpy(&CmdsColors[COLSETTING].color5,Colors[COLBOLD]);
     malloc_strcat(&CmdsColors[COLSETTING].color5,Colors[COLCYAN]);
-
-    /* Help */
-    /* Topic */
-    malloc_strcpy(&CmdsColors[COLHELP].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLHELP].color1,Colors[COLCYAN]);
-    /* See also */
-    malloc_strcpy(&CmdsColors[COLHELP].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLHELP].color2,Colors[COLYELLOW]);
-    /* Examples */
-    malloc_strcpy(&CmdsColors[COLHELP].color3,Colors[COLCYAN]);
-    /* Other commands */
-    malloc_strcpy(&CmdsColors[COLHELP].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLHELP].color4,Colors[COLGREEN]);
-    /* Main topics */
-    malloc_strcpy(&CmdsColors[COLHELP].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLHELP].color5,Colors[COLCYAN]);
 
     /* Leaves */
     /* Nick */

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.85 2002-02-20 20:17:06 f Exp $
+ * $Id: edit.c,v 1.86 2002-02-21 17:25:04 f Exp $
  */
 
 #include "irc.h"
@@ -295,7 +295,6 @@ extern  void  NHProtToggle _((char *, char *, char *));
 extern  void  ChanStat _((char *, char *, char *));
 extern  void  Cdcc _((char *, char *, char *));
 extern  void  Ls _((char *, char *, char *));
-extern  void  SZHelp _((char *, char *, char *));
 extern  void  Chat _((char *, char *, char *));
 extern  void  NoChat _((char *, char *, char *));
 extern  void  Finger _((char *, char *, char *));
@@ -829,7 +828,6 @@ IrcCommand FAR irc_command[] =
 #ifndef LITE
   { "SETTINGS", 	NULL, 		Settings, 		0 },
 #endif
-  { "SHELP", 		NULL, 		SZHelp,			0 },
   { "SHOWAWAY", 	"SHOWAWAY", 	ChannelCommand, 	0 },
 #ifdef EXTRAS
   { "SHOWIDLE", 	NULL, 		ShowIdle, 		0 },

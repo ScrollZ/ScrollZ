@@ -92,6 +92,8 @@ Meaning of flags:
     + support for uppercase usermodes (requested by a few users)
     ~ WINDOW SERVER server CHANNEL #chan,key now works (reported by
       qoreQyaS)
+    ~ we now use HELP like ircII - all ScrollZ.help text was moved into
+      help directory which is now part of the distribution (thanks braneded)
 
 ------------------------------------------------------------------------------
 

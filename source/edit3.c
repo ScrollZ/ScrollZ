@@ -9,7 +9,6 @@
  NHProtToggle         Toggles nethack protection on/off
  ChanStat             Prints out some channel statistics
  Ls                   Does the ls command
- SZHelp               Displays help
  Chat                 Does /DCC CHAT nick
  NoChat               Does /DCC CLOSE CHAT nick
  Finger               Launches finger on nick
@@ -34,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.77 2002-02-02 10:33:34 f Exp $
+ * $Id: edit3.c,v 1.78 2002-02-21 17:25:04 f Exp $
  */
 
 #include "irc.h"
@@ -70,10 +69,6 @@
 
 #include <sys/stat.h> /* for umask() */
 
-void ShowSZHelpPage _((char *));
-void ShowSZHelp _((char *, char *));
-void ShowSZCommandPage _((char *));
-void ShowSZCommand _((char *, char *));
 void NextArg _((char *, char **, char *));
 void FingerNew _((WhoisStuff *, char *));
 int  CheckChannel _((char *, char *));
@@ -91,7 +86,6 @@ extern void StripAnsi _((char *, char *, int));
 extern void InitKeysColors _((void));
 extern void NotChanOp _((char *));
 extern void NoWindowChannel _((void));
-extern void ShowHelpLine _((char *));
 extern void PrintUsage _((char *));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern int  AddLast _((List *, List *));
@@ -103,11 +97,6 @@ extern void dcc_chat _((char *));
 extern void dcc_close _((char *));
 
 extern char *ScrollZver1;
-
-static FILE *helpfile;
-static char tmpbufhlp[mybufsize/32];
-static int  DontHold=0;
-static int  FoundCommand=0;
 extern char *CelerityNtfy;
 
 /* Removes key for channel */
@@ -488,173 +477,6 @@ char *subargs;
     execcmd(NULL,tmpbuf,NULL);
 }
 #endif
-
-/* Prints out ScrollZ help */
-void SZHelp(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
-{
-    int  noteof=1;
-    char *filepath;
-    char tmpbuf[mybufsize];
-
-    strcpy(tmpbufhlp,"####");
-    if (!(*args)) {
-        strcpy(tmpbufhlp,"!MAIN");
-        args=tmpbufhlp;
-    }
-    if (!my_stricmp(args,"CDCC")) {
-        helpmcommand(empty_string);
-        return;
-    }
-    filepath=OpenCreateFile("ScrollZ.help",0);
-    if (!filepath || (helpfile=fopen(filepath,"r"))==NULL) {
-        say("Can't open file ScrollZ.help");
-        return;
-    }
-    if (!my_stricmp(args,"USER")) strcpy(tmpbufhlp,"!USER");
-    if (!my_stricmp(args,"OPS")) strcpy(tmpbufhlp,"!OPS");
-    if (!my_stricmp(args,"MISC")) strcpy(tmpbufhlp,"!MISC");
-    if (!my_stricmp(args,"SETTINGS")) strcpy(tmpbufhlp,"!SETTINGS");
-    if (!my_stricmp(args,"INDEX")) strcpy(tmpbufhlp,"!INDEX");
-    if (my_stricmp(tmpbufhlp,"####")) {
-        *tmpbuf='\0';
-        noteof=1;
-        say("------------------------------------------------------------------------");
-        DontHold=0;
-        while (noteof && my_strnicmp(tmpbuf,tmpbufhlp,strlen(tmpbufhlp)))
-            noteof=readln(helpfile,tmpbuf);
-        if (noteof) {
-            say("%s",&tmpbuf[strlen(tmpbufhlp)+1]);
-            ShowSZHelpPage(tmpbufhlp);
-        }
-        else fclose(helpfile);
-        if (!my_stricmp(args,"!MAIN")) {
-            say("Try %cSHELP Topic%c to get a list of topic related commands",bold,bold);
-            say("or  %cSHELP Command%c to get help on using command",bold,bold);
-        }
-    }
-    else {
-        DontHold=0;
-        FoundCommand=0;
-        ShowSZCommandPage(args);
-    }
-}
-
-/* Display one page from ScrollZ.help file */
-void ShowSZHelpPage(line)
-char *line;
-{
-    int  noteof=1;
-    int  lineno=3;
-    char tmpbuf1[mybufsize];
-
-    while (lineno<curr_scr_win->display_size && noteof) {
-        noteof=readln(helpfile,tmpbuf1);
-        if (*tmpbuf1=='!') noteof=0;
-        else if (noteof && *tmpbuf1==':') {
-            ShowHelpLine(&tmpbuf1[1]);
-            lineno++;
-        }
-    }
-    if (!noteof) ShowSZHelp(line,"q");
-    else if (DontHold) ShowSZHelpPage(line);
-    else if (lineno>=curr_scr_win->display_size) add_wait_prompt("Press any key to continue, 'c' for continuous, 'q' to quit",ShowSZHelp,line,WAIT_PROMPT_KEY);
-}
-
-/* This waits for key press */
-void ShowSZHelp(stuff,line)
-char *stuff;
-char *line;
-{
-    if (line && (*line=='q' || *line=='Q')) {
-        fclose(helpfile);
-        return;
-    }
-    else {
-        if (line && (*line=='c' || *line=='C')) DontHold=1;
-        ShowSZHelpPage(NULL);
-    }
-}
-
-/* Display one page from ScrollZ.help file for one command */
-void ShowSZCommandPage(line)
-char *line;
-{
-    int  noteof=1;
-    int  lineno=1;
-    static int incommand=0;
-    char *tmpstr;
-    char *helpcmd;
-    char tmpbuf[mybufsize];
-
-    while (helpfile && lineno<curr_scr_win->display_size && noteof) {
-        noteof=readln(helpfile,tmpbuf);
-        if (*tmpbuf==':' || *tmpbuf=='!') {
-            helpcmd=tmpbuf;
-            tmpstr=tmpbuf;
-            if (*helpcmd && *tmpbuf==':') {
-                helpcmd=&tmpbuf[13];
-                while (isspace(*helpcmd)) helpcmd--;
-                helpcmd++;
-                *helpcmd='\0';
-                helpcmd=&tmpbuf[1];
-                tmpstr=&tmpbuf[14];
-                if (!(*tmpstr)) tmpstr++;
-                while (*tmpstr && isspace(*tmpstr)) tmpstr++;
-            }
-            incommand=0;
-            if (*tmpbuf==':' && wild_match(line,helpcmd)) {
-                say("------------------------------------------------------------------------");
-#ifdef WANTANSI
-                say("Help for command %s%s%s",
-                    CmdsColors[COLHELP].color1,&tmpbuf[1],Colors[COLOFF]);
-#else
-                say("Help for command %c%s%c",22,&tmpbuf[1],22);
-#endif
-                ShowHelpLine(tmpstr);
-                incommand=1;
-                FoundCommand=1;
-            }
-            if (incommand) lineno+=3;
-        }
-        else if (incommand) {
-            ShowHelpLine(tmpbuf);
-            lineno++;
-        }
-    }
-    if (helpfile) {
-        if (!noteof) ShowSZHelp(tmpbuf,"q");
-        else if (DontHold) ShowSZCommandPage(line);
-        else if (lineno>=curr_scr_win->display_size) add_wait_prompt("Press any key to continue, 'c' for continuous, 'q' to quit",ShowSZCommand,line,WAIT_PROMPT_KEY);
-    }
-    if (!FoundCommand) {
-        say("------------------------------------------------------------------------");
-#ifdef WANTANSI
-        say("Help for %s not found -  try %sSHELP INDEX%s for list of all commands",
-            line,CmdsColors[COLHELP].color1,Colors[COLOFF]);
-#else
-        say("Help for %s not found - try SHELP INDEX for list of all commands",line);
-#endif
-    }
-}
-
-/* This waits for key press */
-void ShowSZCommand(stuff,line)
-char *stuff;
-char *line;
-{
-    if (line && (*line=='q' || *line=='Q')) {
-        fclose(helpfile);
-        helpfile=NULL;
-        return;
-    }
-    else {
-        if (line && (*line=='c' || *line=='C')) DontHold=1;
-        ShowSZCommandPage(stuff);
-    }
-}
 
 /* Does /DCC CHAT nick */
 void Chat(command,args,subargs)
@@ -2293,7 +2115,8 @@ int ScrollZLoad()
             else if (!strcmp(tmpbuf3,"INVITE")) SetColors(COLINVITE,&pointer,&loaderror,lineno);
             else if (!strcmp(tmpbuf3,"MODE")) SetColors(COLMODE,&pointer,&loaderror,lineno);
             else if (!strcmp(tmpbuf3,"SETTING")) SetColors(COLSETTING,&pointer,&loaderror,lineno);
-            else if (!strcmp(tmpbuf3,"HELP")) SetColors(COLHELP,&pointer,&loaderror,lineno);
+            /* XXX: don't report error for HELP - just ignore it (this has to be removed one day) */
+            else if (!strcmp(tmpbuf3,"HELP")) ;
             else if (!strcmp(tmpbuf3,"LEAVE")) SetColors(COLLEAVE,&pointer,&loaderror,lineno);
             else if (!strcmp(tmpbuf3,"NOTIFY")) SetColors(COLNOTIFY,&pointer,&loaderror,lineno);
             else if (!strcmp(tmpbuf3,"CTCP")) SetColors(COLCTCP,&pointer,&loaderror,lineno);

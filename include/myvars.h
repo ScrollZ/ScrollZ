@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.31 2002-02-02 10:33:35 f Exp $
+ * $Id: myvars.h,v 1.32 2002-02-21 17:25:04 f Exp $
  */
 
 #include "mystructs.h"
@@ -42,31 +42,30 @@
 #define COLINVITE    5
 #define COLMODE      6
 #define COLSETTING   7
-#define COLHELP      8
-#define COLLEAVE     9
-#define COLNOTIFY    10
-#define COLCTCP      11
-#define COLKICK      12
-#define COLDCC       13
-#define COLWHO       14
-#define COLWHOIS     15
-#define COLPUBLIC    16
-#define COLCDCC      17
-#define COLLINKS     18
-#define COLDCCCHAT   19
-#define COLCSCAN     20
-#define COLNICK      21
-#define COLME        22
-#define COLMISC      23
-#define COLSBAR1     24
-#define COLSBAR2     25
+#define COLLEAVE     8
+#define COLNOTIFY    9
+#define COLCTCP      10
+#define COLKICK      11
+#define COLDCC       12
+#define COLWHO       13
+#define COLWHOIS     14
+#define COLPUBLIC    15
+#define COLCDCC      16
+#define COLLINKS     17
+#define COLDCCCHAT   18
+#define COLCSCAN     19
+#define COLNICK      20
+#define COLME        21
+#define COLMISC      22
+#define COLSBAR1     23
+#define COLSBAR2     24
 #if defined(CELECOSM) && defined(OPERVISION)
-#define COLCELE      26
-#define COLOV        27
-#elif defined(CELECOSM) && !defined(OPERVISION)
-#define COLCELE      26
-#elif defined(OPERVISION)
+#define COLCELE      25
 #define COLOV        26
+#elif defined(CELECOSM) && !defined(OPERVISION)
+#define COLCELE      25
+#elif defined(OPERVISION)
+#define COLOV        25
 #endif /* CELECOSM && OPERVISION */
 #endif /* WANTANSI */
 
