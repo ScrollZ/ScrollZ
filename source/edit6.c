@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.15 1998-11-19 21:11:38 f Exp $
+ * $Id: edit6.c,v 1.16 1998-11-20 20:43:35 f Exp $
  */
 
 #include "irc.h"
@@ -142,6 +142,8 @@ static struct mapstr *maplist=NULL;
 #ifdef ACID
 /* for filtered trace */
 static char *ftpattern=(char *) 0;
+int  tottcount=0;
+int  mattcount=0;
 #endif
 
 static struct commands {
@@ -2352,13 +2354,16 @@ char *stuff;
 
     nick=stuff;
     if ((host=index(stuff,'['))) {
+        tottcount++;
         *host++='\0';
         if ((tmpstr=index(host,']'))) *tmpstr='\0';
         else host=NULL;
         if (!my_stricmp(nick,get_server_nickname(from_server))) return;
         sprintf(tmpbuf,"%s!%s",nick,host);
-        if (wild_match(ftpattern,tmpbuf))
+        if (wild_match(ftpattern,tmpbuf)) {
+            mattcount++;
             say("%s[%s]",nick,host);
+        }
     }
 }
 #endif /* ACID */
