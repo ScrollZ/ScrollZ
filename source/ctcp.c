@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.15 1999-03-04 22:20:55 f Exp $
+ * $Id: ctcp.c,v 1.16 1999-03-09 20:35:50 f Exp $
  */
 
 #include "irc.h"
@@ -812,8 +812,8 @@ char *args;
             if ((i&(FLOP|FLINVITE|FLUNBAN))==(FLOP|FLINVITE|FLUNBAN))
                 strcat(tmpbuf1,"OPEN");
             sprintf(tmpaway,"Auto:%s  Prot:%s  No flood:%s  God:%s",
-                    YNreply(i&FLAUTOOP),YNreply(i&FLPROT),YNreply(i&FLNOFLOOD),
-                    YNreply(i&FLGOD));
+                    YNreply((i&FLAUTOOP)|(i&FLINSTANT)),YNreply(i&FLPROT),
+                    YNreply(i&FLNOFLOOD),YNreply(i&FLGOD));
             send_to_server("NOTICE %s :-ScrollZ- %s",from,tmpbuf1);
             send_to_server("NOTICE %s :-ScrollZ- %s",from,tmpaway);
             if (i&FLJOIN) send_to_server("NOTICE %s :-ScrollZ- I will auto-join above channel(s) when invited by you.",from);
