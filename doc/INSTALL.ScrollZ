@@ -1,4 +1,4 @@
-$Id: INSTALL.ScrollZ,v 1.2 2001-10-15 15:43:10 f Exp $
+$Id: INSTALL.ScrollZ,v 1.3 2002-03-09 17:55:11 f Exp $
 
 to compile ScrollZ
 
@@ -15,7 +15,7 @@ to compile ScrollZ
         that are important to it compiling.  it creates various files
         in this process.  configure takes a couple of minutes to run.
 
-     WARNING: gnu sed vesrion 2.05 (and maybe 2.04 -- i don't know)
+     WARNING: gnu sed version 2.05 (and maybe 2.04 -- i don't know)
      may not function properly with this configure script.  gnu
      sed version 2.03 does.  please do not send me a bug report if
      you are using gnu sed version 2.05 (such as linux systems), and
