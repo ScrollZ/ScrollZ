@@ -60,7 +60,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.64 2000-08-14 20:38:13 f Exp $
+ * $Id: edit6.c,v 1.65 2000-08-21 15:55:30 f Exp $
  */
 
 #include "irc.h"
@@ -2669,7 +2669,8 @@ char *subargs;
 }
 
 /* Parses STATS i reply from server */
-void HandleStatsI(ipiline,uhiline)
+void HandleStatsI(statschar,ipiline,uhiline)
+char *statschar;
 char *ipiline;
 char *uhiline;
 {
@@ -2686,7 +2687,7 @@ char *uhiline;
     }
     if (!StatsiFilter || (StatsiFilter && 
         (wild_match(StatsiFilter,tmpstr) || wild_match(StatsiFilter,ipiline))))
-        say("%s %s",ipiline,tmpbuf1);
+        say("%s %s %s",statschar,ipiline,tmpbuf1);
     StatsiNumber++;
 }
 #endif /* OPER */
