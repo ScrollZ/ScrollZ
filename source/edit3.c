@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.18 1999-01-17 10:21:14 f Exp $
+ * $Id: edit3.c,v 1.19 1999-01-17 12:42:40 f Exp $
  */
 
 #include "irc.h"
@@ -521,10 +521,10 @@ char *command;
 char *args;
 char *subargs;
 {
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize/2+1];
 
-    if (args && *args) sprintf(tmpbuf,"ls %s",args);
-    else sprintf(tmpbuf,"ls");
+    strcpy(tmpbuf,"ls ");
+    if (args && *args) strmcat(tmpbuf,args,mybufsize/2);
     execcmd(NULL,tmpbuf,NULL);
 }
 
