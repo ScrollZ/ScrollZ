@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.14 1999-01-22 18:46:29 f Exp $
+ * $Id: cdcc.c,v 1.15 1999-02-24 20:02:51 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1270,23 +1270,33 @@ char *line;
             last=tmp;
             count++;
         }
-        if (tmpstr1 && *tmpstr1 && !my_strnicmp(tmpstr1,"SPEED",5)) {
+        else if (tmpstr1 && *tmpstr1 && !my_strnicmp(tmpstr1,"SPEED",5)) {
             if (tmp) tmp->minspeed=atof(tmpstr);
-#ifdef WANTANSI
             else {
+#ifdef WANTANSI
                 say("%sError%s in %s, %sline %d%s (SPEED should follow PACK)",
                      CmdsColors[COLWARNING].color1,Colors[COLOFF],file,
                      CmdsColors[COLWARNING].color3,lineno,Colors[COLOFF]);
-                continue;
-            }
 #else
-            else {
                 say("Error in %s, line %d (SPEED should follow PACK)",file,lineno);
+#endif
                 continue;
             }
-#endif
         }
-        if (tmpstr1 && *tmpstr1 && !my_strnicmp(tmpstr1,"FILE",4)) {
+        else if (tmpstr1 && *tmpstr1 && !my_strnicmp(tmpstr1,"GETS",4)) {
+            if (tmp) tmp->gets=atoi(tmpstr);
+            else {
+#ifdef WANTANSI
+                say("%sError%s in %s, %sline %d%s (GETS should follow PACK)",
+                     CmdsColors[COLWARNING].color1,Colors[COLOFF],file,
+                     CmdsColors[COLWARNING].color3,lineno,Colors[COLOFF]);
+#else
+                say("Error in %s, line %d (GETS should follow PACK)",file,lineno);
+#endif
+                continue;
+            }
+        }
+        else if (tmpstr1 && *tmpstr1 && !my_strnicmp(tmpstr1,"FILE",4)) {
             if (tmp) {
                 for (tmpstr1=new_next_arg(tmpstr,&tmpstr);tmpstr1;tmpstr1=new_next_arg(tmpstr,&tmpstr))
                     if (SeedFiles(tmpstr1,0)) {
@@ -1296,33 +1306,27 @@ char *line;
                         else tmp->files=files;
                         files=NULL;
                     }
-#ifdef WANTANSI
                     else {
+#ifdef WANTANSI
                         say("%sError%s in %s, %sline %d%s (can't stat %s)",
                             CmdsColors[COLWARNING].color1,Colors[COLOFF],file,
                             CmdsColors[COLWARNING].color3,lineno,Colors[COLOFF],tmpstr1);
-                        continue;
-                    }
 #else
-                    else {
                         say("Error in %s, line %d (can't stat %s)",file,lineno,tmpstr1);
+#endif
                         continue;
                     }
-#endif
             }
-#ifdef WANTANSI
             else {
+#ifdef WANTANSI
                 say("%sError%s in %s, %sline %d%s (FILE should follow PACK)",
                     CmdsColors[COLWARNING].color1,Colors[COLOFF],file,
                     CmdsColors[COLWARNING].color3,lineno,Colors[COLOFF]);
-                continue;
-            }
 #else
-            else {
                 say("Error in %s, line %d (FILE should follow PACK)",file,lineno);
+#endif
                 continue;
             }
-#endif
         }
     }
     fclose(fp);
@@ -1392,6 +1396,7 @@ char *line;
         for (tmp=packs;tmp;tmp=tmp->next) {
             fprintf(fp,"PACK %s\n",tmp->description);
             if (tmp->minspeed>0.0) fprintf(fp,"SPEED %.2f\n",tmp->minspeed);
+            fprintf(fp,"GETS %d\n",tmp->gets);
             for (tmpfile=tmp->files;tmpfile;tmpfile=tmpfile->next)
                 fprintf(fp,"FILE %s/%s\n",tmpfile->path,tmpfile->file);
             count++;
