@@ -57,7 +57,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.42 1999-08-07 17:09:21 f Exp $
+ * $Id: edit6.c,v 1.43 1999-08-08 09:21:20 f Exp $
  */
 
 #include "irc.h"
@@ -1779,7 +1779,7 @@ char *subargs;
  	say("Mailing List: scrollz@listserv.sonn.com");
  	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");*/
         say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: acidflash, bighead, arc, myc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke and synergy");
+        say("Distribution: acidflash, bighead, arc, mathe, frash, ogre, lotbd, TrN, kali, Psylocke and synergy");
 	/*say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");*/
     /* XXX - Remove this, Flier */
     }
