@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.51 2003-04-29 16:53:50 f Exp $
+ * $Id: operv.c,v 1.52 2003-04-29 19:54:27 f Exp $
  */
 
 #include "irc.h"
@@ -1172,6 +1172,22 @@ char *from;
 #else			   
         snprintf(tmpbuf,sizeof(tmpbuf),"Temporary K-Line for %s%s%s expired",
                  CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpline,"KLINE over-ruled for ",21)) {
+        strcpy(word1,OVgetword(0,4,tmpline));
+        if ((tmp=index(word1,'['))) {
+            strcpy(word2,tmp);
+            *tmp='\0';
+        }
+        else *word2='\0';
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %skline%s] overruled %s%s%s %s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"K-Line overruled for %s%s%s %s",
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     else if (strstr(tmpline,"whois on you")) {
