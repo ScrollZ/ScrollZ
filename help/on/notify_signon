@@ -1,4 +1,4 @@
-!	 $Id: notify_signon,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: notify_signon,v 1.4 2002-02-24 10:59:36 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -8,5 +8,7 @@
 !
 Usage: ON [#|+|-|^|&|@]NOTIFY_SIGNON [-|^]<parameters> [action]
   This is activated when someone on your notify list (see
-  NOTIFY) signs onto irc.  The parameters to the action are:
+  NOTIFY) signs onto irc and the username and the
+  hostname of person who signed on are not known.
+  The parameters to the action are:
     $0  Nickname of person who signed on
