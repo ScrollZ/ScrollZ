@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.13 2002-03-11 20:25:01 f Exp $
+ * $Id: hook.c,v 1.14 2002-03-11 20:29:22 f Exp $
  */
 
 #include "irc.h"
@@ -870,7 +870,7 @@ on(command, args, subargs)
 			}
 		}
 		else if (cnt > 1)
-			say("Ambiguous ON function: %s", func);
+			ambiguous = 1;
 		else 
 		{
 			if (get_int_var(INPUT_PROTECTION_VAR) && !my_strnicmp(hook_functions[which].name, "INPUT", 5))
