@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.42 2003-01-08 20:00:54 f Exp $
+ * $Id: dcc.c,v 1.43 2003-05-04 18:06:58 f Exp $
  */
 
 #include "irc.h"
@@ -96,7 +96,7 @@ static	void	dcc_send_raw _((char *));
 static	void	process_incoming_chat _((DCC_list *));
 /**************************** PATCHED by Flier ******************************/
 /*static	void	process_outgoing_file _((DCC_list *));*/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
+#if defined(NON_BLOCKING_CONNECTS)
 static	void	process_outgoing_file _((DCC_list *, int));
 #else
 static	void	process_outgoing_file _((DCC_list *));
@@ -545,11 +545,11 @@ set_dcc_bits(rd, wd)
 		if (Client->write != -1 && (Client->flags & DCC_CNCT_PEND))
 			FD_SET(Client->write, wd);
 #endif
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-		if (Client->write != -1 && 
-			((Client->flags & DCC_TYPES) == DCC_FILEOFFER) &&
-			(!Client->eof))
-			FD_SET(Client->write, wd);
+#if defined(NON_BLOCKING_CONNECTS)
+		if (Client->write != -1 && Client->hyperdcc &&
+                    ((Client->flags & DCC_TYPES) == DCC_FILEOFFER) &&
+                    (!Client->eof))
+                    FD_SET(Client->write, wd);
 #endif
 		if (Client->read != -1)
 			FD_SET(Client->read, rd);
@@ -625,8 +625,9 @@ dcc_check(rd, wd)
 		}
 #endif
 /**************************** PATCHED by Flier ******************************/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-		if ((*Client)->write != -1 && FD_ISSET((*Client)->write, wd))
+#if defined(NON_BLOCKING_CONNECTS)
+		if ((*Client)->write != -1 && FD_ISSET((*Client)->write, wd) &&
+                    (*Client)->hyperdcc)
 		{
 			switch((*Client)->flags & DCC_TYPES)
 			{
@@ -656,8 +657,11 @@ dcc_check(rd, wd)
 /**************************** PATCHED by Flier ******************************/
 			case DCC_RESENDOFFER:
 				/*process_outgoing_file(*Client);*/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-                                process_outgoing_file(*Client,1);
+#if defined(NON_BLOCKING_CONNECTS)
+                                if ((*Client)->hyperdcc)
+                                    process_outgoing_file(*Client,1);
+                                else
+                                    process_outgoing_file(*Client,0);
 #else
 				process_outgoing_file(*Client);
 #endif
@@ -2411,7 +2415,7 @@ static	void
 /**************************** PATCHED by Flier ******************************/
 /*process_outgoing_file(Client)
 	DCC_list	*Client;*/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
+#if defined(NON_BLOCKING_CONNECTS)
 process_outgoing_file(Client,readwaiting)
 DCC_list *Client;
 int readwaiting;
@@ -2466,13 +2470,15 @@ DCC_list *Client;
 /****************************************************************************/
 		new_close(Client->read);
 		Client->read = Client->write;
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-                set_non_blocking(Client->write);
+#if defined(NON_BLOCKING_CONNECTS)
+                if (get_int_var(HYPER_DCC_VAR))
+                    set_non_blocking(Client->write);
 #endif
 		Client->flags &= ~DCC_WAIT;
 		Client->flags |= DCC_ACTIVE;
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-                Client->eof=0;
+#if defined(NON_BLOCKING_CONNECTS)
+                Client->eof = 0;
+                Client->hyperdcc = get_int_var(HYPER_DCC_VAR);
 #endif
 		Client->starttime = time(NULL);
 /**************************** Patched by Flier ******************************/
@@ -2493,8 +2499,8 @@ DCC_list *Client;
 	}
 /**************************** PATCHED by Flier ******************************/
         /*else*/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-        else if (readwaiting)
+#if defined(NON_BLOCKING_CONNECTS)
+        else if ((readwaiting && Client->hyperdcc) || !(Client->hyperdcc))
 #else
         else
 #endif
@@ -2542,11 +2548,7 @@ DCC_list *Client;
 		BlockSize = 16;
 /**************************** PATCHED by Flier ******************************/
         /*if ((bytesread = read(Client->file, tmp, BIG_BUFFER_SIZE)) != 0)*/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-	if ((bytesread = read(Client->file, tmp, BlockSize)) != 0)
-#else
-        if ((bytesread = read(Client->file, tmp, BIG_BUFFER_SIZE)) != 0)
-#endif
+        if ((bytesread = read(Client->file, tmp, BlockSize)) != 0)
 /****************************************************************************/
 	{
  		send(Client->write, tmp, (size_t)bytesread, 0);
@@ -2556,8 +2558,8 @@ DCC_list *Client;
 		Client->bytes_sent += bytesread;
 	}
 /**************************** PATCHED by Flier ******************************/
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-	else if (!readwaiting) {
+#if defined(NON_BLOCKING_CONNECTS)
+	else if (!readwaiting && Client->hyperdcc) {
             Client->eof=1;
             goto out;
         }

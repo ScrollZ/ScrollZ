@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.15 2002-02-01 18:47:37 f Exp $
+ * $Id: struct.h,v 1.16 2003-05-04 18:06:58 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -79,8 +79,9 @@ typedef	struct	DCC_struct
         int     server;
         int     resendoffset;
         float   minspeed;
-#if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
+#if defined(NON_BLOCKING_CONNECTS)
         int     eof;
+        int     hyperdcc;
 #endif
 #ifdef TDF
         char    *addr;

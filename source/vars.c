@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.24 2003-04-29 15:43:36 f Exp $
+ * $Id: vars.c,v 1.25 2003-05-04 18:06:59 f Exp $
  */
 
 #include "irc.h"
@@ -196,6 +196,9 @@ static	IrcVariable irc_variable[] =
 	{ "HISTORY_FILE",		STR_TYPE_VAR,	0, NULL, set_history_file, 0, 0 },
 	{ "HOLD_MODE",			BOOL_TYPE_VAR,	DEFAULT_HOLD_MODE, NULL, reset_line_cnt, 0, 0 },
 	{ "HOLD_MODE_MAX",		INT_TYPE_VAR,	DEFAULT_HOLD_MODE_MAX, NULL, NULL, 0, 0 },
+/**************************** Patched by Flier ******************************/
+        { "HYPER_DCC",                  BOOL_TYPE_VAR,  DEFAULT_HYPER_DCC, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "INDENT",			BOOL_TYPE_VAR,	DEFAULT_INDENT, NULL, NULL, 0, 0 },
 	{ "INPUT_ALIASES",		BOOL_TYPE_VAR,	DEFAULT_INPUT_ALIASES, NULL, NULL, 0, 0 },
 	{ "INPUT_PROMPT",		STR_TYPE_VAR,	0, NULL, set_input_prompt, 0, 0 },
