@@ -58,10 +58,11 @@ Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
 :DUMP          Dumps aliases, ons, vars or all of them
 Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
 :ENCRCHAT      Defined nicks and keys for encrypted DCC CHAT sessions
-Usage $3ENCRCHAT nick$0 [$3key$0]
+Usage $3ENCRCHAT$0 [$3nick$0 [$3key$0]]
 DCC CHAT with nick will be encrypted using key. Both parties have
 to use the same key for encryption/decryption to work. If no key
-is given encrypted communication with nick is ended.
+is given encrypted communication with nick is ended. If neither
+user nor key are given all users in encryption list are listed.
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
