@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.8 1999-10-04 19:21:37 f Exp $
+ * $Id: notice.c,v 1.9 1999-10-08 18:02:47 f Exp $
  */
 
 #include "irc.h"
@@ -172,7 +172,7 @@ parse_server_notice(from, to, line)
                            (!strcmp(to,"&SERVERS") || !strcmp(to,"&ERRORS")   ||
                             !strcmp(to,"&NOTICES") || !strcmp(to,"&LOCAL")    ||
                             !strcmp(to,"&CHANNEL") || !strcmp(to,"&NUMERICS") ||
-                            !strcmp(to,"&KILLS")))
+                            !strcmp(to,"&KILLS")   || !strcmp(to,"&CLIENTS")))
                             OVformat(line,NULL);
                         else
 #endif
