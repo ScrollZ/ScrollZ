@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.7 1998-11-02 21:20:57 f Exp $
+ * $Id: server.c,v 1.8 1998-11-02 21:50:22 f Exp $
  */
 
 #include "irc.h"
@@ -703,6 +703,12 @@ remove_from_server_list(i)
 
  	bcopy((char *) &server_list[i + 1], (char *) &server_list[i], (number_of_servers - i - 1) * sizeof(Server));
 	server_list = (Server *) new_realloc((char *) server_list, --number_of_servers * sizeof(Server));
+/**************************** PATCHED by Flier *******************************/
+        if (number_of_servers==0) {
+            new_free(&server_list);
+            server_list=(Server *) 0;
+        }
+/****************************************************************************/
 }
 
 /*
@@ -1526,7 +1532,7 @@ server(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/
  				/*get_connected(primary_server + 1, 0);*/
                                 get_connected(primary_server+1+
-                                              primary_server==-1?1+(rand()%number_of_servers):0,0);
+                                              primary_server==-1?1+(rand()%(number_of_servers?number_of_servers:1)):0,0);
 /****************************************************************************/
 			return;
 		}
