@@ -1,37 +1,37 @@
 /*
- * dcc.c: Things dealing client to client connections. 
- *
- * Written By Troy Rollo <troy@cbme.unsw.oz.au> 
- *
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-1998 Matthew R. Green.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * $Id: dcc.c,v 1.14 1999-04-08 16:01:38 f Exp $
- */
+* dcc.c: Things dealing client to client connections. 
+*
+* Written By Troy Rollo <troy@cbme.unsw.oz.au> 
+*
+* Copyright (c) 1991, 1992 Troy Rollo.
+* Copyright (c) 1992-1998 Matthew R. Green.
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+* 1. Redistributions of source code must retain the above copyright
+*    notice, this list of conditions and the following disclaimer.
+* 2. Redistributions in binary form must reproduce the above copyright
+*    notice, this list of conditions and the following disclaimer in the
+*    documentation and/or other materials provided with the distribution.
+* 3. The name of the author may not be used to endorse or promote products
+*    derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+* IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+* OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+* IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+* AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+* SUCH DAMAGE.
+*
+* $Id: dcc.c,v 1.15 1999-05-29 13:27:15 f Exp $
+*/
 
 #include "irc.h"
 
@@ -137,56 +137,56 @@ extern int  EncryptChatMessage _((char *, char *));
 
 struct
 {
-	char	*name;	/* *MUST* be in ALL CAPITALS */
-	int	uniq; /* minimum length to be a unique command */
-	void	(*function) _((char *));
+    char	*name;	/* *MUST* be in ALL CAPITALS */
+    int	uniq; /* minimum length to be a unique command */
+    void	(*function) _((char *));
 }	dcc_commands[] =
 {
-	{ "CHAT",	2, dcc_chat },
-	{ "LIST",	1, dcc_list },
-	{ "SEND",	2, dcc_filesend },
-	{ "GET",	1, dcc_getfile },
-	{ "CLOSE",	2, dcc_close },
+    { "CHAT",	2, dcc_chat },
+    { "LIST",	1, dcc_list },
+    { "SEND",	2, dcc_filesend },
+    { "GET",	1, dcc_getfile },
+    { "CLOSE",	2, dcc_close },
 /**************************** PATCHED by Flier ******************************/
-	/*{ "TALK",	2, dcc_talk },
-	{ "TMSG",	2, dcc_tmsg },
-        { "RENAME",	2, dcc_rename },*/
-        { "RENAME",	3, dcc_rename },
-	/*{ "SUMMON",	2, dcc_summon },*/
+    /*{ "TALK",	2, dcc_talk },
+    { "TMSG",	2, dcc_tmsg },
+    { "RENAME",	2, dcc_rename },*/
+    { "RENAME",	3, dcc_rename },
+    /*{ "SUMMON",	2, dcc_summon },*/
 /****************************************************************************/
-	{ "RAW",	2, dcc_send_raw },
+    { "RAW",	2, dcc_send_raw },
 /**************************** PATCHED by Flier ******************************/
-	{ "RESEND",	3, dcc_resend },
-	{ "REGET",	3, dcc_regetfile },
+    { "RESEND",	3, dcc_resend },
+    { "REGET",	3, dcc_regetfile },
 /****************************************************************************/
-	{ NULL,		0, (void (*) _((char *))) NULL }
+    { NULL,		0, (void (*) _((char *))) NULL }
 };
 
-	char	*dcc_types[] =
+    char	*dcc_types[] =
 {
-	"<null>",
-	"CHAT",
-	"SEND",
-	"GET",
+    "<null>",
+    "CHAT",
+    "SEND",
+    "GET",
 /**************************** PATCHED by Flier ******************************/
-	/*"TALK",
-	"SUMMON",*/
+    /*"TALK",
+    "SUMMON",*/
 /****************************************************************************/
-	"RAW_LISTEN",
-	"RAW",
+    "RAW_LISTEN",
+    "RAW",
 /**************************** PATCHED by Flier ******************************/
-	"RESEND",
-	"REGET", 
+    "RESEND",
+    "REGET", 
 /****************************************************************************/
-	NULL
+    NULL
 };
 
 /* this is such a fucking kludge */
 
 struct	deadlist
 {
-	DCC_list *it;
-	struct deadlist *next;
+    DCC_list *it;
+    struct deadlist *next;
 }	*deadlist = NULL;
 
 extern	int	in_ctcp_flag;
@@ -207,44 +207,44 @@ static	char	*dcc_time _((time_t));
 static int StatusDCC(Client)
 DCC_list *Client;
 {
-    int  size;
-    int  flags;
-    int  change=0;
-    int  percentage;
-    long completed;
-    char type;
-    char tmpbuf[mybufsize/16];
+int  size;
+int  flags;
+int  change=0;
+int  percentage;
+long completed;
+char type;
+char tmpbuf[mybufsize/16];
 
-    if (DCCDone || !Client || !(Client->filesize)) new_free(&CurrentDCC);
-    else {
-        flags=(Client->flags)&DCC_TYPES;
-        if (flags==DCC_FILEREAD) {
-            completed=Client->bytes_read;
-            type='G';
-        }
-        else if (flags==DCC_FILEREGET) {
-            completed=Client->bytes_read+Client->resendoffset;
-            type='g';
-        }
-        else if (flags==DCC_FILEOFFER) {
-            completed=Client->bytes_sent;
-            type='S';
-        }
-        else {
-            completed=Client->bytes_sent+Client->resendoffset;
-            type='s';
-        }
-        size=Client->filesize;
-        if (size>=10000000) percentage=completed/(size/100);
-        else percentage=completed*100/size;
-        sprintf(tmpbuf,"%s %c%%%d",Client->user,type,percentage);
-        if (!CurrentDCC || (CurrentDCC && strcmp(tmpbuf,CurrentDCC))) {
-            change=1;
-            malloc_strcpy(&CurrentDCC,tmpbuf);
-        }
+if (DCCDone || !Client || !(Client->filesize)) new_free(&CurrentDCC);
+else {
+    flags=(Client->flags)&DCC_TYPES;
+    if (flags==DCC_FILEREAD) {
+        completed=Client->bytes_read;
+        type='G';
     }
-    DCCDone=0;
-    return(change);
+    else if (flags==DCC_FILEREGET) {
+        completed=Client->bytes_read+Client->resendoffset;
+        type='g';
+    }
+    else if (flags==DCC_FILEOFFER) {
+        completed=Client->bytes_sent;
+        type='S';
+    }
+    else {
+        completed=Client->bytes_sent+Client->resendoffset;
+        type='s';
+    }
+    size=Client->filesize;
+    if (size>=10000000) percentage=completed/(size/100);
+    else percentage=completed*100/size;
+    sprintf(tmpbuf,"%s %c%%%d",Client->user,type,percentage);
+    if (!CurrentDCC || (CurrentDCC && strcmp(tmpbuf,CurrentDCC))) {
+        change=1;
+        malloc_strcpy(&CurrentDCC,tmpbuf);
+    }
+}
+DCCDone=0;
+return(change);
 }
 
 static void PrintEstablish(type,Client,remaddr,byteoffset)
@@ -253,92 +253,92 @@ DCC_list *Client;
 struct sockaddr_in remaddr;
 unsigned long byteoffset;
 {
-    char tmpbuf1[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
+char tmpbuf1[mybufsize/4];
+char tmpbuf2[mybufsize/4];
 
 #ifdef WANTANSI
 #ifdef TDF
-    malloc_strcpy(&(Client->addr),inet_ntoa(remaddr.sin_addr));
-    sprintf(tmpbuf1,"%d",ntohs(remaddr.sin_port));
-    malloc_strcpy(&(Client->port),tmpbuf1);
+malloc_strcpy(&(Client->addr),inet_ntoa(remaddr.sin_addr));
+sprintf(tmpbuf1,"%d",ntohs(remaddr.sin_port));
+malloc_strcpy(&(Client->port),tmpbuf1);
 #endif
-    sprintf(tmpbuf2,"%sDCC%s %s%s%s connection with %s%s%s",
-            CmdsColors[COLDCC].color5,Colors[COLOFF],
-            CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-            CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
-    sprintf(tmpbuf1,"%s[%s%s,%d%s]",tmpbuf2,
-            CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
-            ntohs(remaddr.sin_port),Colors[COLOFF]);
-    if (byteoffset) {
-        sprintf(tmpbuf2," at %s%ld%s bytes",
-                CmdsColors[COLDCC].color4,byteoffset,Colors[COLOFF]);
-        strcat(tmpbuf1,tmpbuf2);
-    }
-    sprintf(tmpbuf2,"%s %sestablished%s",
-            tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
+sprintf(tmpbuf2,"%sDCC%s %s%s%s connection with %s%s%s",
+        CmdsColors[COLDCC].color5,Colors[COLOFF],
+        CmdsColors[COLDCC].color3,type,Colors[COLOFF],
+        CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
+sprintf(tmpbuf1,"%s[%s%s,%d%s]",tmpbuf2,
+        CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
+        ntohs(remaddr.sin_port),Colors[COLOFF]);
+if (byteoffset) {
+    sprintf(tmpbuf2," at %s%ld%s bytes",
+            CmdsColors[COLDCC].color4,byteoffset,Colors[COLOFF]);
+    strcat(tmpbuf1,tmpbuf2);
+}
+sprintf(tmpbuf2,"%s %sestablished%s",
+        tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
 #else
-    sprintf(tmpbuf1,"DCC %s connection with %s[%s,%d]",
-            type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
-    if (byteoffset) {
-        sprintf(tmpbuf2," at %ld bytes",byteoffset);
-        strcat(tmpbuf1,tmpbuf2);
-    }
-    sprintf(tmpbuf2,"%s established",tmpbuf1);
+sprintf(tmpbuf1,"DCC %s connection with %s[%s,%d]",
+        type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
+if (byteoffset) {
+    sprintf(tmpbuf2," at %ld bytes",byteoffset);
+    strcat(tmpbuf1,tmpbuf2);
+}
+sprintf(tmpbuf2,"%s established",tmpbuf1);
 #endif
-    say("%s",tmpbuf2);
-    if (away_set || LogOn) AwaySave(tmpbuf2,SAVEDCC);
+say("%s",tmpbuf2);
+if (away_set || LogOn) AwaySave(tmpbuf2,SAVEDCC);
 }
 
 static void PrintComplete(type,Client)
 char *type;
 DCC_list *Client;
 {
-    int  flags=(Client->flags)&DCC_TYPES;
-    int  premature;
-    char *tmpstr="from";
-    char tmpbuf1[mybufsize/2];
-    char tmpbuf2[mybufsize/4];
-    time_t xtime=time((time_t *) 0)-Client->starttime;
-    double sent,oldsent;
+int  flags=(Client->flags)&DCC_TYPES;
+int  premature;
+char *tmpstr="from";
+char tmpbuf1[mybufsize/2];
+char tmpbuf2[mybufsize/4];
+time_t xtime=time((time_t *) 0)-Client->starttime;
+double sent,oldsent;
 
-    if (flags==DCC_FILEREAD) sent=(double) Client->bytes_read;
-    else if (flags==DCC_FILEREGET)
-        sent=(double) Client->bytes_read+(double) Client->resendoffset;
-    else if (flags==DCC_FILEOFFER) {
-        sent=(double) Client->bytes_sent;
-        tmpstr="to";
-    }
-    else {
-        sent=(double) Client->bytes_sent+(double) Client->resendoffset;
-        tmpstr="to";
-    }
-    if (sent<=0) sent=1;
-    oldsent=sent;
-    premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize);
-    sent/=(double)1024.0;
-    if (xtime<=0) xtime=1;
+if (flags==DCC_FILEREAD) sent=(double) Client->bytes_read;
+else if (flags==DCC_FILEREGET)
+    sent=(double) Client->bytes_read+(double) Client->resendoffset;
+else if (flags==DCC_FILEOFFER) {
+    sent=(double) Client->bytes_sent;
+    tmpstr="to";
+}
+else {
+    sent=(double) Client->bytes_sent+(double) Client->resendoffset;
+    tmpstr="to";
+}
+if (sent<=0) sent=1;
+oldsent=sent;
+premature=!strcmp(tmpstr,"from") && (sent<(double) Client->filesize);
+sent/=(double)1024.0;
+if (xtime<=0) xtime=1;
 #ifdef WANTANSI
-    sprintf(tmpbuf2,"%sDCC%s %s%s%s %s %s",
-            CmdsColors[COLDCC].color5,Colors[COLOFF],
-            CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-            Client->description,tmpstr);
-    sprintf(tmpbuf1,"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
-            CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF],
-            CmdsColors[COLDCC].color4,premature?" prematurely":"",Colors[COLOFF],
-            (sent/(double) xtime));
+sprintf(tmpbuf2,"%sDCC%s %s%s%s %s %s",
+        CmdsColors[COLDCC].color5,Colors[COLOFF],
+        CmdsColors[COLDCC].color3,type,Colors[COLOFF],
+        Client->description,tmpstr);
+sprintf(tmpbuf1,"%s %s%s%s %scompleted%s%s %.2f kb/sec",tmpbuf2,
+        CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF],
+        CmdsColors[COLDCC].color4,premature?" prematurely":"",Colors[COLOFF],
+        (sent/(double) xtime));
 #else
-    sprintf(tmpbuf1,"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
-            tmpstr,Client->user,premature?" prematurely":"",(sent/(double) xtime));
+sprintf(tmpbuf1,"DCC %s %s %s %s completed%s %.2f kb/sec",type,Client->description,
+        tmpstr,Client->user,premature?" prematurely":"",(sent/(double) xtime));
 #endif
-    if (premature) {
-        sprintf(tmpbuf2,", %.0f bytes left",(double) Client->filesize-oldsent);
-        strcat(tmpbuf1,tmpbuf2);
-    }
-    if (!sent) xtime=0;
-    sprintf(tmpbuf2," [%02ld:%02ld]",xtime/60,xtime%60);
+if (premature) {
+    sprintf(tmpbuf2,", %.0f bytes left",(double) Client->filesize-oldsent);
     strcat(tmpbuf1,tmpbuf2);
-    say("%s",tmpbuf1);
-    if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
+}
+if (!sent) xtime=0;
+sprintf(tmpbuf2," [%02ld:%02ld]",xtime/60,xtime%60);
+strcat(tmpbuf1,tmpbuf2);
+say("%s",tmpbuf1);
+if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
 
 static void PrintError(type,user,description,error)
@@ -347,514 +347,514 @@ char *user;
 char *description;
 char *error;
 {
-    char *tmpstr="to";
-    char tmpbuf1[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
+char *tmpstr="to";
+char tmpbuf1[mybufsize/4];
+char tmpbuf2[mybufsize/4];
 
 #ifdef WANTANSI
-    sprintf(tmpbuf1,"%sDCC%s %s%s%s ",
-            CmdsColors[COLDCC].color5,Colors[COLOFF],
-            CmdsColors[COLDCC].color3,type,Colors[COLOFF]);
-    if (!error) {
-        sprintf(tmpbuf2,"%s ",description);
-        strcat(tmpbuf1,tmpbuf2);
-    }
-    sprintf(tmpbuf2,"connection %s %s%s%s lost",tmpstr,
-            CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
+sprintf(tmpbuf1,"%sDCC%s %s%s%s ",
+        CmdsColors[COLDCC].color5,Colors[COLOFF],
+        CmdsColors[COLDCC].color3,type,Colors[COLOFF]);
+if (!error) {
+    sprintf(tmpbuf2,"%s ",description);
     strcat(tmpbuf1,tmpbuf2);
-    if (error) {
-        sprintf(tmpbuf2,": %s",error);
-        strcat(tmpbuf1,tmpbuf2);
-    }
+}
+sprintf(tmpbuf2,"connection %s %s%s%s lost",tmpstr,
+        CmdsColors[COLDCC].color1,user,Colors[COLOFF]);
+strcat(tmpbuf1,tmpbuf2);
+if (error) {
+    sprintf(tmpbuf2,": %s",error);
+    strcat(tmpbuf1,tmpbuf2);
+}
 #else
-    sprintf(tmpbuf1,"DCC %s ",type);
-    if (!error) {
-        sprintf(tmpbuf2,"%s ",description);
-        strcat(tmpbuf1,tmpbuf2);
-    }
-    sprintf(tmpbuf2,"connection %s %s lost",tmpstr,user);
+sprintf(tmpbuf1,"DCC %s ",type);
+if (!error) {
+    sprintf(tmpbuf2,"%s ",description);
     strcat(tmpbuf1,tmpbuf2);
-    if (error) {
-        sprintf(tmpbuf2,": %s",error);
-        strcat(tmpbuf1,tmpbuf2);
-    }
+}
+sprintf(tmpbuf2,"connection %s %s lost",tmpstr,user);
+strcat(tmpbuf1,tmpbuf2);
+if (error) {
+    sprintf(tmpbuf2,": %s",error);
+    strcat(tmpbuf1,tmpbuf2);
+}
 #endif
-    say("%s",tmpbuf1);
-    if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
+say("%s",tmpbuf1);
+if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
 
 static void OverWrite(fullname,Client)
 char **fullname;
 DCC_list *Client;
 {
-    struct stat statbuf;
+struct stat statbuf;
 
-    if (CdccOverWrite || !fullname || !Client) return;
-    while ((stat(*fullname,&statbuf))==0) {
-        malloc_strcat(fullname,"_");
-        malloc_strcat(&(Client->description),"_");
-    }
+if (CdccOverWrite || !fullname || !Client) return;
+while ((stat(*fullname,&statbuf))==0) {
+    malloc_strcat(fullname,"_");
+    malloc_strcat(&(Client->description),"_");
+}
 }
 /****************************************************************************/
 
 /*
- * dcc_searchlist searches through the dcc_list and finds the client
- * with the the flag described in type set.
- */
+* dcc_searchlist searches through the dcc_list and finds the client
+* with the the flag described in type set.
+*/
 DCC_list *
 dcc_searchlist(name, user, type, flag, othername)
-	char	*name,
-		*user;
-	int	type,
-		flag;
-	char	*othername;
+    char	*name,
+            *user;
+    int	type,
+            flag;
+    char	*othername;
 {
-	DCC_list **Client, *NewClient;
+    DCC_list **Client, *NewClient;
 
-	for (Client = (&ClientList); *Client ; Client = (&(**Client).next))
-	{
-		if ((((**Client).flags&DCC_TYPES) == type) &&
-		    ((!name || (!my_stricmp(name, (**Client).description))) ||
-		    (othername && (**Client).othername && (!my_stricmp(othername, (**Client).othername)))) &&
-		    (my_stricmp(user, (**Client).user)==0))
-			return *Client;
-	}
-	if (!flag)
-		return NULL;
-	*Client = NewClient = (DCC_list *) new_malloc(sizeof(DCC_list));
-	NewClient->flags = type;
-	NewClient->read = NewClient->write = NewClient->file = -1;
-	NewClient->filesize = filesize;
-	NewClient->next = (DCC_list *) 0;
-	NewClient->user = NewClient->description = NewClient->othername = NULL;
-	NewClient->bytes_read = NewClient->bytes_sent = 0L;
-	NewClient->starttime = 0;
-	NewClient->buffer = 0;
-	malloc_strcpy(&NewClient->description, name);
-	malloc_strcpy(&NewClient->user, user);
-	malloc_strcpy(&NewClient->othername, othername);
-	time(&NewClient->lasttime);
+    for (Client = (&ClientList); *Client ; Client = (&(**Client).next))
+    {
+            if ((((**Client).flags&DCC_TYPES) == type) &&
+                ((!name || (!my_stricmp(name, (**Client).description))) ||
+                (othername && (**Client).othername && (!my_stricmp(othername, (**Client).othername)))) &&
+                (my_stricmp(user, (**Client).user)==0))
+                    return *Client;
+    }
+    if (!flag)
+            return NULL;
+    *Client = NewClient = (DCC_list *) new_malloc(sizeof(DCC_list));
+    NewClient->flags = type;
+    NewClient->read = NewClient->write = NewClient->file = -1;
+    NewClient->filesize = filesize;
+    NewClient->next = (DCC_list *) 0;
+    NewClient->user = NewClient->description = NewClient->othername = NULL;
+    NewClient->bytes_read = NewClient->bytes_sent = 0L;
+    NewClient->starttime = 0;
+    NewClient->buffer = 0;
+    malloc_strcpy(&NewClient->description, name);
+    malloc_strcpy(&NewClient->user, user);
+    malloc_strcpy(&NewClient->othername, othername);
+    time(&NewClient->lasttime);
 /**************************** PATCHED by Flier ******************************/
-        NewClient->server=from_server;
-        NewClient->resendoffset=0;
-        NewClient->CdccTime=time((time_t *) 0);
-        NewClient->minspeed=0.0;
+    NewClient->server=from_server;
+    NewClient->resendoffset=0;
+    NewClient->CdccTime=time((time_t *) 0);
+    NewClient->minspeed=0.0;
 #ifdef TDF
-        NewClient->addr=(char *) 0;
-        NewClient->port=(char *) 0;
+    NewClient->addr=(char *) 0;
+    NewClient->port=(char *) 0;
 #endif
 /****************************************************************************/
-	return NewClient;
+    return NewClient;
 }
 
 static	void
 dcc_add_deadclient(client)
-	DCC_list *client;
+    DCC_list *client;
 {
-	struct deadlist *new;
+    struct deadlist *new;
 
-	new = (struct deadlist *) new_malloc(sizeof(struct deadlist));
-	new->next = deadlist;
-	new->it = client;
-	deadlist = new;
+    new = (struct deadlist *) new_malloc(sizeof(struct deadlist));
+    new->next = deadlist;
+    new->it = client;
+    deadlist = new;
 }
 
 /*
- * dcc_erase searches for the given entry in the dcc_list and
- * removes it
- */
+* dcc_erase searches for the given entry in the dcc_list and
+* removes it
+*/
 void
 dcc_erase(Element)
-	DCC_list	*Element;
+    DCC_list	*Element;
 {
-	DCC_list	**Client;
+    DCC_list	**Client;
 
-	for (Client = &ClientList; *Client; Client = &(**Client).next)
-		if (*Client == Element)
-		{
-			*Client = Element->next;
-			new_close(Element->write);
-			new_close(Element->read);
-			if (Element->file != -1)
-				new_close(Element->file);
-			new_free(&Element->description);
-			new_free(&Element->user);
- 			new_free(&Element->othername);
-			new_free(&Element->buffer);
+    for (Client = &ClientList; *Client; Client = &(**Client).next)
+            if (*Client == Element)
+            {
+                    *Client = Element->next;
+                    new_close(Element->write);
+                    new_close(Element->read);
+                    if (Element->file != -1)
+                            new_close(Element->file);
+                    new_free(&Element->description);
+                    new_free(&Element->user);
+                    new_free(&Element->othername);
+                    new_free(&Element->buffer);
 /**************************** PATCHED by Flier ******************************/
 #ifdef TDF
-                        new_free(&(Element->addr));
-                        new_free(&(Element->port));
+                    new_free(&(Element->addr));
+                    new_free(&(Element->port));
 #endif
 /****************************************************************************/
-			new_free(&Element);
-			return;
-		}
+                    new_free(&Element);
+                    return;
+            }
 }
 
 static	void
 dcc_really_erase()
 {
-	struct deadlist *dies;
+    struct deadlist *dies;
 
-	while ((dies = deadlist) != NULL)
-	{
-		deadlist = deadlist->next;
-		dcc_erase(dies->it);
- 		new_free(&dies);
-	}
+    while ((dies = deadlist) != NULL)
+    {
+            deadlist = deadlist->next;
+            dcc_erase(dies->it);
+            new_free(&dies);
+    }
 }
 
 /*
- * Set the descriptor set to show all fds in Client connections to
- * be checked for data.
- */
+* Set the descriptor set to show all fds in Client connections to
+* be checked for data.
+*/
 void
 set_dcc_bits(rd, wd)
-	fd_set	*rd, *wd;
+    fd_set	*rd, *wd;
 {
-	DCC_list	*Client;
+    DCC_list	*Client;
 
-	for (Client = ClientList; Client != NULL; Client = Client->next)
-	{
+    for (Client = ClientList; Client != NULL; Client = Client->next)
+    {
 #ifdef DCC_CNCT_PEND
-		if (Client->write != -1 && (Client->flags & DCC_CNCT_PEND))
-			FD_SET(Client->write, wd);
+            if (Client->write != -1 && (Client->flags & DCC_CNCT_PEND))
+                    FD_SET(Client->write, wd);
 #endif
 #if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-		if (Client->write != -1 && 
-			((Client->flags & DCC_TYPES) == DCC_FILEOFFER) &&
-			(!Client->eof))
-			FD_SET(Client->write, wd);
+            if (Client->write != -1 && 
+                    ((Client->flags & DCC_TYPES) == DCC_FILEOFFER) &&
+                    (!Client->eof))
+                    FD_SET(Client->write, wd);
 #endif
-		if (Client->read != -1)
-			FD_SET(Client->read, rd);
-        }
+            if (Client->read != -1)
+                    FD_SET(Client->read, rd);
+    }
 }
 
 /*
- * Check all DCCs for data, and if they have any, perform whatever
- * actions are required.
- */
+* Check all DCCs for data, and if they have any, perform whatever
+* actions are required.
+*/
 void
 dcc_check(rd, wd)
-	fd_set	*rd,
-		*wd;
+    fd_set	*rd,
+            *wd;
 {
-	DCC_list	**Client;
-	struct	timeval	timeout;
-	int	previous_server;
-	int	lastlog_level;
+    DCC_list	**Client;
+    struct	timeval	timeout;
+    int	previous_server;
+    int	lastlog_level;
 /**************************** PATCHED by Flier ******************************/
-        char tmpbuf[mybufsize/32];
+    char tmpbuf[mybufsize/32];
 /****************************************************************************/
 
-	previous_server = from_server;
-	from_server = (-1);
-	timeout.tv_sec = timeout.tv_usec = 0;
-	lastlog_level = set_lastlog_msg_level(LOG_DCC);
-	for (Client = (&ClientList); *Client != NULL && !break_io_processing;)
-	{
+    previous_server = from_server;
+    from_server = (-1);
+    timeout.tv_sec = timeout.tv_usec = 0;
+    lastlog_level = set_lastlog_msg_level(LOG_DCC);
+    for (Client = (&ClientList); *Client != NULL && !break_io_processing;)
+    {
 #ifdef NON_BLOCKING_CONNECTS
-		/*
-		 * run all connect-pending sockets.. suggested by deraadt@theos.com
-		 */
-		if ((*Client)->flags & DCC_CNCT_PEND)
-		{
-			struct sockaddr_in	remaddr;
-			int	rl = sizeof(remaddr);
+            /*
+             * run all connect-pending sockets.. suggested by deraadt@theos.com
+             */
+            if ((*Client)->flags & DCC_CNCT_PEND)
+            {
+                    struct sockaddr_in	remaddr;
+                    int	rl = sizeof(remaddr);
 
-			if (getpeername((*Client)->read, (struct sockaddr *) &remaddr, &rl) != -1)
-			{
-				if ((*Client)->flags & DCC_OFFER)
-				{
-					(*Client)->flags &= ~DCC_OFFER;
- 					save_message_from();
- 					message_from((*Client)->user, LOG_DCC);
-					if (((*Client)->flags & DCC_TYPES) != DCC_RAW)
-						/*say("DCC %s connection with %s[%s,%d] established",
-							dcc_types[(*Client)->flags&DCC_TYPES], (*Client)->user,
-							inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
-                                            PrintEstablish(dcc_types[(*Client)->flags&DCC_TYPES],
-                                                           *Client,remaddr,0L);
- 					restore_message_from();
+                    if (getpeername((*Client)->read, (struct sockaddr *) &remaddr, &rl) != -1)
+                    {
+                            if ((*Client)->flags & DCC_OFFER)
+                            {
+                                    (*Client)->flags &= ~DCC_OFFER;
+                                    save_message_from();
+                                    message_from((*Client)->user, LOG_DCC);
+                                    if (((*Client)->flags & DCC_TYPES) != DCC_RAW)
+                                            /*say("DCC %s connection with %s[%s,%d] established",
+                                                    dcc_types[(*Client)->flags&DCC_TYPES], (*Client)->user,
+                                                    inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
+                                        PrintEstablish(dcc_types[(*Client)->flags&DCC_TYPES],
+                                                       *Client,remaddr,0L);
+                                    restore_message_from();
 /**************************** PATCHED by Flier ******************************/
 /****** Coded by Zakath ******/
-                                        if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
-                                            ((*Client)->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
-                                        if (((*Client)->flags&DCC_TYPES)==DCC_CHAT) {
-                                            sprintf(tmpbuf,"=%s",(*Client)->user);
-                                            AddNick2List(tmpbuf,(*Client)->server);
-                                        }
-                                        update_all_status();
+                                    if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
+                                        ((*Client)->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
+                                    if (((*Client)->flags&DCC_TYPES)==DCC_CHAT) {
+                                        sprintf(tmpbuf,"=%s",(*Client)->user);
+                                        AddNick2List(tmpbuf,(*Client)->server);
+                                    }
+                                    update_all_status();
 /*****************************/
 /****************************************************************************/
-				}
-				(*Client)->starttime = time(NULL);
-				(*Client)->flags &= ~DCC_CNCT_PEND;
-                                set_blocking((*Client)->read);
-				if ((*Client)->read != (*Client)->write)
-					set_blocking((*Client)->write);
-			} /* else we're not connected yet */
-		}
+                            }
+                            (*Client)->starttime = time(NULL);
+                            (*Client)->flags &= ~DCC_CNCT_PEND;
+                            set_blocking((*Client)->read);
+                            if ((*Client)->read != (*Client)->write)
+                                    set_blocking((*Client)->write);
+                    } /* else we're not connected yet */
+            }
 #endif
 /**************************** PATCHED by Flier ******************************/
 #if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-		if ((*Client)->write != -1 && FD_ISSET((*Client)->write, wd))
-		{
-			switch((*Client)->flags & DCC_TYPES)
-			{
-			case DCC_FILEOFFER:
-				process_outgoing_file(*Client, 0);
-				break;
-			}
-		}
+            if ((*Client)->write != -1 && FD_ISSET((*Client)->write, wd))
+            {
+                    switch((*Client)->flags & DCC_TYPES)
+                    {
+                    case DCC_FILEOFFER:
+                            process_outgoing_file(*Client, 0);
+                            break;
+                    }
+            }
 #endif
 /****************************************************************************/
-		if ((*Client)->read != -1 && FD_ISSET((*Client)->read, rd))
-		{
-			switch((*Client)->flags & DCC_TYPES)
-			{
-			case DCC_CHAT:
-				process_incoming_chat(*Client);
-				break;
-			case DCC_RAW_LISTEN:
-				process_incoming_listen(*Client);
-				break;
-			case DCC_RAW:
-				process_incoming_raw(*Client);
-				break;
-			case DCC_FILEOFFER:
+            if ((*Client)->read != -1 && FD_ISSET((*Client)->read, rd))
+            {
+                    switch((*Client)->flags & DCC_TYPES)
+                    {
+                    case DCC_CHAT:
+                            process_incoming_chat(*Client);
+                            break;
+                    case DCC_RAW_LISTEN:
+                            process_incoming_listen(*Client);
+                            break;
+                    case DCC_RAW:
+                            process_incoming_raw(*Client);
+                            break;
+                    case DCC_FILEOFFER:
 /**************************** PATCHED by Flier ******************************/
-			case DCC_RESENDOFFER:
-				/*process_outgoing_file(*Client);*/
+                    case DCC_RESENDOFFER:
+                            /*process_outgoing_file(*Client);*/
 #if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
-                                process_outgoing_file(*Client,1);
+                            process_outgoing_file(*Client,1);
 #else
-				process_outgoing_file(*Client);
+                            process_outgoing_file(*Client);
 #endif
 /****************************************************************************/
-				break;
-			case DCC_FILEREAD:
+                            break;
+                    case DCC_FILEREAD:
 /**************************** PATCHED by Flier ******************************/
-			case DCC_FILEREGET:
+                    case DCC_FILEREGET:
 /****************************************************************************/
-				process_incoming_file(*Client);
-				break;
+                            process_incoming_file(*Client);
+                            break;
 /**************************** PATCHED by Flier ******************************/
-			/*case DCC_TALK:
-				process_incoming_talk(*Client);
-				break;*/
+                    /*case DCC_TALK:
+                            process_incoming_talk(*Client);
+                            break;*/
 /****************************************************************************/
-			}
-		}
-		if ((*Client)->flags & DCC_DELETE)
-		{
-			dcc_add_deadclient(*Client);
-			Client = (&(**Client).next);
-		}
-		else
-			Client = (&(**Client).next);
-	}
-	(void) set_lastlog_msg_level(lastlog_level);
-	dcc_really_erase();
-	from_server = previous_server;
+                    }
+            }
+            if ((*Client)->flags & DCC_DELETE)
+            {
+                    dcc_add_deadclient(*Client);
+                    Client = (&(**Client).next);
+            }
+            else
+                    Client = (&(**Client).next);
+    }
+    (void) set_lastlog_msg_level(lastlog_level);
+    dcc_really_erase();
+    from_server = previous_server;
 }
 
 /*
- * Process a DCC command from the user.
- */
+* Process a DCC command from the user.
+*/
 void
 process_dcc(args)
-	char	*args;
+    char	*args;
 {
-	char	*command;
-	int	i;
- 	size_t	len;
+    char	*command;
+    int	i;
+    size_t	len;
 
-	if (!(command = next_arg(args, &args)))
-		return;
-	len = strlen(command);
-	upper(command);
-	for (i = 0; dcc_commands[i].name != NULL; i++)
-	{
-		if (!strncmp(dcc_commands[i].name, command, len))
-		{
-			if (len < dcc_commands[i].uniq)
-			{
-				say("DCC command not unique: %s", command );
-				return;
-			}
- 			save_message_from();
-			message_from((char *) 0, LOG_DCC);
-			dcc_commands[i].function(args);
- 			restore_message_from();
-			return;
-		}
-	}
-	say("Unknown DCC command: %s", command);
+    if (!(command = next_arg(args, &args)))
+            return;
+    len = strlen(command);
+    upper(command);
+    for (i = 0; dcc_commands[i].name != NULL; i++)
+    {
+            if (!strncmp(dcc_commands[i].name, command, len))
+            {
+                    if (len < dcc_commands[i].uniq)
+                    {
+                            say("DCC command not unique: %s", command );
+                            return;
+                    }
+                    save_message_from();
+                    message_from((char *) 0, LOG_DCC);
+                    dcc_commands[i].function(args);
+                    restore_message_from();
+                    return;
+            }
+    }
+    say("Unknown DCC command: %s", command);
 }
 
 static	int
 dcc_open(Client)
-	DCC_list	*Client;
+    DCC_list	*Client;
 {
-	char    *user,
-		*Type;
-	struct	sockaddr_in	localaddr;
-	struct	in_addr 	myip;
-	int	sla;
-	int	old_server;
+    char    *user,
+            *Type;
+    struct	sockaddr_in	localaddr;
+    struct	in_addr 	myip;
+    int	sla;
+    int	old_server;
 #ifndef NON_BLOCKING_CONNECTS
-	struct	sockaddr_in	remaddr;
-	int	rl = sizeof(remaddr);
+    struct	sockaddr_in	remaddr;
+    int	rl = sizeof(remaddr);
 #endif
 /**************************** PATCHED by Flier ******************************/
 #ifndef NON_BLOCKING_CONNECTS
-        char tmpbuf[mybufsize/32];
+    char tmpbuf[mybufsize/32];
 #endif
 /****************************************************************************/
 
-	user = Client->user;
-	old_server = from_server;
-	if (-1 == from_server)
-		from_server = get_window_server(0);
-	myip.s_addr = server_list[from_server].local_addr.s_addr;
-	if (myip.s_addr == 0 || myip.s_addr == htonl(0x7f000001))
-		myip.s_addr = MyHostAddr.s_addr;
-	Type = dcc_types[Client->flags & DCC_TYPES];
-	if (Client->flags & DCC_OFFER)
-	{
+    user = Client->user;
+    old_server = from_server;
+    if (-1 == from_server)
+            from_server = get_window_server(0);
+    myip.s_addr = server_list[from_server].local_addr.s_addr;
+    if (myip.s_addr == 0 || myip.s_addr == htonl(0x7f000001))
+            myip.s_addr = MyHostAddr.s_addr;
+    Type = dcc_types[Client->flags & DCC_TYPES];
+    if (Client->flags & DCC_OFFER)
+    {
 #ifdef DCC_CNCT_PEND
-		Client->flags |= DCC_CNCT_PEND;
+            Client->flags |= DCC_CNCT_PEND;
 #endif
-		if ((Client->write = connect_by_number(Client->remport,
-			      inet_ntoa(Client->remote), 1)) < 0)
-		{
- 			save_message_from();
-			message_from(user, LOG_DCC);
-			say("Unable to create connection: %s",
-				errno ? strerror(errno) : "Unknown Host");
- 			restore_message_from();
-			dcc_erase(Client);
-			from_server = old_server;
-			return 0;
-		}
-		Client->read = Client->write;
-		Client->bytes_read = Client->bytes_sent = 0L;
-		Client->flags |= DCC_ACTIVE;
+            if ((Client->write = connect_by_number(Client->remport,
+                          inet_ntoa(Client->remote), 1)) < 0)
+            {
+                    save_message_from();
+                    message_from(user, LOG_DCC);
+                    say("Unable to create connection: %s",
+                            errno ? strerror(errno) : "Unknown Host");
+                    restore_message_from();
+                    dcc_erase(Client);
+                    from_server = old_server;
+                    return 0;
+            }
+            Client->read = Client->write;
+            Client->bytes_read = Client->bytes_sent = 0L;
+            Client->flags |= DCC_ACTIVE;
 #ifndef NON_BLOCKING_CONNECTS
-		Client->flags &= ~DCC_OFFER;
-		Client->starttime = time(NULL);
-		if (getpeername(Client->read, (struct sockaddr *) &remaddr, &rl) == -1)
-		{
- 			save_message_from();
-			message_from(user, LOG_DCC);
-			say("DCC error: getpeername failed: %s", strerror(errno));
- 			restore_message_from();
-			dcc_erase(Client);
-			from_server = old_server;
-			return 0;
-		}
+            Client->flags &= ~DCC_OFFER;
+            Client->starttime = time(NULL);
+            if (getpeername(Client->read, (struct sockaddr *) &remaddr, &rl) == -1)
+            {
+                    save_message_from();
+                    message_from(user, LOG_DCC);
+                    say("DCC error: getpeername failed: %s", strerror(errno));
+                    restore_message_from();
+                    dcc_erase(Client);
+                    from_server = old_server;
+                    return 0;
+            }
 /**************************** PATCHED by Flier ******************************/
-		if ((Client->flags & DCC_TYPES) != DCC_RAW)
-		{
- 			save_message_from();
-			message_from(user, LOG_DCC);
-			/*say("DCC %s connection with %s[%s,%d] established",
-				Type, user, inet_ntoa(remaddr.sin_addr),
-				ntohs(remaddr.sin_port));*/
-                        PrintEstablish(Type,Client,remaddr,0L);
- 			restore_message_from();
-		}
+            if ((Client->flags & DCC_TYPES) != DCC_RAW)
+            {
+                    save_message_from();
+                    message_from(user, LOG_DCC);
+                    /*say("DCC %s connection with %s[%s,%d] established",
+                            Type, user, inet_ntoa(remaddr.sin_addr),
+                            ntohs(remaddr.sin_port));*/
+                    PrintEstablish(Type,Client,remaddr,0L);
+                    restore_message_from();
+            }
 /****** Coded by Zakath ******/
-                if ((Client->flags&DCC_TYPES)==DCC_FILEREAD ||
-                    (Client->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
-                update_all_status();
+            if ((Client->flags&DCC_TYPES)==DCC_FILEREAD ||
+                (Client->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
+            update_all_status();
 /*****************************/
-                if ((Client->flags&DCC_TYPES)==DCC_CHAT) {
-                    sprintf(tmpbuf,"=%s",user);
-                    AddNick2List(tmpbuf,Client->server);
-                }
+            if ((Client->flags&DCC_TYPES)==DCC_CHAT) {
+                sprintf(tmpbuf,"=%s",user);
+                AddNick2List(tmpbuf,Client->server);
+            }
 /****************************************************************************/
 #endif
-		from_server = old_server;
-		return 1;
-	}
-	else
-	{
+            from_server = old_server;
+            return 1;
+    }
+    else
+    {
 #ifdef DCC_CNCT_PEND
-		Client->flags |= DCC_WAIT|DCC_CNCT_PEND;
+            Client->flags |= DCC_WAIT|DCC_CNCT_PEND;
 #else
-		Client->flags |= DCC_WAIT;
+            Client->flags |= DCC_WAIT;
 #endif
-		if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)
-		{
- 			save_message_from();
- 			message_from(user, LOG_DCC);
-			say("Unable to create connection: %s",
-				errno ? strerror(errno) : "Unknown Host");
- 			restore_message_from();
-			dcc_erase(Client);
-			from_server = old_server;
-			return 0;
-		}
-		sla = sizeof(struct sockaddr_in);
-		getsockname(Client->read, (struct sockaddr *) &localaddr, &sla);
-		if (Client->flags & DCC_TWOCLIENTS)
-		{
-			/* patch to NOT send pathname accross */
-			char	*nopath;
+            if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)
+            {
+                    save_message_from();
+                    message_from(user, LOG_DCC);
+                    say("Unable to create connection: %s",
+                            errno ? strerror(errno) : "Unknown Host");
+                    restore_message_from();
+                    dcc_erase(Client);
+                    from_server = old_server;
+                    return 0;
+            }
+            sla = sizeof(struct sockaddr_in);
+            getsockname(Client->read, (struct sockaddr *) &localaddr, &sla);
+            if (Client->flags & DCC_TWOCLIENTS)
+            {
+                    /* patch to NOT send pathname accross */
+                    char	*nopath;
 /**************************** PATCHED by Flier ******************************/
-                        /* convert spaces to _ so we can send files with spaces */
-                        char    *nospaces=(char *) 0;
+                    /* convert spaces to _ so we can send files with spaces */
+                    char    *nospaces=(char *) 0;
 /****************************************************************************/
 
-			if ((Client->flags & DCC_FILEOFFER) &&
-			    (nopath = rindex(Client->description, '/')))
-				nopath++;
-			else
-				nopath = Client->description;
+                    if ((Client->flags & DCC_FILEOFFER) &&
+                        (nopath = rindex(Client->description, '/')))
+                            nopath++;
+                    else
+                            nopath = Client->description;
 /**************************** PATCHED by Flier ******************************/
-                        malloc_strcpy(&nospaces,nopath);
-                        nopath=nospaces;
-                        for (;nospaces && *nospaces;nospaces++)
-                            if (*nospaces==' ') *nospaces='_';
+                    malloc_strcpy(&nospaces,nopath);
+                    nopath=nospaces;
+                    for (;nospaces && *nospaces;nospaces++)
+                        if (*nospaces==' ') *nospaces='_';
 /****************************************************************************/
 
-			/*
-			 * XXX
-			 * should make the case below for the filesize into
-			 * generic off_t2str() function, or something.  this
-			 * cast is merely a STOP-GAP measure.
-			 */
-			if (Client->filesize)
-				send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
-					 "%s %s %lu %u %ld", Type, nopath,
-					 (u_long) ntohl(myip.s_addr),
- 					 (unsigned)ntohs(localaddr.sin_port),
-					 (long)Client->filesize);
-			else
-				send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
-					 "%s %s %lu %u", Type, nopath,
-					 (u_long) ntohl(myip.s_addr),
- 					 (unsigned) ntohs(localaddr.sin_port));
- 			save_message_from();
-			message_from(user, LOG_DCC);
-			say("Sent DCC %s request to %s", Type, user);
- 			restore_message_from();
+                    /*
+                     * XXX
+                     * should make the case below for the filesize into
+                     * generic off_t2str() function, or something.  this
+                     * cast is merely a STOP-GAP measure.
+                     */
+                    if (Client->filesize)
+                            send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
+                                     "%s %s %lu %u %ld", Type, nopath,
+                                     (u_long) ntohl(myip.s_addr),
+                                     (unsigned)ntohs(localaddr.sin_port),
+                                     (long)Client->filesize);
+                    else
+                            send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
+                                     "%s %s %lu %u", Type, nopath,
+                                     (u_long) ntohl(myip.s_addr),
+                                     (unsigned) ntohs(localaddr.sin_port));
+                    save_message_from();
+                    message_from(user, LOG_DCC);
+                    say("Sent DCC %s request to %s", Type, user);
+                    restore_message_from();
 /**************************** PATCHED by Flier ******************************/
-                        new_free(&nopath);
+                    new_free(&nopath);
 /****************************************************************************/
-		}
-		/*
-		 * Is this where dcc times are fucked up??  - phone
-		 * Yes, it was..  and they are all hunky dory now..
-		 */
-		Client->starttime = 0;
-		from_server = old_server;
-		return 2;
-	}
+            }
+            /*
+             * Is this where dcc times are fucked up??  - phone
+             * Yes, it was..  and they are all hunky dory now..
+             */
+            Client->starttime = 0;
+            from_server = old_server;
+            return 2;
+    }
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -862,401 +862,401 @@ dcc_open(Client)
 void
 /****************************************************************************/
 dcc_chat(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	DCC_list	*Client;
+    char	*user;
+    DCC_list	*Client;
 
-	if ((user = next_arg(args, &args)) == NULL)
-	{
-		say("You must supply a nickname for DCC CHAT");
-		return;
-	}
-	Client = dcc_searchlist("chat", user, DCC_CHAT, 1, (char *) 0);
-	if ((Client->flags&DCC_ACTIVE) || (Client->flags&DCC_WAIT))
-	{
-		say("A previous DCC CHAT to %s exists", user);
-		return;
-	}
-	Client->flags |= DCC_TWOCLIENTS;
-	dcc_open(Client);
+    if ((user = next_arg(args, &args)) == NULL)
+    {
+            say("You must supply a nickname for DCC CHAT");
+            return;
+    }
+    Client = dcc_searchlist("chat", user, DCC_CHAT, 1, (char *) 0);
+    if ((Client->flags&DCC_ACTIVE) || (Client->flags&DCC_WAIT))
+    {
+            say("A previous DCC CHAT to %s exists", user);
+            return;
+    }
+    Client->flags |= DCC_TWOCLIENTS;
+    dcc_open(Client);
 }
 
 char	*
 dcc_raw_listen(iport)
- 	u_int	iport;
+    u_int	iport;
 {
-	DCC_list	*Client;
-	char	PortName[10];
-	struct	sockaddr_in locaddr;
-	char	*RetName = NULL;
-	int	size;
-	int	lastlog_level;
- 	u_short	port = (u_short) iport;
+    DCC_list	*Client;
+    char	PortName[10];
+    struct	sockaddr_in locaddr;
+    char	*RetName = NULL;
+    int	size;
+    int	lastlog_level;
+    u_short	port = (u_short) iport;
 
-	lastlog_level = set_lastlog_msg_level(LOG_DCC);
-	if (port && port < 1025)
-	{
-		say("Cannot bind to a privileged port");
-		(void) set_lastlog_msg_level(lastlog_level);
-		return NULL;
-	}
-	sprintf(PortName, "%d", port);
-	Client = dcc_searchlist("raw_listen", PortName, DCC_RAW_LISTEN, 1, (char *) 0);
-	if (Client->flags & DCC_ACTIVE)
-	{
-		say("A previous DCC RAW_LISTEN on %s exists", PortName);
-		(void) set_lastlog_msg_level(lastlog_level);
-		return RetName;
-	}
-	bzero((char *) &locaddr, sizeof(locaddr));
-	locaddr.sin_family = AF_INET;
-	locaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	locaddr.sin_port = htons(port);
-	if (0 > (Client->read = socket(AF_INET, SOCK_STREAM, 0)))
-	{
-		dcc_erase(Client);
-		say("socket() failed: %s", strerror(errno));
-		(void) set_lastlog_msg_level(lastlog_level);
-		return RetName;
-	}
-	set_socket_options(Client->read);
-	if (bind(Client->read, (struct sockaddr *) &locaddr, sizeof(locaddr))
-				== -1)
-	{
-		dcc_erase(Client);
-		say("Could not bind port: %s", strerror(errno));
-		(void) set_lastlog_msg_level(lastlog_level);
-		return RetName;
-	}
-	listen(Client->read, 4);
-	size = sizeof(locaddr);
-	Client->starttime = time((time_t *) 0);
-	getsockname(Client->read, (struct sockaddr *) &locaddr, &size);
-	Client->write = ntohs(locaddr.sin_port);
-	Client->flags |= DCC_ACTIVE;
-	sprintf(PortName, "%d", Client->write);
-	malloc_strcpy(&Client->user, PortName);
-	malloc_strcpy(&RetName, PortName);
-	(void) set_lastlog_msg_level(lastlog_level);
-	return RetName;
+    lastlog_level = set_lastlog_msg_level(LOG_DCC);
+    if (port && port < 1025)
+    {
+            say("Cannot bind to a privileged port");
+            (void) set_lastlog_msg_level(lastlog_level);
+            return NULL;
+    }
+    sprintf(PortName, "%d", port);
+    Client = dcc_searchlist("raw_listen", PortName, DCC_RAW_LISTEN, 1, (char *) 0);
+    if (Client->flags & DCC_ACTIVE)
+    {
+            say("A previous DCC RAW_LISTEN on %s exists", PortName);
+            (void) set_lastlog_msg_level(lastlog_level);
+            return RetName;
+    }
+    bzero((char *) &locaddr, sizeof(locaddr));
+    locaddr.sin_family = AF_INET;
+    locaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    locaddr.sin_port = htons(port);
+    if (0 > (Client->read = socket(AF_INET, SOCK_STREAM, 0)))
+    {
+            dcc_erase(Client);
+            say("socket() failed: %s", strerror(errno));
+            (void) set_lastlog_msg_level(lastlog_level);
+            return RetName;
+    }
+    set_socket_options(Client->read);
+    if (bind(Client->read, (struct sockaddr *) &locaddr, sizeof(locaddr))
+                            == -1)
+    {
+            dcc_erase(Client);
+            say("Could not bind port: %s", strerror(errno));
+            (void) set_lastlog_msg_level(lastlog_level);
+            return RetName;
+    }
+    listen(Client->read, 4);
+    size = sizeof(locaddr);
+    Client->starttime = time((time_t *) 0);
+    getsockname(Client->read, (struct sockaddr *) &locaddr, &size);
+    Client->write = ntohs(locaddr.sin_port);
+    Client->flags |= DCC_ACTIVE;
+    sprintf(PortName, "%d", Client->write);
+    malloc_strcpy(&Client->user, PortName);
+    malloc_strcpy(&RetName, PortName);
+    (void) set_lastlog_msg_level(lastlog_level);
+    return RetName;
 }
 
 char	*
 dcc_raw_connect(host, iport)
-	char	*host;
- 	u_int	iport;
+    char	*host;
+    u_int	iport;
 {
-	DCC_list	*Client;
-	char	PortName[10];
-	struct	in_addr	address;
-	struct	hostent	*hp;
-	char	*RetName = (char *) 0;
-	int	lastlog_level;
- 	u_short	port = (u_short)iport;
+    DCC_list	*Client;
+    char	PortName[10];
+    struct	in_addr	address;
+    struct	hostent	*hp;
+    char	*RetName = (char *) 0;
+    int	lastlog_level;
+    u_short	port = (u_short)iport;
 
-	lastlog_level = set_lastlog_msg_level(LOG_DCC);
-	if ((address.s_addr = inet_addr(host)) == -1)
-	{
-		hp = gethostbyname(host);
-		if (!hp)
-		{
-			say("Unknown host: %s", host);
-			(void) set_lastlog_msg_level(lastlog_level);
-			return RetName;
-		}
-		bcopy(hp->h_addr, &address, sizeof(address));
-	}
-	sprintf(PortName, "%d", port);
-	Client = dcc_searchlist(host, PortName, DCC_RAW, 1, (char *) 0);
-	if (Client->flags & DCC_ACTIVE)
-	{
-		say("A previous DCC RAW to %s on %s exists", host, PortName);
-		(void) set_lastlog_msg_level(lastlog_level);
-		return RetName;
-	}
-	Client->remport = port;
-	bcopy((char *) &address, (char *) &Client->remote, sizeof(address));
-	Client->flags = DCC_OFFER | DCC_RAW;
-	if (!dcc_open(Client))
-		return RetName;
-	sprintf(PortName, "%d", Client->read);
-	malloc_strcpy(&Client->user, PortName);
-	if (do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))
-		put_it("DCC RAW connection to %s on %s via %d established",
-				host, PortName, port);
-	malloc_strcpy(&RetName, PortName);
-	(void) set_lastlog_msg_level(lastlog_level);
-	return RetName;
+    lastlog_level = set_lastlog_msg_level(LOG_DCC);
+    if ((address.s_addr = inet_addr(host)) == -1)
+    {
+            hp = gethostbyname(host);
+            if (!hp)
+            {
+                    say("Unknown host: %s", host);
+                    (void) set_lastlog_msg_level(lastlog_level);
+                    return RetName;
+            }
+            bcopy(hp->h_addr, &address, sizeof(address));
+    }
+    sprintf(PortName, "%d", port);
+    Client = dcc_searchlist(host, PortName, DCC_RAW, 1, (char *) 0);
+    if (Client->flags & DCC_ACTIVE)
+    {
+            say("A previous DCC RAW to %s on %s exists", host, PortName);
+            (void) set_lastlog_msg_level(lastlog_level);
+            return RetName;
+    }
+    Client->remport = port;
+    bcopy((char *) &address, (char *) &Client->remote, sizeof(address));
+    Client->flags = DCC_OFFER | DCC_RAW;
+    if (!dcc_open(Client))
+            return RetName;
+    sprintf(PortName, "%d", Client->read);
+    malloc_strcpy(&Client->user, PortName);
+    if (do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))
+            put_it("DCC RAW connection to %s on %s via %d established",
+                            host, PortName, port);
+    malloc_strcpy(&RetName, PortName);
+    (void) set_lastlog_msg_level(lastlog_level);
+    return RetName;
 }
 
 /*char    *talk_errors[] =
 {
-	"<No Error>",
-	"User not logged in",
-	"Connection failed",
-	"Remote host does not recognise us",
-	"Your party is refusing writes",
-	"Unknown request",
-	"Unknown protocol version",
-	"Unable to decipher your address",
-	"Unable to decipher return address"*/ /* How the hell does it get
-						back then? */
+    "<No Error>",
+    "User not logged in",
+    "Connection failed",
+    "Remote host does not recognise us",
+    "Your party is refusing writes",
+    "Unknown request",
+    "Unknown protocol version",
+    "Unable to decipher your address",
+    "Unable to decipher return address"*/ /* How the hell does it get
+                                            back then? */
 /*};*/
 
 /**************************** PATCHED by Flier ******************************/
 /*static	void
 dcc_talk(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	char	*host;
-	struct	hostent	*hp;
-	int	status;
+    char	*user;
+    char	*host;
+    struct	hostent	*hp;
+    int	status;
 
-	DCC_list	*Client;
+    DCC_list	*Client;
 
 #ifdef DAEMON_UID
-	if (getuid() == DAEMON_UID)
-	{
-	 	say("You are not permitted to use DCC TALK");
-		return;
-	}
+    if (getuid() == DAEMON_UID)
+    {
+            say("You are not permitted to use DCC TALK");
+            return;
+    }
 #endif*/ /* DAEMON_UID */
-	/*if ((user = next_arg(args, &args)) == NULL)
-	{
-		say("You must supply a user[@host] for DCC TALK");
-		return;
-	}
-	if ((host = index(user, '@')) != NULL)
-		*(host++) = '\0';
-	else
-		host = MyHostName;
-	Client = dcc_searchlist(host, user, DCC_TALK, 1, (char *) 0);
-	if (Client->flags & DCC_ACTIVE || Client->flags & DCC_WAIT)
-	{
-		say("A previous DCC TALK to %s@%s exists", user, host);
-		return;
-	}
-	if (host != MyHostName)
-	{
-		if ((hp = gethostbyname(host)) == NULL)
-		{
-			say("Unable to find address for %s", host);
-			dcc_erase(Client);
-			return;
-		}
-		bcopy(hp->h_addr, (char *) &(Client->remote),
-			sizeof(struct in_addr));
-	}
-	else
-		bcopy((char *) &MyHostAddr, (char *) &(Client->remote),
-			sizeof(struct in_addr));
-	if ((Client->file = connect_by_number(-1, empty_string, 0)) < 0)
-	{
-		say("Unable to create DCC TALK connection: %s",
-				errno ? strerror(errno) : "Unknown Host");
-		dcc_erase(Client);
-		return;
-	}
-	say("Checking for invitation on caller's machine");
-	if (!(status = send_talk_control(Client, DCC_TALK_CHECK)))
-	{
-		new_close(Client->file);
-		dcc_erase(Client);
-		say("DCC TALK: connection timed out");
-		return;
-	}
-	if (--status || (Client->read = connect_by_number(Client->remport,
-				inet_ntoa(Client->remote), 0)) < 0)
-	{
-		say("Inviting %s@%s", Client->user, Client->description);
-		if ((Client->read = connect_by_number(0, empty_string, 0)) == -1 ||
-		    !send_talk_control(Client, DCC_TALK_INVITE) ||
-		    !(status=send_talk_control(Client, DCC_TALK_ANNOUNCE)))
-		{
-			send_talk_control(Client, DCC_TALK_DELETE_LOCAL);
-			new_close(Client->read);
-			new_close(Client->file);
-			dcc_erase(Client);
-			return;
-		}
-		if (--status)
-		{
-			new_close(Client->read);
-			new_close(Client->file);
-			dcc_erase(Client);
-			say("DCC TALK: %s", talk_errors[status]);
-			return;
-		}
-		say("Waiting for your party to respond");
-		Client->flags |= DCC_WAIT;
-	}
-	else
-	{
-		say("Connected to %s@%s", Client->user, Client->description);
-		Client->write = Client->read;
-		send(Client->write,  "\008\025\027", 3, 0);
-		recv(Client->read, Client->talkchars, 3, 0);
-		Client->bytes_read = Client->bytes_sent = 3;
-		Client->flags |= DCC_ACTIVE;
-	}
+    /*if ((user = next_arg(args, &args)) == NULL)
+    {
+            say("You must supply a user[@host] for DCC TALK");
+            return;
+    }
+    if ((host = index(user, '@')) != NULL)
+            *(host++) = '\0';
+    else
+            host = MyHostName;
+    Client = dcc_searchlist(host, user, DCC_TALK, 1, (char *) 0);
+    if (Client->flags & DCC_ACTIVE || Client->flags & DCC_WAIT)
+    {
+            say("A previous DCC TALK to %s@%s exists", user, host);
+            return;
+    }
+    if (host != MyHostName)
+    {
+            if ((hp = gethostbyname(host)) == NULL)
+            {
+                    say("Unable to find address for %s", host);
+                    dcc_erase(Client);
+                    return;
+            }
+            bcopy(hp->h_addr, (char *) &(Client->remote),
+                    sizeof(struct in_addr));
+    }
+    else
+            bcopy((char *) &MyHostAddr, (char *) &(Client->remote),
+                    sizeof(struct in_addr));
+    if ((Client->file = connect_by_number(-1, empty_string, 0)) < 0)
+    {
+            say("Unable to create DCC TALK connection: %s",
+                            errno ? strerror(errno) : "Unknown Host");
+            dcc_erase(Client);
+            return;
+    }
+    say("Checking for invitation on caller's machine");
+    if (!(status = send_talk_control(Client, DCC_TALK_CHECK)))
+    {
+            new_close(Client->file);
+            dcc_erase(Client);
+            say("DCC TALK: connection timed out");
+            return;
+    }
+    if (--status || (Client->read = connect_by_number(Client->remport,
+                            inet_ntoa(Client->remote), 0)) < 0)
+    {
+            say("Inviting %s@%s", Client->user, Client->description);
+            if ((Client->read = connect_by_number(0, empty_string, 0)) == -1 ||
+                !send_talk_control(Client, DCC_TALK_INVITE) ||
+                !(status=send_talk_control(Client, DCC_TALK_ANNOUNCE)))
+            {
+                    send_talk_control(Client, DCC_TALK_DELETE_LOCAL);
+                    new_close(Client->read);
+                    new_close(Client->file);
+                    dcc_erase(Client);
+                    return;
+            }
+            if (--status)
+            {
+                    new_close(Client->read);
+                    new_close(Client->file);
+                    dcc_erase(Client);
+                    say("DCC TALK: %s", talk_errors[status]);
+                    return;
+            }
+            say("Waiting for your party to respond");
+            Client->flags |= DCC_WAIT;
+    }
+    else
+    {
+            say("Connected to %s@%s", Client->user, Client->description);
+            Client->write = Client->read;
+            send(Client->write,  "\008\025\027", 3, 0);
+            recv(Client->read, Client->talkchars, 3, 0);
+            Client->bytes_read = Client->bytes_sent = 3;
+            Client->flags |= DCC_ACTIVE;
+    }
 }
 
 static	void
 dcc_summon(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	char	*host;
-	struct	hostent	*hp;
-	DCC_list *Client;
+    char	*user;
+    char	*host;
+    struct	hostent	*hp;
+    DCC_list *Client;
 
-	if (0 == (user = next_arg(args, &args)))
-	{
-		say("You must supply a user[@host] for DCC SUMMON");
-		return;
-	}
-	if (0 != (host = index(user, '@')))
-		*host++ = '\0';
-	else
-		host = MyHostName;
+    if (0 == (user = next_arg(args, &args)))
+    {
+            say("You must supply a user[@host] for DCC SUMMON");
+            return;
+    }
+    if (0 != (host = index(user, '@')))
+            *host++ = '\0';
+    else
+            host = MyHostName;
 
-	Client = dcc_searchlist(host, user, DCC_SUMMON, 1, (char *) 0);
+    Client = dcc_searchlist(host, user, DCC_SUMMON, 1, (char *) 0);
 
-	if (host != MyHostName)
-	{
-		if (0 == (hp = gethostbyname(host)))
-		{
-			say("Unable to find address for %s", host);
-			dcc_erase(Client);
-			return;
-		}
-		bcopy(hp->h_addr, (char *) &(Client->remote),
-			sizeof(struct in_addr));
-	}
-	else
-		bcopy((char *) &MyHostAddr, (char *) &(Client->remote),
-			sizeof(struct in_addr));
-	if ((Client->file = connect_by_number(-1, empty_string, 0)) < 0)
-	{
-		say("Unable to create DCC SUMMON connection: %s",
-				errno ? strerror(errno) : "Unknown Host");
-		return;
-	}
-	if (0 == send_talk_control(Client, DCC_TALK_SUMMON))
-		say("DCC SUMMON: connection timed out");
-	send_talk_control(Client, DCC_TALK_DELETE_SUMMON);
-	new_close(Client->file);
-	dcc_erase(Client);
+    if (host != MyHostName)
+    {
+            if (0 == (hp = gethostbyname(host)))
+            {
+                    say("Unable to find address for %s", host);
+                    dcc_erase(Client);
+                    return;
+            }
+            bcopy(hp->h_addr, (char *) &(Client->remote),
+                    sizeof(struct in_addr));
+    }
+    else
+            bcopy((char *) &MyHostAddr, (char *) &(Client->remote),
+                    sizeof(struct in_addr));
+    if ((Client->file = connect_by_number(-1, empty_string, 0)) < 0)
+    {
+            say("Unable to create DCC SUMMON connection: %s",
+                            errno ? strerror(errno) : "Unknown Host");
+            return;
+    }
+    if (0 == send_talk_control(Client, DCC_TALK_SUMMON))
+            say("DCC SUMMON: connection timed out");
+    send_talk_control(Client, DCC_TALK_DELETE_SUMMON);
+    new_close(Client->file);
+    dcc_erase(Client);
 }
 
 int    
 send_talk_control(Client, MessageType)
-	DCC_list	*Client;
-	int     MessageType;
+    DCC_list	*Client;
+    int     MessageType;
 {
-	CTL_MSG	Message;
-	CTL_RESPONSE	Response;
-	static	long	 SeqNum = 0;
-	struct	sockaddr_in SockAddr;
-	struct	timeval timeout;
-	fd_set	selset;
-	int	i;
-	int	dummy;
+    CTL_MSG	Message;
+    CTL_RESPONSE	Response;
+    static	long	 SeqNum = 0;
+    struct	sockaddr_in SockAddr;
+    struct	timeval timeout;
+    fd_set	selset;
+    int	i;
+    int	dummy;
 
-	Message.vers = TALK_VERSION;
-	Message.id_num = htonl(SeqNum);
-	SeqNum++;*/ /* Not in the htonl because on some machines it's a macro */
-	/*dummy = sizeof(SockAddr);
-	getsockname(Client->file, (struct sockaddr *) &SockAddr, &dummy);
-	Message.ctl_addr = (*(struct sockaddr *) &SockAddr);
-	if (Client->read > 0)
-	{
-		getsockname(Client->read, (struct sockaddr *) &SockAddr,
-			    &dummy);
-		SockAddr.sin_addr=MyHostAddr;
-	}
-	Message.addr = (*(struct sockaddr *) &SockAddr);
-	strncpy(Message.l_name, username, NAME_SIZE);
-	Message.l_name[NAME_SIZE - 1] = '\0';
-	strncpy(Message.r_name, Client->user, NAME_SIZE);
-	Message.r_name[NAME_SIZE - 1] = '\0';
-	Message.r_tty[0] = '\0';
-	Message.pid = getpid();
-	SockAddr.sin_addr = Client->remote;
-	SockAddr.sin_port = htons(518);
-	switch(MessageType)
-	{
-	case DCC_TALK_CHECK:
-		Message.type = LOOK_UP;
-		break;
-	case DCC_TALK_INVITE:
-		Message.type = LEAVE_INVITE;
-		SockAddr.sin_addr = MyHostAddr;
-		break;
-	case DCC_TALK_ANNOUNCE:
-		Message.type = ANNOUNCE;
-		break;
-	case DCC_TALK_DELETE_LOCAL:
-		SockAddr.sin_addr = MyHostAddr;
-	case DCC_TALK_DELETE_REMOTE:
-		Message.type = DELETE;
-		break;
-	case DCC_TALK_SUMMON:
-		strcpy(Message.l_name, "I:");
-		strcat(Message.l_name, get_server_nickname(from_server));
-		Message.type = ANNOUNCE;
-		break;
-	case DCC_TALK_DELETE_SUMMON:
-		strcpy(Message.l_name, "I:");
-		strcat(Message.l_name, get_server_nickname(from_server));
-		Message.type = DELETE;
-		break;
-	}
-	for (i = 0; i < 3; i++)
-	{
-		if (sendto(Client->file, (char *) &Message, sizeof(Message), 0,
-			   (struct sockaddr *) &SockAddr,
-			   sizeof(SockAddr))!=sizeof(Message))
-		{
-			perror("sendto");
-			return 0;
-		}
-		timeout.tv_sec = 10;
-		timeout.tv_usec = 0;
-		FD_ZERO(&selset);
-		FD_SET(Client->file, &selset);
-		switch(select(Client->file+1, &selset, NULL, NULL, &timeout))
-		{
-		case -1:
-			perror("select");
-			return 0;
-		case 1:
-			do
-			{
-				recv(Client->file, (char *) &Response, sizeof(Response), 0);
-				FD_ZERO(&selset);
-				FD_SET(Client->file, &selset);
-				timeout.tv_sec = 0;
-				timeout.tv_usec = 0;
-			}
-			while (select(Client->file + 1, &selset, NULL, NULL,
-					&timeout) > 0);
-			if (Response.type != Message.type)
-				continue;
-			if (LOOK_UP == Response.type &&
-			    SUCCESS == Response.answer)
-			{
-				SockAddr = (*(struct sockaddr_in *)
-					&Response.addr);
-				Client->remote = SockAddr.sin_addr;
-				Client->remport = ntohs(SockAddr.sin_port);
-			}
-			return Response.answer + 1;
-		}
-	}
-	return 0;
+    Message.vers = TALK_VERSION;
+    Message.id_num = htonl(SeqNum);
+    SeqNum++;*/ /* Not in the htonl because on some machines it's a macro */
+    /*dummy = sizeof(SockAddr);
+    getsockname(Client->file, (struct sockaddr *) &SockAddr, &dummy);
+    Message.ctl_addr = (*(struct sockaddr *) &SockAddr);
+    if (Client->read > 0)
+    {
+            getsockname(Client->read, (struct sockaddr *) &SockAddr,
+                        &dummy);
+            SockAddr.sin_addr=MyHostAddr;
+    }
+    Message.addr = (*(struct sockaddr *) &SockAddr);
+    strncpy(Message.l_name, username, NAME_SIZE);
+    Message.l_name[NAME_SIZE - 1] = '\0';
+    strncpy(Message.r_name, Client->user, NAME_SIZE);
+    Message.r_name[NAME_SIZE - 1] = '\0';
+    Message.r_tty[0] = '\0';
+    Message.pid = getpid();
+    SockAddr.sin_addr = Client->remote;
+    SockAddr.sin_port = htons(518);
+    switch(MessageType)
+    {
+    case DCC_TALK_CHECK:
+            Message.type = LOOK_UP;
+            break;
+    case DCC_TALK_INVITE:
+            Message.type = LEAVE_INVITE;
+            SockAddr.sin_addr = MyHostAddr;
+            break;
+    case DCC_TALK_ANNOUNCE:
+            Message.type = ANNOUNCE;
+            break;
+    case DCC_TALK_DELETE_LOCAL:
+            SockAddr.sin_addr = MyHostAddr;
+    case DCC_TALK_DELETE_REMOTE:
+            Message.type = DELETE;
+            break;
+    case DCC_TALK_SUMMON:
+            strcpy(Message.l_name, "I:");
+            strcat(Message.l_name, get_server_nickname(from_server));
+            Message.type = ANNOUNCE;
+            break;
+    case DCC_TALK_DELETE_SUMMON:
+            strcpy(Message.l_name, "I:");
+            strcat(Message.l_name, get_server_nickname(from_server));
+            Message.type = DELETE;
+            break;
+    }
+    for (i = 0; i < 3; i++)
+    {
+            if (sendto(Client->file, (char *) &Message, sizeof(Message), 0,
+                       (struct sockaddr *) &SockAddr,
+                       sizeof(SockAddr))!=sizeof(Message))
+            {
+                    perror("sendto");
+                    return 0;
+            }
+            timeout.tv_sec = 10;
+            timeout.tv_usec = 0;
+            FD_ZERO(&selset);
+            FD_SET(Client->file, &selset);
+            switch(select(Client->file+1, &selset, NULL, NULL, &timeout))
+            {
+            case -1:
+                    perror("select");
+                    return 0;
+            case 1:
+                    do
+                    {
+                            recv(Client->file, (char *) &Response, sizeof(Response), 0);
+                            FD_ZERO(&selset);
+                            FD_SET(Client->file, &selset);
+                            timeout.tv_sec = 0;
+                            timeout.tv_usec = 0;
+                    }
+                    while (select(Client->file + 1, &selset, NULL, NULL,
+                                    &timeout) > 0);
+                    if (Response.type != Message.type)
+                            continue;
+                    if (LOOK_UP == Response.type &&
+                        SUCCESS == Response.answer)
+                    {
+                            SockAddr = (*(struct sockaddr_in *)
+                                    &Response.addr);
+                            Client->remote = SockAddr.sin_addr;
+                            Client->remport = ntohs(SockAddr.sin_port);
+                    }
+                    return Response.answer + 1;
+            }
+    }
+    return 0;
 }*/
 /****************************************************************************/
 
@@ -1265,190 +1265,190 @@ send_talk_control(Client, MessageType)
 void
 /****************************************************************************/
 dcc_filesend(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	char	*filename,
-		*fullname;
-	DCC_list *Client;
-	char	FileBuf[BIG_BUFFER_SIZE+1];
-	struct	stat	stat_buf;
+    char	*user;
+    char	*filename,
+            *fullname;
+    DCC_list *Client;
+    char	FileBuf[BIG_BUFFER_SIZE+1];
+    struct	stat	stat_buf;
 
 #ifdef  DAEMON_UID
-	if (DAEMON_UID == getuid())
-	{
-		say("You are not permitted to use DCC to exchange files");
-		return;
-	}
+    if (DAEMON_UID == getuid())
+    {
+            say("You are not permitted to use DCC to exchange files");
+            return;
+    }
 #endif
-	if (0 == (user = next_arg(args, &args)) ||
+    if (0 == (user = next_arg(args, &args)) ||
 /**************************** PATCHED by Flier ******************************/
-	    /*0 == (filename = next_arg(args, &args)))*/
-	    0 == (filename = new_next_arg(args, &args)))
+        /*0 == (filename = next_arg(args, &args)))*/
+        0 == (filename = new_next_arg(args, &args)))
 /****************************************************************************/
-	{
-		say("You must supply a nickname and filename for DCC SEND");
-		return;
-	}
-	if (IS_ABSOLUTE_PATH(filename))
-	{
-		strcpy(FileBuf, filename);
-	}
-	else if (*filename == '~')
-	{
-		if (0 == (fullname = expand_twiddle(filename)))
-		{
-			yell("Unable to expand %s", filename);
-			return;
-		}
-		strcpy(FileBuf, fullname);
-		new_free(&fullname);
-	}
-	else
-	{
+    {
+            say("You must supply a nickname and filename for DCC SEND");
+            return;
+    }
+    if (IS_ABSOLUTE_PATH(filename))
+    {
+            strcpy(FileBuf, filename);
+    }
+    else if (*filename == '~')
+    {
+            if (0 == (fullname = expand_twiddle(filename)))
+            {
+                    yell("Unable to expand %s", filename);
+                    return;
+            }
+            strcpy(FileBuf, fullname);
+            new_free(&fullname);
+    }
+    else
+    {
 /**************************** PATCHED by Flier ******************************/
-		/*getcwd(FileBuf, sizeof(FileBuf));*/
-                if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
-                else getcwd(FileBuf, sizeof(FileBuf));
+            /*getcwd(FileBuf, sizeof(FileBuf));*/
+            if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
+            else getcwd(FileBuf, sizeof(FileBuf));
 /****************************************************************************/
-		strcat(FileBuf, "/");
-		strcat(FileBuf, filename);
-	}
-	if (0 != access(FileBuf, R_OK))
-	{
-		yell("Cannot access %s", FileBuf);
-		return;
-	}
-	stat_file(FileBuf, &stat_buf);
+            strcat(FileBuf, "/");
+            strcat(FileBuf, filename);
+    }
+    if (0 != access(FileBuf, R_OK))
+    {
+            yell("Cannot access %s", FileBuf);
+            return;
+    }
+    stat_file(FileBuf, &stat_buf);
 /* some unix didn't have this ???? */
 #ifdef S_IFDIR
-	if (stat_buf.st_mode & S_IFDIR)
-	{
-		yell("Cannot send a directory");
-		return;
-	}
+    if (stat_buf.st_mode & S_IFDIR)
+    {
+            yell("Cannot send a directory");
+            return;
+    }
 #endif
-	if (scanstr(FileBuf, "/etc/"))
-	{
-		yell("Send request rejected");
-		return;
-	}
-	if ((int) strlen(FileBuf) >= 7 && 0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
-	{
-		yell("Send request rejected");
-		return;
-	}
-	filesize = stat_buf.st_size;
-	Client = dcc_searchlist(FileBuf, user, DCC_FILEOFFER, 1, filename);
-	if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
-	{
-		say("Unable to open %s: %s\n", Client->description,
-			errno ? strerror(errno) : "Unknown Host");
-		new_close(Client->read);
-		Client->read = Client->write = (-1);
-		Client->flags |= DCC_DELETE;
-		return;
-	}
-	filesize = 0;
-	if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
-	{
-		say("A previous DCC SEND:%s to %s exists", FileBuf, user);
-		return;
-	}
-	Client->flags |= DCC_TWOCLIENTS;
-	dcc_open(Client);
+    if (scanstr(FileBuf, "/etc/"))
+    {
+            yell("Send request rejected");
+            return;
+    }
+    if ((int) strlen(FileBuf) >= 7 && 0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
+    {
+            yell("Send request rejected");
+            return;
+    }
+    filesize = stat_buf.st_size;
+    Client = dcc_searchlist(FileBuf, user, DCC_FILEOFFER, 1, filename);
+    if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
+    {
+            say("Unable to open %s: %s\n", Client->description,
+                    errno ? strerror(errno) : "Unknown Host");
+            new_close(Client->read);
+            Client->read = Client->write = (-1);
+            Client->flags |= DCC_DELETE;
+            return;
+    }
+    filesize = 0;
+    if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
+    {
+            say("A previous DCC SEND:%s to %s exists", FileBuf, user);
+            return;
+    }
+    Client->flags |= DCC_TWOCLIENTS;
+    dcc_open(Client);
 }
 
 /**************************** PATCHED by Flier ******************************/
 void
 dcc_resend(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	char	*filename,
-		*fullname;
-	DCC_list *Client;
-	char	FileBuf[BIG_BUFFER_SIZE+1];
-	struct	stat	stat_buf;
+    char	*user;
+    char	*filename,
+            *fullname;
+    DCC_list *Client;
+    char	FileBuf[BIG_BUFFER_SIZE+1];
+    struct	stat	stat_buf;
 
 #ifdef  DAEMON_UID
-	if (DAEMON_UID == getuid())
-	{
-		say("You are not permitted to use DCC to exchange files");
-		return;
-	}
+    if (DAEMON_UID == getuid())
+    {
+            say("You are not permitted to use DCC to exchange files");
+            return;
+    }
 #endif
 
-	if (0 == (user = next_arg(args, &args)) ||
-	    0 == (filename = new_next_arg(args, &args)))
-	{
-		say("You must supply a nickname and filename for DCC RESEND");
-		return;
-	}
-	if (IS_ABSOLUTE_PATH(filename))
-	{
-		strcpy(FileBuf, filename);
-	}
-	else if (*filename == '~')
-	{
-		if (0 == (fullname = expand_twiddle(filename)))
-		{
-			yell("Unable to expand %s", filename);
-			return;
-		}
-		strcpy(FileBuf, fullname);
-		new_free(&fullname);
-	}
-	else
-	{
+    if (0 == (user = next_arg(args, &args)) ||
+        0 == (filename = new_next_arg(args, &args)))
+    {
+            say("You must supply a nickname and filename for DCC RESEND");
+            return;
+    }
+    if (IS_ABSOLUTE_PATH(filename))
+    {
+            strcpy(FileBuf, filename);
+    }
+    else if (*filename == '~')
+    {
+            if (0 == (fullname = expand_twiddle(filename)))
+            {
+                    yell("Unable to expand %s", filename);
+                    return;
+            }
+            strcpy(FileBuf, fullname);
+            new_free(&fullname);
+    }
+    else
+    {
 /**************************** PATCHED by Flier ******************************/
-                if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
-                else getcwd(FileBuf, sizeof(FileBuf));
+            if (CdccUlDir) strcpy(FileBuf,CdccUlDir);
+            else getcwd(FileBuf, sizeof(FileBuf));
 /****************************************************************************/
-		strcat(FileBuf, "/");
-		strcat(FileBuf, filename);
-	}
-	if (0 != access(FileBuf, R_OK))
-	{
-		yell("Cannot access %s", FileBuf);
-		return;
-	}
-	stat_file(FileBuf, &stat_buf);
-	if (stat_buf.st_mode & S_IFDIR)
-	{
-		yell("Cannot send a directory");
-		return;
-	}
-	if (scanstr(FileBuf, "/etc/"))
-	{
-		yell("Resend request rejected");
-		return;
-	}
-	if (strlen(FileBuf) >= 7 &&
-	    0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
-	{
-		yell("Resend request rejected");
-		return;
-	}
-	filesize = stat_buf.st_size;
-	Client = dcc_searchlist(FileBuf, user, DCC_RESENDOFFER, 1, filename);
-	if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
-	{
-		say("Unable to open %s: %s\n", Client->description,
-			errno ? strerror(errno) : "Unknown Host");
-		new_close(Client->read);
-		Client->read = Client->write = (-1);
-		Client->flags |= DCC_DELETE;
-		return;
-	}
-	filesize = 0;
-	if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
-	{
-		say("A previous DCC RESEND:%s to %s exists", FileBuf, user);
-		return;
-	}
-	Client->flags |= DCC_TWOCLIENTS;
-	dcc_open(Client);
+            strcat(FileBuf, "/");
+            strcat(FileBuf, filename);
+    }
+    if (0 != access(FileBuf, R_OK))
+    {
+            yell("Cannot access %s", FileBuf);
+            return;
+    }
+    stat_file(FileBuf, &stat_buf);
+    if (stat_buf.st_mode & S_IFDIR)
+    {
+            yell("Cannot send a directory");
+            return;
+    }
+    if (scanstr(FileBuf, "/etc/"))
+    {
+            yell("Resend request rejected");
+            return;
+    }
+    if (strlen(FileBuf) >= 7 &&
+        0 == strcmp(FileBuf + strlen(FileBuf) - 7, "/passwd"))
+    {
+            yell("Resend request rejected");
+            return;
+    }
+    filesize = stat_buf.st_size;
+    Client = dcc_searchlist(FileBuf, user, DCC_RESENDOFFER, 1, filename);
+    if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
+    {
+            say("Unable to open %s: %s\n", Client->description,
+                    errno ? strerror(errno) : "Unknown Host");
+            new_close(Client->read);
+            Client->read = Client->write = (-1);
+            Client->flags |= DCC_DELETE;
+            return;
+    }
+    filesize = 0;
+    if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
+    {
+            say("A previous DCC RESEND:%s to %s exists", FileBuf, user);
+            return;
+    }
+    Client->flags |= DCC_TWOCLIENTS;
+    dcc_open(Client);
 }
 /****************************************************************************/
 
@@ -1458,55 +1458,60 @@ dcc_resend(args)
 void
 /****************************************************************************/
 dcc_getfile(args)
-	char	*args;
+    char	*args;
 {
-	char	*user;
-	char	*filename;
-	DCC_list	*Client;
-	char	*fullname = (char *) 0;
+    char	*user;
+    char	*filename;
+    DCC_list	*Client;
+    char	*fullname = (char *) 0;
 /**************************** PATCHED by Flier ******************************/
-        char    *fullname1=(char *) 0;
+    char    *nospaces;
+    char    *fullname1=(char *) 0;
 /****************************************************************************/
 
 #ifdef  DAEMON_UID
-	if (DAEMON_UID == getuid())
-	{
-		say("You are not permitted to use DCC to exchange files");
-		return;
-	}
+    if (DAEMON_UID == getuid())
+    {
+            say("You are not permitted to use DCC to exchange files");
+            return;
+    }
 #endif
-	if (0 == (user = next_arg(args, &args)))
-	{
-		say("You must supply a nickname for DCC GET");
-		return;
-	}
-	filename = next_arg(args, &args);
-	if (0 == (Client = dcc_searchlist(filename, user, DCC_FILEREAD, 0, (char *) 0)))
-	{
-		if (filename)
-			say("No file (%s) offered in SEND mode by %s",
-					filename, user);
-		else
-			say("No file offered in SEND mode by %s", user);
-		return;
-	}
-	if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
-	{
-		if (filename)
-			say("A previous DCC GET:%s to %s exists", filename, user);
-		else
-			say("A previous DCC GET to %s exists", user);
-		return;
-	}
-	if (0 == (Client->flags & DCC_OFFER))
-	{
-		say("I'm a teapot!");
-		dcc_erase(Client);
-		return;
-	}
-	Client->flags |= DCC_TWOCLIENTS;
-	Client->bytes_sent = Client->bytes_read = 0L;
-	if (!dcc_open(Client))
+    if (0 == (user = next_arg(args, &args)))
+    {
+            say("You must supply a nickname for DCC GET");
+            return;
+    }
+/**************************** PATCHED by Flier ******************************/
+    /*filename = next_arg(args, &args);*/
+    /* support filenames enclosed in quotes */
+    filename = new_next_arg(args, &args);
+/****************************************************************************/
+    if (0 == (Client = dcc_searchlist(filename, user, DCC_FILEREAD, 0, (char *) 0)))
+    {
+            if (filename)
+                    say("No file (%s) offered in SEND mode by %s",
+                                    filename, user);
+            else
+                    say("No file offered in SEND mode by %s", user);
+            return;
+    }
+    if ((Client->flags & DCC_ACTIVE) || (Client->flags & DCC_WAIT))
+    {
+            if (filename)
+                    say("A previous DCC GET:%s to %s exists", filename, user);
+            else
+                    say("A previous DCC GET to %s exists", user);
+            return;
+    }
+    if (0 == (Client->flags & DCC_OFFER))
+    {
+            say("I'm a teapot!");
+            dcc_erase(Client);
+            return;
+    }
+    Client->flags |= DCC_TWOCLIENTS;
+    Client->bytes_sent = Client->bytes_read = 0L;
+    if (!dcc_open(Client))
 		return;
 /**************************** PATCHED by Flier ******************************/
 	/*if (0 == (fullname = expand_twiddle(Client->description)))
@@ -1521,6 +1526,8 @@ dcc_getfile(args)
             malloc_strcat(&fullname,"/");
         }
         malloc_strcat(&fullname,fullname1);
+        for (nospaces=fullname;nospaces && *nospaces;nospaces++)
+            if (*nospaces==' ') *nospaces='_';
         OverWrite(&fullname,Client);
 /****************************************************************************/
 	if (-1 == (Client->file = open(fullname,

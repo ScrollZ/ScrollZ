@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.18 1999-04-08 16:01:38 f Exp $
+ * $Id: cdcc.c,v 1.19 1999-05-29 13:27:15 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -2605,7 +2605,7 @@ char *type;
         sprintf(tmpbuf,"Cdcc auto getting %s from %s (%s)",file,nick,FromUserHost);
         AwaySave(tmpbuf,SAVECDCC);
     }
-    sprintf(tmpbuf,"%s %s",nick,file);
+    sprintf(tmpbuf,"%s \"%s\"",nick,file);
     if (!my_stricmp(type,"SEND")) dcc_getfile(tmpbuf);
     if (!my_stricmp(type,"RESEND")) dcc_regetfile(tmpbuf);
 }

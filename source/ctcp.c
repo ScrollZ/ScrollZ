@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.19 1999-05-16 11:17:16 f Exp $
+ * $Id: ctcp.c,v 1.20 1999-05-29 13:27:15 f Exp $
  */
 
 #include "irc.h"
@@ -1473,7 +1473,11 @@ do_dcc(ctcp, from, to, args)
 	if (my_stricmp(to, get_server_nickname(parsing_server_index)))
 		return NULL;
 	if (!(type = next_arg(args, &args)) ||
-			!(description = next_arg(args, &args)) ||
+/**************************** PATCHED by Flier ******************************/
+			/*!(description = next_arg(args, &args)) ||*/
+                        /* support filenames enclosed in quotes */
+			!(description = new_next_arg(args, &args)) ||
+/****************************************************************************/
 			!(inetaddr = next_arg(args, &args)) ||
 			!(port = next_arg(args, &args)))
 		return NULL;
