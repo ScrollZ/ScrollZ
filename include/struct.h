@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.6 2000-08-28 20:25:47 f Exp $
+ * $Id: struct.h,v 1.7 2000-09-10 10:12:01 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -200,7 +200,10 @@ typedef	struct	WindowStru
 					 * structure */
 
 	char	*current_channel;	/* Window's current channel */
- 	char	*bound_channel;		/* Channel that belongs in this window */
+/**************************** PATCHED by Flier ******************************/
+ 	/*char	*bound_channel;*/		/* Channel that belongs in this window */
+        struct  channels *bound_chans;  /* Bound channels in this window */
+/****************************************************************************/
 	char	*query_nick;		/* User being QUERY'ied in this window */
  	NickList *nicks;		/* List of nicks that will go to window */
 	int	window_level;		/* The LEVEL of the window, determines what

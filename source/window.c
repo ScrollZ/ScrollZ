@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.22 2000-08-31 16:57:25 f Exp $
+ * $Id: window.c,v 1.23 2000-09-10 10:12:01 f Exp $
  */
 
 #include "irc.h"
@@ -141,6 +141,10 @@ static	Window	*get_invisible_window _((char *, char **));
 static	int	get_number _((char *, char **));
 static	int	get_boolean _((char *, char **, int *));
 static	void	win_list_channels _((Window *));
+
+/**************************** PATCHED by Flier ******************************/
+extern int      AddFirst _((List *, List *));
+/****************************************************************************/
 
 /*
  * traverse_all_windows: This will do as the name implies, traverse every
@@ -1838,9 +1842,15 @@ is_bound(channel, server)
 	stuff.flag = 1;
 	while ((tmp = window_traverse(&stuff)))
 	{
-		if (tmp->server == server && tmp->bound_channel &&
+/**************************** PATCHED by Flier ******************************/
+		/*if (tmp->server == server && tmp->bound_channel &&
 		    !my_stricmp(channel, tmp->bound_channel))
-			return tmp;
+			return tmp;*/
+		if (tmp->server==server) {
+                    if (find_in_list((List **) &(tmp->bound_chans), channel, 0))
+                        return(tmp);
+                }
+/****************************************************************************/
 	}
 
 	return (Window *) 0;
@@ -1853,6 +1863,9 @@ bind_channel(channel, window)
 {
 	Win_Trav stuff;
 	Window *tmp;
+/**************************** PATCHED by Flier ******************************/
+        struct channels *chan;
+/****************************************************************************/
 
 	/* check it isn't bound on this server elsewhere */
 	stuff.flag = 1;
@@ -1860,7 +1873,11 @@ bind_channel(channel, window)
 	{
 		if (tmp->server != window->server && tmp == window)
 			continue;
-		if (!my_stricmp(tmp->bound_channel, channel))
+/**************************** PATCHED by Flier ******************************/
+		/*if (!my_stricmp(tmp->bound_channel, channel))*/
+                chan=(struct channels *) find_in_list((List **) &(tmp->bound_chans), channel, 0);
+                if (chan)
+/****************************************************************************/
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*say("Channel %s is already bound to window %s", channel, window->name);*/
@@ -1916,7 +1933,15 @@ bind_channel(channel, window)
 		}
 	}
 #endif
-	malloc_strcpy(&window->bound_channel, channel);
+/**************************** PATCHED by Flier ******************************/
+	/*malloc_strcpy(&window->bound_channel, channel);*/
+        chan=(struct channels *) new_malloc(sizeof(struct channels));
+        chan->channel=(char *) 0;
+        malloc_strcpy(&(chan->channel),channel);
+        chan->next=NULL;
+        add_to_list_ext((List **) &(window->bound_chans),(List *) chan,
+                        (int (*) _((List *, List *))) AddFirst);
+/****************************************************************************/
 }
 
 static void
@@ -1924,11 +1949,21 @@ unbind_channel(channel, window)
 	char	*channel;
 	Window	*window;
 {
+/**************************** PATCHED by Flier ******************************/
+        struct channels *chan;
+/****************************************************************************/
 
 	window = is_bound(channel, window->server);
 	if (!window)
 		return;
-	new_free(&window->bound_channel);
+/**************************** PATCHED by Flier ******************************/
+	/*new_free(&window->bound_channel);*/
+        chan=(struct channels *) remove_from_list((List **) &(window->bound_chans), channel);
+        if (chan) {
+            new_free(&(chan->channel));
+            new_free(&chan);
+        }
+/****************************************************************************/
 }
 
 /*
@@ -3118,8 +3153,27 @@ windowcmd(command, args, subargs)
 				}
 			}
 			else
-				if (window->bound_channel)
-					say("Channel %s is bound to window %d", window->bound_channel, window->refnum);
+/**************************** PATCHED by Flier ******************************/
+                        {
+				/*if (window->bound_channel)
+					say("Channel %s is bound to window %d", window->bound_channel, window->refnum);*/
+                            int count=0;
+                            char *tmpbuf=(char *) 0;
+                            struct channels *chan;
+
+                            for (chan=window->bound_chans;chan;chan=chan->next){
+                                malloc_strcat(&tmpbuf,chan->channel);
+                                if (chan->next) malloc_strcat(&tmpbuf,",");
+                                count++;
+                            }
+                            if (count) {
+                                say("Channel%s %s %s bound to window %d",
+                                    count==1?"":"s",tmpbuf,count==1?"is":"are",
+                                    window->refnum);
+                                new_free(&tmpbuf);
+                            }
+                        }
+/****************************************************************************/
 		}
 		else if (strncmp("UNBIND", cmd, len) == 0)
 		{
@@ -3235,8 +3289,24 @@ windowcmd(command, args, subargs)
 		say("\tNotify level is %s", bits_to_lastlog_level(window->notify_level));
 		if (window->server_group)
 			say("\tServer Group is (%d) %s", window->server_group, find_server_group_name(window->server_group));
-		if (window->bound_channel)
-			say("\tBound Channel is %s", window->bound_channel);
+/**************************** PATCHED by Flier ******************************/
+		/*if (window->bound_channel)
+			say("\tBound Channel is %s", window->bound_channel);*/
+		if (window->bound_chans) {
+                    int count=0;
+                    char *tmpbuf=(char *) 0;
+                    struct channels *chan;
+
+                    for (chan=window->bound_chans;chan;chan=chan->next) {
+                        malloc_strcat(&tmpbuf,chan->channel);
+                        if (chan->next) malloc_strcat(&tmpbuf,",");
+                        count++;
+                    }
+                    say("\tBound Channel%s %s %s",
+                         count==1?"":"s",count==1?"is":"are",tmpbuf);
+                    new_free(&tmpbuf);
+                }
+/****************************************************************************/
 		if (window->nicks)
 		{
  			NickList *ntmp;

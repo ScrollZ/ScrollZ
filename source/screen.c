@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.13 2000-08-21 18:41:40 f Exp $
+ * $Id: screen.c,v 1.14 2000-09-10 10:12:01 f Exp $
  */
 
 #include "irc.h"
@@ -1870,7 +1870,10 @@ new_window()
 	new->held = OFF;
 	new->last_held = OFF;
 	new->current_channel = 0;
-	new->bound_channel = 0;
+/**************************** PATCHED by Flier ******************************/
+	/*new->bound_channel = 0;*/
+	new->bound_chans=(struct channels *) 0;
+/****************************************************************************/
 	new->query_nick = 0;
 	new->hold_on_next_rite = 0;
 	new->status_line[0] = NULL;

@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.7 2000-07-10 15:52:37 f Exp $
+ * $Id: mystructs.h,v 1.8 2000-09-10 10:12:01 f Exp $
  */
 
 /* don't change!! */
@@ -139,6 +139,11 @@ struct encrstr {
     struct encrstr *next;
     char *user;
     char *key;
+};
+
+struct channels {
+     struct channels *next;
+     char *channel;
 };
 
 #ifdef WANTANSI
