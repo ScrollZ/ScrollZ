@@ -225,6 +225,9 @@ web page.
     ! fixed bug in URL catcher where endless loop could be created and client
       would use all available CPU (found out by about 30+ Alternet clients)
     ! fixed couple of OperVision bugs, mainly related to windows (hi doxx)
+    ! fixed ircII bug where client would think it is connected to two
+      servers when connect to new server was issued while the connect to
+      previous server was still in progress (reported by enkil)
 
 Here's Zakath's list for Celerity:
     + STATUS_LOADAVG (%Z) for system load (works on Linux & BSD, Solaris
