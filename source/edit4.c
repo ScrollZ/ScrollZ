@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.25 1999-06-05 12:06:37 f Exp $
+ * $Id: edit4.c,v 1.26 1999-06-14 16:45:06 f Exp $
  */
 
 #include "irc.h"
@@ -723,7 +723,6 @@ void HandleTabNext() {
     int  dotabcompl=0;
     char *tmpstr;
     char *nickstr;
-    char *channel;
     char *cmdchars;
     char tmpbuf[mybufsize/8];
     static char *tabnick=NULL;
@@ -766,13 +765,18 @@ void HandleTabNext() {
                 }
                 return;
             }
-            else if (*tmpstr && (channel=get_channel_by_refnum(0))) {
+            else if (*tmpstr && (chan=server_list[from_server].chan_list)) {
                 int nicklen;
+                int sameloop=0;
 
-                for (chan=server_list[from_server].chan_list;chan;chan=chan->next) {
-                    if (tabnickcompl && tabnick) {
+                for (;chan;chan=chan->next) {
+                    if (!sameloop && tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
                         len=strlen(tabnick);
+                    }
+                    else if (sameloop) {
+                        tmpnick=chan->nicks;
+                        len=tabnick?strlen(tabnick):0;
                     }
                     else {
                         char *tempnick=tmpstr;
@@ -787,8 +791,8 @@ void HandleTabNext() {
                     for (;tmpnick;tmpnick=tmpnick->next)
                         if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
                     if (!tmpnick) {
-                        for (tmpnick=chan->nicks;tmpnick;tmpnick=tmpnick->next)
-                            if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
+                        sameloop=1;
+                        continue;
                     }
                     nicklen=strlen(tabnick);
                     if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
