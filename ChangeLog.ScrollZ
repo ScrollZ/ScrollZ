@@ -31,6 +31,8 @@ ScrollZ v1.9.1
     ! terminal resize bug with hidden windows (ircII bug, reported
       by Zid)
     ! wserv now compiles again (reported by aflux)
+    + $stamp() which returns current timestamp as set by
+      SET STAMP_FORMAT
 
 ------------------------------------------------------------------------------
 
