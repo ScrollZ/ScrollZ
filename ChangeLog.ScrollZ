@@ -39,7 +39,6 @@ Meaning of flags:
     ! status bar bug where string was cut one column too early (reported
       by jaska)
     + CHPASS filter - now removes user's password (suggested by braneded)
-    ~ removed parenthesis from time stamp to save space (requested by ogre)
     ! WHOIS in -DGENX now honours value of STAMP (reported by kore)
     + time stamping to CSCAN
     + -DALTERNATE_PUBLICS to defs.h which uses () in publics instead of <>
@@ -73,7 +72,6 @@ Meaning of flags:
     ! ORIGNICK losing QUIET setting when ORIGNICK without args was executed
       (reported by fox)
     + semi-colon is now allowed in SET DCC_PORTS (a-la iptables or ipchains)
-    + define OLD_TS for people that prefer old time stamping format
     + netsplit/netjoin messages and signon/signoff messages now use value
       of timestamp to format the output
     ! hash function to work with high ASCII nicks (used on Russian servers,
@@ -84,6 +82,10 @@ Meaning of flags:
     ~ annoying PONG notice when connecting through psyBNC (thanks to markalso
       for debugging) but other things might not work 100% because psyBNC mucks
       with the data stream between client and server
+    ! don't crash doing MAP if no LINKS info is returned by ircd (reported
+      by braneded)
+    + customizable timestamp format (SET STAMP_FORMAT to see default example,
+      patch submitted by braneded, thanks)
 
 ------------------------------------------------------------------------------
 
