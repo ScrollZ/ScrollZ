@@ -1,7 +1,7 @@
 /*
  * Decoder for ScrollZ log files
  *
- * $Id: SZdecode.c,v 1.1 2002-01-07 18:06:08 f Exp $
+ * $Id: SZdecode.c,v 1.2 2002-01-15 19:45:10 f Exp $
  *
  */
 
@@ -14,17 +14,17 @@
 #define NUMPBOX      16
 #define NUMSBOX      2
 
-static char *base64="./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static char *base64 = "./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-static unsigned int pbox[NUMPBOX+2];
+static unsigned int pbox[NUMPBOX + 2];
 static unsigned int sbox[NUMSBOX][256];
 
-static unsigned int PBOX[NUMPBOX+2]={
+static unsigned int PBOX[NUMPBOX + 2] = {
     0x243A6A88, 0x85C308D3, 0x17198A2E, 0x03787344, 0xA9093822, 0x499F31D0,
     0x082E6A98, 0xEC3E6C89, 0xC52821E6, 0x38D013F7, 0xBE5E66CF, 0x54E90C6C,
     0xC0A329B7, 0xC57C50DD, 0x3F84DDB5, 0xB5440917, 0x9218D5D9, 0x8379FB1B
 };
-static unsigned int SBOX[NUMSBOX][256]={
+static unsigned int SBOX[NUMSBOX][256] = {
     {
         0xA1310BA6, 0x38DFB5AC, 0x4FFD72DB, 0x501ADFB7, 0xA8E1AFED, 0x6A257E96,
         0xBA7C9045, 0xF12C7F99, 0x24A19947, 0xB3916CF7, 0x0801F2E2, 0x858EFC16,
@@ -120,102 +120,102 @@ static unsigned int SBOX[NUMSBOX][256]={
 unsigned int F(x)
 unsigned int x;
 {
-    unsigned int a,b,c,d,y;
+    unsigned int a, b, c, d, y;
 
-    d=x&0xFF;
-    x>>=8;
-    c=x&0xFF;
-    x>>=8;
-    b=x&0xFF;
-    x>>=8;
-    a=x&0xFF;
-    y=sbox[0][a]+sbox[1][b];
-    y=y^sbox[1][c];
-    y=y+sbox[0][d];
+    d = x & 0xFF;
+    x >>= 8;
+    c = x & 0xFF;
+    x >>= 8;
+    b = x & 0xFF;
+    x >>= 8;
+    a = x & 0xFF;
+    y = sbox[0][a] + sbox[1][b];
+    y = y ^ sbox[1][c];
+    y = y + sbox[0][d];
     return(y);
 }
 
-void BlowfishDecipher(xl,xr)
+void BlowfishDecipher(xl, xr)
 unsigned int *xl;
 unsigned int *xr;
 {
-    unsigned int Xl,Xr,temp;
-    int          i;
+    int i;
+    unsigned int Xl, Xr, temp;
 
-    Xl=*xl;
-    Xr=*xr;
-    for (i=NUMPBOX+1;i>1;--i) {
-        Xl=Xl^pbox[i];
-        Xr=F(Xl)^Xr;
-        temp=Xl;
-        Xl=Xr;
-        Xr=temp;
+    Xl = *xl;
+    Xr = *xr;
+    for (i = NUMPBOX + 1; i > 1; --i) {
+        Xl = Xl ^ pbox[i];
+        Xr = F(Xl) ^ Xr;
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
     }
-    temp=Xl;
-    Xl=Xr;
-    Xr=temp;
-    Xr=Xr^pbox[1];
-    Xl=Xl^pbox[0];
-    *xl=Xl;
-    *xr=Xr;
+    temp = Xl;
+    Xl = Xr;
+    Xr = temp;
+    Xr = Xr ^ pbox[1];
+    Xl = Xl ^ pbox[0];
+    *xl = Xl;
+    *xr = Xr;
 }
 
-void BlowfishEncipher(xl,xr)
+void BlowfishEncipher(xl, xr)
 unsigned int *xl;
 unsigned int *xr;
 {
-    unsigned int Xl,Xr,temp;
-    int          i;
+    int i;
+    unsigned int Xl, Xr, temp;
 
-    Xl=*xl;
-    Xr=*xr;
-    for (i=0;i<NUMPBOX;++i) {
-        Xl=Xl^pbox[i];
-        Xr=F(Xl)^Xr;
-        temp=Xl;
-        Xl=Xr;
-        Xr=temp;
+    Xl = *xl;
+    Xr = *xr;
+    for (i = 0; i < NUMPBOX; ++i) {
+        Xl = Xl ^ pbox[i];
+        Xr = F(Xl) ^ Xr;
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
     }
-    temp=Xl;
-    Xl=Xr;
-    Xr=temp;
-    Xr=Xr^pbox[NUMPBOX];
-    Xl=Xl^pbox[NUMPBOX+1];
-    *xl=Xl;
-    *xr=Xr;
+    temp = Xl;
+    Xl = Xr;
+    Xr = temp;
+    Xr = Xr ^ pbox[NUMPBOX];
+    Xl = Xl ^ pbox[NUMPBOX + 1];
+    *xl = Xl;
+    *xr = Xr;
 }
 
-void BlowfishInit(key,keybytes)
+void BlowfishInit(key, keybytes)
 char *key;
 int keybytes;
 {
-    int i,j,k;
-    unsigned int data,datal,datar;
+    int i, j, k;
+    unsigned int data, datal, datar;
 
-    memcpy(pbox,PBOX,sizeof(PBOX));
-    memcpy(sbox,SBOX,sizeof(SBOX));
-    j=0;
-    for (i=0;i<NUMPBOX+2;++i) {
-        data=0;
-        for (k=0;k<4;++k) {
-            data=(data<<8)|key[j];
+    memcpy(pbox, PBOX, sizeof(PBOX));
+    memcpy(sbox, SBOX, sizeof(SBOX));
+    j = 0;
+    for (i = 0; i < NUMPBOX + 2; ++i) {
+        data = 0;
+        for (k = 0; k < 4; ++k) {
+            data = (data << 8) | key[j];
             j++;
-            if (j>=keybytes) j=0;
+            if (j >= keybytes) j = 0;
         }
-        pbox[i]=pbox[i]^data;
+        pbox[i] = pbox[i] ^ data;
     }
-    datal=0;
-    datar=0;
-    for (i=0;i<NUMPBOX+2;i+=2) {
-        BlowfishEncipher(&datal,&datar);
-        pbox[i]=datal;
-        pbox[i+1]=datar;
+    datal = 0;
+    datar = 0;
+    for (i = 0; i < NUMPBOX + 2; i += 2) {
+        BlowfishEncipher(&datal, &datar);
+        pbox[i] = datal;
+        pbox[i+1] = datar;
     }
-    for (i=0;i<NUMSBOX;++i) {
-        for (j=0;j<256;j+=2) {
-            BlowfishEncipher(&datal,&datar);
-            sbox[i][j]=datal;
-            sbox[i][j+1]=datar;
+    for (i = 0; i < NUMSBOX; ++i) {
+        for (j = 0; j < 256; j += 2) {
+            BlowfishEncipher(&datal, &datar);
+            sbox[i][j] = datal;
+            sbox[i][j + 1] = datar;
         }
     }
 }
@@ -225,61 +225,100 @@ char c;
 {
     int i;
 
-    for (i=0;i<64;i++) if (base64[i]==c) return(i);
+    for (i = 0; i < 64; i++) if (base64[i] == c) return(i);
     return(0);
 }
 
-void DecryptString(dest,src,key)
+void DecryptString(dest, src, key)
 char *dest;
 char *src;
 char *key;
 {
-    int      i;
-    unsigned int l,r;
-    char     *s,*d;
+    int i;
+    unsigned int l, r;
+    char *s, *d;
 
-    BlowfishInit(key,strlen(key));
-    s=src;
-    d=dest;
+    BlowfishInit(key, strlen(key));
+    s = src;
+    d = dest;
     while (s && *s) {
-        l=0;
-        r=0;
-        for (i=0;i<6;i++) r|=(Base64Decode(*s++))<<(i*6);
-        for (i=0;i<6;i++) l|=(Base64Decode(*s++))<<(i*6);
-        BlowfishDecipher(&l,&r);
-        for (i=0;i<4;i++) *d++=(l & (0xFF<<((3-i)*8))) >> ((3-i)*8);
-        for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8))) >> ((3-i)*8);
+        l = 0;
+        r = 0;
+        for (i = 0; i < 6; i++) r |= (Base64Decode(*s++)) << (i * 6);
+        for (i = 0; i < 6; i++) l |= (Base64Decode(*s++)) << (i * 6);
+        BlowfishDecipher(&l, &r);
+        for (i = 0; i < 4; i++) *d ++= (l & (0xFF << ((3 - i) * 8))) >> ((3 -i) * 8);
+        for (i = 0; i < 4; i++) *d ++= (r & (0xFF << ((3 - i) * 8))) >> ((3 -i) * 8);
     }
-    *d=0;
+    *d = 0;
 }
 
-int main(argc,argv)
+void EncryptString(dest, src, key)
+char *dest;
+char *src;
+char *key;
+{
+    int i;
+    unsigned int l, r;
+    unsigned char *s, *d;
+    char encrbuf[2048];
+
+    BlowfishInit(key, strlen(key));
+    strcpy(encrbuf, src);
+    s = encrbuf + strlen(encrbuf);
+    for (i = 0; i < 8; i++) *s ++= '\0';
+    s = encrbuf;
+    d = dest;
+    while (s && *s) {
+        l= ((*s++) << 24);
+        l |= ((*s++) << 16);
+        l |= ((*s++) << 8);
+        l |= *s++;
+        r = ((*s++) << 24);
+        r |= ((*s++) << 16);
+        r |= ((*s++) << 8);
+        r |= *s++;
+        BlowfishEncipher(&l, &r);
+        for (i = 0; i < 6; i++) {
+            *d++ = base64[r & 0x3F];
+            r = r >> 6;
+        }
+        for (i = 0; i < 6; i++) {
+            *d++ = base64[l & 0x3F];
+            l = l >> 6;
+        }
+    }
+    *d = 0;
+}
+
+int main(argc, argv)
 int argc;
 char **argv;
 {
     char tmpbuf[2048];
     char decbuf[2048];
+    char passbuf[2048];
     char *filename;
     char *password;
     FILE *fp;
 
-    if (argc<2) {
+    if (argc < 2) {
         printf("Decoder for ScrollZ log files by Flier\n");
-        printf("Usage: %s filename [password]\n",argv[0]);
-        printf("\n");
+        printf("Usage: %s filename [password]\n\n", argv[0]);
         return(1);
     }
-    filename=argv[1];
-    if (argc==3) password=argv[2];
-    else password=getpass("Enter password: ");
-    if ((fp=fopen(filename,"r"))==NULL) {
-        printf("Error, can't open file %s\n",filename);
+    filename = argv[1];
+    if (argc == 3) password = argv[2];
+    else password = getpass("Enter password: ");
+    EncryptString(passbuf, password, password);
+    if ((fp = fopen(filename, "r")) == NULL) {
+        printf("Error, can't open file %s\n", filename);
         return(2);
     }
-    while (fgets(tmpbuf,2048,fp)) {
-        if (tmpbuf[strlen(tmpbuf)-1]=='\n') tmpbuf[strlen(tmpbuf)-1]='\0';
-        DecryptString(decbuf,tmpbuf,password);
-        printf("%s\n",decbuf);
+    while (fgets(tmpbuf, 2048, fp)) {
+        if (tmpbuf[strlen(tmpbuf) - 1] == '\n') tmpbuf[strlen(tmpbuf) - 1] = '\0';
+        DecryptString(decbuf, tmpbuf, passbuf);
+        printf("%s\n", decbuf);
     }
     fclose(fp);
     return(0);
