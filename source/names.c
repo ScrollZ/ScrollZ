@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.52 2004-01-03 18:07:03 f Exp $
+ * $Id: names.c,v 1.53 2004-06-17 20:29:34 f Exp $
  */
 
 #include "irc.h"
@@ -133,7 +133,10 @@ same_channel(channel, chan2)
 	size_t	len, len2;
 
 	/* take the easy way out */
-	if (*channel->channel != '!' && *chan2 != '!')
+/**************************** PATCHED by Flier ******************************/
+	/*if (*channel->channel != '!' && *chan2 != '!')*/
+	if (*channel->channel != '!' || *chan2 != '!')
+/****************************************************************************/
 		return (!my_stricmp(channel->channel, chan2));
 
 	/*
