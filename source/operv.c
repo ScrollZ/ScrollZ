@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.42 2002-01-24 19:59:04 f Exp $
+ * $Id: operv.c,v 1.43 2002-02-23 10:23:39 f Exp $
  */
 
 #include "irc.h"
@@ -132,37 +132,37 @@ char *OVuh(word)
 char *word;
 {
     int i;
-    int sht=1;
+    int sht = 1;
     char *tmpstr;
     char *tmphost;
-    char tmpbuf1[mybufsize/4];
-    static char tmpbuf2[mybufsize/4];
+    char tmpbuf1[mybufsize / 4];
+    static char tmpbuf2[mybufsize / 4];
 
     /* I added sht (number-of-chars-to-short the line) -Pier */
     /* Remove the ()'s from *word (pointer +1, cat length -1) */
-    tmphost=index(word,'(');
+    tmphost = index(word,'(');
     /* We need to check for []'s if there are no ()'s since ircd that I run on
        my box reports client connecting/exiting with [] ?????   -Flier */
-    if (!tmphost) tmphost=index(word,'[');
+    if (!tmphost) tmphost = index(word,'[');
     /* Hybrid 5.1b26 seems to use n!u@h in /quote HTM notices -Pier */
     if (!tmphost) {
-        tmphost=index(word,'!');
-        sht=0;
+        tmphost = index(word, '!');
+        sht = 0;
     }
     if (tmphost) tmphost++;
     else return(word);
-    i=strlen(tmphost);
-    strmcpy(tmpbuf1,tmphost,i-sht);
+    i = strlen(tmphost);
+    strmcpy(tmpbuf1, tmphost, i - sht + 1);
     /* tmpbuf1 is the u@h, now colorize it */
-    if ((tmpstr=index(tmpbuf1,'@'))) {
-	*tmpstr='\0';
+    if ((tmpstr = index(tmpbuf1, '@'))) {
+	*tmpstr = '\0';
 	tmpstr++;
-	snprintf(tmpbuf2,sizeof(tmpbuf2),"%s(%s%s%s%s%s@%s%s%s%s%s)%s",
-	        CmdsColors[COLMISC].color2,Colors[COLOFF],
-	        CmdsColors[COLSETTING].color4,tmpbuf1,Colors[COLOFF],
-	        CmdsColors[COLMISC].color1,Colors[COLOFF],
-	        CmdsColors[COLSETTING].color4,tmpstr,Colors[COLOFF],
-	        CmdsColors[COLMISC].color2,Colors[COLOFF]);
+	snprintf(tmpbuf2, sizeof(tmpbuf2), "%s(%s%s%s%s%s@%s%s%s%s%s)%s",
+	        CmdsColors[COLMISC].color2, Colors[COLOFF],
+	        CmdsColors[COLSETTING].color4, tmpbuf1, Colors[COLOFF],
+	        CmdsColors[COLMISC].color1, Colors[COLOFF],
+	        CmdsColors[COLSETTING].color4, tmpstr, Colors[COLOFF],
+	        CmdsColors[COLMISC].color2, Colors[COLOFF]);
     }
     return(tmpbuf2);
 }
@@ -172,21 +172,21 @@ char *word;
 char *OVsvdmn(string)
 char *string;
 {
-    int  i,l;
+    int  i, l;
     char *c;
     char *d;
-    char tmpstr[mybufsize/8];
-    static char tmpbuf[mybufsize/4];
+    char tmpstr[mybufsize / 8];
+    static char tmpbuf[mybufsize / 4];
 
-    c=rindex(string,'.');
+    c = rindex(string, '.');
     if (!c) return(string);
-    i=strlen(string);
-    l=strlen(c);
-    i-=l;  /* Length of top */
-    strmcpy(tmpstr,string,i);
-    if (!(d=rindex(tmpstr,'.'))) d=c; /* Extract domain */
+    i = strlen(string);
+    l = strlen(c);
+    i -= l;  /* Length of top */
+    strmcpy(tmpstr, string, i+1);
+    if (!(d = rindex(tmpstr, '.'))) d = c; /* Extract domain */
     d++;
-    snprintf(tmpbuf,sizeof(tmpbuf),"%s",d);
+    snprintf(tmpbuf, sizeof(tmpbuf), "%s", d);
     return(tmpbuf);
 }
 
