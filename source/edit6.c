@@ -69,7 +69,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.132 2002-02-27 19:13:48 f Exp $
+ * $Id: edit6.c,v 1.133 2002-03-03 11:03:23 f Exp $
  */
 
 #include "irc.h"
@@ -1599,7 +1599,7 @@ char *subargs;
     for (i=0;command_list[i].command;i++)
         if (!strncmp(command_list[i].command,szsetting,len)) break;
     if (!(command_list[i].command) || !strcmp(szsetting,"ORIGNICK")) {
-        say("Illegal command, try /SHELP %sCHAN",command);
+        say("Illegal command, try /HELP %sCHAN",command);
         return;
     }
     if (!(*(command_list[i].var))) {

@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.93 2002-02-25 18:27:19 f Exp $
+ * $Id: edit5.c,v 1.94 2002-03-03 11:03:23 f Exp $
  */
 
 #include "irc.h"
@@ -3355,11 +3355,11 @@ void InitKeysColors() {
 
     strcpy(tmpbuf,"^F parse_command wholeft");
     bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F1 parse_command shelp keys");
+    strcpy(tmpbuf,"F1 parse_command help keys");
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"F2 parse_command join -invite");
     bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W? parse_command shelp net");
+    strcpy(tmpbuf,"^W? parse_command help net");
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"^Wh parse_command window hide");
     bindcmd(NULL,tmpbuf,NULL);
@@ -3418,8 +3418,6 @@ void InitKeysColors() {
 /*    strcpy(tmpbuf,"^J enter_digraph");
     bindcmd(NULL,tmpbuf,NULL);*/
     strcpy(tmpbuf,"^T switch_channels");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F1 parse_command shelp index");
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"F2 parse_command cscan");
     bindcmd(NULL,tmpbuf,NULL);

@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.45 2002-01-24 19:59:04 f Exp $
+ * $Id: cdcc.c,v 1.46 2002-03-03 11:03:23 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -259,7 +259,7 @@ char *line;
     say("LOAD     LONGST   OVERWR  NOTICE   OFFER   PLIST   PTIME  NTIME   PSEND");
     say("QUEUE    RENPACK  RESEND  REQUEST  SAVE    SECURE  SEND   STATUS  ULDIR");
     say("VERBOSE  WARNING");
-    say("For more help on command do /SHELP CDCC command");
+    say("For more help on command do /HELP CDCC command");
 }
 
 /***********************************************************************
