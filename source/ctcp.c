@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.41 2002-01-24 19:59:04 f Exp $
+ * $Id: ctcp.c,v 1.42 2002-02-25 18:31:07 f Exp $
  */
 
 #include "irc.h"
@@ -90,6 +90,7 @@ extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
 extern void EncryptString _((char *, char *, char *, int, int));
 extern void ChannelLogSave _((char *, ChannelList *));
+extern int  AutoReplyMatch _((char *));
 /****************************************************************************/
 
 static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
@@ -1424,9 +1425,13 @@ do_atmosphere(ctcp, from, to, cmd)
 		*cmd;
 {
 /**************************** PATCHED by Flier ******************************/
+        int     foundar = 0;
         char    thing;
 #ifdef WANTANSI
+        char    *color = CmdsColors[COLME].color3;
         char    tmpbuf1[mybufsize / 2];
+#else
+        char    *color = "";
 #endif
         void    (*func)();
         ChannelList *chan;
@@ -1440,6 +1445,19 @@ do_atmosphere(ctcp, from, to, cmd)
 	{
 		int old;
 
+/**************************** Patched by Flier ******************************/
+                if (AutoReplyBuffer) {
+                    char tmpbuf[2 * mybufsize];
+
+                    strmcpy(tmpbuf, cmd, sizeof(tmpbuf));
+                    foundar = AutoReplyMatch(tmpbuf);
+#ifdef WANTANSI
+                    if (foundar) color = CmdsColors[COLME].color6;
+#else
+                    if (foundar) color = "";
+#endif
+                }
+/****************************************************************************/
  		save_message_from();
 		old = set_lastlog_msg_level(LOG_ACTION);
 		if (is_channel(to))
@@ -1456,21 +1474,21 @@ do_atmosphere(ctcp, from, to, cmd)
 #ifdef WANTANSI
                                     func("%s%c%s %s%s%s %s%s%s",
                                           CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                          CmdsColors[COLME].color3, from, Colors[COLOFF],
+                                          color, from, Colors[COLOFF],
                                           CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-                                    func("%c %s %s", thing, from, cmd);
+                                    func("%c %s%s%s %s", thing, color, from, color, cmd);
 #endif
                                 else {
 #ifdef WANTANSI
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"<%s%s%s> %s%c%s %s%s%s",
-                                           CmdsColors[COLME].color4, to,Colors[COLOFF],
-                                           CmdsColors[COLME].color1, thing,Colors[COLOFF],
-                                           CmdsColors[COLME].color3, from,Colors[COLOFF]);
+                                           CmdsColors[COLME].color4, to, Colors[COLOFF],
+                                           CmdsColors[COLME].color1, thing, Colors[COLOFF],
+                                           color, from, Colors[COLOFF]);
                                     func("%s %s%s%s",tmpbuf1,
                                           CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
 #else
-                                    func("<%s> %c %s %s", to, thing, from, cmd);
+                                    func("<%s> %c %s%s%s %s", to, thing, color, from, color, cmd);
 #endif
                                 }
 /****************************************************************************/
@@ -1502,10 +1520,10 @@ do_atmosphere(ctcp, from, to, cmd)
 #ifdef WANTANSI
                                 func("%s%c%s> %s%s%s %s%s%s",
                                       CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                      CmdsColors[COLME].color3, from, Colors[COLOFF],
+                                      color, from, Colors[COLOFF],
                                       CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-				func("%c> %s %s", thing, from,  cmd);
+				func("%c> %s%s%s %s", thing, color, from, color, cmd);
 #endif
 /****************************************************************************/
 		}
