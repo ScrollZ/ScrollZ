@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.8 2000-10-24 18:53:20 f Exp $
+ * $Id: blowfish.c,v 1.9 2000-12-25 14:23:31 f Exp $
  */
 
 #include "irc.h"
@@ -311,6 +311,7 @@ int  szenc;
         x+=strlen(SZCRYPTSTR);
     }
     else oldk=1;
+    if (oldk && *key==SZOLDCRYPT) key++;
     BlowfishInit(key,strlen(key),oldk);
     strmcpy(encrbuf,x,bufsize);
     s=encrbuf+strlen(encrbuf);
