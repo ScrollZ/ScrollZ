@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.9 2001-02-14 17:08:08 f Exp $
+ * $Id: input.c,v 1.10 2001-03-12 18:10:44 f Exp $
  */
 
 #include "irc.h"
@@ -52,6 +52,7 @@
 
 #ifdef WANTANSI
 extern int CountAnsiInput _((char *, int));
+extern void StripAnsi _((char *, char *, int));
 #endif
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -185,9 +186,20 @@ update_input(update)
 			if (strncmp(ptr, current_screen->input_buffer, len) || !len)
 			{
 				malloc_strcpy(&inp_ptr, current_screen->input_buffer + current_screen->buffer_min_pos);
-				strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);
+/**************************** Patched by Flier ******************************/
+				/*strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);*/
+                                if (get_int_var(DISPLAY_ANSI_VAR))
+                                    strmcpy(current_screen->input_buffer,ptr,INPUT_BUFFER_SIZE);
+                                else {
+                                    StripAnsi(ptr,current_screen->input_buffer,2);
+                                    len=strlen(current_screen->input_buffer);
+                                }
+/****************************************************************************/
 				current_screen->buffer_pos += (len - current_screen->buffer_min_pos);
-				current_screen->buffer_min_pos = strlen(ptr);
+/**************************** Patched by Flier ******************************/
+				/*current_screen->buffer_min_pos = strlen(ptr);*/
+				current_screen->buffer_min_pos=len;
+/****************************************************************************/
 				strmcat(current_screen->input_buffer, inp_ptr, INPUT_BUFFER_SIZE);
 				new_free(&inp_ptr);
 				update = UPDATE_ALL;

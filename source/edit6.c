@@ -58,10 +58,11 @@
  HandleStatsI        Handles STATS i reply from server
  ARinWindowToggle    Toggle value of ARinWindow
  IsIrcNetOperChannel Figure out if we're dealing with IrcNet's oper channel
+ RedrawAll           Force redraw of status bars and input prompt
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.75 2001-01-25 17:53:52 f Exp $
+ * $Id: edit6.c,v 1.76 2001-03-12 18:10:44 f Exp $
  */
 
 #include "irc.h"
@@ -2750,4 +2751,13 @@ char *channel;
         !my_stricmp(channel,"&oper"))
         return(1);
     return(0);
+}
+
+/* Force redraw of status bars and input prompt */
+void RedrawAll(void) {
+    build_status(NULL);
+    current_screen->input_buffer[0]=current_screen->input_buffer[0]^255;
+    current_screen->input_buffer[1]='\0';
+    update_input(UPDATE_ALL);
+    refresh_screen(0,NULL);
 }

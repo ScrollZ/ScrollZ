@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.13 2001-01-22 18:19:01 f Exp $
+ * $Id: vars.c,v 1.14 2001-03-12 18:10:44 f Exp $
  */
 
 #include "irc.h"
@@ -108,6 +108,8 @@ static  void    SetDCCBlockSize _((int));
 static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
 
+extern  void    RedrawAll _((void));
+
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
 extern	char	*CelerityNtfy;
@@ -157,7 +159,7 @@ static	IrcVariable irc_variable[] =
 	{ "DEBUG",			INT_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "DISPLAY",			BOOL_TYPE_VAR,	DEFAULT_DISPLAY, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
-	{ "DISPLAY_ANSI",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, NULL, 0, 0 },
+	{ "DISPLAY_ANSI",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, RedrawAll, 0, 0 },
 /****************************************************************************/
 	{ "EIGHT_BIT_CHARACTERS",	BOOL_TYPE_VAR,	DEFAULT_EIGHT_BIT_CHARACTERS, NULL, eight_bit_characters, 0, 0 },
 	{ "ENCRYPT_PROGRAM",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },

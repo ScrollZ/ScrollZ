@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.17 2001-01-22 18:19:01 f Exp $
+ * $Id: status.c,v 1.18 2001-03-12 18:10:44 f Exp $
  */
 
 #include "irc.h"
@@ -478,53 +478,52 @@ char ccode;
 char *buffer;
 int  bufsize;
 {
-    char *color;
+    char *color=empty_string;
 
-    switch (ccode) {
-        case '0':
-            color=Colors[COLOFF];
-            break;
-        case '1':
-            color=CmdsColors[COLSBAR1].color1;
-            break;
-        case '2':
-            color=CmdsColors[COLSBAR1].color2;
-            break;
-        case '3':
-            color=CmdsColors[COLSBAR1].color3;
-            break;
-        case '4':
-            color=CmdsColors[COLSBAR1].color4;
-            break;
-        case '5':
-            color=CmdsColors[COLSBAR1].color5;
-            break;
-        case '6':
-            color=CmdsColors[COLSBAR1].color6;
-            break;
-        case '7':
-            color=CmdsColors[COLSBAR2].color1;
-            break;
-        case '8':
-            color=CmdsColors[COLSBAR2].color2;
-            break;
-        case '9':
-            color=CmdsColors[COLSBAR2].color3;
-            break;
-        case 'a':
-            color=CmdsColors[COLSBAR2].color4;
-            break;
-        case 'b':
-            color=CmdsColors[COLSBAR2].color5;
-            break;
-        case 'c':
-            color=CmdsColors[COLSBAR2].color6;
-            break;
-        default:
-            color=empty_string;
-            break;
+    if (get_int_var(DISPLAY_ANSI_VAR)) {
+        switch (ccode) {
+            case '0':
+                color=Colors[COLOFF];
+                break;
+            case '1':
+                color=CmdsColors[COLSBAR1].color1;
+                break;
+            case '2':
+                color=CmdsColors[COLSBAR1].color2;
+                break;
+            case '3':
+                color=CmdsColors[COLSBAR1].color3;
+                break;
+            case '4':
+                color=CmdsColors[COLSBAR1].color4;
+                break;
+            case '5':
+                color=CmdsColors[COLSBAR1].color5;
+                break;
+            case '6':
+                color=CmdsColors[COLSBAR1].color6;
+                break;
+            case '7':
+                color=CmdsColors[COLSBAR2].color1;
+                break;
+            case '8':
+                color=CmdsColors[COLSBAR2].color2;
+                break;
+            case '9':
+                color=CmdsColors[COLSBAR2].color3;
+                break;
+            case 'a':
+                color=CmdsColors[COLSBAR2].color4;
+                break;
+            case 'b':
+                color=CmdsColors[COLSBAR2].color5;
+                break;
+            case 'c':
+                color=CmdsColors[COLSBAR2].color6;
+                break;
+        }
+        strmcat(buffer,color,bufsize);
     }
-    strmcat(buffer,color,bufsize);
 }
 #endif
 /****************************************************************************/
@@ -878,77 +877,77 @@ convert_format(format, k)
 #ifdef WANTANSI
                                 case 'Y':   /* Celerity StatusBar %Y? junt */
  				case 'y':
-                                     switch (*(ptr++)) {
-                                         case '0' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor0;
-                                             break;
-                                         case '1' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor1;
-                                             break;
-                                         case '2' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor2;
-                                             break;
-                                         case '3' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor3;
-                                             break;
-                                         case '4' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor4;
-                                             break;
-                                         case '5' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor5;
-                                             break;
-                                         case '6' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor6;
-                                             break;
-                                         case '7' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor7;
-                                             break;
-                                         case '8' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor8;
-                                             break;
-                                         case '9' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolor9;
-                                             break;
-                                         case 'a' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolora;
-                                             break;
-                                         case 'b' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolorb;
-                                             break;
-                                         case 'c' :
-                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
-                                             status_func[k][(*cp)++] =
-                                                 status_Cbarcolorc;
-                                             break;
- 					default :
- 					    ptr++;
- 					    break;
- 				    }
- 				    break;
+                                        if (get_int_var(DISPLAY_ANSI_VAR)) {
+                                            switch (*(ptr++)) {
+                                                case '0' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor0;
+                                                    break;
+                                                case '1' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor1;
+                                                    break;
+                                                case '2' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor2;
+                                                    break;
+                                                case '3' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor3;
+                                                    break;
+                                                case '4' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor4;
+                                                    break;
+                                                case '5' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor5;
+                                                    break;
+                                                case '6' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor6;
+                                                    break;
+                                                case '7' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor7;
+                                                    break;
+                                                case '8' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor8;
+                                                    break;
+                                                case '9' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolor9;
+                                                    break;
+                                                case 'a' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolora;
+                                                    break;
+                                                case 'b' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolorb;
+                                                    break;
+                                                case 'c' :
+                                                    strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+                                                    status_func[k][(*cp)++] =
+                                                        status_Cbarcolorc;
+                                                    break;
+                                            }
+                                        }
+                                        else ptr++;
+                                        break;
 #endif
                                 case '!': /* %!## Status_user format by Zakath */
                                           /* Thx to Sheik & Flier for help */
@@ -1009,9 +1008,6 @@ convert_format(format, k)
                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_fullserver;
-                                            break;
-                                        default:
-                                            ptr++;
                                             break;
                                     }
                                     break;
@@ -1279,7 +1275,8 @@ make_status(window)
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        strcat(lbuf,"[0m");
+                        if (get_int_var(DISPLAY_ANSI_VAR))
+                            strcat(lbuf,"[0m");
 #endif
 /****************************************************************************/
 
@@ -2441,7 +2438,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,Colors[COLOFF]);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,Colors[COLOFF]);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2450,7 +2448,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color1);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color1);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2459,7 +2458,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color2);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color2);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2468,7 +2468,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color3);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color3);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2477,7 +2478,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color4);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color4);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2486,7 +2488,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color5);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color5);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2495,7 +2498,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color6);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color6);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2504,7 +2508,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color1);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color1);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2513,7 +2518,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color2);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color2);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2522,7 +2528,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color3);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color3);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2531,7 +2538,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color4);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color4);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2540,7 +2548,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color5);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color5);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 
@@ -2549,7 +2558,8 @@ Window *window;
 {
     char *ptr=(char *) 0;
 
-    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color6);
+    if (get_int_var(DISPLAY_ANSI_VAR)) malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color6);
+    else malloc_strcpy(&ptr,empty_string);
     return(ptr);
 }
 #endif
