@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.4 1998-10-04 13:55:16 f Exp $
+ * $Id: cdcc.c,v 1.5 1998-10-10 20:20:37 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -1599,6 +1599,8 @@ char *line;
     int  count;
     int  total;
     int  queue=0;
+    int  queueret;
+    int  queuesay=0;
     int  queuesent=0;
     char byteschar;
     char *nick=(char *) 0;
@@ -1622,15 +1624,17 @@ char *line;
                     total+=tmp->size;
                 }
                 else {
-                    if (AddToQueue(tmp,nick,1)) {
+                    if ((queueret=AddToQueue(tmp,nick,1))>0) {
                         queue++;
                         count++;
                         total+=tmp->size;
                     }
-                    else if (!queuesent) {
+                    else if (!queuesent && queueret==0) {
                         queuesent=1;
-                        if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, my Cdcc queue is full",nick);
+                        if (!CTCPCloaking)
+                            send_to_server("NOTICE %s :Sorry, my Cdcc queue is full",nick);
                     }
+                    if (!queuesay && queueret==-1) queuesay=1;
                 }
             }
             window_display=display;
@@ -1647,27 +1651,30 @@ char *line;
             if (queue) sprintf(tmpbuf1,", %d file%s in queue",queue,
                                queue==1?"":"s");
             else *tmpbuf1='\0';
-            if (!CTCPCloaking) send_to_server("NOTICE %s :Sent : [%s]%s",
-                                              nick,tmpbuf2,tmpbuf1);
+            if (count || queue) {
+                if (!CTCPCloaking)
+                    send_to_server("NOTICE %s :Sent : [%s]%s",nick,tmpbuf2,tmpbuf1);
 #ifdef WANTANSI
-            sprintf(tmpbuf1,"%sCdcc%s %ssending%s %s%s%s : ",
-                    CmdsColors[COLCDCC].color4,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color3,Colors[COLOFF],
-                    CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
-            if (!queue) say("%s[%s%s%s]",tmpbuf1,
-                            CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
-            else say("%s[%s%s%s], %d file%s in queue",tmpbuf1,
-                     CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF],queue,
-                     queue==1?"":"s");
-            if (queuesent) say("%sCdcc%s %squeue%s is full",
-                               CmdsColors[COLCDCC].color4,Colors[COLOFF],
-                               CmdsColors[COLCDCC].color3,Colors[COLOFF]);
+                sprintf(tmpbuf1,"%sCdcc%s %ssending%s %s%s%s : ",
+                        CmdsColors[COLCDCC].color4,Colors[COLOFF],
+                        CmdsColors[COLCDCC].color3,Colors[COLOFF],
+                        CmdsColors[COLCDCC].color1,nick,Colors[COLOFF]);
+                if (!queue) say("%s[%s%s%s]",tmpbuf1,
+                                CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
+                else say("%s[%s%s%s], %d file%s in queue",tmpbuf1,
+                         CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF],queue,
+                         queue==1?"":"s");
+                if (queuesent) say("%sCdcc%s %squeue%s is full",
+                                   CmdsColors[COLCDCC].color4,Colors[COLOFF],
+                                   CmdsColors[COLCDCC].color3,Colors[COLOFF]);
 #else
-            if (!queue) say("Cdcc sending %s : [%s]",nick,tmpbuf2);
-            else say("Cdcc sending %s : [%s], %d file%s in queue",nick,tmpbuf2,queue,
-                     queue==1?"":"s");
-            if (queuesent) say("Cdcc queue is full");
+                if (!queue) say("Cdcc sending %s : [%s]",nick,tmpbuf2);
+                else say("Cdcc sending %s : [%s], %d file%s in queue",nick,tmpbuf2,queue,
+                         queue==1?"":"s");
+                if (queuesent) say("Cdcc queue is full");
 #endif
+            }
+            if (queuesay) say("Duplicate files were not put in queue");
         }
     }
     else say("You must specify nick(s) to send file(s) to");
@@ -2357,6 +2364,8 @@ int  resend;
     int   sent=0;
     int   queue=0;
     int   packsent;
+    int   queueret;
+    int   queuesay=0;
     int   queuesent=0;
     char  byteschar;
     char  *word;
@@ -2402,16 +2411,18 @@ int  resend;
                             totalfiles++;
                         }
                         else {
-                            if (AddToQueue(tmp1,from,resend+1)) {
+                            if ((queueret=AddToQueue(tmp1,from,resend+1))>0) {
                                 packsent=1;
                                 queue++;
                                 totalbytes+=tmp1->size;
                                 totalfiles++;
                             }
-                            else if (!queuesent) {
+                            else if (!queuesent && queueret==0) {
                                 queuesent=1;
-                                if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, my Cdcc queue is full",from);
+                                if (!CTCPCloaking)
+                                    send_to_server("NOTICE %s :Sorry, my Cdcc queue is full",from);
                             }
+                            if (!queuesay && queueret==-1) queuesay=1;
                         }
                     }
                     window_display=display;
@@ -2468,6 +2479,7 @@ int  resend;
                     send_to_server("NOTICE %s :I need : %s",from,CdccRequest);
 /*****************************/
             }
+            if (queuesay) say("Duplicate files were not put in queue");
             if (!sent && !CTCPCloaking) send_to_server("NOTICE %s :No packs found matching %s",from,word);
         }
         else if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, there are no files offered",from);
@@ -2704,13 +2716,27 @@ char  *nick;
 int   flag;
 {
     int count=0;
+    char *spath;
     char tmpbuf[mybufsize/4];
+    DCC_list *Client;
     FileQueue *tmp;
     FileQueue *newfile;
 
     count=TotalQueue();
     if (CdccQueueLimit>0 && count>=CdccQueueLimit) return(0);
     sprintf(tmpbuf,"%s/%s",tmpfile->path,tmpfile->file);
+    /* check if nick/file combination is already in DCC list */
+    for (Client=ClientList;Client;Client=Client->next) {
+        /* we're only interested in filename so we strip path */
+        if ((spath=rindex(Client->description,'/'))) spath++;
+        else spath=Client->description;
+        if (!strcmp(tmpfile->file,spath) && !my_stricmp(nick,Client->user))
+            return(-1);
+    }
+    /* check if nick/file combination is already in queue */
+    for (tmp=queuelist;tmp;tmp=tmp->next)
+        if (!strcmp(tmpbuf,tmp->file) && !my_stricmp(nick,tmp->nick))
+            return(-1);
     newfile=(FileQueue *) new_malloc(sizeof(FileQueue));
     newfile->server=from_server;
     newfile->file=(char *) 0;
