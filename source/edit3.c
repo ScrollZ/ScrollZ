@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.28 1999-07-18 12:50:08 f Exp $
+ * $Id: edit3.c,v 1.29 1999-07-24 12:42:42 f Exp $
  */
 
 #include "irc.h"
@@ -2155,7 +2155,7 @@ int ScrollZLoad()
             StringSet(pointer,&DefaultABK,&error,lineno,"DEFABK");
         else if (!strcmp("DEFSK",tmpbuf3))
             StringSet(pointer,&DefaultSK,&error,lineno,"DEFSK");
-#ifdef ACID
+#ifdef OPER
 	else if (!strcmp("DEFKILL",tmpbuf3))
 	    StringSet(pointer,&DefaultKill,&error,lineno,"DEFKILL");
 #endif
@@ -2459,7 +2459,7 @@ void InitVars() {
     malloc_strcpy(&DefaultFinger,"Are you from the CIA ?");    
     AutoOpDelay=4;
 #endif
-#ifdef ACID
+#ifdef OPER
     malloc_strcpy(&DefaultKill,"Go play somewhere else...");
 #endif
     malloc_strcpy(&NickWatchChannels,"*");
