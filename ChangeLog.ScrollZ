@@ -46,7 +46,7 @@ Meaning of flags:
       permission to use their code from BitchX SSL port)
     ~ PASSWD, it now acts as a master password a-la Mozilla for
       ENCRMSG and log files encryption - because of this you can't decode
-      pre ScrollZ 1.9 encrypted files!. it can now be used in interactive
+      pre ScrollZ 1.9 encrypted files! it can now be used in interactive
       mode for privacy reasons
     ~ changed interface to ENCRMSG, it is now possible to use it entirely in
       interactive mode for privacy reasons, see help for new usage
