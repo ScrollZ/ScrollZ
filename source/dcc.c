@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.2 1998-09-10 17:44:40 f Exp $
+ * $Id: dcc.c,v 1.3 1998-09-16 20:07:45 f Exp $
  */
 
 #include "irc.h"
@@ -114,7 +114,7 @@ extern void CodeIt _((int, char *, int));
 #endif
 extern void CheckAutoGet _((char *, char *, char *, char *));
 extern void AwaySave _((char *, int));
-extern void AddNick2List _((char *));
+extern void AddNick2List _((char *, int));
 extern struct friends *CheckUsers _((char *, char *));
 extern void PrintChatMsg _((DCC_list *, char *, int));
 extern void PrintMyChatMsg _((char *, char *));
@@ -575,7 +575,7 @@ dcc_check(rd, wd)
                                             ((*Client)->flags&DCC_TYPES)==DCC_FILEREGET) CdccRecvNum++;
                                         if (((*Client)->flags&DCC_TYPES)==DCC_CHAT) {
                                             sprintf(tmpbuf,"=%s",(*Client)->user);
-                                            AddNick2List(tmpbuf);
+                                            AddNick2List(tmpbuf,(*Client)->server);
                                         }
                                         update_all_status();
 /*****************************/
@@ -768,7 +768,7 @@ dcc_open(Client)
 /*****************************/
                 if ((Client->flags&DCC_TYPES)==DCC_CHAT) {
                     sprintf(tmpbuf,"=%s",user);
-                    AddNick2List(tmpbuf);
+                    AddNick2List(tmpbuf,Client->server);
                 }
 /****************************************************************************/
 #endif
@@ -1911,7 +1911,7 @@ process_incoming_chat(Client)
 			inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                 PrintEstablish("chat",Client,remaddr,0L);
                 sprintf(tmpbuf,"=%s",Client->user);
-                AddNick2List(tmpbuf);
+                AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
 		Client->starttime = time(NULL);
 		return;
@@ -1989,7 +1989,7 @@ process_incoming_chat(Client)
                     AwaySave(tmpbuf,SAVECHAT);
                 }
                 sprintf(tmpbuf,"=%s",Client->user);
-                AddNick2List(tmpbuf);
+                AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
 		return;
 	}
