@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.6 1999-05-13 16:54:30 f Exp $
+ * $Id: notice.c,v 1.7 1999-09-26 10:41:17 f Exp $
  */
 
 #include "irc.h"
@@ -166,6 +166,17 @@ parse_server_notice(from, to, line)
 	if (to)
 	{
 		if (do_hook(SERVER_NOTICE_LIST, "%s %s %s", from, to, line))
+/*************************** PATCHED by Flier ******************************/      
+#if defined(OPERVISION) && defined(WANTANSI)
+                        if (OperV &&
+                           (!strcmp(to,"&SERVERS") || !strcmp(to,"&ERRORS")   ||
+                            !strcmp(to,"&NOTICES") || !strcmp(to,"&LOCAL")    ||
+                            !strcmp(to,"&CHANNEL") || !strcmp(to,"&NUMERICS") ||
+                            !strcmp(to,"&KILLS")))
+                            OVformat(line,NULL);
+                        else
+#endif
+/***************************************************************************/      
 			put_it("%s %s", to, line);
 	}
 	else
