@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.31 1999-08-15 08:28:09 f Exp $
+ * $Id: edit4.c,v 1.32 1999-08-15 10:20:35 f Exp $
  */
 
 #include "irc.h"
@@ -110,9 +110,6 @@ extern NickList *CheckJoiners _((char *, char *, int , ChannelList *));
 extern struct words *CheckLine _((char *, char *));
 extern void AwaySave _((char *, int));
 extern void AddNick2List _((char *, int));
-#ifndef WANTANSI
-extern void UserDomain _((char *));
-#endif
 extern int  AddSplitter _((char *, char *, char *));
 extern int  Check4Fake _((char *));
 extern struct friends *CheckUsers _((char *, char *));
