@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.49 2000-09-24 17:10:33 f Exp $
+ * $Id: edit3.c,v 1.50 2000-10-30 17:18:20 f Exp $
  */
 
 #include "irc.h"
@@ -964,9 +964,9 @@ char *subargs;
     sprintf(tmpbuf2,"   | A-close idle send: %s%d%ss",
             CmdsColors[COLSETTING].color2,CdccIdle,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %s%-3d%ss",
+    sprintf(tmpbuf1,"Cdcc ptime       : %s%-4d%ss",
             CmdsColors[COLSETTING].color2,PlistTime,Colors[COLOFF]);
-    sprintf(tmpbuf2," | Cdcc channels    : ");
+    sprintf(tmpbuf2,"| Cdcc channels    : ");
     if (CdccChannels)
         sprintf(tmpbuf3,"%s%s%s",CmdsColors[COLSETTING].color5,CdccChannels,Colors[COLOFF]);
     else sprintf(tmpbuf3,"%sNone%s",CmdsColors[COLSETTING].color5,Colors[COLOFF]);
@@ -1174,8 +1174,8 @@ char *subargs;
     sprintf(tmpbuf1,"Cdcc limit       : %c%-2d%c",bold,CdccLimit,bold);
     sprintf(tmpbuf2,"   | A-close idle send: %c%d%cs",bold,CdccIdle,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
-    sprintf(tmpbuf1,"Cdcc ptime       : %c%-3d%cs",bold,PlistTime,bold);
-    sprintf(tmpbuf2," | Cdcc channels    : ");
+    sprintf(tmpbuf1,"Cdcc ptime       : %c%-4d%cs",bold,PlistTime,bold);
+    sprintf(tmpbuf2,"| Cdcc channels    : ");
     if (CdccChannels) sprintf(tmpbuf3,"%c%s%c",bold,CdccChannels,bold);
     else sprintf(tmpbuf3,"%cNone%c",bold,bold);
     say("%s%s%s",tmpbuf1,tmpbuf2,tmpbuf3);
