@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.47 2001-10-11 20:41:25 f Exp $
+ * $Id: numbers.c,v 1.48 2001-10-18 20:20:15 f Exp $
  */
 
 #include "irc.h"
@@ -1695,7 +1695,10 @@ numbered_command(from, comm, ArgList)
                 case 206:
                         if (comm==203 || comm==204 || comm==206) {
                             if (inSZTrace!=2 && !inSZFKill) inSZTrace=0;
-                            if (inSZTrace==2 && (comm==203 || comm==204)) DoFilterTrace(ArgList[2]);
+#ifdef OPER
+                            if (inSZTrace==2 && (comm==203 || comm==204))
+                                DoFilterTrace(ArgList[2]);
+#endif
                             if (inSZTrace) break;
                         }
 #ifdef CELE
