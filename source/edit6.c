@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.105 2001-10-05 18:41:03 f Exp $
+ * $Id: edit6.c,v 1.106 2001-10-05 18:44:14 f Exp $
  */
 
 #include "irc.h"
@@ -2878,12 +2878,16 @@ ChannelList *tmpchan;
 char *TimeStamp(when)
 int when;
 {
-    int flag=0;
+    static char stampbuf[mybufsize/4+1];
     char *format=get_string_var(STAMP_FORMAT);
-    static char *result=NULL;
+    char *result=NULL;
+    int flag=0;
 
-    new_free(&result);
-    if (Stamp>=when) result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
-    if (!result) malloc_strcpy(&result,empty_string);
-    return(result);
+    *stampbuf='\0';
+    if (Stamp>=when) {
+	result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
+	strmcpy(stampbuf,result,mybufsize/4);
+	new_free(&result);
+    }
+    return(stampbuf);
 }
