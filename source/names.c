@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.5 1998-11-02 21:20:55 f Exp $
+ * $Id: names.c,v 1.6 1999-01-31 12:46:25 f Exp $
  */
 
 #include "irc.h"
@@ -165,7 +165,7 @@ add_channel(channel, server, connected, copy)
 	ChannelList *new;
 	int	do_add = 0;
 /**************************** PATCHED by Flier ******************************/
-        int     i=1;
+        int     resetchan=0;
         Window  *newwin;
         WhowasChanList *whowaschan;
 
@@ -209,7 +209,8 @@ add_channel(channel, server, connected, copy)
 		do_add = 1;
 		add_to_list((List **) &server_list[server].chan_list, (List *) new);
 /**************************** PATCHED by Flier ******************************/
-                i=0;
+                new->creationtime=time((time_t *) 0);
+                resetchan=1;
 /****************************************************************************/
         } else if (new->status & (CHAN_LIMBO|CHAN_BOUND))
 		new->status = CHAN_BOUND;
@@ -225,7 +226,9 @@ add_channel(channel, server, connected, copy)
 #else
                 new->time=time((time_t *) 0);
 #endif
-                if (!i) {
+                if (resetchan) {
+                    int i;
+
                     new->modelock=(char *) 0;
                     new->pluso=0;     new->minuso=0;     new->plusb=0;
                     new->minusb=0;    new->topic=0;      new->kick=0;
