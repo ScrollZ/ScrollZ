@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.10 1998-12-02 20:58:01 f Exp $
+ * $Id: edit.c,v 1.11 1998-12-13 17:44:10 f Exp $
  */
 
 #include "irc.h"
@@ -1488,6 +1488,7 @@ do_channel(chan)
 	return (char *) 0;
 }
 
+/**************************** PATCHED by Flier ******************************/
 /* fix_channel: add # in front of channel if necessary */
 static char *fix_channel(channel)
 char *channel;
@@ -1501,6 +1502,7 @@ char *channel;
     else strmcpy(chanbuf,channel,mybufsize/4);
     return(chanbuf);
 }
+/****************************************************************************/
 
 /*
  * e_channel: does the channel command.  I just added displaying your current
