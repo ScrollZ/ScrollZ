@@ -111,6 +111,7 @@ Usage $3LS$0 [$3options$0]
 Usage $3M nick$0|$3#channel message$0
 You can use $2TAB$0 key to "scroll" through list of nicks.
 :MAP           Generates map of IRC servers
+Usage $3MAP$0 [$3server$0]
 :MSAY          Sends text to all channels you're on
 Usage $3MSAY$0 [$3#channels$0] $3text$0
 Channels is list of channels separated with comma, you can
