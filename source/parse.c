@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.36 2001-04-17 17:57:47 f Exp $
+ * $Id: parse.c,v 1.37 2001-05-08 17:37:16 f Exp $
  */
 
 #include "irc.h"
@@ -97,6 +97,8 @@ extern void CheckCdcc _((char *, char *, char *, int));
 extern int  CheckChannel _((char *, char *));
 extern int  DecryptMessage _((char *, char *));
 extern int  IsIrcNetOperChannel _((char *));
+extern int  CompareAddr _((List *, char *));
+extern int  AddLast _((List *, List *));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -922,6 +924,14 @@ p_quit(from, ArgList)
         char    *colnick;
         NickList *joiner;
 #endif
+#ifdef EXTRAS
+        typedef struct winlist_str Winlist;
+        struct winlist_str {
+            Winlist *next;
+            Window *window;
+        };
+        Winlist *winlist=NULL,*winelem;
+#endif
 /****************************************************************************/
 
 	if (!from)
@@ -952,9 +962,9 @@ p_quit(from, ArgList)
 /**************************** PATCHED by Flier *****************************/
 				/*say("Signoff: %s (%s)", from, Reason);*/
                             if (!netsplit || !NHDisp) {
+                                ChannelList *chan;
 #ifdef EXTRAS
                                 char chanbuf[mybufsize/4+1];
-                                ChannelList *chan;
 
                                 *chanbuf='\0';
                                 if (ShowSignoffChan && SignoffChannels && *SignoffChannels) {
@@ -981,30 +991,69 @@ p_quit(from, ArgList)
                                     else strmcat(chanbuf,") ",mybufsize/4);
                                 }
 #endif /* EXTRAS */
+                                for (chan=server_list[parsing_server_index].chan_list;chan;chan=chan->next) {
+                                    ChannelList *tmpchan=NULL;
+#ifdef EXTRAS
+                                    Window *oldto_window;
+
+                                    oldto_window=to_window;
+                                    if (ShowSignAllChan) {
+                                        tmpchan=chan;
+
+                                        /* major pain in the ass: if we have several channels in
+                                         * one window we have to display signoff only once in
+                                         * that window so we have to know which windows have
+                                         * already displayed signoff - we use window pointer */
+                                        if (list_lookup_ext((List **) &winlist,(char *) tmpchan->window,
+                                                            !USE_WILDCARDS,!REMOVE_FROM_LIST,CompareAddr))
+                                            continue;
+                                        winelem=(Winlist *) malloc(sizeof(Winlist));
+                                        winelem->window=tmpchan->window;
+                                        winelem->next=NULL;
+                                        add_to_list_ext((List **) &winlist,(List *) winelem,
+                                                (int (*) _((List *, List *))) AddLast);
+                                        to_window=tmpchan->window;
+                                    }
+#endif /* EXTRAS */
 #ifdef WANTANSI
-                                joiner=CheckJoiners(from,NULL,parsing_server_index,NULL);
-                                if (joiner && joiner->shitlist && joiner->shitlist->shit)
-                                    colnick=CmdsColors[COLLEAVE].color5;
-                                else if (joiner && joiner->frlist && joiner->frlist->privs)
-                                    colnick=CmdsColors[COLLEAVE].color4;
-                                else colnick=CmdsColors[COLLEAVE].color1;
+                                    joiner=CheckJoiners(from,tmpchan?tmpchan->channel:NULL,
+                                                        parsing_server_index,tmpchan);
+                                    if (joiner && joiner->shitlist && joiner->shitlist->shit)
+                                        colnick=CmdsColors[COLLEAVE].color5;
+                                    else if (joiner && joiner->frlist && joiner->frlist->privs)
+                                        colnick=CmdsColors[COLLEAVE].color4;
+                                    else colnick=CmdsColors[COLLEAVE].color1;
 #ifdef EXTRAS
-                                say("Signoff: %s%s%s (%s%s%s%s)",
+                                    say("Signoff: %s%s%s (%s%s%s%s)",
 #else  /* EXTRAS */
-                                say("Signoff: %s%s%s (%s%s%s)",
+                                    say("Signoff: %s%s%s (%s%s%s)",
 #endif /* EXTRAS */
-                                    colnick,from,Colors[COLOFF],
+                                        colnick,from,Colors[COLOFF],
 #ifdef EXTRAS
-                                    chanbuf,
+                                        chanbuf,
 #endif /* EXTRAS */
-                                    CmdsColors[COLLEAVE].color3,Reason,Colors[COLOFF]);
+                                        CmdsColors[COLLEAVE].color3,Reason,Colors[COLOFF]);
 #else  /* WANTANSI */
 #ifdef EXTRAS
-                                say("Signoff: %s (%s%s)",from,chanbuf,Reason);
+                                    say("Signoff: %s (%s%s)",from,chanbuf,Reason);
 #else  /* EXTRAS */
-                                say("Signoff: %s (%s)",from,Reason);
+                                    say("Signoff: %s (%s)",from,Reason);
 #endif /* EXTRAS */
 #endif /* WANTANSI */
+#ifdef EXTRAS
+                                    to_window=oldto_window;
+                                    if (!ShowSignAllChan) 
+                                        break;
+#endif /* EXTRAS */
+                                }
+#ifdef EXTRAS
+                                /* free stored info about windows */
+                                while (winlist) {
+                                    winelem=winlist;
+                                    winlist=winlist->next;
+                                    new_free(&winelem);
+                                }
+#endif /* EXTRAS */
                             }
 /***************************************************************************/
 		}
