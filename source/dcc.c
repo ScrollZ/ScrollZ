@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.13 1999-03-04 22:06:07 f Exp $
+ * $Id: dcc.c,v 1.14 1999-04-08 16:01:38 f Exp $
  */
 
 #include "irc.h"
@@ -2724,7 +2724,10 @@ dcc_close(args)
 		say("you must specify a type and nick for DCC CLOSE");
 		goto out;
 	}
-	description = next_arg(args, &args);
+/**************************** PATCHED by Flier ******************************/
+	/*description = next_arg(args, &args);*/
+	description=new_next_arg(args,&args);
+/****************************************************************************/
 	malloc_strcpy(&cmd, Type);
 	upper(cmd);
 	for (CType = 0; dcc_types[CType] != NULL; CType++)

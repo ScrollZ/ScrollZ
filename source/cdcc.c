@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.17 1999-03-02 17:59:52 f Exp $
+ * $Id: cdcc.c,v 1.18 1999-04-08 16:01:38 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -750,7 +750,7 @@ char *line;
             flags=Client->flags;
             if (matchmcommand(line,packcount)) {
                 count++;
-                sprintf(tmpbuf,"%s %s %s",dcc_types[flags&DCC_TYPES],Client->user,
+                sprintf(tmpbuf,"%s %s \"%s\"",dcc_types[flags&DCC_TYPES],Client->user,
                         Client->description);
                 dcc_close(tmpbuf);
             }
