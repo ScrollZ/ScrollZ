@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.33 2000-08-14 20:38:13 f Exp $
+ * $Id: irc.c,v 1.34 2000-08-19 16:35:48 f Exp $
  */
 
 #define IRCII_VERSION	"4.4X"
@@ -1480,9 +1480,9 @@ irc_io(prompt, func, my_use_input, loop)
 				if (one_key)
 				{
 /**************************** PATCHED by Flier ******************************/
-					/*if (read(screen->fdin, buffer, 1))*/
+					/*if (read(screen->fdin, lbuf, 1))*/
 #ifdef SZNCURSES
- 					if (term_read(buffer,1))
+ 					if (term_read(lbuf,1))
 #else
  					if (read(screen->fdin, lbuf, 1))
 #endif /* SZNCURSES */

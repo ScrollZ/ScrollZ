@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.40 2000-08-17 19:22:59 f Exp $
+ * $Id: edit.c,v 1.41 2000-08-19 16:35:39 f Exp $
  */
 
 #include "irc.h"
@@ -1857,7 +1857,7 @@ userhost(command, args, subargs)
 		char	*s, *t;
 		int	i;
 
-		malloc_strcpy(&the_list, buffer);			/* XXX uses global buffer */
+		malloc_strcpy(&the_list, buffer);
 		s = t = the_list;
 		while (n)
 		{
@@ -3055,7 +3055,7 @@ command_completion(key, ptr)
 			}
 			else
 			{
-				*buffer = (u_char) 0;
+				*buffer = (char) 0;
 				if (command)
 				{
 					say("Commands:");
