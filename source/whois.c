@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.19 2003-03-25 17:12:24 f Exp $
+ * $Id: whois.c,v 1.20 2003-04-16 18:11:59 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -715,14 +715,24 @@ char **ArgList;
         if (nick) {
             if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1])) {
                 char *ip;
+                char *uh;
 #ifdef WANTANSI
                 char tmpbuf[mybufsize / 2];
-                ColorUserHost(ArgList[3], CmdsColors[COLWHOIS].color2, tmpbuf, 0);
 #endif /* WANTANSI */
 
-                PasteArgs(ArgList, 3);
-                ip = index(ArgList[3], '[');
-                if (!ip) ip = empty_string;
+                uh = strstr(nick, "actually ");
+                if (uh) uh += 9; /* move to a character after the space */
+                if (!uh) uh = empty_string;
+                ip = index(nick, '['); /* look for IP */
+                if (ip) {
+                    ip--;
+                    *ip++='\0';
+                }
+                else ip = empty_string;
+#ifdef WANTANSI
+                ColorUserHost(uh, CmdsColors[COLWHOIS].color2, tmpbuf, 0);
+#endif /* WANTANSI */
+
 #ifdef WANTANSI
 #ifdef GENX
                 put_it("%s³ %sactually%s ³ %s %s%s%s",
@@ -742,7 +752,7 @@ char **ArgList;
 #endif /* GENX */
 #else  /* WANTANSI */
                 put_it("%sActually:   %s %s",
-                       numeric_banner(), ArgList[3], ip);
+                       numeric_banner(), uh, ip);
 #endif /* WANTANSI */
             }
         }
