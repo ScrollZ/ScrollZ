@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.71 2003-05-07 17:37:13 f Exp $
+ * $Id: numbers.c,v 1.72 2004-01-03 18:07:26 f Exp $
  */
 
 #include "irc.h"
@@ -1646,6 +1646,17 @@ numbered_command(from, comm, ArgList)
                         }
 /****************************************************************************/
 			break;
+
+/**************************** PATCHED by Flier ******************************/
+                        /* channel redirect on freenode */
+                        /* blah 379 nick #old #new :Forwarding to another channel channel redirect */
+                case 379:
+			PasteArgs(ArgList, 2);
+                        /* oldchan newchan */
+                        if (ArgList[0] && ArgList[1])
+                            rename_channel(ArgList[0], ArgList[1]);
+                        break;
+/****************************************************************************/
 
 		case 384:		/* #define RPL_MYPORTIS         384 */
 			PasteArgs(ArgList, 0);
