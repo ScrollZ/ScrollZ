@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.11 1999-03-04 22:06:12 f Exp $
+ * $Id: server.c,v 1.12 1999-03-09 22:26:58 f Exp $
  */
 
 #include "irc.h"
@@ -314,6 +314,11 @@ do_server(rd, wd)
                                 /* to force window activity */
                                 save_message_from();
                                 message_from((char *) 0,LOG_CRAP);
+                                /* bug when server closed connection before
+                                   we connected - in that case client reported
+                                   non standard version which is wrong */
+                                if (attempting_to_connect>0)
+                                    attempting_to_connect--;
 /****************************************************************************/
 				say("Connection closed from %s: %s", server_list[i].name,
 					dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));
