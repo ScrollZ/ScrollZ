@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.123 2002-01-21 22:12:15 f Exp $
+ * $Id: edit6.c,v 1.124 2002-01-21 22:20:12 f Exp $
  */
 
 #include "irc.h"
@@ -1698,22 +1698,21 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  timediff=time((time_t *) 0)-start_time;
+    int  timediff = time(NULL) - start_time;
     char *szver;
     char *tmpstr1;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4 + 1];
 
-    strcpy(tmpbuf,ScrollZver);
-    tmpstr1=index(tmpbuf,' ');
-    szver=index(tmpstr1+1,' ')+1;
-    tmpstr1=index(szver,' ');
-    *tmpstr1='\0';
-    say("This is ScrollZ %s (client base ircII %s, version %s)",
-        szver,irc_version,internal_version);
-    say("Client uptime: %dd %02dh %02dm",timediff/86400,(timediff/3600)%24,(timediff/60)%60);
-    timediff=time((time_t *) 0)-server_list[from_server].ConnectTime;
+    strcpy(tmpbuf, ScrollZver);
+    tmpstr1 = index(tmpbuf, ' ');
+    szver = index(tmpstr1 + 1, ' ') + 1;
+    tmpstr1 = index(szver,' ');
+    *tmpstr1 = '\0';
+    say("This is ScrollZ %s (client base ircII %s)", szver, irc_version);
+    say("Client uptime: %dd %02dh %02dm", timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
+    timediff = time(NULL) - server_list[from_server].ConnectTime;
     say("Connected to the current server (%s): %dd %02dh %02dm",
-        get_server_name(from_server),timediff/86400,(timediff/3600)%24,(timediff/60)%60);
+        get_server_name(from_server), timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
     say("Support channel: #ScrollZ on Efnet");
     say("Mailing list: scrollz@ahnberg.pp.se");
     say("Home page: http://www.scrollz.com/");
