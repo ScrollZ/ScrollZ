@@ -122,6 +122,11 @@ Meaning of flags:
       (requested by KOBAN)
     + possibility to have one OperVision window for several servers
       (define MULTI_SERVER_OV in defs.h, requested by MrDev)
+    + scrollz irc.server.com now connects you directly to the specified
+      IRC server (patch by braneded)
+    + we now finally have a homepage, the URL is www.scrollz.com,
+      thanks to largo for the design and to tel for hosting it
+    ~ cursor is now immediately moved to input line (requested by salan)
 
 ------------------------------------------------------------------------------
 
