@@ -1,11 +1,11 @@
-!	 $Id: addf,v 1.4 2003-01-08 20:00:53 f Exp $
+!	 $Id: addf,v 1.5 2003-05-03 18:28:27 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: ADDF nick|filter channels access [password]
+Usage: ADDF [-quiet] nick|filter channels access [password]
   Adds user to your friends list
 
   Filter can include * and ?. When used with nick client will create entry
@@ -17,7 +17,9 @@ Usage: ADDF nick|filter channels access [password]
   F=FLOOD or ALL (example : ICOAU stands for INVITE CHOPS OP AUTOOP and
   UNBAN). Client will auto invite users from notify list if they have I,
   C, O and U privileges and don't have a password set. They can
-  access CTCP OPEN if they have I, O and U flags set).
+  access CTCP OPEN if they have I, O and U flags set). When -quiet is
+  specified user, notice informing the nick that they have been added to
+  a userlist will be omitted.
 
 See also:
   ADDFFLAG
