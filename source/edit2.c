@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.75 2002-01-23 18:48:10 f Exp $
+ * $Id: edit2.c,v 1.76 2002-01-23 18:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -2054,6 +2054,7 @@ char *subargs;
     fprintf(usfile,"ARINWINDOW      ");
     if (ARinWindow==1) fprintf(usfile,"ON\n");
     else if (ARinWindow==2) fprintf(usfile,"USER\n");
+    else if (ARinWindow==3) fprintf(usfile,"BOTH\n");
     else fprintf(usfile,"OFF\n");
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
     fprintf(usfile,"#\n");

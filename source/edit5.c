@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.83 2002-01-23 18:48:10 f Exp $
+ * $Id: edit5.c,v 1.84 2002-01-23 18:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -1499,11 +1499,11 @@ int  iscrypted;
             strcat(tmpbuf1,CmdsColors[COLPUBLIC].color4);
             /* Display AR in current screen window too
                if it's different from orig channel window  -Pier */
-            if (chan->window!=curr_scr_win && ARinWindow) {
+            if ((ARinWindow==3) || (ARinWindow && chan->window!=curr_scr_win)) {
                 oldwin=to_window;
                 if (ARinWindow==1) /* ON */
                     to_window=get_window_by_refnum(curr_scr_win->refnum);
-                else { /* USER */
+                else { /* USER/BOTH */
                     to_window=get_window_by_level(LOG_USER4);
                     if (to_window==NULL)
                         to_window=get_window_by_refnum(curr_scr_win->refnum);
@@ -1531,6 +1531,11 @@ int  iscrypted;
                         CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF]);
                 put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,
                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+                if (ARinWindow==3) {
+                    to_window=get_window_by_refnum(curr_scr_win->refnum);
+                    put_it("%s%s%s%s%s%s",iscrypted?"[!]":"",stampbuf,tmpbuf2,
+                            CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+                }
                 to_window=oldwin; 
             }
         }
@@ -2530,7 +2535,7 @@ char *buffer;
         count--;
     }
     if (joiner->chanop || joiner->halfop) {
-        sprintf(&thing[strlen(thing)],sizeof(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
+        snprintf(&thing[strlen(thing)],sizeof(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
         count--;
     }
     while (count) {

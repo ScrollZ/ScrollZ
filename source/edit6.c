@@ -70,7 +70,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.125 2002-01-23 18:48:10 f Exp $
+ * $Id: edit6.c,v 1.126 2002-01-23 18:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -2928,8 +2928,9 @@ char *subargs;
         if (!my_stricmp("OFF",tmpstr)) ARinWindow=0;
         else if (!my_stricmp("ON",tmpstr)) ARinWindow=1;
         else if (!my_stricmp("USER",tmpstr)) ARinWindow=2;
+        else if (!my_stricmp("BOTH",tmpstr)) ARinWindow=3;
         else {
-            PrintUsage("ARINWIN on/user/off");
+            PrintUsage("ARINWIN on/user/both/off");
             return;
         }
     }
@@ -2942,6 +2943,9 @@ char *subargs;
             break;
         case 2:
             tmpstr="USER";
+            break;
+        case 3:
+            tmpstr="BOTH";
             break;
     }
     PrintSetting("Auto reply in window",tmpstr,empty_string,empty_string);

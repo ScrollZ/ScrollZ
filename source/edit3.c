@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.74 2002-01-23 18:48:10 f Exp $
+ * $Id: edit3.c,v 1.75 2002-01-23 18:57:56 f Exp $
  */
 
 #include "irc.h"
@@ -2264,9 +2264,10 @@ int ScrollZLoad()
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"ON")) ARinWindow=1;
             else if (!my_stricmp(tmpbuf3,"USER")) ARinWindow=2;
+            else if (!my_stricmp(tmpbuf3,"BOTH")) ARinWindow=3;
             else if (!my_stricmp(tmpbuf3,"OFF")) ARinWindow=0;
             else {
-                PrintError("must be ON/OFF/USER","in ARINWINDOW",lineno);
+                PrintError("must be ON/OFF/USER/BOTH","in ARINWINDOW",lineno);
                 loaderror=1;
             }
         }
