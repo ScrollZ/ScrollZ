@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.7 1998-10-21 19:34:38 f Exp $
+ * $Id: cdcc.c,v 1.8 1998-10-25 18:28:00 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
@@ -100,6 +100,7 @@ static void savemcommand _((char *));
 static void statusmcommand _((char *));
 static void statsmcommand _((char *));
 static void warningmcommand _((char *));
+static void verbosemcommand _((char *));
 static void queuemcommand _((char *));
 static void GetDir _((char *));
 static void CleanList _((void));
@@ -180,6 +181,7 @@ static CdccCom CdccCommands[]={
     { "SECURE",      securemcommand },
     { "STATUS",      statusmcommand },
     { "STATS",       statsmcommand },
+    { "VERBOSE",     verbosemcommand },
     { "WARNING",     warningmcommand },
     { "ULDIR",       uldirmcommand },
     { "DLDIR",       dldirmcommand },
@@ -217,10 +219,12 @@ char *subargs;
     for (i=0;CdccCommands[i].command && CdccCommands[i].function;i++)
         if (!my_strnicmp(CdccCommands[i].command,word,len)) {
             found++;
+            if (found>1) break;
             if (!com) com=i;
         }
     if (found>1) {
-        for (tmpstr=word;*tmpstr;tmpstr++) if (*tmpstr>='a' && *tmpstr<='z') *tmpstr-=' ';
+        for (tmpstr=word;*tmpstr;tmpstr++)
+            if (*tmpstr>='a' && *tmpstr<='z') *tmpstr-=' ';
         say("CDCC %s is ambiguous",word);
         return;
     }
@@ -238,7 +242,7 @@ char *line;
     say("AUTOGET  CHAN     CLOSE    DLDIR    DOFFER  GET     IDLE    LIMIT   LIST");
     say("LOAD     LONGST   OVERWR   NOTICE   OFFER   PLIST   PTIME   NTIME   PSEND");
     say("QUEUE    RENPACK  RESEND   REQUEST  SAVE    SECURE  SEND    STATUS  ULDIR");
-    say("WARNING");
+    say("VERBOSE  WARNING");
     say("For more help on command do /SHELP CDCC command");
 }
 
@@ -254,7 +258,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC limit                                                     *
  ***********************************************************************/
-void limitmcommand(line)
+static void limitmcommand(line)
 char *line;
 {
     int number;
@@ -292,7 +296,7 @@ char *line;
 /***********************************************************************
  * Sets idle seconds before auto-close                                 *
  ***********************************************************************/
-void idlemcommand(line)
+static void idlemcommand(line)
 char *line;
 {
     NumberCommand("IDLE",line,NULL);
@@ -301,7 +305,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC autoget on or off                                         *
  ***********************************************************************/
-void autogetmcommand(line)
+static void autogetmcommand(line)
 char *line;
 {
     OnOffCommand("AUTOGET",line,NULL);
@@ -311,7 +315,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC security on or off                                        *
  ***********************************************************************/
-void securemcommand(line)
+static void securemcommand(line)
 char *line;
 {
     OnOffCommand("SECURE",line,NULL);
@@ -322,7 +326,7 @@ char *line;
 /**********************************************************************
 * Sets CDCC encode string                                             *
 ***********************************************************************/
-void emcommand(line)
+static void emcommand(line)
 char *line;
 {
     if (*line) malloc_strcpy(&EString,line);
@@ -332,7 +336,7 @@ char *line;
 /**********************************************************************
 * Sets CDCC renaming on or off                                        *
 ***********************************************************************/
-void mmcommand(line)
+static void mmcommand(line)
 char *line;
 {
     OnOffCommand("M",line,NULL);
@@ -342,7 +346,7 @@ char *line;
 /**********************************************************************
 * Sets CDCC channels for PLIST                                        *
 ***********************************************************************/
-void channelsmcommand(line)
+static void channelsmcommand(line)
 char *line;
 {
     if (line && *line) malloc_strcpy(&CdccChannels,line);
@@ -357,7 +361,7 @@ char *line;
 /***********************************************************************
  * Sets seconds to pass before repeating PLIST                         *
  ***********************************************************************/
-void ptimemcommand(line)
+static void ptimemcommand(line)
 char *line;
 {
     NumberCommand("PTIME",line,NULL);
@@ -366,7 +370,7 @@ char *line;
 /***********************************************************************
  * Sets seconds to pass before repeating NOTICE                        *
  ***********************************************************************/
-void ntimemcommand(line)
+static void ntimemcommand(line)
 char *line;
 {
     NumberCommand("NTIME",line,NULL);
@@ -375,7 +379,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC long status bar on or off                                 *
  ***********************************************************************/
-void longstatusmcommand(line)
+static void longstatusmcommand(line)
 char *line;
 {
     OnOffCommand("LONGSTATUS",line,NULL);
@@ -384,7 +388,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC overwrite on or off                                       *
  ***********************************************************************/
-void overwritemcommand(line)
+static void overwritemcommand(line)
 char *line;
 {
     OnOffCommand("OVERWRITE",line,NULL);
@@ -393,7 +397,7 @@ char *line;
 /***********************************************************************
  * Sets showing DCC status on status bar on or off                     *
  ***********************************************************************/
-void statusmcommand(line)
+static void statusmcommand(line)
 char *line;
 {
     OnOffCommand("STATUS",line,NULL);
@@ -405,7 +409,7 @@ char *line;
 /***********************************************************************
  * Sets showing received/sent kB in PLIST on or off                    *
  ***********************************************************************/
-void statsmcommand(line)
+static void statsmcommand(line)
 char *line;
 {
     OnOffCommand("STATS",line,NULL);
@@ -414,16 +418,25 @@ char *line;
 /***********************************************************************
  * Sets check on incoming DCCs on or off                               *
  ***********************************************************************/
-void warningmcommand(line)
+static void warningmcommand(line)
 char *line;
 {
     OnOffCommand("WARNING",line,NULL);
 }
 
 /***********************************************************************
+ * Sets verbose mode on or off                                         *
+ ***********************************************************************/
+static void verbosemcommand(line)
+char *line;
+{
+    OnOffCommand("VERBOSE",line,NULL);
+}
+
+/***********************************************************************
  * Sets CDCC upload dir                                                *
  ***********************************************************************/
-void uldirmcommand(line)
+static void uldirmcommand(line)
 char *line;
 {
     char *fullname=(char *) 0;
@@ -452,7 +465,7 @@ char *line;
 /***********************************************************************
  * Sets CDCC download dir                                              *
  ***********************************************************************/
-void dldirmcommand(line)
+static void dldirmcommand(line)
 char *line;
 {
     char *fullname=(char *) 0;
@@ -479,7 +492,7 @@ char *line;
 }
 
 /* returns DCC status as one character */
-char dccstatus(flags)
+static char dccstatus(flags)
 int flags;
 {
     return(flags&DCC_OFFER?'O' :
@@ -495,7 +508,7 @@ int flags;
 /***********************************************************************
  * showdccscommand: Lists all dccs                                     *
  ***********************************************************************/
-void showdccsmcommand(type)
+static void showdccsmcommand(type)
 int type;
 {
     int   fills;
@@ -698,7 +711,7 @@ int  count;
 /**********************************************************************
 * closemcommand: Prompt User for type of dccs he wants to close       *
 ***********************************************************************/
-void closemcommand(line)
+static void closemcommand(line)
 char *line;
 {
     if (!ClientList) {
@@ -715,7 +728,7 @@ char *line;
 /**********************************************************************
 * close2mcommand  This closes all user specified dccs                 *
 ***********************************************************************/
-void close2mcommand(blah,line)
+static void close2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -744,7 +757,7 @@ char *line;
 /**********************************************************************
 * doffermcommand: Prompt User for removing pack                       *
 ***********************************************************************/
-void doffermcommand(line)
+static void doffermcommand(line)
 char *line;
 {
     if (packs) {
@@ -761,7 +774,7 @@ char *line;
 * doffer2mcommand  This parses offer file list                        *
 *                  And puts in Files Linked List                      *
 ***********************************************************************/
-void doffer2mcommand(blah,line)
+static void doffer2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -804,7 +817,7 @@ char *line;
 }
 
 /* Formats Received/Sent */
-void formatstats(buffer,cdccstuff)
+static void formatstats(buffer,cdccstuff)
 char *buffer;
 int cdccstuff;
 {
@@ -839,7 +852,7 @@ int cdccstuff;
 }
 
 /* Like CheckChannel but + before channel has special meaning */
-int CheckCdccChannel(channels,chanlist)
+static int CheckCdccChannel(channels,chanlist)
 char *channels;
 char *chanlist;
 {
@@ -893,7 +906,7 @@ char *chanlist;
 }
 
 /* Sends output from plist to server (when called by timer) */
-void sendplist(text)
+static void sendplist(text)
 char *text;
 {
     char *msg;
@@ -908,7 +921,7 @@ char *text;
 }
 
 /* Does actual plist */
-void doplist(tmpchan,current,chan)
+static void doplist(tmpchan,current,chan)
 char *tmpchan;
 int current;
 ChannelList *chan;
@@ -1000,7 +1013,7 @@ ChannelList *chan;
 /**********************************************************************
 * plistmcommand: Puts list to current channel                         *
 ***********************************************************************/
-void plistmcommand(line)
+static void plistmcommand(line)
 char *line;
 {
     int   current=0;
@@ -1029,7 +1042,7 @@ char *line;
 }
 
 /* Does actual notice */
-void donotice(tmpchan,current,chan)
+static void donotice(tmpchan,current,chan)
 char *tmpchan;
 int current;
 ChannelList *chan;
@@ -1058,7 +1071,7 @@ ChannelList *chan;
 /**********************************************************************
 * noticemcommand: yells about offer to current channel                *
 ***********************************************************************/
-void noticemcommand(line)
+static void noticemcommand(line)
 char *line;
 {
     int   current=0;
@@ -1090,7 +1103,7 @@ char *line;
  * Sets new pack description                                           *
  ***********************************************************************/
 #ifdef EXTRAS
-void renamepackmcommand(line)
+static void renamepackmcommand(line)
 char *line;
 {
     int  number;
@@ -1123,7 +1136,7 @@ char *line;
 /***********************************************************************
  * Lists files in queue                                                *
  ***********************************************************************/
-void queuemcommand(line)
+static void queuemcommand(line)
 char *line;
 {
     int  count=0;
@@ -1200,7 +1213,7 @@ char *line;
 /**********************************************************************
 * loadmcommand: loads packs from file                                 *
 ***********************************************************************/
-void loadmcommand(line)
+static void loadmcommand(line)
 char *line;
 {
     int   count=0;
@@ -1348,7 +1361,7 @@ char *line;
 /**********************************************************************
 * savemcommand: saves packs to file                                   *
 ***********************************************************************/
-void savemcommand(line)
+static void savemcommand(line)
 char *line;
 {
     int   count=0;
@@ -1386,7 +1399,7 @@ char *line;
 /***********************************************************************
  * requestmcommand: Lets User tell leechers what he needs. By Zakath   *
  ***********************************************************************/
-void requestmcommand(line)
+static void requestmcommand(line)
 char *line;
 {
     if (line && *line) {
@@ -1404,7 +1417,7 @@ char *line;
 /**********************************************************************
 * offermcommand: Prompt User for files                                *
 ***********************************************************************/
-void offermcommand(line)
+static void offermcommand(line)
 char *line;
 {
     char *speed;
@@ -1439,7 +1452,7 @@ char *line;
 * offer2mcommand  This parses offer file list                         *
 *                 And puts in Files Linked List                       *
 ***********************************************************************/
-void offer2mcommand(blah,line)
+static void offer2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1453,7 +1466,7 @@ char *line;
 /**********************************************************************
 * offer3mcommand  This asks for description                           *
 ***********************************************************************/
-void offer3mcommand(blah,line)
+static void offer3mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1463,7 +1476,7 @@ char *line;
 /**********************************************************************
 * offer4mcommand  Final part of pack creation                         *
 ***********************************************************************/
-void offer4mcommand(blah,line)
+static void offer4mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1475,7 +1488,7 @@ char *line;
 /**********************************************************************
 * AddToOfferList:  Adds Files to offer List                           *
 ***********************************************************************/
-void AddToOfferList(speed,desc)
+static void AddToOfferList(speed,desc)
 char *speed;
 char *desc;
 {
@@ -1555,7 +1568,7 @@ char *desc;
 /**********************************************************************
 * sendmcommand: Prompt User for files                                 *
 ***********************************************************************/
-void sendmcommand(line)
+static void sendmcommand(line)
 char *line;
 {
     char *comma;
@@ -1577,7 +1590,7 @@ char *line;
 * send2mcommand  This parses file send list                           *
 *                Files Linked list                                    *
 ***********************************************************************/
-void send2mcommand(blah,line)
+static void send2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1592,7 +1605,7 @@ char *line;
 * send3mcommand  This parses nick send list, and sends all files in   *
 *                Files Linked list                                    *
 ***********************************************************************/
-void send3mcommand(blah,line)
+static void send3mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1684,7 +1697,7 @@ char *line;
 /**********************************************************************
 * resendmcommand: Prompt User for files                               *
 ***********************************************************************/
-void resendmcommand(line)
+static void resendmcommand(line)
 char *line;
 {
     char *comma;
@@ -1707,7 +1720,7 @@ char *line;
 * resend2mcommand  This parses file resend list                       *
 *                  Files Linked list                                  *
 ***********************************************************************/
-void resend2mcommand(blah,line)
+static void resend2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1722,7 +1735,7 @@ char *line;
 * resend3mcommand  This parses nick resend list, and resends all files   *
 *                  in Files Linked list                                  *
 **************************************************************************/
-void resend3mcommand(blah,line)
+static void resend3mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1778,7 +1791,7 @@ char *line;
 /**********************************************************************
 * psendmcommand: Prompt User for pack                                 *
 ***********************************************************************/
-void psendmcommand(line)
+static void psendmcommand(line)
 char *line;
 {
     char *comma;
@@ -1807,7 +1820,7 @@ char *line;
 * psend2mcommand  This parses nick send list, and sends all files in  *
 *                Pack Linked list                                     *
 ***********************************************************************/
-void psend2mcommand(blah,line)
+static void psend2mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1819,7 +1832,7 @@ char *line;
 /**********************************************************************
 * psend3mcommand  This parses pack send list                          *
 ***********************************************************************/
-void psend3mcommand(blah,line)
+static void psend3mcommand(blah,line)
 char *blah;
 char *line;
 {
@@ -1850,7 +1863,7 @@ char *line;
 * SeedFiles: Gets Users Line of Files with path, and rips em apart    *
 * Puts path, file, and size into Files linked list.                   *
 ***********************************************************************/ 
-int SeedFiles(line,error)
+static int SeedFiles(line,error)
 char *line;
 int  error;
 {
@@ -1925,7 +1938,7 @@ int  error;
 /**********************************************************************
 * Add File to  FILES linked list                                      *
 ***********************************************************************/
-void AddFileToList(path,file,size)
+static void AddFileToList(path,file,size)
 char *path;
 char *file;
 int  size;
@@ -1948,7 +1961,7 @@ int  size;
 /**********************************************************************
 * Returns number of files added to list                               *
 ***********************************************************************/
-int AddFiles2List(line)
+static int AddFiles2List(line)
 char *line;
 {
     int   count=0;
@@ -1997,7 +2010,7 @@ char *line;
 /*********************************************************************
 * Deletes the file link list                                         *
 **********************************************************************/
-void DeleteSend()
+static void DeleteSend()
 {
     Files *tmp;
     Files *next;
@@ -2014,7 +2027,7 @@ void DeleteSend()
 /*********************************************************************
 * Shows the offer link list                                          *
 **********************************************************************/
-void ShowPacks(args)
+static void ShowPacks(args)
 char *args;
 {
     int   packcount=1;
@@ -2080,7 +2093,7 @@ char *args;
 /*********************************************************************
 * GetDir:  This gets the listing of all the files in *ptr dir.       *
 **********************************************************************/
-void GetDir(path)
+static void GetDir(path)
 char *path;
 {
     c_entry_size = 0;
@@ -2094,7 +2107,7 @@ char *path;
 /*********************************************************************
 * CleanList: Cleans up global dirent                                 *
 **********************************************************************/
-void CleanList()
+static void CleanList()
 {
     int i;
 
@@ -2108,7 +2121,7 @@ void CleanList()
 /*********************************************************************
 * compar: used by scandir to alphabetize files in dir                *
 **********************************************************************/
-int compar(e1,e2)
+static int compar(e1,e2)
 struct dirent **e1;
 struct dirent **e2;
 {
@@ -2119,7 +2132,7 @@ struct dirent **e2;
 * selectent: used by scandir to decide which entries to include in the dir *
 *            listing.  Ignores ., includes all other files                 *
 ****************************************************************************/
-int selectent(entry)
+static int selectent(entry)
 struct dirent *entry;
 {
     if (*(entry->d_name)=='.') return (0);
@@ -2134,7 +2147,7 @@ struct dirent *entry;
 * GetSize: takes path, and filename, cats them together, and returns   *
 *          filesize of file, if dir, returns -1                        *
 ************************************************************************/
-int GetSize(path,file)
+static int GetSize(path,file)
 char *path;
 char *file;
 {
@@ -2149,13 +2162,14 @@ char *file;
 /**********************************************************************
 * getmcommand: Prompt User for nick (* for all)                       *
 ***********************************************************************/
-void getmcommand(line)
+static void getmcommand(line)
 char *line;
 {
     if (line && *line) get2mcommand(NULL,line);
     else {
         showdccsmcommand(66);
-        add_wait_prompt("What to get (1-6,3 or * for all) ",get2mcommand,line,WAIT_PROMPT_LINE);
+        add_wait_prompt("What to get (1-6,3 or * for all) ",get2mcommand,
+                        line,WAIT_PROMPT_LINE);
     }
 }
 
@@ -2163,7 +2177,7 @@ char *line;
 * get2mcommand:          This will parse your dcc list, and get files *
 *                        Specified by your filter.                    *
 ***********************************************************************/
-void get2mcommand(data,line)
+static void get2mcommand(data,line)
 char *data;
 char *line;
 {
@@ -2174,8 +2188,7 @@ char *line;
     DCC_list *Client;
     unsigned flags;
 
-    tmp=new_next_arg(line,&line);
-    if (!tmp) {
+    if (!(tmp=new_next_arg(line,&line))) {
         say("You must specify what to get");
         return;
     }
@@ -2256,7 +2269,7 @@ int  msg;
         else sprintf(tmpbuf4,"Cdcc %s request received from %s (%s)%s",
                      command,nick,FromUserHost,tmpbuf2);
 #endif
-        say("%s",tmpbuf4);
+        if (CdccVerbose) say("%s",tmpbuf4);
         if (away_set || LogOn) AwaySave(tmpbuf4,SAVECDCC);
         if (!my_stricmp(command,"HELP")) helpcommand(nick,args);
         else if (!my_stricmp(command,"SEND")) sendcommand(nick,args,0);
@@ -2269,7 +2282,7 @@ int  msg;
 }
 
 /* send msg'er help menu */
-void helpcommand(from,args)
+static void helpcommand(from,args)
 char *from;
 char *args;
 {
@@ -2290,7 +2303,7 @@ char *args;
 }
 
 /* send msg'er version reply */
-void versioncommand(from, args)
+static void versioncommand(from, args)
 char *from;
 char *args;
 {
@@ -2300,14 +2313,14 @@ char *args;
 }
 
 /* Sends to server w/o print */
-void sendlist(text)
+static void sendlist(text)
 char *text;
 {
     send_to_server("%s",text);
 }
 
 /* Check what listing type they want. */
-void listcommand(from, args)
+static void listcommand(from, args)
 char *from;
 char *args;
 {
@@ -2360,7 +2373,7 @@ char *args;
 }
 
 /* Send pack that they request */
-void sendcommand(from,args,resend)
+static void sendcommand(from,args,resend)
 char *from;
 char *args;
 int  resend;
@@ -2465,28 +2478,32 @@ int  resend;
                         CmdsColors[COLCDCC].color4,Colors[COLOFF],
                         CmdsColors[COLCDCC].color3,resend?"re":"",Colors[COLOFF],
                         CmdsColors[COLCDCC].color1,from,Colors[COLOFF],tmpbuf3);
-                if (!queue) say("%s[%s%s%s]",tmpbuf1,
-                                CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
-                else say("%s[%s%s%s], %s%d%s file%s in queue",tmpbuf1,
-                         CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF],
-                         CmdsColors[COLCDCC].color5,queue,Colors[COLOFF],
-                         queue==1?"":"s");
-                if (queuesent) say("%sCdcc%s %squeue%s is full",
-                                   CmdsColors[COLCDCC].color4,Colors[COLOFF],
-                                   CmdsColors[COLCDCC].color3,Colors[COLOFF]);
+                if (CdccVerbose) {
+                    if (!queue) say("%s[%s%s%s]",tmpbuf1,
+                                    CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF]);
+                    else say("%s[%s%s%s], %s%d%s file%s in queue",tmpbuf1,
+                             CmdsColors[COLCDCC].color5,tmpbuf2,Colors[COLOFF],
+                             CmdsColors[COLCDCC].color5,queue,Colors[COLOFF],
+                             queue==1?"":"s");
+                    if (queuesent) say("%sCdcc%s %squeue%s is full",
+                                       CmdsColors[COLCDCC].color4,Colors[COLOFF],
+                                       CmdsColors[COLCDCC].color3,Colors[COLOFF]);
+                }
 #else
-                if (!queue) say("Cdcc %ssent %s %s : [%s]",resend?"re":"",from,
-                                tmpbuf3,tmpbuf2);
-                else say("Cdcc %ssent %s %s : [%s], %d file%s in queue",
-                         resend?"re":"",from,tmpbuf3,tmpbuf2,queue,queue==1?"":"s");
-                if (queuesent) say("Cdcc queue is full");
+                if (CdccVerbose) {
+                    if (!queue) say("Cdcc %ssent %s %s : [%s]",resend?"re":"",
+                                    from,tmpbuf3,tmpbuf2);
+                    else say("Cdcc %ssent %s %s : [%s], %d file%s in queue",
+                             resend?"re":"",from,tmpbuf3,tmpbuf2,queue,queue==1?"":"s");
+                    if (queuesent) say("Cdcc queue is full");
+                }
 #endif
 /****** Coded by Zakath ******/
                 if (CdccReqTog && CdccRequest)
                     send_to_server("NOTICE %s :I need : %s",from,CdccRequest);
 /*****************************/
             }
-            if (queuesay) say("Duplicate files were not put in queue");
+            if (queuesay && CdccVerbose) say("Duplicate files were not put in queue");
             if (!sent && !CTCPCloaking) send_to_server("NOTICE %s :No packs found matching %s",from,word);
         }
         else if (!CTCPCloaking) send_to_server("NOTICE %s :Sorry, there are no files offered",from);
@@ -2717,7 +2734,7 @@ time_t timenow;
 /**********************************************************************
 * AddToQueue:            Adds file to queue                           *
 ***********************************************************************/
-int AddToQueue(tmpfile,nick,flag)
+static int AddToQueue(tmpfile,nick,flag)
 Files *tmpfile;
 char  *nick;
 int   flag;
