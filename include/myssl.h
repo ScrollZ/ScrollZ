@@ -16,9 +16,9 @@
 #define FALSE 1
 #endif
 
-#define CHK_NULL(x) if ((x)==NULL) { say("SSL error - NULL data form server"); return(-1); }
-#define CHK_ERR(err,s) if ((err)==-1) { say("SSL prime error - %s",s); return(-1); }
-#define CHK_SSL(err) if ((err)==-1) { say("SSL CHK error - %d",err); return(-2); }
+#define CHK_NULL(x) if ((x)==NULL) { say("SSL error - NULL data form server"); return; }
+#define CHK_ERR(err,s) if ((err)==-1) { say("SSL prime error - %s",s); return; }
+#define CHK_SSL(err) if ((err)==-1) { say("SSL CHK error - %d",err); return; }
 
 #endif /* SSL */
 
