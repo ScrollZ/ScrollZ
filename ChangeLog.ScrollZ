@@ -6,7 +6,9 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
-ScrollZ v1.9.4
+------------------------------------------------------------------------------
+
+ScrollZ v1.9.4, 19.12.2004
 
     + DESTDIR support in Makefile, patch submitted by MadHack-
     ! support for ! channels on IRCNet (reported by jups)
@@ -25,6 +27,13 @@ ScrollZ v1.9.4
       join +r channels, requested by TrN)
     + partial support for ~ (channel owner) and & (channel admin)
       in unreal ircd (requested by Ahnberg)
+    ! orignick not working for certain values of ORIGNTIME
+      (reported by Tero)
+    ! CDCC GET not working on filenames with spaces (reported by TrN)
+    ! OV bugfixes
+    ! compile with WANTANSI undefined (reported by vetere)
+    ! crash with SET DISPLAY_ANSI set to OFF (reported by vetere)
+    + support for channel mode R on ircd 2.11 (reop, requested by Tero)
 
 ------------------------------------------------------------------------------
 
