@@ -80,7 +80,14 @@ Meaning of flags:
     ~ DCC speed calculation for resend/reget (fixed by braneded)
     ~ merged ircii-20011210 changes (without ISO-2022-JP stuff and mIRC
       colour stuff - sorry but my screen.c is too different these days
-      from ircII and ircII won't allow for ANSI colour codes)
+      from ircII and ircII won't allow for ANSI colour codes, also removed
+      ircII's SET SHOW_STARS and SET STAR_PREFIX in favour of my, more
+      complete code, there is no support for %v (voice status) in status
+      bar as ScrollZ already uses %@ for that)
+    + ARINWIN BOTH to display public both in current window and in window
+      with level USERLOG4 (requested by fox)
+    ! mention halfop status in SHELP EXTPUB
+    - checks for "/etc/" or "passwd" in DCC SEND/RESEND
 
 ------------------------------------------------------------------------------
 
