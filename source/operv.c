@@ -17,7 +17,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.
  *
- * $Id: operv.c,v 1.49 2003-04-27 16:43:12 f Exp $
+ * $Id: operv.c,v 1.50 2003-04-28 18:33:40 f Exp $
  */
 
 #include "irc.h"
@@ -1172,6 +1172,20 @@ char *from;
 #else			   
         snprintf(tmpbuf,sizeof(tmpbuf),"Temporary K-Line for %s%s%s expired",
                  CmdsColors[COLOV].color1,word1,Colors[COLOFF]);
+#endif
+    }
+    else if (!strncmp(tmpline,"[LINKS by ",10)) {
+	strcpy(word1,OVgetword(0,3,tmpline));  /* nick */
+	strcpy(word3,OVgetword(0,4,tmpline));  /* user@host */
+        OVnobrackets(word3,word2,sizeof(word1));
+#ifdef OGRE
+        snprintf(tmpbuf,sizeof(tmpbuf),"[     %slinks%s] %s%s%s %s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
+#else			   
+        snprintf(tmpbuf,sizeof(tmpbuf),"%sLinks%s requested by %s%s%s %s",
+                 CmdsColors[COLOV].color2,Colors[COLOFF],
+                 CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
 #endif
     }
     else if (strstr(tmpline,"whois on you")) {
