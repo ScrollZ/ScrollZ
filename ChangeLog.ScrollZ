@@ -28,6 +28,20 @@ Meaning of flags:
     ! -DCELECOSM without -DCELE compile (reported by braneded)
     ! numeric 477 for IRCNet
     + numeric 276 (virtual channels) on hybrid7 (request by braneded)
+    + INSTALL.ScrollZ in doc subdirectory (hello Exodus)
+    ! handle ! channels on ircd 2.10 properly, not the ircII way
+      (reported by Ahnberg)
+    ~ tabkey handler, when line starts with /MSG we adhere to the pre 1.8l
+      tabeky behaviour (line is cleared when tab is pressed and next nick
+      from the list is inserted, requested by several users)
+    + re-added ^T bind so one can use it to insert nicks when line starts
+      with /MSG (see above)
+    ! status bar bug where string was cut one column too early (reported
+      by jaska)
+    + CHPASS filter - now removes user's password (suggested by braneded)
+    ~ removed parenthesis from time stamp to save space (requested by ogre)
+    ! WHOIS in -DGENX now honours value of STAMP (reported by k)
+    + time stamping to CSCAN
 
 ------------------------------------------------------------------------------
 
