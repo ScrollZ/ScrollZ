@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.8 1998-11-02 21:20:51 f Exp $
+ * $Id: edit5.c,v 1.9 1998-11-08 11:20:15 f Exp $
  */
 
 #include "irc.h"
@@ -2786,14 +2786,9 @@ void InsertNick() {
     char *tmpstr;
     char *channel=NULL;
     char tmpbuf[mybufsize];
-    Screen *curscr;
+    Screen *curscr=current_screen;
     ChannelList *chan;
 
-    channel=get_channel_by_refnum(0);
-    if (!channel) return;
-    chan=lookup_channel(channel,from_server,0);
-    if (!chan) return;
-    curscr=current_screen;
     if (!CurrentNick) {
         tmpstr=&(curscr->input_buffer[curscr->buffer_pos]);
         if (*tmpstr==' ') tmpstr--;
@@ -2808,28 +2803,49 @@ void InsertNick() {
         nickcompl=NULL;
     }
     len=strlen(CurrentNick);
-    while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
-        nickcompl=nickcompl->next;
-    if (!nickcompl) {
-        nickcompl=chan->nicks;
-        while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
-            nickcompl=nickcompl->next;
-    }
-    if (nickcompl && !my_strnicmp(CurrentNick,nickcompl->nick,len)) {
-        inFlierNickCompl=1;
-        while (curscr->buffer_pos>curscr->buffer_min_pos  &&
-               curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
-            input_backspace(0,(char *) 0);
+    /* option to insert channel name */
+    if (*CurrentNick=='#') {
+        chan=server_list[curr_scr_win->server].chan_list;
+        while (chan && my_strnicmp(CurrentNick,chan->channel,len)) chan=chan->next;
+        if (chan && !my_strnicmp(CurrentNick,chan->channel,len)) {
+            inFlierNickCompl=1;
+            while (curscr->buffer_pos>curscr->buffer_min_pos  &&
+                   curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
+                input_backspace(0,(char *) 0);
+            }
+            inFlierNickCompl=0;
+            for (tmpstr=chan->channel;*tmpstr;tmpstr++) 
+                input_add_character(*tmpstr,NULL);
         }
-        inFlierNickCompl=0;
-        for (tmpstr=nickcompl->nick;*tmpstr;tmpstr++) 
-            input_add_character(*tmpstr,NULL);
-        nickcompl=nickcompl->next;
-        return;
-    }
-    if (!nickcompl) {
         new_free(&CurrentNick);
         nickcompl=NULL;
+    }
+    else {
+        if (!(channel=get_channel_by_refnum(0))) return;
+        if (!(chan=lookup_channel(channel,from_server,0))) return;
+        while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
+            nickcompl=nickcompl->next;
+        if (!nickcompl) {
+            nickcompl=chan->nicks;
+            while (nickcompl && my_strnicmp(CurrentNick,nickcompl->nick,len))
+                nickcompl=nickcompl->next;
+        }
+        if (nickcompl && !my_strnicmp(CurrentNick,nickcompl->nick,len)) {
+            inFlierNickCompl=1;
+            while (curscr->buffer_pos>curscr->buffer_min_pos  &&
+                   curscr->input_buffer[curscr->buffer_pos-1]!=' ') {
+                input_backspace(0,(char *) 0);
+            }
+            inFlierNickCompl=0;
+            for (tmpstr=nickcompl->nick;*tmpstr;tmpstr++) 
+                input_add_character(*tmpstr,NULL);
+            nickcompl=nickcompl->next;
+            return;
+        }
+        if (!nickcompl) {
+            new_free(&CurrentNick);
+            nickcompl=NULL;
+        }
     }
 }
 
