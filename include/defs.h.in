@@ -353,6 +353,9 @@
 /* Define this if you want $country() in the client */
 #undef COUNTRY
 
+/* Define this if you want client with Win32 support */
+#undef SZ32
+
 /* Define this if you want irc oper stuff (not OperVision!) */
 #undef OPER
 
