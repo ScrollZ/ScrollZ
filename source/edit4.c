@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.54 2001-03-05 17:13:53 f Exp $
+ * $Id: edit4.c,v 1.55 2001-03-19 19:28:39 f Exp $
  */
 
 #include "irc.h"
@@ -2641,22 +2641,98 @@ char *command;
 char *args;
 char *subargs;
 {
+    int cnt=0;
+    char *tmpstr;
+    char *filename;
+    char *filepath;
+    char tmpbuf[mybufsize/2+1];
+    FILE *fp;
     struct splitstr *tmpsplit;
+    struct splitstr *tmpsplit1=NULL;
     time_t timenow=time((time_t *) 0);
 
-    if (timenow-LastLinks>=120 || !inSZLinks) {
-        LastLinks=timenow;
-        while (splitlist) {
-            tmpsplit=splitlist;
-            splitlist=splitlist->next;
-            new_free(&(tmpsplit->servers));
-            new_free(&tmpsplit);
+    tmpstr=new_next_arg(args,&args);
+    if (!(tmpstr && *tmpstr)) {
+        if (timenow-LastLinks>=120 || !inSZLinks) {
+            LastLinks=timenow;
+            while (splitlist) {
+                tmpsplit=splitlist;
+                splitlist=splitlist->next;
+                new_free(&(tmpsplit->servers));
+                new_free(&tmpsplit);
+            }
+            inSZLinks=1;
+            send_to_server("LINKS");
+            say("Gathering links info from server");
         }
-        inSZLinks=1;
-        send_to_server("LINKS");
-        say("Gathering links info from server");
+        else say("Wait till previous LINKS, LLOOK, LLOOKUP or MAP completes");
     }
-    else say("Wait till previous LINKS, LLOOK, LLOOKUP or MAP completes");
+    else {
+        if (!my_strnicmp(tmpstr,"-LOAD",5)) {
+            filename=new_next_arg(args,&args);
+            if (filename && *filename) {
+                filepath=OpenCreateFile(filename,0);
+                if (filepath && (fp=fopen(filepath,"r"))) {
+                    while (splitlist) {
+                        tmpsplit=splitlist;
+                        splitlist=splitlist->next;
+                        new_free(&(tmpsplit->servers));
+                        new_free(&tmpsplit);
+                    }
+                    while (fgets(tmpbuf,mybufsize/2,fp)) {
+                        if (strlen(tmpbuf) && tmpbuf[strlen(tmpbuf)-1]=='\n')
+                            tmpbuf[strlen(tmpbuf)-1]='\0';
+                        if (!(*tmpbuf)) continue;
+                        cnt++;
+                        tmpsplit=(struct splitstr *) new_malloc(sizeof(struct splitstr));
+                        if (tmpsplit) {
+                            tmpsplit->next=NULL;
+                            tmpsplit->servers=NULL;
+                            malloc_strcpy(&(tmpsplit->servers),tmpbuf);
+                            if (tmpsplit1) {
+                                tmpsplit1->next=tmpsplit;
+                                tmpsplit1=tmpsplit;
+                            }
+                            else {
+                                splitlist=tmpsplit;
+                                tmpsplit1=splitlist;
+                            }
+                        }
+                        else {
+                            say("Can't store info, malloc failed");
+                            break;
+                        }
+                    }
+                    fclose(fp);
+                    say("Loaded links info from file %s (%d servers)",filename,cnt);
+                }
+                else say("Can't open file %s for reading",filename);
+                return;
+            }
+        }
+        else if (!my_strnicmp(tmpstr,"-SAVE",5)) {
+            if (!splitlist) {
+                say("Do /LLOOK first");
+                return;
+            }
+            filename=new_next_arg(args,&args);
+            if (filename && *filename) {
+                filepath=OpenCreateFile(filename,1);
+                unlink(filepath);
+                if (filepath && (fp=fopen(filepath,"w"))) {
+                    for (tmpsplit=splitlist;tmpsplit;tmpsplit=tmpsplit->next) {
+                        fprintf(fp,"%s\n",tmpsplit->servers);
+                        cnt++;
+                    }
+                    fclose(fp);
+                    say("Saved links info to file %s (%d servers)",filename,cnt);
+                }
+                else say("Can't open file %s for reading",filename);
+                return;
+            }
+        }
+        PrintUsage("LLOOK [-LOAD filename|-SAVE filename]");
+    }
 }
 
 /* Compares links info against one stored internally */
@@ -2788,7 +2864,7 @@ void ListSplitedServers()
     int found;
     struct splitstr *tmp,*tmpsplit;
 
-    say("Servers missing from links info");
+    say("Missing servers in links info");
     tmpsplit=splitlist;
     while (tmpsplit) {
         found=0;
@@ -2801,7 +2877,7 @@ void ListSplitedServers()
         tmpsplit=tmpsplit->next;
     }
     say("End of missing servers list");
-    say("Servers new in links info");
+    say("New servers in links info");
     for (tmpsplit=splitlist1;tmpsplit;tmpsplit=tmpsplit->next) {
         found=0;
         for (tmp=splitlist;tmp;tmp=tmp->next)
