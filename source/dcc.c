@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.28 2000-11-07 17:46:10 f Exp $
+ * $Id: dcc.c,v 1.29 2001-02-26 17:32:12 f Exp $
  */
 
 #include "irc.h"
@@ -138,7 +138,7 @@ extern int  CheckServer _((int));
 extern int  DecryptMessage _((char *, char *));
 extern int  EncryptMessage _((char *, char *));
 
-extern uint32_t DCCHost;
+extern struct in_addr DCCHost;
 /****************************************************************************/
 
 #ifndef O_BINARY
@@ -743,7 +743,7 @@ dcc_open(Client)
 	if (myip.s_addr == 0 || myip.s_addr == htonl(0x7f000001))
 		myip.s_addr = MyHostAddr.s_addr;
 /**************************** PATCHED by Flier ******************************/
-        if (DCCHost) myip.s_addr=DCCHost;
+        if (DCCHost.s_addr) myip.s_addr=DCCHost.s_addr;
 /****************************************************************************/
 	Type = dcc_types[Client->flags & DCC_TYPES];
 	if (Client->flags & DCC_OFFER)
