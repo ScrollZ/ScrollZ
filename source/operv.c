@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.21 1999-11-14 14:35:04 f Exp $
+ * $Id: operv.c,v 1.22 2000-02-14 17:12:28 f Exp $
  */
 
 #include "irc.h"
@@ -268,6 +268,8 @@ char *from;
 
     /* Set up tmpline to be just the message to parse */
     if (!strncmp(line,"*** Notice -- ",14)) tmpline=line+14;
+    /* SZNet support */
+    else if (!strncmp(line,"*** Global -- ",14)) tmpline=line+14;
     else if (!strncmp(line,"***",4)) tmpline=line+4; 
     else tmpline=line;
     strcpy(tmpbuf,tmpline); /* Default if no match is found */
