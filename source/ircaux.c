@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.4 1999-02-15 21:19:39 f Exp $
+ * $Id: ircaux.c,v 1.5 1999-03-23 17:30:05 f Exp $
  */
 
 #include "irc.h"
@@ -1094,6 +1094,29 @@ check_nickname(nick)
 	return *nick ? nick : NULL;
 }
 #endif
+
+/**************************** PATCHED by Flier ******************************/
+/* islegal: true if c is a legal nickname char anywhere but first char */
+#define islegal(c) ((((c) >= 'A') && ((c) <= '}')) || \
+		    (((c) >= '0') && ((c) <= '9')) || \
+		     ((c) == '-') || ((c) == '_'))
+
+/*
+ * We need this function otherwise bad things happen if you /nick erroneous_nick
+ */
+char *check_nickname(nick)
+char *nick;
+{
+    char *s;
+
+    if (!nick || *nick=='-' || *nick<'A' || *nick>'}' || isdigit(*nick))
+        return(NULL);
+    for (s=nick;*s;s++)
+        if (!islegal(*s) || isspace(*s)) break;
+    *s='\0';
+    return(*nick?nick:NULL);
+}
+/****************************************************************************/
 
 /*
  * sindex: much like index(), but it looks for a match of any character in

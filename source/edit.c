@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.18 1999-03-18 19:25:21 f Exp $
+ * $Id: edit.c,v 1.19 1999-03-23 17:30:03 f Exp $
  */
 
 #include "irc.h"
@@ -1625,11 +1625,13 @@ e_nick(command, args, subargs)
 			get_server_nickname(get_window_server(0)));
 		return;
 	}
-#if 0 /* blundernet */
+/*************************** PATCHED by Flier ****************************/
+/*#if 0*/ /* blundernet */
+/*************************************************************************/
 	if ((nick = check_nickname(nick)) != NULL)
 	{
-#endif
 /*************************** PATCHED by Flier ****************************/
+/*#endif*/
                 LastNick=time((time_t *) 0);
 /*************************************************************************/
 		send_to_server("NICK %s", nick);
@@ -1647,11 +1649,15 @@ e_nick(command, args, subargs)
 		if (get_server_version(from_server) == Server2_5)
 			add_to_whois_queue(nick, whois_nickname,
 				NULL);
-#if 0 /* blundernet */
+/**************************** PATCHED by Flier ******************************/
+/*#if 0*/ /* blundernet */
+/****************************************************************************/
 	}
 	else
 		say("Bad nickname");
-#endif
+/**************************** PATCHED by Flier ******************************/
+/*#endif*/
+/****************************************************************************/
 }
 
 /* version: does the /VERSION command with some IRCII version stuff */

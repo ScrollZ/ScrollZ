@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.7 1999-02-15 21:20:02 f Exp $
+ * $Id: numbers.c,v 1.8 1999-03-23 17:30:06 f Exp $
  */
 
 #include "irc.h"
@@ -465,10 +465,14 @@ nickname_sendline(data, nick)
 	int	new_server, server;
 
 	new_server = atoi(data);
-#if 0 /* blundernet */
+/**************************** PATCHED by Flier ******************************/
+/*#if 0*/ /* blundernet */
+/****************************************************************************/
 	if ((nick = check_nickname(nick)) != NULL)
 	{
-#endif
+/**************************** PATCHED by Flier ******************************/
+/*#endif*/
+/****************************************************************************/
 		server = parsing_server_index;
 		from_server = new_server;
 		send_to_server("NICK %s", nick);
@@ -478,7 +482,9 @@ nickname_sendline(data, nick)
 		from_server = server;
 		already_doing_reset_nickname = 0;
 		update_all_status();
-#if 0 /* blundernet */
+/**************************** PATCHED by Flier ******************************/
+/*#if 0*/ /* blundernet */
+/****************************************************************************/
 	}
 	else
 	{
@@ -487,7 +493,9 @@ nickname_sendline(data, nick)
 			add_wait_prompt("Nickname: ", nickname_sendline, data,
 					WAIT_PROMPT_LINE);
 	}
-#endif
+/**************************** PATCHED by Flier ******************************/
+/*#endif*/
+/****************************************************************************/
 }
 
 /*

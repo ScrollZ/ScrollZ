@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.16 1999-03-04 22:20:57 f Exp $
+ * $Id: irc.c,v 1.17 1999-03-23 17:30:04 f Exp $
  */
 
 #define IRCII_VERSION	"4.4G"
@@ -1042,13 +1042,17 @@ parse_args(argv, argc)
 		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
  	if (nickname == 0 || *nickname == '\0')
  		malloc_strcpy(&nickname, username);
-#if 0 /* blundernet changed this */
+/**************************** PATCHED by Flier ******************************/
+/*#if 0*/ /* blundernet changed this */
+/****************************************************************************/
 	if (0 == check_nickname(nickname))
 	{
 		fprintf(stderr, "Illegal nickname %s\n", nickname);
 		exit(1);
 	}
-#endif
+/**************************** PATCHED by Flier ******************************/
+/*#endif*/
+/****************************************************************************/
 	if ((char *) 0 == ircrc_file)
 	{
 		ircrc_file = (char *) new_malloc(strlen(my_path) +
