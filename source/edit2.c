@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.8 1998-10-21 17:35:09 f Exp $
+ * $Id: edit2.c,v 1.9 1998-10-21 18:25:50 f Exp $
  */
 
 #include "irc.h"
@@ -2006,11 +2006,11 @@ char *subargs;
 {
     int  msg=1;
     char *tmparg;
-    char *message=LastMessage;
+    char *message=server_list[from_server].LastMessage;
     char *channel=(char *) 0;
 
     if (!my_stricmp(command,"DIRLN")) {
-        message=LastNotice;
+        message=server_list[from_server].LastNotice;
         msg=0;
     }
     if (message) {
