@@ -1,4 +1,4 @@
-!	 $Id: wait,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: wait,v 1.5 2004-10-01 17:09:57 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,7 +6,7 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: WAIT [%process] [-cmd <command> <do_command>]
+Usage: WAIT [%process] [-cmd [%process] <command> <do_command>]
   There are several forms of this command.  The first, and best is:
     WAIT -CMD command
 
@@ -35,7 +35,7 @@ Usage: WAIT [%process] [-cmd <command> <do_command>]
   Here is an example of it's use:
     alias uptime {
       exec -name uptime uptime
-      wait %uptime -cmd echo The time is $uptime
+      wait -cmd %uptime eval echo The time is $uptime
     }
     alias dotime uptime
     on ^exec uptime assign uptime $1
