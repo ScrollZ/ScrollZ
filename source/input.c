@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.8 2000-08-27 18:01:56 f Exp $
+ * $Id: input.c,v 1.9 2001-02-14 17:08:08 f Exp $
  */
 
 #include "irc.h"
@@ -49,8 +49,6 @@
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
-
-static void CheckNickCompletion _((void));
 
 #ifdef WANTANSI
 extern int CountAnsiInput _((char *, int));
@@ -85,9 +83,13 @@ static	int	cursor = 0;
 
 /**************************** PATCHED by Flier ******************************/
 static void CheckNickCompletion() {
-    if ((current_screen->buffer_min_pos==current_screen->buffer_pos) ||
-        (current_screen->buffer_pos>current_screen->buffer_min_pos &&
-         current_screen->input_buffer[current_screen->buffer_pos-1]==' ')) {
+    int i;
+    int numspaces=0;
+
+    for (i=current_screen->buffer_min_pos;i<current_screen->buffer_pos;i++)
+        if (current_screen->input_buffer[i]==' ')
+            numspaces++;
+    if ((current_screen->buffer_min_pos==current_screen->buffer_pos) || numspaces<2) {
         if (!inSZNickCompl) new_free(&CurrentNick);
         tabnickcompl=NULL;
     }
