@@ -172,6 +172,13 @@ merged ircII 4.4J code
 improved OperVision code and added support for ircnet's ircd
 fixed bug where client couldn't rejoin channels with key set
       (reported by ogre)
+changed the way ADDW works, ScrollZ now does real word matching
+        and not pattern matching on *word* like before
+        (requested by khajah)
+added new cosmetics mode to OperVision, coded by ogre (fear!)
+      this is activated by -DOGRE
+added OV HERE which enables OperVision in current window
+added support for WINDOW LEVEL +level1,level2...
 
 
 -------------------------------------------------------------------------------
