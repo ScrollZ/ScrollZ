@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.12 1998-12-13 17:45:28 f Exp $
+ * $Id: edit4.c,v 1.13 1998-12-13 19:20:59 f Exp $
  */
 
 #include "irc.h"
@@ -769,6 +769,8 @@ void HandleTabNext() {
                 }
             }
             else if (*tmpstr && (channel=get_channel_by_refnum(0))) {
+                int nicklen;
+
                 if ((chan=lookup_channel(channel,from_server,0))) {
                     if (tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
@@ -788,7 +790,8 @@ void HandleTabNext() {
                         for (tmpnick=chan->nicks;tmpnick;tmpnick=tmpnick->next)
                             if (!my_strnicmp(tmpnick->nick,tabnick,len)) break;
                     }
-                    if (tmpnick) {
+                    nicklen=strlen(tabnick);
+                    if (tmpnick && strcmp(tabnick,tmpnick->nick)) {
                         input_clear_line(0,(char *) 0);
                         if (!(cmdchars=get_string_var(CMDCHARS_VAR)))
                             cmdchars=DEFAULT_CMDCHARS;
