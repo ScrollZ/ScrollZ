@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.69 2001-11-10 10:04:54 f Exp $
+ * $Id: irc.c,v 1.70 2001-12-03 18:57:58 f Exp $
  */
 
 #define IRCII_VERSION	"4.4Z"
@@ -243,6 +243,7 @@ extern void Reset _((char *, char *, char *));
 extern void SwitchNick _((void));
 extern void CleanUp _((void));
 extern int  CheckChannel2 _((char *, char *));
+extern void SetStampFormat _((char *));
 
 #ifdef WANTANSI
 char *Colors[SZNUMCOLORS]={
@@ -358,6 +359,7 @@ char  *AutoReplyString=(char *) 0;
 #ifdef ACID
 char  *ForceJoinChannels=(char *) 0;
 #endif
+char  *TimeStampString=(char *) 0;
 int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;
@@ -1629,6 +1631,7 @@ irc_io(prompt, func, my_use_input, loop)
 /**************************** PATCHED by Flier ******************************/
                         CheckTimeMinute();
                         CheckCdccTimers();
+                        SetStampFormat(NULL);
                         if (from_server>=0 && from_server<number_of_servers) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
                             gettimeofday(&PingSent,NULL);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.17 2001-10-05 18:39:47 f Exp $
+ * $Id: vars.c,v 1.18 2001-12-03 18:57:58 f Exp $
  */
 
 #include "irc.h"
@@ -53,9 +53,11 @@
 #include "server.h"
 
 /**************************** PATCHED by Flier ******************************/
+#include "alias.h"
 #include "myvars.h"
 
 extern char *HelpPathVar;
+extern char *TimeStampString;
 /****************************************************************************/
 
 /* IrcVariable: structure for each variable in the variable table */
@@ -108,6 +110,7 @@ static  void    SetDCCBlockSize _((int));
 static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
+void    SetStampFormat _((char *));
 
 extern  void    RedrawAll _((void));
 
@@ -250,7 +253,9 @@ static	IrcVariable irc_variable[] =
 	{ "SHOW_NUMERICS",		BOOL_TYPE_VAR,	DEFAULT_SHOW_NUMERICS, NULL, NULL, 0, 0 },
 	{ "SHOW_STATUS_ALL",		BOOL_TYPE_VAR,	DEFAULT_SHOW_STATUS_ALL, NULL, update_all_status, 0, 0 },
 	{ "SHOW_WHO_HOPCOUNT", 		BOOL_TYPE_VAR,	DEFAULT_SHOW_WHO_HOPCOUNT, NULL, NULL, 0, 0 },
-	{ "STAMP_FORMAT",		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+/**************************** Patched by Flier ******************************/
+	{ "STAMP_FORMAT",		STR_TYPE_VAR,	0, NULL, SetStampFormat, 0, 0 },
+/****************************************************************************/
 	{ "STATUS_AWAY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_CHANNEL",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
@@ -1017,5 +1022,15 @@ char *file;
         new_free(&ptr);
     }
     else set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
+}
+
+void SetStampFormat(tsformat)
+char *tsformat;
+{
+    int flag=0;
+    char *format=get_string_var(STAMP_FORMAT);
+
+    new_free(&TimeStampString);
+    TimeStampString=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
 }
 /****************************************************************************/

@@ -64,7 +64,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.112 2001-11-19 19:01:16 f Exp $
+ * $Id: edit6.c,v 1.113 2001-12-03 18:57:58 f Exp $
  */
 
 #include "irc.h"
@@ -211,8 +211,9 @@ static struct joinkeystr {
 extern char *ScrollZver1;
 extern char *HelpPathVar;
 extern char *CelerityNtfy;
+extern char *TimeStampString;
 
-extern time_t   start_time;
+extern time_t start_time;
 
 #if defined(EXTRAS) || defined(FLIER)
 /* Checks if signed on user should be invited */
@@ -2897,16 +2898,9 @@ char *TimeStamp(when)
 int when;
 {
     static char stampbuf[mybufsize/4+1];
-    char *format=get_string_var(STAMP_FORMAT);
-    char *result=NULL;
-    int flag=0;
 
     *stampbuf='\0';
-    if (Stamp>=when) {
-	result=expand_alias(NULL,format?format:empty_string,empty_string,&flag,NULL);
-	strmcpy(stampbuf,result,mybufsize/4);
-	new_free(&result);
-    }
+    if (Stamp>=when && TimeStampString) strmcpy(stampbuf,TimeStampString,mybufsize/4);
     return(stampbuf);
 }
 
