@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.23 1999-02-17 17:55:05 f Exp $
+ * $Id: edit6.c,v 1.24 1999-02-21 17:57:33 f Exp $
  */
 
 #include "irc.h"
@@ -1749,7 +1749,7 @@ char *subargs;
  	say("Mailing List: scrollz@listserv.sonn.com");
  	say("              /exec echo \"subscribe scrollz\" | mail majordomo@listserv.sonn.com");*/
         say("Support channel: #ScrollZ on Efnet");
-        say("Distribution: bighead, arc, myc, frash, ogre, lotbd, TrN, kali and Psylocke");
+        say("Distribution: bighead, arc, myc, mathe, frash, ogre, lotbd, TrN, kali and Psylocke");
 	/*say("Distribution sites: http://scrollz.trn.nu/ or ftp://scrollz.hole.org/");*/
     /* XXX - Remove this, Flier */
     }
