@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.98 2002-02-24 10:28:11 f Exp $
+ * $Id: edit4.c,v 1.99 2002-03-09 17:49:13 f Exp $
  */
 
 #include "irc.h"
@@ -91,11 +91,7 @@
 #include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
-#include "defs.h"
-
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>	/* else? we need to figure this out.. */
-#endif
+#include "scandir.h"
 
 void   ListBansPage _((char *));
 void   ListBansPrompt _((char *, char *));
@@ -812,11 +808,7 @@ ChannelList *chan;
     return(0);
 }
 
-/* XXX: fix me */
-#ifndef alphasort
-#define alphasort NULL
-#endif
-
+/* Insert next relevant nick/file when tab is pressed */
 void HandleTabNext(u_int key, char *ptr)
 {
     int i;

@@ -10,16 +10,12 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.46 2002-03-03 11:03:23 f Exp $
+ * $Id: cdcc.c,v 1.47 2002-03-09 17:49:13 f Exp $
  */
 
 /* uncomment this if compiling on BSD */
 /*#include <db.h>*/
 #include "irc.h"
-#if defined(HAVE_DIRENT_H)
-#include <dirent.h>
-#endif
-#include <sys/stat.h>
 #include "list.h"
 #include "server.h"
 #include "vars.h"
@@ -29,6 +25,7 @@
 #include "screen.h"
 #include "output.h"
 #include "edit.h"
+#include "scandir.h"
 #include "dcc.h"
 #include "parse.h"
 #if !defined(CELEHOOK) && !defined(LITE)

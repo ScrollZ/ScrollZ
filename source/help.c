@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.12 2002-02-16 18:33:17 f Exp $
+ * $Id: help.c,v 1.13 2002-03-09 17:49:13 f Exp $
  */
 
 /*
@@ -50,27 +50,6 @@
 #include "irc.h"
 
 #ifndef LITE
-
-/* stuff from gnu autoconf docs */
-
-#if defined(HAVE_DIRENT_H) || defined(_POSIX_SOURCE)
-# include <dirent.h>
-# define NLENGTH(d) (strlen((d)->d_name)
-#else /* DIRENT || _POSIX_SOURCE */
-# define dirent direct
-# define NLENGTH(d) ((d)->d_namlen)
-# ifdef HAVE_SYS_NDIR_H
-#  include <sys/ndir.h>
-# endif /* HAVE_SYS_NDIR_H */
-# ifdef HAVE_SYS_DIR_H
-#  include <sys/dir.h>
-# endif /* HAVE_SYS_DIR_H */
-# ifdef HAVE_NDIR_H
-#  include <ndir.h>
-# endif /* HAVE_NDIR_H */
-#endif /* HAVE_DIRENT_H || _POSIX_VERSION */
-
-#include <sys/stat.h>
 
 #include "ircterm.h"
 #include "server.h"

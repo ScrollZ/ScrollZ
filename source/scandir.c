@@ -1,14 +1,11 @@
 /*
- * $Id: scandir.c,v 1.3 1999-03-04 22:06:11 f Exp $
+ * $Id: scandir.c,v 1.4 2002-03-09 17:49:13 f Exp $
  */
 
 #include "irc.h"
 #include "ircaux.h"
 
 #ifndef HAVE_SCANDIR
-#include <sys/types.h>
-#include <sys/file.h>
-#include <newio.h>
 
 #if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE)) || defined(HPUX7)
 
@@ -32,7 +29,9 @@
 static char sccsid[] = "@(#)scandir.c	5.3 (Berkeley) 6/18/88";
 # endif /* LIBC_SCCS and not lint */
 
-# define NULL 0
+# ifndef NULL
+#  define NULL 0
+# endif
 
 /*
  * Scan the directory dirname calling select to make a list of selected
@@ -58,22 +57,7 @@ static char sccsid[] = "@(#)scandir.c	5.3 (Berkeley) 6/18/88";
 **  SCANDIR
 **  Scan a directory, collecting all (selected) items into a an array.
 */
-# include <stdio.h>
-# include <dirent.h>
-# ifdef XD88
-#  include <sys/unistd.h>
-# else
-#  include <unistd.h>
-# endif /* XD88 */
 #include "scandir.h"
-
-
-/* Initial guess at directory size. */
-# define INITIAL_SIZE	30
-
-# ifndef DIRSIZ
-#  define DIRSIZ(d) (sizeof(struct dirent) + strlen(d->d_name) + 1) 
-# endif
 
 int
 scandir(Name, dirlist, Selector, Sorter)
@@ -140,29 +124,8 @@ scandir(Name, dirlist, Selector, Sorter)
     return(i);
 }
 #else
-# include <sys/stat.h>
-# include "irc.h"
-# if defined(ISC22) || defined(ESIX) || defined(HPUX7)
-#  ifdef ESIX
-#   include <dirent.h>
-#  else
-#   include <sys/dirent.h>
-#  endif /* ESIX */
-#  undef DIRSIZ
-#  if defined(ISC22) || defined(ESIX)
-#   define DIRSIZ(dp) \
-	(( sizeof( struct dirent) + (strlen(dp->d_name)+1) ))
-#  else
-#   define DIRSIZ(dp) \
-	((sizeof (struct dirent) - (MAXNAMLEN+1)) + (((dp)->d_namlen+1+3)&~ 3))
-#  endif /* defined(ISC22) || defined(ESIX) */
-#  define direct dirent
-# else
-#  include <sys/dir.h>
-# endif /* defined(ISC22) || defined(ESIX) */
 /* End of Mike Sandrof's change */
 #include "scandir.h"
-
 
 int scandir(dirname, namelist, select, dcomp)
 #ifdef NeXT

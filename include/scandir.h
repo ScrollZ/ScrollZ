@@ -27,24 +27,89 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: scandir.h,v 1.2 1999-03-04 22:06:04 f Exp $
+ * $Id: scandir.h,v 1.3 2002-03-09 17:49:13 f Exp $
  */
 
 #ifndef __scandir_h__
 #define __scandir_h__
+
+/* stuff from gnu autoconf docs */
+
+#if defined(HAVE_DIRENT_H) || defined(_POSIX_SOURCE)
+# include <dirent.h>
+# define NLENGTH(d) (strlen((d)->d_name)
+#else /* DIRENT || _POSIX_SOURCE */
+# define dirent direct
+# define NLENGTH(d) ((d)->d_namlen)
+# ifdef HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif /* HAVE_SYS_NDIR_H */
+# ifdef HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif /* HAVE_SYS_DIR_H */
+# ifdef HAVE_NDIR_H
+#  include <ndir.h>
+# endif /* HAVE_NDIR_H */
+#endif /* HAVE_DIRENT_H || _POSIX_VERSION */
+
+#include <sys/stat.h>
+
 #ifndef HAVE_SCANDIR
+
+#include <sys/types.h>
+#include <sys/file.h>
+#include <newio.h>
 
 #if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE)) || defined(HPUX7)
 # if defined(XD88) || defined(__SVR4) || defined(POSIX) || defined(__linux__) \
   || defined(SVR3) || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
   || defined(__QNX__)
 
+# include <stdio.h>
+# include <dirent.h>
+# ifdef XD88
+#  include <sys/unistd.h>
+# else
+#  include <unistd.h>
+# endif /* XD88 */
+
+/* Initial guess at directory size. */
+# define INITIAL_SIZE	30
+
+# ifndef DIRSIZ
+#  define DIRSIZ(d) (sizeof(struct dirent) + strlen(d->d_name) + 1) 
+# endif
+
+
 #if defined(__linux__) || defined(__sgi)
 int scandir _((const char *, struct dirent ***, int (*)(), int (*)()));
 #else
 int scandir _((char *, struct dirent ***, int (*)(), int (*)()));
 #endif /* __linux__ || __sgi */
-#else
+
+#else /* XD88 || __SVR4 || POSIX || __linux__ || SVR3 || __osf__ || ... */
+
+# include <sys/stat.h>
+# include "irc.h"
+# if defined(ISC22) || defined(ESIX) || defined(HPUX7)
+#  ifdef ESIX
+#   include <dirent.h>
+#  else
+#   include <sys/dirent.h>
+#  endif /* ESIX */
+#  undef DIRSIZ
+#  if defined(ISC22) || defined(ESIX)
+#   define DIRSIZ(dp) \
+	(( sizeof( struct dirent) + (strlen(dp->d_name)+1) ))
+#  else
+#   define DIRSIZ(dp) \
+	((sizeof (struct dirent) - (MAXNAMLEN+1)) + (((dp)->d_namlen+1+3)&~ 3))
+#  endif /* defined(ISC22) || defined(ESIX) */
+#  define direct dirent
+# else
+#  include <sys/dir.h>
+# endif /* defined(ISC22) || defined(ESIX) */
+
 #ifdef NeXT
 int scandir _((const char *, struct direct ***, int (*)(), int (*)()));
 #else
