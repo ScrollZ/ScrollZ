@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.7 1999-09-26 10:07:28 f Exp $
+ * $Id: operv.c,v 1.8 1999-09-26 10:12:37 f Exp $
  */
 
 #include "irc.h"
@@ -513,14 +513,6 @@ char *from;
                 CmdsColors[COLOV].color4,Colors[COLOFF],word2,word3);
 #endif
     }
-
-/*#^on ^window "? ??? *Resuming standard*" if ([$1]==[***]) {^xecho -window OV [$clr(yellow $tlz.sv
- *dmn($0))] Server Resuming Standard Operation.} 
-*/
-
-/*
-*[irc.cs.rpi.edu] Entering high traffic mode: (18.2k/s > 18k/s)
-*/
     else if (strstr(line,"Received KILL message for")) {
         strcpy(word1,OVgetword(0,5,tmpline));  /* nick */
         if (strlen(word1) && word1[strlen(word1)-1]=='.')
@@ -602,15 +594,6 @@ char *from;
 	sprintf(tmpbuf,"Link Error: %s%s%s is not responding",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF]);
     }
-
-/*^on ^window "? % Connect: Server % already exists*" {^xecho -window OV [$clr(yellow $tlz.sv
-*dmn($S))] Link: $clr(blue1 $4) already exists ù \($clr(white $left($rindex(. $8) $8))\)}
-*^on ^notice "*.* Connect: *already exists*" {^xecho -window OV [$clr(yellow $tlz.sv
-*dmn($0))] Link: $clr(blue1 $3) already exists ù \($clr(white $left($rindex(. $7) $7))\)}
-*/
-
-/* [irc.magg.net] Remote CONNECT alternet.one.se 4110 from Zakath */
-
     else if (strstr(line,"IP# Mismatch")) {
 	strcpy(word1,OVgetword(0,5,tmpline));  /* Mismatched IP */
 	strcpy(word2,OVgetword(0,3,tmpline));  /* Real IP */
@@ -668,7 +651,6 @@ char *from;
 	sprintf(tmpbuf,"Failed connect from %s%s%s [%s]",
 		CmdsColors[COLOV].color2,word1,Colors[COLOFF],word2);
     }
-/* [rpi] Failed OPER attempt: by (gemini--) (gemini@pm1-2.slo.silcom.com) */
     else if (strstr(line,"Failed OPER attempt")) {
         strcpy(word1,OVgetword(0,5,tmpline));  /* Nick */
 	strcpy(word2,OVgetword(0,6,tmpline));  /* user@host */
@@ -682,11 +664,6 @@ char *from;
 	sprintf(tmpbuf,"Failed OPER attempt: %s%s%s %s",
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
-
-/*Added by Flier:
-*
-*[OV] ERROR :from IRC1.FR[127.0.0.1] -- Closing Link: irc.net[127.0.0.1] irc.fr (6667 blah)
-*/
     servername=server_list[from_server].itsname;
     if (!servername) servername=server_list[from_server].name;
     if (from) put_it("[%s%s%s] Opermsg from %s%s%s: %s",
