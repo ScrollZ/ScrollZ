@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.56 2001-02-05 16:36:51 f Exp $
+ * $Id: edit5.c,v 1.57 2001-03-12 18:55:09 f Exp $
  */
 
 #include "irc.h"
@@ -808,7 +808,7 @@ char *setting2;
     int doorignick=0;
     char quietstr[mybufsize/8];
 
-    if (OrigNickChange && OrigNickQuiet) {
+    if (OrigNickChange && OrigNickQuiet && !strcmp(string1,"Reverting to original nick")) {
         doorignick=1;
         strcpy(quietstr," quietly");
     }
