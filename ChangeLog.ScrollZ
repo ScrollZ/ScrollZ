@@ -8,6 +8,30 @@ Meaning of flags:
 
 ScrollZ v1.9.1
 
+    + SET STAMP_FORMAT now supports strftime conversion specifiers if
+      strftime is available (requested by wiZ)
+    + JOIN and PART ignore levels (requested by TrN and tel)
+    + parsing of whois numeric 338 (whois actually, requested
+      by braneded)
+    ! DCC ETA calculation for DCC reget/resend (patch supplied
+      by Freddie)
+    + FDLINE to filter D/d lines in -DOPER (requested by wiZ)
+    ! tab completion now works with command characters other than the
+      default '/' (reported by Anton Aksola)
+    + <> in publics are now coloured with COLMISC color 4 for friends,
+      COLMISC color 5 for yourself and COLCSCAN color 6 for shitlisted
+      users (requested by salan)
+    + SETAWAY will now decrypt away file if encrypted (requested
+      by Metalfan)
+    + improved OperVision parsing
+    ! @+nick parsing for Hispano net (reported by emux)
+    ! mIRC colours overflowing to input prompt if colour was not
+      terminated with colour off sequence (reported by Una)
+    ! SET DISPLAY_ANSI OFF cutting lines at 4th character
+    ! terminal resize bug with hidden windows (ircII bug, reported
+      by Zid)
+    ! wserv now compiles again (reported by aflux)
+
 ------------------------------------------------------------------------------
 
 ScrollZ v1.9, 22.12.2002
