@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.17 2001-03-22 21:25:43 f Exp $
+ * $Id: screen.c,v 1.18 2001-09-03 17:48:12 f Exp $
  */
 
 #include "irc.h"
@@ -1315,7 +1315,7 @@ split_up_line(str)
 			*ptr = transToClient[*ptr];
 /**************************** PATCHED by Flier ******************************/
  		/*if (*ptr <= 32 || (*ptr > 127 && *ptr <= 160))*/
-		if (*ptr <= 32)
+		if (*ptr<=32 || *ptr == '|')
 /****************************************************************************/
 		{	/* Isn't that if above a bit latin1-specific? */
 			switch (*ptr)
@@ -1370,6 +1370,13 @@ split_up_line(str)
 				lbuf[pos++] = *ptr;
 				nd_cnt++;
 				break;
+/**************************** Patched by Flier ******************************/
+			case '|':	/* possible word break if time stamp is set to max */
+                                if (Stamp==2 && indent==0 && pos<8) indent=-1;
+                                lbuf[pos++] = *ptr;
+                                col++;
+                                break;
+/****************************************************************************/
 			default:	/* Anything else, make it displayable */
 				if (indent == -1)
 					indent = pos - nd_cnt;
