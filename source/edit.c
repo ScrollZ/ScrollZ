@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.6 1998-10-21 19:34:44 f Exp $
+ * $Id: edit.c,v 1.7 1998-10-31 18:27:28 f Exp $
  */
 
 #include "irc.h"
@@ -350,7 +350,6 @@ extern	void  ServerPing _((char *, char *, char *));
 extern	void  ExecCat _((char *, char *, char *));
 extern	void  ExecUptime _((char *, char *, char *));
 extern	void  CTCPFing _((char *, char *, char *));
-extern	void  Cstatusbar _((char *, char *, char *));
 extern  void  Cquickstat _((char *, char *, char *));
 extern	void  ScrollZTrace _((char *, char *, char *));
 #endif
@@ -712,9 +711,6 @@ static	IrcCommand FAR irc_command[] =
 	{ "STACK",	NULL,		stackcmd,		0 },
   { "STAMP",		"STAMP", 	ChannelCommand, 	0 },
  	{ "STATS",	"STATS",	send_comm,		SERVERREQ },
-#ifdef CELE
-  { "STATUSBAR",	NULL,		Cstatusbar,		0 },
-#endif
  	{ "SUMMON",	"SUMMON",	send_comm,		SERVERREQ },
   { "SVE", 		NULL, 		ScrollZSave, 		0 },
   { "SWITCH", 		NULL, 		switchcmd, 		0 },
@@ -2724,11 +2720,11 @@ send_text(org_nick, line, command)
                             if (!my_stricmp(command,"NOTICE")) {
 #ifdef WANTANSI
 #ifdef CELECOSM
-                                sprintf(tmpbuf,"%s[%s%s%s%s%s(notice)%s%s]%s",
-                                        CmdsColors[COLNOTICE].color4,Colors[COLOFF],
-                                        CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
-                                        CmdsColors[COLCELE].color2,Colors[COLOFF],
-                                        CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
+                                sprintf(tmpbuf,"%s[%s%s(notice)%s%s%s%s%s]%s",
+                                          CmdsColors[COLNOTICE].color4,Colors[COLOFF],
+                                          CmdsColors[COLCELE].color2,Colors[COLOFF],
+                                          CmdsColors[COLNOTICE].color2,nick,Colors[COLOFF],
+                                          CmdsColors[COLNOTICE].color4,Colors[COLOFF]);
 #else  /* CELECOSM */
                                 sprintf(tmpbuf,"%s<%s-%s%s%s-%s>%s",
                                         CmdsColors[COLNOTICE].color4,Colors[COLOFF],
@@ -2744,10 +2740,10 @@ send_text(org_nick, line, command)
                             else {
 #ifdef WANTANSI
 #ifdef CELECOSM
-                                sprintf(tmpbuf,"%s[%s%s%s%s%s(msg)%s%s]%s",
+                                sprintf(tmpbuf,"%s[%s%s(msg)%s%s%s%s%s]%s",
                                         CmdsColors[COLMSG].color5,Colors[COLOFF],
-                                        CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
                                         CmdsColors[COLCELE].color1,Colors[COLOFF],
+                                        CmdsColors[COLMSG].color6,nick,Colors[COLOFF],
                                         CmdsColors[COLMSG].color5,Colors[COLOFF]);
 #else  /* CELECOSM */
                                 sprintf(tmpbuf,"%s[%s%c%s%s%s%c%s]%s",

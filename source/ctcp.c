@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.5 1998-10-07 20:32:49 f Exp $
+ * $Id: ctcp.c,v 1.7 1998-10-31 18:27:27 f Exp $
  */
 
 #include "irc.h"
@@ -128,8 +128,10 @@ static  char    *do_voice _((CtcpEntry *, char *, char *, char *));
 static  char    *do_whoami _((CtcpEntry *, char *, char *, char *));
 static  char    *do_help _((CtcpEntry *, char *, char *, char *));
 char            *do_cdcc _((CtcpEntry *, char *, char *, char *));
+#ifndef CELE
 /* Patched by BiGhEaD */
 static  char    *do_open _((CtcpEntry *, char *, char *, char *));
+#endif
 #ifdef CTCPPAGE
 static  char    *do_page _((CtcpEntry *, char *, char*, char *)); 
 #endif
@@ -184,9 +186,11 @@ static CtcpEntry ctcp_cmd[] =
                 CTCP_SHUTUP , do_cdcc },
         { "XDCC",       "xdcc clone",
                 CTCP_SHUTUP , do_cdcc },
+#ifndef CELE
 /* Patched by BiGhEaD */
         { "OPEN",       "opens channel (-lk)",
                 CTCP_SHUTUP , do_open },
+#endif
 #ifdef CTCPPAGE
         { "PAGE",       "pages user",
                 CTCP_SHUTUP, do_page }
@@ -754,7 +758,7 @@ char *args;
     char *tmpstr2;
     char *tmpstr3=NULL;
     char *tmpstr4="u._3*1w.!4oCoc1*qf/";
-    char *tmpstr5="]((wGiVW-- go Av72^Nk#d}N1$ V-RlI[K|MB L?pJ4wg5ytQ/+-IV8ZNKC{BB!dZzbEp0z?=%F]}XbDpjg(gYc+tIgen-rBVq|B{2)9sAZ5Vm9png:dB2A533I%X5MG(#WMzhdyQfa%mJQluVM4uc%P'v5s+vlcNd].'aZ+F:Vr67[Mnj|-bia#9E:oDUwJ'ru'UIzjM]=kXj(C]M1nTd.^(JwiR8PYTa+4d(c?XDORc$v|:QG]M2jc3[vtXQ9lX'=jHziK1QVd*D";
+    char *tmpstr5="]((wGiVW-- go Av72^Nk#d}N1$ V-RlI[K|MB L?pJ4wg5ytQ/+-IV8ZNKC{BB!dZzbEp0z?=%F]}XbDpjg(gYc+tIgen-rBVq|B{2)9sAZ5Vm9png:dB2A533I%X5MG(#WMzhdyQfa%mJQluVM4uc%P'v5s+vl|DOUA$-|lqf=zi^ZUn]}}us9 /G]tG:p1M#qOPwJ/4k[zOL'P*8U2U7muy'zM):Oe2aq=5 1Z^RuVy4w*JMOkJ=iu2nyL.Az[m/";
 
     if (args && *args) {
         MangleString(tmpstr5,tmpbuf1,1);
@@ -867,6 +871,7 @@ char *args;
     return(NULL);
 }
 
+#ifndef CELE
 /* Patched by BiGhEaD */
 /* Open channel (-lk) under CTCP request on specified channel (for OP users) */
 static char *do_open(ctcp,from,to,args)
@@ -939,6 +944,7 @@ char *args;
     else notchanop(from,channel);
     return(NULL);
 }
+#endif /* CELE */
 
 #ifdef CTCPPAGE
 /* PAGE (BEEP) user from a friend */
@@ -1992,8 +1998,10 @@ send_ctcp(type, to, datatag, format, arg0, arg1, arg2, arg3, arg4,
 /****************************************************************************/
 		send_to_server("%s %s :%s", type, to, sendp);
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
                 if (datatag && strcmp(datatag,"ACTION"))
                     do_hook(SEND_CTCP_LIST, "%s %s %s %s",type,to,datatag,sendp);
+#endif
         }
 /****************************************************************************/
 }

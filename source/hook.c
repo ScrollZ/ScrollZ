@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.2 1998-09-10 17:45:15 f Exp $
+ * $Id: hook.c,v 1.3 1998-10-31 18:27:35 f Exp $
  */
 
 #include "irc.h"
@@ -90,14 +90,18 @@ extern	int	load_depth;
 {
 	{ "ACTION",		(Hook *) 0,	3,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
         { "CDCC_PLIST",         (Hook *) 0,	5,	0,	0 },
         { "CDCC_PLIST_FOOTER",  (Hook *) 0,	4,	0,	0 },
         { "CDCC_PLIST_HEADER",  (Hook *) 0,	3,	0,	0 },
+#endif
 /****************************************************************************/
 	{ "CHANNEL_NICK",	(Hook *) 0,	3,	0,	0 },
 	{ "CHANNEL_SIGNOFF",	(Hook *) 0,	3,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
         { "CHANNEL_SYNCH",      (Hook *) 0,	2,	0,	0 },
+#endif
         { "CHANNEL_WALLOP",     (Hook *) 0,	3,	0,	0 },
 /****************************************************************************/
 	{ "CONNECT",		(Hook *) 0,	1,	0,	0 },
@@ -107,9 +111,11 @@ extern	int	load_depth;
         { "DCC_CONNECT",        (Hook *) 0,     2,      0,      0 },
         { "DCC_ERROR",          (Hook *) 0,     6,      0,      0 },
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
         { "DCC_LIST",           (Hook *) 0,	8,	0,	0 },
         { "DCC_LIST_FOOTER",    (Hook *) 0,	1,	0,	0 },
         { "DCC_LIST_HEADER",    (Hook *) 0,	1,	0,	0 },
+#endif
 /****************************************************************************/
         { "DCC_LOST",           (Hook *) 0,     2,      0,      0 },
 	{ "DCC_RAW",		(Hook *) 0,	3,	0,	0 },
@@ -130,7 +136,9 @@ extern	int	load_depth;
 	{ "INVITE",		(Hook *) 0,	2,	0,	0 },
 	{ "JOIN",		(Hook *) 0,	2,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
         { "JOIN_ME",	        (Hook *) 0,	1,	0,	0 },
+#endif
 /****************************************************************************/
 	{ "KICK",		(Hook *) 0,	3,	0,	HF_LOOKONLY },
 	{ "LEAVE",		(Hook *) 0,	2,	0,	0 },
@@ -158,7 +166,9 @@ extern	int	load_depth;
 	{ "RAW_IRC",		(Hook *) 0,	1,	0,	0 },
 	{ "SEND_ACTION",	(Hook *) 0,	2,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 	{ "SEND_CTCP",		(Hook *) 0,	3,	0,	0 },
+#endif
 /****************************************************************************/
 	{ "SEND_DCC_CHAT",	(Hook *) 0,	2,	0,	0 },
 	{ "SEND_MSG",		(Hook *) 0,	2,	0,	0 },

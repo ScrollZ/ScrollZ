@@ -39,7 +39,6 @@
  GetNetsplitServer   Returns server from netsplit info
  HandleDelayOp       Handles delayed opping
  HandleDelayNotify   Handles delayed notify
- Cstatusbar
  ShowIdle            Shows idle time for users
  SwitchNick          Try to switch nick
  MassKill	     Kills multiple nicks at once - by acidflash
@@ -49,7 +48,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.9 1998-10-30 22:14:51 f Exp $
+ * $Id: edit6.c,v 1.10 1998-10-31 18:27:34 f Exp $
  */
 
 #include "irc.h"
@@ -733,6 +732,9 @@ void CheckTimeMinute() {
     clean_whowas_chan_list();
 #ifdef IPCHECKING
     AddJoinChannel();
+#endif
+#ifdef CELE
+    build_status((char *) 0);
 #endif
 }
 
@@ -1914,24 +1916,6 @@ char *stuff;
     else inFlierNotify=2;
     add_userhost_to_whois(stuff,func);
 }
-
-#ifdef CELE
-/* */
-void Cquickstat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
-{
-}
-
-/* */
-void Cstatusbar(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
-{
-}
-#endif
 
 #ifdef EXTRAS
 /* Show idle time for users */

@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.10 1998-10-25 18:37:32 f Exp $
+ * $Id: edit3.c,v 1.11 1998-10-31 18:27:31 f Exp $
  */
 
 #include "irc.h"
@@ -2166,6 +2166,15 @@ int ScrollZLoad()
             ChannelsSet(&pointer,&FriendList,&FriendListChannels,&error,lineno,"FRIENDLIST",NULL);
         else if (!strcmp("COMPRESSMODES",tmpbuf3))
             ChannelsSet(&pointer,&CompressModes,&CompressModesChannels,&error,lineno,"COMPRESSMODES",NULL);
+#ifdef CELE
+        else if (!strcmp("TRUNCATE",tmpbuf3)) {
+            set_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR,atoi(pointer));
+        }
+        else if (!strcmp("SCROLLZSTR",tmpbuf3)) {
+            StringSet(pointer,&ScrollZstr,&error,lineno,"SCROLLZSTR");
+            set_string_var(SCROLLZ_STRING_VAR,ScrollZstr);
+        }
+#endif
 #ifdef EXTRAS
         else if (!strcmp("SIGNOFFCHANNELS",tmpbuf3))
             ChannelsSet(&pointer,&ShowSignoffChan,&SignoffChannels,&error,lineno,"SIGNOFFCHANNELS",NULL);
@@ -2208,7 +2217,8 @@ int ScrollZLoad()
             else if (!strcmp(tmpbuf3,"NICK")) SetColors(COLNICK,&pointer,&error,lineno);
             else if (!strcmp(tmpbuf3,"ME")) SetColors(COLME,&pointer,&error,lineno);
             else if (!strcmp(tmpbuf3,"MISC")) SetColors(COLMISC,&pointer,&error,lineno);
-            else if (!strcmp(tmpbuf3,"SBAR")) SetColors(COLSBAR,&pointer,&error,lineno);
+            else if (!strcmp(tmpbuf3,"SBAR")) SetColors(COLSBAR1,&pointer,&error,lineno);
+            else if (!strcmp(tmpbuf3,"SBAR2")) SetColors(COLSBAR2,&pointer,&error,lineno);
 #ifdef CELECOSM
 	    else if (!strcmp(tmpbuf3,"CELE")) SetColors(COLCELE,&pointer,&error,lineno);
 #endif
@@ -2415,7 +2425,7 @@ void InitVars() {
     malloc_strcpy(&DefaultSignOff,"we need a default signoff message");
     malloc_strcpy(&DefaultSetAway,"mmm.. something better");
     malloc_strcpy(&DefaultSetBack,"are you there?");
-    malloc_strcpy(&ScrollZstr,"[/]");
+    malloc_strcpy(&ScrollZstr,"[1m[30m·[0m[37m·[1m[37m·[0m[37m");
     malloc_strcpy(&DefaultK,"you == chump");
     malloc_strcpy(&DefaultBK,"you == bison");
     malloc_strcpy(&DefaultBKI,"you == bison");

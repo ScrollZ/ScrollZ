@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.7 1998-10-21 19:43:04 f Exp $
+ * $Id: parse.c,v 1.8 1998-10-31 18:27:39 f Exp $
  */
 
 #include "irc.h"
@@ -1009,7 +1009,7 @@ pong(from, ArgList)
                     if (!my_stricmp(server_list[from_server].itsname,ArgList[0])) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
                         LagTimer=timenow;
-#elif defined (HAVETIMEOFDAY)
+#elif defined(HAVETIMEOFDAY)
                         LagTimer=timenow.tv_sec;
 #else
                         LagTimer=timenow;

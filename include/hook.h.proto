@@ -33,11 +33,15 @@
 /*
  * Generated from hook.h.proto automatically by the Makefile
  *
- * $Id: hook.h.proto,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: hook.h.proto,v 1.2 1998-10-31 18:26:00 f Exp $
  */
 
 #ifndef __hook_h_
 # define __hook_h_
+
+/**************************** PATCHED by Flier ******************************/
+#include "defs.h"
+/****************************************************************************/
 
 /* Hook: The structure of the entries of the hook functions lists */
 typedef struct	hook_stru
@@ -92,14 +96,18 @@ typedef struct numericlist_stru
 
 #define	ACTION_LIST $
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 #define CDCC_PLIST $
 #define CDCC_PLIST_FOOTER $
 #define CDCC_PLIST_HEADER $
+#endif
 /****************************************************************************/
 #define	CHANNEL_NICK_LIST $
 #define CHANNEL_SIGNOFF_LIST $
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 #define CHANNEL_SYNCH_LIST $
+#endif
 #define CHANNEL_WALLOP $
 /****************************************************************************/
 #define CONNECT_LIST $
@@ -109,9 +117,11 @@ typedef struct numericlist_stru
 #define DCC_CONNECT_LIST $
 #define DCC_ERROR_LIST $
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 #define DCC_LIST $
 #define DCC_LIST_FOOTER $
 #define DCC_LIST_HEADER $
+#endif
 /****************************************************************************/
 #define DCC_LOST_LIST $
 #define	DCC_RAW_LIST $
@@ -132,7 +142,9 @@ typedef struct numericlist_stru
 #define INVITE_LIST $
 #define JOIN_LIST $
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 #define JOIN_ME_LIST $
+#endif
 /****************************************************************************/
 #define KICK_LIST $
 #define LEAVE_LIST $
@@ -160,7 +172,9 @@ typedef struct numericlist_stru
 #define	RAW_IRC_LIST $
 #define	SEND_ACTION_LIST $
 /**************************** PATCHED by Flier ******************************/
+#ifndef CELEHOOK
 #define SEND_CTCP_LIST $
+#endif
 /****************************************************************************/
 #define	SEND_DCC_CHAT_LIST $
 #define SEND_MSG_LIST $

@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: mystructs.h,v 1.2 1998-10-31 18:26:02 f Exp $
  */
 
 /* don't change!! */
@@ -16,7 +16,7 @@
 
 /* don't change!! */
 #ifdef WANTANSI
-#define NUMCMDCOLORS_  25
+#define NUMCMDCOLORS_  26
 
 #if defined(CELECOSM) && defined(OPERVISION)
 #define NUMCMDCOLORS	(NUMCMDCOLORS_ + 2)

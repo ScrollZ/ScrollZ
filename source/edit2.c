@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.12 1998-10-27 17:27:25 f Exp $
+ * $Id: edit2.c,v 1.13 1998-10-31 18:27:30 f Exp $
  */
 
 #include "irc.h"
@@ -1819,7 +1819,9 @@ char *subargs;
 #ifdef EXTRAS
     fprintf(usfile,"IDLETIME        %d\n",IdleTime);
 #endif
+#ifndef CELE
     fprintf(usfile,"DEFSERVER       %s\n",DefaultServer);
+#endif
     fprintf(usfile,"DEFSIGNOFF      %s\n",DefaultSignOff);
     fprintf(usfile,"DEFSETAWAY      %s\n",DefaultSetAway);
     fprintf(usfile,"DEFSETBACK      %s\n",DefaultSetBack);
@@ -1865,7 +1867,14 @@ char *subargs;
 #endif
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
     fprintf(usfile,"#\n");
+#ifdef CELE
+    fprintf(usfile,"SCROLLZSTR      %s\n",ScrollZstr);
+#endif
     fprintf(usfile,"NOTIFYSTR       %s\n",CelerityNtfy);
+    fprintf(usfile,"#\n");
+#ifdef CELE
+    fprintf(usfile,"TRUNCATE        %d\n",get_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR));
+#endif
     fprintf(usfile,"#\n");
     fprintf(usfile,"# ScrollZ.away defines\n");
     fprintf(usfile,"# AWAYSAVE      type\n");

@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.6 1998-10-21 19:40:52 f Exp $
+ * $Id: edit5.c,v 1.7 1998-10-31 18:27:32 f Exp $
  */
 
 #include "irc.h"
@@ -146,8 +146,8 @@ extern int  AddLast _((List *, List *)); /* needed for GrabURL, by Zakath */
 extern int  CheckServer _((int));
 
 #ifdef CELE
-extern void Cstatusupd _((int, int));
-extern int  Cstatusnum;
+/*extern void Cstatusupd _((int, int));
+extern int  Cstatusnum;*/
 #ifdef CELECOSM
 struct friends *whoisfriend;
 #endif
@@ -601,7 +601,7 @@ FILE *usfile;
     fprintf(usfile,"# Codes:    WARNING,JOIN,MSG,NOTICE,NETSPLIT,INVITE,MODE,\n");
     fprintf(usfile,"#           SETTING,HELP,LEAVE,NOTIFY,CTCP,KICK,DCC,WHO,\n");
     fprintf(usfile,"#           WHOIS,PUBLIC,CDCC,LINKS,DCCCHAT,CSCAN,NICK,\n");
-    fprintf(usfile,"#           ME and OV\n");
+    fprintf(usfile,"#           ME,SBAR,SBAR2 and OV\n");
     fprintf(usfile,"# Colors:   OFF,BOLD,UNDERLINE,FLASH,REVERSE,NOBOLD\n");
     fprintf(usfile,"#           BLACK,RED,GREEN,YELLOW,BLUE,PURPLE,CYAN,WHITE\n");
     fprintf(usfile,"#           BLACKBG,REDBG,GREENBG,YELLOWBG,BLUEBG,PURPLEBG,CYANBG,WHITEBG\n");
@@ -681,8 +681,11 @@ FILE *usfile;
             case COLMISC:
                 fprintf(usfile,"COLOR  MISC      %s\n",tmpbuf);
                 break;
-            case COLSBAR:
+            case COLSBAR1:
                 fprintf(usfile,"COLOR  SBAR      %s\n",tmpbuf);
+                break;
+            case COLSBAR2:
+                fprintf(usfile,"COLOR  SBAR2     %s\n",tmpbuf);
                 break;
 #ifdef CELECOSM
             case COLCELE:
@@ -785,6 +788,7 @@ int  lineno;
             return;
         }
     }
+    if (number==COLSBAR1 || number==COLSBAR2) build_status((char *) 0);
 }
 #endif
 
@@ -853,18 +857,29 @@ int  netsplit;
         tmpstr=tmpbuf1;
         server=new_next_arg(tmpstr,&tmpstr);
 #ifdef WANTANSI
+#ifdef CELECOSM
+        sprintf(tmpbuf1,"%snetsplit%s %s[%s%s%s]%s - ",
+                CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color3,CmdsColors[COLNETSPLIT].color2,
+                update_clock(GET_TIME),CmdsColors[COLNETSPLIT].color3,Colors[COLOFF]);
+#else  /* CELECOSM */
         sprintf(tmpbuf2,"%sNetsplit detected%s at %s%s%s : ",
                 CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
                 CmdsColors[COLNETSPLIT].color2,update_clock(GET_TIME),Colors[COLOFF]);
+#endif /* CELECOSM */
         say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
             CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
             CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
             CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
-#else
+#else  /* WANTANSI */
         say("Netsplit detected at %s : [%s <- %s]",
             update_clock(GET_TIME),tmpstr,server);
-#endif
+#endif /* WANTANSI */
+#ifdef CELECOSM
+        say("hit control-f to view split clients");
+#else
         say("Press Control-F to see who split away");
+#endif /* CELECOSM */
     }
 }
 
@@ -887,16 +902,24 @@ char *servmode;
     if (isitserver) {
         if (NHDisp==2 && nethacks[0]) {
 #ifdef WANTANSI
+#ifdef CELECOSM
+            sprintf(tmpbuf1,"/%s%s%s - %s%s%s/",
+#else
             sprintf(tmpbuf1,"[%s%s%s] on %s%s%s",
-                   CmdsColors[COLNETSPLIT].color3,nick,Colors[COLOFF],
-                   CmdsColors[COLNETSPLIT].color4,channel,Colors[COLOFF]);
+#endif /* CELECOSM */
+                    CmdsColors[COLNETSPLIT].color3,nick,Colors[COLOFF],
+                    CmdsColors[COLNETSPLIT].color4,channel,Colors[COLOFF]);
+#ifdef CELECOSM
+            sprintf(tmpbuf2,"%snethack%s %s  %s%s%s",
+#else
             sprintf(tmpbuf2,"%sNetsplit hack%s %s by : %s%s%s",
+#endif /* CELECOSM */
                     CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],tmpbuf1,
                     CmdsColors[COLNETSPLIT].color5,nethacks,Colors[COLOFF]);
-#else
+#else  /* WANTANSI */
             sprintf(tmpbuf2,"%cNetsplit hack%c [%s] detected on %s by : %s",
                     bold,bold,nick,channel,nethacks);
-#endif
+#endif /* WANTANSI */
             say("%s",tmpbuf2);
             if (away_set || LogOn) AwaySave(tmpbuf2,SAVEHACK);
         }
@@ -1275,6 +1298,10 @@ int  print;
 #endif
     NickList *joiner;
     ChannelList *chan=NULL;
+#ifdef CELE
+    int truncate=get_int_var(TRUNCATE_PUBLIC_CHANNEL_VAR);
+    char channel1[mybufsize/16];
+#endif
 
     chan=lookup_channel(channel,from_server,0);
     *stampbuf='\0';
@@ -1318,10 +1345,19 @@ int  print;
 #ifdef STEFY
             sprintf(tmpbuf1,"%s(%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
             sprintf(tmpbuf5,"%s)%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
-#else
+#elif defined (CELECOSM)
+            if (isitme) {
+                sprintf(tmpbuf1,"%s<%s",CmdsColors[COLMISC].color4,Colors[COLOFF]);
+                sprintf(tmpbuf5,"%s>%s",CmdsColors[COLMISC].color4,Colors[COLOFF]);
+            }
+            else {
+                sprintf(tmpbuf1,"%s<%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
+                sprintf(tmpbuf5,"%s>%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
+            }
+#else  /* !STEFY && !CELECOSM */
             sprintf(tmpbuf1,"%s<%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
             sprintf(tmpbuf5,"%s>%s",CmdsColors[COLCSCAN].color2,Colors[COLOFF]);
-#endif
+#endif /* STEFY */
 	}
 	else if (isshit && !isfriend) {
 #ifdef STEFY
@@ -1366,9 +1402,17 @@ int  print;
             if (chan->window!=curr_scr_win) {
                 old=to_window;
                 to_window=get_window_by_refnum(curr_scr_win->refnum);
+#ifdef CELE
+                if (truncate && strlen(newchan)>5) strmcpy(channel1,channel,5);
+                else strcpy(channel1,channel);
+#endif
                 sprintf(tmpbuf2,"%s(%s%s%s%s:%s%s%s%s)%s ",CmdsColors[COLPUBLIC].color2,
                         Colors[COLOFF],CmdsColors[COLPUBLIC].color4,nick,Colors[COLOFF],
+#ifdef CELE
+                        CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF],
+#else
                         CmdsColors[COLPUBLIC].color3,channel,Colors[COLOFF],
+#endif
                         CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
                 put_it("%s%s%s%s%s",stampbuf,tmpbuf2,
                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
@@ -1377,9 +1421,17 @@ int  print;
 #endif
         }
         if (print) {
+#ifdef CELE
+            if (truncate && strlen(newchan)>5) strmcpy(channel1,newchan,5);
+            else strcpy(channel1,newchan);
+#endif
             sprintf(tmpbuf2,"%s%s%s%s%s%s%s",tmpbuf1,
                     nick,Colors[COLOFF],newcol,
+#ifdef CELE
+                    CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF]);
+#else
                     CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF]);
+#endif
             put_it("%s%s%s %s%s%s",stampbuf,tmpbuf2,tmpbuf5,
                    CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
@@ -2514,7 +2566,8 @@ char *subargs;
         else if (!my_stricmp(tmpstr,"NICK")) colsetting=COLNICK;
         else if (!my_stricmp(tmpstr,"ME")) colsetting=COLME;
         else if (!my_stricmp(tmpstr,"MISC")) colsetting=COLMISC;
-        else if (!my_stricmp(tmpstr,"SBAR")) colsetting=COLSBAR;
+        else if (!my_stricmp(tmpstr,"SBAR")) colsetting=COLSBAR1;
+        else if (!my_stricmp(tmpstr,"SBAR2")) colsetting=COLSBAR2;
 #ifdef CELECOSM
         else if (!my_stricmp(tmpstr,"CELE")) colsetting=COLCELE;
 #endif
@@ -2529,9 +2582,7 @@ char *subargs;
             GetColors(colsetting,tmpbuf2);
             sprintf(tmpbuf3,"  [%d]",colsetting+1);
             PrintSetting(tmpbuf1,tmpbuf2,tmpbuf3,empty_string);
-#ifdef CELE
-            /*if (colsetting==COLSBAR) Cstatusupd(Cstatusnum,0);*/
-#endif /* CELE */
+            if (colsetting==COLSBAR1 || colsetting==COLSBAR2) build_status((char *) 0);
         }
     }
     else PrintUsage("COLOR SETTING COLOR1 COLOR2 COLOR3 COLOR4 COLOR5");
@@ -3194,11 +3245,11 @@ void InitKeysColors() {
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"^O parse_command dirlm");
     bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W parse_command whois");
+    strcpy(tmpbuf,"^D delete_character");
     bindcmd(NULL,tmpbuf,NULL);
+/*    strcpy(tmpbuf,"^J enter_digraph");
+    bindcmd(NULL,tmpbuf,NULL);*/
     strcpy(tmpbuf,"^T switch_channels");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^X enter_digraph");
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"F1 parse_command shelp index");
     bindcmd(NULL,tmpbuf,NULL);
@@ -3605,23 +3656,57 @@ void InitKeysColors() {
     malloc_strcat(&CmdsColors[COLMISC].color3,Colors[COLBLUE]);
 #endif
 
-    /* Color of the statusbar */
+    /* Color1 of the statusbar */
+#ifndef CELE
     /* BAR */
-    malloc_strcpy(&CmdsColors[COLSBAR].color1,Colors[COLBLUEBG]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
+    /* Window refnum, ircop (*), away and server in OV */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color2,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color2,Colors[COLGREEN]);
+    /* ChanOp (@) and via server */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLPURPLE]);
+    /* Usermode and query */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
+    /* Channel and lastjoin */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLYELLOW]);
+    /* Turn all attributes (bold) off */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+#else
+    /* BAR */
+    malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
     /* Secondary Bar */
-    malloc_strcpy(&CmdsColors[COLSBAR].color2,Colors[COLBLUEBG]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color2,Colors[COLBLUEBG]);
     /* Level 1 stuff (nick) */
-    malloc_strcpy(&CmdsColors[COLSBAR].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR].color3,Colors[COLCYAN]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLCYAN]);
     /* Level 2 stuff (modes, names) */
-    malloc_strcpy(&CmdsColors[COLSBAR].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR].color4,Colors[COLWHITE]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
     /* Level 3 stuff (info) */
-    malloc_strcpy(&CmdsColors[COLSBAR].color5,Colors[COLNOBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR].color5,Colors[COLGREEN]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLNOBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
     /* level 4 stuff (brackets) */
-    malloc_strcpy(&CmdsColors[COLSBAR].color6,Colors[COLNOBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR].color6,Colors[COLWHITE]);
+    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+#endif
+
+    /* Color2 of the statusbar */
+    /* Nickname and time */
+    malloc_strcpy(&CmdsColors[COLSBAR2].color1,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR2].color1,Colors[COLCYAN]);
+    /* Various stuff (uptime, lag, status flags) */
+    malloc_strcpy(&CmdsColors[COLSBAR2].color2,Colors[COLCYAN]);
+    /* Hold */
+    malloc_strcpy(&CmdsColors[COLSBAR2].color3,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR2].color3,Colors[COLWHITE]);
+    /* Window activity */
+    malloc_strcpy(&CmdsColors[COLSBAR2].color4,Colors[COLREDBG]);
+    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLBOLD]);
+    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLYELLOW]);
 
 #ifdef CELECOSM
     /* Celerity Colors - Used in cosmetics */

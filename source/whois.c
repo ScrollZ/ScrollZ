@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.2 1998-09-10 17:46:26 f Exp $
+ * $Id: whois.c,v 1.3 1998-10-31 18:27:43 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -597,7 +597,7 @@ whois_oper(from, ArgList)
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],nick,
                                        ArgList[1]);
 #elif defined(CELECOSM)
-                                put_it("%s %soperator%s:   %s %s",
+                                put_it("%s %sircop%s:      %s %s",
                                        numeric_banner(),CmdsColors[COLWHOIS].color5,
                                        Colors[COLOFF],nick,ArgList[1]);
 #else

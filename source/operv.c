@@ -21,7 +21,7 @@
  * When user chooses to kill OperVision window with ^WK or WINDOW KILL
  * command, we disable OperVision since they probably wanted that.      -Flier
  *
- * $Id: operv.c,v 1.4 1998-10-30 21:58:54 f Exp $
+ * $Id: operv.c,v 1.5 1998-10-31 18:27:38 f Exp $
  */
 
 #include "irc.h"
@@ -273,6 +273,22 @@ char *from;
         sprintf(tmpbuf,"Entering high traffic mode: Forced by %s%s%s %s",
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
+    else if (strstr(tmpbuf,"Flooder") && strstr(tmpbuf,"target")) {
+        strcpy(word1,OVgetword(0,2,tmpline)); /* nick */
+        strcpy(word2,OVgetword(0,3,tmpline)); /* user@host */
+        strcpy(word3,OVgetword(0,5,tmpline)); /* Server */
+        strcpy(word4,OVgetword(0,7,tmpline)); /* Channel */
+#ifdef CELECOSM
+        sprintf(tmpbuf,"clnt/%sflood%s %s%s%s -> %s%s%s [%s]",
+                CmdsColors[COLOV].color4,Colors[COLOFF],
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],
+                CmdsColors[COLOV].color2,word4,Colors[COLOFF],word3);
+#else
+        sprintf(tmpbuf,"Flooder %s%s%s %s -> %s%s%s [%s]",
+                CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2),
+                CmdsColors[COLOV].color2,word4,Colors[COLOFF],word3);
+#endif
+    }
     else if (strstr(tmpbuf,"Entering high-traffic mode")) {
         strcpy(word1,OVgetword(0,5,tmpline));  /* High speed */
         strcpy(word2,OVgetword(0,7,tmpline));  /* Low speed */
@@ -291,8 +307,8 @@ char *from;
 		CmdsColors[COLOV].color1,word1,Colors[COLOFF],OVuh(word2));
     }
     else if (strstr(tmpbuf,"Resuming standard operation")) {
-	strcpy(word1,OVgetword(0,5,tmpline));  /* Low speed */
-	strcpy(word2,OVgetword(0,7,tmpline));  /* High speed */
+        strcpy(word1,OVgetword(0,4,tmpline));  /* Low speed */
+        strcpy(word2,OVgetword(0,6,tmpline));  /* High speed */
 #ifdef CELECOSM
         sprintf(tmpbuf,"standard-traffic mode: %s%s%s %s%s%s",
 #else

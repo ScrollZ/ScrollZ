@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.1 1998-09-10 17:31:12 f Exp $
+# @(#)$Id: Makefile.in,v 1.2 1998-10-31 18:27:26 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -15,21 +15,21 @@ DEFS	= @DEFS@
 LN	= @LN@
 RM	= @RM@
 
-OBJECTS = alias.o blowfish.o cdcc.o crypt.o ctcp.o dcc.o debug.o edit.o\
-	edit2.o edit3.o edit4.o edit5.o edit6.o exec.o files.o flood.o\
-	funny.o help.o history.o hold.o hook.o if.o ignore.o input.o\
-	irc.o ircaux.o ircsig.o keys.o lastlog.o list.o log.o mail.o\
-	menu.o names.o newio.o notice.o notify.o numbers.o operv.o output.o\
-	parse.o queue.o reg.o scandir.o screen.o server.o stack.o\
+OBJECTS = alias.o blowfish.o cdcc.o celerity.o crypt.o ctcp.o dcc.o debug.o\
+	edit.o edit2.o edit3.o edit4.o edit5.o edit6.o exec.o files.o\
+	flood.o funny.o help.o history.o hold.o hook.o if.o ignore.o\
+	input.o irc.o ircaux.o ircsig.o keys.o lastlog.o list.o log.o\
+	mail.o menu.o names.o newio.o notice.o notify.o numbers.o operv.o\
+	output.o parse.o queue.o reg.o scandir.o screen.o server.o stack.o\
 	status.o term.o translat.o vars.o whois.o whowas.o window.o\
 	$(PP_OBJS)
 
-SOURCES = alias.c blowfish.c cdcc.c crypt.c ctcp.c dcc.c debug.c edit.c\
-	edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c flood.c\
-	funny.c help.c history.c hold.c hook.c if.c ignore.c input.c\
-	irc.c ircaux.c ircsig.c keys.c lastlog.c list.c log.c mail.c\
-	menu.c names.c newio.c notice.c notify.c numbers.c operv.c output.c\
-	parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
+SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
+	edit.c edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c\
+	flood.c funny.c help.c history.c hold.c hook.c if.c ignore.c\
+	input.c irc.c ircaux.c ircsig.c keys.c lastlog.c list.c log.c\
+	mail.c menu.c names.c newio.c notice.c notify.c numbers.c operv.c\
+	output.c parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
 	status.c term.c translat.c vars.c whois.c whowas.o window.c\
 	$(PP_SRCS)
 
@@ -133,6 +133,7 @@ ctcp.o : ctcp.c ../include/irc.h ../include/defs.h ../include/config.h ../includ
   ../include/window.h ../include/hold.h ../include/lastlog.h ../include/edit.h \
   ../include/menu.h ../include/status.h ../include/ignore.h ../include/output.h \
   ../include/dcc.h ../include/parse.h 
+celerity.o : celerity.c ../include/irc.h ../include/myvars.h ../include/screen.h ../include/ircaux.h
 dcc.o : dcc.c ../include/irc.h ../include/defs.h ../include/config.h ../include/irc_std.h \
   ../include/debug.h ../include/struct.h ../include/server.h \
   ../include/names.h ../include/window.h ../include/hold.h ../include/lastlog.h \

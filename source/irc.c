@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.5 1998-10-25 18:26:01 f Exp $
+ * $Id: irc.c,v 1.6 1998-10-31 18:27:37 f Exp $
  */
 
 #define IRCII_VERSION	"4.4A"
@@ -313,10 +313,6 @@ char  *StatsFilter=(char *) 0;
 char  *AutoReplyBuffer=(char *) 0;
 char  *OrigNick=(char *) 0;
 /****** Coded by Zakath ******/
-#ifdef CELE
-char  *CelerityVersion="Celerity Script 1.0";
-char  *CelerityL="[L]";
-#endif
 /* patched by acidflash */
 #ifdef ACID
 char *AcidVersion="AcidMods v1.0b1";

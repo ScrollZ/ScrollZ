@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.2 1998-10-06 17:49:19 f Exp $
+ * $Id: config.h,v 1.3 1998-10-31 18:25:58 f Exp $
  */
 
 #ifndef __config_h_
@@ -194,31 +194,32 @@
 #define DEFAULT_SHOW_NUMERICS 0
 #define DEFAULT_SHOW_STATUS_ALL 0
 #define DEFAULT_SHOW_WHO_HOPCOUNT 0
-#define DEFAULT_STATUS_AWAY " (away)"
+#define DEFAULT_STATUS_AWAY " (zZzZ: %A)"
 #define DEFAULT_STATUS_CHANNEL " on %C"
 #define DEFAULT_STATUS_CHANOP "@"
-#define DEFAULT_STATUS_CLOCK " %T"
-#define DEFAULT_STATUS_FORMAT "[%R]%T %*%@%N%#%S%H%B%Q%A%C%+%I%O%M%F%U %>"
-#define DEFAULT_STATUS_FORMAT1 "[%R]%T %*%@%N%#%S%H%B%Q%A%C%+%I%O%M%F%U %>"
-#define DEFAULT_STATUS_FORMAT2 "%U %W %X %Y %Z %>"
-#define DEFAULT_STATUS_FORMAT3 " %>"
+#define DEFAULT_STATUS_CLOCK "time is %T"
+#define DEFAULT_STATUS_FORMAT "[%R] %* %B%H%A%S %W %F %>"
+#define DEFAULT_STATUS_FORMAT1 "[%R] %*%@%N%#%B%H%C%+%A%Q%S%I%O %W %F %> [lj %3]"
+#define DEFAULT_STATUS_FORMAT2 "%1 [lag %2] %M [g %6] [s %5] [%D:%E:%P:%L:%7:%8] %> %T"
+#define DEFAULT_STATUS_FORMAT3 "%U [topic %9] %>"
 #define	DEFAULT_STATUS_GROUP " [%G]"
-#define DEFAULT_STATUS_HOLD " --- more ---"
+#define DEFAULT_STATUS_HOLD " [..more..]"
 #define DEFAULT_STATUS_HOLD_LINES " (%B)"
 #define DEFAULT_STATUS_INSERT ""
+#define DEFAULT_STATUS_MAIL "[m %M]"
 #define DEFAULT_STATUS_MODE " (+%+)"
-#define DEFAULT_STATUS_MAIL " [Mail: %M]"
-#define DEFAULT_STATUS_NOTIFY " [Activity: %F]"
+#define DEFAULT_STATUS_NOTIFY " [a:%F]"
 #define DEFAULT_STATUS_OPER "*"
-#define DEFAULT_STATUS_OVERWRITE "(overtype) "
-#define DEFAULT_STATUS_QUERY " [Query: %Q]"
+#define DEFAULT_STATUS_OVERWRITE " (ow)"
+#define DEFAULT_STATUS_QUERY " [Q/%Q]"
 #define DEFAULT_STATUS_SERVER " via %S"
 #define DEFAULT_STATUS_UMODE " (+%#)"
+#define DEFAULT_STATUS_UPTIME "[up %dd %hh %mm]"
 #define DEFAULT_STATUS_USER " * type /help for help "
 #define DEFAULT_STATUS_USER1 ""
 #define DEFAULT_STATUS_USER2 ""
 #define DEFAULT_STATUS_USER3 ""
-#define DEFAULT_STATUS_WINDOW "^^^^^^^^"
+#define DEFAULT_STATUS_WINDOW "^^^^^"
 #define DEFAULT_SUPPRESS_SERVER_MOTD 0
 #define DEFAULT_TAB 1
 #define DEFAULT_TAB_MAX 8
@@ -239,9 +240,10 @@
 #define DEFAULT_STATUS_CHANNELCOUNT "(O:%o N:%n T:%t)"
 #define DEFAULT_STATUS_UPTIME "[up %dd %hh %mm]"
 
+#if defined(CELE) || defined(WANTANSI)
+
 #undef DEFAULT_STATUS_AWAY
 #undef DEFAULT_STATUS_CHANNEL
-#undef DEFAULT_STATUS_CHANOP
 #undef DEFAULT_STATUS_CLOCK
 #undef DEFAULT_STATUS_FORMAT
 #undef DEFAULT_STATUS_FORMAT1
@@ -250,12 +252,14 @@
 #undef DEFAULT_STATUS_HOLD
 #undef DEFAULT_STATUS_MAIL
 #undef DEFAULT_STATUS_MODE
-#undef DEFAULT_STATUS_OPER
 #undef DEFAULT_STATUS_QUERY
 #undef DEFAULT_STATUS_UMODE
 #undef DEFAULT_STATUS_UPTIME
+#undef DEFAULT_STATUS_WINDOW
 
-#if defined(CELE)
+#endif
+
+#ifdef CELE
 
 #undef DEFAULT_BEEP_ON_MSG
 #undef DEFAULT_INPUT_PROMPT
@@ -263,7 +267,7 @@
 #undef DEFAULT_STATUS_CHANNELCOUNT
 #undef DEFAULT_STATUS_USER
 
-#else
+#elif defined(WANTANSI)
 
 #undef DEFAULT_STATUS_FORMAT3
 #undef DEFAULT_STATUS_HOLD_LINES
@@ -276,79 +280,54 @@
 
 #if defined(CELE)
 
+#define DEFAULT_TRUNCATE_PUBLIC_CHANNEL 1
 #define DEFAULT_SHOW_STATUS_ALL 1
 #define DEFAULT_BEEP_ON_MSG "MSG"
-#define DEFAULT_STATUS_AWAY "[1;36m<[0;37;44mAway:[1;37m%A[1;36m>"
-#define DEFAULT_STATUS_CHANNELCOUNT "([0;37;44mO:%o N:%n T:%t[1;36m)"
-#define DEFAULT_STATUS_CHANNEL "[0;37;44mChnl:[1;37m%C[1;36m"
-#define DEFAULT_STATUS_CHANOP "[1;37m@[1;36m"
-#define DEFAULT_STATUS_CLOCK "[0;37;44m%T[1;36m"
-#define DEFAULT_STATUS_FORMAT "[44m[1;37m %N[0;37;44m <[1;37m%*[1;36m%@%# %A  %C%+ %W%Q  %M %> Lag[[0;37;44m%2[1;36m] [0m"
-#define DEFAULT_STATUS_FORMAT1 "[44m[1;36m [%T][1;37m %N[0;37;44m <[1;37m%*[1;36m%@%# %A %Q %> %M [1;36m([0;37;44mUp:[1;37m%1[1;36m) %W [1;36mLag[[1;37m%2[1;36m] [0m"
-#define DEFAULT_STATUS_FORMAT2 "[44m %C%+ %U [1;36m[[0;37;44mlj:[1;37m%3[1;36m] %> %S%H%B%I%O%F [1;36m[[0;37;44mDCC[1;36m:[0;37;44ms[1;37m%4[1;36m:[0;37;44mr[1;37m%5[1;36m:[0;37;44mo[1;37m%6[1;36m] [0m"
-#define DEFAULT_STATUS_FORMAT3 "[44m %> [0m"
-/*#define DEFAULT_STATUS_FORMAT2 "[46m[0;37;44m [[0;37;41m%4[0;37;41m:[0;37;41m%5[0;37;41m:[0;37;41m%6[0;37;41m:[0;37;41m%7[0;37;41m:[0;37;41m%8[0;37;41m|[0;37;41m%D[0;37;41m:[1;33m%L[0;37;41m:[1;33m%P[0;37;41m:[1;33m%E[0;37;41m] (Up:[1;33m%1[0;37;41m) %S%H%B%I%O%F %> %U [%T] [1;33m"*/
-#define DEFAULT_STATUS_HOLD "[Hit ENTER]"
-#define DEFAULT_STATUS_MAIL "[1;36m([0;37;44mMail:[1;37m%M[36m)"
-#define DEFAULT_STATUS_MODE "[[0;37;44m+%+[1;36m]"
-#define DEFAULT_STATUS_OPER "[1;37m*[1;36m"
-#define DEFAULT_STATUS_QUERY "[1;36m<[0;37;41mq[1;37m%Q[1;36m>"
-#define DEFAULT_STATUS_UMODE "[0;37;44m+[1;37m%#[0;37;44m>"
-#define DEFAULT_STATUS_UPTIME "[1;31m([0;37;44mUp:[1;37m%dd %hh %mm[31m)"
-#define DEFAULT_STATUS_USER "[*]"
-#define DEFAULT_INPUT_PROMPT "[[1;37mcy[0;37m] "
+#define DEFAULT_STATUS_AWAY "%y6[%y5dead:%y4%A%y6]"
+#define DEFAULT_STATUS_CHANNELCOUNT "%y6[%y5O:%y4%o %y5N:%y4%n %y5T:%y4%t%y6]"
+#define DEFAULT_STATUS_CHANNEL "%y6Chnl:%y3%C"
+#define DEFAULT_STATUS_CLOCK "%y6[%y5%T%y6]"
+#define DEFAULT_STATUS_HOLD "%y6.o %y5please hit enter %y6o."
+#define DEFAULT_STATUS_LOADAVG "%y5load/%y4%Z"
+#define DEFAULT_STATUS_WINDOW "~~~"
+#define DEFAULT_STATUS_MAIL "%y6[%y5M:%y4%M%y6]"
+#define DEFAULT_STATUS_MODE "%y6[%y5+%y4%+%y6]"
+#define DEFAULT_STATUS_QUERY "%y6[%y5Q:%y4%Q%y6]"
+#define DEFAULT_STATUS_UMODE "%y6[%y5+%y3%#%y6]"
+#define DEFAULT_STATUS_UPTIME "%y6[%y5Up:%y4 %dd %hh %mm%y6]"
+#define DEFAULT_STATUS_USER "%y4/%y5cy%y4/"
+#define DEFAULT_INPUT_PROMPT "[cy] "
+#define DEFAULT_STATUS_FORMAT "%y1 %y6[%y5OperVision%y6] %> %y4%!S "
+#define DEFAULT_STATUS_FORMAT1 "%y1 %T %y4%*%@%y3%N %#%A %Q %> %M %1 "
+#define DEFAULT_STATUS_FORMAT2 "%y1 %C %+ %U %> %S%H%B%I%O%F %y5%W %Z %y5l/%y4%2 "
+#define DEFAULT_STATUS_FORMAT3 "%y1 %y5QuickStat %> %y6[%y5lj:%y4%3%y6] %y6[%y5DCC:%y4s%6%y5:%y4r%5%y5:%y4o%4%y6] "
 
 #elif defined(WANTANSI)
 
-#define DEFAULT_STATUS_AWAY " ([1;32mzZzZ: %A[37;22m)"
-#define DEFAULT_STATUS_CHANNEL " on [1;33m%C[37;22m"
-#define DEFAULT_STATUS_CHANOP "[1;35m@[37;22m"
-#define DEFAULT_STATUS_CLOCK "time is [1;36m%T[37;22m"
+#define DEFAULT_STATUS_AWAY " (%y2zZzZ: %A%y6)"
+#define DEFAULT_STATUS_CHANNEL " on %y5%C%y6"
+#define DEFAULT_STATUS_CLOCK "time is %y7%T%y6"
 
 #if defined(OPERVISION)
-#define DEFAULT_STATUS_FORMAT "[44;37m[[1;32m%R[37;22m] %* %B%H%A%S %W %F %> [[1;32m%!S[37;22m]"
+#define DEFAULT_STATUS_FORMAT "%y1[%y2%R%y6] %* %B%H%A%S %W %F %> [%y2%!S%y6]"
 #else  /* OPERVISION */
-#define DEFAULT_STATUS_FORMAT "[44;37m[[1;32m%R[37;22m] %* %B%H%A%S %W %F %>"
+#define DEFAULT_STATUS_FORMAT "%y1[%y2%R%y6] %* %B%H%A%S %W %F %>"
 #endif /* OPERVISION */
 
-#define DEFAULT_STATUS_FORMAT1 "[44;37m[[1;32m%R[37;22m] %*%@[1;36m%N[37;22m%#%B%H%C%+%A%Q%S%I%O %W %F %> [lj [1;33m%3[37;22m][0m"
-#define DEFAULT_STATUS_FORMAT2 "[44;37m%1 [lag [36m%2[37;22m] %M [g [36m%6[37;22m] [s [36m%5[37;22m] [[36m%D[37;22m:[36m%E[37;22m:[36m%P[37;22m:[36m%L[37;22m:[36m%7[37;22m:[36m%8[37;22m] %> %T[0m"
-#define DEFAULT_STATUS_FORMAT3 "[44;37m%U [topic [36m%9[37m] %> [0m"
-#define DEFAULT_STATUS_HOLD " [..[1;39mmore[37;22m..]"
-#define DEFAULT_STATUS_HOLD_LINES " ([1;32m%B[37;22m)"
-#define DEFAULT_STATUS_MAIL "[m [36m%M[37;22m]"
-#define DEFAULT_STATUS_MODE " [[36m+%+[37;22m]"
-#define DEFAULT_STATUS_NOTIFY " [41;1;33m[a:%F][37;22;44m"
-#define DEFAULT_STATUS_OPER "[1;32m*[37;22m"
-#define DEFAULT_STATUS_OVERWRITE " ([1;32mow[37;22m)"
-#define DEFAULT_STATUS_QUERY " [[1;31mQ[37;22m/[1;31m%Q[37;22m]"
-#define DEFAULT_STATUS_SERVER " via [1;36m%S[37;22m"
-#define DEFAULT_STATUS_UMODE " ([1;31m+%#[37;22m)"
-#define DEFAULT_STATUS_UPTIME "[up [36m%dd %hh %mm[37m]"
-#define DEFAULT_STATUS_WINDOW "[1;35m^^^^^[37;22m"
-
-#else /* WANTANSI */
-
-#define DEFAULT_STATUS_AWAY " (zZzZ: %A)"
-#define DEFAULT_STATUS_CHANNEL " on %C"
-#define DEFAULT_STATUS_CHANOP "@"
-#define DEFAULT_STATUS_CLOCK "time is %T"
-#define DEFAULT_STATUS_FORMAT "[%R] %* %B%H%A%S %W %F %>"
-#define DEFAULT_STATUS_FORMAT1 "[%R] %*%@%N%#%B%H%C%+%A%Q%S%I%O %W %F %> [lj %3]"
-#define DEFAULT_STATUS_FORMAT2 "%1 [lag %2] %M [g %6] [s %5] [%D:%E:%P:%L:%7:%8] %> %T"
-#define DEFAULT_STATUS_FORMAT3 "%U [topic %9] %>"
+#define DEFAULT_STATUS_FORMAT1 "%y1[%y2%R%y6] %y2%*%y6%y3%@%y6%y7%N%y6%#%C%+%A%Q%S%I%O %y3%W%y6 %F%y9%H%y6 %> [lj %y5%3%y6]%y0"
+#define DEFAULT_STATUS_FORMAT2 "%y1%1 [lag %y8%2%y6] %M [g %y8%6%y6] [s %y8%5%y6] [%y8%D%y6:%y8%E%y6:%y8%P%y6:%y8%L%y6:%y8%7%y6:%y8%8%y6]%B %> %T%y0"
+#define DEFAULT_STATUS_FORMAT3 "%y1%U [topic %y8%9%y6] %> %y0"
 #define DEFAULT_STATUS_HOLD " [..more..]"
-#define DEFAULT_STATUS_HOLD_LINES " (%B)"
-#define DEFAULT_STATUS_MAIL "[m %M]"
-#define DEFAULT_STATUS_MODE " [+%+]"
-#define DEFAULT_STATUS_NOTIFY " [a:%F]"
-#define DEFAULT_STATUS_OPER "*"
-#define DEFAULT_STATUS_OVERWRITE " (ow)"
-#define DEFAULT_STATUS_QUERY " [Q/%Q]"
-#define DEFAULT_STATUS_SERVER " via %S"
-#define DEFAULT_STATUS_UMODE " (+%#)"
-#define DEFAULT_STATUS_UPTIME "[up %dd %hh %mm]"
-#define DEFAULT_STATUS_WINDOW "^^^^^"
+#define DEFAULT_STATUS_HOLD_LINES " (%y2%B%y6)"
+#define DEFAULT_STATUS_MAIL "[m %y8%M%y6]"
+#define DEFAULT_STATUS_MODE " [%y8+%+%y6]"
+#define DEFAULT_STATUS_NOTIFY " %ya[a:%F]%y1%y6"
+#define DEFAULT_STATUS_OVERWRITE " (%y2ow%y6)"
+#define DEFAULT_STATUS_QUERY " [%y4Q%y6/%y4%Q%y6]"
+#define DEFAULT_STATUS_SERVER " via %y7%S%y6"
+#define DEFAULT_STATUS_UMODE " (%y4+%#%y6)"
+#define DEFAULT_STATUS_UPTIME "[up %y8%dd %hh %mm%y6]"
+#define DEFAULT_STATUS_WINDOW "^^^^^"
 
 #endif
 /****************************************************************************/

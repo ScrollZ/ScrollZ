@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.3 1998-10-06 21:41:30 f Exp $
+ * $Id: input.c,v 1.4 1998-10-31 18:27:36 f Exp $
  */
 
 #include "irc.h"
@@ -917,11 +917,89 @@ void
 set_input_prompt(prompt)
 	char	*prompt;
 {
+/**************************** PATCHED by Flier ******************************/
+#ifdef CELE
+        char *ptr=(char *) 0;
+        char *color=(char *) 0;
+        char inpbuf[mybufsize+1];
+        static char crap[]="%% ";
+#endif
+/****************************************************************************/
+
 	if (prompt)
 	{
 		if (input_prompt && !strcmp (prompt, input_prompt))
 			return;
-		malloc_strcpy(&input_prompt, prompt);
+/**************************** PATCHED by Flier ******************************/
+		/*malloc_strcpy(&input_prompt, prompt);*/
+#ifdef CELE
+                *inpbuf = (char) 0;
+                while (prompt) {
+                    if ((ptr=(char *) index(prompt,'%'))!=NULL) {
+                        *ptr=(char) 0;
+                        strmcat(inpbuf,prompt,mybufsize);
+                        *(ptr++)='%';
+                        if ((*ptr=='Y') || (*ptr=='y')) {
+                            switch (*(++ptr)) {
+                                case '0':
+                                    color=Colors[COLOFF];
+                                    break;
+                                case '1':
+                                    color=CmdsColors[COLSBAR1].color1;
+                                    break;
+                                case '2':
+                                    color=CmdsColors[COLSBAR1].color2;
+                                    break;
+                                case '3':
+                                    color=CmdsColors[COLSBAR1].color3;
+                                    break;
+                                case '4':
+                                    color=CmdsColors[COLSBAR1].color4;
+                                    break;
+                                case '5':
+                                    color=CmdsColors[COLSBAR1].color5;
+                                    break;
+                                case '6':
+                                    color=CmdsColors[COLSBAR1].color6;
+                                    break;
+                                case '7':
+                                    color=CmdsColors[COLSBAR2].color1;
+                                    break;
+                                case '8':
+                                    color=CmdsColors[COLSBAR2].color2;
+                                    break;
+                                case '9':
+                                    color=CmdsColors[COLSBAR2].color3;
+                                    break;
+                                case 'a':
+                                    color=CmdsColors[COLSBAR2].color4;
+                                    break;
+                                case 'b':
+                                    color=CmdsColors[COLSBAR2].color5;
+                                    break;
+                                case 'c':
+                                    color=CmdsColors[COLSBAR2].color6;
+                                    break;
+                                default:
+                                    color=empty_string;
+                                    break;
+                            }
+                            strmcat(inpbuf,color,BIG_BUFFER_SIZE);
+                        }
+                        else {
+                            crap[2]=*ptr;
+                            strmcat(inpbuf,crap,mybufsize);
+                        }
+                        ptr++;
+                    }
+                    else strmcat(inpbuf,prompt,mybufsize);
+                    prompt=ptr;
+                }
+                malloc_strcpy(&input_prompt,inpbuf);
+#else
+                malloc_strcpy(&input_prompt,prompt);
+#endif /* CELE */
+/****************************************************************************/
 	}
 	else
 	{

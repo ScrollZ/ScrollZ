@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.4 1998-10-21 19:44:38 f Exp $
+ * $Id: status.c,v 1.5 1998-10-31 18:27:41 f Exp $
  */
 
 #include "irc.h"
@@ -125,6 +125,22 @@ static	char    *status_nhprot _((Window *));
 static	char    *status_floodp _((Window *));
 static	char    *status_ctcpcloak _((Window *));
 static	char    *status_channelcount _((Window *));
+#ifdef CELE
+static	char	*status_loadavg _((Window *));
+#endif
+static	char	*status_Cbarcolor0 _((Window *));
+static	char	*status_Cbarcolor1 _((Window *));
+static	char	*status_Cbarcolor2 _((Window *));
+static	char	*status_Cbarcolor3 _((Window *));
+static	char	*status_Cbarcolor4 _((Window *));
+static	char	*status_Cbarcolor5 _((Window *));
+static	char	*status_Cbarcolor6 _((Window *));
+static	char	*status_Cbarcolor7 _((Window *));
+static	char	*status_Cbarcolor8 _((Window *));
+static	char	*status_Cbarcolor9 _((Window *));
+static	char	*status_Cbarcolora _((Window *));
+static	char	*status_Cbarcolorb _((Window *));
+static	char	*status_Cbarcolorc _((Window *));
 /*****************************/
 /****************************************************************************/
 
@@ -132,7 +148,7 @@ static	char    *status_channelcount _((Window *));
  * Maximum number of "%" expressions in a status line format.  If you change
  * this number, you must manually change the sprintf() in make_status 
  */
-#define MAX_FUNCTIONS 33
+#define MAX_FUNCTIONS 36
 
 /* The format statements to build each portion of the status line */
 static	char	*mode_format = (char *) 0;
@@ -153,6 +169,9 @@ static	char	*group_format = (char *) 0;
 static  char    *away_format = (char *) 0;
 static  char    *channelcount_format = (char *) 0;
 static  char    *uptime_format = (char *) 0;
+#ifdef CELE
+static	char	*loadavg_format = (char *) 0;
+#endif
 /****************************************************************************/
 
 /*
@@ -420,6 +439,64 @@ reset_clock(unused)
 	update_all_status();
 }
 
+/**************************** PATCHED by Flier ******************************/
+/* Insert SBAR color into buffer - for status bar */
+void InsertStatusColor(ccode,buffer,bufsize)
+char ccode;
+char *buffer;
+int  bufsize;
+{
+    char *color;
+
+    switch (ccode) {
+        case '0':
+            color=Colors[COLOFF];
+            break;
+        case '1':
+            color=CmdsColors[COLSBAR1].color1;
+            break;
+        case '2':
+            color=CmdsColors[COLSBAR1].color2;
+            break;
+        case '3':
+            color=CmdsColors[COLSBAR1].color3;
+            break;
+        case '4':
+            color=CmdsColors[COLSBAR1].color4;
+            break;
+        case '5':
+            color=CmdsColors[COLSBAR1].color5;
+            break;
+        case '6':
+            color=CmdsColors[COLSBAR1].color6;
+            break;
+        case '7':
+            color=CmdsColors[COLSBAR2].color1;
+            break;
+        case '8':
+            color=CmdsColors[COLSBAR2].color2;
+            break;
+        case '9':
+            color=CmdsColors[COLSBAR2].color3;
+            break;
+        case 'a':
+            color=CmdsColors[COLSBAR2].color4;
+            break;
+        case 'b':
+            color=CmdsColors[COLSBAR2].color5;
+            break;
+        case 'c':
+            color=CmdsColors[COLSBAR2].color6;
+            break;
+        default:
+            color=empty_string;
+            break;
+    }
+    strmcat(buffer,color,bufsize);
+}
+/****************************************************************************/
+
+
 /*
  * convert_sub_format: This is used to convert the formats of the
  * sub-portions of the status line to a format statement specially designed
@@ -459,6 +536,14 @@ convert_sub_format(format, c)
 				dont_got_it = 0;
 				strmcat(buffer, "%s", BIG_BUFFER_SIZE);
 			}
+/**************************** PATCHED by Flier ******************************/
+                        /* This little bit of code allows colors to be embedded within
+                         * sub-portions of the status bar variables, e.g.:
+                         * /set status_clock %y6[%y4%T%y6]
+                         */
+                        else if ((*ptr=='Y') || (*ptr=='y'))
+                            InsertStatusColor(*(++ptr),buffer,sizeof(buffer));
+/****************************************************************************/
 			else
 			{
 				bletch[2] = *ptr;
@@ -483,7 +568,7 @@ convert_format(format, k)
 	char	*ptr,
 		*malloc_ptr = (char *) 0; 
 	int	*cp;
-	
+
 	*buffer = (char) 0;
 	while (format)
 	{
@@ -749,6 +834,89 @@ convert_format(format, k)
                                         status_func[k][(*cp)++] =
                                                  status_ctcpcloak;
                                         break;
+#ifdef CELE
+                                case 'Z':
+                                        new_free(&loadavg_format);
+                                        loadavg_format=
+                    convert_sub_format(get_string_var(STATUS_LOADAVG_VAR), 'Z');
+                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        status_func[k][(*cp)++] =
+                                                 status_loadavg;
+                                        break;
+#endif
+                                case 'Y':   /* Celerity StatusBar %Y? junt */
+ 				case 'y':
+                                     switch (*(ptr++)) {
+                                         case '0' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor0;
+                                             break;
+                                         case '1' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor1;
+                                             break;
+                                         case '2' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor2;
+                                             break;
+                                         case '3' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor3;
+                                             break;
+                                         case '4' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor4;
+                                             break;
+                                         case '5' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor5;
+                                             break;
+                                         case '6' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor6;
+                                             break;
+                                         case '7' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor7;
+                                             break;
+                                         case '8' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor8;
+                                             break;
+                                         case '9' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolor9;
+                                             break;
+                                         case 'a' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolora;
+                                             break;
+                                         case 'b' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolorb;
+                                             break;
+                                         case 'c' :
+                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             status_func[k][(*cp)++] =
+                                                 status_Cbarcolorc;
+                                             break;
+ 					default :
+ 					    ptr++;
+ 					    break;
+ 				    }
+ 				    break;
                                 case '!': /* %!## Status_user format by Zakath */
                                           /* Thx to Sheik & Flier for help */
                                     switch (*(ptr++)) {
@@ -975,7 +1143,8 @@ make_status(window)
 				func_value[21], func_value[22], func_value[23],
 				func_value[24], func_value[25], func_value[26],
 				func_value[27], func_value[28], func_value[29],
-				func_value[30], func_value[31],func_value[32]);
+				func_value[30], func_value[31], func_value[32],
+				func_value[33], func_value[34], func_value[35]);
 			for (i = 0; i < MAX_FUNCTIONS; i++)
 				new_free(&(func_value[i]));
 			
@@ -1906,9 +2075,9 @@ Window	*window;
 
     if (get_int_var(SHOW_STATUS_ALL_VAR) || current_screen->current_window==window) {
 #if defined(HAVETIMEOFDAY) && defined(CELE)
-        sprintf(lagbuf,"%06d",LagTimer.tv_usec);
+        sprintf(lagbuf,"%06ld",LagTimer.tv_usec);
         lagbuf[3]='\0';
-        sprintf(buffer,"%d.%s",LagTimer.tv_sec,lagbuf);
+        sprintf(buffer,"%ld.%s",LagTimer.tv_sec,lagbuf);
 #else
         sprintf(buffer,"%02d",LagTimer);
 #endif
@@ -2184,5 +2353,186 @@ Window *window;
     else malloc_strcpy(&ptr,"s");
     return(ptr);
 }
+
+static char *status_Cbarcolor0(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,Colors[COLOFF]);
+    return(ptr);
+}
+
+static char *status_Cbarcolor1(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color1);
+    return(ptr);
+}
+
+static char *status_Cbarcolor2(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color2);
+    return(ptr);
+}
+
+static char *status_Cbarcolor3(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color3);
+    return(ptr);
+}
+
+static char *status_Cbarcolor4(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color4);
+    return(ptr);
+}
+
+static char *status_Cbarcolor5(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color5);
+    return(ptr);
+}
+
+static char *status_Cbarcolor6(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR1].color6);
+    return(ptr);
+}
+
+static char *status_Cbarcolor7(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color1);
+    return(ptr);
+}
+
+static char *status_Cbarcolor8(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color2);
+    return(ptr);
+}
+
+static char *status_Cbarcolor9(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color3);
+    return(ptr);
+}
+
+static char *status_Cbarcolora(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color4);
+    return(ptr);
+}
+
+static char *status_Cbarcolorb(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color5);
+    return(ptr);
+}
+
+static char *status_Cbarcolorc(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+
+    malloc_strcpy(&ptr,CmdsColors[COLSBAR2].color6);
+    return(ptr);
+}
+
+#ifdef CELE
+static char *status_loadavg(window)
+Window *window;
+{
+    char *ptr=(char *) 0;
+#ifdef __linux__
+    char *pointer=(char *) 0;
+    char loadbuf[64];
+    FILE *fip;
+
+    if ((loadavg_format) && (get_int_var(SHOW_STATUS_ALL_VAR) ||
+                             (window==window->screen->current_window))) {
+        if ((fip=fopen("/proc/loadavg","r"))!=NULL) {
+            if (fgets(loadbuf,sizeof(loadbuf),fip)) {
+                pointer=loadbuf;
+                new_next_arg(pointer,&pointer); 
+            }
+            else strcpy(loadbuf,"error");
+            fclose(fip);
+            sprintf(buffer,loadavg_format,loadbuf);
+            malloc_strcpy(&ptr,buffer);
+        }
+        else malloc_strcpy(&ptr,empty_string);
+    } 
+    else malloc_strcpy(&ptr,empty_string);
+#elif defined(HAVE_GETLOADAVG)  /* BSD systems */
+    double loadbuf[] = { 0 };
+    char loadbuf2[7];
+
+    if ((loadavg_format) && (get_int_var(SHOW_STATUS_ALL_VAR) ||
+                             (window==window->screen->current_window))) {
+        getloadavg(loadbuf,1);
+        snprintf(loadbuf2,5,"%g",loadbuf[0]);
+        sprintf(buffer,loadavg_format,loadbuf2);
+        malloc_strcpy(&ptr,buffer);
+    }
+    else malloc_strcpy(&ptr,empty_string);
+    /*  kvm needs seteuid(0).. nice idea...
+#elif defined(__solaris__)
+     double avg;
+     double oavg;
+     double davg;
+     int numps;
+     long temp[5];
+     char loadbuf[16];
+     
+     if (kvm_read(kd,lst[0].n_value,(char *)temp,sizeof(temp))==sizeof(temp)) {
+         avg=(double)temp[0]/(1<<8);
+         oavg=(double)temp[1]/(1<<8);
+         davg=(double)temp[2]/(1<<8);
+         numps=0;
+         snprintf(loadbuf,5,"%g",avg);
+         sprintf(buffer, loadavg_format, loadbuf);
+         malloc_strcpy(&ptr,buffer);
+     }
+     else malloc_strcpy(&ptr,empty_string);
+     */
+#else
+    malloc_strcpy(&ptr,empty_string);
+#endif /* __linux__ && HAVE_GETLOADAVG */
+    return (ptr);
+}
+#endif /* CELE */
 /*****************************/
 /****************************************************************************/

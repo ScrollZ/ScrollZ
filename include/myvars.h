@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.4 1998-10-25 18:23:44 f Exp $
+ * $Id: myvars.h,v 1.5 1998-10-31 18:26:03 f Exp $
  */
 
 #include "mystructs.h"
@@ -58,14 +58,15 @@
 #define COLNICK      21
 #define COLME        22
 #define COLMISC      23
-#define COLSBAR      24
+#define COLSBAR1     24
+#define COLSBAR2     25
 #if defined(CELECOSM) && defined(OPERVISION)
-#define COLCELE      25
-#define COLOV        26
+#define COLCELE      26
+#define COLOV        27
 #elif defined(CELECOSM) && !defined(OPERVISION)
-#define COLCELE      25
+#define COLCELE      26
 #elif defined(OPERVISION)
-#define COLOV        25
+#define COLOV        26
 #endif /* CELECOSM && OPERVISION */
 #endif /* WANTANSI */
 

@@ -31,20 +31,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: irc.h,v 1.2 1998-10-31 18:26:01 f Exp $
  */
 
 #ifndef __irc_h
 #define __irc_h
-
-/**************************** PATCHED by Flier ******************************/
-/*#define IRCII_COMMENT   "this is a bug free client.  honest"*/
-#ifdef CELE
-#define IRCII_COMMENT   "Need for Speed!"
-#else
-#define IRCII_COMMENT   "Feel the power!"
-#endif
-/****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
 /*#define IRCRC_NAME "/.ircrc"*/
@@ -145,6 +136,19 @@
 
 #include "irc_std.h"
 #include "debug.h"
+
+/**************************** PATCHED by Flier ******************************/
+#ifdef CELE
+#include "celerity.h"
+#endif
+
+/*#define IRCII_COMMENT   "this is a bug free client.  honest"*/
+#ifdef CELE
+#define IRCII_COMMENT   "Need for Speed!"
+#else
+#define IRCII_COMMENT   "Feel the power!"
+#endif
+/****************************************************************************/
 
 /* these define what characters do, inverse, underline, bold and all off */
 #define REV_TOG		'\026'		/* ^V */

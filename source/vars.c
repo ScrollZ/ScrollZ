@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.3 1998-10-21 19:34:41 f Exp $
+ * $Id: vars.c,v 1.4 1998-10-31 18:27:42 f Exp $
  */
 
 #include "irc.h"
@@ -246,6 +246,11 @@ static	IrcVariable irc_variable[] =
 	{ "STATUS_HOLD",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_HOLD_LINES",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_INSERT",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+#ifdef CELE
+        { "STATUS_LOADAVG",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+#endif
+/****************************************************************************/
 	{ "STATUS_MAIL",		STR_TYPE_VAR,	0, NULL, build_status, 0, VF_NODAEMON },
 	{ "STATUS_MODE",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_NOTIFY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
@@ -281,6 +286,11 @@ static	IrcVariable irc_variable[] =
 	{ "TAB",			BOOL_TYPE_VAR,	DEFAULT_TAB, NULL, NULL, 0, 0 },
 	{ "TAB_MAX",			INT_TYPE_VAR,	DEFAULT_TAB_MAX, NULL, NULL, 0, 0 },
 	{ "TRANSLATION",		STR_TYPE_VAR,	0, NULL, set_translation, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+#ifdef CELE
+        { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
+#endif
+/****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
 	{ "USE_OLD_MSG",		BOOL_TYPE_VAR,	DEFAULT_USE_OLD_MSG, NULL, NULL, 0, 0 },
 	{ "USER_INFORMATION", 		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
@@ -329,6 +339,11 @@ init_variables()
 	set_string_var(STATUS_HOLD_VAR, DEFAULT_STATUS_HOLD);
 	set_string_var(STATUS_HOLD_LINES_VAR, DEFAULT_STATUS_HOLD_LINES);
 	set_string_var(STATUS_INSERT_VAR, DEFAULT_STATUS_INSERT);
+/**************************** PATCHED by Flier ******************************/
+#ifdef CELE
+        set_string_var(STATUS_LOADAVG_VAR, DEFAULT_STATUS_LOADAVG);
+#endif
+/****************************************************************************/
 	set_string_var(STATUS_MAIL_VAR, DEFAULT_STATUS_MAIL);
 	set_string_var(STATUS_MODE_VAR, DEFAULT_STATUS_MODE);
 	set_string_var(STATUS_OPER_VAR, DEFAULT_STATUS_OPER);

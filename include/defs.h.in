@@ -313,10 +313,7 @@
 
 /* Define this if you want to compile with Celerity C-Script */
 #undef CELE
-#undef CELECOSM
-#undef CELEPROT
-#undef CELESCRP
-#undef CELEHOOK
+#include "celerity.h"
 
 /* Define this if you want HyperDCC by Annatar in the client */
 #undef HYPERDCC
