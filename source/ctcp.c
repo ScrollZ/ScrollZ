@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.31 2000-09-24 17:10:33 f Exp $
+ * $Id: ctcp.c,v 1.32 2000-12-05 18:01:40 f Exp $
  */
 
 #include "irc.h"
@@ -325,12 +325,13 @@ ctcp_unquote_it(str, len)
 }
 
 /************************** PATCHED by Flier **************************/
-static int dropit() {
+static int dropit(int allowtwo) {
     static int ctcpcount=0;
 
     ctcpcount++;
     if (server_list[parsing_server_index].ctcp_last_reply_time+3>time((time_t *) 0)) {
-        if (ctcpcount>2) return(1);
+        if (!allowtwo) return(1);
+        if (!ctcpcount>2) return(1);
     }
     if (ctcpcount>2) ctcpcount=1;
     return(0);
@@ -436,7 +437,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -505,7 +506,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -567,7 +568,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -631,7 +632,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -701,7 +702,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -785,7 +786,7 @@ char *args;
     }
 #endif
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     sprintf(tmpbuf2,"%s!%s",from,userhost);
@@ -847,7 +848,7 @@ char *args;
     struct friends *tmpfriend;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     sprintf(tmpbuf1,"%s!%s",from,userhost);
@@ -899,7 +900,7 @@ char *args;
     struct friends *tmpfriend=NULL;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     if (*args) {
@@ -969,7 +970,7 @@ char *args;
     struct friends *tmpfriend;
 
     if (to && is_channel(to)) return(NULL);
-    if (dropit()) return(NULL);
+    if (dropit(1)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
     sprintf(tmpbuf1,"%s!%s",from,userhost);
@@ -1009,7 +1010,7 @@ char *args;
     char tmpbuf2[mybufsize/2];
     struct friends *tmpfriend;
 
-    if (dropit()) return(NULL);
+    if (dropit(0)) return(NULL);
     server_list[parsing_server_index].ctcp_last_reply_time=time(NULL);
     mynick=get_server_nickname(from_server);
 #ifdef WANTANSI
