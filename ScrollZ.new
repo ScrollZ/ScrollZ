@@ -62,7 +62,7 @@ DCC ACTIONs now go to window with level DCC or to window whose query nick
     matches DCC nick (reported by Myrdraal)
 orignick will not react on notify signoff if your userhost matches
          userhost of person that signed off, but you have to be on
-         a channel for this to work (requetsed by arc)
+         a channel for this to work (requested by arc)
 fixed wallops not displaying nick when OperVision was active (reported
       by pier)
 fixed input prompt bugs shown with ANSI prompts (reported by [Una])
@@ -76,6 +76,24 @@ last join in status bar and LASTJOINER_KICK are now multiple server
      compliant
 added CDCC VERBOSE, when set to off remote Cdcc messages are hidden
       from user (requested by Zig)
+merged Celerity 1.0 gamma code
+added COLOR SBAR2
+added new status modifier %y#, # is digit or letter in range a-c,
+      digits 1-6 represent color1 through color6 from COLOR SBAR
+      whereas digits 7-9 and letters a-c represent color1 through
+      color6 from COLOR SBAR2 - take a look at default status bar
+      variables to see use of this then try COLOR SBAR BLACKBG to
+      see it at work (idea and coding by Zakath)
+fixed crash when there were no servers in server list (there were
+      two related bugs, one on my part and the other is from stock
+      client - this is system dependant, reported by Myrdraal)
+fixed bitch mode bug (reported by ogre)
+added ability to complete first matching channel name on ^T and
+      TAB (try /M #first_few_letters_of_channel<TAB> or
+      #first_few_letters_of_channel<^T>)
+Cdcc hooks now also work on CTCP your_nick CDCC LIST
+added ENCRCHAT to allow for encrypted DCC CHAT (requested by Doxx)
+added FTRACE to -DACID
 
 
 -------------------------------------------------------------------------------
