@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.78 2002-01-25 17:34:48 f Exp $
+ * $Id: edit2.c,v 1.79 2002-01-25 18:23:10 f Exp $
  */
 
 #include "irc.h"
@@ -1264,10 +1264,11 @@ char *subargs;
     szlen = strlen(ScrollZstr) - CountAnsi(prefstr, -1);
     snprintf(tmpbuf3, sizeof(tmpbuf3), "%%%ds",szlen);
 #endif /* NEWCSCAN */
-    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s%s%s :", prefstr, Stamp ? "" : " ",
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s%s%s :", prefstr, Stamp == 2 ? "" : " ",
             CmdsColors[COLCSCAN].color1, chan->channel, Colors[COLOFF]);
 #else /* WANTANSI */
-    snprintf(tmpbuf1, sizeof(tmpbuf1), "%sUsers on %s :", prefstr, chan->channel);
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s :", prefstr, Stamp == 2 ? "" : " ",
+            chan->channel);
 #ifndef NEWCSCAN
     szlen = strlen(prefstr);
     snprintf(tmpbuf3, sizeof(tmpbuf3), "%%%ds", szlen);
