@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.20 1999-04-28 15:53:15 f Exp $
+ * $Id: edit.c,v 1.21 1999-04-28 16:12:57 f Exp $
  */
 
 #include "irc.h"
@@ -342,6 +342,7 @@ extern  void  repeatcmd _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
 extern  void  Purge _((char *, char *, char *));
 extern  void  EncryptChat _((char *, char *, char *));
+extern  void  AwaySave _((char *, int));
 #ifdef MGS_
 extern  void  Terminate _((char *, char *, char *));
 #endif
@@ -2722,7 +2723,12 @@ send_text(org_nick, line, command)
 /****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
-                        else if (my_stricmp(command,"NOTICE")) PrintPublic(mynick,NULL,nick,line,0);
+                        else if (my_stricmp(command,"NOTICE")) 
+                            PrintPublic(mynick,NULL,nick,line,0);
+                        if ((away_set || LogOn) && my_stricmp(command,"NOTICE")) {
+                            sprintf(tmpbuf,"<%s:%s> %s",mynick,nick,line);
+                            AwaySave(tmpbuf,SAVESENTMSG);
+                        }
 /****************************************************************************/
 			set_lastlog_msg_level(lastlog_level);
 			if ((key = is_crypted(nick)) != 0)
@@ -2818,6 +2824,7 @@ send_text(org_nick, line, command)
                             if (CheckServer(from_server))
                                 malloc_strcpy(&(server_list[from_server].LastMessageSent),
                                               tmpbuf);
+                            if (away_set || LogOn) AwaySave(tmpbuf,SAVESENTMSG);
                         }
 /****************************************************************************/
 			if ((key = is_crypted(nick)) != NULL)

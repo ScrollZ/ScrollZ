@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.23 1999-03-01 19:01:20 f Exp $
+ * $Id: edit3.c,v 1.24 1999-04-28 16:12:57 f Exp $
  */
 
 #include "irc.h"
@@ -228,24 +228,25 @@ int  type;
     filepath=OpenCreateFile("ScrollZ.away",1);
     if (filepath && (awayfile=fopen(filepath,"a"))!=NULL) {
         now=time((time_t *) 0);
-        if (type&SAVEMSG)         sprintf(tmpbuf1,"%cMSG   %c",REV_TOG,REV_TOG);
-        else if (type&SAVENOTICE) strcpy(tmpbuf1,"NOTICE");
-        else if (type&SAVEMASS)   strcpy(tmpbuf1,"MASS  ");
-        else if (type&SAVECOLL)   strcpy(tmpbuf1,"COLL  ");
-        else if (type&SAVECDCC)   strcpy(tmpbuf1,"CDCC  ");
-        else if (type&SAVEDCC)    strcpy(tmpbuf1,"DCC   ");
-        else if (type&SAVEPROT)   strcpy(tmpbuf1,"PROT  ");
-        else if (type&SAVEHACK)   strcpy(tmpbuf1,"HACK  ");
-        else if (type&SAVESRVM)   strcpy(tmpbuf1,"SRVM  ");
-        else if (type&SAVECTCP)   strcpy(tmpbuf1,"CTCP  ");
-        else if (type&SAVEFLOOD)  strcpy(tmpbuf1,"FLOOD ");
-        else if (type&SAVEINVITE) strcpy(tmpbuf1,"INVITE");
-        else if (type&SAVEKILL)   strcpy(tmpbuf1,"KILL  ");
-        else if (type&SAVEKICK)   strcpy(tmpbuf1,"KICK  ");
-        else if (type&SAVESERVER) strcpy(tmpbuf1,"SERVER");
-        else if (type&SAVEFAKE)   strcpy(tmpbuf1,"FAKE  ");
-        else if (type&SAVEAREPLY) strcpy(tmpbuf1,"AREPLY");
-        else if (type&SAVENOTIFY) strcpy(tmpbuf1,"NOTIFY");
+        if (type&SAVEMSG)          sprintf(tmpbuf1,"%cMSG   %c",REV_TOG,REV_TOG);
+        else if (type&SAVENOTICE)  strcpy(tmpbuf1,"NOTICE");
+        else if (type&SAVEMASS)    strcpy(tmpbuf1,"MASS  ");
+        else if (type&SAVECOLL)    strcpy(tmpbuf1,"COLL  ");
+        else if (type&SAVECDCC)    strcpy(tmpbuf1,"CDCC  ");
+        else if (type&SAVEDCC)     strcpy(tmpbuf1,"DCC   ");
+        else if (type&SAVEPROT)    strcpy(tmpbuf1,"PROT  ");
+        else if (type&SAVEHACK)    strcpy(tmpbuf1,"HACK  ");
+        else if (type&SAVESRVM)    strcpy(tmpbuf1,"SRVM  ");
+        else if (type&SAVECTCP)    strcpy(tmpbuf1,"CTCP  ");
+        else if (type&SAVEFLOOD)   strcpy(tmpbuf1,"FLOOD ");
+        else if (type&SAVEINVITE)  strcpy(tmpbuf1,"INVITE");
+        else if (type&SAVEKILL)    strcpy(tmpbuf1,"KILL  ");
+        else if (type&SAVEKICK)    strcpy(tmpbuf1,"KICK  ");
+        else if (type&SAVESERVER)  strcpy(tmpbuf1,"SERVER");
+        else if (type&SAVEFAKE)    strcpy(tmpbuf1,"FAKE  ");
+        else if (type&SAVEAREPLY)  strcpy(tmpbuf1,"AREPLY");
+        else if (type&SAVENOTIFY)  strcpy(tmpbuf1,"NOTIFY");
+        else if (type&SAVESENTMSG) strcpy(tmpbuf1,"SENTMSG");
         else *tmpbuf1='\0';
         if (*tmpbuf1) sprintf(tmpbuf2,"[%.24s] %s: %s",ctime(&now),tmpbuf1,message);
         else sprintf(tmpbuf2,"[%.24s] %s",ctime(&now),message);
