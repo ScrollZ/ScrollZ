@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.87 2002-01-07 19:18:16 f Exp $
+ * $Id: edit4.c,v 1.88 2002-01-13 16:42:30 f Exp $
  */
 
 #include "irc.h"
@@ -883,7 +883,7 @@ get_begin:
         if (dcc_p->next) next_p = dcc_p->next;
         else next_p = 0;
     }
-    else if (!my_strnicmp(argv[0], "/dc", 3) && !my_strnicmp(argv[1], "se", 2) && argc == 3) {
+    else if ((!my_strnicmp(argv[0], "/dc", 3) && !my_strnicmp(argv[1], "se", 2) && argc == 3) || (!my_strnicmp(argv[0], "/cdc", 3) && !my_strnicmp(argv[1], "sen", 3) && argc >= 2 && !strchr(min_pos, ','))) {
         char dir[191] = "", file[63] = "";
         static char buffer[256];
         int j, n;
