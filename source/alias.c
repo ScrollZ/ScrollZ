@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.39 2004-04-25 09:38:59 f Exp $
+ * $Id: alias.c,v 1.40 2004-07-14 18:50:05 f Exp $
  */
 
 #include "irc.h"
@@ -4715,27 +4715,27 @@ u_char *input;
 u_char *function_url(input)
 u_char *input;
 {
-    int urlnum=99;
-    int showtarget=0;
-    u_char *result=(char *) 0;
-    struct urlstr *tmpurl=urllist;
+    int urlnum = 99;
+    int showtarget = 0;
+    u_char *result = NULL;
+    struct urlstr *tmpurl = urllist;
 
-    if (!tmpurl) malloc_strcpy((char **) &result,"0");
+    if (!tmpurl) malloc_strcpy((char **) &result, empty_string);
     else {
         if (input && *input) {
-            char *tmpstr=new_next_arg(input,(char **)&input);
-            urlnum=atoi(tmpstr);
-            if (input && *input) showtarget=1;
+            char *tmpstr = new_next_arg(input, (char **) &input);
+            urlnum = atoi(tmpstr);
+            if (input && *input) showtarget = 1;
         }
-        while (tmpurl && urlnum--) tmpurl=tmpurl->next;
+        while (tmpurl && urlnum--) tmpurl = tmpurl->next;
         if (tmpurl) {
-            malloc_strcpy((char **) &result,tmpurl->urls);
+            malloc_strcpy((char **) &result, tmpurl->urls);
             if (showtarget && tmpurl->source) {
-                malloc_strcat((char **) &result," ");
-                malloc_strcat((char **) &result,tmpurl->source);
+                malloc_strcat((char **) &result, " ");
+                malloc_strcat((char **) &result, tmpurl->source);
             }
         }
-        else malloc_strcpy((char **) &result,empty_string);
+        else malloc_strcpy((char **) &result, empty_string);
     }
     return(result);
 }
