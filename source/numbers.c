@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.8 1999-03-23 17:30:06 f Exp $
+ * $Id: numbers.c,v 1.9 1999-04-08 17:25:42 f Exp $
  */
 
 #include "irc.h"
@@ -1187,11 +1187,18 @@ numbered_command(from, comm, ArgList)
                         else
 /****************************************************************************/
  			i = do_hook(current_numeric, "%s %s", from, ArgSpace);
-			if (do_message_from)
-				message_from((char *) 0, lastlog_level);
 			new_free(&ArgSpace);
  			if (do_message_from)
  				restore_message_from();
+/**************************** PATCHED by Flier ******************************/
+                        /*
+                         * This is fix for lost messages! We can't call
+                         * restore_message_from without first calling
+                         * save_message_from
+                         */
+ 			if (do_message_from)
+                            save_message_from();
+/****************************************************************************/
  			if (i == 0)
  				goto done;
 /**************************** PATCHED by Flier ******************************/
