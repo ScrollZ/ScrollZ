@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.31 1999-08-15 10:29:31 f Exp $
+ * $Id: edit3.c,v 1.32 1999-08-22 12:34:57 f Exp $
  */
 
 #include "irc.h"
@@ -2010,6 +2010,10 @@ int ScrollZLoad()
         else if (!strcmp("AUTOINV",tmpbuf3))
             ChannelsSet(&pointer,&AutoInv,&AutoInvChannels,&loaderror,lineno,"AUTOINV",NULL);
 #endif
+#ifdef ACID
+        else if (!strcmp("FORCEJOIN",tmpbuf3))
+            ChannelsSet(&pointer,&ForceJoin,&ForceJoinChannels,&loaderror,lineno,"FORCEJOIN",NULL);
+#endif
         else if (!strcmp("FLOODPROT",tmpbuf3)) {
             NextArg(pointer,&pointer,tmpbuf3);
             if (!my_stricmp(tmpbuf3,"MAX")) {
@@ -2563,6 +2567,9 @@ void InitVars() {
     OrigNickDelay=500;
 #ifdef WANTANSI
     DisplaymIRC=0;
+#endif
+#ifdef ACID
+    ForceJoin=0;
 #endif
     DCCWarning=1;
     Stamp=0;
