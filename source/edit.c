@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.96 2003-04-20 19:05:21 f Exp $
+ * $Id: edit.c,v 1.97 2003-05-18 17:07:50 f Exp $
  */
 
 #include "irc.h"
@@ -4816,6 +4816,12 @@ timercmd(command, args, subargs)
 			char	*ptr;
 
 			ptr = next_arg(args, &args);
+/**************************** Patched by Flier ******************************/
+                        if (!ptr) {
+                            say("%s: Need a reference number for -REFNUM", command);
+                            return;
+                        }
+/****************************************************************************/
 			want = atoi(ptr);
 			if (want < 0)
 			{
