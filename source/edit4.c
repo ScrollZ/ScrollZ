@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.20 1999-05-09 08:53:57 f Exp $
+ * $Id: edit4.c,v 1.21 1999-05-10 16:13:04 f Exp $
  */
 
 #include "irc.h"
@@ -731,7 +731,8 @@ void HandleTabNext() {
     ChannelList *chan;
 
     tmpstr=&(curscr->input_buffer[curscr->buffer_min_pos]);
-    if (*tmpstr && (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
+    if (*tmpstr && (*(tmpstr+strlen(tmpstr)-1)!=' ') && 
+        (!my_strnicmp(tmpstr,"/m ",3) || !my_strnicmp(tmpstr,"/msg ",5))) {
         while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
         if (*tmpstr) {
             tmpstr++;
@@ -751,21 +752,22 @@ void HandleTabNext() {
                     input_add_character(' ',NULL);
                     for (tmpstr=chan->channel;tmpstr && *tmpstr;tmpstr++)
                         input_add_character(*tmpstr,NULL);
-                    input_add_character(' ',NULL);
-                    return;
                 }
+                return;
             }
             else if (*tmpstr && (channel=get_channel_by_refnum(0))) {
                 int nicklen;
 
-                if ((chan=lookup_channel(channel,from_server,0))) {
+                for (chan=server_list[from_server].chan_list;chan;chan=chan->next) {
                     if (tabnickcompl && tabnick) {
                         tmpnick=tabnickcompl->next;
                         len=strlen(tabnick);
                     }
                     else {
-                        for (nickstr=tmpbuf;*tmpstr && !isspace(*tmpstr);)
-                            *nickstr++=*tmpstr++;
+                        char *tempnick=tmpstr;
+
+                        for (nickstr=tmpbuf;*tempnick && !isspace(*tempnick);)
+                            *nickstr++=*tempnick++;
                         *nickstr=0;
                         len=strlen(tmpbuf);
                         tmpnick=chan->nicks;
@@ -787,13 +789,13 @@ void HandleTabNext() {
                         input_add_character(' ',NULL);
                         for (tmpstr=tmpnick->nick;tmpstr && *tmpstr;tmpstr++)
                             input_add_character(*tmpstr,NULL);
-                        input_add_character(' ',NULL);
                         tabnickcompl=tmpnick;
                         return;
                     }
                 }
             }
         }
+        return;
     }
     new_free(&tabnick);
     tabnickcompl=NULL;
