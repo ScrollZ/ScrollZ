@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.70 2001-12-22 11:48:13 f Exp $
+ * $Id: edit2.c,v 1.71 2001-12-30 12:25:00 f Exp $
  */
 
 #include "irc.h"
@@ -3782,62 +3782,65 @@ char *subargs;
     char *tmpstr;
     char *server;
     char *leftnicks=(char *) 0;
-    char tmpbuf1[mybufsize/2];
-    char tmpbuf2[mybufsize/2];
-    char tmpbuf3[mybufsize/2];
-    char tmpbuf4[mybufsize/2];
+    char tmpbuf1[mybufsize / 2];
+    char tmpbuf2[mybufsize / 2];
+    char tmpbuf3[mybufsize / 2];
+    char tmpbuf4[mybufsize / 2];
     time_t timenow;
     struct list *tmplist;
     struct wholeftstr *wholeft;
     struct wholeftch *tmpch;
 
     say("Logged netsplit information");
-    StripAnsi(ScrollZstr,tmpbuf3,1);
-    ctlen=strlen(tmpbuf3);
-    timenow=time((time_t *) 0);
-    for (wholeft=wholist;wholeft;wholeft=wholeft->next) {
-        strcpy(tmpbuf1,wholeft->splitserver);
-        tmpstr=tmpbuf1;
-        server=new_next_arg(tmpstr,&tmpstr);
-        strcpy(tmpbuf3,CeleTimeFormat(timenow-wholeft->time));
+    if (Stamp < 2) StripAnsi(ScrollZstr, tmpbuf3, 1);
+    else {
+        strcpy(tmpbuf1, TimeStamp(2));
+        StripAnsi(tmpbuf1, tmpbuf3, 1);
+    }
+    ctlen = strlen(tmpbuf3);
+    timenow = time((time_t *) 0);
+    for (wholeft = wholist; wholeft; wholeft = wholeft->next) {
+        strcpy(tmpbuf1, wholeft->splitserver);
+        tmpstr = tmpbuf1;
+        server = new_next_arg(tmpstr, &tmpstr);
+        strcpy(tmpbuf3, CeleTimeFormat(timenow-wholeft->time));
 #ifdef WANTANSI
-        sprintf(tmpbuf2,"[%s%s%s %s<-%s %s%s%s]",
-                CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
-        sprintf(tmpbuf4,": [%s%s%s]",CmdsColors[COLNETSPLIT].color2,tmpbuf3,Colors[COLOFF]);
+        sprintf(tmpbuf2, "[%s%s%s %s<-%s %s%s%s]",
+                CmdsColors[COLNETSPLIT].color3, tmpstr, Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color6, Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color3, server, Colors[COLOFF]);
+        sprintf(tmpbuf4, ": [%s%s%s]", CmdsColors[COLNETSPLIT].color2, tmpbuf3, Colors[COLOFF]);
 #else
-        sprintf(tmpbuf2,"[%s <- %s]",tmpstr,server);
-        sprintf(tmpbuf4,": [%s]",tmpbuf3);
+        sprintf(tmpbuf2, "[%s <- %s]", tmpstr, server);
+        sprintf(tmpbuf4, ": [%s]", tmpbuf3);
 #endif
-        len=CO-ctlen-29-strlen(server)-strlen(tmpstr)-strlen(tmpbuf3);
-        *tmpbuf3='\0';
-        for (i=0;len>0 && i<len;i++) strcat(tmpbuf3," ");
+        len = CO - ctlen - 29 - strlen(server) - strlen(tmpstr) - strlen(tmpbuf3);
+        *tmpbuf3 = '\0';
+        for (i = 0; len > 0 && i < len; i++) strcat(tmpbuf3, " ");
 #ifdef WANTANSI
         say("%sChannel%s : %sNicks%s %s%s %s",
-            CmdsColors[COLNETSPLIT].color4,Colors[COLOFF],
-            CmdsColors[COLNETSPLIT].color5,Colors[COLOFF],tmpbuf3,tmpbuf2,tmpbuf4);
+            CmdsColors[COLNETSPLIT].color4, Colors[COLOFF],
+            CmdsColors[COLNETSPLIT].color5, Colors[COLOFF], tmpbuf3, tmpbuf2, tmpbuf4);
 #else
-        say("Channel : Nicks %s%s %s",tmpbuf3,tmpbuf2,tmpbuf4);
+        say("Channel : Nicks %s%s %s", tmpbuf3, tmpbuf2, tmpbuf4);
 #endif
-        for (tmpch=wholeft->channels;tmpch;tmpch=tmpch->next) {
+        for (tmpch = wholeft->channels; tmpch; tmpch = tmpch->next) {
 #ifdef WANTANSI
-            sprintf(tmpbuf1,"%s%-7s%s :",
-                    CmdsColors[COLNETSPLIT].color4,tmpch->channel,Colors[COLOFF]);
+            sprintf(tmpbuf1, "%s%-7s%s :",
+                    CmdsColors[COLNETSPLIT].color4, tmpch->channel, Colors[COLOFF]);
 #else
-            sprintf(tmpbuf1,"%-7s :",tmpch->channel);
+            sprintf(tmpbuf1, "%-7s :", tmpch->channel);
 #endif
-            malloc_strcpy(&leftnicks,tmpbuf1);
-            for (tmplist=tmpch->nicklist;tmplist;tmplist=tmplist->next) {
+            malloc_strcpy(&leftnicks, tmpbuf1);
+            for (tmplist = tmpch->nicklist; tmplist; tmplist = tmplist->next) {
 #ifdef WANTANSI
-                sprintf(tmpbuf1," %s%s%s",CmdsColors[COLNETSPLIT].color5,tmplist->nick,
-                        Colors[COLOFF]);
+                sprintf(tmpbuf1, " %s%s%s", CmdsColors[COLNETSPLIT].color5, tmplist->nick, Colors[COLOFF]);
 #else
-                sprintf(tmpbuf1," %s",tmplist->nick);
+                sprintf(tmpbuf1, " %s", tmplist->nick);
 #endif
-                malloc_strcat(&leftnicks,tmpbuf1);
+                malloc_strcat(&leftnicks, tmpbuf1);
             }
-            say("%s",leftnicks);
+            say("%s", leftnicks);
             new_free(&leftnicks);
         }
     }
