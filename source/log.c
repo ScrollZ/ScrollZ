@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: log.c,v 1.5 2000-08-09 19:31:21 f Exp $
+ * $Id: log.c,v 1.6 2001-12-20 17:44:15 f Exp $
  */
 
 #include "irc.h"
@@ -233,10 +233,11 @@ add_to_log(fp, line)
 	{
 /**************************** Patched by Flier ******************************/
 		/*fprintf(fp, "%s\n", line);*/
-                char tmpbuf[2*mybufsize];
+                char *tmpbuf = new_malloc(strlen(line) + 1);
 
-                StripAnsi(line,tmpbuf,0);
-                fprintf(fp,"%s\n",tmpbuf);
+                StripAnsi(line, tmpbuf, 0);
+                fprintf(fp,"%s\n", tmpbuf);
+                new_free(&tmpbuf);
 /****************************************************************************/
 		fflush(fp);
 	}
