@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: ircterm.h,v 1.2 1999-02-15 21:18:39 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -178,9 +178,9 @@ char *tgetstr(char *, char **);
 	int	term_echo _((int));
 	void	term_init _((void));
 	int	term_resize _((void));
-	void	term_pause _((unsigned char, char *));
-	void	term_putchar _((unsigned char));
-	int	term_puts _((char *, int));
+ 	void	term_pause _((u_int, char *));
+ 	void	term_putchar _((u_int));
+ 	int	term_puts _((char *, size_t));
 	void	term_flush _((void));
 	void	term_space_erase _((int));
 	void	term_reset _((void));
@@ -194,7 +194,7 @@ char *tgetstr(char *, char **);
 /****************************************************************************/
 
 extern int	 (*term_scroll) _((int, int, int));
-extern int	 (*term_insert) _((char));
+extern int	 (*term_insert) _((u_int));
 extern int	 (*term_delete) _((void));
 extern int	 (*term_cursor_right) _((void));
 extern int	 (*term_cursor_left) _((void));

@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.15 1998-11-19 21:10:03 f Exp $
+ * $Id: edit2.c,v 1.16 1999-02-15 21:19:08 f Exp $
  */
 
 #include "irc.h"
@@ -597,7 +597,7 @@ char *subargs;
         sprintf(tmpbuf,"%d %d",servernum,port);
         close_server(servernum,"reconnecting to server");
         clean_whois_queue();
-        server(NULL,tmpbuf,NULL);
+        servercmd(NULL,tmpbuf,NULL);
     }
     else say("You are not connected to a server");
 }
@@ -620,7 +620,7 @@ int servernum;
     }
     if (change && tmp) swap_window(oldwindow,tmp);
     sprintf(tmpbuf,"SERVER %d",servernum);
-    window(NULL,tmpbuf,NULL);
+    windowcmd(NULL,tmpbuf,NULL);
     if (change && tmp) {
         swap_window(oldwindow,tmp);
         redraw_window(oldwindow,0);
@@ -1574,8 +1574,8 @@ char *command;
 char *args;
 char *subargs;
 {
-    if (args && *args) server(NULL,args,NULL);
-    else if (my_stricmp(DefaultServer,"NONE")) server(NULL,DefaultServer,NULL);
+    if (args && *args) servercmd(NULL,args,NULL);
+    else if (my_stricmp(DefaultServer,"NONE")) servercmd(NULL,DefaultServer,NULL);
     else say("No default server specified");
 }
 

@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.3 1998-10-21 19:34:39 f Exp $
+ * $Id: flood.c,v 1.4 1999-02-15 21:19:19 f Exp $
  */
 
 #include "irc.h"
@@ -42,7 +42,7 @@ static	char	*ignore_types[NUMBER_OF_FLOODS] =
 
 typedef struct flood_stru
 {
-	char	nick[NICKNAME_LEN + 1];
+ 	char	*nick;
 	int	type;
 	char	flood;
 	long	cnt;
@@ -57,6 +57,8 @@ static	Flooding *flood = (Flooding *) 0;
  * flooding took place, or flooding is not being monitored from a certain
  * person.  It will return 1 if flooding is being check for someone and an ON
  * FLOOD is activated. 
+ *
+ * NOTE:  flood's are never freed.
  */
 int
 check_flooding(nick, type, line)
@@ -85,7 +87,7 @@ check_flooding(nick, type, line)
 				users);
 		for (i = 0; i < users; i++)
 		{
-			*(flood[i].nick) = (char) 0;
+ 			flood[i].nick = 0;
 			flood[i].cnt = 0;
 			flood[i].flood = 0;
 		}
@@ -94,7 +96,7 @@ check_flooding(nick, type, line)
 		return (1);
         for (i = 0; i < users; i++)
 	{
-		if (*(flood[i].nick))
+ 		if (flood[i].nick && *(flood[i].nick))
 		{
 			if ((my_stricmp(nick, flood[i].nick) == 0) &&
 					(type == flood[i].type))
@@ -106,7 +108,8 @@ check_flooding(nick, type, line)
 	{
 		tmp = &(flood[pos]);
 		pos = (pos + 1) % users;
-                strmcpy(tmp->nick, nick, NICKNAME_LEN);
+ 		tmp->nick = 0;
+ 		malloc_strcpy(&tmp->nick, nick);
 		tmp->type = type;
 		tmp->cnt = 1;
 		tmp->start = flood_time;

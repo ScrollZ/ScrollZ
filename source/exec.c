@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.2 1998-09-10 17:44:58 f Exp $
+ * $Id: exec.c,v 1.3 1999-02-15 21:19:16 f Exp $
  */
 
 #include "irc.h"
@@ -371,6 +371,7 @@ do_processes(rd)
 		default:
 			message_to(proc->refnum);
 			proc->counter++;
+ 			exec_buffer[sizeof(exec_buffer) - 1] = '\0';	/* blah... */
 			ptr = exec_buffer + strlen(exec_buffer) - 1;
 			if ((*ptr == '\n') || (*ptr == '\r'))
 			{
@@ -956,7 +957,7 @@ text_to_process(proc_index, text, show)
 	char	*text;
 	int	show;
 {
-	int	ref;
+ 	u_int	ref;
 	Process	*proc;
 
 	if (valid_process_index(proc_index) == 0)
@@ -1068,10 +1069,10 @@ execcmd(command, args, subargs)
 		*cmd = (char *) 0;
 	unsigned int	refnum = 0;
 	int	sig,
-		len,
 		i,
 		refnum_flag = 0,
 		logical_flag = 0;
+ 	size_t	len;
 	Process	*proc;
 
 	if (get_int_var(EXEC_PROTECTION_VAR) && (send_text_flag != -1))
@@ -1108,6 +1109,16 @@ execcmd(command, args, subargs)
 				if (!(who = get_channel_by_refnum(0)))
 				{
 					say("No current channel in this window for -OUT");
+ 					new_free(&cmd);
+ 					return;
+ 				}
+ 			}
+ 			else if (strncmp(cmd, "TARGET", len) == 0)
+ 			{
+ 				redirect = "PRIVMSG";
+ 				if (!(who = get_target_by_refnum(0)))
+ 				{
+ 					say("No current target in this window for -TARGET");
 					new_free(&cmd);
 					return;
 				}
@@ -1204,7 +1215,7 @@ execcmd(command, args, subargs)
 				}
 				malloc_strcpy(&cmd2, flag);
 				upper(cmd2);
-				for (sig = 1; sig < NSIG; sig++)
+ 				for (sig = 1; sig < NSIG && signals[sig]; sig++)
 				{
 					if (!strncmp(signals[sig], flag, len))
 					{

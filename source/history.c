@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.2 1998-09-10 17:45:11 f Exp $
+ * $Id: history.c,v 1.3 1999-02-15 21:19:25 f Exp $
  */
 
 #include "irc.h"
@@ -83,7 +83,7 @@ static	off_t	file_pos = 0;
 /*
  * history pointer
  */
-static	History	*tmp = (History *)NULL;
+static	History	*history_tmp = (History *)NULL;
 
 /*
  * history_match: using wild_match(), this finds the latest match in the
@@ -111,7 +111,7 @@ history_match(match)
 		if (last_dir == -1)
 			fseek(hist_file, 0L, 2);
 		else
-			fseek(hist_file, file_pos, 0);
+ 			fseek(hist_file, (long)file_pos, 0);
 		while (rfgets(buffer, BIG_BUFFER_SIZE, hist_file))
 		{
 			parse_history(buffer, &ptr);
@@ -128,16 +128,16 @@ history_match(match)
 	}
 	if (!hist_file && get_int_var(HISTORY_VAR))
 	{
-		if ((last_dir == -1) || (tmp == (History *)NULL))
-			tmp = command_history_head;
+ 		if ((last_dir == -1) || (history_tmp == (History *)NULL))
+ 			history_tmp = command_history_head;
 		else
-			tmp = tmp->next;
-		for (; tmp; tmp = tmp->next)
-			if (wild_match(match_str, tmp->stuff))
+ 			history_tmp = history_tmp->next;
+ 		for (; history_tmp; history_tmp = history_tmp->next)
+ 			if (wild_match(match_str, history_tmp->stuff))
 			{
 				new_free(&match_str);
 				last_dir = PREV;
-				return (tmp->stuff);
+ 				return (history_tmp->stuff);
 			}
 	}
 	last_dir = -1;
@@ -214,7 +214,8 @@ set_history_file(file)
 {
 	char	*ptr;
 	int	i,
-		cnt;
+ 		cnt,
+ 		fd;
 	History *tmp;
 
 	if (file)
@@ -236,7 +237,8 @@ set_history_file(file)
 		set_string_var(HISTORY_FILE_VAR, ptr);
 		if (hist_file)
 			fclose(hist_file);
-		if ((hist_file = fopen(ptr, "w+")) == (FILE *)NULL)
+ 		fd = open(ptr, O_WRONLY|O_CREAT|O_APPEND, 0600);
+ 		if (fd < 0 || ((hist_file = fdopen(fd, "w+")) == (FILE *)NULL))
 		{
 			say("Unable to open %s: %s", ptr, strerror(errno));
 			set_string_var(HISTORY_FILE_VAR, (char *)NULL);
@@ -295,16 +297,16 @@ set_history_size(size)
  * the number as an integer and points ret to stuff 
  */
 static	int
-parse_history(buffer, ret)
-	char	*buffer;
+parse_history(lbuf, ret)
+ 	char	*lbuf;
 	char	**ret;
 {
 	char	*ptr;
 	int	entry;
 
-	if ((ptr = index(buffer, ':')) != NULL)
+ 	if ((ptr = index(lbuf, ':')) != NULL)
 	{
-		entry = atoi(buffer);
+ 		entry = atoi(lbuf);
 		*ret = ptr + 2;
 		return (entry);
 	}
@@ -349,7 +351,7 @@ get_from_history_file(which)
 		last_dir = which;
 		get_from_history(which);
 	}
-	fseek(hist_file, file_pos, 0);
+ 	fseek(hist_file, (long)file_pos, 0);
 	if (which == NEXT)
 	{
 		if (!fgets(buffer, BIG_BUFFER_SIZE, hist_file))

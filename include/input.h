@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: input.h,v 1.2 1999-02-15 21:18:31 f Exp $
  */
 
 #ifndef __input_h_
@@ -47,21 +47,21 @@
 	void	input_move_cursor _((int));
 	void	change_input_prompt _((int));
 	void	cursor_to_input _((void));
-	void	input_add_character _((unsigned char, char *));
-	void	input_backward_word _((unsigned char, char *));
-	void	input_forward_word _((unsigned char, char *));
-	void	input_delete_previous_word _((unsigned char, char *));
-	void	input_delete_next_word _((unsigned char, char *));
-	void	input_clear_to_bol _((unsigned char, char *));
-	void	input_clear_line _((unsigned char, char *));
-	void	input_end_of_line _((unsigned char, char *));
-	void	input_clear_to_eol _((unsigned char, char *));
-	void	input_beginning_of_line _((unsigned char, char *));
-	void	refresh_inputline _((unsigned char, char *));
-	void	input_delete_character _((unsigned char, char *));
-	void	input_backspace _((unsigned char, char *));
-	void	input_transpose_characters _((unsigned char, char *));
-	void	input_yank_cut_buffer _((unsigned char, char *));
+ 	void	input_add_character _((u_int, char *));
+ 	void	input_backward_word _((u_int, char *));
+ 	void	input_forward_word _((u_int, char *));
+ 	void	input_delete_previous_word _((u_int, char *));
+ 	void	input_delete_next_word _((u_int, char *));
+ 	void	input_clear_to_bol _((u_int, char *));
+ 	void	input_clear_line _((u_int, char *));
+ 	void	input_end_of_line _((u_int, char *));
+ 	void	input_clear_to_eol _((u_int, char *));
+ 	void	input_beginning_of_line _((u_int, char *));
+ 	void	refresh_inputline _((u_int, char *));
+ 	void	input_delete_character _((u_int, char *));
+ 	void	input_backspace _((u_int, char *));
+ 	void	input_transpose_characters _((u_int, char *));
+ 	void	input_yank_cut_buffer _((u_int, char *));
 
 extern	int	str_start;
 extern	int	input_line;

@@ -28,7 +28,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: menu.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: menu.h,v 1.2 1999-02-15 21:18:43 f Exp $
  */
 
 #ifndef __menu_h_
@@ -47,11 +47,11 @@
 	void	menu_exit _((char *));		/* Exit the menu */
 	void	menu_channels _((char *));	/* List of channels menu */
 	void	menu_command _((char *));	/* Invoke an IRCII command */
-	void	menu_key _((char));
+ 	void	menu_key _((u_int));
 	void	load_menu _((char *));
 	int	ShowMenu _((char *));
 	int	ShowMenuByWindow _((Window *, int));
-	void	enter_menu _((unsigned char, char *));
+ 	void	enter_menu _((u_int, char *));
 	void	set_menu _((char *));
 
 #endif /* __menu_h_ */

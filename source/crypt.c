@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: crypt.c,v 1.3 1998-11-18 21:00:10 f Exp $
+ * $Id: crypt.c,v 1.4 1999-02-15 21:19:00 f Exp $
  */
 
 #include "irc.h"
@@ -42,6 +42,10 @@
 #include "ctcp.h"
 #include "output.h"
 #include "newio.h"
+
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif /* HAVE_SYS_WAIT_H */
 
 static	void	add_to_crypt _((char *, char *));
 static	int	remove_crypt _((char *));
@@ -232,9 +236,9 @@ do_crypt(str, key, flag)
 	int	flag;
 {
 	int	in[2],
-        	out[2],
-		c;
-	char	buffer[CRYPT_BUFFER_SIZE + 1];
+        	out[2];
+ 	size_t	c;
+ 	char	lbuf[CRYPT_BUFFER_SIZE + 1];
 	char	*ptr = (char *) 0,
 		*encrypt_program;
 
@@ -302,17 +306,17 @@ do_crypt(str, key, flag)
 				write(in[1], key, strlen(key));
 			write(in[1], ptr, c);
 			new_close(in[1]);
-			c = read(out[0], buffer, CRYPT_BUFFER_SIZE);
+ 			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);
 			wait(NULL);
-			buffer[c] = (char) 0;
+ 			lbuf[c] = (char) 0;
 			new_close(out[0]);
 			break;
 		}
 		new_free(&ptr);
 		if (flag)
-			ptr = ctcp_quote_it(buffer, strlen(buffer));
+ 			ptr = ctcp_quote_it(lbuf, strlen(lbuf));
 		else
-			malloc_strcpy(&ptr, buffer);
+			malloc_strcpy(&ptr, lbuf);
 	}
 	else
 #endif /* _Windows */
@@ -320,13 +324,13 @@ do_crypt(str, key, flag)
 		c = strlen(str);
 		if (flag)
 		{
-			encrypt_str(&str, &c, key);
+ 			encrypt_str(&str, (int *)&c, key);
 			ptr = ctcp_quote_it(str, c);
 		}
 		else
 		{
 			ptr = ctcp_unquote_it(str, &c);
-			decrypt_str(&ptr, &c, key);
+ 			decrypt_str(&ptr, (int *)&c, key);
 		}
 	}
 	return (ptr);
@@ -344,50 +348,50 @@ crypt_msg(str, key, flag)
 		*key;
 	int	flag;
 {
-	static	char	buffer[CRYPT_BUFFER_SIZE + 1];
-	char	thing[6];
+ 	static	char	lbuf[CRYPT_BUFFER_SIZE + 1];
+ 	char	thing[CTCP_CRYPTO_LEN+3];
 	char	*ptr,
 		*rest;
 	int	on = 1;
 
 	if (flag)
 	{
-		sprintf(thing, "%cSED ", CTCP_DELIM_CHAR);
-		*buffer = (char) 0;
+ 		sprintf(thing, "%c%s ", CTCP_DELIM_CHAR, CTCP_CRYPTO_TYPE);
+ 		*lbuf = (char) 0;
 		while ((rest = index(str, '\005')) != NULL)
 		{
 			*(rest++) = (char) 0;
 			if (on && *str && (ptr = do_crypt(str, key, flag)))
 			{
-				strmcat(buffer, thing, CRYPT_BUFFER_SIZE);
-				strmcat(buffer, ptr, CRYPT_BUFFER_SIZE);
-				strmcat(buffer, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
+ 				strmcat(lbuf, thing, CRYPT_BUFFER_SIZE);
+ 				strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
+ 				strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 				new_free(&ptr);
 			}
 			else
-				strmcat(buffer, str, CRYPT_BUFFER_SIZE);
+ 				strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 			on = !on;
 			str = rest;
 		}
 		if (on && (ptr = do_crypt(str, key, flag)))
 		{
-			strmcat(buffer, thing, CRYPT_BUFFER_SIZE);
-			strmcat(buffer, ptr, CRYPT_BUFFER_SIZE);
-			strmcat(buffer, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
+ 			strmcat(lbuf, thing, CRYPT_BUFFER_SIZE);
+ 			strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
+ 			strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 			new_free(&ptr);
 		}
 		else
-			strmcat(buffer, str, CRYPT_BUFFER_SIZE);
+ 			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 	}
 	else
 	{
 		if ((ptr = do_crypt(str, key, flag)) != NULL)
 		{
-			strmcpy(buffer, ptr, CRYPT_BUFFER_SIZE);
+ 			strmcpy(lbuf, ptr, CRYPT_BUFFER_SIZE);
 			new_free(&ptr);
 		}
 		else
-			strmcat(buffer, str, CRYPT_BUFFER_SIZE);
+ 			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 	}
-	return (buffer);
+ 	return (lbuf);
 }

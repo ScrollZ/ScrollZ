@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hold.c,v 1.2 1998-09-10 17:45:13 f Exp $
+ * $Id: hold.c,v 1.3 1999-02-15 21:19:27 f Exp $
  */
 
 #include "irc.h"
@@ -189,13 +189,9 @@ hold_queue_logged(window)
 
 /* toggle_stop_screen: the BIND function TOGGLE_STOP_SCREEN */
 void
-#ifdef __STDC__
-toggle_stop_screen(unsigned char key, char *ptr)
-#else
 toggle_stop_screen(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	hold_mode((Window *) 0, TOGGLE, 1);
 	update_all_windows();

@@ -18,7 +18,7 @@
  * the far east.  8-)
  * Kare H. Pettersson.
  *
- * $Id: translat.c,v 1.2 1998-09-10 17:46:22 f Exp $
+ * $Id: translat.c,v 1.3 1999-02-15 21:20:22 f Exp $
  */
 
 #include "irc.h"
@@ -99,13 +99,10 @@ unsigned char	dig_table_di[DIG_TABLE_SIZE] =
 /*
  * enter_digraph:  The BIND function ENTER_DIGRAPH.
  */
-#if defined(__STDC__) || defined(__cplusplus)
-void	enter_digraph(unsigned char key, char *ptr)
-#else
-void	enter_digraph(key, str)
-unsigned char	key;
-char	*str;
-#endif
+void
+enter_digraph(key, str)
+ 	u_int	key;
+ 	char	*str;
 {
 	current_screen->digraph_hit = 1;  /* Just stuff away first character. */
 }
@@ -115,16 +112,14 @@ char	*str;
  * Looks up a digraph given char c1 and the global char
  * current_screen->digraph_hit.
  */
-#if defined(__STDC__) || defined(__cplusplus)
-unsigned char	get_digraph(unsigned char c1)
-#else
-unsigned char	get_digraph(c1)
-unsigned char	c1;
-#endif
+unsigned char
+get_digraph(ic1)
+ 	u_int	ic1;
 {
 	int	i = 0;
 	unsigned char	c,
-		c2 = current_screen->digraph_first;
+ 		c2 = current_screen->digraph_first,
+ 		c1 = (u_char)ic1;
 
 	current_screen->digraph_hit = 0;
 	if (c1 > c2)	/* Make sure we have the lowest one in c1. */
@@ -240,8 +235,8 @@ digraph(command, args, subargs)
 	u_char	c1,
 		c2 = '\0',
 		c3 = '\0';
-	int	len,
-		i;
+ 	int	i;
+ 	size_t	len;
 
 	if ((arg = next_arg(args, &args)) && (*arg == '-'))
 	{
@@ -404,12 +399,9 @@ my_getarg(args)
 	return *arg;
 }
 
-#if defined(__STDC__) || defined(__cplusplus)
-void	save_digraphs(FILE *fp)
-#else
-void	save_digraphs(fp)
-FILE	*fp;
-#endif
+void
+save_digraphs(fp)
+ 	FILE	*fp;
 {
 	if (digraph_changed)
 	{

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: edit.h,v 1.2 1999-02-15 21:18:25 f Exp $
  */
 
 #ifndef __edit_h_
@@ -46,28 +46,28 @@ extern	char	*recv_nick;
 	void	eval_inputlist _((char *, char *));
 	void	parse_command _((char *, int, char *));
 	void	parse_line _((char *, char *, char *, int, int));
-	void	edit_char _((unsigned char));
+ 	void	edit_char _((u_int));
 	void	execute_timer _((void));
 	void	ison_now _((WhoisStuff *, char *, char *));
 	void	query _((char *, char *, char *));
-	void	forward_character _((unsigned char, char *));
-	void	backward_character _((unsigned char, char *));
-	void	forward_history _((unsigned char, char *));
-	void	backward_history _((unsigned char, char *));
-	void	toggle_insert_mode _((unsigned char, char *));
-	void	send_line _((unsigned char, char *));
-	void	meta1_char _((unsigned char, char *));
-	void	meta2_char _((unsigned char, char *));
-	void	meta3_char _((unsigned char, char *));
-	void	meta4_char _((unsigned char, char *));
+ 	void	forward_character _((u_int, char *));
+ 	void	backward_character _((u_int, char *));
+ 	void	forward_history _((u_int, char *));
+ 	void	backward_history _((u_int, char *));
+ 	void	toggle_insert_mode _((u_int, char *));
+ 	void	send_line _((u_int, char *));
+ 	void	meta1_char _((u_int, char *));
+ 	void	meta2_char _((u_int, char *));
+ 	void	meta3_char _((u_int, char *));
+ 	void	meta4_char _((u_int, char *));
 /**************************** PATCHED by Flier ******************************/
-        void	meta5_char _((unsigned char, char *));
+        void	meta5_char _((u_int, char *));
 /****************************************************************************/
-	void	quote_char _((unsigned char, char *));
-	void	type_text _((unsigned char, char *));
-	void	parse_text _((unsigned char, char *));
-	void	irc_clear_screen _((unsigned char, char *));
-	void	command_completion _((unsigned char, char *));
+ 	void	quote_char _((u_int, char *));
+ 	void	type_text _((u_int, char *));
+ 	void	parse_text _((u_int, char *));
+ 	void	irc_clear_screen _((u_int, char *));
+ 	void	command_completion _((u_int, char *));
 	void	e_quit _((char *, char *, char *));
 	int	check_wait_command _((char *));
 	
@@ -91,9 +91,9 @@ typedef struct	timerlist_stru
         time_t	time;
 #endif
         int     visible;
-        int     server;
         void    (*func)();
 /****************************************************************************/
+        int     server;
 	char	*command;
 	struct	timerlist_stru *next;
 }	TimerList;

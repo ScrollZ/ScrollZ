@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.12 1998-12-13 19:04:07 f Exp $
+ * $Id: edit.c,v 1.13 1999-02-15 21:19:06 f Exp $
  */
 
 #include "irc.h"
@@ -176,7 +176,7 @@ static	void	info _((char *, char *, char *));
 /*static	void	e_nick _((char *, char *, char *));*/
 void	e_nick _((char *, char *, char *));
 /****************************************************************************/
-static	void	comment _((char *, char *, char *));
+static	void	commentcmd _((char *, char *, char *));
 static	void	sleepcmd _((char *, char *, char *));
 static	void	version _((char *, char *, char *));
 static	void	ctcp _((char *, char *, char *));
@@ -409,8 +409,8 @@ static	IrcCommand FAR irc_command[] =
 	 * I agree - it should be converted to a special character in parse_line.
 	 *                                                            - Troy
 	 */
-	{ "#",		NULL,		comment, 		0 },
-	{ ":",		NULL,		comment, 		0 },
+	{ "#",		NULL,		commentcmd, 		0 },
+	{ ":",		NULL,		commentcmd, 		0 },
         { "ABORT",      NULL,           abortcmd,               0 },
   { "ADDBK", 		NULL, 		AddAutoBanKick, 	0 },
   { "ADDCHAN", 		"ADD", 		AddChannel, 		0 },
@@ -467,7 +467,7 @@ static	IrcCommand FAR irc_command[] =
 #ifdef WANTANSI
   { "COLOR", 		NULL, 		SetColor, 		0 },
 #endif
-	{ "COMMENT",	NULL,		comment,		0 },
+	{ "COMMENT",	NULL,		commentcmd,		0 },
   { "COMPRESS",		"COMPRESS", 	ChannelCommand, 	0 },
  	{ "CONNECT",	"CONNECT",	send_comm,		SERVERREQ },
   { "CSCAN", 		NULL, 		ChannelScan, 		SERVERREQ },
@@ -691,7 +691,7 @@ static	IrcCommand FAR irc_command[] =
 #endif
  	{ "SEND",	NULL,		do_send_text,		SERVERREQ },
 	{ "SENDLINE",	empty_string,	sendlinecmd,		0 },
-	{ "SERVER",	NULL,		server,			0 },
+	{ "SERVER",	NULL,		servercmd,     		0 },
  	{ "SERVLIST",	"SERVLIST",	send_comm,		SERVERREQ },
   { "SERVNOTICE", 	"SERVNOTICE", 	OnOffCommand, 		0 },
 	{ "SET",	NULL,		set_variable,		0 },
@@ -781,13 +781,13 @@ static	IrcCommand FAR irc_command[] =
  	{ "WHOWAS",	"WHOWAS",	whois,			SERVERREQ },
   { "WI", 		"WHOIS", 	whois, 			SERVERREQ },
   { "WII",		"WII",		whois, 			SERVERREQ },
-	{ "WINDOW",	NULL,		window,			0 },
+	{ "WINDOW",	NULL,		windowcmd,     		0 },
   { "WKILL", 		NULL, 		WhoKill, 		SERVERREQ },
   { "WW", 		"WHOWAS", 	whois, 			SERVERREQ },
 	{ "XECHO",	"XECHO",	my_echo,		0 },
  	{ "XTRA",	"XTRA",		e_privmsg,		SERVERREQ },
 	{ "XTYPE",	NULL,		xtypecmd,		0 },
-	{ NULL,		NULL,		comment,		0 }
+	{ NULL,		NULL,		commentcmd,		0 }
 };
 
 /* number of entries in irc_command array */
@@ -807,7 +807,7 @@ find_command(com, cnt)
 	char	*com;
 	int	*cnt;
 {
-	int	len;
+ 	size_t	len;
 
 	if (com && (len = strlen(com)))
 	{
@@ -886,7 +886,7 @@ ctcp(command, args, subargs)
 {
 	char	*to,
 		*tag;
-	int	type;
+ 	int	ctcptype;
 
 	if ((to = next_arg(args, &args)) != NULL)
 	{
@@ -897,14 +897,14 @@ ctcp(command, args, subargs)
 			upper(tag);
 		else
 			tag = "VERSION";
-		if ((type = in_ctcp()) == -1)
+		if ((ctcptype = in_ctcp()) == -1)
 			my_echo(NULL, "*** You may not use the CTCP command in an ON CTCP_REPLY!", empty_string);
 		else
 		{
 			if (args && *args)
-				send_ctcp(ctcp_type[type], to, tag, "%s", args);
+				send_ctcp(ctcp_type[ctcptype], to, tag, "%s", args);
 			else
-				send_ctcp(ctcp_type[type], to, tag, NULL);
+				send_ctcp(ctcp_type[ctcptype], to, tag, NULL);
 		}
 	}
 	else
@@ -962,8 +962,8 @@ funny_stuff(command, args, subargs)
 		*s;
 	int	min = 0,
 		max = 0,
-		flags = 0,
-		len;
+		flags = 0;
+ 	size_t	len;
 
 /*************************** PATCHED by Flier ****************************/
         if (!(args && *args)) {
@@ -1049,8 +1049,8 @@ waitcmd(command, args, subargs)
 	int	wait_index;
 	char	*flag;
 	char	*procindex;
-	int	cmd = 0,
-		len;
+	int	cmd = 0;
+ 	size_t	len;
 
 	while (args && *args == '-')
 	{
@@ -1140,35 +1140,35 @@ redirect(command, args, subargs)
 		*args,
 		*subargs;
 {
-	char	*who;
+	char	*to;
 
-	if ((who = next_arg(args, &args)) != NULL)
+	if ((to = next_arg(args, &args)) != NULL)
 	{
 /**************************** PATCHED by Flier ******************************/
                 DCC_list *Client;
 
-                if (*who=='=') {
-                    who++;
-                    if (!(Client=dcc_searchlist((char *) 0,who,DCC_CHAT,0,(char *) 0)) ||
+                if (*to=='=') {
+                    to++;
+                    if (!(Client=dcc_searchlist((char *) 0,to,DCC_CHAT,0,(char *) 0)) ||
                         !(Client->flags&DCC_ACTIVE)) {
-                        say("No active DCC CHAT connection with %s",who);
+                        say("No active DCC CHAT connection with %s",to);
                         return;
                     }
-                    who--;
+                    to--;
                 }
 /****************************************************************************/
-		if (!strcmp(who, "*"))
-			if (!(who = get_channel_by_refnum(0)))
+		if (!strcmp(to, "*"))
+			if (!(to = get_channel_by_refnum(0)))
 			{
 				say("Must be on a channel to redirect to '*'");
 				return;
 			}
-		if (!my_stricmp(who, get_server_nickname(from_server)))
+		if (!my_stricmp(to, get_server_nickname(from_server)))
 		{
 			say("You may not redirect output to yourself");
 			return;
 		}
-		window_redirect(who, from_server);
+		window_redirect(to, from_server);
 		server_list[from_server].sent = 0;
 		parse_line((char *) 0, args, (char *) 0, 0, 0);
 		if (server_list[from_server].sent)
@@ -1195,7 +1195,7 @@ sleepcmd(command, args, subargs)
 	char	*arg;
 
 	if ((arg = next_arg(args, &args)) != NULL)
-		sleep(atoi(arg));
+ 		sleep((unsigned)atoi(arg));
 	else
 		say("SLEEP: you must specify the amount of time to sleep (in seconds)");
 #else
@@ -1216,11 +1216,11 @@ my_echo(command, args, subargs)
 {
 	unsigned int	display;
 	int	lastlog_level = 0;
-	int	from_level = 0;
 	char	*flag_arg;
 	int	temp;
 	Window *old_to_window;
 
+ 	save_message_from();
 	old_to_window = to_window;
 	if (command && *command == 'X')
 	{
@@ -1236,7 +1236,6 @@ my_echo(command, args, subargs)
 				if ((temp = parse_lastlog_level(flag_arg)) != 0)
 				{
 					lastlog_level = set_lastlog_msg_level(temp);
-					from_level = message_from_level(temp);
 				}
 				break;
 			case 'W':
@@ -1244,11 +1243,10 @@ my_echo(command, args, subargs)
 				if (!(flag_arg = next_arg(args, &args)))
 					break;
 				if (isdigit(*flag_arg))
-					to_window = get_window_by_refnum(atoi(flag_arg));
+ 					to_window = get_window_by_refnum((unsigned)atoi(flag_arg));
 				else
 					to_window = get_window_by_name(flag_arg);
  				lastlog_level = set_lastlog_msg_level(LOG_CRAP);
- 				from_level = message_from_level(LOG_CRAP);
 				break;
 			}
 			if (!args)
@@ -1260,10 +1258,8 @@ my_echo(command, args, subargs)
 	put_it("%s", args);
 	window_display = display;
 	if (lastlog_level)
-	{
 		set_lastlog_msg_level(lastlog_level);
-		message_from_level(from_level);
-	}
+ 	restore_message_from();
 	to_window = old_to_window;
 }
 
@@ -1330,16 +1326,15 @@ abortcmd(command, args, subargs)
         
 /* This generates a file of your ircII setup */
 static	void
-really_save(ircrc_file, line)
-	char	*ircrc_file;
+really_save(file, line)
+	char	*file;
 	char	*line;
 {
 	FILE	*fp;
-	int	save_do_all = 0;
 
 	if (*line != 'y' && *line != 'Y')
 		return;
-	if ((fp = fopen(ircrc_file, "w")) != NULL)
+	if ((fp = fopen(file, "w")) != NULL)
 	{
 		if (save_which & SFLAG_BIND)
 			save_bindings(fp, save_do_all);
@@ -1354,10 +1349,10 @@ really_save(ircrc_file, line)
 		if (save_which & SFLAG_DIGRAPH)
 			save_digraphs(fp);
 		fclose(fp);
-		say("IRCII settings saved to %s", ircrc_file);
+		say("IRCII settings saved to %s", file);
 	}
 	else
-		say("Error opening %s: %s", ircrc_file, strerror(errno));
+		say("Error opening %s: %s", file, strerror(errno));
 }
 
 /* save_settings: saves the current state of IRCII to a file */
@@ -1469,7 +1464,7 @@ do_channel(chan)
 		{
 			is_current_channel(chan,
 				curr_scr_win->server,
-				curr_scr_win->refnum);
+ 				(int)curr_scr_win->refnum);
 			say("You are now talking to channel %s", set_channel_by_refnum(0, chan));
 			update_all_windows();
 		}
@@ -1518,12 +1513,13 @@ e_channel(command, args, subargs)
 		*subargs;
 {
 	char	*chan;
-	int	len;
+ 	size_t	len;
 	char	*chanstr = (char *) 0,
 		*ptr;
 
 	if (get_server_version(from_server) == Server2_5)
 		command = "CHANNEL";
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);		/* XXX should delete this */
 /**************************** PATCHED by Flier ******************************/
         /* we are /CYCLEing */
@@ -1576,12 +1572,13 @@ e_channel(command, args, subargs)
 	}
 	else
 		list_channels();
+	restore_message_from();
 }
 
 /* comment: does the /COMMENT command, useful in .ircrc */
 /*ARGSUSED*/
 static	void
-comment(command, args, subargs)
+commentcmd(command, args, subargs)
 	char	*command,
 		*args,
 		*subargs;
@@ -1611,8 +1608,10 @@ e_nick(command, args, subargs)
 			get_server_nickname(get_window_server(0)));
 		return;
 	}
+#if 0 /* blundernet */
 	if ((nick = check_nickname(nick)) != NULL)
 	{
+#endif
 /*************************** PATCHED by Flier ****************************/
                 LastNick=time((time_t *) 0);
 /*************************************************************************/
@@ -1631,9 +1630,11 @@ e_nick(command, args, subargs)
 		if (get_server_version(from_server) == Server2_5)
 			add_to_whois_queue(nick, whois_nickname,
 				NULL);
+#if 0 /* blundernet */
 	}
 	else
 		say("Bad nickname");
+#endif
 }
 
 /* version: does the /VERSION command with some IRCII version stuff */
@@ -1741,7 +1742,7 @@ userhost(command, args, subargs)
 
 	while ((nick = next_arg(args, &args)) != NULL)
 	{
-		int	len;
+ 		size_t	len;
 
 		++total;
 		len = strlen(nick);
@@ -1838,8 +1839,8 @@ who(command, args, subargs)
 {
 	char	*arg,
 		*channel = NULL;
-	int	no_args = 1,
-		len;
+ 	int	no_args = 1;
+ 	size_t	len;
 
 	who_mask = 0;
 	new_free(&who_name);
@@ -2016,6 +2017,7 @@ query(command, args, subargs)
 	char	*nick,
 		*rest;
 
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
 	if ((nick = next_arg(args, &rest)) != NULL)
 	{
@@ -2024,7 +2026,7 @@ query(command, args, subargs)
 			if (!(nick = sent_nick))
 			{
 				say("You have not messaged anyone yet");
-				return;
+				goto out;
 			}
 		}
 		else if (strcmp(nick, ",") == 0)
@@ -2033,14 +2035,14 @@ query(command, args, subargs)
 			{
 				say("You have not recieved a message from \
 						anyone yet");
-				return;
+				goto out;
 			}
 		}
 		else if (strcmp(nick, "*") == 0)
 			if (!(nick = get_channel_by_refnum(0)))
 			{
 				say("You are not on a channel");
-				return;
+				goto out;
 			}
 
 #ifndef _Windows
@@ -2049,7 +2051,7 @@ query(command, args, subargs)
 			if (is_process(nick) == 0)
 			{
 				say("Invalid processes specification");
-				return;
+				goto out;
 			}
 		}
 #endif /* _Windows */
@@ -2067,6 +2069,8 @@ query(command, args, subargs)
 			say("You aren't querying anyone!");
 	}
 	update_input(UPDATE_ALL);
+out:
+ 	restore_message_from();
 }
 
 /*
@@ -2082,7 +2086,7 @@ away(command, args, subargs)
 		*args,
 		*subargs;
 {
-	int	len;
+ 	size_t	len;
 	char	*arg = NULL;
 	int	flag = AWAY_ONE;
 	int	i;
@@ -2218,6 +2222,7 @@ e_wall(command, args, subargs)
 		*args,
 		*subargs;
 {
+ 	save_message_from();
 	if (strcmp(command, "WALL") == 0)
 	{	/* I hate this */
 		message_from(NULL, LOG_WALL);
@@ -2235,7 +2240,7 @@ e_wall(command, args, subargs)
 	}
 	if (!in_on_who)
 		send_to_server("%s :%s", command, args);
-	message_from(NULL, LOG_CRAP);
+ 	restore_message_from();
 }
 
 /*
@@ -2570,6 +2575,7 @@ send_text(org_nick, line, command)
 	*nick_list = '\0';
 	malloc_strcpy(&nick, org_nick);
 	free_nick = ptr = nick;
+ 	save_message_from();
 	while ((nick = ptr) != NULL)
 	{
 		if ((ptr = index(nick, ',')) != NULL)
@@ -2638,7 +2644,7 @@ send_text(org_nick, line, command)
 		case NOTICE_LIST:
 			say("You cannot send a message from a NOTICE");
 			new_free(&free_nick);
-			return;
+			goto out;
 		}
 		if (is_channel(nick))
 		{
@@ -2816,8 +2822,9 @@ send_text(org_nick, line, command)
 	malloc_strcpy(&sent_body, line);
 	if (do_final_send)
 		send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick_list, line);
-	message_from(NULL, LOG_CRAP);
 	new_free(&free_nick);
+out:
+ 	restore_message_from();
 }
 
 static void
@@ -2851,13 +2858,9 @@ do_send_text(command, args, subargs)
  * given command and displays them for the user's lookseeing 
  */
 void
-#ifdef __STDC__
-command_completion(unsigned char key, char *ptr)
-#else
 command_completion(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	do_aliases;
 	int	cmd_cnt,
@@ -3018,7 +3021,7 @@ parse_line(name, org_line, args, hist_flag, append_flag)
 	char	*line = NULL,
 		*free_line,
 		*stuff,
-		*buffer,
+		*lbuf,
 		*s,
 		*t;
 	int	args_flag;
@@ -3035,12 +3038,12 @@ parse_line(name, org_line, args, hist_flag, append_flag)
 					&line);
 			if (!line && append_flag && !args_flag && args && *args)
 			{
-				buffer = (char *) new_malloc(BIG_BUFFER_SIZE+1);
-				strmcpy(buffer, stuff, BIG_BUFFER_SIZE);
-				strmcat(buffer, " ", BIG_BUFFER_SIZE);
-				strmcat(buffer, args, BIG_BUFFER_SIZE);
-				new_free(&stuff);
-				stuff = buffer;
+ 				lbuf = (char *) new_malloc(BIG_BUFFER_SIZE+1);
+ 				strmcpy(lbuf, stuff, BIG_BUFFER_SIZE);
+ 				strmcat(lbuf, " ", BIG_BUFFER_SIZE);
+ 				strmcat(lbuf, args, BIG_BUFFER_SIZE);
+  				new_free(&stuff);
+ 				stuff = lbuf;
 			}
 			parse_command(stuff, hist_flag, args);
 			new_free(&stuff);
@@ -3156,7 +3159,7 @@ parse_command(line, hist_flag, sub_args)
 	else
 	{
 		char	*rest,
-			*alias = NULL,
+			*nalias = NULL,
 			*alias_name;
 		int	cmd_cnt,
 			alias_cnt;
@@ -3188,17 +3191,17 @@ parse_command(line, hist_flag, sub_args)
 				com++;
 				window_display = 0;
 			}
-			alias = get_alias(COMMAND_ALIAS, com, &alias_cnt,
+			nalias = get_alias(COMMAND_ALIAS, com, &alias_cnt,
 				&alias_name);
 		}
-		if (alias && (alias_cnt == 0))
+		if (nalias && (alias_cnt == 0))
 		{
 			if (hist_flag && add_to_hist)
 			{
 				add_to_history(this_cmd);
 				set_input(empty_string);
 			}
-			execute_alias(alias_name, alias, rest);
+			execute_alias(alias_name, nalias, rest);
 			new_free(&alias_name);
 		}
 		else
@@ -3237,19 +3240,19 @@ parse_command(line, hist_flag, sub_args)
 					else
 						say("%s: command disabled", command->name);
 				}
-				else if (alias && 1 == alias_cnt && cmd_cnt == 1 && !strcmp(alias_name, command[0].name))
-					execute_alias(alias_name, alias, rest);
+				else if (nalias && 1 == alias_cnt && cmd_cnt == 1 && !strcmp(alias_name, command[0].name))
+					execute_alias(alias_name, nalias, rest);
 				else if ((alias_cnt + cmd_cnt) > 1)
 					say("Ambiguous command: %s", com);
-				else if (alias && 1 == alias_cnt)
-					execute_alias(alias_name, alias, rest);
+				else if (nalias && 1 == alias_cnt)
+					execute_alias(alias_name, nalias, rest);
 				else if (!my_stricmp(com, nickname))
 						/* nick = /me  -lynx */
 					me(NULL, rest, empty_string);
 				else
 					say("Unknown command: %s", com);
 			}
-			if (alias)
+			if (nalias)
 				new_free(&alias_name);
 		}
 		if (old_display_var != get_int_var(DISPLAY_VAR))
@@ -3280,9 +3283,9 @@ load(command, args, subargs)
 	int	paste_level = 0;
 	char	*start,
 		*current_row = NULL,
-		buffer[BIG_BUFFER_SIZE + 1];
+ 		lbuf[BIG_BUFFER_SIZE + 1];
 	int	no_semicolon = 1;
-	char	*irc_path;
+	char	*ircpath;
 	int	display;
 #ifdef ZCAT
 	char	*expand_z = NULL;
@@ -3294,8 +3297,8 @@ load(command, args, subargs)
         int     pasteline=-1;
 /****************************************************************************/
 
-	irc_path = get_string_var(LOAD_PATH_VAR);
-	if (!irc_path)
+ 	ircpath = get_string_var(LOAD_PATH_VAR);
+ 	if (!ircpath)
 	{
 		say("LOAD_PATH has not been set");
 		return;
@@ -3344,10 +3347,10 @@ load(command, args, subargs)
 #endif
 /****************************************************************************/
 			{
-				filename = path_search(expanded, irc_path);
+				filename = path_search(expanded, ircpath);
 #ifdef ZCAT
 				if (!filename && expand_z)
-					filename = path_search(expand_z, irc_path);
+					filename = path_search(expand_z, ircpath);
 #endif /*ZCAT*/
 				if (!filename)
 				{
@@ -3365,6 +3368,7 @@ load(command, args, subargs)
 			}
 #ifdef ZCAT
 			if ((exists = stat_file(expanded, &stat_buf)) == -1)
+ 			{
 				if (!(exists = stat_file(expand_z, &stat_buf)))
 				{
 					if (expanded)
@@ -3373,6 +3377,7 @@ load(command, args, subargs)
 				}
 				else
 					new_free(&expand_z);
+ 			}
 			if (exists == 0)
 #else
 				if (!stat_file(expanded, &stat_buf))
@@ -3437,15 +3442,15 @@ load(command, args, subargs)
 						args = NULL;
 					for (;;)
 					{
-						if (fgets(buffer, BIG_BUFFER_SIZE / 2, fp))
+ 						if (fgets(lbuf, BIG_BUFFER_SIZE / 2, fp))
 	{
-		int	len;
+ 		size_t	len;
 		char	*ptr;
 
 /**************************** PATCHED by Flier ******************************/
                 linenumber++;
 /****************************************************************************/
-		for (start = buffer; isspace(*start); start++)
+ 		for (start = lbuf; isspace(*start); start++)
 			;
 		if (!*start || *start == '#')
 			continue;
@@ -3457,7 +3462,7 @@ load(command, args, subargs)
 	 */
 		while (start[len-1] == '\n' && start[len-2] == '\\' &&
 		    len < BIG_BUFFER_SIZE / 2 && fgets(&(start[len-2]),
-		    BIG_BUFFER_SIZE / 2 - len, fp))
+ 		    (int)(BIG_BUFFER_SIZE / 2 - len), fp))
 			len = strlen(start);
 
 		if (start[len - 1] == '\n')
@@ -3596,61 +3601,41 @@ get_history(which)
 
 /* BIND function: */
 void
-#ifdef __STDC__
-forward_character(unsigned char key, char *ptr)
-#else
 forward_character(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	input_move_cursor(RIGHT);
 }
 
 void
-#ifdef __STDC__
-backward_character(unsigned char key, char *ptr)
-#else
 backward_character(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	input_move_cursor(LEFT);
 }
 
 void
-#ifdef __STDC__
-backward_history(unsigned char key, char *ptr)
-#else
 backward_history(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	get_history(PREV);
 }
 
 void
-#ifdef __STDC__
-forward_history(unsigned char key, char *ptr)
-#else
 forward_history(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	get_history(NEXT);
 }
 
 void
-#ifdef __STDC__
-toggle_insert_mode(unsigned char key, char *ptr)
-#else
 toggle_insert_mode(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 /**************************** PATCHED by Flier ******************************/
 	/*set_var_value(INSERT_MODE_VAR, "TOGGLE");*/
@@ -3660,13 +3645,9 @@ toggle_insert_mode(key, ptr)
 
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-send_line(unsigned char key, char *ptr)
-#else
 send_line(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	server;
 	WaitPrompt	*OldPrompt;
@@ -3735,16 +3716,10 @@ sendlinecmd(command, args, subargs)
 }
 
 /**************************** PATCHED by Flier ******************************/
-/*ARGSUSED*/
-/*ARGSUSED*/
 void
-#ifdef __STDC__
-meta5_char(unsigned char key, char *ptr)
-#else
 meta5_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->meta5_hit = 1;
 }
@@ -3752,64 +3727,44 @@ meta5_char(key, ptr)
 
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-meta4_char(unsigned char key, char *ptr)
-#else
 meta4_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->meta4_hit = 1 - current_screen->meta4_hit;
 }
 
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-meta3_char(unsigned char key, char *ptr)
-#else
 meta3_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->meta3_hit = 1;
 }
 
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-meta2_char(unsigned char key, char *ptr)
-#else
 meta2_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->meta2_hit = 1;
 }
 
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-meta1_char(unsigned char key, char *ptr)
-#else
 meta1_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->meta1_hit = 1;
 }
 
 void
-#ifdef __STDC__
-quote_char(unsigned char key, char *ptr)
-#else
 quote_char(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	current_screen->quote_hit = 1;
 }
@@ -3817,16 +3772,12 @@ quote_char(key, ptr)
 /* type_text: the BIND function TYPE_TEXT */
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-type_text(unsigned char key, char *ptr)
-#else
 type_text(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	for (; *ptr; ptr++)
-		input_add_character(*ptr, (char *) 0);
+ 		input_add_character((u_int)*ptr, (char *) 0);
 }
 
 /*
@@ -3835,13 +3786,9 @@ type_text(key, ptr)
  */
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-irc_clear_screen(unsigned char key, char *ptr)
-#else
 irc_clear_screen(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	hold_mode((Window *) 0, OFF, 1);
 	my_clear(NULL, empty_string, empty_string);
@@ -3849,13 +3796,9 @@ irc_clear_screen(key, ptr)
 
 /* parse_text: the bindable function that executes its string */
 void
-#ifdef __STDC__
-parse_text(unsigned char key, char *ptr)
-#else
 parse_text(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	parse_line(NULL, ptr, empty_string, 0, 0);
 }
@@ -3865,16 +3808,12 @@ parse_text(key, ptr)
  * to work out.
  */
 void
-#ifdef __STDC__
-edit_char(unsigned char key)
-#else
-edit_char(key)
-	unsigned char	key;
-#endif
+edit_char(ikey)
+ 	u_int ikey;
 {
-	void	(*func) _((unsigned char, char *));
+ 	void	(*func) _((u_int, char *));
 	char	*str;
-	u_char	extended_key;
+ 	u_char	extended_key, key = (u_char)ikey;
 	WaitPrompt *oldprompt;
 /**************************** PATCHED by Flier ******************************/
         static int cloaktilde=0;
@@ -3945,7 +3884,7 @@ edit_char(key)
 /****************************************************************************/
 	{
 		if (current_screen->inside_menu == 1)
-			menu_key(key);
+ 			menu_key((u_int)key);
 		else if (current_screen->digraph_hit)
 		{
 			if (extended_key == 0x08 || extended_key == 0x7f)
@@ -3958,8 +3897,8 @@ edit_char(key)
 			else if (current_screen->digraph_hit == 2)
 			{
 				if ((extended_key =
-				    get_digraph(extended_key)) != '\0')
-					input_add_character(extended_key, (char *) 0);
+ 				    get_digraph((u_int)extended_key)) != '\0')
+ 					input_add_character((u_int)extended_key, (char *) 0);
 				else
 					term_beep();
 			}
@@ -3967,7 +3906,7 @@ edit_char(key)
 		else if (current_screen->quote_hit)
 		{
 			current_screen->quote_hit = 0;
-			input_add_character(extended_key, (char *) 0);
+ 			input_add_character((u_int)extended_key, (char *) 0);
 		}
 /**************************** PATCHED by Flier ******************************/
 		/*else if (func)
@@ -4082,8 +4021,7 @@ describe(command, args, subargs)
 	target = next_arg(args, &args);
 	if (target && args && *args)
 	{
-		int	old;
-		int	from_level;
+ 		int	old, from_level;
 #ifdef LYNX_STUFF
 		char	*result;
 #endif /* LYNX_STUFF */
@@ -4097,6 +4035,7 @@ describe(command, args, subargs)
 			message = args;
 
 		old = set_lastlog_msg_level(LOG_ACTION);
+ 		save_message_from();
 		from_level = message_from_level(LOG_ACTION);
 		send_action(target, message);
 		if (do_hook(SEND_ACTION_LIST, "%s %s", target, message))
@@ -4129,7 +4068,7 @@ describe(command, args, subargs)
                     }
 /****************************************************************************/
 		set_lastlog_msg_level(old);
-		message_from_level(from_level);
+ 		restore_message_from();
 
 #ifdef LYNX_STUFF
 		if (result)
@@ -4187,6 +4126,7 @@ me(command, args, subargs)
 				message = args;
 
 			old = set_lastlog_msg_level(LOG_ACTION);
+ 			save_message_from();
 			message_from(target, LOG_ACTION);
 			send_action(target, message);
 			if (do_hook(SEND_ACTION_LIST, "%s %s", target, message))
@@ -4204,6 +4144,7 @@ me(command, args, subargs)
 #endif
 /****************************************************************************/
 			set_lastlog_msg_level(old);
+ 			restore_message_from();
 
 #ifdef LYNX_STUFF
 			if (result)
@@ -4268,11 +4209,10 @@ execute_timer()
 #endif
 /****************************************************************************/
 	TimerList *next;
-	int	old_in_on_who;
-	int	old_level;
-/**************************** PATCHED by Flier ******************************/
-        int     old_server;
+	int	old_in_on_who,
+ 		old_server = from_server;
 
+/**************************** PATCHED by Flier ******************************/
 	/*time(&current);
 	while (PendingTimers && PendingTimers->time <= current)*/
 #if defined(HAVETIMEOFDAY) && defined(BETTERTIMER)
@@ -4289,16 +4229,17 @@ execute_timer()
 		old_in_on_who = in_on_who;
 		in_on_who = PendingTimers->in_on_who;
 		current_exec_timer = PendingTimers->ref;
-		old_level = message_from_level(LOG_CURRENT);
+ 		save_message_from();
+ 		(void)message_from_level(LOG_CURRENT);
+		if (PendingTimers->server >= 0)
+			from_server = PendingTimers->server;
 /**************************** PATCHED by Flier ******************************/
                 /*parse_command(PendingTimers->command, 0, empty_string);*/
-                old_server=from_server;
-                if (PendingTimers->server>=0) from_server=PendingTimers->server;
                 if (PendingTimers->func) PendingTimers->func(PendingTimers->command);
                 else parse_command(PendingTimers->command,0,empty_string);
-                from_server=old_server;
 /****************************************************************************/
-		(void) message_from_level(old_level);
+                from_server = old_server;
+		restore_message_from();
 		current_exec_timer = -1;
 		new_free(&PendingTimers->command);
 		next = PendingTimers->next;
@@ -4349,7 +4290,7 @@ timercmd(command, args, subargs)
 /****************************************************************************/
 	if (*args == '-')
 	{
-		int	len;
+ 		size_t	len;
 
 		flag = next_arg(args, &args);
 		len = strlen(flag);
@@ -4470,11 +4411,11 @@ timercmd(command, args, subargs)
 #else
 	ntimer->time=current+atol(waittime);
 #endif
-        ntimer->server=from_server;
         ntimer->visible=visible;
         if (subargs) ntimer->func=(void *) subargs;
         else ntimer->func=NULL;
 /****************************************************************************/
+ 	ntimer->server = from_server;
 	ntimer->ref = refnum;
 	ntimer->command = NULL;
 	malloc_strcpy(&ntimer->command, args);
@@ -4701,7 +4642,7 @@ xtypecmd(command, args, subargs)
 		*subargs;
 {
 	char	*arg;
-	int	len;
+ 	size_t	len;
 
 	if (args && *args == '-')
 	{
@@ -4712,7 +4653,7 @@ xtypecmd(command, args, subargs)
 			if (!my_strnicmp(arg, "LITERAL", len))
 			{
 				for (; *args; args++)
-					input_add_character(*args, (char *) 0);
+ 					input_add_character((u_int)*args, (char *) 0);
 			}
 #ifdef _Windows
 			else if (!my_strnicmp(arg, "REPLACE", len))

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.5 1999-02-14 16:56:45 f Exp $
+ * $Id: window.c,v 1.6 1999-02-15 21:20:28 f Exp $
  */
 
 #include "irc.h"
@@ -76,8 +76,6 @@ Window	*invisible_list = (Window *) 0;
 char	*who_from = (char *) 0;	/* nick of person who's message
 						 * is being displayed */
 int	who_level = LOG_CRAP;/* Log level of message being displayed */
-static	char	*save_from = (char *) 0;
-static	int	save_level = LOG_CRAP;
 
 int	in_window_command = 0;	/* set to true if we are in window().  This
 				 * is used if a put_it() is called within the
@@ -187,11 +185,12 @@ traverse_all_windows(flag)
 	 * traverse_all_windows()'s is called properly), else move on to
 	 * the next window
 	 */
-	if (foo)
+ 	if (foo) {
 		if (!which)
 			return (Window *) 0;
 		else
 			which = which->next;
+ 	}
 
 	if (!which)
 	{
@@ -323,7 +322,7 @@ set_scroll_lines(size)
 	{
 		say("Maximum lines that may be scrolled is %d", 
 		    curr_scr_win->display_size);
-		set_int_var(SCROLL_LINES_VAR, curr_scr_win->display_size);
+ 		set_int_var(SCROLL_LINES_VAR, (u_int)curr_scr_win->display_size);
 	}
 }
 
@@ -526,13 +525,14 @@ swap_channels_win_ptr(v_window, window)
 {
 	ChannelList	*chan;
 
-	if (v_window->server != -1)
+ 	if (v_window->server != -1) {
 		for (chan = server_list[v_window->server].chan_list;
 		     chan; chan = chan->next)
 			if (chan->window == v_window)
 				chan->window = window;
 			else if (chan->window == window)
 				chan->window = v_window;
+ 	}
 	if (window->server == v_window->server)
 		return;
 	if (window->server != -1)
@@ -746,25 +746,53 @@ grow_window(window, offset)
 	term_flush();
 }
 
+/*
+ * the message_from stack structure.
+ */
+struct mfstack {
+	char	*who_from;	/* saved from */
+ 	int	who_level;	/* saved level */
+ 	struct mfstack *next;	/* next in the list */
+} mfstack_head = { NULL, 0, NULL };
 
 /*
  * save_message_from: this is used to save (for later restoration) the
  * who_from variable.  This comes in handy very often when a routine might
- * call another routine that might change who_from. 
+ * call another routine that might change who_from.   Note that if you
+ * call this routined, you *must* call restore_message_from().
  */
 void
 save_message_from()
 {
-        malloc_strcpy(&save_from, who_from);
-	save_level = who_level;
+ 	struct mfstack *mfs;
+
+ 	mfs = (struct mfstack *)new_malloc(sizeof *mfs);
+
+ 	mfs->who_from = NULL;
+ 	malloc_strcpy(&(mfs->who_from), who_from);
+ 	mfs->who_level = who_level;
+ 	mfs->next = mfstack_head.next;
+
+ 	mfstack_head.next = mfs;
 }
 
 /* restore_message_from: restores a previously saved who_from variable */
 void
 restore_message_from()
 {
-	malloc_strcpy(&who_from, save_from);
-	who_level = save_level;
+ 	struct mfstack *mfs = mfstack_head.next;
+
+ 	if (mfs == NULL) {
+ 		/*yell("--- restore_message_from: NULL next pointer, fudging..");*/
+ 		malloc_strcpy(&who_from, NULL);
+ 		who_level = 0;
+ 	} else {
+ 		malloc_strcpy(&who_from, mfs->who_from);
+ 		who_level = mfs->who_level;
+ 		mfstack_head.next = mfs->next;
+ 		new_free(&mfs->who_from);
+ 		new_free(&mfs);
+ 	}
 }
 
 /*
@@ -987,13 +1015,9 @@ set_current_window(window)
  */
 
 void
-#ifdef __STDC__
-swap_last_window(unsigned char key, char *ptr)
-#else
 swap_last_window(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	if (invisible_list == (Window *) 0)
 	{
@@ -1010,13 +1034,9 @@ swap_last_window(key, ptr)
  * next_window: This switches the current window to the next visible window 
  */
 void
-#ifdef __STDC__
-next_window(unsigned char key, char *ptr)
-#else
 next_window(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	if (current_screen->visible_windows == 1)
 		return;
@@ -1030,13 +1050,9 @@ next_window(key, ptr)
  */
 
 void
-#ifdef __STDC__
-swap_next_window(unsigned char key, char *ptr)
-#else
 swap_next_window(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	flag;
 	Window	*tmp;
@@ -1064,7 +1080,7 @@ swap_next_window(key, ptr)
 	if (next != MAXINT)
 		tmp = get_window_by_refnum(next);
 	else
-		tmp = get_window_by_refnum(smallest);
+ 		tmp = get_window_by_refnum((u_int)smallest);
 	swap_window(curr_scr_win, tmp);
 	update_all_windows();
 	update_all_status();
@@ -1076,13 +1092,9 @@ swap_next_window(key, ptr)
  * window 
  */
 void
-#ifdef __STDC__
-previous_window(unsigned char key, char *ptr)
-#else
 previous_window(key, ptr)
-	unsigned char	key;
+	u_int	key;
 	char *	ptr;
-#endif
 {
 	if (current_screen->visible_windows == 1)
 		return;
@@ -1096,13 +1108,9 @@ previous_window(key, ptr)
  */
 
 void
-#ifdef __STDC__
-swap_previous_window(unsigned char key, char *ptr)
-#else
 swap_previous_window(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	flag;
 	Window	*tmp;
@@ -1128,9 +1136,9 @@ swap_previous_window(key, ptr)
 		}
 	}
 	if (previous)
-		tmp = get_window_by_refnum(previous);
+ 		tmp = get_window_by_refnum((u_int)previous);
 	else
-		tmp = get_window_by_refnum(largest);
+ 		tmp = get_window_by_refnum((u_int)largest);
 	swap_window(curr_scr_win,tmp);
 	update_all_windows();
 	update_all_status();
@@ -1143,13 +1151,9 @@ swap_previous_window(key, ptr)
  */
 
 void
-#ifdef __STDC__
-back_window(unsigned char key, char *ptr)
-#else
 back_window(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	Window	*tmp;
 
@@ -1725,15 +1729,12 @@ is_current_channel(channel, server, delete)
 				if (!is_bound(chan->channel, server)
 					&& (chan->window != found_window))
 			{
-				int	is_current = 0,
+				int	is_current = 0;
 
 				flag = 1;
-/**************************** PATCHED by Flier ******************************/
-                                /*while (tmp = traverse_all_windows(&flag))*/
                                 while ((tmp = traverse_all_windows(&flag)))
-/****************************************************************************/
 				{
-					if (tmp->server != server)
+ 					if ((tmp->server != server))
 						continue;
                                         if (tmp->current_channel
                                             && !my_stricmp(chan->channel,
@@ -1752,12 +1753,12 @@ is_current_channel(channel, server, delete)
 							possible->channel);
 				return 1;
 			}
-			delete_channel = get_channel_by_refnum(delete);
+ 			delete_channel = get_channel_by_refnum((u_int)delete);
 			if (delete_channel
 			&& !(is_bound(delete_channel, server) &&
 		     	found_window->refnum != delete))
 				set_channel_by_refnum(found_window->refnum,
-					get_channel_by_refnum(delete));
+ 					get_channel_by_refnum((u_int)delete));
 		}
 	}
 	return (found);
@@ -1854,10 +1855,7 @@ set_window_server(refnum, server, misc)
 	int	misc;
 {
 	int	old_serv;
-/**************************** PATCHED by Flier ******************************/
-	/*Window	*window, *ptr, *new_win = (Window *) 0;*/
-	Window	*window = (Window *) 0, *ptr, *new_win = (Window *) 0;
-/****************************************************************************/
+ 	Window	*window = 0, *ptr, *new_win = (Window *) 0;
 	ChannelList *tmp;
 	int	moved = 0;
 	int	flag = 1;
@@ -1870,7 +1868,7 @@ set_window_server(refnum, server, misc)
 	}
 	else
 	{
-		window = get_window_by_refnum(refnum);
+ 		window = get_window_by_refnum((u_int)refnum);
 		old_serv = window->server;
 	}
 
@@ -1944,7 +1942,7 @@ set_window_server(refnum, server, misc)
 
 	if ((misc & WIN_TRANSFER) && (old_serv >= 0))
 		for (tmp = server_list[old_serv].chan_list; tmp; tmp = tmp->next)
-			if ((tmp->window == window) || (window->server_group && (tmp->window->server_group == window->server_group)))	/* Found a channel to
+ 			if ((tmp->window == window) || (window->server_group && (tmp->window->server_group == window->server_group))) {	/* Found a channel to
 							   be relocated -Sol */
 				if (tmp->window->sticky || (misc & WIN_FORCE))
 				{	/* This channel moves -Sol */
@@ -1965,6 +1963,7 @@ set_window_server(refnum, server, misc)
 				}
 				else
 					tmp->window = new_win;
+ 			}
 
 	flag = 1;
 	while ((ptr = traverse_all_windows(&flag)) != (Window *) 0)
@@ -2075,14 +2074,14 @@ set_query_nick(nick)
 
 	if (curr_scr_win->query_nick)
 	{
-		char	*nick;
+ 		char	*oldnick;
 
-		nick = curr_scr_win->query_nick;
-		while(nick)
+		oldnick = curr_scr_win->query_nick;
+		while (oldnick)
 		{
-			if ((ptr = (char *) index(nick,',')) != NULL)
+			if ((ptr = (char *) index(oldnick,',')) != NULL)
 				*(ptr++) = '\0';
-			if ((tmp = (NickList *) remove_from_list((List **) &(curr_scr_win->nicks), nick)) != NULL)
+			if ((tmp = (NickList *) remove_from_list((List **) &(curr_scr_win->nicks), oldnick)) != NULL)
 			{
 				new_free(&tmp->nick);
 /**************************** PATCHED by Flier ******************************/
@@ -2090,7 +2089,7 @@ set_query_nick(nick)
 /****************************************************************************/
 				new_free(&tmp);
 			}
-			nick = ptr;
+			oldnick = ptr;
 		}
 		new_free(&curr_scr_win->query_nick);
 	}
@@ -2200,7 +2199,7 @@ list_a_window(window, len)
 	char	tmp[10];
 
 	sprintf(tmp, "%-4u", window->refnum);
-	sprintf(buffer, WIN_FORM, NICKNAME_LEN, NICKNAME_LEN, len,
+ 	sprintf(buffer, WIN_FORM, 9, 9, len,	/* XXX: 9 is old NICKNAME_LEN */
 			len, get_int_var(CHANNEL_NAME_WIDTH_VAR),
 			get_int_var(CHANNEL_NAME_WIDTH_VAR));
 /**************************** PATCHED by Flier ******************************/
@@ -2239,7 +2238,7 @@ list_windows()
 		if (tmp->name && ((int) strlen(tmp->name) > len))
 			len = strlen(tmp->name);
 	}
-	sprintf(buffer, WIN_FORM, NICKNAME_LEN, NICKNAME_LEN, len, len,
+ 	sprintf(buffer, WIN_FORM, 9, 9, len, len,	/* XXX: 9 is old NICKNAME_LEN */
 		get_int_var(CHANNEL_NAME_WIDTH_VAR),
 		get_int_var(CHANNEL_NAME_WIDTH_VAR));
 	say(buffer, "Ref", "Nick", "Name", "Channel", "Query", "Server",
@@ -2306,7 +2305,7 @@ pop_window()
 			tmp = current_screen->window_stack->next;
 			new_free(&current_screen->window_stack);
 			current_screen->window_stack = tmp;
-			if ((win = get_window_by_refnum(refnum)) != NULL)
+ 			if ((win = get_window_by_refnum((u_int)refnum)) != NULL)
 			{
 				if (!win->visible)
 					show_window(win);
@@ -2486,7 +2485,7 @@ get_window(name, args)
 	{
 		if (is_number(arg))
 		{
-			if ((tmp = get_window_by_refnum(atoi(arg))) != NULL)
+ 			if ((tmp = get_window_by_refnum((u_int)atoi(arg))) != NULL)
 				return (tmp);
 		}
 		if ((tmp = get_window_by_name(arg)) != NULL)
@@ -2583,12 +2582,12 @@ get_boolean(name, args, var)
 
 /*ARGSUSED*/
 void
-window(command, args, subargs)
+windowcmd(command, args, subargs)
 	char	*command,
 		*args,
 		*subargs;
 {
-	int	len;
+ 	size_t	len;
 	char	*arg,
 		*cmd = (char *) 0;
 	int	no_args = 1;
@@ -2596,6 +2595,7 @@ window(command, args, subargs)
 		*tmp;
 
 	in_window_command = 1;
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);	/* XXX should remove this */
 	window = curr_scr_win;
 	while ((arg = next_arg(args, &args)) != NULL)
@@ -2637,9 +2637,8 @@ window(command, args, subargs)
 			else
 			{
 				say("No such window!");
-				in_window_command = 0;
 				new_free(&cmd);
-				return;
+				goto out;
 			}
 		}
 		else if (strncmp("KILL", cmd, len) == 0)
@@ -2686,7 +2685,7 @@ window(command, args, subargs)
 			if (get_boolean("HOLD_MODE",&args,&(window->hold_mode)))
 				break;
 			else
-				set_int_var(HOLD_MODE_VAR, window->hold_mode);
+ 				set_int_var(HOLD_MODE_VAR, (u_int)window->hold_mode);
 		}
 		else if (strncmp("LASTLOG_LEVEL", cmd, len) == 0)
 		{
@@ -2844,11 +2843,22 @@ window(command, args, subargs)
 		}
 		else if (strncmp("WHERE", cmd, len) == 0)
 			win_list_channels(curr_scr_win);
+ 		else if (strncmp("QUERY", cmd, len) == 0)
+ 		{
+ 			char *arg = 0;
+
+ 			arg = next_arg(args, &args);
+ 			query(cmd, arg, 0);
+ 		}
 		else if (strncmp("CHANNEL", cmd, len) == 0)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
 			{
+ 				char *key;
+
 				arg = strtok(arg, ",");
+ 				if ((key = strtok(0, ", ")) == 0)
+ 					key = empty_string;
 
 				if (is_bound(arg, window->server))
 				{
@@ -2856,29 +2866,29 @@ window(command, args, subargs)
 				}
 				else
 				{
-			if (is_on_channel(arg, window->server,
-				get_server_nickname(window->server)))
-			{
-				is_current_channel(arg, window->server,
-					window->refnum);
-				say("You are now talking to channel %s", arg);
-				set_channel_by_refnum(0, arg);
-			}
-			else if (*arg == '0' && !*(args + 1))
-				set_channel_by_refnum(0, NULL);
-			else
-			{
-				int	server;
+ 					if (is_on_channel(arg, window->server,
+ 						get_server_nickname(window->server)))
+ 					{
+ 						is_current_channel(arg, window->server,
+ 							(int)window->refnum);
+ 						say("You are now talking to channel %s", arg);
+ 						set_channel_by_refnum(0, arg);
+ 					}
+ 					else if (*arg == '0' && !*(args + 1))
+ 						set_channel_by_refnum(0, NULL);
+ 					else
+ 					{
+ 						int	server;
 
-				server = from_server;
-				from_server = window->server;
-				if (get_server_version(window->server) == Server2_5)
-					send_to_server( "CHANNEL %s", arg);
-				else
-					send_to_server("JOIN %s", arg);
-				add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
-				from_server = server;
-			}
+ 						server = from_server;
+ 						from_server = window->server;
+ 						if (get_server_version(window->server) == Server2_5)
+ 							send_to_server("CHANNEL %s%s%s", arg, key ? " " : empty_string, key);
+ 						else
+ 							send_to_server("JOIN %s%s%s", arg, key ? " " : empty_string, key);
+ 						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0);
+ 						from_server = server;
+ 					}
 				}
 			}
 			else
@@ -2926,19 +2936,19 @@ window(command, args, subargs)
 			if ((arg = next_arg(args, &args)) != (char *) 0)
 			{
 				int	i;
-				Window	*tmp;
+ 				Window	*wtmp;
 
 				i = atoi(arg);
 				if (i > 0)
 				{
 					/* check if window number exists */
 
-					tmp = get_window_by_refnum(i);
-					if (!tmp)
+ 					wtmp = get_window_by_refnum((u_int)i);
+ 					if (!wtmp)
 						window->refnum = i;
 					else
 					{
-						tmp->refnum = window->refnum;
+						wtmp->refnum = window->refnum;
 						window->refnum = i;
 					}
 					update_all_status();
@@ -2959,7 +2969,7 @@ window(command, args, subargs)
 				{
 					if (is_on_channel(arg, window->server, get_server_nickname(window->server)))
 					{
-						is_current_channel(arg, window->server, window->refnum);
+ 						is_current_channel(arg, window->server, (int)window->refnum);
 						set_channel_by_refnum(0, arg);
 						bind_channel(arg, window->server);
 						say("Channel %s bound to window %d", arg, window->refnum);
@@ -3086,13 +3096,15 @@ window(command, args, subargs)
 			/* say("\tServer Group is (%d) %s", window->server_group, server_group_list[window->server_group - 1].name); List was sorted !! -Sol */
 		if (window->nicks)
 		{
-			NickList *tmp;
+ 			NickList *ntmp;
 
 			say("\tName list:");
-			for (tmp = window->nicks; tmp; tmp = tmp->next)
-				say("\t  %s", tmp->nick);
+			for (ntmp = window->nicks; ntmp; ntmp = ntmp->next)
+				say("\t  %s", ntmp->nick);
 		}
 	}
+out:
+ 	restore_message_from();
 	in_window_command = 0;
 	update_all_windows();
         cursor_to_input();
@@ -3105,13 +3117,9 @@ number_of_windows()
 }
 
 void
-#ifdef __STDC__
-unstop_all_windows(unsigned char key, char *ptr)
-#else
 unstop_all_windows(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	Window	*tmp;
 
@@ -3210,7 +3218,7 @@ window_get_connected(window, arg, narg, preserve, args)
 
 		if (!connect_to_server(arg, port_num, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
-			set_window_server(window->refnum, from_server, new_server_flags);
+ 			set_window_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */
 			/* Not always necessary. See set_window_server. -Sol */
 			if (!preserve && window->current_channel)
@@ -3230,7 +3238,7 @@ window_get_connected(window, arg, narg, preserve, args)
 
 		if (!connect_to_server(get_server_name(i), server_list[i].port, (new_server_flags & WIN_ALL) ? window->server : -1))
 		{
-			set_window_server(window->refnum, from_server, new_server_flags);
+ 			set_window_server((int)window->refnum, from_server, new_server_flags);
 			/* window->window_level = LOG_DEFAULT; */
 			/* Not always necessary. See set_window_server. -Sol */
 			if (!preserve && window->current_channel)

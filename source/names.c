@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.6 1999-01-31 12:46:25 f Exp $
+ * $Id: names.c,v 1.7 1999-02-15 21:19:53 f Exp $
  */
 
 #include "irc.h"
@@ -120,10 +120,10 @@ clear_channel(chan)
 }
 
 extern	ChannelList *
-lookup_channel(channel, server, unlink)
+lookup_channel(channel, server, do_unlink)
 	char	*channel;
 	int	server;
-	int	unlink;
+	int	do_unlink;
 {
  	ChannelList	*chan, *last = (ChannelList *) 0;
 
@@ -135,7 +135,7 @@ lookup_channel(channel, server, unlink)
 	{
 		if (chan->server == server && !my_stricmp(chan->channel, channel))
 		{
-			if (unlink == CHAN_UNLINK)
+			if (do_unlink == CHAN_UNLINK)
 			{
 				if (last)
 					last->next = chan->next;
@@ -203,7 +203,7 @@ add_channel(channel, server, connected, copy)
 		malloc_strcpy(&new->channel, channel);
 		new->mode = 0;
 		new->limit = 0;
-		new->i_mode = -1;
+		new->i_mode = 0;
 		new->i_limit = -1;
 		new->window = curr_scr_win;
 		do_add = 1;
@@ -731,21 +731,21 @@ char    *servmodes;
 			break;
 		case 'o':
 /**************************** PATCHED by Flier ******************************/
-                        /*if ((person = next_arg(rest, &rest)) && !my_stricmp(person, get_server_nickname(from_server)))
-                                if (add) {
+ 			/*if ((person = next_arg(rest, &rest)) && !my_stricmp(person, get_server_nickname(from_server))) {
+                                if (add)
 					*chop |= CHAN_CHOP;
-				else
-					*chop &= ~CHAN_CHOP;*/
-			if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick))
-                                if (add) {
-/****************************************************************************/
-					*chop |= CHAN_CHOP;
-/**************************** PATCHED by Flier ******************************/
-                                        if (check && hadops) gotops=1;
-                                }
-/****************************************************************************/
 				else
 					*chop &= ~CHAN_CHOP;
+ 			}*/
+                        if ((person=next_arg(rest,&rest)) && !my_stricmp(person,mynick)) {
+                                if (add) {
+					*chop |= CHAN_CHOP;
+                                        if (check && hadops) gotops=1;
+                                }
+				else
+					*chop &= ~CHAN_CHOP;
+ 			}
+/****************************************************************************/
 /**************************** PATCHED by Flier ******************************/
                         /*ThisNick = (NickList *) list_lookup((List **) nicks, person, !USE_WILDCARDS, !REMOVE_FROM_LIST);*/
                         ThisNick=find_in_hash(chan,person);
@@ -877,6 +877,9 @@ char    *servmodes;
 		case 'q':
 			value = MODE_QUIET;
 			break;
+ 		case 'r':
+ 			value = MODE_REOP;
+ 			break;
 		case 's':
 			value = MODE_SECRET;
 			break;
@@ -1095,6 +1098,11 @@ char    *servmodes;
                         }
 /****************************************************************************/
 			break;
+ 		case 'e':
+ 		case 'I':
+ 		case 'O': /* this is a weird special case */
+  			(void) next_arg(rest, &rest);
+  			break;
 		}
 		if (add)
 			*mode |= value;
@@ -1666,13 +1674,9 @@ list_channels()
 }
 
 void
-#ifdef __STDC__
-switch_channels(unsigned char key, char *ptr)
-#else
 switch_channels(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	ChannelList *	tmp;
 	char *	s;
@@ -1714,6 +1718,7 @@ switch_channels(key, ptr)
 	}
 }
 
+/* XXX this function should be removed as it is based on 6+ years old irc */
 /* real_channel: returns your "real" channel (your non-multiple channel) */
 char	*
 real_channel()

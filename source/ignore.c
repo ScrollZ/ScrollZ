@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.3 1998-10-21 19:34:40 f Exp $
+ * $Id: ignore.c,v 1.4 1999-02-15 21:19:33 f Exp $
  */
 
 #include "irc.h"
@@ -341,7 +341,7 @@ ignore_list(nick)
 	char	*nick;
 {
 	Ignore	*tmp;
-	int	len = 0;
+ 	size_t	len = 0;
 /**************************** PATCHED by Flier ******************************/
         int     i;
 /****************************************************************************/
@@ -511,7 +511,7 @@ ignore(command, args, subargs)
 {
 	char	*nick,
 		*type;
-	int	len;
+ 	size_t	len;
 	int	flag,
 		no_flags;
 
@@ -633,7 +633,7 @@ void
 set_highlight_char(s)
 	char	*s;
 {
-	int	len;
+ 	size_t	len;
 
 	len = strlen(s);
 	upper(s);

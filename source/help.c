@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.2 1998-09-10 17:45:08 f Exp $
+ * $Id: help.c,v 1.3 1999-02-15 21:19:23 f Exp $
  */
 
 /*
@@ -615,6 +615,7 @@ help_me(topics, args)
 	create_help_window();
 	while (this_arg)
 	{
+ 		save_message_from();
 		message_from((char *) 0, LOG_CURRENT);
 		if (*this_arg == (char) 0)
 			help_topic(path, NULL);
@@ -810,6 +811,7 @@ help_me(topics, args)
 			new_free(&namelist[i]);
 		}
 		new_free(&namelist);
+ 		restore_message_from();
 		break;
 	}
 	/*

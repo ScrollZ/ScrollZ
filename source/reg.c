@@ -3,7 +3,7 @@
  *
  * This file is in the public domain.
  *
- * $Id: reg.c,v 1.2 1998-09-10 17:46:06 f Exp $
+ * $Id: reg.c,v 1.3 1999-02-15 21:20:10 f Exp $
  */
 
 #include "irc.h"
@@ -59,12 +59,8 @@ _wild_match(mask, string)
 		*mp = NULL,
 		*np = NULL;
 	int	just = 0,
-/**************************** PATCHED by Flier ******************************/
-                /*pcount,
-		acount,*/
-                pcount=0,
-		acount=0,
-/****************************************************************************/
+ 		pcount = 0,
+ 		acount = 0,
 		count = 0;
 
 	for (;;)

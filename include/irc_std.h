@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: irc_std.h,v 1.2 1999-02-15 21:18:35 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -47,12 +47,24 @@
 # define const
 #endif  /* __STDC__ */
 
+#if !defined(__GNUC__) || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 5)
+#define __attribute__(x)        /* delete __attribute__ if non-gcc or gcc1 */
+#endif
+
+#ifndef lint
+#define IRCII_RCSID(x) static const char rcsid[] __attribute__((__unused__)) = x;
+#else
+#define IRCII_RCSID(x)
+#endif
+
 #ifdef _IBMR2
 # include <sys/errno.h>
 # include <sys/select.h>
 #else
 # include <errno.h>
+#ifndef ERRNO_DECLARED
 extern	int	errno;
+#endif
 #endif /* _IBMR2 */
 
 #ifndef NBBY

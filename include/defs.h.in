@@ -153,6 +153,9 @@
 /* define this if your header files declare sys_errlist */
 #undef SYS_ERRLIST_DECLARED
 
+/* define this if your header files declare errno */
+#undef ERRNO_DECLARED
+
 /* define this if you have uname(2) */
 #undef HAVE_UNAME
 

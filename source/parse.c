@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.9 1998-12-13 17:44:45 f Exp $
+ * $Id: parse.c,v 1.10 1999-02-15 21:20:06 f Exp $
  */
 
 #include "irc.h"
@@ -110,6 +110,7 @@ static time_t LastNickFlood=0;
 #define STRING_CHANNEL '+'
 #define MULTI_CHANNEL '#'
 #define LOCAL_CHANNEL '&'
+#define SAFE_CHANNEL '!'
 
 #define	MAXPARA	15	/* Taken from the ircd */
 
@@ -120,7 +121,7 @@ static	void	topic _((char *, char **));
 static	void	p_wall _((char *, char **));
 static	void	wallops _((char *, char **));
 static	void	p_privmsg _((char *, char **));
-static	void	msg _((char *, char **));
+static	void	msgcmd _((char *, char **));
 static	void	p_quit _((char *, char **));
 static	void	pong _((char *, char **));
 static	void	error _((char *, char **));
@@ -154,7 +155,7 @@ static	void	part _((char *, char **));
  */
 int
 is_channel(to)
-char	*to;
+ 	char	*to;
 {
 	int	version;
 
@@ -165,7 +166,8 @@ char	*to;
 		|| *to == '-'))
 		|| (version > Server2_5 && *to == MULTI_CHANNEL)
 		|| (version > Server2_7 && *to == LOCAL_CHANNEL)
-		|| (version > Server2_8 && *to == STRING_CHANNEL)); 
+ 		|| (version > Server2_8 && *to == STRING_CHANNEL)
+ 		|| (version > Server2_9 && *to == SAFE_CHANNEL));
 }
 
 
@@ -279,6 +281,7 @@ topic(from, ArgList)
 	if (flag == IGNORED)
 		return;
 
+ 	save_message_from();
 	if (!ArgList[1])
 	{
 		message_from((char *) 0, LOG_CRAP);
@@ -316,7 +319,7 @@ topic(from, ArgList)
                                     from, ArgList[0]);
 /****************************************************************************/
 	}
-        message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 /**************************** PATCHED by Flier ******************************/
         update_all_status();
 /****************************************************************************/
@@ -346,6 +349,7 @@ p_wall(from, ArgList)
 	if (!(line = ArgList[0]))
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_WALLS);
+ 	save_message_from();
 	message_from(from, LOG_WALL);
 	if (flag != IGNORED)
 	{
@@ -367,7 +371,7 @@ p_wall(from, ArgList)
 			set_lastlog_msg_level(level);
 		}
 	}
-	message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 }
 
 static	void
@@ -384,6 +388,7 @@ wallops(from, ArgList)
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_WALLOPS);
 	level = set_lastlog_msg_level(LOG_WALLOP);
+ 	save_message_from();
 	message_from(from, LOG_WALLOP);
 	if (index(from, '.'))
 	{
@@ -429,7 +434,7 @@ wallops(from, ArgList)
 /****************************************************************************/
 	}
 	set_lastlog_msg_level(level);
-	message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 }
 
 /*ARGSUSED*/
@@ -446,7 +451,7 @@ whoreply(from, ArgList)
 		*host,
 		*server,
 		*nick,
-		*stat,
+ 		*status,
 		*name;
 	int	i;
 
@@ -463,7 +468,7 @@ whoreply(from, ArgList)
 		    strcpy(format, "%s\t%-9s %-3s %s@%s (%s)");
 	}
 	i = 0;
-	channel = user = host = server = nick = stat = name = empty_string;
+ 	channel = user = host = server = nick = status = name = empty_string;
 	if (ArgList[i])
 		channel = ArgList[i++];
 	if (ArgList[i])
@@ -475,17 +480,17 @@ whoreply(from, ArgList)
 	if (ArgList[i])
 		nick = ArgList[i++];
 	if (ArgList[i])
-		stat = ArgList[i++];
+ 		status = ArgList[i++];
 	PasteArgs(ArgList, i);
 
-	if (*stat == 'S')	/* this only true for the header WHOREPLY */
+ 	if (*status == 'S')	/* this only true for the header WHOREPLY */
 	{
 		channel = "Channel";
 		if (((who_mask & WHO_FILE) == 0) || (fopen (who_file, "r")))
 		{
 			if (do_hook(WHO_LIST, "%s %s %s %s %s %s", channel,
-					nick, stat, user, host, ArgList[6]))
-				put_it(format, channel, nick, stat, user,
+ 					nick, status, user, host, ArgList[6]))
+ 				put_it(format, channel, nick, status, user,
 					host, ArgList[6]);
 			return;
 		}
@@ -497,16 +502,16 @@ whoreply(from, ArgList)
 	if (who_mask)
 	{
 		if (who_mask & WHO_HERE)
-			ok = ok && (*stat == 'H');
+			ok = ok && (*status == 'H');
 		if (who_mask & WHO_AWAY)
-			ok = ok && (*stat == 'G');
+			ok = ok && (*status == 'G');
 		if (who_mask & WHO_OPS)
-			ok = ok && (*(stat + 1) == '*');
+			ok = ok && (*(status + 1) == '*');
 		if (who_mask & WHO_LUSERS)
-			ok = ok && (*(stat + 1) != '*');
+			ok = ok && (*(status + 1) != '*');
 		if (who_mask & WHO_CHOPS)
-			ok = ok && ((*(stat + 1) == '@') ||
-			(*(stat + 2) == '@'));
+			ok = ok && ((*(status + 1) == '@') ||
+			(*(status + 2) == '@'));
 		if (who_mask & WHO_NAME)
 			ok = ok && wild_match(who_name, user);
 		if (who_mask & WHO_NICK)
@@ -539,18 +544,18 @@ whoreply(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
                 if (inFlierWho) {
                     if (inFlierFKill) DoKill(nick,user,host);
-                    else OnWho(nick,user,host,channel,stat);
+                    else OnWho(nick,user,host,channel,status);
                 }
                 else
 /****************************************************************************/				
 		if (do_hook(WHO_LIST, "%s %s %s %s %s %s", channel, nick,
-				stat, user, host, name))
+ 				status, user, host, name))
 		{
 			if (get_int_var(SHOW_WHO_HOPCOUNT_VAR))
 /**************************** PATCHED by Flier ******************************/
-				/*put_it(format, channel, nick, stat, user, host,
+ 				/*put_it(format, channel, nick, status, user, host,
 					name);*/
-                                PrintWho(channel,nick,stat,user,host,name);
+                                PrintWho(channel,nick,status,user,host,name);
 /****************************************************************************/				
 			else
 			{
@@ -562,9 +567,9 @@ whoreply(from, ArgList)
 				else
 					tmp = name;
 /**************************** PATCHED by Flier ******************************/
-				/*put_it(format, channel, nick, stat, user, host,
+				/*put_it(format, channel, nick, status, user, host,
 					tmp);*/
-                                PrintWho(channel,nick,stat,user,host,tmp);
+                                PrintWho(channel,nick,status,user,host,tmp);
 /****************************************************************************/				
 			}
 		}
@@ -599,6 +604,7 @@ p_privmsg(from, Args)
 	ptr = Args[1];
 	if (!to || !ptr)
 		return;
+ 	save_message_from();
 	if (is_channel(to))
 	{
 		message_from(to, LOG_MSG);
@@ -700,9 +706,7 @@ p_privmsg(from, Args)
 	else
 	{
 		no_flood = check_flooding(from, flood_type, ptr);
-		if ((sed == 1) && (!do_hook(ENCRYPTED_PRIVMSG_LIST,"%s %s %s",from, to, ptr)))
-			sed = 0;
-		else
+ 		if (sed == 0 || do_hook(ENCRYPTED_PRIVMSG_LIST,"%s %s %s",from, to, ptr))
 		{
 		switch (list_type)
 		{
@@ -773,11 +777,11 @@ p_privmsg(from, Args)
 	}
 	set_lastlog_msg_level(level);
 out:
-	message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 }
 
 static	void
-msg(from, ArgList)
+msgcmd(from, ArgList)
 	char	*from,
 		**ArgList;
 {
@@ -810,6 +814,7 @@ msg(from, ArgList)
 	malloc_strcpy(&public_nick, from);
 	log_type = set_lastlog_msg_level(LOG_PUBLIC);
 	no_flooding = check_flooding(from, PUBLIC_FLOOD, text);
+ 	save_message_from();
         message_from(channel, LOG_PUBLIC);
 	if (is_current_channel(channel, parsing_server_index, 0))
 	{
@@ -827,7 +832,7 @@ msg(from, ArgList)
 				text);
 		doing_privmsg = 0;
 	}
-	message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 	if (beep_on_level & LOG_PUBLIC)
 		beep_em(1);
 	set_lastlog_msg_level(log_type);
@@ -854,6 +859,7 @@ p_quit(from, ArgList)
 	if (!from)
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
+ 	save_message_from();
 	if (flag != IGNORED)
 	{
 		PasteArgs(ArgList, 0);
@@ -938,6 +944,7 @@ p_quit(from, ArgList)
 	message_from((char *) 0, LOG_CURRENT);
 	remove_from_channel((char *) 0, from, parsing_server_index);
 	notify_mark(from, 0, 0);
+ 	restore_message_from();
 }
 
 /*ARGSUSED*/
@@ -1060,10 +1067,7 @@ p_channel(from, ArgList)
 	int	join;
 	char	*channel;
 	int	flag;
-/**************************** PATCHED by Flier ******************************/
-	/*char	*s, *ov;*/
-	char	*s, *ov=NULL;
-/****************************************************************************/
+ 	char	*s, *ov = NULL;
 	int	chan_oper = 0, chan_voice = 0;
 /**************************** PATCHED by Flier ******************************/
         int     donelj=0;
@@ -1108,11 +1112,12 @@ p_channel(from, ArgList)
 			return;
 		if (!is_on_channel(channel, parsing_server_index, from))
 			return;
+ 		save_message_from();
 		message_from(channel, LOG_CRAP);
 /***************************** PATCHED by Flier **************************/	
 		/*if (flag != IGNORED && do_hook(LEAVE_LIST, "%s %s", from, channel))
 			say("%s has left channel %s", from, channel);*/
-                if ((double_ignore(channel,NULL,IGNORE_CRAP))==IGNORED) return;
+                if ((double_ignore(channel,NULL,IGNORE_CRAP))==IGNORED) goto out;
                 if (flag != IGNORED && do_hook(LEAVE_LIST, "%s %s", from, channel)) {
 #ifdef WANTANSI
                     joiner=CheckJoiners(from,channel,from_server,NULL);
@@ -1127,8 +1132,9 @@ p_channel(from, ArgList)
                     say("%s has left channel %s", from, channel);
 #endif
                 }
+out:
 /*************************************************************************/	
-		message_from((char *) 0, LOG_CURRENT);
+ 		restore_message_from();
         }
 	if (!my_stricmp(from, get_server_nickname(parsing_server_index)))
 	{
@@ -1206,9 +1212,10 @@ p_channel(from, ArgList)
 /****************************************************************************/
 		if (!get_channel_oper(channel, parsing_server_index))
 			in_on_who = 1;
+ 		save_message_from();
 		message_from(channel, LOG_CRAP);
 		if (flag != IGNORED && do_hook(JOIN_LIST, "%s %s %s", from,
-						channel, ov?ov:""))
+ 						channel, ov ? ov : ""))
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*if (FromUserHost)
@@ -1252,7 +1259,7 @@ p_channel(from, ArgList)
                     update_all_status();
                 }
 /****************************************************************************/
-		message_from((char *) 0, LOG_CURRENT);
+ 		restore_message_from();
                 in_on_who = 0;
         }
 }
@@ -1293,6 +1300,7 @@ p_invite(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
                         if ((double_ignore(ArgList[1],NULL,IGNORE_INVITES))==IGNORED) return;
 /****************************************************************************/
+ 			save_message_from();
 			message_from(from, LOG_CRAP);
 			if (do_hook(INVITE_LIST, "%s %s", from, ArgList[1]))
 /************************** PATCHED by Flier **************************/
@@ -1300,7 +1308,7 @@ p_invite(from, ArgList)
 						from, high, ArgList[1]);*/
                            HandleInvite(from,FromUserHost,ArgList[1]);
 /**********************************************************************/
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 			malloc_strcpy(&invite_channel, ArgList[1]);
 			malloc_strcpy(&recv_nick, from);
 		}
@@ -1322,12 +1330,9 @@ server_kill(from, ArgList)
 	{
 		say("You have been killed by operator %s %s", from,
 			ArgList[1] ? ArgList[1] : "(No Reason Given)");
-/**************************** PATCHED by Flier ******************************/
-/*#ifndef NO_QUIT_ON_OPERATOR_KILL
-                irc_exit();*/
-                /*irc_exit(0);
-#endif*/ /* NO_QUIT_ON_OPERATOR_KILL */
-/**************************** Patched by Flier ******************************/
+#ifdef FASCIST_QUIT_ON_OPERATOR_KILL
+  		irc_exit();
+#endif /* FASCIST_QUIT_ON_OPERATOR_KILL */
                 HandleKills(from_server,from,FromUserHost,ArgList[1]);
 /****************************************************************************/
 	}
@@ -1365,10 +1370,11 @@ p_nick(from, ArgList)
 	line = ArgList[0];
 	if (my_stricmp(from, get_server_nickname(parsing_server_index)) == 0){
 		if (parsing_server_index == primary_server)
-			strmcpy(nickname, line, NICKNAME_LEN);
+ 			malloc_strcpy(&nickname, line);
 		set_server_nickname(parsing_server_index, line);
 		its_me = 1;
 	}
+ 	save_message_from();
 	if (flag != IGNORED)
 	{
 		for (chan = walk_channels(from, 1, parsing_server_index); chan;
@@ -1402,12 +1408,13 @@ p_nick(from, ArgList)
 		}
 	}
         rename_nick(from, line, parsing_server_index);
-	message_from((char *) 0, LOG_CURRENT);
 	if (my_stricmp(from, line))
 	{
+ 		message_from((char *) 0, LOG_CURRENT);
 		notify_mark(from, 0, 0);
 		notify_mark(line, 1, 0);
 	}
+ 	restore_message_from();
 }
 
 static	void
@@ -1430,6 +1437,7 @@ mode(from, ArgList)
 	PasteArgs(ArgList, 1);
 	channel = ArgList[0];
 	line = ArgList[1];
+ 	save_message_from();
 	message_from(channel, LOG_CRAP);
 	if (channel && line)
 	{
@@ -1464,7 +1472,7 @@ mode(from, ArgList)
 		}
 		update_all_status();
 	}
-	message_from((char *) 0, LOG_CURRENT);
+ 	restore_message_from();
 }
 
 static	void
@@ -1488,30 +1496,27 @@ kick(from, ArgList)
 
 	if (channel && who)
 	{
+ 		save_message_from();
+ 		message_from(channel, LOG_CRAP);
 		if (my_stricmp(who, get_server_nickname(parsing_server_index)) == 0)
 		{
 /**************************** PATCHED by Flier *******************************/
 			/*if (comment && *comment)
 			{
-				message_from(channel, LOG_CRAP);
 				if (do_hook(KICK_LIST, "%s %s %s %s", who,
 						from, channel, comment))
 					say("You have been kicked off channel %s by %s (%s)",
 						channel, from, comment);
-				message_from((char *) 0, LOG_CURRENT);
 			}
 			else
 			{
-				message_from(channel, LOG_CRAP);
 				if (do_hook(KICK_LIST, "%s %s %s", who, from,
 						channel))
 					say("You have been kicked off channel %s by %s",
 						channel, from);
-				message_from((char *) 0, LOG_CURRENT);
 			}*/
                         rejoin=HandleMyKick(who,from,FromUserHost,channel,comment,&frkick);
                         if ((double_ignore(channel,NULL,IGNORE_CRAP))!=IGNORED) {
-                            message_from(channel, LOG_CRAP);
                             if (comment && *comment)
                             {
                                 if (do_hook(KICK_LIST, "%s %s %s %s", who,
@@ -1532,7 +1537,6 @@ kick(from, ArgList)
                                     KickPrint("You","have",from,channel,NULL,rejoin,frkick);
 #endif /*CELECOSM*/
                             }
-                            message_from((char *) 0, LOG_CURRENT);
                         }
 /****************************************************************************/
 			remove_channel(channel, parsing_server_index);
@@ -1544,24 +1548,19 @@ kick(from, ArgList)
                         HandleKick(from,who,FromUserHost,channel,comment,&frkick);
 			/*if (comment && *comment)
 			{
-				message_from(channel, LOG_CRAP);
 				if (do_hook(KICK_LIST, "%s %s %s %s", who,
 						from, channel, comment))
 					say("%s has been kicked off channel %s by %s (%s)",
 						who, channel, from, comment);
-				message_from((char *) 0, LOG_CURRENT);
 			}
 			else
 			{
-				message_from(channel, LOG_CRAP);
 				if (do_hook(KICK_LIST, "%s %s %s", who, from,
 						channel))
 					say("%s has been kicked off channel %s by %s",
 						who, channel, from);
-				message_from((char *) 0, LOG_CURRENT);
 			}*/
                         if ((double_ignore(channel,NULL,IGNORE_CRAP))!=IGNORED) {
-                            message_from(channel, LOG_CRAP);
                             if (comment && *comment)
                             {
                                 if (do_hook(KICK_LIST, "%s %s %s %s", who,
@@ -1582,11 +1581,11 @@ kick(from, ArgList)
                                     KickPrint(who,"has",from,channel,NULL,0,frkick);
 #endif /*CELECOSM*/
                             }
-                            message_from((char *) 0, LOG_CURRENT);
                         }
 /****************************************************************************/
 			remove_from_channel(channel, who, parsing_server_index);
 		}
+ 		restore_message_from();
 	}
 }
 
@@ -1620,6 +1619,7 @@ part(from, ArgList)
 	in_on_who = 1;
         if (flag != IGNORED)
         {
+ 		save_message_from();
 		message_from(channel, LOG_CRAP);
             	if (do_hook(LEAVE_LIST, "%s %s %s", from, channel, comment)) {
 /**************************** PATCHED by Flier ******************************/
@@ -1648,7 +1648,7 @@ part(from, ArgList)
 #endif
 /****************************************************************************/
                 }
-            	message_from((char *) 0, LOG_CURRENT);
+ 		restore_message_from();
         }
 	if (my_stricmp(from, get_server_nickname(parsing_server_index)) == 0)
 		remove_channel(channel, parsing_server_index);
@@ -1739,7 +1739,7 @@ irc2_parse_server(line)
         {
                 if (numeric==1) {
                     char *nickstart,*nickend;
-                    char tmpbuf[NICKNAME_LEN+1];
+                    char tmpbuf[mybufsize/8];
 
                     if ((nickstart=index(line,' ')) && (nickstart=index(nickstart+1,' ')) &&
                         (nickend=index(nickstart+1,' '))) {
@@ -1768,7 +1768,7 @@ irc2_parse_server(line)
 	else if (strcmp(comm, "CHANNEL") == 0)
 		p_channel(from, ArgList);
 	else if (strcmp(comm, "MSG") == 0)
-		msg(from, ArgList);
+ 		msgcmd(from, ArgList);
 	else if (strcmp(comm, "QUIT") == 0)
 		p_quit(from, ArgList);
 	else if (strcmp(comm, "WALL") == 0)

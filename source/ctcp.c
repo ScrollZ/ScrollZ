@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.11 1999-01-17 10:16:21 f Exp $
+ * $Id: ctcp.c,v 1.12 1999-02-15 21:19:02 f Exp $
  */
 
 #include "irc.h"
@@ -140,7 +140,7 @@ static  char    *do_page _((CtcpEntry *, char *, char*, char *));
 
 static CtcpEntry ctcp_cmd[] =
 {
-	{ "SED",	"contains simple_encrypted_data",
+ 	{ CTCP_CRYPTO_TYPE, CTCP_CRYPTO_NAME,
 		CTCP_SHUTUP | CTCP_NOREPLY, do_sed },
 	{ "VERSION",	"shows client type, version and environment",
 		CTCP_VERBOSE, do_version },
@@ -226,13 +226,13 @@ int	in_ctcp_flag = 0;
 char	*
 ctcp_quote_it(str, len)
 	char	*str;
-	int	len;
+ 	size_t	len;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr;
 	int	i;
 
-	ptr = buffer;
+ 	ptr = lbuf;
 	for (i = 0; i < len; i++)
 	{
 		switch (str[i])
@@ -257,6 +257,8 @@ ctcp_quote_it(str, len)
 			*(ptr++) = CTCP_QUOTE_CHAR;
 			*(ptr++) = '0';
 			break;
+ 		case ':':
+ 			*(ptr++) = CTCP_QUOTE_CHAR;
 		default:
 			*(ptr++) = str[i];
 			break;
@@ -264,30 +266,29 @@ ctcp_quote_it(str, len)
 	}
 	*ptr = '\0';
 	str = (char *) 0;
-	malloc_strcpy(&str, buffer);
+ 	malloc_strcpy(&str, lbuf);
 	return (str);
 }
 
 /*
  * ctcp_unquote_it: This takes a null terminated string that had previously
  * been quoted using ctcp_quote_it and unquotes it.  Returned is a malloced
- * space pointing to the unquoted string.  NOTE: a trailing null is added for
- * convenied, but the returned data may contain nulls!.  The len is modified
- * to contain the size of the data returned. 
+ * space pointing to the unquoted string.  The len is modified to contain
+ * the size of the data returned.
  */
 char	*
 ctcp_unquote_it(str, len)
 	char	*str;
-	int	*len;
+ 	size_t	*len;
 {
-	char	*buffer;
+ 	char	*lbuf;
 	char	*ptr;
 	char	c;
 	int	i,
 		new_size = 0;
 
-	buffer = (char *) new_malloc(sizeof(char) * *len);
-	ptr = buffer;
+ 	lbuf = (char *) new_malloc(sizeof(char) * *len);
+ 	ptr = lbuf;
 	i = 0;
 	while (i < *len)
 	{
@@ -319,9 +320,8 @@ ctcp_unquote_it(str, len)
 			*(ptr++) = c;
 		new_size++;
 	}
-	*ptr = '\0';
 	*len = new_size;
-	return (buffer);
+ 	return (lbuf);
 }
 
 /************************** PATCHED by Flier **************************/
@@ -1293,7 +1293,7 @@ do_finger(ctcp, from, to, cmd)
 {
 	struct	passwd	*pwd;
 	time_t	diff;
-	int	uid;
+ 	unsigned	uid;
 	char	c;
 
 /**************************** PATCHED by Flier ******************************/
@@ -1378,6 +1378,7 @@ do_atmosphere(ctcp, from, to, cmd)
 	{
 		int old;
 
+ 		save_message_from();
 		old = set_lastlog_msg_level(LOG_ACTION);
 		if (is_channel(to))
 		{
@@ -1435,8 +1436,8 @@ do_atmosphere(ctcp, from, to, cmd)
 #endif
 /****************************************************************************/
 		}
-		message_from((char *) 0, LOG_CRAP);
 		set_lastlog_msg_level(old);
+ 		restore_message_from();
 	}
 	return NULL;
 }
@@ -1584,6 +1585,7 @@ do_ctcp(from, to, str)
 			{
 				int	lastlog_level;
 
+ 				save_message_from();
 				lastlog_level = set_lastlog_msg_level(LOG_CTCP);
 				message_from((char *) 0, LOG_CTCP);
 /**************************** PATCHED by Flier ******************************/
@@ -1641,8 +1643,8 @@ do_ctcp(from, to, str)
 #endif
                                 }
 /****************************************************************************/
-				message_from((char *) 0, LOG_CURRENT);
 				set_lastlog_msg_level(lastlog_level);
+ 				restore_message_from();
 			}
 			str = end;
 		}
@@ -1701,10 +1703,13 @@ do_ctcp(from, to, str)
 
                         if (no_flood && get_int_var(VERBOSE_CTCP_VAR))
                         {
+ 				save_message_from();
+ 				message_from((char *) 0, LOG_CTCP);
 				if (no_reply && was_ignoring == 0)
 					say("CTCP flood detected - suspending replies");
 				else if (no_reply == 0 && was_ignoring)
 					say("CTCP reply suspending time elapsed - replying normally");
+ 				restore_message_from();
 			}
                         if (no_flood == 0 || no_reply == 0)
                         {
@@ -1859,6 +1864,7 @@ do_new_notice_ctcp(from, to, str, cmd)
                                 args=buf;
 /****************************************************************************/
 			}
+ 			save_message_from();
 			lastlog_level = set_lastlog_msg_level(LOG_CTCP);
 			message_from((char *) 0, LOG_CTCP);
 /**************************** PATCHED by Flier ******************************/
@@ -1905,8 +1911,8 @@ do_new_notice_ctcp(from, to, str, cmd)
                             }
                         }
 /****************************************************************************/
-			message_from((char *) 0, LOG_CURRENT);
 			set_lastlog_msg_level(lastlog_level);
+ 			restore_message_from();
 		}
 		*str = end;
 	}

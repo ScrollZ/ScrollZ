@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.6 1998-11-18 21:00:13 f Exp $
+ * $Id: vars.c,v 1.7 1999-02-15 21:20:24 f Exp $
  */
 
 #include "irc.h"
@@ -65,7 +65,7 @@ typedef struct
 	int	type;			/* variable types, see below */
 	int	integer;		/* int value of variable */
 	char	*string;		/* string value of variable */
-	void	(*func)();		/* function to do every time variable is set */
+ 	void	(*func) ();		/* function to do every time variable is set */
 	char	int_flags;		/* internal flags to the variable */
 	unsigned short	flags;		/* flags for this variable */
 }	IrcVariable;
@@ -432,8 +432,8 @@ find_variable(org_name, cnt)
 {
 	IrcVariable *v,
 		    *first;
-	int	len,
-		var_index;
+ 	size_t	len;
+ 	int	var_index;
 	char	*name = (char *) 0;
 
  	malloc_strcpy(&name, org_name);
@@ -818,7 +818,7 @@ make_string_var(var_name)
 {
 	int	cnt,
 		var_index;
-	char	buffer[BIG_BUFFER_SIZE + 1],
+ 	char	lbuf[BIG_BUFFER_SIZE + 1],
 		*ret = (char *) 0,
 		*cmd = (char *) 0;
 
@@ -834,15 +834,15 @@ make_string_var(var_name)
 		malloc_strcpy(&ret, irc_variable[var_index].string);
 		break;
 	case INT_TYPE_VAR:
-		sprintf(buffer, "%u", irc_variable[var_index].integer);
-		malloc_strcpy(&ret, buffer);
+ 		sprintf(lbuf, "%u", irc_variable[var_index].integer);
+ 		malloc_strcpy(&ret, lbuf);
 		break;
 	case BOOL_TYPE_VAR:
 		malloc_strcpy(&ret, var_settings[irc_variable[var_index].integer]);
 		break;
 	case CHAR_TYPE_VAR:
-		sprintf(buffer, "%c", irc_variable[var_index].integer);
-		malloc_strcpy(&ret, buffer);
+ 		sprintf(lbuf, "%c", irc_variable[var_index].integer);
+ 		malloc_strcpy(&ret, lbuf);
 		break;
 	}
 out:

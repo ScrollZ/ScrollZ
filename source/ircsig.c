@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircsig.c,v 1.2 1998-09-10 17:45:32 f Exp $
+ * $Id: ircsig.c,v 1.3 1999-02-15 21:19:41 f Exp $
  */
 
 /*
@@ -37,7 +37,6 @@
  */
 
 #include "irc.h"
-#include "irc_std.h"
 
 #ifdef USE_SIGACTION
 sigfunc *

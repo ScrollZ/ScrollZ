@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.17 1999-01-17 12:37:43 f Exp $
+ * $Id: edit5.c,v 1.18 1999-02-15 21:19:12 f Exp $
  */
 
 #include "irc.h"
@@ -2057,16 +2057,16 @@ char *nick;
     char *tmpstr;
     char *newnick;
     char tmpbuf[mybufsize/8+1];
-    char nickbuf[NICKNAME_LEN+1];
+    char nickbuf[mybufsize/8+1];
     static int  fudge_index=0;
-    static char oldnick[NICKNAME_LEN+1]={0};
+    static char oldnick[mybufsize/8+1]={0};
 
     strmcpy(tmpbuf,nick,mybufsize/8);
     tmpstr=tmpbuf;
     newnick=new_next_arg(tmpstr,&tmpstr);
     strcpy(nickbuf,newnick);
     if (!(*oldnick)) {
-        strmcpy(oldnick,nickbuf,NICKNAME_LEN);
+        strmcpy(oldnick,nickbuf,mybufsize/8);
         fudge_index=strlen(nickbuf);
     }
     else {

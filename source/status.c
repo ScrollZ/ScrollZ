@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.8 1998-12-10 18:40:10 f Exp $
+ * $Id: status.c,v 1.9 1999-02-15 21:20:18 f Exp $
  */
 
 #include "irc.h"
@@ -96,7 +96,7 @@ static	char	*status_notify_windows _((Window *));
 static	char	*status_group _((Window *));
 static	void	status_make_printable _((unsigned char *, int));
 static	void	alarm_switch _((int));
-static	char	*convert_sub_format _((char *, char));
+static	char	*convert_sub_format _((char *, int));
 /**************************** PATCHED by Flier ******************************/
 static	char	*status_user00 _((Window *));
 static	char	*status_user01 _((Window *));
@@ -512,33 +512,29 @@ int  bufsize;
  * mallocs the returned string. 
  */
 static	char	*
-#ifdef __STDC__
-convert_sub_format(char *format, char c)
-#else
 convert_sub_format(format, c)
 	char	*format;
-	char	c;
-#endif
+	int	c;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+	char	lbuf[BIG_BUFFER_SIZE + 1];
 	static	char	bletch[] = "%% ";
 	char	*ptr = (char *) 0;
 	int	dont_got_it = 1;
 
 	if (format == (char *) 0)
 		return ((char *) 0);
-	*buffer = (char) 0;
+	*lbuf = (char) 0;
 	while (format)
 	{
 		if ((ptr = (char *) index(format, '%')) != NULL)
 		{
 			*ptr = (char) 0;
-			strmcat(buffer, format, BIG_BUFFER_SIZE);
+			strmcat(lbuf, format, BIG_BUFFER_SIZE);
 			*(ptr++) = '%';
 			if ((*ptr == c) && dont_got_it)
 			{
 				dont_got_it = 0;
-				strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+				strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 			}
 /**************************** PATCHED by Flier ******************************/
                         /* This little bit of code allows colors to be embedded within
@@ -547,21 +543,21 @@ convert_sub_format(format, c)
                          */
 #ifdef WANTANSI
                         else if ((*ptr=='Y') || (*ptr=='y'))
-                            InsertStatusColor(*(++ptr),buffer,sizeof(buffer));
+                            InsertStatusColor(*(++ptr),lbuf,sizeof(lbuf));
 #endif
 /****************************************************************************/
 			else
 			{
 				bletch[2] = *ptr;
-				strmcat(buffer, bletch, BIG_BUFFER_SIZE);
+				strmcat(lbuf, bletch, BIG_BUFFER_SIZE);
 			}
 			ptr++;
 		}
 		else
-			strmcat(buffer, format, BIG_BUFFER_SIZE);
+			strmcat(lbuf, format, BIG_BUFFER_SIZE);
 		format = ptr;
 	}
-	malloc_strcpy(&ptr, buffer);
+	malloc_strcpy(&ptr, lbuf);
 	return (ptr);
 }
 
@@ -570,18 +566,18 @@ convert_format(format, k)
 	char	*format;
 	int	k;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr,
 		*malloc_ptr = (char *) 0; 
 	int	*cp;
 
-	*buffer = (char) 0;
+	*lbuf = (char) 0;
 	while (format)
 	{
 		if ((ptr = (char *) index(format, '%')) != NULL)
 		{
 			*ptr = (char) 0;
-			strmcat(buffer, format, BIG_BUFFER_SIZE);
+			strmcat(lbuf, format, BIG_BUFFER_SIZE);
 			*(ptr++) = '%';
 			cp = &func_cnt[k];
 			if (*cp < MAX_FUNCTIONS)
@@ -589,15 +585,15 @@ convert_format(format, k)
 				switch (*(ptr++))
 				{
 				case '%':
-					strmcat(buffer, "%", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%", BIG_BUFFER_SIZE);
 					break;
 				case 'N':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_nickname;
 					break;
 				case '>':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_right_justify;
 					break;
@@ -605,7 +601,7 @@ convert_format(format, k)
 					new_free(&group_format);
 					group_format =
 		convert_sub_format(get_string_var(STATUS_GROUP_VAR), 'G');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_group;
 					break;
@@ -613,7 +609,7 @@ convert_format(format, k)
 					new_free(&query_format);
 					query_format =
 		convert_sub_format(get_string_var(STATUS_QUERY_VAR), 'Q');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_query_nick;
 					break;
@@ -621,12 +617,12 @@ convert_format(format, k)
 					new_free(&notify_format);
 					notify_format = 
 		convert_sub_format(get_string_var(STATUS_NOTIFY_VAR), 'F');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_notify_windows;
 					break;
 				case '@':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_chanop;
 					break;
@@ -634,7 +630,7 @@ convert_format(format, k)
 					new_free(&channel_format);
 					channel_format =
 		convert_sub_format(get_string_var(STATUS_CHANNEL_VAR), 'C');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_channel;
 					break;
@@ -642,7 +638,7 @@ convert_format(format, k)
 					new_free(&server_format);
 					server_format =
 		convert_sub_format(get_string_var(STATUS_SERVER_VAR), 'S');
-					strmcat(buffer,"%s",BIG_BUFFER_SIZE);
+					strmcat(lbuf,"%s",BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_server;
 					break;
@@ -650,7 +646,7 @@ convert_format(format, k)
 					new_free(&mode_format);
 					mode_format =
 		convert_sub_format(get_string_var(STATUS_MODE_VAR), '+');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_mode;
 					break;
@@ -658,7 +654,7 @@ convert_format(format, k)
 					new_free(&umode_format);
 					umode_format =
 		convert_sub_format(get_string_var(STATUS_UMODE_VAR), '#');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_umode;
 					break;
@@ -666,41 +662,41 @@ convert_format(format, k)
 					new_free(&mail_format);
 					mail_format =
 		convert_sub_format(get_string_var(STATUS_MAIL_VAR), 'M');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_mail;
 					break;
 				case 'I':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_insert_mode;
 					break;
 				case 'O':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_overwrite_mode;
 					break;
 				case 'A':
 /**************************** PATCHED by Flier ******************************/
-					/*strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					/*strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_away;
 					break;*/
 					new_free(&away_format);
 					away_format =
                 convert_sub_format(get_string_var(STATUS_AWAY_VAR), 'A');
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_away;
                                         break;
 /****************************************************************************/
 				case 'V':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_version;
 					break;
 				case 'R':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_refnum;
 					break;
@@ -708,19 +704,19 @@ convert_format(format, k)
 					new_free(&clock_format);
 					clock_format =
 		convert_sub_format(get_string_var(STATUS_CLOCK_VAR), 'T');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_clock;
 					break;
 /**************************** PATCHED by Flier ******************************/
 				/*case 'U':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_user0;
 					break;*/
 /****************************************************************************/
 				case 'H':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_hold;
 					break;
@@ -728,33 +724,33 @@ convert_format(format, k)
 					new_free(&hold_lines_format);
 					hold_lines_format =
 		convert_sub_format(get_string_var(STATUS_HOLD_LINES_VAR), 'B');
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_hold_lines;
 					break;
 				case '*':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_oper;
 					break;
 				case 'W':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_window;
 					break;
 /**************************** PATCHED by Flier ******************************/
 				/*case 'X':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_user1;
 					break;
 				case 'Y':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_user2;
 					break;
 				case 'Z':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_user3;
 					break;*/
@@ -762,22 +758,22 @@ convert_format(format, k)
                                         new_free(&uptime_format);
                                         uptime_format =
                 convert_sub_format(get_string_var(STATUS_UPTIME_VAR), '1');
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_uptime;
                                         break;
                                 case '2':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_lag;
                                         break;
                                 case '3':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_lastjoin;
                                         break;
                                 case 'J':
-					strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
 						status_dcc;
                                         break;
@@ -785,58 +781,58 @@ convert_format(format, k)
                                         new_free(&channelcount_format);
                                         channelcount_format =
                 convert_sub_format(get_string_var(STATUS_CHANNELCOUNT_VAR), 'U');
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_channelcount;
                                         break;
 /****** Coded by Zakath ******/
                                 case '4':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_packs;
                                         break;
                                 case '5':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_dccsends;
                                         break;
                                 case '6':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                 status_dccgets;
                                         break;
                                 case '7':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_autoget;
                                         break;
                                 case '8':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_security;
                                         break;
                                 case '9':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_channeltopic;
                                         break;
                                 case 'D':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_frlist;
                                         break;
                                 case 'E':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_nhprot;
                                         break;
                                 case 'P':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_floodp;
                                         break;
                                 case 'L':
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_ctcpcloak;
                                         break;
@@ -845,7 +841,7 @@ convert_format(format, k)
                                         new_free(&loadavg_format);
                                         loadavg_format=
                     convert_sub_format(get_string_var(STATUS_LOADAVG_VAR), 'Z');
-                                        strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                        strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_loadavg;
                                         break;
@@ -855,67 +851,67 @@ convert_format(format, k)
  				case 'y':
                                      switch (*(ptr++)) {
                                          case '0' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor0;
                                              break;
                                          case '1' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor1;
                                              break;
                                          case '2' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor2;
                                              break;
                                          case '3' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor3;
                                              break;
                                          case '4' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor4;
                                              break;
                                          case '5' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor5;
                                              break;
                                          case '6' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor6;
                                              break;
                                          case '7' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor7;
                                              break;
                                          case '8' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor8;
                                              break;
                                          case '9' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolor9;
                                              break;
                                          case 'a' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolora;
                                              break;
                                          case 'b' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolorb;
                                              break;
                                          case 'c' :
-                                             strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                             strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                              status_func[k][(*cp)++] =
                                                  status_Cbarcolorc;
                                              break;
@@ -929,57 +925,57 @@ convert_format(format, k)
                                           /* Thx to Sheik & Flier for help */
                                     switch (*(ptr++)) {
                                         case '0' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user00;
                                             break;
                                         case '1' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user01;
                                             break;
                                         case '2' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user02;
                                             break;
                                         case '3' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user03;
                                             break;
                                         case '4' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user04;
                                             break;
                                         case '5' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user05;
                                             break;
                                         case '6' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user06;
                                             break;
                                         case '7' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user07;
                                             break;
                                         case '8' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user08;
                                             break;
                                         case '9' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_user09;
                                             break;
                                         case 'S' :
-                                            strmcat(buffer, "%s", BIG_BUFFER_SIZE);
+                                            strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                             status_func[k][(*cp)++] =
                                                 status_fullserver;
                                             break;
@@ -1000,11 +996,11 @@ convert_format(format, k)
 				ptr++;
 		}
 		else
-			strmcat(buffer, format, BIG_BUFFER_SIZE);
+			strmcat(lbuf, format, BIG_BUFFER_SIZE);
 		format = ptr;
 	}
 	/* this frees the old str first */
-	malloc_strcpy(&malloc_ptr, buffer);
+	malloc_strcpy(&malloc_ptr, lbuf);
 	return (malloc_ptr);
 }
 
@@ -1109,7 +1105,7 @@ make_status(window)
 	k,
 	RJustifyPos = -1,
 	RealPosition;
-	u_char	buffer[BIG_BUFFER_SIZE + 1];
+	u_char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*func_value[MAX_FUNCTIONS];
 /**************************** PATCHED by Flier ******************************/
         int     change=1;
@@ -1134,13 +1130,18 @@ make_status(window)
 
 		if (!dumb && status_format[l])
 		{
+ 			/*
+ 			 * XXX: note that this code below depends on the definition
+ 			 * of MAX_FUNCTIONS (currently 33), and the sprintf must
+ 			 * be updated if MAX_FUNCTIONS is changed.
+ 			 */
 			for (i = 0; i < MAX_FUNCTIONS; i++)
 				func_value[i] = (status_func[l][i]) (window);
 /**************************** PATCHED by Flier ******************************/
-			/*buffer[0] = REV_TOG;*/
-                        buffer[0]=get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
+			/*lbuf[0] = REV_TOG;*/
+                        lbuf[0]=get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
 /****************************************************************************/
-			sprintf((char *) buffer+1, status_format[l],
+			sprintf((char *) lbuf+1, status_format[l],
 				func_value[0], func_value[1], func_value[2],
 				func_value[3], func_value[4], func_value[5],
 				func_value[6], func_value[7], func_value[8],
@@ -1164,24 +1165,24 @@ make_status(window)
 			
 			RealPosition = 0;
 			RJustifyPos = -1;
-			for (i = 0; buffer[i]; i++)
+			for (i = 0; lbuf[i]; i++)
 				/* formfeed is a marker for left/right border*/
-				if (buffer[i] == '\f')
+				if (lbuf[i] == '\f')
 				{
 					RJustifyPos = i;
 				}
 /**************************** PATCHED by Flier ******************************/
-				/*else if (buffer[i] != REV_TOG
-					 && buffer[i] != UND_TOG 
-					 && buffer[i] != ALL_OFF 
-					 && buffer[i] != BOLD_TOG)*/
+				/*else if (lbuf[i] != REV_TOG
+					 && lbuf[i] != UND_TOG 
+					 && lbuf[i] != ALL_OFF 
+					 && lbuf[i] != BOLD_TOG)*/
 #ifdef WANTANSI
-                                else if (buffer[i] != REV_TOG && buffer[i] != UND_TOG &&
-                                         buffer[i] != ALL_OFF && buffer[i] != BOLD_TOG
-                                         && !vt100Decode(buffer[i]))
+                                else if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
+                                         lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG
+                                         && !vt100Decode(lbuf[i]))
 #else
-                                else if (buffer[i] != REV_TOG && buffer[i] != UND_TOG &&
-                                         buffer[i] != ALL_OFF && buffer[i] != BOLD_TOG)
+                                else if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
+                                         lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG)
 #endif
 /****************************************************************************/
 				{
@@ -1190,7 +1191,7 @@ make_status(window)
 					if (RealPosition == CO-1)
 /****************************************************************************/
 					{
-						buffer[i] = '\0';
+						lbuf[i] = '\0';
 						break;
 					}
 					RealPosition++;
@@ -1206,8 +1207,8 @@ make_status(window)
 			else
 			{
 				/* get rid of the marker */
-				strcpy((char *) &buffer[RJustifyPos], 
-					(char *) &buffer[RJustifyPos+1]);
+				strcpy((char *) &lbuf[RJustifyPos], 
+					(char *) &lbuf[RJustifyPos+1]);
 				i--;
 			}
 			
@@ -1219,28 +1220,28 @@ make_status(window)
 				if (RJustifyPos == 0)
 					c = ' ';
 				else
-					c = buffer[RJustifyPos - 1];
+					c = lbuf[RJustifyPos - 1];
 				
 				diff = CO - RealPosition;
 				
 				for ( ; i >= RJustifyPos; i--)
-					buffer[i + diff] = buffer[i];
+					lbuf[i + diff] = lbuf[i];
 				
 				for (i++ ; diff > 0 ; diff--, i++)
-					buffer[i] = c;
+					lbuf[i] = c;
 			}
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        strcat(buffer,"[0m");
+                        strcat(lbuf,"[0m");
 #endif
 /****************************************************************************/
 
-			len = strlen((char *) buffer);
-			buffer[len] = ALL_OFF;
-			buffer[len+1] =  '\0';
+			len = strlen((char *) lbuf);
+			lbuf[len] = ALL_OFF;
+			lbuf[len+1] =  '\0';
 
-			status_make_printable(buffer, len);
+			status_make_printable(lbuf, len);
 
 	      /*
 	       * Thanks to Max Bell (mbell@cie.uoregon.edu) for info about TVI
@@ -1250,43 +1251,43 @@ make_status(window)
 /**************************** PATCHED by Flier ******************************/
 			/*if (window->status_line[k] && (SG == -1))
 			{
-				for (i = 0; buffer[i] && window->status_line[k][i]; i++)
+				for (i = 0; lbuf[i] && window->status_line[k][i]; i++)
 				{
-					if ((char) buffer[i] != window->status_line[k][i])
+					if ((char) lbuf[i] != window->status_line[k][i])
 						break;
-					if (buffer[i] != REV_TOG 
-					    && buffer[i] != UND_TOG
-					    && buffer[i] != ALL_OFF
-					    && buffer[i] != BOLD_TOG)
+					if (lbuf[i] != REV_TOG 
+					    && lbuf[i] != UND_TOG
+					    && lbuf[i] != ALL_OFF
+					    && lbuf[i] != BOLD_TOG)
 						RealPosition++;
 				}
 			}
 			else
 				i = 0;
 			
-			if ((len = strlen((char *) buffer + i)) 
-			     || buffer[i] || window->status_line[k] 
+			if ((len = strlen((char *) lbuf + i)) 
+			     || lbuf[i] || window->status_line[k] 
 			     || window->status_line[k][i])*/
 #ifdef WANTANSI
                         i=0;
                         if (window->status_line[k])
-                            change=strcmp(buffer,window->status_line[k])!=0?1:0;
+                            change=strcmp(lbuf,window->status_line[k])!=0?1:0;
 #else
                         if (window->status_line[k] && (SG == -1))
                         {
-                            for (i = 0; buffer[i] && window->status_line[k][i]; i++)
+                            for (i = 0; lbuf[i] && window->status_line[k][i]; i++)
                             {
-                                if (buffer[i] != window->status_line[k][i])
+                                if (lbuf[i] != window->status_line[k][i])
                                     break;
-                                if (buffer[i] != REV_TOG && buffer[i] != UND_TOG &&
-                                    buffer[i] != ALL_OFF && buffer[i] != BOLD_TOG)
+                                if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
+                                    lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG)
                                     RealPosition++;
                             }
                         }
                         else
                             i=0;
 #endif
-                        if (change && ((len = strlen(buffer + i)) || buffer[i] ||
+                        if (change && ((len = strlen(lbuf + i)) || lbuf[i] ||
                                           window->status_line[k] || window->status_line[k][i]))
 /****************************************************************************/
 			{
@@ -1300,12 +1301,12 @@ make_status(window)
 				term_move_cursor(RealPosition, window->bottom
 						 + k - window->double_status);
 */
-				output_line(buffer, NULL, i);
+				output_line(lbuf, NULL, i);
 				cursor_in_display();
 				if (term_clear_to_eol())
 					term_space_erase(len);
 				malloc_strcpy(&window->status_line[k],
-					      (char *) buffer);
+					      (char *) lbuf);
 				set_current_screen(old_current_screen);
 			}
 		}
@@ -1883,12 +1884,12 @@ status_make_printable(str, n)
 {
 	unsigned char	*s;
 	int	pos;
-	char	buffer[BIG_BUFFER_SIZE];
+	char	lbuf[BIG_BUFFER_SIZE];
 
 	if (!str || !*str)
 		return;
 
-	bzero(buffer, BIG_BUFFER_SIZE);
+	bzero(lbuf, BIG_BUFFER_SIZE);
 	for (pos = 0, s = str; s && pos < BIG_BUFFER_SIZE && pos < n; s++)
 	{
 		if (translation)
@@ -1896,7 +1897,7 @@ status_make_printable(str, n)
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
                 if (vt100Decode(*s)) {
-                    buffer[pos++]=*s;
+                    lbuf[pos++]=*s;
                     continue;
                 }
 #endif
@@ -1909,26 +1910,26 @@ status_make_printable(str, n)
 			case ALL_OFF:
 			case REV_TOG:
 			case BOLD_TOG:
-				buffer[pos++] = *s;
+				lbuf[pos++] = *s;
 				break;
 			default:
-				buffer[pos++] = REV_TOG;
-				buffer[pos++] = (*s & 0x7f) | 0x40;
-				buffer[pos++] = REV_TOG;
+				lbuf[pos++] = REV_TOG;
+				lbuf[pos++] = (*s & 0x7f) | 0x40;
+				lbuf[pos++] = REV_TOG;
 				break;
 			}
 		}
 		else if ((u_char) 0x7f == *s)
 		{
-			buffer[pos++] = REV_TOG;
-			buffer[pos++] = '?';
-			buffer[pos++] = REV_TOG;
+			lbuf[pos++] = REV_TOG;
+			lbuf[pos++] = '?';
+			lbuf[pos++] = REV_TOG;
 		}
 		else
-			buffer[pos++] = *s;
+			lbuf[pos++] = *s;
 	}
-	buffer[pos] = '\0';
-	strncpy((char *) str, buffer, pos);
+	lbuf[pos] = '\0';
+	strncpy((char *) str, lbuf, pos);
 }
 
 /**************************** PATCHED by Flier ******************************/

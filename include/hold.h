@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hold.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: hold.h,v 1.2 1999-02-15 21:18:27 f Exp $
  */
 
 #ifndef __hold_h_
@@ -44,6 +44,6 @@
 	char	*hold_queue _((Window *));
 	void	reset_hold _((Window *));
 	int	hold_queue_logged _((Window *));
-	void	toggle_stop_screen _((unsigned char, char *));
+ 	void	toggle_stop_screen _((u_int, char *));
 
 #endif /* __hold_h_ */

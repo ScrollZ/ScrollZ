@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.2 1998-09-10 17:45:06 f Exp $
+ * $Id: funny.c,v 1.3 1999-02-15 21:19:21 f Exp $
  */
 
 #include "irc.h"
@@ -91,7 +91,7 @@ typedef	struct WideListInfoStru WideList;
 
 static	WideList **wide_list = (WideList **) 0;
 static	int	wl_size = 0;
-static	int	wl_elements = 0;
+static	size_t	wl_elements = 0;
 
 static	int	funny_widelist_users _((WideList **, WideList **));
 static	int	funny_widelist_names _((WideList **, WideList **));
@@ -140,10 +140,10 @@ funny_print_widelist()
 
 	if (funny_flags & FUNNY_NAME)
 		qsort((void *) wide_list, wl_elements, sizeof(WideList *),
-			(int (*)()) funny_widelist_names);
+ 			(int (*) _((const void *, const void *))) funny_widelist_names);
 	else if (funny_flags & FUNNY_USERS)
 		qsort((void *) wide_list, wl_elements, sizeof(WideList *),
-			(int (*)()) funny_widelist_users);
+ 			(int (*) _((const void *, const void *))) funny_widelist_users);
 
 	*buffer1 = '\0';
 	for (i = 0; i < wl_elements; i++)
@@ -184,7 +184,7 @@ funny_list(from, ArgList)
 	WideList **new_list;
 	int	cnt;
 	static	char	format[25];
-	static	unsigned int	last_width = -1;
+ 	static	int	last_width = -1;
 
 	if (last_width != get_int_var(CHANNEL_NAME_WIDTH_VAR))
 	{
@@ -267,7 +267,7 @@ funny_namreply(from, Args)
 		*nick,
 		*channel;
 	static	char	format[40];
-	static	unsigned int	last_width = -1;
+ 	static	int	last_width = -1;
 	int	cnt;
 	char	*ptr;
 	char	*line;
@@ -277,6 +277,7 @@ funny_namreply(from, Args)
 	type = Args[0];
 	channel = Args[1];
 	line = Args[2];
+ 	save_message_from();
 	message_from(channel, LOG_CRAP);
 	if ((tmp = lookup_channel(channel, parsing_server_index, CHAN_NOUNLINK)) && !((tmp->status & CHAN_NAMES) && (tmp->status & CHAN_MODE)))
 	{
@@ -291,8 +292,7 @@ funny_namreply(from, Args)
                     add_to_channel(channel,nick,parsing_server_index,0,0,NULL,tmp);
 /****************************************************************************/
 		tmp->status |= CHAN_NAMES;
-		message_from(NULL, LOG_CURRENT);
-		return;
+ 		goto out;
 	}
 	if (last_width != get_int_var(CHANNEL_NAME_WIDTH_VAR))
 	{
@@ -355,7 +355,8 @@ funny_namreply(from, Args)
 			}
 		}
 	}
-	message_from(NULL, LOG_CURRENT);
+out:
+ 	restore_message_from();
 }
 
 void
@@ -392,9 +393,10 @@ funny_mode(from, ArgList)
 	}
 	else
 	{
+ 		save_message_from();
+ 		message_from(channel, LOG_CRAP);
 		if (channel)
 		{
-			message_from(channel, LOG_CRAP);
 			if (do_hook(current_numeric, "%s %s %s", from,
 					channel, mode))
 				put_it("%s Mode for channel %s is \"%s\"",
@@ -406,6 +408,7 @@ funny_mode(from, ArgList)
 				put_it("%s Channel mode is \"%s\"",
 					numeric_banner(), mode);
 		}
+ 		restore_message_from();
 	}
 }
 

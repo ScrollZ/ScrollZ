@@ -53,7 +53,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.20 1999-02-02 16:12:46 f Exp $
+ * $Id: edit6.c,v 1.21 1999-02-15 21:19:14 f Exp $
  */
 
 #include "irc.h"
@@ -1924,11 +1924,14 @@ char *stuff;
 void HandleDelayNotify(stuff)
 char *stuff;
 {
+    int old_server=from_server;
     void (*func)()=(void(*)()) HandleUserhost;
 
     if (inFlierNotify) inFlierNotify++;
     else inFlierNotify=2;
+    from_server=primary_server;
     add_userhost_to_whois(stuff,func);
+    from_server=old_server;
 }
 
 #ifdef EXTRAS

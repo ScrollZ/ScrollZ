@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.3 1998-10-11 12:31:03 f Exp $
+ * $Id: alias.c,v 1.4 1999-02-15 21:18:58 f Exp $
  */
 
 #include "irc.h"
@@ -92,7 +92,7 @@ static	void	do_alias_string _((void));
 static	Alias	*find_alias _((Alias **, char *, int, int *));
 static	void	insert_alias _((Alias **, Alias *));
 static	char	*alias_arg _((char **, u_int *));
-static	char	*built_in_alias _((char));
+static	char	*built_in_alias _((int));
 static	char	*find_inline _((char *));
 static	char	*call_function _((char *, char *, char *, int *));
 static	void	expander_addition _((char *, char *, int, char *));
@@ -214,6 +214,9 @@ static	FAR BuiltIns built_in[] =
 	char	*function_word _((unsigned char *));
 	char	*function_winnum _((unsigned char *));
 	char	*function_winnam _((unsigned char *));
+ 	char	*function_winvisible _((unsigned char *));
+ 	char	*function_winserver _((unsigned char *));
+ 	char	*function_winservergroup _((unsigned char *));
 	char	*function_connect _((unsigned char *));
 	char	*function_listen _((unsigned char *));
 	char	*function_tdiff _((unsigned char *));
@@ -231,6 +234,7 @@ static	FAR BuiltIns built_in[] =
 #endif
 /****************************************************************************/
         char	*function_idle _((unsigned char *));
+ 	char	*function_querynick _((unsigned char *));
 #ifdef HAVE_STRFTIME
 	char	*function_strftime _((unsigned char *));
 #endif
@@ -322,6 +326,9 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "WORD",		function_word },
 	{ "WINNUM",		function_winnum },
 	{ "WINNAM",		function_winnam },
+ 	{ "WINVIS",		function_winvisible },
+ 	{ "WINSERVER",		function_winserver },
+ 	{ "WINSERVERGROUP",	function_winservergroup },
 	{ "CONNECT",		function_connect },
 	{ "LISTEN",		function_listen },
 	{ "TOUPPER",		function_toupper },
@@ -346,6 +353,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 	{ "STRFTIME",		function_strftime },
 #endif
 	{ "IDLE",		function_idle },
+ 	{ "QUERYNICK",		function_querynick },
 /**************************** Patched by Flier ******************************/
 	/*{ "PATTERN",            function_pattern },
 	{ "CHOPS",              function_chops },
@@ -397,22 +405,22 @@ static	int	function_stkptr = 0;
 
 /*
  * find_alias: looks up name in in alias list.  Returns the Alias	entry if
- * found, or null if not found.   If unlink is set, the found entry is
+ * found, or null if not found.   If do_unlink is set, the found entry is
  * removed from the list as well.  If match is null, only perfect matches
  * will return anything.  Otherwise, the number of matches will be returned. 
  */
 static	Alias	*
-find_alias(list, name, unlink, match)
+find_alias(list, name, do_unlink, match)
 	Alias	**list;
 	char	*name;
-	int	unlink;
+	int	do_unlink;
 	int	*match;
 {
 	Alias	*tmp,
 		*last = (Alias *) 0;
-	int	cmp,
-		len;
-	int	(*cmp_func) _((char *, char *, int));
+	int	cmp;
+	size_t	len;
+ 	int	(*cmp_func) _((char *, char *, size_t));
 
 	if (match)
 	{
@@ -420,7 +428,7 @@ find_alias(list, name, unlink, match)
 		cmp_func = my_strnicmp;
 	}
 	else
-		cmp_func = (int (*) _((char *, char *, int))) my_stricmp;
+ 		cmp_func = (int (*) _((char *, char *, size_t))) my_stricmp;
 	if (name)
 	{
 		len = strlen(name);
@@ -428,7 +436,7 @@ find_alias(list, name, unlink, match)
 		{
 			if ((cmp = cmp_func(name, tmp->name, len)) == 0)
 			{
-				if (unlink)
+				if (do_unlink)
 				{
 					if (last)
 						last->next = tmp->next;
@@ -463,9 +471,9 @@ find_alias(list, name, unlink, match)
  * alphabetized by name 
  */
 static	void	
-insert_alias(list, alias)
+insert_alias(list, nalias)
 	Alias	**list;
-	Alias	*alias;
+	Alias	*nalias;
 {
 	Alias	*tmp,
 		*last,
@@ -474,20 +482,20 @@ insert_alias(list, alias)
 	last = (Alias *) 0;
 	for (tmp = *list; tmp; tmp = tmp->next)
 	{
-		if (strcmp(alias->name, tmp->name) < 0)
+		if (strcmp(nalias->name, tmp->name) < 0)
 			break;
 		last = tmp;
 	}
 	if (last)
 	{
 		foo = last->next;
-		last->next = alias;
-		alias->next = foo;
+		last->next = nalias;
+		nalias->next = foo;
 	}
 	else
 	{
-		alias->next = *list;
-		*list = alias;
+		nalias->next = *list;
+		*list = nalias;
 	}
 }
 
@@ -595,23 +603,19 @@ word_count(str)
 }
 
 static	char	*
-#ifdef __STDC__
-built_in_alias(char c)
-#else
 built_in_alias(c)
-	char	c;
-#endif
+	int	c;
 {
 	BuiltIns	*tmp;
 	char	*ret = (char *) 0;
 
-	for(tmp = built_in;tmp->name;tmp++)
-		if (c == tmp->name)
+ 	for (tmp = built_in; tmp->name; tmp++)
+ 		if ((char)c == tmp->name)
 		{
 			malloc_strcpy(&ret, tmp->func());
 			break;
 		}
-	return(ret);
+ 	return (ret);
 }
 
 /*
@@ -625,14 +629,14 @@ static	char	*
 find_inline(str)
 	char	*str;
 {
-	Alias	*alias;
+	Alias	*nalias;
 	char	*ret = NULL;
 	char	*tmp;
 
-	if ((alias = find_alias(&(alias_list[VAR_ALIAS]), str, 0, (int *) NULL))
+ 	if ((nalias = find_alias(&(alias_list[VAR_ALIAS]), str, 0, (int *) NULL))
 			!= NULL)
 	{
-		malloc_strcpy(&ret, alias->stuff);
+ 		malloc_strcpy(&ret, nalias->stuff);
 		return (ret);
 	}
 	if ((strlen(str) == 1) && (ret = built_in_alias(*str)))
@@ -780,7 +784,7 @@ next_unit(str, args, arg_flag, stage)
 		case '(':
 			if (stage != NU_UNIT || ptr == str)
 			{
-				if (!(ptr2 = MatchingBracket(ptr+1, '(', ')')))
+ 				if (!(ptr2 = MatchingBracket(ptr+1, (int)'(', (int)')')))
 					ptr = ptr+strlen(ptr)-1;
 				else
 					ptr = ptr2;
@@ -788,7 +792,7 @@ next_unit(str, args, arg_flag, stage)
 			}
 			*ptr++ = '\0';
 			right = ptr;
-			ptr = MatchingBracket(right, LEFT_PAREN, RIGHT_PAREN);
+ 			ptr = MatchingBracket(right, (int)LEFT_PAREN, (int)RIGHT_PAREN);
 			if (ptr)
 				*ptr++ = '\0';
 			result1 = call_function(str, right, args, arg_flag);
@@ -804,7 +808,7 @@ next_unit(str, args, arg_flag, stage)
 		case '[':
 			if (stage != NU_UNIT)
 			{
-				if (!(ptr2 = MatchingBracket(ptr+1, '[', ']')))
+ 				if (!(ptr2 = MatchingBracket(ptr+1, (int)'[', (int)']')))
 					ptr = ptr+strlen(ptr)-1;
 				else
 					ptr = ptr2;
@@ -812,7 +816,7 @@ next_unit(str, args, arg_flag, stage)
 			}
 			*ptr++ = '\0';
 			right = ptr;
-			ptr = MatchingBracket(right, LEFT_BRACKET, RIGHT_BRACKET);
+ 			ptr = MatchingBracket(right, (int)LEFT_BRACKET, (int)RIGHT_BRACKET);
 			if (ptr)
 				*ptr++ = '\0';
 			result1 = expand_alias((char *) 0, right, args, arg_flag, NULL);
@@ -1166,7 +1170,7 @@ next_unit(str, args, arg_flag, stage)
 				{
 				    *ArrayIndex++='.';
 				    if ((EndIndex = MatchingBracket(ArrayIndex,
-				        LEFT_BRACKET, RIGHT_BRACKET)) != NULL)
+ 				        (int)LEFT_BRACKET, (int)RIGHT_BRACKET)) != NULL)
 				    {
 				        *EndIndex++='\0';
 				        strcat(ptr, EndIndex);
@@ -1517,22 +1521,18 @@ expander_addition(buff, add, length, quote_em)
 
 /* MatchingBracket returns the next unescaped bracket of the given type */
 char	*
-#ifdef __STDC__
-MatchingBracket(char *string, char left, char right)
-#else
 MatchingBracket(string, left, right)
 	char	*string;
-	char	left;
-	char	right;
-#endif
+	int	left;
+	int	right;
 {
 	int	bracket_count = 1;
 
 	while (*string && bracket_count)
 	{
-		if (*string == left)
+ 		if (*string == (char)left)
 			bracket_count++;
-		else if (*string == right)
+ 		else if (*string == (char)right)
 		{
 			if (!--bracket_count)
 				return string;
@@ -1553,7 +1553,7 @@ MatchingBracket(string, left, right)
  * destination buffer (of size BIG_BUFFER_SIZE) to which things are appended,
  * a ptr to the string (the first character of which is the special
  * character, the args to the alias, and a character indication what
- * characters in the string should be quoted with a backslash.  It returns a
+ * characters in the string should be quoted with a backslash).  It returns a
  * pointer to the character right after the converted alias.
 
  The args_flag is set to 1 if any of the $n, $n-, $n-m, $-m, $*, or $() is used
@@ -1561,9 +1561,9 @@ MatchingBracket(string, left, right)
  */
 /*ARGSUSED*/
 static	char	*
-alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
+alias_special_char(name, lbuf, ptr, args, quote_em,args_flag)
 	char	*name;
-	char	*buffer;
+ 	char	*lbuf;
 	char	*ptr;
 	char	*args;
 	char	*quote_em;
@@ -1571,9 +1571,9 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 {
 	char	*tmp,
 		c;
-	int	upper,
-	lower,
-	length;
+ 	int	is_upper,
+ 		is_lower,
+ 		length;
 
 	length = 0;
 	if ((c = *ptr) == LEFT_BRACKET)
@@ -1583,6 +1583,9 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 		{
 			*(tmp++) = (char) 0;
 			length = atoi(ptr);
+ 			/* XXX hack to avoid core dumps */
+ 			if (length > ((BIG_BUFFER_SIZE * 5) / 3))
+ 				length = ((BIG_BUFFER_SIZE * 5) / 3);
 			ptr = tmp;
 			c = *ptr;
 		}
@@ -1599,8 +1602,8 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 		{
 			char	sub_buffer[BIG_BUFFER_SIZE+1];
 
-			if ((ptr = MatchingBracket(tmp, LEFT_PAREN,
-			    RIGHT_PAREN)) || (ptr = (char *) index(tmp,
+ 			if ((ptr = MatchingBracket(tmp, (int)LEFT_PAREN,
+ 			    (int)RIGHT_PAREN)) || (ptr = (char *) index(tmp,
 			    RIGHT_PAREN)))
 				*(ptr++) = (char) 0;
 			tmp = expand_alias((char *) 0, tmp, args, args_flag,
@@ -1608,7 +1611,7 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			*sub_buffer = (char) 0;
 			alias_special_char((char *) 0, sub_buffer, tmp,
 				args, quote_em,args_flag);
-			expander_addition(buffer, sub_buffer, length, quote_em);
+ 			expander_addition(lbuf, sub_buffer, length, quote_em);
 			new_free(&tmp);
 			*args_flag = 1;
 		}
@@ -1618,7 +1621,7 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			*(ptr++) = (char) 0;
 		if ((tmp = do_history(tmp, empty_string)) != NULL)
 		{
-			expander_addition(buffer, tmp, length, quote_em);
+ 			expander_addition(lbuf, tmp, length, quote_em);
 			new_free(&tmp);
 		}
 		return (ptr);
@@ -1627,7 +1630,7 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			*(ptr++) = (char) 0;
 		if ((tmp = parse_inline(tmp, args, args_flag)) != NULL)
 		{
-			expander_addition(buffer, tmp, length, quote_em);
+ 			expander_addition(lbuf, tmp, length, quote_em);
 			new_free(&tmp);
 		}
 		return (ptr);
@@ -1636,16 +1639,16 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			*(ptr++) = (char) 0;
 		alias_string = (char *) 0;
 			/* XXX - the cast in the following is an ugly hack! */
-		if (irc_io(tmp, (void (*) _((unsigned char, char *))) do_alias_string, use_input, 1))
+ 		if (irc_io(tmp, (void (*) _((u_int, char *))) do_alias_string, use_input, 1))
 		{
 			yell("Illegal recursive edit");
 			break;
 		}
-		expander_addition(buffer, alias_string, length, quote_em);
+ 		expander_addition(lbuf, alias_string, length, quote_em);
 		new_free(&alias_string);
 		return (ptr);
 	case '*':
-		expander_addition(buffer, args, length, quote_em);
+ 		expander_addition(lbuf, args, length, quote_em);
 		*args_flag = 1;
 		return (ptr + 1);
 	default:
@@ -1654,28 +1657,28 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			*args_flag = 1;
 			if (*ptr == '~')
 			{
-				lower = upper = LAST_ARG;
+ 				is_lower = is_upper = LAST_ARG;
 				ptr++;
 			}
 			else
 			{
-				lower = parse_number(&ptr);
+ 				is_lower = parse_number(&ptr);
 				if (*ptr == '-')
 				{
 					ptr++;
-					upper = parse_number(&ptr);
+ 					is_upper = parse_number(&ptr);
 				}
 				else
-					upper = lower;
+ 					is_upper = is_lower;
 			}
-			expander_addition(buffer, arg_number(lower, upper,
+ 			expander_addition(lbuf, arg_number(is_lower, is_upper,
 				args), length, quote_em);
 			return (ptr ? ptr : empty_string);
 		}
 		else
 		{
 			char	*rest,
-				c = (char) 0;
+ 				c2 = (char) 0;
 
 		/*
 		 * Why use ptr+1?  Cause try to maintain backward compatability
@@ -1688,7 +1691,7 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 			if (*ptr == '$')
 			{
 				rest = ptr+1;
-				c = *rest;
+ 				c2 = *rest;
 				*rest = (char) 0;
 			}
 			else if ((rest = sindex(ptr+1, alias_illegals)) != NULL)
@@ -1697,20 +1700,20 @@ alias_special_char(name, buffer, ptr, args, quote_em,args_flag)
 					while ((*rest == LEFT_BRACKET ||
 					    *rest == LEFT_PAREN) &&
 					    (tmp = MatchingBracket(rest+1,
-					    *rest, (*rest == LEFT_BRACKET) ?
-					    RIGHT_BRACKET: RIGHT_PAREN)))
+ 					    (int)*rest, (int)(*rest == LEFT_BRACKET) ?
+ 					    RIGHT_BRACKET : RIGHT_PAREN)))
 						rest = tmp + 1;
-				c = *rest;
+				c2 = *rest;
 				*rest = (char) 0;
 			}
 			if ((tmp = parse_inline(ptr, args, args_flag)) != NULL)
 			{
-				expander_addition(buffer, tmp, length,
+ 				expander_addition(lbuf, tmp, length,
 					quote_em);
 				new_free(&tmp);
 			}
 			if (rest)
-				*rest = c;
+				*rest = c2;
 			return(rest);
 		}
 	}
@@ -1740,7 +1743,7 @@ expand_alias(name, string, args,args_flag, more_text)
 	int	*args_flag;
 	char	**more_text;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1],
+	char	lbuf[BIG_BUFFER_SIZE + 1],
 		*ptr,
 		*stuff = (char *) 0,
 		*free_stuff;
@@ -1749,7 +1752,7 @@ expand_alias(name, string, args,args_flag, more_text)
 	char	ch;
 	int	quote_cnt = 0;
 	int	is_quote = 0;
-	void	(*str_cat) _((char *, char *, int));
+ 	void	(*str_cat) _((char *, char *, size_t));
 
 	if (*string == '@' && more_text)
 	{
@@ -1760,7 +1763,7 @@ expand_alias(name, string, args,args_flag, more_text)
 		str_cat = strmcat_ue;
 	malloc_strcpy(&stuff, string);
 	free_stuff = stuff;
-	*buffer = (char) 0;
+ 	*lbuf = (char) 0;
 	eval_args = 1;
 	ptr = stuff;
 	if (more_text)
@@ -1789,7 +1792,7 @@ expand_alias(name, string, args,args_flag, more_text)
 				break;
 			}
 			*(ptr++) = (char) 0;
-			(*str_cat)(buffer, stuff, BIG_BUFFER_SIZE);
+ 			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
 			while (*ptr == '^')
 			{
 				ptr++;
@@ -1805,7 +1808,7 @@ expand_alias(name, string, args,args_flag, more_text)
 				quote_str[quote_cnt] = (char) 0;
 			}
 			quote_em = quote_str;
-			stuff = alias_special_char(name, buffer, ptr, args,
+ 			stuff = alias_special_char(name, lbuf, ptr, args,
 				quote_em, args_flag);
 			if (stuff)
 				new_free(&quote_str);
@@ -1825,11 +1828,11 @@ expand_alias(name, string, args,args_flag, more_text)
 		case LEFT_BRACE:
 			ch = *ptr;
 			*ptr = '\0';
-			(*str_cat)(buffer, stuff, BIG_BUFFER_SIZE);
+ 			(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
 			stuff = ptr;
 			*args_flag = 1;
-			if (!(ptr = MatchingBracket(stuff + 1, ch,
-					(ch == LEFT_PAREN) ?
+ 			if (!(ptr = MatchingBracket(stuff + 1, (int)ch,
+ 					(int)(ch == LEFT_PAREN) ?
 					RIGHT_PAREN : RIGHT_BRACE)))
 			{
 				yell("Unmatched %c", ch);
@@ -1840,7 +1843,7 @@ expand_alias(name, string, args,args_flag, more_text)
 			*stuff = ch;
 			ch = *ptr;
 			*ptr = '\0';
-			strmcat(buffer, stuff, BIG_BUFFER_SIZE);
+ 			strmcat(lbuf, stuff, BIG_BUFFER_SIZE);
 			stuff = ptr;
 			*ptr = ch;
 			break;
@@ -1854,10 +1857,10 @@ expand_alias(name, string, args,args_flag, more_text)
 		}
 	}
 	if (stuff)
-		(*str_cat)(buffer, stuff, BIG_BUFFER_SIZE);
+ 		(*str_cat)(lbuf, stuff, BIG_BUFFER_SIZE);
 	ptr = (char *) 0;
 	new_free(&free_stuff);
-	malloc_strcpy(&ptr, buffer);
+ 	malloc_strcpy(&ptr, lbuf);
 	if (get_int_var(DEBUG_VAR) & DEBUG_EXPANSIONS)
 		yell("Expanded [%s] to [%s]",
 			string, ptr);
@@ -1914,7 +1917,7 @@ match_alias(name, cnt, type)
 	Alias	*tmp;
 	char	**matches = (char **) 0;
 	int	matches_size = 5;
-	int	len;
+ 	size_t	len;
 	char	*last_match = (char *) 0;
 	char	*dot;
 
@@ -1998,8 +2001,9 @@ list_aliases(type, name)
 	char	*name;
 {
 	Alias	*tmp;
- 	int	len, lastlog_level;
-	int	DotLoc,
+ 	size_t	len;
+ 	int	lastlog_level;
+ 	size_t	DotLoc,
 		LastDotLoc = 0;
 	char	*LastStructName = NULL;
 	char	*s;
@@ -2036,7 +2040,7 @@ list_aliases(type, name)
 			}
 		}
 	}
- 	(void) message_from_level(lastlog_level);
+ 	(void)message_from_level(lastlog_level);
 }
 
 /*
@@ -2110,16 +2114,16 @@ mark_alias(name, flag)
  * get_alias()) 
  */
 void
-execute_alias(alias_name, alias, args)
+execute_alias(alias_name, ealias, args)
 	char	*alias_name,
-		*alias,
+		*ealias,
 		*args;
 {
 	if (mark_alias(alias_name, 1))
 		say("Maximum recursion count exceeded in: %s", alias_name);
 	else
 	{
-		parse_line(alias_name, alias, args, 0,1);
+ 		parse_line(alias_name, ealias, args, 0,1);
 		mark_alias(alias_name, 0);
 	}
 }
@@ -2177,16 +2181,13 @@ alias_detected()
 static	char	*
 alias_nick()
 {
-/**************************** PATCHED by Flier ******************************/
-	/*return (get_server_nickname(curr_scr_win->server));*/
-	return (get_server_nickname(from_server));
-/****************************************************************************/
+ 	return (from_server >= 0) ? get_server_nickname(from_server) : nickname;
 }
 
 static	char	*
 alias_away()
 {
-	return (server_list[curr_scr_win->server].away);
+ 	return (from_server >= 0) ? server_list[from_server].away : empty_string;
 }
 
 static	char	*
@@ -2274,7 +2275,7 @@ alias_cmdchar()
 static	char	*
 alias_oper()
 {
-	return get_server_operator(from_server) ?
+ 	return (from_server >= 0 && get_server_operator(from_server)) ?
 		get_string_var(STATUS_OPER_VAR) : empty_string;
 }
 
@@ -2283,8 +2284,8 @@ alias_chanop()
 {
 	char	*tmp;
 
-	return ((tmp = get_channel_by_refnum(0)) && get_channel_oper(tmp,
-			from_server)) ?
+ 	return (from_server >= 0 && (tmp = get_channel_by_refnum(0)) &&
+ 			get_channel_oper(tmp, from_server)) ?
 		"@" : empty_string;
 }
 
@@ -2293,7 +2294,7 @@ alias_modes()
 {
 	char	*tmp;
 
-	return (tmp = get_channel_by_refnum(0)) ?
+ 	return (from_server >= 0 && (tmp = get_channel_by_refnum(0))) ?
 		get_channel_mode(tmp, from_server) : empty_string;
 }
 
@@ -2316,7 +2317,7 @@ static	char	*
 alias_current_numeric()
 {
 	static	char	number[4];
-	
+
 	sprintf(number, "%03d", -current_numeric);
 	return (number);
 }
@@ -2326,8 +2327,9 @@ alias_server_version()
 {
 	char	*s;
 
-	return ((s = server_list[curr_scr_win->server].version_string) ?
-	    s : empty_string);
+ 	return (curr_scr_win->server >= 0 &&
+ 			(s = server_list[curr_scr_win->server].version_string)) ?
+ 		s : empty_string;
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -2376,7 +2378,7 @@ alias(command, args, subargs)
 		{
 			*ArrayIndex++ = '.';
 			if ((EndIndex = MatchingBracket(ArrayIndex,
-					LEFT_BRACKET, RIGHT_BRACKET)) != NULL)
+ 					(int)LEFT_BRACKET, (int)RIGHT_BRACKET)) != NULL)
 			{
 				*EndIndex++ = '\0';
 				strcat(name, EndIndex);
@@ -2389,7 +2391,7 @@ alias(command, args, subargs)
 			if (*rest == LEFT_BRACE)
 			{
 				char	*ptr = MatchingBracket(++rest,
-						LEFT_BRACE, RIGHT_BRACE);
+ 						(int)LEFT_BRACE, (int)RIGHT_BRACE);
 				if (!ptr)
 				    say("Unmatched brace in ALIAS or ASSIGN");
 				else if (ptr[1])
@@ -2682,7 +2684,7 @@ function_rindex(input)
 
 	schars = next_arg((char *) input, (char **) &input);
  	iloc = (schars) ? srindex((char *) input, schars) : NULL;
- 	ival = (iloc) ? (char *)input + strlen(input) - iloc : -1;
+ 	ival = (iloc) ? iloc - (char *) input : -1;
 	sprintf(tmp, "%d", ival);
 	malloc_strcpy(&result, tmp);
 	return result;
@@ -2877,6 +2879,71 @@ function_word(input)
 	return result;
 }
 
+char	*
+function_querynick(input)
+	unsigned char	*input;
+{
+	char	*result = (char *) 0;
+	Window	*win;
+
+	if (input && isdigit(*input))
+		win = get_window_by_refnum((u_int)atoi(input));
+	else
+		win = curr_scr_win;
+	malloc_strcpy(&result, win ? win->query_nick : "-1");
+	return result;
+}
+
+char	*
+function_winserver(input)
+	unsigned char	*input;
+{
+	char	*result = (char *) 0;
+	char	tmp[10];
+	Window	*win;
+
+	if (input && isdigit(*input))
+		win = get_window_by_refnum((u_int)atoi(input));
+	else
+		win = curr_scr_win;
+	sprintf(tmp, "%d", win ? win->server : -1);
+	malloc_strcpy(&result, tmp);
+	return result;
+}
+
+char	*
+function_winservergroup(input)
+	unsigned char	*input;
+{
+	char	*result = (char *) 0;
+	char	tmp[10];
+	Window	*win;
+
+	if (input && isdigit(*input))
+		win = get_window_by_refnum((u_int)atoi(input));
+	else
+		win = curr_scr_win;
+	sprintf(tmp, "%d", win ? win->server_group : -1);
+	malloc_strcpy(&result, tmp);
+	return result;
+}
+
+char	*
+function_winvisible(input)
+	unsigned char	*input;
+{
+	char	*result = (char *) 0;
+	char	tmp[10];
+	Window	*win;
+
+	if (input && isdigit(*input))
+		win = get_window_by_refnum((u_int)atoi(input));
+	else
+		win = curr_scr_win;
+	sprintf(tmp, "%d", win ? win->visible : -1);
+	malloc_strcpy(&result, tmp);
+	return result;
+}
 
 char	*
 function_winnum(input)
@@ -2885,10 +2952,7 @@ function_winnum(input)
 	char	*result = (char *) 0;
 	char	tmp[10];
 
-	if (curr_scr_win)
-		sprintf(tmp, "%d", curr_scr_win->refnum);
-	else
-		strcpy(tmp, "-1");
+	sprintf(tmp, "%d", curr_scr_win ? curr_scr_win->refnum : -1);
 	malloc_strcpy(&result, tmp);
 	return result;
 }
@@ -2898,9 +2962,13 @@ function_winnam(input)
 	unsigned char	*input;
 {
 	char	*result = (char *) 0;
+	Window	*win;
 
-	malloc_strcpy(&result, (curr_scr_win && curr_scr_win->name) ?
-		curr_scr_win->name : empty_string);
+	if (input && isdigit(*input))
+		win = get_window_by_refnum((u_int)atoi(input));
+	else
+		win = curr_scr_win;
+	malloc_strcpy(&result, (win && win->name) ? win->name : empty_string);
 	return result;
 }
 
@@ -2917,7 +2985,7 @@ function_connect(input)
 	else
 #endif
 		if ((host = next_arg((char *) input, (char **) &input)) != NULL)
-			result = dcc_raw_connect(host, (u_short) atoi((char *) input));
+ 			result = dcc_raw_connect(host, (u_int) atoi((char *) input));
 	return result;
 }
 
@@ -2933,7 +3001,7 @@ function_listen(input)
 		malloc_strcpy(&result, zero);
 	else
 #endif
-		result = dcc_raw_listen((u_short) atoi((char *) input));
+ 		result = dcc_raw_listen((u_int) atoi((char *) input));
 	return result;
 }
 
@@ -2986,7 +3054,7 @@ function_channels(input)
 	Window	*window;
 
 	if (input)
-		window = isdigit(*input) ? get_window_by_refnum(atoi((char *) input))
+ 		window = isdigit(*input) ? get_window_by_refnum((u_int) atoi((char *) input))
 					 : curr_scr_win;
 	else
 		window = curr_scr_win;
@@ -3009,7 +3077,7 @@ function_onchannel(input)
 	char	*nick;
 	char	*channel = NULL;
 
-	if (!(nick = next_arg((char *) input, &channel)))
+ 	if (from_server < 0 || !(nick = next_arg((char *) input, &channel)))
 		malloc_strcpy(&result, zero);
 	else
 		malloc_strcpy(&result,

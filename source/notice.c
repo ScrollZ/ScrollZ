@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.3 1998-10-06 17:50:08 f Exp $
+ * $Id: notice.c,v 1.4 1999-02-15 21:19:58 f Exp $
  */
 
 #include "irc.h"
@@ -65,7 +65,7 @@ extern void OVformat _((char *, char *));
 extern	char	*FromUserHost;
 
 static	void	parse_note _((char *, char *));
-static	void	parse_server_notice _((char *, char *));
+static	void	parse_server_notice _((char *, char *, char *));
 
 /*
  * parse_note: handles the parsing of irc note messages which are sent as
@@ -86,7 +86,7 @@ parse_note(server, line)
 	int	ign1,
 		ign2,
 		level;
-	time_t	time;
+ 	time_t	the_time;
 
 	flags = next_arg(line, &date);	/* what to do with these flags */
 	nick = next_arg(date, &date);
@@ -100,8 +100,8 @@ parse_note(server, line)
 		high = &highlight_char;
 	else
 		high = empty_string;
-	time = atol(date);
-	date = ctime(&time);
+ 	the_time = atol(date);
+ 	date = ctime(&the_time);
 	date[24] = (char) 0;
 	level = set_lastlog_msg_level(LOG_NOTES);
 	if (do_hook(NOTE_LIST, "%s %s %s %s %s %s", nick, name, flags, date,
@@ -117,8 +117,9 @@ parse_note(server, line)
 }
 
 static	void
-parse_server_notice(from, line)
+parse_server_notice(from, to, line)
 	char	*from,
+ 		*to,
 		*line;
 {
 	char	server[81],
@@ -151,6 +152,7 @@ parse_server_notice(from, line)
 			return;
 		}
 	}
+ 	save_message_from();
 	if (!strncmp(line, "*** Notice --", 13))
 	{
 		message_from((char *) 0, LOG_OPNOTE);
@@ -161,26 +163,34 @@ parse_server_notice(from, line)
 		message_from((char *) 0, LOG_SNOTE);
 		lastlog_level = set_lastlog_msg_level(LOG_SNOTE);
 	}
-	if (get_server_version(parsing_server_index) >= Server2_7 && 
-	    *line != '*'  && *line != '#' && strncmp(line, "MOTD ", 4))
-		flag = 1;
+	if (to)
+	{
+		if (do_hook(SERVER_NOTICE_LIST, "%s %s %s", from, to, line))
+			put_it("%s %s", to, line);
+	}
 	else
-		flag = 0;
-	if (do_hook(SERVER_NOTICE_LIST, flag ? "%s *** %s"
-					     : "%s %s", from, line))
+	{
+		if (get_server_version(parsing_server_index) >= Server2_7 && 
+		    *line != '*'  && *line != '#' && strncmp(line, "MOTD ", 4))
+			flag = 1;
+		else
+			flag = 0;
+		if (do_hook(SERVER_NOTICE_LIST, flag ? "%s *** %s"
+						     : "%s %s", from, line))
 /*************************** PATCHED by Flier ******************************/      
-		/*put_it(flag ? "*** %s" : "%s", line);*/
-            if (strncmp(line,"*** Your host is ",17)) {
+			/*put_it(flag ? "*** %s" : "%s", line);*/
+                        if (strncmp(line,"*** Your host is ",17)) {
 #if defined(OPERVISION) && defined(WANTANSI)
-                if (OperV) OVformat(line,NULL);
-                else
+                            if (OperV) OVformat(line,NULL);
+                            else
 #endif
-                if (!ServerNotice && strncmp(line, "*** Notice --", 13)) say("%s",line);
-                else if (ServerNotice) say("%s",line);
-                else if (ShowFakes && wild_match("*notice*fake*",line))
-                    HandleFakes(line,from,from_server);
-            }
+                            if (!ServerNotice && strncmp(line, "*** Notice --", 13)) say("%s",line);
+                            else if (ServerNotice) say("%s",line);
+                            else if (ShowFakes && wild_match("*notice*fake*",line))
+                                HandleFakes(line,from,from_server);
+                        }
 /***************************************************************************/      
+	}
 	if ((parsing_server_index == primary_server) &&
 			((sscanf(line, "*** There are %d users on %d servers",
 			&user_cnt, &server_cnt) == 2) ||
@@ -207,8 +217,7 @@ parse_server_notice(from, line)
 	if (lastlog_level)
 	{
 		set_lastlog_msg_level(lastlog_level);
-		message_from((char *) 0, lastlog_level);
-		/*message_from((char *) 0, LOG_CURRENT);*/	/* XXX should use this instead */
+ 		restore_message_from();
 	}
 }
 
@@ -233,6 +242,7 @@ parse_notice(from, Args)
 		return;
 	if (*to)
 	{
+ 		save_message_from();
 		if (is_channel(to))
 		{
 			message_from(to, LOG_NOTICE);
@@ -264,8 +274,7 @@ parse_notice(from, Args)
 					if (strncmp(line, "*/", 2) == 0)
 					{
 						parse_note(from, line + 1);
-						message_from((char *) 0, LOG_CURRENT);
-						return;
+ 						goto out;
 					}
 				}
 				if (not_from_server && (flag != DONT_IGNORE) && !FromUserHost &&
@@ -276,15 +285,12 @@ parse_notice(from, Args)
 					line = do_notice_ctcp(from, to, line);
 					if (*line == '\0')
 					{
-						message_from((char *) 0, LOG_CURRENT);
-						return;
+ 						goto out;
 					}
 					level = set_lastlog_msg_level(LOG_NOTICE);
 					no_flooding = check_flooding(from, NOTICE_FLOOD, line);
 
-					if (sed == 1 && !do_hook(ENCRYPTED_NOTICE_LIST, "%s %s %s", from, to, line))
-						sed = 0;
-					else
+ 					if (sed == 0 || do_hook(ENCRYPTED_NOTICE_LIST, "%s %s %s", from, to, line))
 					{
 						if (type == NOTICE_LIST && no_flooding)
 						{
@@ -312,11 +318,12 @@ parse_notice(from, Args)
 			}
 		}
 		else 
-			parse_server_notice(from, line);
+ 			parse_server_notice(from, type == PUBLIC_NOTICE_LIST ? to : 0, line);
 	}
 	else
 		put_it("%s", line + 1);
-	message_from((char *) 0, LOG_CURRENT);
+out:
+ 	restore_message_from();
 }
 
 /*
@@ -331,12 +338,12 @@ load_ircrc()
 		return;
 	if (access(ircrc_file, R_OK) == 0)
 	{
-		char buffer[BIG_BUFFER_SIZE+1];
+ 		char lbuf[BIG_BUFFER_SIZE+1];
 
-		strmcpy(buffer,ircrc_file,BIG_BUFFER_SIZE);
-		strmcat(buffer," ",BIG_BUFFER_SIZE);
-		strmcat(buffer,args_str,BIG_BUFFER_SIZE);
-		load(empty_string, buffer, empty_string);
+ 		strmcpy(lbuf,ircrc_file,BIG_BUFFER_SIZE);
+ 		strmcat(lbuf," ",BIG_BUFFER_SIZE);
+ 		strmcat(lbuf,args_str,BIG_BUFFER_SIZE);
+ 		load(empty_string, lbuf, empty_string);
 	}
 	else if (get_int_var(NOVICE_VAR))
 		say("If you have not already done so, please read the new user information with /HELP NEWUSER");

@@ -31,7 +31,7 @@
  *
  * see the copyright file, or type help ircii copyright
  *
- * $Id: screen.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: screen.h,v 1.2 1999-02-15 21:18:50 f Exp $
  */
 
 #ifndef __screen_h_
@@ -59,7 +59,7 @@
 	void	scroll_window _((Window *));
 	Window	*new_window _((void));
 	void	update_all_windows _((void));
-	void	add_wait_prompt _((char *, void (*)(), char *, int));
+ 	void	add_wait_prompt _((char *, void (*)(char *, char *), char *, int));
 	void	clear_all_windows _((int));
 	void	cursor_in_display _((void));
 	int	is_cursor_in_display _((void));
@@ -68,10 +68,10 @@
 	void	window_redirect _((char *, int));
 	void	redraw_resized _((Window *, ShrinkInfo, int));
 	void	close_all_screen _((void));
-	void	scrollback_forwards _((unsigned char, char *));
-	void	scrollback_backwards _((unsigned char, char *));
-	void	scrollback_end _((unsigned char, char *));
-	void	scrollback_start _((unsigned char, char *));
+ 	void	scrollback_forwards _((u_int, char *));
+ 	void	scrollback_backwards _((u_int, char *));
+ 	void	scrollback_end _((u_int, char *));
+ 	void	scrollback_start _((u_int, char *));
 	RETSIGTYPE	sig_refresh_screen _((void));
 	int	check_screen_redirect _((char *));
 	void	kill_screen _((Screen *));

@@ -4,13 +4,181 @@
  *
  * Matthew Green, 1993.
  *
- * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998.
+ * Copyright(c) 1993, 1994, 1995, 1996, 1997, 1998, 1999.
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.2 1998-11-18 20:51:28 f Exp $
+ * @(#)$Id: ChangeLog,v 1.3 1999-02-15 21:18:03 f Exp $
  */
 
+4.4F
+Tue Feb  9 21:30:37 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/crypt.c, source/ctcp.c, source/dcc.c:
+		various bug fixes to crypto code.
+
+Tue Feb 02 03:45:58 est 1999 - glen mccready <glen@qnx.com> 
+	source/exec.c, help/exec:
+		add /exec -target.
+		
+Sun Jan 03 20:19:54 est 1999 - glen mccready <glen@qnx.com>
+	source/alias.c:
+		more functions, winsrvr() and winsrvrgrp() to return
+		the windows server and server_group.
+	source/window.c:
+		make "window query" work like "query".
+
+Sun Jan 03 17:21:02 est 1999 - glen mccready <glen@qnx.com>
+	source/alias.c:
+		add a couple of useful functions.  one, winvis(), to
+		tell you if a window is visible.  another, querynick(),
+		to tell you what nick, if any, a window is queried to.
+
+Sun Jan 03 12:42:44 est 1999 - glen mccready <glen@qnx.com>
+	source/window.c:
+		allow "window channel #chan,key" to work.
+
+4.4E
+Sun Nov  8 16:23:19 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/cast.c:
+		be defensive about putting the final nul back in
+		to the string: it can never be >7 as the blocksize
+		is 8...
+	source/ctcp.c:
+		quote ':' with a standard quote character in
+		ctcp_quote_it() as do_ctcp() treats : specially (if
+		it is the first char of a string).  the avoids
+		accidentally losing the first character of a string.
+
+Fri Nov  6 19:33:31 EST 1998 - matthew green <mrg@eterna.com.au>
+	acconfig.h, configure, configure.in, include/alias.h,
+	include/ctcp.h, include/dcc.h, include/defs.h.in, include/edit.h,
+	include/hold.h, include/hook.h, include/if.h, include/input.h,
+	include/irc.h, include/irc_std.h, include/ircaux.h,
+	include/ircterm.h, include/keys.h, include/keys.h.proto,
+	include/menu.h, include/names.h, include/output.h,
+	include/screen.h, include/server.h, include/translat.h,
+	include/vars.h, include/window.h, source/alias.c, source/cast.c,
+	source/crypt.c, source/ctcp.c, source/dcc.c, source/debug.c,
+	source/edit.c, source/exec.c, source/file.c, source/flood.c,
+	source/funny.c, source/help.c, source/history.c, source/hold.c,
+	source/hook.c, source/if.c, source/ignore.c, source/input.c,
+	source/irc.c, source/ircaux.c, source/ircflush.c, source/ircio.c,
+	source/ircsig.c, source/keys.c, source/lastlog.c, source/list.c,
+	source/log.c, source/mail.c, source/menu.c, source/names.c,
+	source/newio.c, source/notice.c, source/notify.c,
+	source/numbers.c, source/output.c, source/parse.c, source/queue.c,
+	source/reg.c, source/scandir.c, source/screen.c, source/server.c,
+	source/stack.c, source/status.c, source/term.c, source/translat.c,
+	source/vars.c, source/whois.c, source/window.c, source/wserv.c:
+		make (almost) compile with quite anal gcc flags under
+		NetBSD 1.3H, quietly.  this adds support for finding
+		a locally delcared "errno", and also removes a bunch of
+		the old STDC crap with passing char's to functions.
+		also fixed a few bugs that were found!
+
+4.4D
+Fri Nov  6 02:38:34 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/dcc.c:
+		add untested code for using writev if available.
+		also, fix dcc chat encryption.
+	source/irc.c, source/notice.c, source/parse.c, source/whois.c:
+		clean up "int sed;" processing.
+
+Wed Oct 28 12:11:10 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/dcc.c, source/flood.c, source/irc.c, source/ircaux.c,
+	source/numbers.c, source/parse.c, source/server.c,
+	source/window.c, include/irc.h:
+		remove NICKNAME_LEN. make nicks dynamically allocated.
+		this is so ircII works on blundernet.
+	source/dcc.c:
+		fix some problems with encrypted dcc chat.  still not
+		totally working...
+
+4.4C
+Sun Sep 27 12:18:08 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		fix flash-style attacks, by checking for characters
+		0-32 with the high-bit set (128->160) and performing
+		the same alternation on those.
+	contrib/README, contrib/colour, contrib/colour.orig:
+		add the new colour patch from PR#332, moving the old
+		one to colour.orig.  from forcer.
+	source/alias.c:
+		use the current server for $A and $N expansion, not
+		the current window.  from flier@globecom.netin pr 300.
+
+Sun Sep 27 02:28:08 EST 1998 - matthew green <mrg@eterna.com.au>
+	translation/POLISH, translation/POLISH_NOPL:
+		fixed polish translation tables, from Piotr Kucharski
+		<chopin@sgh.waw.pl> in pr#344.
+	source/edit.c, include/edit.h:
+		make /timer server-away.  from flier in pr#295.
+
+Sat Sep 26 12:36:02 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/alias.c:
+		fix $rindex(), using patch in pr335 from Tristan Horn
+		<tristan@ethereal.net>.
+	source/numbers.c:
+		if we get end of motd, and we haven't seen a 002 or
+		version notice, fake one up...
+
+Sat Sep 26 03:58:30 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/server.c, source/window.c, source/numbers.c,
+	source/help.c, source/dcc.c:
+		change {save,restore}_message_from() into a queue so
+		that now that we use them for every message_from(),
+		info is not by too save_ callers before a restore_.
+		fix some of the callers of these functions to work
+		properly in the presence of a queue.
+
+Wed Sep 23 00:51:22 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/notice.c:
+		allow server notices to see the 1st parameter as it
+		comes from the server, as it may be a channel.  from
+		galibert@iria.mines.u-nancy.fr (Olivier Galibert) in
+		pr#239.
+	script/2.9script:
+		deal with PR#217 sanely now we have the above.
+	configure, configure.in:
+		check for gcc on QNX (from glen).
+	source/numbers.c:
+		deal with number 405. fixes pr#336.
+	source/alias.c:
+		fix overflow in eval echo [3232235777/255].
+	configure, configure.in: source/exec.c:
+		don't go past the end of the signals array.
+	source/log.c:
+		fix core dump through nulref from flier in pr#334.
+
+Tue Sep 22 20:38:16 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/alias.c, source/ctcp.c, source/dcc.c, source/edit.c,
+	source/funny.c, source/help.c, source/lastlog.c, source/mail.c,
+	source/names.c, source/notice.c, source/notify.c, source/numbers.c,
+	source/parse.c, source/server.c, source/whois.c, source/window.c:
+		rework message_from() usage:  now we use the two handy
+		functions {save,restore}_message_from() a lot throughout
+		the tree (when using message_from()).  this ensures that
+		the from level/message level/from who/etc are all set
+		correctly at all times.  also fix a few bugs here.
+		/notify, /help, ctcp messages and several other systems
+		were not properly restoring or setting the levels.  this,
+		i believe, is the cause of random messages going to the
+		wrong place, extremely rarely.  i belive i have fixed
+		all of these problems now, and perhaps not broken anything.
+		also fix temporary setting of from_server that did not
+		restore the previous value.
+	source/alias.c:
+		avoid using from_server or parsing_server_index as an index
+		if it is < 0.
+
+Wed Sep 16 11:04:45 EST 1998 - matthew green <mrg@eterna.com.au>
+	source/history.c:
+		create the .irchist file mode 600.
+	include/names.h, include/server.h, source/funny.c,
+	source/names.c, source/parse.c, source/status.c:
+		support irc 2.10 modes, from <kalt@stealth.net>.
+
+4.4B
 Tue Sep  8 00:43:18 EST 1998 - matthew green <mrg@eterna.com.au>
 	INSTALL, Makefile.in, easyinst:
 		remove easyinst, document --with[out]-cast.

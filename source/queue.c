@@ -34,7 +34,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: queue.c,v 1.2 1998-09-10 17:46:04 f Exp $
+ * $Id: queue.c,v 1.3 1999-02-15 21:20:08 f Exp $
  */
 
 #include "irc.h"
@@ -94,7 +94,8 @@ queuecmd(cmd, args, subargs)
 
 	/* If the queue list is empty, make an entry */
  	if (Queuelist == (Queue *) 0) {
- 		char blah_c_sucks[4] = "Top";
+ 		char *blah_c_sucks = "Top";
+
  		Queuelist = make_new_queue((Queue *) 0, blah_c_sucks);
  	}
 	if (Queuelist == (Queue *) 0)

@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.2 1998-09-10 17:45:49 f Exp $
+ * $Id: newio.c,v 1.3 1999-02-15 21:19:55 f Exp $
  */
 
 #include "irc.h"
@@ -216,8 +216,8 @@ dgets(str, len, des, specials, decrypt)
 	int	decrypt;
 {
 	char	*ptr, ch;
-	int	cnt = 0,
-		c;
+ 	size_t	cnt = 0;
+ 	int	c;
 	fd_set	rd;
 	int	WantNewLine = 0;
 	int	BufferEmpty;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: window.h,v 1.2 1999-02-15 21:18:56 f Exp $
  */
 
 #ifndef __window_h_
@@ -95,19 +95,19 @@
 	void	set_query_nick _((char *));
 	char	*query_nick _((void));
 	void	update_window_status _((Window *, int));
-	void	window _((char *, char *, char *));
-	void	next_window _((unsigned char, char *));
-	void	swap_last_window _((unsigned char, char *));
-	void	swap_next_window _((unsigned char, char *));
-	void	previous_window _((unsigned char, char *));
-	void	swap_previous_window _((unsigned char, char *));
-	void	back_window _((unsigned char, char *));
+ 	void	windowcmd _((char *, char *, char *));
+ 	void	next_window _((u_int, char *));
+ 	void	swap_last_window _((u_int, char *));
+ 	void	swap_next_window _((u_int, char *));
+ 	void	previous_window _((u_int, char *));
+ 	void	swap_previous_window _((u_int, char *));
+ 	void	back_window _((u_int, char *));
 	void	window_kill_swap _((void));
 	int	is_current_channel _((char *, int, int));
 	void	redraw_all_status _((void));
 	void	message_to _((u_int));
 	void	message_from _((char *, int));
-	void	unstop_all_windows _((unsigned char, char *));
+ 	void	unstop_all_windows _((u_int, char *));
 	void	set_prompt_by_refnum _((u_int, char *));
 	int	number_of_windows _((void));
 	void	clear_window_by_refnum _((u_int));
@@ -131,7 +131,6 @@
 	void	delete_window_from_server_group _((Window *, char *));
 	void	window_restore_server _((int));
 
-extern	Window	*to_window;
 extern	Window	*invisible_list;
 extern	int	underline;
 extern	int	who_level;

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.2 1998-09-10 17:46:00 f Exp $
+ * $Id: output.c,v 1.3 1999-02-15 21:20:04 f Exp $
  */
 
 #include "irc.h"
@@ -70,13 +70,9 @@ static	char	FAR putbuf[2*BIG_BUFFER_SIZE + 1] = "";
  */
 /*ARGSUSED*/
 RETSIGTYPE
-#ifdef __STDC__
-refresh_screen(unsigned char key, char *ptr)
-#else
 refresh_screen(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	term_clear_screen();
 	if (term_resize())
@@ -108,7 +104,7 @@ put_file(filename)
 {
 	FILE	*fp;
 	char	line[256];		/* too big?  too small?  who cares? */
-	int	len;
+ 	size_t	len;
 
 	if ((fp = fopen(filename, "r")) != (FILE *) 0)
 	{

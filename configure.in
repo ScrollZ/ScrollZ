@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl $Id: configure.in,v 1.2 1998-11-18 20:51:33 f Exp $
+dnl @(#)$Id: configure.in,v 1.3 1999-02-15 21:18:13 f Exp $
 
-AC_REVISION($Revision: 1.2 $)dnl
+AC_REVISION($Revision: 1.3 $)dnl
 AC_INIT(source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -50,7 +50,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.2 1998-11-18 20:51:33 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.3 1999-02-15 21:18:13 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -101,8 +101,10 @@ case "$(uname -s)" in
 dnl bleck - wish i could ditch this qnx test, but we need to bump the stack
   QNX*)
     AC_MSG_RESULT(yes)
-    LDFLAGS="-N64k -M"
-    CFLAGS="-w4 -Otax -zc -Wc,-fr= -Wc,-wcd=121"
+    if test -z "$GCC"; then
+      LDFLAGS="-N256k -M"
+      CFLAGS="-w4 -Otax -zc -Wc,-fr= -Wc,-wcd=121"
+    fi
     ;;
   *)
     AC_MSG_RESULT(no)
@@ -234,7 +236,6 @@ AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
 AC_CHECK_FUNC(getcwd,, AC_DEFINE(NEED_GETCWD))
 AC_CHECK_FUNC(fchmod,, AC_DEFINE(NEED_FCHMOD))
 AC_CHECK_FUNC(strerror,, AC_DEFINE(NEED_STRERROR))
-AC_CHECK_FUNC(gettimeofday,, AC_DEFINE(HAVETIMEOFDAY))
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
@@ -426,6 +427,24 @@ else
 fi
 
 dnl
+dnl check for errno declaration
+dnl
+
+AC_MSG_CHECKING(for errno declaration)
+AC_TRY_RUN([
+#include <sys/types.h>
+#include <errno.h>
+main()
+{
+  int i = errno;
+  exit(0);
+}
+],
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(ERRNO_DECLARED),
+  AC_MSG_RESULT(no), :)
+
+dnl
 dnl check for sys_errlist declaration
 dnl
 
@@ -613,7 +632,7 @@ if test -f source/sig.inc; then
   /bin/rm -f source/sig.inc
 fi
 
-[echo $sig_name | sed -e 's/$/"};/' -e 's/ /", "/g' -e 's/^/char *signals[] = { "/' >> source/sig.inc]
+[echo $sig_name | sed -e 's/$/"};/' -e 's/ /", "/g' -e 's/^/char *signals[] = { "/' -e 's/};/, NULL};/' >> source/sig.inc]
 
 dnl work out UNIX mail dir..
 
@@ -681,6 +700,28 @@ AC_ARG_WITH(paranoid,
   AC_MSG_RESULT(none)
 )
 
+AC_MSG_CHECKING(CAST for support)
+AC_ARG_WITH(cast,
+[  --with-cast             Use CAST-128 bit encryption (requires cast.c)],
+[ case "$withval" in
+    n*|N*)
+      AC_MSG_RESULT(no)
+      ;;
+    *)
+      AC_MSG_RESULT(yes)
+      AC_DEFINE_UNQUOTED(USE_CAST, 1)
+      CAST_SRC=cast.c
+      ;;
+  esac ],
+  if test -f source/cast.c; then
+    AC_MSG_RESULT(yes)
+    AC_DEFINE_UNQUOTED(USE_CAST, 1)
+    CAST_SRC=cast.c
+  else
+    AC_MSG_RESULT(no)
+  fi
+)
+
 AC_MSG_CHECKING(for default server)
 AC_ARG_WITH(default-server,
 [  --with-default-server=SERVER[:PORT]     Connect to SERVER by default.],
@@ -717,8 +758,14 @@ AC_ARG_WITH(socks,
     AC_TRY_LINK([],
       [ Rconnect(); ],
       [ LIBS="$olibs -L\${libdir} $withval" ],
-      [ AC_MSG_ERROR(Could not find the $withval library.  You must first install socks.)
-    ])
+      [ LIBS="$LIBS -L$libdir $withval -lresolv"
+	AC_TRY_LINK([],
+          [ Rconnect(); ],
+          [ LIBS="$olibs -L\${libdir} $withval -lresolv" ],
+            AC_MSG_ERROR(Could not find the $withval library.  You must first install socks.)
+        )
+      ]
+    )
     ;;
   esac ],
   AC_MSG_RESULT(no)
@@ -786,6 +833,7 @@ AC_SUBST(RM)
 AC_SUBST(LN)
 AC_SUBST(IRCLIB)
 AC_SUBST(bindir)
+AC_SUBST(CAST_SRC)
 AC_OUTPUT(Makefile ircbug include/Makefile source/Makefile)
 
 echo

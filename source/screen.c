@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.5 1999-01-10 20:15:11 f Exp $
+ * $Id: screen.c,v 1.6 1999-02-15 21:20:12 f Exp $
  */
 
 #include "irc.h"
@@ -370,13 +370,13 @@ scroll_window(window)
 	{
 		if (window->scroll)
 		{
-			int	scroll,
-			i;
+			int	do_scroll,
+				i;
 
-			if ((scroll = get_int_var(SCROLL_LINES_VAR)) <= 0)
-				scroll = 1;
+			if ((do_scroll = get_int_var(SCROLL_LINES_VAR)) <= 0)
+				do_scroll = 1;
 
-			for (i = 0; i < scroll; i++)
+			for (i = 0; i < do_scroll; i++)
 			{
 				new_free (&window->top_of_display->line);
 				window->top_of_display =
@@ -384,7 +384,7 @@ scroll_window(window)
 			}
 			if (window->visible)
 			{
-				if (term_scroll(window->top + window->menu.lines, window->top + window->menu.lines + window->cursor - 1, scroll))
+ 				if (term_scroll(window->top + window->menu.lines, window->top + window->menu.lines + window->cursor - 1, do_scroll))
 				{
 					if(current_screen->visible_windows == 1)
 					{
@@ -404,7 +404,7 @@ scroll_window(window)
 							term_space_erase(0);
 						term_cr();
 						term_newline();
-						for (i = 0; i < scroll; i++)
+ 						for (i = 0; i < do_scroll; i++)
 						{
 							term_cr();
 							term_newline();
@@ -416,11 +416,11 @@ scroll_window(window)
 					else
 						redraw_window(window, 1);
 				}
-				window->cursor -= scroll;
+				window->cursor -= do_scroll;
 				term_move_cursor(0, window->cursor + window->top + window->menu.lines);
 			}
 			else
-				window->cursor -= scroll;
+				window->cursor -= do_scroll;
 		}
 		else
 		{
@@ -540,7 +540,7 @@ output_line(str, result, startpos)
 	static	int	high = OFF, bold = OFF;
 	int	rev_tog, und_tog, bld_tog, all_off;
 	char	*ptr;
-	int	len;
+ 	ssize_t	len;
 	int	written = 0;
 	char	c;
 	char	*original;
@@ -585,13 +585,13 @@ output_line(str, result, startpos)
 			}
 			if (written > CO)
 				len = len - (written - CO);
-			if (!startpos)
+ 			if (!startpos && len > 0)
 /**************************** PATCHED by Flier ******************************/
-				/*fwrite(str, len, 1, current_screen->fpout);*/
+ 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
                         	my_addstr(str,len);
 #else
-                                fwrite(str, len, 1, current_screen->fpout);
+ 				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
 #ifdef WANTANSI
                         ansi_count=0;
@@ -665,7 +665,7 @@ output_line(str, result, startpos)
 		 */
 			c = *ptr;
 			*ptr = '\0';
-			len = strlen(str);
+ 			len = (ssize_t)strlen(str);
 			written += len;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
@@ -686,11 +686,11 @@ output_line(str, result, startpos)
 				len = len - (written - CO);
 			if (!startpos)
 /**************************** PATCHED by Flier ******************************/
-				/*fwrite(str, len, 1, current_screen->fpout);*/
+ 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
  			  	my_addstr(str,len);
 #else
-				fwrite(str, len, 1, current_screen->fpout);
+ 				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
 /****************************************************************************/
 			term_beep();
@@ -737,8 +737,8 @@ rite(window, str, show, redraw, backscroll, logged)
 		logged;
 {
 	static	int	high = OFF;
-	int	written = 0,
-		len;
+ 	int	written = 0;
+ 	ssize_t	len;
 	Screen	*old_current_screen = current_screen;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
@@ -804,13 +804,13 @@ rite(window, str, show, redraw, backscroll, logged)
 			}
 /**************************** PATCHED by Flier ******************************/
 			/*written = output_line(str, &str, 0);
-			len = strlen(str);*/
+ 			len = (ssize_t)strlen(str);*/
 #ifdef SZNCURSES
                         written = output_line(str,&newstr,0);
-			len=strlen(newstr);
+ 			len = (ssize_t)strlen(newstr);
 #else
                         written = output_line(str, &str, 0);
-			len = strlen(str);
+ 			len = (ssize_t)strlen(str);
 #endif /* SZNCURSES */
 /****************************************************************************/
 			written += len;
@@ -821,14 +821,14 @@ rite(window, str, show, redraw, backscroll, logged)
 #endif
 /****************************************************************************/
 			if (written > CO)
-					len = len - (written - CO);
+ 				len = len - (written - CO);
 			if (len > 0)
 /**************************** PATCHED by Flier ******************************/
-				/*fwrite(str, len, 1, current_screen->fpout);*/
+ 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
 #ifdef SZNCURSES
  			  	my_addstr(newstr,len);
 #else
-				fwrite(str, len, 1, current_screen->fpout);
+ 				fwrite(str, (size_t)len, 1, current_screen->fpout);
 #endif /* SZNCURSES */
 /****************************************************************************/
 			if (term_clear_to_eol())
@@ -1170,9 +1170,8 @@ redraw_window(window, just_one)
 		return;
 	window = window ? window : curr_scr_win;
 	if (just_one < 0)
-
 	{
-	/* This part of the window is scrolling into view */
+ 		/* This part of the window is scrolling into view */
 		StartPoint = -just_one;
 		just_one = 0;
 	}
@@ -1269,7 +1268,7 @@ split_up_line(str)
 		NULL, NULL, NULL, NULL,
 		NULL, NULL, NULL, NULL
 	};
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	unsigned char *ptr;
 	char	*cont_ptr,
 		*cont = NULL,
@@ -1281,15 +1280,15 @@ split_up_line(str)
 		word_break = 0,
 		start = 0,
 		i,
-		len,
 		indent = 0,
 		beep_cnt = 0,
 		beep_max,
 		tab_cnt = 0,
 		tab_max,
 		line = 0;
+ 	size_t	len;
 
-	bzero(buffer, sizeof(buffer));
+	bzero(lbuf, sizeof(lbuf));
 	for (i = 0; i < MAXIMUM_SPLITS; i++)
 		new_free(&output[i]);
 	if (!*str)
@@ -1301,22 +1300,25 @@ split_up_line(str)
 	{
 		if (translation)
 			*ptr = transToClient[*ptr];
+/**************************** PATCHED by Flier ******************************/
+ 		/*if (*ptr <= 32 || (*ptr > 127 && *ptr <= 160))*/
 		if (*ptr <= 32)
+/****************************************************************************/
 		{
 			switch (*ptr)
 			{
 			case '\007':	/* bell */
 				if (beep_max == -1)
 				{
-					buffer[pos++] = REV_TOG;
-					buffer[pos++] = (*ptr & 127) | 64;
-					buffer[pos++] = REV_TOG;
+					lbuf[pos++] = REV_TOG;
+					lbuf[pos++] = (*ptr & 127) | 64;
+					lbuf[pos++] = REV_TOG;
 					nd_cnt += 2;
 					col++;
 				}
 				else if (!beep_max || (++beep_cnt <= beep_max))
 				{
-					buffer[pos++] = *ptr;
+					lbuf[pos++] = *ptr;
 					nd_cnt++;
 					col++;
 				}
@@ -1324,9 +1326,9 @@ split_up_line(str)
 			case '\011':	/* tab */
 				if (tab_max && (++tab_cnt > tab_max))
 				{
-					buffer[pos++] = REV_TOG;
-					buffer[pos++] = (*ptr & 127) | 64;
-					buffer[pos++] = REV_TOG;
+					lbuf[pos++] = REV_TOG;
+					lbuf[pos++] = (*ptr & 127) | 64;
+					lbuf[pos++] = REV_TOG;
 					nd_cnt += 2;
 					col++;
 				}
@@ -1337,7 +1339,7 @@ split_up_line(str)
 					len = 8 - (col % 8);
 					word_break = pos;
 					for (i = 0; i < len; i++)
-						buffer[pos++] = ' ';
+						lbuf[pos++] = ' ';
 					col += len;
 				}
 				break;
@@ -1345,41 +1347,41 @@ split_up_line(str)
 				if (indent == 0)
 					indent = -1;
 				word_break = pos;
-				buffer[pos++] = *ptr;
+				lbuf[pos++] = *ptr;
 				col++;
 				break;
 			case UND_TOG:
 			case ALL_OFF:
 			case REV_TOG:
 			case BOLD_TOG:
-				buffer[pos++] = *ptr;
+				lbuf[pos++] = *ptr;
 				nd_cnt++;
 				break;
 			default:	/* Anything else, make it displayable */
 				if (indent == -1)
 					indent = pos - nd_cnt;
 /**************************** PATCHED by Flier ******************************/
-				/*buffer[pos++] = REV_TOG;
-				buffer[pos++] = (*ptr & 127) | 64;
-				buffer[pos++] = REV_TOG;
+				/*lbuf[pos++] = REV_TOG;
+				lbuf[pos++] = (*ptr & 127) | 64;
+				lbuf[pos++] = REV_TOG;
 				nd_cnt += 2;
 				col++;*/
 #ifdef WANTANSI
                                 if (vt100Decode(*ptr)) {
-                                    buffer[pos++] = *ptr;
+                                    lbuf[pos++] = *ptr;
                                     nd_cnt++;
                                 }
                                 else {
-                                    buffer[pos++]=REV_TOG;
-                                    buffer[pos++]=(*ptr&127)|64;
-                                    buffer[pos++]=REV_TOG;
+                                    lbuf[pos++]=REV_TOG;
+                                    lbuf[pos++]=(*ptr&127)|64;
+                                    lbuf[pos++]=REV_TOG;
                                     nd_cnt+=2;
                                     col++;
                                 }
 #else
-                                buffer[pos++] = REV_TOG;
-                                buffer[pos++] = (*ptr & 127) | 64;
-                                buffer[pos++] = REV_TOG;
+                                lbuf[pos++] = REV_TOG;
+                                lbuf[pos++] = (*ptr & 127) | 64;
+                                lbuf[pos++] = REV_TOG;
                                 nd_cnt += 2;
                                 col++;
 #endif
@@ -1391,7 +1393,7 @@ split_up_line(str)
 		{
 			if (indent == -1)
 				indent = pos - nd_cnt;
-			buffer[pos++] = *ptr;
+			lbuf[pos++] = *ptr;
 /**************************** PATCHED by Flier ******************************/
 			/*col++;*/
 #ifdef WANTANSI
@@ -1408,27 +1410,27 @@ split_up_line(str)
 		{
 /**************************** PATCHED by Flier ******************************/
                         while (*ptr && vt100Decode(*ptr)) {
-                            buffer[pos++] = *ptr++;
+                            lbuf[pos++] = *ptr++;
                             nd_cnt++;
                         }
 /****************************************************************************/
 			/* one big long line, no word breaks */
 			if (word_break == 0)
 				word_break = pos - (col - CO);
-			c = buffer[word_break];
-			buffer[word_break] = '\0';
+			c = lbuf[word_break];
+			lbuf[word_break] = '\0';
 			if (cont)
 			{
 				malloc_strcpy(&temp, cont);
-				malloc_strcat(&temp, &(buffer[start]));
+				malloc_strcat(&temp, &(lbuf[start]));
 			}
 			else
-				malloc_strcpy(&temp, &(buffer[start]));
+				malloc_strcpy(&temp, &(lbuf[start]));
 			malloc_strcpy(&output[line++], temp);
-			buffer[word_break] = c;
+			lbuf[word_break] = c;
 			start = word_break;
 			word_break = 0;
-			while (buffer[start] == ' ')
+			while (lbuf[start] == ' ')
 				start++;
 			if (start > pos)
 				start = pos;
@@ -1452,7 +1454,7 @@ split_up_line(str)
 					else
 					{
 						cont = (char *)
-							new_malloc(indent + 1);
+ 							new_malloc((size_t)indent + 1);
 						strcpy(cont, cont_ptr);
 						for (i = len; i < indent; i++)
 							cont[i] = ' ';
@@ -1465,21 +1467,21 @@ split_up_line(str)
 			col = strlen(cont) + (pos - start);
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-                        col-=CountAnsi(&buffer[start],pos-start);
+                        col-=CountAnsi(&lbuf[start],pos-start);
 #endif
 /****************************************************************************/
 		}
 	}
-	buffer[pos] = '\0';
-	if (buffer[start])
+	lbuf[pos] = '\0';
+	if (lbuf[start])
 	{
 		if (cont)
 		{
 			malloc_strcpy(&temp, cont);
-			malloc_strcat(&temp, &(buffer[start]));
+			malloc_strcat(&temp, &(lbuf[start]));
 		}
 		else
-			malloc_strcpy(&temp, &(buffer[start]));
+			malloc_strcpy(&temp, &(lbuf[start]));
 		malloc_strcpy(&output[line++], temp);
 	}
 	new_free(&cont);
@@ -1967,7 +1969,7 @@ create_additional_screen()
 		}
 		else
 		{
-			for(; *termvar; termvar++)
+ 			for (; *termvar; termvar++)
 			{
 				for (i = 0; i < ircxterm_num; i++)
 				{
@@ -1995,7 +1997,7 @@ create_additional_screen()
 	sprintf(sock.sun_path, "/tmp/irc_%08d", (int) getpid());
 	sock.sun_family = AF_UNIX;
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
-	bind(s, (struct sockaddr *) &sock, 2 + strlen(sock.sun_path));
+ 	bind(s, (struct sockaddr *) &sock, (int)(2 + strlen(sock.sun_path)));
 	listen(s, 1);
 	oldscreen = current_screen;
 	set_current_screen(create_new_screen());
@@ -2014,18 +2016,18 @@ create_additional_screen()
 		close_all_dcc();
 		close_all_exec();
 		close_all_server();
+       		i = 0;
 		if (screen_type == ST_SCREEN)
 		{
-			int	i = 0;
 			char	*args[64],
-				*s,
+				*ss,
 				*t,
 				*opts = NULL;
 
 			args[i++] = "screen";
-			if ((s = get_string_var(SCREEN_OPTIONS_VAR)) != NULL)
+			if ((ss = get_string_var(SCREEN_OPTIONS_VAR)) != NULL)
 			{
-				malloc_strcpy(&opts, s);
+				malloc_strcpy(&opts, ss);
 				while ((t = (char *) strtok(opts," ")) != NULL)
 				{
 					args[i++] = t;
@@ -2041,10 +2043,9 @@ create_additional_screen()
 		{
 			int	lines,
 				columns,
-				i = 0;
 			char	geom[20],
 				*args[64],
-				*s,
+				*ss,
 				*t,
 				*opts = NULL;
 
@@ -2053,9 +2054,9 @@ create_additional_screen()
 			args[i++] = xterm;
 			args[i++] = "-geom";
 			args[i++] = geom;
-			if ((s = get_string_var(XTERM_OPTIONS_VAR)) != NULL)
+			if ((ss = get_string_var(XTERM_OPTIONS_VAR)) != NULL)
 			{
-				malloc_strcpy(&opts, s);
+				malloc_strcpy(&opts, ss);
 				while ((t = (char *) strtok(opts," ")) != NULL)
 				{
 					args[i++] = t;
@@ -2295,13 +2296,9 @@ scrollback_forwards_lines(ScrollDist)
 }
 
 void
-#ifdef __STDC__
-scrollback_forwards(unsigned char key, char *ptr)
-#else
 scrollback_forwards(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 /**************************** PATCHED by Flier ******************************/
 	/*scrollback_forwards_lines(curr_scr_win->display_size/2);*/
@@ -2310,13 +2307,9 @@ scrollback_forwards(key, ptr)
 }
 
 void
-#ifdef __STDC__
-scrollback_backwards(unsigned char key, char *ptr)
-#else
 scrollback_backwards(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 /**************************** PATCHED by Flier ******************************/
 	/*scrollback_backwards_lines(curr_scr_win->display_size/2);*/
@@ -2326,13 +2319,9 @@ scrollback_backwards(key, ptr)
 
 
 void
-#ifdef __STDC__
-scrollback_end(unsigned char key, char *ptr)
-#else
 scrollback_end(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	Window	*window;
 
@@ -2365,13 +2354,9 @@ scrollback_end(key, ptr)
  * quite work.. -phone, april 1993.
  */
 void
-#ifdef __STDC__
-scrollback_start(unsigned char key, char *ptr)
-#else
 scrollback_start(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	Window	*window;
 

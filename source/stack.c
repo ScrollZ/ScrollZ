@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: stack.c,v 1.2 1998-09-10 17:46:15 f Exp $
+ * $Id: stack.c,v 1.3 1999-02-15 21:20:16 f Exp $
  */
 
 #include "irc.h"
@@ -59,7 +59,8 @@ do_stack_on(type, args)
 	char	*args;
 {
 	char	foo[4];
-	int	len, cnt, i, which = 0;
+ 	int	cnt, i, which = 0;
+ 	size_t	len;
 	Hook	*list;
 	NumericList	*nhook,
 			*nptr,
@@ -336,7 +337,8 @@ stackcmd(command, args, subargs)
 {
 	char	*arg,
 		*cmd = NULL;
-	int	len, type;
+ 	int	type;
+ 	size_t	len;
 
 	if ((arg = next_arg(args, &args)) != NULL)
 	{

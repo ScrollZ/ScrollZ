@@ -33,7 +33,7 @@
  *
  * This file is automatically created from keys.h.proto.
  *
- * $Id: keys.h.proto,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: keys.h.proto,v 1.2 1999-02-15 21:18:41 f Exp $
  */
 
 #ifndef __keys_h_
@@ -111,7 +111,7 @@ typedef struct
 typedef struct
 {
 	char	*name;
-	void	(*func) _((unsigned char, char *));
+ 	void	(*func) _((u_int, char *));
 }	KeyMapNames;
 
 extern	KeyMap	keys[],
@@ -125,9 +125,9 @@ extern	KeyMap	keys[],
 /****************************************************************************/
 extern	KeyMapNames key_names[];
 
-	void	(* get_send_line _((void))) _((unsigned char, char*));
+ 	void	(* get_send_line _((void))) _((u_int, char*));
 	void	save_bindings _((FILE *, int));
-	void	change_send_line _((void (*)(unsigned char, char *)));
+ 	void	change_send_line _((void (*)(u_int, char *)));
 	void	bindcmd _((char *, char *, char *));
 	void	rbindcmd _((char *, char *, char *));
 	void	parsekeycmd _((char *, char *, char *));

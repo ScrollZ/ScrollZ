@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.20 1999-01-31 12:45:21 f Exp $
+ * $Id: edit3.c,v 1.21 1999-02-15 21:19:10 f Exp $
  */
 
 #include "irc.h"
@@ -1470,7 +1470,7 @@ char *subargs;
         say("Creating new window on server %s port %s",server,port);
         say("Hit CONTROL-W then ? for help on window commands");
         sprintf(tmpbuf,"NEW SERVER %s:%s::%s HIDE",server,port,newnick);
-        window(NULL,tmpbuf,NULL);
+        windowcmd(NULL,tmpbuf,NULL);
     }
 }
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.2 1998-10-31 18:26:01 f Exp $
+ * $Id: irc.h,v 1.3 1999-02-15 21:18:33 f Exp $
  */
 
 #ifndef __irc_h
@@ -172,10 +172,9 @@
 # define DAEMON_UID 1
 #endif
 
-/**************************** PATCHED by Flier ******************************/
-/*#define NICKNAME_LEN 9*/
-#define NICKNAME_LEN 15
-/****************************************************************************/
+#if 0 /* blundernet */
+#define NICKNAME_LEN 9
+#endif
 #define NAME_LEN 80
 #define REALNAME_LEN 50
 #define PATH_LEN 1024
@@ -201,14 +200,15 @@
  * Lame Linux doesn't define X_OK in a non-broken header file, so
  * we define it here.. 
  */
-#if (defined(linux) || defined(__BORLANDC__)) && !defined(X_OK)
+#if !defined(X_OK)
 # define X_OK  1
-# ifdef __BORLANDC__
-#  define F_OK 0
-#  define W_OK 2
-#  define R_OK 4
-# endif
-#endif /* linux */
+#endif
+
+#ifdef __BORLANDC__
+# define F_OK 0
+# define W_OK 2
+# define R_OK 4
+#endif
 
 #ifdef __osf__
 # if __osf__
@@ -301,7 +301,7 @@ extern	char	*one;
 extern	char	irc_version[];
 extern	char	internal_version[];
 extern	char	FAR buffer[];
-extern	char	FAR nickname[];
+extern	char	*nickname;
 extern	char	*ircrc_file;
 extern	char	FAR hostname[];
 extern	char	FAR realname[];
@@ -340,7 +340,7 @@ extern	struct	in_addr	local_ip_address;
 /*
  * XXX some of these should move to a new notice.h
  */
-	int	irc_io _((char *, void (*)(unsigned char, char*), int, int));
+ 	int	irc_io _((char *, void (*)(u_int, char*), int, int));
 	void	new_stty _((char *));
 	int	wild_match _((char *, char *));
 	int	is_channel _((char *));
@@ -352,7 +352,7 @@ extern	struct	in_addr	local_ip_address;
 	void	got_initial_version _((char *));
 	void	load_ircrc _((void));
 	void	parse_notice _((char *, char **));
-	void	irc_quit _((unsigned char, char *));
+ 	void	irc_quit _((u_int, char *));
 
 typedef	struct	WhoisStuffStru
 {

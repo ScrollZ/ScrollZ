@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: ctcp.h,v 1.2 1999-02-15 21:18:19 f Exp $
  */
 
 #ifndef __ctcp_h_
@@ -79,12 +79,16 @@
 #endif
 /****************************************************************************/
 
+#define CTCP_CRYPTO_TYPE "SED"
+#define CTCP_CRYPTO_NAME "contains simple encrypted data"
+#define CTCP_CRYPTO_LEN  4
+
 extern	char	*ctcp_type[];
 extern	int	sed;
 
 	char	*do_ctcp _((char *, char *, char *));
-	char	*ctcp_quote_it _((char *, int));
-	char	*ctcp_unquote_it _((char *, int *));
+ 	char	*ctcp_quote_it _((char *, size_t));
+ 	char	*ctcp_unquote_it _((char *, size_t *));
 	char	*do_notice_ctcp _((char *, char *, char *));
 	int	in_ctcp _((void));
 #ifdef HAVE_STDARG_H

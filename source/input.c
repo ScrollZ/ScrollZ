@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.4 1998-10-31 18:27:36 f Exp $
+ * $Id: input.c,v 1.5 1999-02-15 21:19:35 f Exp $
  */
 
 #include "irc.h"
@@ -139,11 +139,11 @@ update_input(update)
 	static	int	co = 0,
 			li = 0;
 	char	*ptr;
-	int	len,
-		free_it = 1,
+ 	int	free_it = 1,
 		cnt,
 		max;
 	char	*prompt;
+ 	size_t	len;
 /**************************** PATCHED by Flier ******************************/
         int     ansi_count=0;
 /****************************************************************************/
@@ -252,9 +252,9 @@ update_input(update)
 		term_move_cursor(0, input_line);
 		if ((str_start == 0) && (current_screen->buffer_min_pos > 0))
 		{
-			int	echo;
+ 			int	isecho;
 
-			echo = term_echo(1);
+ 			isecho = term_echo(1);
 /**************************** PATCHED by Flier ******************************/
 			/*if (current_screen->buffer_min_pos > (CO - WIDTH))*/
 			if (current_screen->buffer_min_pos-ansi_count>(CO-WIDTH))
@@ -264,7 +264,7 @@ update_input(update)
 				len = current_screen->buffer_min_pos;
 			cnt = term_puts(&(current_screen->input_buffer[
 				str_start]), len);
-			term_echo(echo);
+ 			term_echo(isecho);
 /**************************** PATCHED by Flier ******************************/
 			/*cnt += term_puts(&(current_screen->input_buffer[
 				str_start + len]), CO - len);*/
@@ -273,8 +273,7 @@ update_input(update)
 /****************************************************************************/
 		}
 		else
-			cnt = term_puts(&(current_screen->input_buffer[
-				str_start]), CO);
+ 			cnt = term_puts(&(current_screen->input_buffer[str_start]), (size_t)CO);
 		if (term_clear_to_eol())
 			term_space_erase(cnt);
 		term_move_cursor(cursor, input_line);
@@ -302,13 +301,9 @@ update_input(update)
 }
 
 void
-#ifdef __STDC__
-refresh_inputline(unsigned char key, char * ptr)
-#else
 refresh_inputline(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	update_input(UPDATE_ALL);
 }
@@ -378,15 +373,12 @@ input_move_cursor(dir)
  * line 
  */
 void
-#ifdef __STDC__
-input_forward_word(unsigned char key, char * ptr)
-#else
 input_forward_word(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
-int i;
+	int i;
+
 	cursor_to_input();
 	while (
 	  (isspace(current_screen->input_buffer[current_screen->buffer_pos]) ||
@@ -404,23 +396,17 @@ int i;
 
 /* input_backward_word: move the cursor left on word in the input line */
 void
-#ifdef __STDC__
-input_backward_word(unsigned char key, char * ptr)
-#else
 input_backward_word(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	cursor_to_input();
 	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 (isspace(current_screen->input_buffer[current_screen->buffer_pos - 1])
-	 ||
+	 (isspace(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
 	 ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1])))
 		current_screen->buffer_pos--;
 	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 !(ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1])
-	 ||
+	 !(ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
 	 isspace(current_screen->input_buffer[current_screen->buffer_pos - 1])))
 		current_screen->buffer_pos--;
 	update_input(UPDATE_JUST_CURSOR);
@@ -428,26 +414,19 @@ input_backward_word(key, ptr)
 
 /* input_delete_character: deletes a character from the input line */
 void
-#ifdef __STDC__
-input_delete_character(unsigned char key, char * ptr)
-#else
 input_delete_character(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	cursor_to_input();
 	if (current_screen->input_buffer[current_screen->buffer_pos])
 	{
-		char	*ptr = (char *) 0;
+ 		char	*s = (char *) 0;
 		int	pos;
 
-		malloc_strcpy(&ptr,
-		  &(current_screen->input_buffer[current_screen->buffer_pos
-		  + 1]));
-		strcpy(&(current_screen->input_buffer[
-			current_screen->buffer_pos]), ptr);
-		new_free(&ptr);
+ 		malloc_strcpy(&s, &(current_screen->input_buffer[current_screen->buffer_pos + 1]));
+ 		strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), s);
+ 		new_free(&s);
 		if (term_delete())
 			update_input(UPDATE_FROM_CURSOR);
 		else
@@ -461,7 +440,7 @@ input_delete_character(key, ptr)
 			if (pos < (int) strlen(current_screen->input_buffer))
 			{
 				term_move_cursor(CO - 1, input_line);
-				term_putchar(current_screen->input_buffer[pos]);
+ 				term_putchar((u_int)current_screen->input_buffer[pos]);
 				term_move_cursor(cursor, input_line);
 			}
 			update_input(NO_UPDATE);
@@ -475,25 +454,19 @@ input_delete_character(key, ptr)
 /* input_backspace: does a backspace in the input buffer */
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-input_backspace(unsigned char key, char * ptr)
-#else
 input_backspace(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	cursor_to_input();
 	if (current_screen->buffer_pos > current_screen->buffer_min_pos)
 	{
-		char	*ptr = (char *) 0;
+ 		char	*s = (char *) 0;
 		int	pos;
 
-		malloc_strcpy(&ptr,
-		  &(current_screen->input_buffer[current_screen->buffer_pos]));
-		strcpy(&(current_screen->input_buffer[current_screen->buffer_pos
-			- 1]), ptr);
-		new_free(&ptr);
+ 		malloc_strcpy(&s, &(current_screen->input_buffer[current_screen->buffer_pos]));
+ 		strcpy(&(current_screen->input_buffer[current_screen->buffer_pos - 1]), s);
+ 		new_free(&s);
 		current_screen->buffer_pos--;
 		if (term_cursor_left())
 			term_move_cursor(cursor - 1, input_line);
@@ -515,7 +488,7 @@ input_backspace(key, ptr)
 				if (pos < (int) strlen(current_screen->input_buffer))
 				{
 					term_move_cursor(CO - 1, input_line);
-				        term_putchar(current_screen->input_buffer[pos]);
+	 				term_putchar((u_int)current_screen->input_buffer[pos]);
 				}
 				update_input(UPDATE_JUST_CURSOR);
 			}
@@ -538,13 +511,9 @@ input_backspace(key, ptr)
  * the input buffer 
  */
 void
-#ifdef __STDC__
-input_beginning_of_line(unsigned char key, char * ptr)
-#else
 input_beginning_of_line(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	cursor_to_input();
 	current_screen->buffer_pos = current_screen->buffer_min_pos;
@@ -556,13 +525,9 @@ input_beginning_of_line(key, ptr)
  * input buffer 
  */
 void
-#ifdef __STDC__
-input_end_of_line(unsigned char key, char * ptr)
-#else
 input_end_of_line(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	cursor_to_input();
 	current_screen->buffer_pos = strlen(current_screen->input_buffer);
@@ -574,13 +539,9 @@ input_end_of_line(key, ptr)
  * space character. 
  */
 void
-#ifdef __STDC__
-input_delete_previous_word(unsigned char key, char * ptr)
-#else
 input_delete_previous_word(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	old_pos;
 	char	c;
@@ -612,13 +573,9 @@ input_delete_previous_word(key, ptr)
  * word 
  */
 void
-#ifdef __STDC__
-input_delete_next_word(unsigned char key, char * ptr)
-#else
 input_delete_next_word(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	pos;
 	char	*str = (char *) 0,
@@ -651,13 +608,9 @@ input_delete_next_word(key, ptr)
  */
 /*ARGSUSED*/
 void
-#ifdef __STDC__
-input_add_character(unsigned char key, char * ptr)
-#else
 input_add_character(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	int	display_flag = NO_UPDATE;
 
@@ -716,7 +669,7 @@ set_input(str)
 	char	*str;
 {
 	strmcpy(current_screen->input_buffer + current_screen->buffer_min_pos,
-		str, INPUT_BUFFER_SIZE - current_screen->buffer_min_pos);
+ 		str, (size_t)INPUT_BUFFER_SIZE - current_screen->buffer_min_pos);
 	current_screen->buffer_pos = strlen(current_screen->input_buffer);
 }
 #endif /* _Windows */
@@ -734,13 +687,9 @@ get_input()
 
 /* input_clear_to_eol: erases from the cursor to the end of the input buffer */
 void
-#ifdef __STDC__
-input_clear_to_eol(unsigned char key, char * ptr)
-#else
 input_clear_to_eol(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	cursor_to_input();
 	malloc_strcpy(&cut_buffer,
@@ -759,13 +708,9 @@ input_clear_to_eol(key, ptr)
  * buffer 
  */
 void
-#ifdef __STDC__
-input_clear_to_bol(unsigned char key, char * ptr)
-#else
 input_clear_to_bol(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	char	*str = (char *) 0;
 
@@ -790,13 +735,9 @@ input_clear_to_bol(key, ptr)
  * input_clear_line: clears entire input line
  */
 void
-#ifdef __STDC__
-input_clear_line(unsigned char key, char * ptr)
-#else
 input_clear_line(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char	*ptr;
-#endif
 {
 	cursor_to_input();
 	malloc_strcpy(&cut_buffer, current_screen->input_buffer + current_screen->buffer_min_pos);
@@ -826,13 +767,9 @@ input_clear_line(key, ptr)
  * before the cursor position 
  */
 void
-#ifdef __STDC__
-input_transpose_characters(unsigned char key, char * ptr)
-#else
 input_transpose_characters(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	cursor_to_input();
 	if (current_screen->buffer_pos > current_screen->buffer_min_pos)
@@ -876,13 +813,9 @@ init_input()
  * into the input line 
  */
 void
-#ifdef __STDC__
-input_yank_cut_buffer(unsigned char key, char * ptr)
-#else
 input_yank_cut_buffer(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	char	*str = (char *) 0;
 

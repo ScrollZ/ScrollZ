@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notify.c,v 1.3 1998-10-04 16:16:15 f Exp $
+ * $Id: notify.c,v 1.4 1999-02-15 21:20:00 f Exp $
  */
 
 /*
@@ -117,6 +117,7 @@ notify(command, args, subargs)
 		*ptr;
 	int	no_nicks = 1;
 	int	do_ison = 0;
+ 	int	old_server = from_server;
 	NotifyList	*new;
 /**************************** PATCHED by Flier ******************************/
         char tmpbuf[mybufsize/2];
@@ -213,7 +214,7 @@ notify(command, args, subargs)
 							malloc_strcat(&list, " ");
 						}
 						else
-							add_to_whois_queue( new->nick, whois_notify, (char *) 0);
+ 							add_to_whois_queue(new->nick, whois_notify, (char *) 0);
 /**************************** PATCHED by Flier ******************************/
 						/*say("%s added to the notification list", nick);*/
                                                 if (inFlierNotify!=1)
@@ -222,6 +223,7 @@ notify(command, args, subargs)
                                                 if (*tmpbuf) strcat(tmpbuf," ");
                                                 strcat(tmpbuf,new->nick);
 /****************************************************************************/
+ 						from_server = old_server;
 					}
 				} else
 					show_notify_list(0);
@@ -230,12 +232,18 @@ notify(command, args, subargs)
 		}
 	}
 /**************************** PATCHED by Flier ******************************/
-	/*if (do_ison)
-		add_ison_to_whois(list, ison_notify);*/
+ 	/*if (do_ison) {
+ 		from_server = primary_server;
+  		add_ison_to_whois(list, ison_notify);
+ 		from_server = old_server;
+ 	}*/
         if (do_ison && inFlierNotify==1 && *tmpbuf)
             AddDelayNotify(tmpbuf);
-	else if (do_ison)
-		add_ison_to_whois(list, ison_notify);
+        else if (do_ison) {
+ 		from_server = primary_server;
+  		add_ison_to_whois(list, ison_notify);
+ 		from_server = old_server;
+        }
 /****************************************************************************/
 	new_free(&list);
 	if (no_nicks)
@@ -255,7 +263,8 @@ do_notify()
 {
 	static	int	location = 0;
 	int	count,
-		c2;
+ 		c2,
+ 		old_server = from_server;
 	char	buf[BIG_BUFFER_SIZE+1];
 	NotifyList	*tmp;
 
@@ -277,6 +286,7 @@ do_notify()
 		add_ison_to_whois(buf, ison_notify);
 	if ((location += 40) > count)
 		location = 0;
+ 	from_server = old_server;
 }
 
 /*
@@ -403,7 +413,7 @@ void
 set_notify_handler(value)
 	char	*value;
 {
-	int	len;
+ 	size_t	len;
 	int	i;
 	char	*s;
 

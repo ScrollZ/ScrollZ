@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.h,v 1.2 1998-09-27 16:27:15 f Exp $
+ * $Id: ircaux.h,v 1.3 1999-02-15 21:18:37 f Exp $
  */
 
 #ifndef __ircaux_h_
@@ -50,11 +50,11 @@
 	char	*rfgets _((char *, int, FILE *));
 	char	*path_search _((char *, char *));
 	char	*double_quote _((char *, char *));
-	char	*new_malloc _((int));
+ 	char	*new_malloc _((size_t));
 #ifdef ALLOC_DEBUG
 	void	alloc_cmd _((char *, char *, char *));
 #endif
-	char	*new_realloc _((char *, int));
+ 	char	*new_realloc _((char *, size_t));
 	void	malloc_strcpy _((char **, char *));
 	void	malloc_strcat _((char **, char *));
 	void	new_free _((void *));
@@ -63,13 +63,13 @@
 	int	is_number _((char *));
 	int	connect_by_number _((int, char *, int));
 	int	my_stricmp _((char *, char *));
-	int	my_strnicmp _((char *, char *, int));
+ 	int	my_strnicmp _((char *, char *, size_t));
 	int	set_non_blocking _((int));
 	int	set_blocking _((int));
 	int	scanstr _((char *, char *));
 	void	really_free _((int));
-	void	strmcpy _((char *, char *, int));
-	void	strmcat _((char *, char *, int));
-	void	strmcat_ue _((char *, char *, int));
+ 	void	strmcpy _((char *, char *, size_t));
+ 	void	strmcat _((char *, char *, size_t));
+ 	void	strmcat_ue _((char *, char *, size_t));
 
 #endif /* __ircaux_h_ */

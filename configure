@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.94 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.100 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.12 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -535,7 +535,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.3 1998-11-18 20:51:32 f Exp $' > /dev/null
+echo '$Id: configure,v 1.4 1999-02-15 21:18:11 f Exp $' > /dev/null
 
 
 
@@ -1024,8 +1024,10 @@ echo "configure:1023: checking for qnx" >&5
 case "$(uname -s)" in
   QNX*)
     echo "$ac_t""yes" 1>&6
-    LDFLAGS="-N64k -M"
-    CFLAGS="-w4 -Otax -zc -Wc,-fr= -Wc,-wcd=121"
+    if test -z "$GCC"; then
+      LDFLAGS="-N64k -M"
+      CFLAGS="-w4 -Otax -zc -Wc,-fr= -Wc,-wcd=121"
+    fi
     ;;
   *)
     echo "$ac_t""no" 1>&6
@@ -3315,6 +3317,41 @@ rm -f conftest*
 fi
 
 
+echo $ac_n "checking for errno declaration""... $ac_c" 1>&6
+echo "configure:3321: checking for errno declaration" >&5
+if test "$cross_compiling" = yes; then
+  :
+else
+  cat > conftest.$ac_ext <<EOF
+#line 3326 "configure"
+#include "confdefs.h"
+
+#include <sys/types.h>
+#include <errno.h>
+main()
+{
+  int i = errno;
+  exit(0);
+}
+
+EOF
+if { (eval echo configure:3338: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+then
+  echo "$ac_t""yes" 1>&6
+  cat >> confdefs.h <<\EOF
+#define ERRNO_DECLARED 1
+EOF
+
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -fr conftest*
+  echo "$ac_t""no" 1>&6
+fi
+rm -fr conftest*
+fi
+
+
 echo $ac_n "checking for sys_errlist declaration""... $ac_c" 1>&6
 echo "configure:3319: checking for sys_errlist declaration" >&5
 if test "$cross_compiling" = yes; then
@@ -3813,7 +3850,7 @@ if test -f source/sig.inc; then
   /bin/rm -f source/sig.inc
 fi
 
-echo $sig_name | sed -e 's/$/"};/' -e 's/ /", "/g' -e 's/^/char *signals[] = { "/' >> source/sig.inc
+echo $sig_name | sed -e 's/$/"};/' -e 's/ /", "/g' -e 's/^/char *signals[] = { "/' -e 's/};/, NULL};/' >> source/sig.inc
 
 
 echo $ac_n "checking for unix mail directory""... $ac_c" 1>&6
@@ -3975,8 +4012,28 @@ else
   echo "configure: failed program was:" >&5
   cat conftest.$ac_ext >&5
   rm -rf conftest*
-   { echo "configure: error: Could not find the $withval library.  You must first install socks." 1>&2; exit 1; }
-    
+   LIBS="$LIBS -L$libdir $withval -lresolv"
+	cat > conftest.$ac_ext <<EOF
+#line 4002 "configure"
+#include "confdefs.h"
+
+int main() {
+ Rconnect(); 
+; return 0; }
+EOF
+if { (eval echo configure:4009: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+  rm -rf conftest*
+   LIBS="$olibs -L\${libdir} $withval -lresolv" 
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  { echo "configure: error: Could not find the $withval library.  You must first install socks." 1>&2; exit 1; }
+
+fi
+rm -f conftest*
+
+
 fi
 rm -f conftest*
     ;;

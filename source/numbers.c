@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.6 1998-11-20 20:44:49 f Exp $
+ * $Id: numbers.c,v 1.7 1999-02-15 21:20:02 f Exp $
  */
 
 #include "irc.h"
@@ -465,17 +465,20 @@ nickname_sendline(data, nick)
 	int	new_server, server;
 
 	new_server = atoi(data);
+#if 0 /* blundernet */
 	if ((nick = check_nickname(nick)) != NULL)
 	{
+#endif
 		server = parsing_server_index;
 		from_server = new_server;
 		send_to_server("NICK %s", nick);
 		if (new_server == primary_server)
-			strmcpy(nickname, nick, NICKNAME_LEN);
+ 			malloc_strcpy(&nickname, nick);
 		set_server_nickname(new_server, nick);
 		from_server = server;
 		already_doing_reset_nickname = 0;
 		update_all_status();
+#if 0 /* blundernet */
 	}
 	else
 	{
@@ -484,6 +487,7 @@ nickname_sendline(data, nick)
 			add_wait_prompt("Nickname: ", nickname_sendline, data,
 					WAIT_PROMPT_LINE);
 	}
+#endif
 }
 
 /*
@@ -520,6 +524,7 @@ channel_topic(from, ArgList)
 {
 	char	*topic, *channel;
 
+ 	save_message_from();
 	if (ArgList[1] && is_channel(ArgList[0]))
 	{
 		topic = ArgList[1];
@@ -527,7 +532,6 @@ channel_topic(from, ArgList)
 		message_from(channel, LOG_CRAP);
 		put_it("%s Topic for %s: %s", numeric_banner(), channel,
 			topic);
-		message_from((char *) 0, LOG_CURRENT);
 	}
 	else
 	{
@@ -535,6 +539,7 @@ channel_topic(from, ArgList)
 		PasteArgs(ArgList, 0);
 		put_it("%s Topic: %s", numeric_banner(), ArgList[0]);
 	}
+ 	restore_message_from();
 }
 
 static	void
@@ -543,10 +548,10 @@ nickname_in_use(from, ArgList)
 		**ArgList;
 {
 	PasteArgs(ArgList, 0);
-	if (is_server_connected(parsing_server_index))
+ 	if (is_server_connected(parsing_server_index)) {
 		if (do_hook(current_numeric, "%s", *ArgList))
 			display_msg(from, ArgList);
-	else if (never_connected || parsing_server_index != primary_server ||
+ 	} else if (never_connected || parsing_server_index != primary_server ||
 	    !attempting_to_connect)
 	{
 		if (do_hook(current_numeric, "%s", *ArgList))
@@ -759,11 +764,12 @@ invite(from, ArgList)
 
 	if ((who = ArgList[0]) && (channel = ArgList[1]))
 	{
+ 		save_message_from();
 		message_from(channel, LOG_CRAP);
 		if (do_hook(current_numeric, "%s %s %s", from, who, channel))
 			put_it("%s Inviting %s to channel %s",
 					numeric_banner(), who, channel);
-		message_from((char *) 0, LOG_CURRENT);
+ 		restore_message_from();
 	}
 }
 
@@ -805,6 +811,7 @@ numbered_command(from, comm, ArgList)
 	if (!ArgList[1])
 		return;
 	lastlog_level = set_lastlog_msg_level(LOG_CRAP);
+ 	save_message_from();
 	message_from((char *) 0, LOG_CRAP);
 	ArgList++;
 	current_numeric = -comm;	/* must be negative of numeric! */
@@ -854,6 +861,7 @@ numbered_command(from, comm, ArgList)
  				get_connected(from_server + 1, 0);
 			}
 		}
+ 		break;
 #endif
 /**************************** PATCHED by Flier ******************************/
 /* Patched by Zakath */
@@ -967,7 +975,6 @@ numbered_command(from, comm, ArgList)
 
 	case 366:		/* #define RPL_ENDOFNAMES       366 */
 		{
-			int	flag;
 			char	*tmp = (char *) 0,
 				*chan;
 			ChannelList	*ptr = (ChannelList *) 0;
@@ -1000,8 +1007,11 @@ numbered_command(from, comm, ArgList)
                 if (!inFlierWI) no_such_nickname(from, ArgList);
                 else inFlierWI--;
                 break;
+/*************************************************************************/		
 
-	case 405: 		/* #define RPL_TOOMANYCHANNELS  405 */
+ 	case 405:		/* #define ERR_TOOMANYCHANNELS  405 */
+/************************** PATCHED by Flier *****************************/
+ 		/*remove_channel(ArgList[0], parsing_server_index);*/
                 PasteArgs(ArgList,0);
                 strmcpy(tmpbuf,ArgList[0],mybufsize/4);
                 tmpnick=tmpbuf;
@@ -1009,8 +1019,8 @@ numbered_command(from, comm, ArgList)
                 PurgeChannel(tmpbuf,parsing_server_index);
 		if (do_hook(current_numeric, "%s %s", from, *ArgList))
                     display_msg(from, ArgList);
-		break;
 /*************************************************************************/		
+		break;
 
 	case 421:		/* #define ERR_UNKNOWNCOMMAND   421 */
 		if (check_screen_redirect(ArgList[0]))
@@ -1129,8 +1139,8 @@ numbered_command(from, comm, ArgList)
 		{
 			char	*ArgSpace = (char *) 0;
 			int	i,
-				len,
 				do_message_from = 0;
+ 			size_t	len;
 
 			for (i = len = 0; ArgList[i]; len += strlen(ArgList[i++]))
 				;
@@ -1168,16 +1178,14 @@ numbered_command(from, comm, ArgList)
                         }
                         else
 /****************************************************************************/
-			if (!do_hook(current_numeric, "%s %s", from, ArgSpace))
-			{
-				new_free(&ArgSpace);
-				if (do_message_from)
-					message_from((char *) 0, LOG_CURRENT);
-                                return;
-			}
+ 			i = do_hook(current_numeric, "%s %s", from, ArgSpace);
 			if (do_message_from)
 				message_from((char *) 0, lastlog_level);
 			new_free(&ArgSpace);
+ 			if (do_message_from)
+ 				restore_message_from();
+ 			if (i == 0)
+ 				goto done;
 /**************************** PATCHED by Flier ******************************/
                         /*none_of_these = 1;*/
                         if (!skipit) none_of_these=1;
@@ -1290,6 +1298,8 @@ numbered_command(from, comm, ArgList)
 			break;
 
 		case 376:		/* #define RPL_ENDOFMOTD        376 */
+ 			if (attempting_to_connect)
+ 				got_initial_version("*** Your host is broken and not running any version");
 			if (get_int_var(SHOW_END_OF_MSGS_VAR) &&
 			    (!get_int_var(SUPPRESS_SERVER_MOTD_VAR) ||
 			    !get_server_motd(parsing_server_index)))
@@ -1438,5 +1448,6 @@ numbered_command(from, comm, ArgList)
 		}
 	}
 	set_lastlog_msg_level(lastlog_level);
-	message_from((char *) 0, LOG_CURRENT);
+done:
+ 	restore_message_from();
 }

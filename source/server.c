@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.8 1998-11-02 21:50:22 f Exp $
+ * $Id: server.c,v 1.9 1999-02-15 21:20:14 f Exp $
  */
 
 #include "irc.h"
@@ -244,7 +244,7 @@ void
 do_server(rd, wd)
 	fd_set	*rd, *wd;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+	char	lbuf[BIG_BUFFER_SIZE + 1];
 	int	des,
 		j;
 	static	int	times = 0;
@@ -279,12 +279,12 @@ do_server(rd, wd)
 			from_server = i;
 			old_timeout = dgets_timeout(1);
 			s = server_list[from_server].buffer;
-			bufptr = buffer;
+ 			bufptr = lbuf;
 			if (s && *s)
 			{
-				int	len = strlen(s);
+ 				size_t	len = strlen(s);
 
-				strncpy(buffer, s, len);
+ 				strncpy(lbuf, s, len);
 				bufptr += len;
 			}
 /**************************** PATCHED by Flier ******************************/
@@ -299,7 +299,7 @@ do_server(rd, wd)
 			switch (junk)
 			{
 			case -1:
-				add_to_server_buffer(from_server, buffer);
+ 				add_to_server_buffer(from_server, lbuf);
 				continue;
 			case 0:
 			{
@@ -414,7 +414,7 @@ a_hack:
  					int	old_psi = parsing_server_index;
 
   					parsing_server_index = i;
-                                        parse_server(buffer);
+ 					parse_server(lbuf);
   					new_free(&server_list[i].buffer);
  					parsing_server_index = old_psi;
   					break;
@@ -435,8 +435,8 @@ find_in_server_list(server, port)
 	char	*server;
 	int	port;
 {
-	int	i,
-		len,
+ 	int	i;
+ 	size_t	len,
 		len2;
 
 	len = strlen(server);
@@ -445,7 +445,7 @@ find_in_server_list(server, port)
 		if (port && server_list[i].port &&
 		    port != server_list[i].port && port != -1)
 			continue;
-		len2 = strlen(server_list[i].name);
+ 		len2 = strlen(server_list[i].name);	/* XXX XXX unused ?? */
  		if (!my_strnicmp(server, server_list[i].name, len))
 			return (i);
 	}
@@ -1020,6 +1020,7 @@ connect_to_server(server_name, port, c_server)
 /**************************** PATCHED by Flier ******************************/
         LastServer=time((time_t *) 0);
 /****************************************************************************/
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
 	server_index = find_in_server_list(server_name, port);
 	attempting_to_connect++;
@@ -1088,6 +1089,7 @@ connect_to_server(server_name, port, c_server)
 		if (server_index)
 		{
 			attempting_to_connect--;
+ 			restore_message_from();
 			return -1;
 		}
 		if ((c_server != -1) && (c_server != from_server))
@@ -1156,6 +1158,7 @@ connect_to_server(server_name, port, c_server)
 			close_server(c_server, "changing servers");
 	}
 	update_all_status();
+ 	restore_message_from();
 	return 0;
 }
 
@@ -1409,7 +1412,7 @@ set_server_password(server_index, password)
  */
 /*ARGSUSED*/
 void
-server(command, args, subargs)
+servercmd(command, args, subargs)
 	char	*command,
 		*args,
 		*subargs;
@@ -1426,7 +1429,7 @@ server(command, args, subargs)
 	{
 		while (*server == '-')
 		{
-			int	len;
+ 			size_t	len;
 
 			/*
 			 * old usage of `/server -' handled here.
@@ -1951,7 +1954,7 @@ set_server_nickname(server_index, nick)
 	{
 		malloc_strcpy(&(server_list[server_index].nickname), nick);
 		if (server_index == primary_server)
-			strmcpy(nickname,nick,NICKNAME_LEN);
+ 			malloc_strcpy(&nickname, nick);
 	}
 	update_all_status();
 }
@@ -2006,9 +2009,9 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 #endif
 {
 	static	int	in_send_to_server = 0;
-	char	buffer[BIG_BUFFER_SIZE + 1];	/* make this buffer *much*
+	char	lbuf[BIG_BUFFER_SIZE + 1];	/* make this buffer *much*
 						 * bigger than needed */
-	char	*buf = buffer;
+	char	*buf = lbuf;
 	int	len,
 		des;
 	int	server = from_server;
@@ -2035,16 +2038,16 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		sprintf(buf, format, arg1, arg2, arg3, arg4, arg5,
 		    arg6, arg7, arg8, arg9, arg10);
 #endif
-		len = strlen(buffer);
+ 		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
-			buffer[IRCD_BUFFER_SIZE - 2] = (char) 0;
-		strmcat(buffer, "\n", IRCD_BUFFER_SIZE);
+ 			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
+ 		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
 #ifdef BNCCRYPT
-                EncryptBNC(buffer,strlen(buffer));
+                EncryptBNC(lbuf,strlen(lbuf));
 #endif
 /****************************************************************************/
-		send(des, buffer, strlen(buffer), 0);
+ 		send(des, lbuf, strlen(lbuf), 0);
 	}
 /**************************** PATCHED by Flier ******************************/
 	/*else if (!in_redirect && !connected_to_server)
@@ -2082,7 +2085,7 @@ connect_to_unix(port, path)
 	un.sun_family = AF_UNIX;
 	sprintf(un.sun_path, "%-.100s/%-.6d", path, port);
 
-	if (connect(sock, (struct sockaddr *)&un, strlen(path)+2) == -1)
+ 	if (connect(sock, (struct sockaddr *)&un, (int)strlen(path)+2) == -1)
 	{
 		new_close(sock);
 		return -1;

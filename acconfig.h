@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: acconfig.h,v 1.2 1999-02-15 21:18:09 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -157,6 +157,9 @@
 
 /* define this if your header files declare sys_errlist */
 #undef SYS_ERRLIST_DECLARED
+
+/* define this if your header files declare errno */
+#undef ERRNO_DECLARED
 
 /* define this if you have uname(2) */
 #undef HAVE_UNAME

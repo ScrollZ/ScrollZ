@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.11 1999-01-22 18:22:12 f Exp $
+ * $Id: dcc.c,v 1.12 1999-02-15 21:19:04 f Exp $
  */
 
 #include "irc.h"
@@ -61,6 +61,7 @@
 #include "window.h"
 #include "output.h"
 #include "newio.h"
+#include "crypt.h"
 
 /**************************** PATCHED by Flier ******************************/
 /*static	void	dcc_chat _((char *));*/
@@ -564,14 +565,15 @@ dcc_check(rd, wd)
 				if ((*Client)->flags & DCC_OFFER)
 				{
 					(*Client)->flags &= ~DCC_OFFER;
-					message_from((char *) 0, LOG_DCC);
+ 					save_message_from();
+ 					message_from((*Client)->user, LOG_DCC);
 					if (((*Client)->flags & DCC_TYPES) != DCC_RAW)
 						/*say("DCC %s connection with %s[%s,%d] established",
 							dcc_types[(*Client)->flags&DCC_TYPES], (*Client)->user,
 							inet_ntoa(remaddr.sin_addr), ntohs(remaddr.sin_port));*/
                                             PrintEstablish(dcc_types[(*Client)->flags&DCC_TYPES],
                                                            *Client,remaddr,0L);
-					message_from((char *) 0, LOG_CURRENT);
+ 					restore_message_from();
 /**************************** PATCHED by Flier ******************************/
 /****** Coded by Zakath ******/
                                         if (((*Client)->flags&DCC_TYPES)==DCC_FILEREAD ||
@@ -664,8 +666,7 @@ process_dcc(args)
 {
 	char	*command;
 	int	i;
-	int	lastlog_level;
-	int	len;
+ 	size_t	len;
 
 	if (!(command = next_arg(args, &args)))
 		return;
@@ -680,11 +681,10 @@ process_dcc(args)
 				say("DCC command not unique: %s", command );
 				return;
 			}
+ 			save_message_from();
 			message_from((char *) 0, LOG_DCC);
-			lastlog_level = set_lastlog_msg_level(LOG_DCC);
 			dcc_commands[i].function(args);
-			message_from((char *) 0, LOG_CURRENT);
-			(void) set_lastlog_msg_level(lastlog_level);
+ 			restore_message_from();
 			return;
 		}
 	}
@@ -727,10 +727,11 @@ dcc_open(Client)
 		if ((Client->write = connect_by_number(Client->remport,
 			      inet_ntoa(Client->remote), 1)) < 0)
 		{
+ 			save_message_from();
 			message_from(user, LOG_DCC);
 			say("Unable to create connection: %s",
 				errno ? strerror(errno) : "Unknown Host");
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 			dcc_erase(Client);
 			from_server = old_server;
 			return 0;
@@ -743,9 +744,10 @@ dcc_open(Client)
 		Client->starttime = time(NULL);
 		if (getpeername(Client->read, (struct sockaddr *) &remaddr, &rl) == -1)
 		{
+ 			save_message_from();
 			message_from(user, LOG_DCC);
 			say("DCC error: getpeername failed: %s", strerror(errno));
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 			dcc_erase(Client);
 			from_server = old_server;
 			return 0;
@@ -753,12 +755,13 @@ dcc_open(Client)
 /**************************** PATCHED by Flier ******************************/
 		if ((Client->flags & DCC_TYPES) != DCC_RAW)
 		{
+ 			save_message_from();
 			message_from(user, LOG_DCC);
 			/*say("DCC %s connection with %s[%s,%d] established",
 				Type, user, inet_ntoa(remaddr.sin_addr),
 				ntohs(remaddr.sin_port));*/
                         PrintEstablish(Type,Client,remaddr,0L);
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 		}
 /****** Coded by Zakath ******/
                 if ((Client->flags&DCC_TYPES)==DCC_FILEREAD ||
@@ -781,12 +784,13 @@ dcc_open(Client)
 #else
 		Client->flags |= DCC_WAIT;
 #endif
-		message_from(user, LOG_DCC);
 		if ((Client->read = connect_by_number(0, empty_string, 1)) < 0)
 		{
+ 			save_message_from();
+ 			message_from(user, LOG_DCC);
 			say("Unable to create connection: %s",
 				errno ? strerror(errno) : "Unknown Host");
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 			dcc_erase(Client);
 			from_server = old_server;
 			return 0;
@@ -824,16 +828,17 @@ dcc_open(Client)
 				send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
 					 "%s %s %lu %u %ld", Type, nopath,
 					 (u_long) ntohl(myip.s_addr),
-					 (u_short) ntohs(localaddr.sin_port),
+ 					 (unsigned)ntohs(localaddr.sin_port),
 					 (long)Client->filesize);
 			else
 				send_ctcp(ctcp_type[in_ctcp_flag], user, "DCC",
 					 "%s %s %lu %u", Type, nopath,
 					 (u_long) ntohl(myip.s_addr),
-					 (u_short) ntohs(localaddr.sin_port));
+ 					 (unsigned) ntohs(localaddr.sin_port));
+ 			save_message_from();
 			message_from(user, LOG_DCC);
 			say("Sent DCC %s request to %s", Type, user);
-			message_from((char *) 0, LOG_CURRENT);
+ 			restore_message_from();
 /**************************** PATCHED by Flier ******************************/
                         new_free(&nopath);
 /****************************************************************************/
@@ -874,12 +879,8 @@ dcc_chat(args)
 }
 
 char	*
-#ifdef __STDC__
-dcc_raw_listen(u_short port)
-#else
-dcc_raw_listen(port)
-	u_short	port;
-#endif
+dcc_raw_listen(iport)
+ 	u_int	iport;
 {
 	DCC_list	*Client;
 	char	PortName[10];
@@ -887,6 +888,7 @@ dcc_raw_listen(port)
 	char	*RetName = NULL;
 	int	size;
 	int	lastlog_level;
+ 	u_short	port = (u_short) iport;
 
 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if (port && port < 1025)
@@ -937,13 +939,9 @@ dcc_raw_listen(port)
 }
 
 char	*
-#ifdef __STDC__
-dcc_raw_connect(char *host, u_short port)
-#else
-dcc_raw_connect(host, port)
+dcc_raw_connect(host, iport)
 	char	*host;
-	u_short	port;
-#endif
+ 	u_int	iport;
 {
 	DCC_list	*Client;
 	char	PortName[10];
@@ -951,6 +949,7 @@ dcc_raw_connect(host, port)
 	struct	hostent	*hp;
 	char	*RetName = (char *) 0;
 	int	lastlog_level;
+ 	u_short	port = (u_short)iport;
 
 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if ((address.s_addr = inet_addr(host)) == -1)
@@ -1647,6 +1646,7 @@ register_dcc_offer(user, type, description, address, port, size)
 	unsigned	TempInt;
 	int	do_auto = 0;	/* used in dcc chat collisions */
 	char	*cmd = (char *) 0;
+ 	int	lastlog_level;
 /**************************** PATCHED by Flier ******************************/
         int  warning=0;
         char *fromhost;
@@ -1659,6 +1659,7 @@ register_dcc_offer(user, type, description, address, port, size)
         struct friends *tmpfriend;
 /****************************************************************************/
 
+ 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if (0 != (c = rindex(description, '/')))
 		description = c + 1;
 	if ('.' == *description)
@@ -1887,6 +1888,7 @@ register_dcc_offer(user, type, description, address, port, size)
         }
 /****************************************************************************/
 out:
+ 	set_lastlog_msg_level(lastlog_level);
 	new_free(&cmd);
 }
 
@@ -1897,16 +1899,18 @@ process_incoming_chat(Client)
 	struct	sockaddr_in	remaddr;
 	int	sra;
         char	tmp[BIG_BUFFER_SIZE+1];
-	char	tmpuser[NICKNAME_LEN+2];	/* = and 1 */
+ 	char	tmpuser[IRCD_BUFFER_SIZE];
 	char	*s, *bufptr;
 	long	bytesread;
 	int	old_timeout;
- 	int	len;
+ 	size_t	len;
 /**************************** PATCHED by Flier ******************************/
         int     iscrypted;
         char    tmpbuf[mybufsize*4];
 /****************************************************************************/
 
+ 	save_message_from();
+ 	message_from(Client->user, LOG_DCC);
 	if (Client->flags & DCC_WAIT)
 	{
 		sra = sizeof(struct sockaddr_in);
@@ -1927,7 +1931,7 @@ process_incoming_chat(Client)
                 AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
 		Client->starttime = time(NULL);
-		return;
+		goto out;
 	}
 	s = Client->buffer;
 	bufptr = tmp;
@@ -1941,8 +1945,8 @@ process_incoming_chat(Client)
 		len = 0;
 	old_timeout = dgets_timeout(1);
 /**************************** PATCHED by Flier ******************************/
-	/*bytesread = dgets(bufptr, (BIG_BUFFER_SIZE/2) - len, Client->read, (char *)0);*/
-	bytesread=dgets(bufptr,(BIG_BUFFER_SIZE/2)-len,Client->read,(char *) 0, 0);
+ 	/*bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0);*/
+	bytesread=dgets(bufptr,(int)((BIG_BUFFER_SIZE/2)-len),Client->read,(char *) 0, 0);
 /****************************************************************************/
 	(void) dgets_timeout(old_timeout);
 	switch (bytesread)
@@ -1954,7 +1958,7 @@ process_incoming_chat(Client)
 			new_free(&Client->buffer);
 			say("*** dropped long DCC CHAT message from %s", Client->user);
 		}
-		return;
+		break;
 	case 0:
 /**************************** PATCHED by Flier ******************************/
 		/*say("DCC CHAT connection to %s lost: %s", Client->user, dgets_errno == -1 ? "Remote end closed connection" : strerror(dgets_errno));*/
@@ -1964,21 +1968,20 @@ process_incoming_chat(Client)
 		new_close(Client->read);
 		Client->read = Client->write = -1;
 		Client->flags |= DCC_DELETE;
-		return;
+		break;
 	default:
 		new_free(&Client->buffer);
 		len = strlen(tmp);
 		if (len > BIG_BUFFER_SIZE/2)
 			len = BIG_BUFFER_SIZE/2;
-		tmp[len - 1] = '\0';
 		Client->bytes_read += len;
-		message_from(Client->user, LOG_DCC);
 		*tmpuser = '=';
-		strmcpy(tmpuser+1, Client->user, NICKNAME_LEN);
+ 		strmcpy(tmpuser+1, Client->user, IRCD_BUFFER_SIZE-2);
 		s = do_ctcp(tmpuser, nickname, tmp);
+ 		s[strlen(s) - 1] = '\0';	/* remove newline */
 		if (s && *s)
 		{
-			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX: stop dcc long messages */
+ 			s[BIG_BUFFER_SIZE/2-1] = '\0';	/* XXX XXX: stop dcc long messages, stupid but "safe"? */
 /**************************** PATCHED by Flier ******************************/
                         iscrypted=DecryptChatMessage(s,Client->user);
 /****************************************************************************/
@@ -1998,7 +2001,6 @@ process_incoming_chat(Client)
 /****************************************************************************/
                         }
 		}
-		message_from((char *) 0, LOG_CURRENT);
 /**************************** PATCHED by Flier ******************************/
                 if (away_set) {
                     sprintf(tmpbuf,"=%s= %s",Client->user,tmp);
@@ -2007,8 +2009,9 @@ process_incoming_chat(Client)
                 sprintf(tmpbuf,"=%s",Client->user);
                 AddNick2List(tmpbuf,Client->server);
 /****************************************************************************/
-		return;
 	}
+out:
+	restore_message_from();
 }
 
 static	void
@@ -2049,6 +2052,8 @@ process_incoming_listen(Client)
 	NewClient->remport = remaddr.sin_port;
 	NewClient->flags |= DCC_ACTIVE;
 	NewClient->bytes_read = NewClient->bytes_sent = 0L;
+ 	save_message_from();
+ 	message_from(NewClient->user, LOG_DCC);
 	if (do_hook(DCC_RAW_LIST, "%s %s N %d", NewClient->user,
 						NewClient->description,
 						Client->write))
@@ -2056,6 +2061,7 @@ process_incoming_listen(Client)
 					NewClient->description,
 					NewClient->user,
 					Client->write);
+ 	restore_message_from();
 }
 
 static	void
@@ -2066,9 +2072,12 @@ process_incoming_raw(Client)
 	char	*s, *bufptr;
 	long	bytesread;
 	int     old_timeout;
-	int	len;
+ 	size_t	len;
 
-	s = Client->buffer;
+ 	save_message_from();
+ 	message_from(Client->user, LOG_DCC);
+
+        s = Client->buffer;
 	bufptr = tmp;
 	if (s && *s)
 	{
@@ -2080,8 +2089,8 @@ process_incoming_raw(Client)
 		len = 0;
 	old_timeout = dgets_timeout(1);
 /**************************** PATCHED by Flier ******************************/
-	/*switch(bytesread = dgets(bufptr, (BIG_BUFFER_SIZE/2) - len, Client->read, (char *)0))*/
-	switch (bytesread=dgets(bufptr,(BIG_BUFFER_SIZE/2)-len,Client->read,(char *) 0,0))
+ 	/*switch(bytesread = dgets(bufptr, (int)((BIG_BUFFER_SIZE/2) - len), Client->read, (char *)0))*/
+	switch (bytesread=dgets(bufptr,(int)((BIG_BUFFER_SIZE/2)-len),Client->read,(char *) 0,0))
 /****************************************************************************/
 	{
 	case -1:
@@ -2091,7 +2100,7 @@ process_incoming_raw(Client)
 			new_free(&Client->buffer);
 			say("*** dropping long DCC raw message from %s", Client->user);
 		}
-		return;
+		break;
 	case 0:
 		if (do_hook(DCC_RAW_LIST, "%s %s C",
 				Client->user, Client->description))
@@ -2101,7 +2110,7 @@ process_incoming_raw(Client)
 		Client->read = Client->write = -1;
 		Client->flags |= DCC_DELETE;
 		(void) dgets_timeout(old_timeout);
-		return;
+		break;
 	default:
 		new_free(&Client->buffer);
 		len = strlen(tmp);
@@ -2114,8 +2123,8 @@ process_incoming_raw(Client)
 			say("Raw data on %s from %s: %s",
 				Client->user, Client->description, tmp);
 		(void) dgets_timeout(old_timeout);
-		return;
 	}
+ 	restore_message_from();
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -2214,6 +2223,8 @@ DCC_list *Client;
         struct transfer_struct *received, orders;
 /****************************************************************************/
 
+ 	save_message_from();
+ 	message_from(Client->user, LOG_DCC);
 	if (Client->flags & DCC_WAIT)
 	{
 		sra = sizeof(struct sockaddr_in);
@@ -2278,10 +2289,9 @@ DCC_list *Client;
 #else
         else
 #endif
-	{
-		/*if (bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int_t), 0) < sizeof(u_32int_t))*/
-		if ((bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int_t), 0)) < sizeof(u_32int_t))
 /****************************************************************************/
+	{
+ 		if ((bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int_t), 0)) < sizeof(u_32int_t))
 		{
 #ifdef _Windows
                     int	recv_error;
@@ -2290,7 +2300,7 @@ DCC_list *Client;
                     if (bytesread == -1 &&
                         recv_error == WSAEWOULDBLOCK ||
                         recv_error == WSAEINTR)
-                        return;
+                             goto out;
 #endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 	       		/*say("DCC SEND:%s connection to %s lost: %s", Client->description, Client->user, strerror(errno));*/
@@ -2310,11 +2320,11 @@ DCC_list *Client;
 			Client->read = Client->write = (-1);
 			Client->flags |= DCC_DELETE;
 			new_close(Client->file);
-			return;
+			goto out;
 		}
 		else
 			if (ntohl(bytesrecvd) != Client->bytes_sent)
-				return;
+				goto out;
         }
 	BlockSize = get_int_var(DCC_BLOCK_SIZE_VAR);
 	if (BlockSize > BIG_BUFFER_SIZE)
@@ -2330,7 +2340,7 @@ DCC_list *Client;
 #endif
 /****************************************************************************/
 	{
-		send(Client->write, tmp, bytesread, 0);
+ 		send(Client->write, tmp, (size_t)bytesread, 0);
 /**************************** Patched by Flier ******************************/
                 if (ShowDCCStatus && StatusDCC(Client)) update_all_status();
 /****************************************************************************/
@@ -2340,7 +2350,7 @@ DCC_list *Client;
 #if defined(NON_BLOCKING_CONNECTS) && defined(HYPERDCC)
 	else if (!readwaiting) {
             Client->eof=1;
-            return;
+            goto out;
         }
 #endif
 /****************************************************************************/
@@ -2381,12 +2391,13 @@ DCC_list *Client;
 		Client->read = Client->write = -1;
 		Client->flags |= DCC_DELETE;
 		new_close(Client->file);
-		return;
 	}
 /**************************** Patched by Flier ******************************/
         if (Client->minspeed>=0.001 && timenow>=Client->CdccTime)
             CheckDCCSpeed(Client,timenow);
 /****************************************************************************/
+out:
+ 	restore_message_from();
 }
 
 static	void
@@ -2430,9 +2441,12 @@ process_incoming_file(Client)
                         return;
 		}
 #endif /* _Windows */
+ 		save_message_from();
+ 		message_from(Client->user, LOG_DCC);
                 if ((Client->flags&DCC_TYPES)==DCC_FILEREGET)
                     PrintComplete("REGET",Client);
                 else PrintComplete("GET",Client);
+ 		restore_message_from();
                 BytesReceived+=(double) Client->bytes_read;
                 CdccRecvNum--;
                 if (CdccRecvNum<0) CdccRecvNum=0;
@@ -2451,7 +2465,7 @@ process_incoming_file(Client)
         CodeIt(Client->file,tmp,bytesread);
 #endif
 /***************************************************************************/
-	write(Client->file, tmp, bytesread);
+ 	write(Client->file, tmp, (size_t)bytesread);
 	Client->bytes_read += bytesread;
 	bytestemp = htonl(Client->bytes_read);
 	send(Client->write, (char *) &bytestemp, sizeof(u_32int_t), 0);
@@ -2471,15 +2485,18 @@ dcc_message_transmit(user, text, type, flag)
 {
 	DCC_list	*Client;
 	char	tmp[BIG_BUFFER_SIZE+1];
+ 	char	nickbuf[128];
 	char	thing = '\0';
 	char	*host = (char *) 0;
+ 	char	*key, *line;
 	int	lastlog_level;
 	int	list = 0;
-	int	len;
+ 	size_t	len;
 /**************************** PATCHED by Flier ******************************/
-        int     iscrypted;
+        int     iscrypted=0;
 /****************************************************************************/
 
+ 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	switch(type)
 	{
 /**************************** PATCHED by Flier ******************************/
@@ -2500,14 +2517,16 @@ dcc_message_transmit(user, text, type, flag)
 		if (!host)
 		{
 			say("No host specified for DCC RAW");
-			return;
+			goto out1;
 		}
 		break;
 	}
+ 	save_message_from();
+ 	message_from(user, LOG_DCC);
 	if (!(Client = dcc_searchlist(host, user, type, 0, (char *) 0)) || !(Client->flags&DCC_ACTIVE))
 	{
 		say("No active DCC %s:%s connection for %s", dcc_types[type], host ? host : "<any>", user);
-		return;
+		goto out;
 	}
 #ifdef DCC_CNCT_PEND
 	/*
@@ -2517,31 +2536,53 @@ dcc_message_transmit(user, text, type, flag)
 	if (Client->flags & DCC_CNCT_PEND)
 	{
 		say("DCC %s:%s connection to %s is still connecting...", dcc_types[type], host ? host : "<any>", user);
-		return;
+		goto out;
 	}
 #endif /* DCC_DCNT_PEND */
-	lastlog_level = set_lastlog_msg_level(LOG_DCC);
-	message_from(Client->user, LOG_DCC);
 	strmcpy(tmp, text, BIG_BUFFER_SIZE);
 /**************************** PATCHED by Flier ******************************/
-        iscrypted=EncryptChatMessage(tmp,Client->user);
+	if (type==DCC_CHAT) iscrypted=EncryptChatMessage(tmp,Client->user);
 /****************************************************************************/
-	strmcat(tmp, "\n", BIG_BUFFER_SIZE); 
-	len = strlen(tmp);
-	send(Client->write, tmp, len, 0);
-	Client->bytes_sent += len;
-	if (flag)
+	if (type == DCC_CHAT) {
+		nickbuf[0] = '=';
+		strmcpy(nickbuf+1, user, sizeof(nickbuf) - 2);
+
+		if ((key = is_crypted(nickbuf)) == 0 || (line = crypt_msg(tmp, key, 1)) == 0)
+			line = tmp;
+	}
+	else
+		line = tmp;
+	/* XXX XXX XXX THIS IS TERRIBLE! XXX XXX XXX */
+	/* XXX use writev? */
+#ifdef HAVE_WRITEV
 	{
-		if (type != DCC_RAW)
-			if (do_hook(list, "%s %s", Client->user, text))
+		struct iovec iov[2];
+
+		iov[0].iov_base = line;
+		iov[0].iov_len = len = strlen(len);
+		iov[1].iov_base = "\n"
+		iov[1].iov_len = 1;
+		len++;
+		writev(fd, &iov, 2);
+	}
+#else
+#define CRYPT_BUFFER_SIZE (IRCD_BUFFER_SIZE - 50)    /* XXX XXX FROM: crypt.c XXX XXX */
+	strmcat(line, "\n", (size_t)((line == tmp) ? BIG_BUFFER_SIZE : CRYPT_BUFFER_SIZE));
+	len = strlen(line);
+	send(Client->write, line, len, 0);
+#endif
+	Client->bytes_sent += len;
+	if (flag && type != DCC_RAW) {
+                if (do_hook(list, "%s %s", Client->user, text))
 /**************************** PATCHED by Flier *****************************/
-				/*put_it("=> %c%s%c %s", thing, Client->user,
-							thing, text);*/
-                                PrintMyChatMsg(Client->user,text,iscrypted);
+                        /*put_it("=> %c%s%c %s", thing, Client->user, thing, text);*/
+                    PrintMyChatMsg(Client->user,text,iscrypted);
 /***************************************************************************/
 	}
+out:
+ 	restore_message_from();
+out1:
 	set_lastlog_msg_level(lastlog_level);
-	message_from((char *) 0, LOG_CURRENT);
 	return;
 }
 
@@ -2577,7 +2618,11 @@ dcc_send_raw(args)
 
 	if (!(name = next_arg(args, &args)))
 	{
+ 		int	lastlog_level;
+
+ 		lastlog_level = set_lastlog_msg_level(LOG_DCC);
 		say("No name specified for DCC RAW");
+ 		(void) set_lastlog_msg_level(lastlog_level);
 		return;
 	}
 	dcc_message_transmit(name, args, DCC_RAW, 1);
@@ -2589,8 +2634,8 @@ dcc_send_raw(args)
  * dcc_list() to show the start time.
  */
 static	char	*
-dcc_time(time)
-	time_t	time;
+dcc_time(the_time)
+	time_t	the_time;
 {
 	struct	tm	*btime;
 	char	*buf;
@@ -2600,7 +2645,7 @@ dcc_time(time)
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 	};
 
-	btime = localtime(&time);
+	btime = localtime(&the_time);
 	buf = (char *) malloc(22);
 	if (sprintf(buf, "%-2.2d:%-2.2d:%-2.2d %s %-2.2d %d", btime->tm_hour,
 			btime->tm_min, btime->tm_sec, months[btime->tm_mon],
@@ -2618,18 +2663,20 @@ dcc_list(args)
 	static	char	*format =
 			"%-7.7s %-9.9s %-10.10s %-20.20s %-8.8s %-8.8s %s";
 	unsigned	flags;
+ 	int	lastlog_level;
 
+ 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	put_it(format, "Type", "Nick", "Status", "Start time", "Sent", "Read",
 			"Arguments");
 	for (Client = ClientList ; Client != NULL ; Client = Client->next)
 	{
 		char	sent[9],
-			read[9];
-		char	*time;
+			rd[9];
+		char	*timestr;
 
  		sprintf(sent, "%ld", (long)Client->bytes_sent);
- 		sprintf(read, "%ld", (long)Client->bytes_read);
-		time = (Client->starttime) ? dcc_time(Client->starttime) : "",
+ 		sprintf(rd, "%ld", (long)Client->bytes_read);
+ 		timestr = (Client->starttime) ? dcc_time(Client->starttime) : "";
 		flags = Client->flags;
 		put_it(format, dcc_types[flags & DCC_TYPES],
 				Client->user,
@@ -2644,10 +2691,11 @@ dcc_list(args)
 				flags & DCC_CNCT_PEND ?	"Connecting" :
 #endif
 				"Unknown",
-				time, sent, read, Client->description);
-		if (*time)
-			new_free(&time);
+				timestr, sent, rd, Client->description);
+		if (*timestr)
+			new_free(&timestr);
 	}
+ 	(void) set_lastlog_msg_level(lastlog_level);
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -2664,11 +2712,13 @@ dcc_close(args)
 	char	*description;
 	int	CType;
 	char	*cmd = NULL;
+ 	int	lastlog_level;
 
+ 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if (!(Type = next_arg(args, &args)) || !(user=next_arg(args, &args)))
 	{
 		say("you must specify a type and nick for DCC CLOSE");
-		return;
+		goto out;
 	}
 	description = next_arg(args, &args);
 	malloc_strcpy(&cmd, Type);
@@ -2682,7 +2732,7 @@ dcc_close(args)
 	{
 		flags = Client->flags;
 		if (flags & DCC_DELETE)
-			return;
+			goto out;
 		if ((flags & DCC_WAIT) || (flags & DCC_ACTIVE))
 		{
 			new_close(Client->read);
@@ -2712,8 +2762,11 @@ dcc_close(args)
 		say("No DCC %s:%s to %s found", Type,
 			description ? description : "<any>", user);
  	new_free(&cmd);
+out:
+ 	(void) set_lastlog_msg_level(lastlog_level);
 }
 
+/* this depends on dcc_rename() setting loglevel */
 static void
 dcc_chat_rename(args)
 	char	*args;
@@ -2769,7 +2822,9 @@ dcc_rename(args)
 	char	*description;
 	char	*newdesc;
 	char	*temp;
-	
+ 	int	lastlog_level;
+
+ 	lastlog_level = set_lastlog_msg_level(LOG_DCC);
 	if ((user = next_arg(args, &args)) && my_strnicmp(user, "-chat", strlen(user)) == 0)
 	{
 		dcc_chat_rename(args);
@@ -2778,7 +2833,7 @@ dcc_rename(args)
 	if (!user || !(temp = next_arg(args, &args)))
 	{
 		say("you must specify a nick and new filename for DCC RENAME");
-		return;
+		goto out;
 	}
 	if ((newdesc = next_arg(args, &args)) != NULL)
 		description = temp;
@@ -2792,7 +2847,7 @@ dcc_rename(args)
 		if (!(Client->flags & DCC_OFFER))
 		{
 			say("Too late to rename that file");
-			return;
+			goto out;
 		}
 		new_free(&(Client->description));
 		malloc_strcpy(&(Client->description), newdesc);
@@ -2802,6 +2857,8 @@ dcc_rename(args)
 	else
 		say("No file %s from %s found",
 			description ? description : "<any>", user);
+out:
+ 	(void) set_lastlog_msg_level(lastlog_level);
 }
 
 /*

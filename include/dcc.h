@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: dcc.h,v 1.2 1999-02-15 21:18:21 f Exp $
  */
 
 /*
@@ -89,8 +89,8 @@ struct transfer_struct {
 	void	dcc_erase _((DCC_list *));
 	void	register_dcc_offer _((char *, char *, char *, char *, char *, char *));
 	void	process_dcc _((char *));
-	char	*dcc_raw_connect _((char *, u_short));
-	char	*dcc_raw_listen _((u_short));
+ 	char	*dcc_raw_connect _((char *, u_int));
+ 	char	*dcc_raw_listen _((u_int));
 	void	dcc_list _((char *));
 	void	dcc_chat_transmit _((char *, char *));
 	void	dcc_message_transmit _((char *, char *, int, int));

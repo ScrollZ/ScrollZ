@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.c,v 1.2 1998-09-10 17:45:17 f Exp $
+ * $Id: if.c,v 1.3 1999-02-15 21:19:31 f Exp $
  */
 
 #include "irc.h"
@@ -42,24 +42,21 @@
 #include "output.h"
 #include "if.h"
 
-static	int	charcount _((char *, char));
+static	int	charcount _((char *, int));
 
 /*
  * next_expr finds the next expression delimited by brackets. The type
  * of bracket expected is passed as a parameter. Returns NULL on error.
  */
 char	*
-#ifdef __STDC__
-next_expr(char **args, char type)
-#else
-next_expr(args, type)
+next_expr(args, itype)
 	char	**args;
-	char	type;
-#endif
+	int	itype;
 {
 	char	*ptr,
 		*ptr2,
 		*ptr3;
+ 	char	type = (char)itype;
 
 	if (!*args)
 		return NULL;
@@ -180,13 +177,9 @@ whilecmd(command, args, subargs)
 }
 
 static int    
-#ifdef __STDC__
-charcount(char *string, char what)
-#else
 charcount(string, what)
-	char    *string,
-		what;
-#endif
+	char    *string;
+ 	int	what;
 {
 	int     x       = 0;
 	char    *place  = string - 1;
@@ -220,7 +213,7 @@ foreach_handler(command,args,subargs)
 			new_free(&placeholder);
 			return;
 		}
-		if (charcount(temp2,',') == 2)
+ 		if (charcount(temp2, ',') == 2)
 			forcmd(command,args,subargs);
 		else
 			fe(command,args,subargs);

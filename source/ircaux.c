@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.3 1998-09-27 16:30:48 f Exp $
+ * $Id: ircaux.c,v 1.4 1999-02-15 21:19:39 f Exp $
  */
 
 #include "irc.h"
@@ -268,7 +268,7 @@ really_free(level)
 char	*
 new_realloc(ptr, size)
 	char	*ptr;
-	int	size;
+ 	size_t	size;
 {
 	char	*new_ptr;
 #ifdef ALLOC_DEBUG
@@ -278,7 +278,7 @@ new_realloc(ptr, size)
 	if ((new_ptr = (char *) realloc(ptr, size)) == (char *) 0)
 	{
 		fprintf(stderr, "realloc failed (%d): %s\nIrc Aborted!\n",
-			size, strerror(errno));
+ 			(int)size, strerror(errno));
 		exit(1);
 	}
 #ifdef ALLOC_DEBUG
@@ -298,7 +298,7 @@ new_realloc(ptr, size)
 
 char	*
 new_malloc(size)
-	int	size;
+ 	size_t	size;
 {
 	char	*ptr;
 
@@ -669,7 +669,7 @@ connect_by_number(service, host, nonblocking)
 			{
 				bzero((char *) &server, sizeof(server));
 				bcopy(hp->h_addr, (char *) &server.sin_addr,
-					hp->h_length);
+ 					(size_t)hp->h_length);
 				server.sin_family = hp->h_addrtype;
 			}
 			else
@@ -867,8 +867,10 @@ register char	*str1,
 {
 	int	xor;
 
-	if (!str1) return -1;
-	if (!str2) return 1; 
+ 	if (!str1)
+ 		return -1;
+ 	if (!str2)
+ 		return 1;
 	for (; *str1 || *str2 ; str1++, str2++)
 	{
 		if (!*str1 || !*str2)
@@ -897,10 +899,10 @@ my_strnicmp(str1, str2, n)
 register char	*str1,
 		*str2;
 /****************************************************************************/
-	int	n;
+ 	size_t	n;
 {
-	int	i,
-		xor;
+ 	size_t	i;
+ 	int	xor;
 
 	for (i = 0; i < n; i++, str1++, str2++)
 	{
@@ -927,7 +929,7 @@ void
 strmcpy(dest, src, maxlen)
 	char	*dest,
 		*src;
-	int	maxlen;
+ 	size_t	maxlen;
 {
 	strncpy(dest, src, maxlen);
 	dest[maxlen] = '\0';
@@ -941,10 +943,10 @@ void
 strmcat(dest, src, maxlen)
 	char	*dest,
 		*src;
-	int	maxlen;
+ 	size_t	maxlen;
 {
-	int	srclen,
-	len;
+ 	size_t	srclen,
+ 		len;
 
 	srclen = strlen(src);
 	if ((len = strlen(dest) + srclen) > maxlen)
@@ -962,9 +964,9 @@ void
 strmcat_ue(dest, src, maxlen)
 	char	*dest,
 		*src;
-	int	maxlen;
+ 	size_t	maxlen;
 {
-	int	dstlen;
+ 	size_t	dstlen;
 
 	dstlen = strlen(dest);
 	dest += dstlen;
@@ -998,8 +1000,8 @@ scanstr(source, str)
 		*source;
 {
 	int	i,
-		max,
-		len;
+ 		max;
+ 	size_t	len;
 
 	len = strlen(str);
 	max = strlen(source) - len;
@@ -1016,15 +1018,15 @@ char	*
 expand_twiddle(str)
 	char	*str;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 
 	if (*str == '~')
 	{
 		str++;
 		if (*str == '/' || *str == '\0')
 		{
-			strmcpy(buffer, my_path, BIG_BUFFER_SIZE);
-			strmcat(buffer, str, BIG_BUFFER_SIZE);
+ 			strmcpy(lbuf, my_path, BIG_BUFFER_SIZE);
+ 			strmcat(lbuf, str, BIG_BUFFER_SIZE);
 		}
 		else
 		{
@@ -1036,17 +1038,17 @@ expand_twiddle(str)
 			if ((rest = index(str, '/')) != NULL)
 				*rest++ = '\0';
 #ifdef _Windows
-			if (GetProfileString("IRC", "StartDir", "", buffer, BIG_BUFFER_SIZE))
+ 			if (GetProfileString("IRC", "StartDir", "", lbuf, BIG_BUFFER_SIZE))
 			{
 #else
 			if ((entry = getpwnam(str)) != NULL)
 			{
-				strmcpy(buffer, entry->pw_dir, BIG_BUFFER_SIZE);
+ 				strmcpy(lbuf, entry->pw_dir, BIG_BUFFER_SIZE);
 #endif /* _Windows */
 				if (rest)
 				{
-					strmcat(buffer, "/", BIG_BUFFER_SIZE);
-					strmcat(buffer, rest, BIG_BUFFER_SIZE);
+ 					strmcat(lbuf, "/", BIG_BUFFER_SIZE);
+ 					strmcat(lbuf, rest, BIG_BUFFER_SIZE);
 				}
 			}
 			else
@@ -1054,12 +1056,14 @@ expand_twiddle(str)
 		}
 	}
 	else
-		strmcpy(buffer, str, BIG_BUFFER_SIZE);
+ 		strmcpy(lbuf, str, BIG_BUFFER_SIZE);
 	str = '\0';
-	malloc_strcpy(&str, buffer);
+ 	malloc_strcpy(&str, lbuf);
 	return (str);
 }
 
+/* blundernet increased the size ... */
+#if 0
 /* islegal: true if c is a legal nickname char anywhere but first char */
 #define islegal(c) ((((c) >= 'A') && ((c) <= '}')) || \
 		    (((c) >= '0') && ((c) <= '9')) || \
@@ -1089,6 +1093,7 @@ check_nickname(nick)
 
 	return *nick ? nick : NULL;
 }
+#endif
 
 /*
  * sindex: much like index(), but it looks for a match of any character in
@@ -1210,8 +1215,8 @@ register char	*str;
 
 /* rfgets: exactly like fgets, cept it works backwards through a file!  */
 char	*
-rfgets(buffer, size, file)
-	char	*buffer;
+rfgets(lbuf, size, file)
+ 	char	*lbuf;
 	int	size;
 	FILE	*file;
 {
@@ -1228,16 +1233,16 @@ rfgets(buffer, size, file)
 			return NULL;
 		case '\n':
 			pos = ftell(file);
-			ptr = fgets(buffer, size, file);
-			fseek(file, pos, 0);
+ 			ptr = fgets(lbuf, size, file);
+ 			fseek(file, (long)pos, 0);
 			return ptr;
 		}
 	}
 	while (fseek(file, -2L, 1) == 0);
 	rewind(file);
 	pos = 0L;
-	ptr = fgets(buffer, size, file);
-	fseek(file, pos, 0);
+ 	ptr = fgets(lbuf, size, file);
+ 	fseek(file, (long)pos, 0);
 	return ptr;
 }
 
@@ -1252,7 +1257,7 @@ path_search(name, path)
 	char	*name;
 	char	*path;
 {
-	static	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	static	char	FAR lbuf[BIG_BUFFER_SIZE + 1] = "";
 	char	*ptr,
 		*free_path = (char *) 0;
 
@@ -1269,23 +1274,23 @@ path_search(name, path)
 #endif /* __MSDOS */
 			*(ptr++) = '\0';
 /**************************** PATCHED by Flier ******************************/
-                /*strcpy(buffer, empty_string);*/
-                *buffer='\0';
+ 		/*strcpy(lbuf, empty_string);*/
+                *lbuf='\0';
 /****************************************************************************/
 		if (path[0] == '~')
 		{
-			strmcat(buffer, my_path, BIG_BUFFER_SIZE);
+ 			strmcat(lbuf, my_path, BIG_BUFFER_SIZE);
 			path++;
 		}
-		strmcat(buffer, path, BIG_BUFFER_SIZE);
-		strmcat(buffer, "/", BIG_BUFFER_SIZE);
-		strmcat(buffer, name, BIG_BUFFER_SIZE);
-		if (access(buffer, F_OK) == 0)
+ 		strmcat(lbuf, path, BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, "/", BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, name, BIG_BUFFER_SIZE);
+ 		if (access(lbuf, F_OK) == 0)
 			break;
 		path = ptr;
 	}
 	new_free(&free_path);
-	return (path) ? buffer : (char *) 0;
+ 	return (path) ? lbuf : (char *) 0;
 }
 
 /*
@@ -1298,7 +1303,7 @@ double_quote(str, stuff)
 	char	*str;
 	char	*stuff;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr = NULL;
 	char	c;
 	int	pos;
@@ -1310,14 +1315,14 @@ double_quote(str, stuff)
 			if (index(stuff, c))
 			{
 				if (c == '$')
-					buffer[pos++] = '$';
+ 					lbuf[pos++] = '$';
 				else
-					buffer[pos++] = '\\';
+ 					lbuf[pos++] = '\\';
 			}
-			buffer[pos++] = c;
+ 			lbuf[pos++] = c;
 		}
-		buffer[pos] = '\0';
-		malloc_strcpy(&ptr, buffer);
+ 		lbuf[pos] = '\0';
+ 		malloc_strcpy(&ptr, lbuf);
 	}
 	else
 		malloc_strcpy(&ptr, str);
@@ -1517,7 +1522,7 @@ int	fd;
 	if (ioctl (fd, FIONBIO, &res) < 0)
 		return -1;
 #  else
-#   error no idea how to set an fd to non-blocking 
+no idea how to set an fd to non-blocking
 #  endif
 # endif
 #endif
@@ -1548,7 +1553,7 @@ int	fd;
 	if (ioctl (fd, FIONBIO, &res) < 0)
 		return -1;
 #  else
-#   error no idea how to return an fd blocking 
+no idea how to return an fd blocking
 #  endif
 # endif
 #endif

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.2 1998-09-10 17:45:34 f Exp $
+ * $Id: keys.c,v 1.3 1999-02-15 21:19:43 f Exp $
  */
 
 #include "irc.h"
@@ -52,19 +52,20 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 
-extern void InsertAutoReply _((unsigned char, char *));
-extern void InsertNick _((unsigned char, char *));
-extern void LastJoinerKick _((unsigned char, char *));
-extern void AcceptLastChat _((unsigned char, char *));
-extern void HandleTabNext _((unsigned char, char *));
-extern void HandleTabPrev _((unsigned char, char *));
+extern void InsertAutoReply _((u_int, char *));
+extern void InsertNick _((u_int, char *));
+extern void LastJoinerKick _((u_int, char *));
+extern void AcceptLastChat _((u_int, char *));
+extern void HandleTabNext _((u_int, char *));
+extern void HandleTabPrev _((u_int, char *));
 /****************************************************************************/
 
 static	int	lookup_function _((char *, int *));
-static	unsigned char	* display_key _((unsigned char));
-static	void	show_binding _((unsigned char, int));
+static	unsigned char	* display_key _((u_int));
+static	void	show_binding _((u_int, int));
 static	int	parse_key _((unsigned char *));
-static	void	write_binding _((unsigned char, unsigned char, FILE *, int));
+static	void	write_binding _((u_int, u_int, FILE *, int));
+static	void	bind_it _((char *, char *, u_int, int));
 
 /*
  * lookup_function: looks up an irc function by name, and returns the
@@ -76,8 +77,8 @@ lookup_function(name, func_index)
 	char	*name;
 	int	*func_index;
 {
-	int	len,
-		cnt,
+ 	size_t	len;
+ 	int	cnt,
 		i;
 
 	if (name)
@@ -110,12 +111,8 @@ lookup_function(name, func_index)
  * it.  Very simple indeed 
  */
 static	unsigned char	*
-#ifdef __STDC__
-display_key(unsigned char c)
-#else
 display_key(c)
-	unsigned char c;
-#endif
+	u_int c;
 {
 	static	unsigned char key[3];
 
@@ -144,13 +141,9 @@ display_key(c)
  * display the key binding for the key in a nice way
  */
 static void
-#ifdef __STDC__
-show_binding(unsigned char c, int meta)
-#else
 show_binding(c, meta)
-	unsigned char	c;
+	u_int	c;
 	int	meta;
-#endif
 {
 	KeyMap	*map;
 	char	*meta_str;
@@ -314,15 +307,11 @@ parse_key(key_str)
  * given meta modifier
  */
 static	void
-#ifdef __STDC__
-bind_it(char *function, char *string, u_char key, int meta)
-#else
 bind_it(function, string, key, meta)
 	char	*function,
 		*string;
-	u_char	key;
+	u_int	key;
 	int	meta;
-#endif
 {
 	KeyMap	*km;
 	int	cnt,
@@ -504,7 +493,7 @@ bindcmd(command, args, subargs)
 	}
 	else
 	{
-		int	i;
+ 		u_int	i;
 		int	charsize = charset_size();
 
 		for (i = 0; i < charsize; i++)
@@ -564,7 +553,7 @@ rbindcmd(command, args, subargs)
 
 	if ((arg = next_arg(args, &args)) != NULL)
 	{
-		int	i;
+ 		u_int	i;
 		int	charsize = charset_size();
 
 		switch (lookup_function(arg, &f))
@@ -605,9 +594,9 @@ rbindcmd(command, args, subargs)
 }
 
 void (*
-get_send_line _((void))) _((unsigned char, char *))
+get_send_line _((void))) _((u_int, char *))
 {
-	return (void (*) _((unsigned char, char *))) key_names[SEND_LINE].func;
+ 	return (void (*) _((u_int, char *))) key_names[SEND_LINE].func;
 }
 
 /*
@@ -618,7 +607,7 @@ get_send_line _((void))) _((unsigned char, char *))
  */
 void
 change_send_line(func)
-	void	(*func) _((unsigned char, char *));
+ 	void	(*func) _((u_int, char *));
 {
 	if (func)
 		key_names[SEND_LINE].func = func;
@@ -674,7 +663,7 @@ type(command, args, subargs)
 		}
 		else
 			key = *(args++);
-		edit_char(key);
+ 		edit_char((u_int)key);
 	}
 }
 
@@ -2558,15 +2547,11 @@ KeyMap	FAR meta5_keys[] =
  * it can be parsed back in later using LOAD or with the -l switch 
  */
 static	void
-#ifdef __STDC__
-write_binding(unsigned char c, unsigned char meta, FILE *fp, int do_all)
-#else
 write_binding(c, meta, fp, do_all)
-	unsigned char	c,
+ 	u_int	c,
 		meta;
 	FILE	*fp;
 	int	do_all;
-#endif
 {
 	KeyMap	*map;
 	char	*meta_str;

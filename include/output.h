@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: output.h,v 1.2 1999-02-15 21:18:47 f Exp $
  */
 
 #ifndef __output_h_
@@ -51,7 +51,7 @@
 	void	help_put_it _(());
 #endif /* HAVE_STDARG_H */
 
-	RETSIGTYPE	refresh_screen _((unsigned char, char *));
+ 	RETSIGTYPE	refresh_screen _((u_int, char *));
 	void	init_screen _((void));
 	void	set_continued_line _((char *));
 	void	put_file _((char *));

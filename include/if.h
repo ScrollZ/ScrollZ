@@ -29,13 +29,13 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: if.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: if.h,v 1.2 1999-02-15 21:18:29 f Exp $
  */
 
 #ifndef __if_h
 # define __if_h
 
-	char	*next_expr _((char **, char));
+ 	char	*next_expr _((char **, int));
 	void	ifcmd _((char *, char *, char *));
 	void	whilecmd _((char *, char *, char *));
 	void	foreach_handler _((char *, char *, char *));

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.2 1998-09-10 17:45:36 f Exp $
+ * $Id: lastlog.c,v 1.3 1999-02-15 21:19:45 f Exp $
  */
 
 #include "irc.h"
@@ -82,27 +82,27 @@ char	*
 bits_to_lastlog_level(level)
 	int	level;
 {
-	static	char	buffer[81]; /* this *should* be enough for this */
+ 	static	char	lbuf[81]; /* this *should* be enough for this */
 	int	i,
 		p;
 
 	if (level == LOG_ALL)
-		strcpy(buffer, "ALL");
+ 		strcpy(lbuf, "ALL");
 	else if (level == 0)
-		strcpy(buffer, "NONE");
+ 		strcpy(lbuf, "NONE");
 	else
 	{
-		*buffer = '\0';
+ 		*lbuf = '\0';
 		for (i = 0, p = 1; i < NUMBER_OF_LEVELS; i++, p <<= 1)
 		{
 			if (level & p)
 			{
-				strmcat(buffer, levels[i], 80);
-				strmcat(buffer, " ", 80);
+ 				strmcat(lbuf, levels[i], 80);
+ 				strmcat(lbuf, " ", 80);
 			}
 		}
 	}
-	return (buffer);
+ 	return (lbuf);
 }
 
 int
@@ -112,11 +112,11 @@ parse_lastlog_level(str)
 	char	*ptr,
 		*rest,
 		*s;
-	int	len,
-		i,
+ 	int	i,
 		p,
 		level,
 		neg;
+ 	size_t	len;
 
 	level = 0;
 	while ((str = next_arg(str, &rest)) != NULL)
@@ -248,8 +248,7 @@ lastlog(command, args, subargs)
 		p,
 		i,
 		level = 0,
-		msg_level,
-		len,
+ 		m_level,
 		mask = 0,
 		header = 1;
 	Lastlog *start_pos;
@@ -257,11 +256,9 @@ lastlog(command, args, subargs)
 		*save = NULL,
 		*expanded = NULL,
 		*arg;
-/**************************** PATCHED by Flier ******************************/
-	/*FILE	*fp;*/
-	FILE	*fp=NULL;
-/****************************************************************************/
+ 	FILE	*fp = NULL;
  	char	*cmd = (char *) 0;
+ 	size_t	len;
 /**************************** PATCHED by Flier ******************************/
         int     lines=0;
         int     count=0;
@@ -271,6 +268,7 @@ lastlog(command, args, subargs)
 	Lastlog *next;
 /****************************************************************************/
 
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
 	cnt = curr_scr_win->lastlog_size;
 
@@ -354,7 +352,7 @@ lastlog(command, args, subargs)
  						goto out;
 					}
 					if ((fp = fopen(expanded, "w")) != NULL)
-					continue;
+ 						continue;
 					say("Error opening %s: %s", save, strerror(errno));
  					goto out;
 				}
@@ -380,6 +378,7 @@ lastlog(command, args, subargs)
 			}
  			continue;
 out:
+ 			restore_message_from();
  			new_free(&cmd);
  			return;
 		}
@@ -415,7 +414,7 @@ out:
 			i++;
 
 	level = curr_scr_win->lastlog_level;
-	msg_level = set_lastlog_msg_level(0);
+ 	m_level = set_lastlog_msg_level(0);
 	if (start_pos == (Lastlog *) 0)
 		start_pos = curr_scr_win->lastlog_tail;
 	else
@@ -438,11 +437,12 @@ out:
 /**************************** PATCHED by Flier ******************************/
 			/*if (match)
 			{
-				if (scanstr(start_pos->msg, match))
+ 				if (scanstr(start_pos->msg, match)) {
 					if (save)
 						fprintf(fp, "%s\n", start_pos->msg);
 					else
 						put_it("%s", start_pos->msg);
+ 				}
 			}
 			else
 				if (save)
@@ -475,9 +475,8 @@ out:
 	}
 	if (header)
 		say("End of Lastlog");
-	curr_scr_win->lastlog_level = level;
-	set_lastlog_msg_level(msg_level);
-	message_from((char *) 0, LOG_CRAP);
+ 	set_lastlog_msg_level(m_level);
+ 	restore_message_from();
 }
 
 /* set_lastlog_msg_level: sets the message level for recording in the lastlog */

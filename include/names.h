@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: names.h,v 1.2 1999-02-15 21:18:45 f Exp $
  */
 
 #ifndef __names_h_
@@ -49,7 +49,7 @@
  * MODE_STRING refers to the bits in the mode bitmask.  the letters
  * and numbers need to match up.
  */
-#define MODE_STRING	"aiklmnpqst"
+#define MODE_STRING	"aiklmnpqrst"
 #define MODE_ANONYMOUS	((u_long) 0x0001)
 #define MODE_INVITE	((u_long) 0x0002)
 #define MODE_KEY	((u_long) 0x0004)
@@ -58,8 +58,9 @@
 #define MODE_MSGS	((u_long) 0x0020)
 #define MODE_PRIVATE	((u_long) 0x0040)
 #define MODE_QUIET	((u_long) 0x0080)
-#define MODE_SECRET	((u_long) 0x0100)
-#define MODE_TOPIC	((u_long) 0x0200)
+#define MODE_REOP	((u_long) 0x0100)
+#define MODE_SECRET	((u_long) 0x0200)
+#define MODE_TOPIC	((u_long) 0x0400)
 
 /* for lookup_channel() */
 #define	CHAN_NOUNLINK	1
@@ -82,7 +83,7 @@
 	int	is_on_channel _((char *, int, char *));
 	void	list_channels _((void));
 	void	reconnect_all_channels _((int));
-	void	switch_channels _((unsigned char, char *));
+ 	void	switch_channels _((u_int, char *));
 	char	*what_channel _((char *, int));
 	char	*walk_channels _((char *, int, int));
 	char	*real_channel _((void));

@@ -31,10 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.12 1998-11-26 20:07:48 f Exp $
+ * $Id: irc.c,v 1.13 1999-02-15 21:19:37 f Exp $
  */
 
-#define IRCII_VERSION	"4.4B"
+#define IRCII_VERSION	"4.4F"
 
 /*
  * INTERNAL_VERSION is the number that the special alias $V returns.
@@ -92,6 +92,7 @@
 #include "mail.h"
 #include "debug.h"
 #include "newio.h"
+#include "ctcp.h"
 
 /************************ PATCHED by Flier **************************/
 #include "myvars.h"
@@ -134,21 +135,21 @@ char	oper_command = 0;	/* true just after an oper() command is
 char    *ScrollZver="$wh{8m2s1GoWN?]ZZ0Ezxsb$zE bxsyxsVU XpPNNEKas|";
 
 char	global_all_off[2];		/* lame kludge to get around lameness */
-char	FAR MyHostName[80];			/* The local machine name. Used by
+char	FAR MyHostName[80];	       	/* The local machine name. Used by
 					 * DCC TALK */
 	struct	in_addr	MyHostAddr;	/* The local machine address */
 extern	char	*last_away_nick;
 
 char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
-	FAR buffer[BIG_BUFFER_SIZE + 1],	/* multipurpose buffer */
+	FAR buffer[BIG_BUFFER_SIZE + 1],/* multipurpose buffer */
 	*ircrc_file = (char *) 0,	/* full path .ircrc file */
 	*my_path = (char *) 0,		/* path to users home dir */
 	*irc_path = (char *) 0,		/* paths used by /load */
 	*irc_lib = (char *) 0,		/* path to the ircII library */
-	FAR nickname[NICKNAME_LEN + 1],	/* users nickname */
-	FAR hostname[NAME_LEN + 1],		/* name of current host */
+ 	*nickname = (char *) 0,		/* users nickname */
+	FAR hostname[NAME_LEN + 1],    	/* name of current host */
 	FAR realname[REALNAME_LEN + 1],	/* real name of user */
-	FAR username[NAME_LEN + 1],		/* usernameof user */
+	FAR username[NAME_LEN + 1],    	/* usernameof user */
 	*send_umode = NULL,		/* sent umode */
 	*args_str = (char *) 0,		/* list of command line args */
 	*last_notify_nick = (char *) 0,	/* last detected nickname */
@@ -212,7 +213,6 @@ static	int	cntl_c_hit = 0;
 
 static	char	FAR switch_help[] =
 "Usage: irc [switches] [nickname] [server list] \n\
-  The [nickname] can be at most 9 characters long\n\
   The [server list] is a whitespace separate list of server name\n\
   The [switches] may be any or all of the following\n\
    -c <channel>\tjoins <channel> o startup\n\
@@ -618,8 +618,8 @@ quit_response(dummy, ptr)
 	char	*dummy;
 	char	*ptr;
 {
-	int	len,
-		old_irc_io_loop;
+ 	size_t	len;
+ 	int	old_irc_io_loop;
 
 	old_irc_io_loop = irc_io_loop;
 	irc_io_loop = 0;
@@ -639,13 +639,9 @@ quit_response(dummy, ptr)
 
 /* irc_quit: prompts the user if they wish to exit, then does the right thing */
 void
-#ifdef __STDC__
-irc_quit(unsigned char key, char * ptr)
-#else
 irc_quit(key, ptr)
-	unsigned char	key;
+	u_int	key;
 	char *	ptr;
-#endif
 {
 	static	int in_it = 0;
 
@@ -713,7 +709,7 @@ static RETSIGTYPE
 cntl_y()
 {
 	(void) MY_SIGNAL(SIGQUIT, (sigfunc *) cntl_y, 0);
-	edit_char((char) 25); /* Ctrl-Y */
+	edit_char(25); /* Ctrl-Y */
 }
 #endif
 
@@ -727,9 +723,9 @@ show_version()
 
 /* get_arg: used by parse_args() to get an argument after a switch */
 static	char	*
-get_arg(arg, next_arg, ac)
+get_arg(arg, next, ac)
 	char	*arg;
-	char	*next_arg;
+	char	*next;
 	int	*ac;
 {
 	(*ac)++;
@@ -737,8 +733,8 @@ get_arg(arg, next_arg, ac)
 		return (arg);
 	else
 	{
-		if (next_arg)
-			return (next_arg);
+		if (next)
+			return (next);
 		fprintf(stderr, "irc: missing parameter\n");
                 exit(1);
  		return (0); /* cleans up a warning */
@@ -771,7 +767,6 @@ parse_args(argv, argc)
      * which is a whitespace separated list of the arguments used when
      * loading the .ircrc and GLOBAL_IRCRC files.
      */
-	*nickname = '\0';
 	*realname = '\0';
 	ac = 1;
 	strmcpy(buffer, argv[0], BIG_BUFFER_SIZE);
@@ -904,17 +899,16 @@ parse_args(argv, argc)
 		}
 		else
 		{
-			if (*nickname)
+ 			if (nickname && *nickname)
 				build_server_list(arg);
 			else
-				strmcpy(nickname, arg, NICKNAME_LEN);
+ 				malloc_strcpy(&nickname, arg);
 		}
 		if (minus_minus)
 			break;
 	}
 	malloc_strcpy(&args_str, buffer);
 /**************************** PATCHED by Flier ******************************/
-        nickname[9]='\0';
 /* Patched by Zakath */
 	if ((ptr=getenv("IRCHELP"))) malloc_strcpy(&HelpPathVar,ptr);
 /* ***************** */
@@ -930,8 +924,8 @@ parse_args(argv, argc)
 	if ((char *) 0 == ircrc_file && (char *) 0 != (ptr = getenv("IRCRC")))
 		malloc_strcpy(&ircrc_file, ptr);
 
-	if (*nickname == '\0' && (char *) 0 != (ptr = getenv("IRCNICK")))
-		strmcpy(nickname, ptr, NICKNAME_LEN);
+ 	if ((nickname == 0 || *nickname == '\0') && (char *) 0 != (ptr = getenv("IRCNICK")))
+ 		malloc_strcpy(&nickname, ptr);
 
 	if ((char *) 0 != (ptr = getenv("IRCUMODE")))
 		malloc_strcpy(&send_umode, ptr);
@@ -966,23 +960,26 @@ parse_args(argv, argc)
 		if (read_server_file() || (number_of_servers == 0))
 #endif
 		{
-			char *ptr = (char *) 0;
+ 			char *s = (char *) 0;
 
 #ifdef _Windows
 			GetProfileString("IRC", "Server",
 						"Choose.File->Setup.From.Menu",
 						buffer, sizeof(buffer));
-			malloc_strcpy(&ptr, buffer);
+ 			malloc_strcpy(&s, buffer);
 #else
-			malloc_strcpy(&ptr, DEFAULT_SERVER);
+ 			malloc_strcpy(&s, DEFAULT_SERVER);
 #endif /* _Windows */
-			build_server_list(ptr);
-			new_free(&ptr);
+ 			build_server_list(s);
+ 			new_free(&s);
 		}
 	}
 #ifdef _Windows
-	if (!*nickname)
-		GetProfileString("IRC", "Nick", "ircuser", nickname, NICKNAME_LEN + 1);
+ 	if (nickname == 0 || !*nickname)
+ 	{
+ 		GetProfileString("IRC", "Nick", "ircuser", buffer, BIG_BUFFER_SIZE);
+ 		malloc_strcpy(&nickname, buffer);
+ 	}
 	GetProfileString("IRC", "UserName", "ircuser", username, NAME_LEN + 1);
 	GetProfileString("IRC", "RealName", "ircuser", realname, REALNAME_LEN + 1);
 	GetProfileString("IRC", "StartDir", get_path(4), buffer, BIG_BUFFER_SIZE);
@@ -1000,7 +997,7 @@ parse_args(argv, argc)
 			if ((ptr = strchr(entry->pw_gecos, '&')) == NULL)
 				strmcpy(realname, entry->pw_gecos, REALNAME_LEN);
 			else {
-				int len = ptr - entry->pw_gecos;
+ 				size_t len = ptr - entry->pw_gecos;
 
 				if (len < REALNAME_LEN && *(entry->pw_name)) {
 					char *q = realname + len;
@@ -1043,13 +1040,15 @@ parse_args(argv, argc)
 	gethostname(MyHostName, sizeof(MyHostName));
 	if ((hp = gethostbyname(MyHostName)) != NULL)
 		bcopy(hp->h_addr, (char *) &MyHostAddr, sizeof(MyHostAddr));
-	if (*nickname == '\0')
-		strmcpy(nickname, username, NICKNAME_LEN);
+ 	if (nickname == 0 || *nickname == '\0')
+ 		malloc_strcpy(&nickname, username);
+#if 0 /* blundernet changed this */
 	if (0 == check_nickname(nickname))
 	{
 		fprintf(stderr, "Illegal nickname %s\n", nickname);
 		exit(1);
 	}
+#endif
 	if ((char *) 0 == ircrc_file)
 	{
 		ircrc_file = (char *) new_malloc(strlen(my_path) +
@@ -1156,16 +1155,16 @@ TimerTimeout()
  * set the global irc_io_loop to false to cause irc_io to exit. 
  */
 int
-irc_io(prompt, func, use_input, loop)
+irc_io(prompt, func, my_use_input, loop)
 	char	*prompt;
-	void	(*func) _((unsigned char, char *));
-	int	use_input;
+ 	void	(*func) _((u_int, char *));
+	int	my_use_input;
 	int	loop;
 {
 	static	int	level = 0;
 	fd_set	rd,
 		wd;
-	char	buffer[BIG_BUFFER_SIZE + 1];	/* buffer much bigger than
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];	/* buffer much bigger than
 						 * IRCD_BUFFER_SIZE */
 	struct	timeval cursor_timeout,
 		clock_timeout,
@@ -1176,13 +1175,13 @@ irc_io(prompt, func, use_input, loop)
 	int	old_loop;
 	char	*last_input = NULL;
 	char	*last_prompt = NULL;
-	void	(*last_func) _((unsigned char, char *));
+ 	void	(*last_func) _((u_int, char *));
 	int	one_key = 0;
 	Screen	*screen,
 		*old_current_screen;
 
 	last_func = get_send_line();
-	if (use_input == -1)
+ 	if (my_use_input == -1)
 		one_key = 1, prompt = NULL;
 #ifdef	PRIV_PORT_ULC
 	seteuid(getuid());
@@ -1217,7 +1216,7 @@ irc_io(prompt, func, use_input, loop)
 	}
 	if (!dumb)
 	{
-		if (use_input)
+		if (my_use_input)
 		{
 			malloc_strcpy(&last_input, get_input());
 			set_input(empty_string);
@@ -1261,12 +1260,13 @@ irc_io(prompt, func, use_input, loop)
 	do
 	{
 		break_io_processing = 0;
+ 		sed = 0;
                 FD_ZERO(&rd);
 		FD_ZERO(&wd);
 		set_process_bits(&rd);
 		set_server_bits(&rd, &wd);
 #ifndef _Windows
-		if (use_input)
+		if (my_use_input)
 			for (screen = screen_list;screen; screen = screen->next)
 				if (screen->alive)
 					FD_SET(screen->fdin, &rd);
@@ -1315,7 +1315,7 @@ irc_io(prompt, func, use_input, loop)
 					irc_io_loop = 0;
 					break;
 				}
-				edit_char('\003');
+ 				edit_char((u_int)'\003');
 				cntl_c_hit = 0;
 			}
 			if (!hold_over)
@@ -1360,9 +1360,9 @@ irc_io(prompt, func, use_input, loop)
 
 				old_timeout = dgets_timeout(1);
 /**************************** PATCHED by Flier ******************************/
-				/*if (dgets(buffer, INPUT_BUFFER_SIZE,
+ 				/*if (dgets(lbuf, INPUT_BUFFER_SIZE,
 						screen->fdin, (char *) 0))*/
-				if (dgets(buffer, INPUT_BUFFER_SIZE,
+				if (dgets(lbuf, INPUT_BUFFER_SIZE,
 						screen->fdin, (char *) 0, 0))
 /****************************************************************************/
 				{
@@ -1372,12 +1372,12 @@ irc_io(prompt, func, use_input, loop)
 						irc_io_loop = 0;
 						break;
 					}
-					*(buffer + strlen(buffer) - 1) = '\0';
+ 					*(lbuf + strlen(lbuf) - 1) = '\0';
 					if (get_int_var(INPUT_ALIASES_VAR))	
-						parse_line(NULL, buffer,
+ 						parse_line(NULL, lbuf,
 						    empty_string, 1, 0);
 					else
-						parse_line(NULL, buffer,
+ 						parse_line(NULL, lbuf,
 						    NULL, 1, 0);
 				}
 				else
@@ -1405,7 +1405,7 @@ irc_io(prompt, func, use_input, loop)
 #ifdef SZNCURSES
  					if (term_read(buffer,1))
 #else
-					if (read(screen->fdin, buffer, 1))
+ 					if (read(screen->fdin, lbuf, 1))
 #endif /* SZNCURSES */
 /****************************************************************************/
 					{
@@ -1443,7 +1443,7 @@ irc_io(prompt, func, use_input, loop)
 #endif /* SZNCURSES */
 /****************************************************************************/
 					for (i = 0; i < n; i++)
-						edit_char(loc_buffer[i]);
+ 						edit_char((u_int)loc_buffer[i]);
 		/*
 		 * if the current screen isn't the main  screen,
 		 * then the socket to the current screen must have
@@ -1527,7 +1527,7 @@ irc_io(prompt, func, use_input, loop)
 	irc_io_loop = old_loop;
 	if (! dumb)
 	{
-		if (use_input)
+		if (my_use_input)
 		{
 			set_input(last_input);
 			new_free(&last_input);
@@ -1551,7 +1551,9 @@ int
 old_main(int argc, char **argv)
 #else
 /*ARGSUSED*/
-main(argc, argv, envp)
+main _((int, char *[], char *[]));
+
+int main(argc, argv, envp)
 	int	argc;
 	char	*argv[];
 	char	*envp[];

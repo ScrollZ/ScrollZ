@@ -1,7 +1,26 @@
-$Id: NEWS,v 1.1 1998-09-10 17:31:12 f Exp $
+@(#)$Id: NEWS,v 1.2 1999-02-15 21:18:07 f Exp $
 
 Changes since ircII 4.4:
 
+  o  various flash-style attacks have been fixed.
+  o  /timer, and several variables are now aware of the current
+     server context.
+  o  several translation tables have been updated and added.
+  o  broken servers are handled better.
+  o  long nick names are supported.
+  o  many bugs have been fixed.
+  o  support for irc2.10 has been added.
+  o  messages typically always go the right window now, rather than
+     just most of the time.
+  o  the paranoid may now easily turn of returning information
+     about oneself to various ctcp commands with --with-paranoid
+  o  several enhancements to the encryption system:
+     - the old external program interface is changed to not leak
+       information via the command line.
+     - a CAST-128 implementation has been added to provide strong
+       encryption for both normal IRC channels, messages, and also
+       DCC chat connections.
+     - several bugs fixed.
   o  ircII is now under a BSD-style copyright.  thanks to troy rollo
      and mike sandrof for helping this process so much, so quickly!
   o  fix core dumps in /queue

@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.2 1998-09-10 17:46:20 f Exp $
+ * $Id: term.c,v 1.3 1999-02-15 21:20:20 f Exp $
  */
 
 #include "irc.h"
@@ -152,8 +152,8 @@ static int	term_CE_clear_to_eol _((void));
 static int	term_CS_scroll _((int, int, int));
 static int	term_ALDL_scroll _((int, int, int));
 static int	term_param_ALDL_scroll _((int, int, int));
-static int	term_IC_insert _((char));
-static int	term_IMEI_insert _((char));
+static int	term_IC_insert _((u_int));
+static int	term_IMEI_insert _((u_int));
 static int	term_DC_delete _((void));
 static int	term_null_function _((void));
 static int	term_BS_cursor_left _((void));
@@ -195,7 +195,7 @@ static	char	termcap[1024];
  * current term type, otherwise they do their thing and return 0 
  */
 int	(*term_scroll) _((int, int, int)); /* best scroll available */
-int	(*term_insert) _((char));	/* best insert available */
+int	(*term_insert) _((u_int));	/* best insert available */
 int	(*term_delete) _((void));	/* best delete available */
 int	(*term_cursor_left) _((void));	/* best left available */
 int	(*term_cursor_right) _((void));	/* best right available */
@@ -271,11 +271,11 @@ int
 term_echo(flag)
 	int	flag;
 {
-	int	echo;
+	int	old_echo;
 
-	echo = term_echo_flag;
+	old_echo = term_echo_flag;
 	term_echo_flag = flag;
-	return (echo);
+	return (old_echo);
 }
 
 /*
@@ -284,17 +284,15 @@ term_echo(flag)
  * display termcap control sequences!  It won't work! 
  */
 void
-#ifdef __STDC__
-term_putchar(unsigned char c)
-#else
-term_putchar(c)
-	unsigned char	c;
-#endif
+term_putchar(i)
+ 	u_int	i;
 {
+ 	char	c = (char)i;
+
 	if (term_echo_flag)
 	{
 		if (translation)
-			c = transToClient[c];
+ 			c = transToClient[(int)c];
 /**************************** PATCHED by Flier ******************************/
 		/*if (c < 32)*/
 #ifdef WANTANSI
@@ -364,9 +362,9 @@ term_putchar(c)
 int
 term_puts(str, len)
 	char	*str;
-	int	len;
+ 	size_t	len;
 {
-	int	i;
+ 	size_t	i;
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -375,7 +373,7 @@ term_puts(str, len)
 #else
 /****************************************************************************/
 	for (i = 0; *str && (i < len); str++, i++)
-		term_putchar(*str);
+ 		term_putchar((u_int)*str);
 /**************************** PATCHED by Flier ******************************/
 #endif /* SZNCURSES */
 /****************************************************************************/
@@ -499,13 +497,9 @@ term_cont()
  * term_pause: sets terminal back to pre-program days, then SIGSTOPs itself. 
  */
 void
-#ifdef __STDC__
-term_pause(unsigned char key, char *ptr)
-#else
 term_pause(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 #if !defined(SIGSTOP) || !defined(SIGTSTP) || defined(_RT) || defined(ESIX)
 	say("The STOP_IRC function does not work on this system type.");
@@ -647,7 +641,7 @@ term_init()
 		if ((IM = tgetstr("im", &ptr)) && (EI = tgetstr("ei", &ptr)))
 			term_insert = term_IMEI_insert;
 		else
-			term_insert = (int (*) _((char))) term_null_function;
+ 			term_insert = (int (*) _((u_int))) term_null_function;
 	}
 
 	if ((DC = tgetstr("dc", &ptr)) != NULL)
@@ -1041,18 +1035,14 @@ term_param_ALDL_scroll(line1, line2, n)
  */
 static	int
 /**************************** PATCHED by Flier ******************************/
-/*#ifdef __STDC__
-term_IC_insert(char c)
-#else
-term_IC_insert(c)
-	char	c;
-#endif*/
+/*term_IC_insert(c)
+ 	u_int	c;*/
 #ifdef SZNCURSES
 term_curs_insert(c)
 char c;
 #else  /* SZNCURSES */
 term_IC_insert(c)
-char c;
+u_int c;
 #endif /* SZNCURSES */
 /****************************************************************************/
 {
@@ -1082,12 +1072,8 @@ char c;
 #ifndef SZNCURSES
 /****************************************************************************/
 static	int
-#ifdef __STDC__
-term_IMEI_insert(char c)
-#else
 term_IMEI_insert(c)
-	char	c;
-#endif
+ 	u_int	c;
 {
 	tputs_x(IM);
 	term_putchar(c);

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.3 1998-10-21 19:31:39 f Exp $
+ * $Id: server.h,v 1.4 1999-02-15 21:18:52 f Exp $
  */
 
 #ifndef __server_h_
@@ -146,7 +146,7 @@ extern	char	*connect_next_password;
 extern	int	parsing_server_index;
 extern	SGroup	*server_group_list;
 
-	void	server _((char *, char *, char *));
+	void	servercmd _((char *, char *, char *));
 	char	*get_server_nickname _((int));
 	char	*get_server_name _((int));
 	char	*get_server_itsname _((int));
@@ -190,9 +190,9 @@ extern	SGroup	*server_group_list;
 	/* server_list: the list of servers that the user can connect to,etc */
 	extern	Server	*server_list;
 
-#define	SERVER_2_6_2	0x0010
-#define CLOSE_PENDING	0x0020
-#define LOGGED_IN	0x0040
-#define	CLEAR_PENDING	0x0080
+#define	SERVER_2_6_2	0x0100
+#define CLOSE_PENDING	0x0200
+#define LOGGED_IN	0x0400
+#define	CLEAR_PENDING	0x0800
 
 #endif /* __server_h_ */

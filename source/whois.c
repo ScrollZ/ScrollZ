@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.3 1998-10-31 18:27:43 f Exp $
+ * $Id: whois.c,v 1.4 1999-02-15 21:20:26 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -133,8 +133,8 @@ int	server_index;
 }
 
 static	void (*
-whois_func_head (server_index)) ()
-int	server_index;
+whois_func_head (server_index)) _((WhoisStuff *, char *, char *))
+ 	int	server_index;
 {
 	if ((WQ_head = (WhoisQueue *) get_server_qhead(server_index)) != NULL)
 		return (WQ_head->func);
@@ -181,7 +181,9 @@ clean_whois_queue()
 	ignore_whois_crap = 0;
 	eat_away = 0;
 }
-/* ison_returned: this is called when numeric 303 is received in
+
+/*
+ * ison_returned: this is called when numeric 303 is received in
  * numbers.c. ISON must always be the property of the WHOIS queue.
  * Although we will check first that the top element expected is
  * actually an ISON.
@@ -971,13 +973,13 @@ whois_ignore_msgs(stuff, nick, text)
 		strcat(ptr, stuff->host);
 		if (is_ignored(ptr, IGNORE_MSGS) != IGNORED)
 		{
+ 			save_message_from();
 			level = set_lastlog_msg_level(LOG_MSG);
 			message_from(stuff->nick, LOG_MSG);
 			if (sed == 1 && !do_hook(ENCRYPTED_PRIVMSG_LIST,"%s %s", stuff->nick,text))
 			{
-				sed = 0;
 				set_lastlog_msg_level(level);
-				message_from((char *) 0, LOG_CURRENT);
+ 				restore_message_from();
 				return;
 			}
 			if (do_hook(MSG_LIST, "%s %s", stuff->nick, text))
@@ -1006,7 +1008,6 @@ whois_ignore_msgs(stuff, nick, text)
 				beep_em(1);
 			set_lastlog_msg_level(level);
 			message_from((char *) 0, LOG_CURRENT);
-			sed = 0;
 			notify_mark(nick, 1, 0);
 		}
 		else
@@ -1014,6 +1015,7 @@ whois_ignore_msgs(stuff, nick, text)
 				nick, get_server_nickname(parsing_server_index));
 		new_free(&ptr);
 	}
+ 	restore_message_from();
 }
 
 /*ARGSUSED*/
@@ -1022,7 +1024,7 @@ whois_nickname(stuff,nick,text)
 	WhoisStuff *stuff;
 	char	*nick;
 	char	*text;
-	{
+{
 	if (stuff)
 	{
 		if (!(my_stricmp(stuff->user,username)) &&
@@ -1055,17 +1057,17 @@ whois_ignore_notices(stuff, nick, text)
 		if (is_ignored(ptr, IGNORE_NOTICES) != IGNORED)
 		{
 			level = set_lastlog_msg_level(LOG_NOTICE);
+ 			save_message_from();
 			message_from(stuff->nick, LOG_NOTICE);
 			if (sed == 0 && !do_hook(ENCRYPTED_NOTICE_LIST,"%s %s", stuff->nick, text))
 			{
-				sed = 0;
+ 				restore_message_from();
 				return;
 			}
 			if (do_hook(NOTICE_LIST, "%s %s", stuff->nick, text))
 				put_it("-%s- %s", stuff->nick, text);
 			set_lastlog_msg_level(level);
-			message_from((char *) 0, LOG_CURRENT);
-			sed = 0;
+ 			restore_message_from();
 		}
 		new_free(&ptr);
 	}
@@ -1119,6 +1121,7 @@ whois_ignore_walls(stuff, nick, text)
 	int	level;
 
 	level = set_lastlog_msg_level(LOG_WALL);
+ 	save_message_from();
 	message_from(stuff->nick, LOG_WALL);
 	if (stuff)
 	{
@@ -1137,7 +1140,7 @@ whois_ignore_walls(stuff, nick, text)
 		new_free(&ptr);
 	}
 	set_lastlog_msg_level(level);
-	message_from((char *) 0, LOG_CURRENT);
+ 	save_message_from();
 }
 
 void
@@ -1254,6 +1257,7 @@ whois_new_wallops(stuff, nick, text)
 			}
 			new_free(&ptr);
 		}
+ 		save_message_from();
 		message_from(nick, LOG_WALLOP);
 		level = set_lastlog_msg_level(LOG_WALLOP);
 		if (stuff)
@@ -1272,7 +1276,7 @@ whois_new_wallops(stuff, nick, text)
 		if (beep_on_level & LOG_WALLOP)
 			beep_em(1);
 		set_lastlog_msg_level(level);
-		message_from((char *) 0, LOG_CURRENT);
+ 		restore_message_from();
 	}
 }
 
@@ -1385,7 +1389,7 @@ typed_add_to_whois_queue(type, nick, func, format,
 		*arg10;
 #endif
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	WhoisQueue *new;
 	char	*p = nick;
 
@@ -1410,12 +1414,12 @@ typed_add_to_whois_queue(type, nick, func, format,
 		if (format)
 		{
 #ifdef HAVE_STDARG_H
-			vsprintf(buffer, format, vlist);
+			vsprintf(lbuf, format, vlist);
 #else
-			sprintf(buffer, format, arg1, arg2, arg3, arg4, arg5,
+			sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5,
 			    arg6, arg7, arg8, arg9, arg10);
 #endif
-			malloc_strcpy(&(new->text), buffer);
+			malloc_strcpy(&(new->text), lbuf);
 		}
 		malloc_strcpy(&(new->nick), nick);
 		if ((void *) get_server_qhead(from_server) == (void *) 0)

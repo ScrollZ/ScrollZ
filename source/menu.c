@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: menu.c,v 1.2 1998-09-10 17:45:45 f Exp $
+ * $Id: menu.c,v 1.3 1999-02-15 21:19:51 f Exp $
  */
 
 #include "irc.h"
@@ -327,13 +327,9 @@ set_menu(Value)
 }
 
 void
-#ifdef __STDC__
-enter_menu(unsigned char key, char *ptr)
-#else
 enter_menu(key, ptr)
-	unsigned char	key;
+ 	u_int	key;
 	char *	ptr;
-#endif
 {
 	if (!curr_scr_win->menu.menu)
 		return;
@@ -368,16 +364,13 @@ menu_channels(args)
 }
 
 void
-#ifdef __STDC__
-menu_key(char key)
-#else
-menu_key(key)
-	char	key;
-#endif
+menu_key(ikey)
+ 	u_int	ikey;
 {
 	Window *window;
 	WindowMenu *menu_info;
 	Menu	*ThisMenu;
+ 	u_char	key = (u_char)ikey;
 
 	window = curr_scr_win;
 	menu_info = &window->menu;

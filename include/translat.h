@@ -3,15 +3,15 @@
  *
  * Tomten, tomten@solace.hsh.se / tomten@lysator.liu.se
  *
- * $Id: translat.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: translat.h,v 1.2 1999-02-15 21:18:54 f Exp $
  */
 
 #ifndef __translat_h_
 # define __translat_h_
 
 	void	set_translation _((char *));
-	void	enter_digraph _((unsigned char, char *));
-	unsigned char	get_digraph _((unsigned char));
+	void	enter_digraph _((u_int, char *));
+ 	unsigned char	get_digraph _((u_int));
 	void	digraph _((char *, char *, char *));
 	void	save_digraphs _((FILE *));
 

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.4 1998-10-31 18:53:06 f Exp $
+ * $Id: hook.c,v 1.5 1999-02-15 21:19:29 f Exp $
  */
 
 #include "irc.h"
@@ -183,7 +183,7 @@ fill_it_out(str, params)
 	char	*str;
 	int	params;
 {
-	char	buffer[BIG_BUFFER_SIZE + 1];
+ 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*arg,
 		*free_ptr = (char *) 0,
 		*ptr;
@@ -191,23 +191,23 @@ fill_it_out(str, params)
 
 	malloc_strcpy(&free_ptr, str);
 	ptr = free_ptr;
-	*buffer = (char) 0;
+ 	*lbuf = (char) 0;
 	while ((arg = next_arg(ptr, &ptr)) != NULL)
 	{
-		if (*buffer)
-			strmcat(buffer, " ", BIG_BUFFER_SIZE);
-		strmcat(buffer, arg, BIG_BUFFER_SIZE);
+ 		if (*lbuf)
+ 			strmcat(lbuf, " ", BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, arg, BIG_BUFFER_SIZE);
 		if (++i == params)
 			break;
 	}
 	for (; i < params; i++)
-		strmcat(buffer, (i < params-1) ? " %" : " *", BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, (i < params-1) ? " %" : " *", BIG_BUFFER_SIZE);
 	if (*ptr)
 	{
-		strmcat(buffer, " ", BIG_BUFFER_SIZE);
-		strmcat(buffer, ptr, BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, " ", BIG_BUFFER_SIZE);
+ 		strmcat(lbuf, ptr, BIG_BUFFER_SIZE);
 	}
-	malloc_strcpy(&free_ptr, buffer);
+ 	malloc_strcpy(&free_ptr, lbuf);
 	return (free_ptr);
 }
 
@@ -463,8 +463,8 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 #endif
 	Hook	*tmp, **list;
 /**************************** Patched by Flier ******************************/
-	/*char	buffer[BIG_BUFFER_SIZE + 1],*/
-	char	buffer[4*BIG_BUFFER_SIZE + 1],
+ 	/*char	lbuf[BIG_BUFFER_SIZE + 1],*/
+	char	lbuf[4*BIG_BUFFER_SIZE + 1],
 /****************************************************************************/
 		*name = (char *) 0;
 	int	RetVal = 1;
@@ -474,18 +474,18 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 	Hook	*hook_array[2048];
 	int	hook_num = 0;
 	static	int hook_level = 0;
-	int	len;
+ 	size_t	len;
 	char	*foo;
 
 	hook_level++;
-	bzero(buffer, sizeof(buffer));
+ 	bzero(lbuf, sizeof(lbuf));
 
 #ifdef HAVE_STDARG_H
 	va_start(vl, format);
-	vsprintf(buffer, format, vl);
+ 	vsprintf(lbuf, format, vl);
 	va_end(vl);
 #else
-	sprintf(buffer, format, arg1, arg2, arg3, arg4, arg5, arg6);
+ 	sprintf(lbuf, format, arg1, arg2, arg3, arg4, arg5, arg6);
 #endif
 	if (which < 0)
 	{
@@ -543,14 +543,14 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 			   		we make sure nothing from
 			   		this serial number gets hooked */
 			if ((tmp->server != -1) &&
-		   	(tmp->server & HS_NOGENERIC) &&
-		   	(tmp->server != (from_server & HS_NOGENERIC)))
+ 		   	    (tmp->server & HS_NOGENERIC) &&
+ 		   	    (tmp->server != (from_server & HS_NOGENERIC)))
 			{
 				nomorethisserial = 1;
 				bestmatch = (Hook *) 0;
 				continue;
 			}
-			currmatch = wild_match(tmp->nick,buffer);
+ 			currmatch = wild_match(tmp->nick,lbuf);
 			if (currmatch > oldmatch)
 			{
 				oldmatch = currmatch;
@@ -574,7 +574,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 			continue;
 		send_text_flag = which;
 		if (tmp->noisy > QUIET)
-			say("%s activated by \"%s\"", name, buffer);
+ 			say("%s activated by \"%s\"", name, lbuf);
 		display = window_display;
 		if (tmp->noisy < NOISY)
 			window_display = 0;
@@ -586,7 +586,7 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6)
 		len = strlen(tmp->stuff) + 1; 
 		foo = new_malloc(len);
 		bcopy(tmp->stuff, foo, len);
-		parse_line((char *) 0, foo, buffer, 0, 0);
+ 		parse_line((char *) 0, foo, lbuf, 0, 0);
 		new_free(&foo);
 		in_on_who = old_in_on_who;
 		window_display = display;
@@ -739,16 +739,16 @@ on(command, args, subargs)
 		*nick,
 		*serial,
 		*cmd = (char *) 0;
-	/* int noisy = NORMAL, not = 0, remove = 0, -not used */
+ 	/* int noisy = NORMAL, not = 0, do_remove = 0, -not used */
 	int	noisy,
 		not,
 		server,
 		sernum,
-		remove,
-		len,
+		do_remove,
 		which = 0,
 		cnt,
 		i;
+ 	size_t	len;
 
 	if (get_int_var(NOVICE_VAR) && !load_depth)
 	{
@@ -863,12 +863,12 @@ on(command, args, subargs)
 				goto out;
 			}
 		}
-		remove = 0;
+		do_remove = 0;
 		not = 0;
 		switch (*args)
 		{
 		case '-':
-			remove = 1;
+			do_remove = 1;
 			args++;
 			break;
 		case '^':
@@ -883,7 +883,7 @@ on(command, args, subargs)
 			else
 				nick = fill_it_out(nick,
 					hook_functions[which].params);
-			if (remove)
+			if (do_remove)
 			{
 				if (strlen(nick) == 0)
 					say("No expression specified");
@@ -932,7 +932,7 @@ on(command, args, subargs)
 		}
 		else
 		{
-			if (remove)
+			if (do_remove)
 				remove_hook(which, (char *) 0, server,
 					sernum, 0);
 			else

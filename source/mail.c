@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.2 1998-09-10 17:45:43 f Exp $
+ * $Id: mail.c,v 1.3 1999-02-15 21:19:49 f Exp $
  */
 
 #include "irc.h"
@@ -138,6 +138,7 @@ count_files(dir_name, lasttime)
 		return (0);
 	cnt = 0;
 	lastlog_level = set_lastlog_msg_level(LOG_CRAP);
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);		/* XXX should delete this */
 	while ((dirbuf = readdir(dir)) != (struct direct *) 0)
 	{
@@ -171,6 +172,7 @@ count_files(dir_name, lasttime)
 end:
 	VirginProgram = 0;
 	closedir(dir);
+ 	restore_message_from();
 	set_lastlog_msg_level(lastlog_level);
 	return (cnt);
 }
@@ -245,6 +247,7 @@ check_mail()
 	if (stat_file(mail_path, &stat_buf) == -1)
 		return ((char *) 0);
 	lastlog_level = set_lastlog_msg_level(LOG_CRAP);
+ 	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);		/* XXX should delete this */
 	if (stat_buf.st_ctime > old_stat)
 	{
@@ -310,6 +313,7 @@ check_mail()
 		cnt = new_cnt;
 	}
 	set_lastlog_msg_level(lastlog_level);
+ 	restore_message_from();
 	if (cnt && (cnt < 65536))
 	{
 		sprintf(ret_str, "%d", cnt);
