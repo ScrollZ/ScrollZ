@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.65 2001-08-25 18:25:15 f Exp $
+ * $Id: edit2.c,v 1.66 2001-09-03 17:38:16 f Exp $
  */
 
 #include "irc.h"
@@ -142,6 +142,7 @@ void RemoveAutoBanKickNew _((WhoisStuff *, char *));
 void UnbanNew _((WhoisStuff *, char *, char *));
 void IgnoreNew _((WhoisStuff *, char *, char *));
 int  AddLast _((List *, List *));
+char *TimeStamp _((int));
 
 extern struct friends *FindMatch _((char *, char *));
 extern void ClearKey _((char *, char *, char *));
@@ -1248,16 +1249,16 @@ char *subargs;
     }
     hierarchy=reverse?5:1;
     if (!(chan=lookup_channel(channel,curr_scr_win->server,0))) return;
+    if (Stamp==2) prefstr=TimeStamp(2);
 #ifdef WANTANSI
 #ifndef NEWCSCAN
-    if (Stamp==2) prefstr=update_clock(0,0,GET_TIME);
     szlen=strlen(ScrollZstr)-CountAnsi(prefstr,-1);
     sprintf(tmpbuf3,"%%%ds",szlen);
 #endif /* NEWCSCAN */
-    sprintf(tmpbuf1,"%s Users on %s%s%s :",prefstr,
+    sprintf(tmpbuf1,"%sUsers on %s%s%s :",prefstr,
             CmdsColors[COLCSCAN].color1,chan->channel,Colors[COLOFF]);
 #else /* WANTANSI */
-    sprintf(tmpbuf1,"%s Users on %s :",prefstr,chan->channel);
+    sprintf(tmpbuf1,"%sUsers on %s :",prefstr,chan->channel);
 #ifndef NEWCSCAN
     szlen=strlen(prefstr);
     sprintf(tmpbuf3,"%%%ds",szlen);
