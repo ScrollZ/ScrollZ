@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.20 2000-08-28 22:43:33 f Exp $
+ * $Id: window.c,v 1.21 2000-08-29 19:04:49 f Exp $
  */
 
 #include "irc.h"
@@ -124,7 +124,10 @@ static	Window	*get_previous_window _((void));
 static	void	delete_other_windows _((void));
 static	void	bind_channel _((char *, Window *));
 static	void	unbind_channel _((char *, Window *));
-static	void	irc_goto_window _((int));
+/**************************** PATCHED by Flier ******************************/
+/*static	void	irc_goto_window _((int));*/
+void	irc_goto_window _((int));
+/****************************************************************************/
 static	void	list_a_window _((Window *, int, int));
 static	void	list_windows _((void));
 static	void	show_window _((Window *));
@@ -2247,7 +2250,10 @@ set_query_nick(nick)
  * "which", where which is 0 through the number of visible windows on the
  * screen.  The which has nothing to do with the windows refnum. 
  */
-static	void
+/**************************** PATCHED by Flier ******************************/
+/*static	void*/
+void
+/****************************************************************************/
 irc_goto_window(which)
 	int	which;
 {
