@@ -1,11 +1,11 @@
-!	 $Id: addn,v 1.4 2002-02-24 09:29:46 f Exp $
+!	 $Id: addn,v 1.5 2002-05-04 15:04:26 f Exp $
 !
 ! Copyright (c) 1994-2002 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: ADDN nick [nick ...]
+Usage: ADDN nick[:group] [nick[:group] ...]
   Adds user to your notify list
 
   If nick is of form nick!filter where filter is user@host mask, notify

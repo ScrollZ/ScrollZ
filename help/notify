@@ -1,4 +1,4 @@
-!	 $Id: notify,v 1.4 2002-02-24 10:51:49 f Exp $
+!	 $Id: notify,v 1.5 2002-05-04 15:04:26 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,7 +6,7 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: NOTIFY [[-]<nickname> [[-]<nickname> ...]]
+Usage: NOTIFY [[-]<nickname>[:group] [[-]<nickname>[:group] ...]]
   Use of this command lets you mark certain nicknames such that
   you will be warned when they signon or off of IRC.  When
   someone on your notify-list signs on, you will see a message
