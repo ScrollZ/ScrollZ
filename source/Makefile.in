@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.8 2002-03-03 10:51:51 f Exp $
+# @(#)$Id: Makefile.in,v 1.9 2002-03-09 17:51:22 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -30,7 +30,7 @@ SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
 	input.c irc.c ircaux.c ircsig.c keys.c lastlog.c list.c log.c\
 	mail.c menu.c names.c newio.c notice.c notify.c numbers.c operv.c\
 	output.c parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
-	status.c term.c translat.c vars.c whois.c whowas.o window.c\
+	status.c term.c translat.c vars.c whois.c whowas.c window.c\
 	rijndael-alg-ref.c rijndael-api-ref.c @EXTRA_SOURCES@
 
 IRCIO_OBJECTS = ircio.o newio.o ircsig.o
@@ -152,8 +152,9 @@ cdcc.o: cdcc.c ../include/irc.h ../include/defs.h \
       ../include/window.h ../include/hold.h ../include/lastlog.h \
       ../include/edit.h ../include/menu.h ../include/vars.h \
       ../include/ircaux.h ../include/input.h ../include/screen.h \
-      ../include/output.h ../include/dcc.h ../include/parse.h \
-      ../include/hook.h ../include/cdcc.h ../include/myvars.h
+      ../include/output.h ../include/scandir.h ../include/dcc.h \
+      ../include/parse.h ../include/hook.h ../include/cdcc.h \
+      ../include/myvars.h
 celerity.o: celerity.c ../include/defs.h ../include/celerity.h
 crypt.o: crypt.c ../include/irc.h ../include/defs.h \
       ../include/celerity.h ../include/config.h ../include/irc_std.h \
@@ -238,7 +239,7 @@ edit4.o: edit4.c ../include/irc.h ../include/defs.h \
       ../include/notify.h ../include/numbers.h ../include/status.h \
       ../include/screen.h ../include/server.h ../include/ircterm.h \
       ../include/list.h ../include/parse.h ../include/myvars.h \
-      ../include/whowas.h
+      ../include/whowas.h ../include/scandir.h
 edit5.o: edit5.c ../include/irc.h ../include/defs.h \
       ../include/celerity.h ../include/config.h ../include/irc_std.h \
       ../include/debug.h ../include/struct.h ../include/mystructs.h \
@@ -550,6 +551,16 @@ whois.o: whois.c ../include/irc.h ../include/defs.h \
       ../include/menu.h ../include/ignore.h ../include/ircaux.h \
       ../include/notify.h ../include/numbers.h ../include/output.h \
       ../include/parse.h ../include/ctcp.h ../include/myvars.h
+whowas.o: whowas.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/vars.h ../include/ircaux.h ../include/window.h \
+      ../include/hold.h ../include/lastlog.h ../include/edit.h \
+      ../include/menu.h ../include/whois.h ../include/hook.h \
+      ../include/input.h ../include/names.h ../include/alias.h \
+      ../include/output.h ../include/numbers.h ../include/status.h \
+      ../include/screen.h ../include/list.h ../include/whowas.h \
+      ../include/myvars.h
 window.o: window.c ../include/irc.h ../include/defs.h \
       ../include/celerity.h ../include/config.h ../include/irc_std.h \
       ../include/debug.h ../include/struct.h ../include/mystructs.h \
