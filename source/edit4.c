@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.85 2001-12-23 16:50:46 f Exp $
+ * $Id: edit4.c,v 1.86 2001-12-23 16:51:50 f Exp $
  */
 
 #include "irc.h"
@@ -840,7 +840,7 @@ void HandleTabNext(u_int key, char *ptr)
         }
         else i = 0;
     }
-    sscanf(min_pos, "%31s %31s %31s", &argv[0], &argv[1], &argv[2]);
+    sscanf(min_pos, "%31s %31s %31s", argv[0], argv[1], argv[2]);
     if (!my_strnicmp(argv[0], "/dc", 3) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3)) && argc == 3) {
         DCC_list *dcc_p;
 
