@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.21 1999-02-15 21:19:10 f Exp $
+ * $Id: edit3.c,v 1.22 1999-02-17 17:29:53 f Exp $
  */
 
 #include "irc.h"
@@ -159,6 +159,8 @@ char *command;
 char *args;
 char *subargs;
 {
+    put_it("");
+    put_it("");
 #ifdef __linux__
     put_it("                                                      ;; *,");
     put_it("                                           `*i,     ;;'_gi **");
@@ -179,10 +181,11 @@ char *subargs;
     put_it("  ` ``  ` ```  ` ` ```````````` ` ` `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"    `Àib, `À**Ù'    ³ ³");
     put_it("                        ÚÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ ³ ;");
     put_it("                        ÀÄÄÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄ-Ä-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ[sairoku!rmrs]Ä³ÄÙ");
-    put_it("                                                                           ; ");
+    put_it("    coding  : flier (flier@globecom.net)                                   ; ");
+    put_it("    patches : Zakath (xanth@3Sheep.COM)");
+    put_it("    patches : acidflash (acid@hostu.net)");
+    put_it("    type /SZINFO for more information");
 #else
-    put_it("");
-    put_it("");
     put_it("                                                             :");
     put_it("                                                            ,i   :");
     put_it("                           $#ss,_  _,,ss#$$$$  ScrollZ  _,sS$$   i");
@@ -196,14 +199,14 @@ char *subargs;
     put_it(":$$$$$7     ,$$$$$7 di     i$$$$b $    ;$$$$$$7,$$$$$$$$$7 d$$ $$$ $$$$$$b,");
     put_it("`^'7$7S#ssssS$$$7'`,$$S#ssS$$$$7 d$    i$$$$$7 ,$$$$$$7#',s$$$ $$$ $$$$$$$$b,.");
     put_it("    `Y$$$$$$$7'      `Y$$$$$7'         ,$$$$7' '^^^``");
-    put_it("    ScrollZ 1.8i                      `7$$$s,  mydknight>>");
-    put_it("    coding  : Flier (flier@globecom.net)   `^' *");
+    put_it("                                      `7$$$s,  mydknight>>");
+    put_it("    coding  : flier (flier@globecom.net)   `^' *");
     put_it("    patches : Zakath (xanth@3Sheep.COM)");
     put_it("    patches : acidflash (acid@hostu.net)");
     put_it("    type /SZINFO for more information");
-    put_it("");
-    put_it("");
 #endif /* __linux__ */
+    put_it("");
+    put_it("");
 }
 
 /* Saves message into ScrollZ.save file */
