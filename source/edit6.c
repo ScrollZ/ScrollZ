@@ -50,10 +50,11 @@
  DecryptChatMessage  Decrypt DCC CHAT message
  FilterTrace         Filtered trace
  DoFilterTrace       Actual filtered trace
+ FormatTime          Format time in compressed format
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.25 1999-02-22 18:31:18 f Exp $
+ * $Id: edit6.c,v 1.26 1999-02-24 20:04:43 f Exp $
  */
 
 #include "irc.h"
@@ -1198,6 +1199,7 @@ char *subargs;
         { "PTIME"       , &PlistTime      , "Cdcc plist time" },
         { "NTIME"       , &NlistTime      , "Cdcc notice time" },
         { "ORIGNTIME"   , &OrigNickDelay  , "Delay before next attempt to switch to orignick" },
+        { "AUTOOPDELAY" , &AutoOpDelay    , "Delay before automatically oping user" },
 #ifdef EXTRAS
         { "IDLETIME"    , &IdleTime       , "Minutes till client starts kicking idlers" },
 #endif
@@ -2379,3 +2381,14 @@ char *stuff;
     }
 }
 #endif /* ACID */
+
+/* Format time in compressed format */
+char *FormatTime(timediff)
+int timediff;
+{
+    static char timebuf[mybufsize/32];
+
+    sprintf(timebuf,"%dd%dh%dm%ds",timediff/86400,(timediff/3600)%24,(timediff/60)%60,
+            timediff%60);
+    return(timebuf);
+}
