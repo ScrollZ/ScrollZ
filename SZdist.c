@@ -24,7 +24,7 @@
  * flier@globecom.net
  * flier@3sheep.com or
  * 
- * $Id: SZdist.c,v 1.4 1998-10-22 17:15:23 f Exp $
+ * $Id: SZdist.c,v 1.5 1998-10-24 10:30:04 f Exp $
  */
 
 #include <stdio.h>
@@ -330,6 +330,32 @@ struct stat *statbuf;
         printf("Error, couldn't set time on file %s\n",file);
 }
 
+void locatelog(pathbuf,fname)
+char *pathbuf;
+char *fname;
+{
+    char *curpath,*tmpp;
+    char fpath[mybufsize],cpath[mybufsize];
+    FILE *fp;
+
+    *pathbuf='\0';
+    curpath=getenv("PATH");
+    if (curpath==NULL) return;
+    strcpy(fpath,curpath);
+    curpath=fpath;
+    do {
+        tmpp=index(curpath,':');
+	if (tmpp) *tmpp++='\0';
+        sprintf(cpath,"%s/%s",curpath,fname);
+        if ((fp=fopen(cpath,"r"))) {
+            strcpy(pathbuf,curpath);
+            strcat(pathbuf,"/");
+            return;
+	}
+	curpath=tmpp;
+    } while (curpath);
+}
+
 void main(argc,argv)
 int argc;
 char **argv;
@@ -340,7 +366,7 @@ char **argv;
     char c;
     char tmpbuf[2*mybufsize];
     char onoffbuf[32];
-    char buf[mybufsize];
+    char buf[mybufsize],pathbuf[mybufsize],filebuf[mybufsize];
     char regname[mybufsize],ip[mybufsize];
     char password[mybufsize];
     char *tmp1,*tmp2,*tmp3,*tmp4;
@@ -349,6 +375,7 @@ char **argv;
     struct stat statbuf;
 
     strcpy(format,"KBdAAIFeHRY0COtvT5UM0|-PO=_^R$t");
+    locatelog(pathbuf,"SZdist");
     if ((fpin=fopen(defsfile,"r"))==NULL || stat(defsfile,&statbuf)!=0) {
         printf("Error, couldn't open %s for reading\n",defsfile);
         if (fpin) fclose(fpin);
@@ -717,7 +744,8 @@ char **argv;
             strcat(tmpbuf," >/dev/null 2>&1");
             system(tmpbuf);
         }
-        if ((fpout=fopen("SZdist.log","a"))) {
+        sprintf(filebuf,"%sSZdist.log",pathbuf);
+        if ((fpout=fopen(filebuf,"a"))) {
             char flagbuf[32];
             char *flags=flagbuf;
 
