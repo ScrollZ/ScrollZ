@@ -11,7 +11,7 @@ First of all, some ScrollZ background: I decided to write ScrollZ
 because I haven't been satisfied with any of the scripts I have
 tried (including PhoEniX, GargOyle and Toolz). Special thanks goes
 to Sheik for his help. I would also like to greet everyone I know,
-including $1#warez2$0, $1#$0, $1#warez$0, $1#f1$0, $1#cracking$0 and $1#scrollz$0.
+including $1#warez2$0, $1#$0, $1#warez$0, $1#f1$0, $1#cracking$0 and $1#ScrollZ$0.
 Special greets to $4SZ/Net$0 people and to all $4non-idiotic$0 IRC ops.
 Special thanks to all the people that provided me with accounts,
 $2ircII authors$0 and, last but not least $2Linux$0 community.
@@ -57,6 +57,11 @@ If no nick/channel is specified it will redirect to current channel.
 Also look at $2DIRLN$0, $2DIRLM$0 and $2DIRLSM$0
 :DUMP          Dumps aliases, ons, vars or all of them
 Usage $3DUMP ALIAS$0|$3ON$0|$3VAR$0|$3ALL$0
+:ENCRCHAT      Defined nicks and keys for encrypted DCC CHAT sessions
+Usage $3ENCRCHAT nick$0 [$3key$0]
+DCC CHAT with nick will be encrypted using key. Both parties have
+to use the same key for encryption/decryption to work. If no key
+is given encrypted communication with nick is ended.
 :FINGER        Launches finger on user@host
 Usage $3FINGER nick$0
 :FKLINE        Does STATS K with filter
