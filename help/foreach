@@ -1,4 +1,4 @@
-!	 $Id: foreach,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: foreach,v 1.4 2003-09-21 15:38:55 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -7,6 +7,7 @@
 ! information.
 !
 Usage: FOREACH <structure> <variable> { <commands> }
+       FE <structure> <variable> { <commands> }
   This causes <commands> to be executed once for each 
   element in the structure.  The aliases inside the {} 
   are not expanded until execution unless the leading { 
