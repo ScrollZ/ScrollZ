@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.12 2002-01-24 19:59:04 f Exp $
+ * $Id: ignore.c,v 1.13 2002-02-16 18:23:02 f Exp $
  */
 
 #include "irc.h"
@@ -380,7 +380,7 @@ ignore_list(nick)
 			upper(nick);
 		}
 		for (tmp = ignored_nicks; tmp; tmp = tmp->next)*/
-                len = strlen(nick);
+                if (nick) len = strlen(nick);
 		for (i = 1, tmp = ignored_nicks; tmp; i++, tmp = tmp->next)
 /****************************************************************************/
 		{
