@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.2 1999-02-15 21:18:09 f Exp $
+ * $Id: acconfig.h,v 1.3 1999-03-04 22:06:00 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -131,12 +131,6 @@
 /* define this if you are unsure what is is 32 bits */
 #undef UNKNOWN_32INT
 
-/* define this if you are on a svr4 derivative */
-#undef SVR4
-
-/* define this if you are on solaris 2.x */
-#undef __solaris__
-
 /* define this if you don't have struct linger */
 #undef NO_STRUCT_LINGER
 
@@ -193,6 +187,10 @@
 
 /* define this if you have SYSV (FIONBIO) non-blocking */
 #undef NBLOCK_SYSV
+
+/* define this if you have writev(2) and <sys/uio.h> */
+#undef HAVE_WRITEV
+#undef HAVE_SYS_UIO_H
 
 /* Define this if compiling with SOCKS (the firewall traversal library).
    Also, you must define connect, getsockname, bind, accept, listen, and

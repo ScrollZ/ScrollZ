@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.6 1999-02-15 21:20:28 f Exp $
+ * $Id: window.c,v 1.7 1999-03-04 22:06:15 f Exp $
  */
 
 #include "irc.h"
@@ -2845,10 +2845,10 @@ windowcmd(command, args, subargs)
 			win_list_channels(curr_scr_win);
  		else if (strncmp("QUERY", cmd, len) == 0)
  		{
- 			char *arg = 0;
+ 			char *a = 0;
 
- 			arg = next_arg(args, &args);
- 			query(cmd, arg, 0);
+ 			a = next_arg(args, &args);
+ 			query(cmd, a, 0);
  		}
 		else if (strncmp("CHANNEL", cmd, len) == 0)
 		{
@@ -3179,7 +3179,7 @@ window_get_connected(window, arg, narg, preserve, args)
 		/* This comes first for "/serv +1" -Sol */
 		{
 			if (port_num == -1) /* Could be "/serv +1:6664" -Sol */
-			port_num = server_list[i].port;
+				port_num = server_list[i].port;
 		}
 		else if ((i = find_in_server_list(arg, port_num)) != -1)
 			port_num = server_list[i].port;

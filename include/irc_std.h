@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.2 1999-02-15 21:18:35 f Exp $
+ * $Id: irc_std.h,v 1.3 1999-03-04 22:06:03 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -152,13 +152,17 @@ sigfunc *my_signal _((int, sigfunc *, int));
 # undef SYSVSIGNALS
 #endif
 
-#if defined(__svr4__) && !defined(SVR4)
-# define SVR4
-#else
-# if defined(SVR4) && !defined(__svr4__)
+#if defined(__svr4__) || defined(SVR4) || defined(__SVR4)
+# if !defined(__svr4__)
 #  define __svr4__
-# endif
-#endif
+# endif /* __svr4__ */
+# if !defined(SVR4)
+#  define SVR4
+# endif /* SVR4 */
+# if !defined(__SVR4)
+#  define __SVR4
+# endif /* __SVR4 */
+#endif /* __svr4__ || SVR4 || __SVR4 */
 
 #ifdef _SEQUENT_
 # define	u_short	ushort

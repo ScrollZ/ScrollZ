@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.5 1999-02-15 21:19:29 f Exp $
+ * $Id: hook.c,v 1.6 1999-03-04 22:06:09 f Exp $
  */
 
 #include "irc.h"
@@ -128,7 +128,7 @@ extern	int	load_depth;
 	{ "IDLE",		(Hook *) 0,	1,	0,	0 },
 	{ "INPUT",		(Hook *) 0,	1,	0,	0 },
 	{ "INVITE",		(Hook *) 0,	2,	0,	0 },
-	{ "JOIN",		(Hook *) 0,	2,	0,	0 },
+	{ "JOIN",		(Hook *) 0,	3,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
         { "JOIN_ME",	        (Hook *) 0,	1,	0,	0 },
 /****************************************************************************/

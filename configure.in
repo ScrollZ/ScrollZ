@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.3 1999-02-15 21:18:13 f Exp $
+dnl @(#)$Id: configure.in,v 1.4 1999-03-04 22:07:22 f Exp $
 
-AC_REVISION($Revision: 1.3 $)dnl
+AC_REVISION($Revision: 1.4 $)dnl
 AC_INIT(source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -50,7 +50,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.3 1999-02-15 21:18:13 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.4 1999-03-04 22:07:22 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -120,8 +120,6 @@ then
       sunos4=1
       ;;
     5.*)
-      AC_DEFINE(__solaris__)
-      AC_DEFINE(SVR4)
       svr4=1
       ;;
   esac
@@ -129,7 +127,7 @@ else
   AC_MSG_RESULT(no)
   AC_MSG_CHECKING(for SVR4)
   AC_EGREP_CPP(yes,
-[#if defined(SVR4) || defined(__svr4__)
+[#if defined(SVR4) || defined(__svr4__) || defined(__SVR4)
   yes
 #endif
 ],svr4=1)
@@ -139,7 +137,6 @@ if test -n "$svr4"
 then
   AC_MSG_RESULT(yes)
   LIBS="-L/usr/ccs/lib $LIBS"
-  AC_DEFINE(SVR4)
 else
   if test ! -n "$sunos4"
   then
@@ -215,7 +212,7 @@ AC_EGREP_CPP(yes,
 #endif
 ], LIBS="$LIBS -lseq" seqptx=1 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
-AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h)dnl sys/ ones
+AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h sys/uio.h)dnl sys/ ones
 AC_CHECK_HEADERS(unistd.h fcntl.h string.h memory.h netdb.h limits.h)dnl non sys/ ones
 AC_CHECK_HEADERS(stdarg.h varargs.h, break)dnl look for varadic function header
 AC_CHECK_HEADERS(process.h termcap.h)dnl others
@@ -226,19 +223,23 @@ else
   AC_CHECK_HEADERS(termios.h termio.h sgtty.h, break)dnl sigh.
 fi
 
-AC_CHECK_FUNC(setsid, AC_DEFINE(HAVE_SETSID),)
+AC_CHECK_FUNC(fchmod,, AC_DEFINE(NEED_FCHMOD))
+AC_CHECK_FUNC(getcwd,, AC_DEFINE(NEED_GETCWD))
 AC_CHECK_FUNC(getpgid, AC_DEFINE(HAVE_GETPGID),)
 AC_CHECK_FUNC(getsid, AC_DEFINE(HAVE_GETSID),)
-AC_CHECK_FUNC(scandir, AC_DEFINE(HAVE_SCANDIR),)
+AC_CHECK_FUNC(gettimeofday, AC_DEFINE(HAVETIMEOFDAY),)
 AC_CHECK_FUNC(memmove, AC_DEFINE(HAVE_MEMMOVE),)
-AC_CHECK_FUNC(uname, AC_DEFINE(HAVE_UNAME),)
-AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
-AC_CHECK_FUNC(getcwd,, AC_DEFINE(NEED_GETCWD))
-AC_CHECK_FUNC(fchmod,, AC_DEFINE(NEED_FCHMOD))
+AC_CHECK_FUNC(scandir, AC_DEFINE(HAVE_SCANDIR),)
+AC_CHECK_FUNC(setsid, AC_DEFINE(HAVE_SETSID),)
 AC_CHECK_FUNC(strerror,, AC_DEFINE(NEED_STRERROR))
+AC_CHECK_FUNC(strftime, AC_DEFINE(HAVE_STRFTIME),)
+AC_CHECK_FUNC(uname, AC_DEFINE(HAVE_UNAME),)
+AC_CHECK_FUNC(writev, AC_DEFINE(HAVE_WRITEV),)
+
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
+
 AC_TYPE_SIGNAL
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
@@ -553,7 +554,7 @@ main()
 postcode=') != -1)) {
 		signal(SIGALRM, alarmed);
 		alarm(3);
-		recvfrom(f, b, 12, 0, x, &l);
+		recvfrom(f, b, 12, 0, (void *) x, &l);
 		alarm(0);
 		exit(0);
 	}

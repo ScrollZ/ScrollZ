@@ -8,8 +8,37 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * @(#)$Id: ChangeLog,v 1.3 1999-02-15 21:18:03 f Exp $
+ * @(#)$Id: ChangeLog,v 1.4 1999-03-04 22:05:59 f Exp $
  */
+
+4.4G
+Sun Feb 28 13:37:48 EST 1999 - matthew green <mrg@eterna.com.au>
+	source/screen.c:
+		use ssize_t for the length, and cast it to size_t
+		where needed, to avoid it overflowing.
+	various:
+		use __SVR4 as the canonical SVR4 preprocessor
+		define, as it is.
+	source/hook.c, include/hook.h.proto, include/hook.h, help/on/join:
+		/on join takes 3 args.
+	configure.in, acconfig.h, source/dcc.c:
+		add writev & <sys/uio.h> check and use it if possible.
+	doc/ircII.1:
+		document the -b flag.
+	source/server.c:
+		call the right parse_server() routine in all cases.
+	source/ctcp.c:
+		be saner about PARANOID.
+	source/dcc.c, source/ctcp.c, source/crypt.c, source/cast.c,
+	source/edit.c, include/crypt.h:
+		convert to a "crypt_key" type for crypto keys, rather
+		than passing around char *'s.  this lets the key be
+		opaque and let the crypto engine hide in here.
+	source/ctcp.c, source/crypt.c, source/cast.c source/sed.c, 
+	include/crypt.h, include/ctcp.h, help/encrypt:
+		split SED code into sed.c.  allow more than one type
+		of crypto system to be compiled in.  currently there
+		is only support for SED and CAST-128.
 
 4.4F
 Tue Feb  9 21:30:37 EST 1999 - matthew green <mrg@eterna.com.au>

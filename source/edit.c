@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.16 1999-03-01 19:01:18 f Exp $
+ * $Id: edit.c,v 1.17 1999-03-04 22:06:08 f Exp $
  */
 
 #include "irc.h"
@@ -2563,8 +2563,8 @@ send_text(org_nick, line, command)
 	char	*line;
 	char	*command;
 {
-	char	*key,
-		*ptr,
+ 	crypt_key	*key;
+ 	char 	*ptr,
 		*free_nick,
 		*nick = NULL;
 	int	lastlog_level,

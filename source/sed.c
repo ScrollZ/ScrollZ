@@ -1,5 +1,5 @@
 /*
- * ctcp.h: header file for ctcp.c
+ * sed.c: has the old (broken) encryption stuff.
  *
  * Written By Michael Sandrof
  *
@@ -30,37 +30,61 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id: ctcp.h,v 1.3 1999-03-04 22:06:02 f Exp $
  */
 
-#ifndef __ctcp_h_
-#define __ctcp_h_
+static	void	sed_encrypt_str _((char **, int *, crypt_key *));
+static	void	sed_decrypt_str _((char **, int *, crypt_key *));
 
-#define CTCP_DELIM_CHAR '\001'
-#define CTCP_DELIM_STR "\001"
-#define CTCP_QUOTE_CHAR '\\'
-#define CTCP_QUOTE_STR "\\"
+/*
+ * these are the old, broken crypt functions.  "cast.c" includes
+ */
+static	void
+sed_encrypt_str(str, len, key)
+	char	**str;
+	int	*len;
+	crypt_key	*key;
+{
+	int	key_len,
+		key_pos,
+		i;
+	char	mix,
+		tmp;
 
-#define CTCP_QUOTE_EM "\n\r\001\\"
+	key_len = strlen(key->key);
+	key_pos = 0;
+	mix = 0;
+	for (i = 0; i < *len; i++)
+	{
+		tmp = (*str)[i];
+		(*str)[i] = mix ^ tmp ^ key->key[key_pos];
+		mix ^= tmp;
+		key_pos = (key_pos + 1) % key_len;
+	}
+	(*str)[i] = (char) 0;
+}
 
-#define CTCP_PRIVMSG 0
-#define CTCP_NOTICE 1
+static	void
+sed_decrypt_str(str, len, key)
+	char	**str;
+	int	*len;
+	crypt_key	*key;
+{
+	int	key_len,
+		key_pos,
+		i;
+	char	mix,
+		tmp;
 
-extern	char	*ctcp_type[];
-extern	int	sed;
-
-	char	*do_ctcp _((char *, char *, char *));
- 	char	*ctcp_quote_it _((char *, size_t));
- 	char	*ctcp_unquote_it _((char *, size_t *));
-	char	*do_notice_ctcp _((char *, char *, char *));
-	int	in_ctcp _((void));
-#ifdef HAVE_STDARG_H
-	void    send_ctcp_reply _((char *, char *, char *, ...));
-	void    send_ctcp _((char *, char *, char *, char *, ...));
-#else
-	void    send_ctcp_reply _(());
-	void    send_ctcp _(());
-#endif /* HAVE_STDARG_H */
-
-#endif /* __ctcp_h_ */
+	key_len = strlen(key->key);
+	key_pos = 0;
+	/*    mix = key->key[key_len-1]; */
+	mix = 0;
+	for (i = 0; i < *len; i++)
+	{
+		tmp = mix ^ (*str)[i] ^ key->key[key_pos];
+		(*str)[i] = tmp;
+		mix ^= tmp;
+		key_pos = (key_pos + 1) % key_len;
+	}
+	(*str)[i] = (char) 0;
+}

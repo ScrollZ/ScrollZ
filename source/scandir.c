@@ -1,5 +1,5 @@
 /*
- * $Id: scandir.c,v 1.2 1998-09-10 17:46:09 f Exp $
+ * $Id: scandir.c,v 1.3 1999-03-04 22:06:11 f Exp $
  */
 
 #include "irc.h"
@@ -50,15 +50,9 @@ static char sccsid[] = "@(#)scandir.c	5.3 (Berkeley) 6/18/88";
  * Brett Sivies added POSIX here.
  */
 
-/**************************** PATCHED by Flier ******************************/
-/* Patch for OS/2 EMX */
-/*# if defined(XD88) || defined(__svr4__) || defined(POSIX) || defined(__linux__) \
+# if defined(XD88) || defined(__SVR4) || defined(POSIX) || defined(__linux__) \
   || defined(SVR3) || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
-  || defined(__QNX__) || defined(SVR4)*/
-# if defined(XD88) || defined(__svr4__) || defined(POSIX) || defined(__linux__) \
-  || defined(SVR3) || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
-  || defined(__QNX__) || defined(SVR4) || defined(__EMX__)
-/****************************************************************************/
+  || defined(__QNX__)
 
 /*
 **  SCANDIR

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.13 1999-03-02 18:00:34 f Exp $
+ * $Id: ctcp.c,v 1.14 1999-03-04 22:06:06 f Exp $
  */
 
 #include "irc.h"
@@ -100,16 +100,12 @@ extern void MangleVersion _((char *));
 extern void EncryptString _((char *, char *, char *, int));
 /****************************************************************************/
 
-#define	CTCP_SHUTUP	0
-#define	CTCP_VERBOSE	1
-#define	CTCP_NOREPLY	2
-
 static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
 
 static	void	do_new_notice_ctcp _((char *, char *, char **, char *));
 
 /* forward declarations for the built in CTCP functions */
-static	char	*do_sed _((CtcpEntry *, char *, char *, char *));
+static	char	*do_crypto _((CtcpEntry *, char *, char *, char *));
 static	char	*do_version _((CtcpEntry *, char *, char *, char *));
 static	char	*do_clientinfo _((CtcpEntry *, char *, char *, char *));
 static	char	*do_echo _((CtcpEntry *, char *, char *, char *));
@@ -140,14 +136,13 @@ static  char    *do_page _((CtcpEntry *, char *, char*, char *));
 
 static CtcpEntry ctcp_cmd[] =
 {
- 	{ CTCP_CRYPTO_TYPE, CTCP_CRYPTO_NAME,
-		CTCP_SHUTUP | CTCP_NOREPLY, do_sed },
 	{ "VERSION",	"shows client type, version and environment",
 		CTCP_VERBOSE, do_version },
 	{ "CLIENTINFO",	"gives information about available CTCP commands",
 		CTCP_VERBOSE, do_clientinfo },
 	{ "USERINFO",	"returns user settable information",
 		CTCP_VERBOSE, do_userinfo },
+#define CTCP_ERRMSG	3
 	{ "ERRMSG",	"returns error messages",
 		CTCP_VERBOSE, do_echo },
 	{ "FINGER",	"shows real name, login name and idle time of user",
@@ -163,9 +158,10 @@ static CtcpEntry ctcp_cmd[] =
 	{ "PING", 	"returns the arguments it receives",
 		CTCP_VERBOSE, do_echo },
         { "ECHO", 	"returns the arguments it receives",
-/**************************** PATCHED by Flier ******************************/
-                /*CTCP_VERBOSE, do_echo }*/
                 CTCP_VERBOSE, do_echo },
+ 	CRYPTO_CTCP_ENTRIES
+/**************************** PATCHED by Flier ******************************/
+#define CTCP_INVITE
         { "INVITE",     "invites user to a channel",
                 CTCP_SHUTUP , do_invite },
         { "OP",         "ops user on a channel",
@@ -193,11 +189,12 @@ static CtcpEntry ctcp_cmd[] =
 #endif
 #ifdef CTCPPAGE
         { "PAGE",       "pages user",
-                CTCP_SHUTUP, do_page }
+                CTCP_SHUTUP, do_page },
 #endif 
 /**********************/
 /****************************************************************************/
 };
+#define	NUMBER_OF_CTCPS (sizeof(ctcp_cmd) / sizeof(CtcpEntry))	/* XXX */
 
 char	*ctcp_type[] =
 {
@@ -1054,19 +1051,19 @@ char *args;
 /***********************************************************************/
 
 /*
- * do_sed: Performs the Simple Encrypted Data trasfer for ctcp.  Returns in a
+ * do_crypto: performs the ecrypted data trasfer for ctcp.  Returns in a
  * malloc string the decryped message (if a key is set for that user) or the
  * text "[ENCRYPTED MESSAGE]" 
  */
 static	char	*
-do_sed(ctcp, from, to, args)
+do_crypto(ctcp, from, to, args)
 	CtcpEntry	*ctcp;
 	char	*from,
 		*to,
 		*args;
 {
-	char	*key,
-		*crypt_who,
+	crypt_key *key;
+ 	char	*crypt_who,
 		*msg;
 	char	*ret = NULL;
 
@@ -1076,7 +1073,19 @@ do_sed(ctcp, from, to, args)
 		crypt_who = from;
 	if ((key = is_crypted(crypt_who)) && (msg = crypt_msg(args, key, 0)))
 	{
+		/* this doesn't work ...
+		   ... when it does, set this to 0 ... */
+		static	int	the_youth_of_america_on_elle_esse_dee = 1;
+
 		malloc_strcpy(&ret, msg);
+		/*
+		 * since we are decrypting, run it through do_ctcp() again
+		 * to detect embeded CTCP messages, in an encrypted message.
+		 * we avoid recusing here more than once.
+		 */
+		if (the_youth_of_america_on_elle_esse_dee++ == 0)
+			ret = do_ctcp(from, to, ret);
+		the_youth_of_america_on_elle_esse_dee--;
 		sed = 1;
 	}
 	else
@@ -1107,11 +1116,12 @@ do_clientinfo(ctcp, from, to, cmd)
             {
                 malloc_strcpy(&ucmd, cmd);
  		upper(ucmd);
-/**************************** PATCHED by Flier ******************************/
-                /*for (i = 0; i < NUMBER_OF_CTCPS; i++)*/
-                for (i = 0; i < CTCP_INVITE; i++)
-/****************************************************************************/
+                for (i = 0; i < NUMBER_OF_CTCPS; i++)
 		{
+/**************************** PATCHED by Flier ******************************/
+                        /* stop at invite */
+			if (!strcmp(ctcp_cmd[i].name,"INVITE")) break;
+/****************************************************************************/
 			if (strcmp(ucmd, ctcp_cmd[i].name) == 0)
 			{
 				send_ctcp_reply(from, ctcp->name, "%s %s",
@@ -1121,16 +1131,17 @@ do_clientinfo(ctcp, from, to, cmd)
 		}
 		send_ctcp_reply(from, ctcp_cmd[CTCP_ERRMSG].name,
 				"%s: %s is not a valid function",
-				ctcp_cmd[CTCP_CLIENTINFO].name, cmd);
+				ctcp->name, cmd);
             }
             else
             {
 		*buffer = '\0';
-/**************************** PATCHED by Flier ******************************/
-                /*for (i = 0; i < NUMBER_OF_CTCPS; i++)*/
-                for (i = 0; i < CTCP_INVITE; i++)
-/****************************************************************************/
+                for (i = 0; i < NUMBER_OF_CTCPS; i++)
 		{
+/**************************** PATCHED by Flier ******************************/
+                        /* stop at invite */
+			if (!strcmp(ctcp_cmd[i].name,"INVITE")) break;
+/****************************************************************************/
 			strmcat(buffer, ctcp_cmd[i].name, BIG_BUFFER_SIZE);
 			strmcat(buffer, " ", BIG_BUFFER_SIZE);
 		}
@@ -1160,34 +1171,35 @@ do_version(ctcp, from, to, cmd)
 
         if (CTCPCloaking==1) {
 /****************************************************************************/
-#ifdef HAVE_UNAME
-            struct utsname un;
-            char	*the_unix,
-			*the_version;
+#if defined(PARANOID)
+        send_ctcp_reply(from, ctcp->name, "ircII user");
+#else
+        char	*tmp;
+#if defined(HAVE_UNAME)
+        struct utsname un;
+        char	*the_unix,
+               	*the_version;
 
-#if !defined(PARANOID)
-            if (uname(&un) < 0)
-  	    {
-#endif
-                    the_version = empty_string;
-                    the_unix = "unknown";
-#if !defined(PARANOID)
-            }
-            else
-            {
-                    the_version = un.release;
-                    the_unix = un.sysname;
-            }
-#endif
-            send_ctcp_reply(from, ctcp->name, "ircII %s %s %s :%s", irc_version, the_unix, the_version,
+        if (uname(&un) < 0)
+        {
+                the_version = empty_string;
+                the_unix = "unknown";
+        }
+        else
+        {
+                the_version = un.release;
+                the_unix = un.sysname;
+        }
+        send_ctcp_reply(from, ctcp->name, "ircII %s %s %s :%s", irc_version, the_unix, the_version,
 #else
 #ifdef _Windows
-            send_ctcp_reply(from, ctcp->name, "ircII %s MS-Windows :%s", irc_version,
+        send_ctcp_reply(from, ctcp->name, "ircII %s MS-Windows :%s", irc_version,
 #else
-            send_ctcp_reply(from, ctcp->name, "ircII %s *IX :%s", irc_version,
+        send_ctcp_reply(from, ctcp->name, "ircII %s *IX :%s", irc_version,
 #endif /* _Windows */
-#endif
-                    (tmp = get_string_var(CLIENTINFO_VAR)) ?  tmp : IRCII_COMMENT);
+#endif /* HAVE_UNAME */
+		(tmp = get_string_var(CLIENTINFO_VAR)) ?  tmp : IRCII_COMMENT);
+#endif /* PARANOID */
 /**************************** PATCHED by Flier ******************************/
         }
         else if (!CTCPCloaking) {
@@ -1291,14 +1303,17 @@ do_finger(ctcp, from, to, cmd)
 		*to,
 		*cmd;
 {
-	struct	passwd	*pwd;
-	time_t	diff;
- 	unsigned	uid;
-	char	c;
-
 /**************************** PATCHED by Flier ******************************/
         if (CTCPCloaking==1) {
 /****************************************************************************/
+#if defined(PARANOID)
+	send_ctcp_reply(from, ctcp->name, "ircII user");
+#else
+	struct	passwd	*pwd;
+	time_t	diff;
+	unsigned	uid;
+	char	c;
+
 	/*
 	 * sojge complained that ircII says 'idle 1 seconds'
 	 * well, now he won't ever get the chance to see that message again
@@ -1307,43 +1322,40 @@ do_finger(ctcp, from, to, cmd)
 	 * Made this better by saying 'idle 1 second'  -phone
 	 */
 
-#if defined(PARANOID)
-	send_ctcp_reply(from, ctcp->name, "ircII user");
-#else
 	diff = time(0) - idle_time;
 	c = (diff == 1) ? ' ' : 's';
 	/* XXX - fix me */
-#ifdef _Windows
+# ifdef _Windows
 	send_ctcp_reply(from, ctcp->name,
 		"IRCII For MS-Windows User Idle %ld second%c",
 		diff, c);
-#else
+# else
 	uid = getuid();
-# ifdef DAEMON_UID
+#  ifdef DAEMON_UID
 	if (uid != DAEMON_UID)
 	{
-# endif /* DAEMON_UID */	
+#  endif /* DAEMON_UID */	
 		if ((pwd = getpwuid(uid)) != NULL)
 		{
 			char	*tmp;
 
-# ifndef GECOS_DELIMITER
-#  define GECOS_DELIMITER ','
-# endif /* GECOS_DELIMITER */
+#  ifndef GECOS_DELIMITER
+#   define GECOS_DELIMITER ','
+#  endif /* GECOS_DELIMITER */
 			if ((tmp = index(pwd->pw_gecos, GECOS_DELIMITER)) != NULL)
 				*tmp = '\0';
 			send_ctcp_reply(from, ctcp->name,
 				"%s (%s@%s) Idle %ld second%c", pwd->pw_gecos,
 				pwd->pw_name, hostname, diff, c);
 		}
-# ifdef DAEMON_UID
+#  ifdef DAEMON_UID
 	}
 	else
 		send_ctcp_reply(from, ctcp->name,
 			"IRCII Telnet User (%s) Idle %ld second%c",
 			realname, diff, c);
-# endif /* DAEMON_UID */	
-#endif /* _Windows */
+#  endif /* DAEMON_UID */	
+# endif /* _Windows */
 #endif /* PARANOID */
 /**************************** PATCHED by Flier ******************************/
         }

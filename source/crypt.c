@@ -30,11 +30,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id: crypt.c,v 1.4 1999-02-15 21:19:00 f Exp $
  */
 
 #include "irc.h"
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.5 1999-03-04 22:06:05 f Exp $");
+
 #include "crypt.h"
 #include "vars.h"
 #include "ircaux.h"
@@ -47,11 +47,17 @@
 # include <sys/wait.h>
 #endif /* HAVE_SYS_WAIT_H */
 
-static	void	add_to_crypt _((char *, char *));
+static	void	add_to_crypt _((char *, char *, CryptFunc, CryptFunc, char *));
 static	int	remove_crypt _((char *));
-static	void	encrypt_str _((char **, int *, char *));
-static	void	decrypt_str _((char **, int *, char *));
-static	char	*do_crypt _((char *, char *, int));
+static	char	*do_crypt _((char *, crypt_key *, int, char **));
+
+#ifdef USE_CAST
+#include "cast.c"
+#endif
+
+#ifdef USE_SED
+#include "sed.c"
+#endif
 
 #define CRYPT_BUFFER_SIZE (IRCD_BUFFER_SIZE - 50)	/* Make this less than
 							 * the trasmittable
@@ -64,7 +70,7 @@ typedef struct	CryptStru
 {
 	struct	CryptStru *next;
 	char	*nick;
-	char	*key;
+	crypt_key	*key;
 }	Crypt;
 
 /* crypt_list: the list of nicknames and encryption keys */
@@ -76,23 +82,32 @@ static	Crypt	*crypt_list = (Crypt *) 0;
  * key. 
  */
 static	void
-add_to_crypt(nick, key)
+add_to_crypt(nick, keystr, enc, dec, type)
 	char	*nick;
-	char	*key;
+	char	*keystr;
+	CryptFunc enc;
+	CryptFunc dec;
+	char	*type;
 {
 	Crypt	*new;
 
 	if ((new = (Crypt *) remove_from_list((List **) &crypt_list, nick)) != NULL)
 	{
 		new_free(&(new->nick));
+		bzero(new->key->key, strlen(new->key->key));		/* wipe it out */
+		new_free(&(new->key->key));
 		new_free(&(new->key));
 		new_free(&new);
 	}
 	new = (Crypt *) new_malloc(sizeof(Crypt));
+	new->key = (crypt_key *) new_malloc(sizeof(*new->key));
 	new->nick = (char *) 0;
-	new->key = (char *) 0;
+	new->key->key = (char *) 0;
+	new->key->type = type;
 	malloc_strcpy(&(new->nick), nick);
-	malloc_strcpy(&(new->key), key);
+	malloc_strcpy(&(new->key->key), keystr);
+	new->key->crypt = enc;
+	new->key->decrypt = dec;
 	add_to_list((List **) &crypt_list, (List *) new);
 }
 
@@ -108,9 +123,10 @@ remove_crypt(nick)
 
 	if ((tmp = (Crypt *) list_lookup((List **) &crypt_list, nick, !USE_WILDCARDS, REMOVE_FROM_LIST)) != NULL)
 	{
-		new_free(&(tmp->nick));
-		bzero(tmp->key, strlen(tmp->key));		/* wipe it out */
-		new_free(&(tmp->key));
+		new_free(&tmp->nick);
+		bzero(tmp->key->key, strlen(tmp->key->key));		/* wipe it out */
+		new_free(&tmp->key->key);
+		new_free(&tmp->key);
 		new_free(&tmp);
 		return (0);
 	}
@@ -121,7 +137,7 @@ remove_crypt(nick)
  * is_crypted: looks up nick in the crypt_list and returns the encryption key
  * if found in the list.  If not found in the crypt_list, null is returned. 
  */
-char	*
+crypt_key *
 is_crypted(nick)
 	char	*nick;
 {
@@ -145,15 +161,46 @@ encrypt_cmd(command, args, subargs)
 		*args,
 		*subargs;
 {
+	CryptFunc enc = NULL, dec = NULL;
+	char	*type = NULL;
 	char	*nick,
-	*key;
+		*keystr;
 
+restart:
 	if ((nick = next_arg(args, &args)) != NULL)
 	{
-		if ((key = next_arg(args, &args)) != NULL)
+		if (0)
+			;
+#ifdef USE_CAST
+		else if (my_strnicmp(nick, "-cast", 5) == 0)
 		{
-			add_to_crypt(nick, key);
-			say("%s added to the crypt with key %s", nick, key);
+			enc = cast_encrypt_str;
+			dec = cast_decrypt_str;
+			type = CAST_STRING;
+			goto restart;
+		}
+#endif
+
+#ifdef USE_SED
+		else if (my_strnicmp(nick, "-sed", 5) == 0)
+		{
+			enc = sed_encrypt_str;
+			dec = sed_decrypt_str;
+			type = SED_STRING;
+			goto restart;
+		}
+#endif
+		else
+		{
+			enc = DEFAULT_CRYPTER;
+			dec = DEFAULT_DECRYPTER;
+			type = DEFAULT_CRYPTYPE;
+		}
+
+		if ((keystr = next_arg(args, &args)) != NULL)
+		{
+			add_to_crypt(nick, keystr, enc, dec, type);
+			say("%s added to the %s crypt", nick, type);
 		}
 		else
 		{
@@ -171,74 +218,24 @@ encrypt_cmd(command, args, subargs)
 
 			say("The crypt:");
 			for (tmp = crypt_list; tmp; tmp = tmp->next)
-				put_it("%s with key %s", tmp->nick, tmp->key);
+				put_it("%s with key %s type %s", tmp->nick, tmp->key->key, tmp->key->type);
 		}
 		else
 			say("The crypt is empty");
 	}
 }
 
-static	void
-encrypt_str(str, len, key)
-	char	**str;
-	int	*len;
-	char	*key;
-{
-	int	key_len,
-		key_pos,
-		i;
-	char	mix,
-		tmp;
-
-	key_len = strlen(key);
-	key_pos = 0;
-	mix = 0;
-	for (i = 0; i < *len; i++)
-	{
-		tmp = (*str)[i];
-		(*str)[i] = mix ^ tmp ^ key[key_pos];
-		mix ^= tmp;
-		key_pos = (key_pos + 1) % key_len;
-	}
-	(*str)[i] = (char) 0;
-}
-
-static	void
-decrypt_str(str, len, key)
-	char	**str;
-	int	*len;
-	char	*key;
-{
-	int	key_len,
-		key_pos,
-		i;
-	char	mix,
-		tmp;
-
-	key_len = strlen(key);
-	key_pos = 0;
-	/*    mix = key[key_len-1]; */
-	mix = 0;
-	for (i = 0; i < *len; i++)
-	{
-		tmp = mix ^ (*str)[i] ^ key[key_pos];
-		(*str)[i] = tmp;
-		mix ^= tmp;
-		key_pos = (key_pos + 1) % key_len;
-	}
-	(*str)[i] = (char) 0;
-}
-
 static	char	*
-do_crypt(str, key, flag)
-	char	*str,
-		*key;
+do_crypt(str, key, flag, type)
+	char	*str;
+	crypt_key *key;
 	int	flag;
+	char	**type;
 {
 	int	in[2],
-        	out[2];
- 	size_t	c;
- 	char	lbuf[CRYPT_BUFFER_SIZE + 1];
+		out[2];
+	size_t	c;
+	char	lbuf[CRYPT_BUFFER_SIZE + 1];
 	char	*ptr = (char *) 0,
 		*encrypt_program;
 
@@ -252,7 +249,7 @@ do_crypt(str, key, flag)
 			say("ENCRYPT_PROGRAM not available from daemon mode");
 			return (char *) 0;
 		}
-#endif
+#endif /* DAEMON_ID */
 		in[0] = in[1] = -1;
 		out[0] = out[1] = -1;
 		if (access(encrypt_program, X_OK))
@@ -260,10 +257,10 @@ do_crypt(str, key, flag)
 			say("Unable to execute encryption program: %s", encrypt_program);
 			return ((char *) 0);
 		}
- 		c = strlen(str);
+		c = strlen(str);
 		if (!flag)
 			ptr = ctcp_unquote_it(str, &c);
-		else
+		else 
 			malloc_strcpy(&ptr, str);
 		if (pipe(in) || pipe(out))
 		{
@@ -295,7 +292,7 @@ do_crypt(str, key, flag)
 			setgid(getgid());
 			setuid(getuid());
 			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR))
-				execl(encrypt_program, encrypt_program, key, NULL);
+				execl(encrypt_program, encrypt_program, key->key, NULL);
 			else
 				execl(encrypt_program, encrypt_program, NULL);
 			exit(0);
@@ -303,18 +300,18 @@ do_crypt(str, key, flag)
 			new_close(out[1]);
 			new_close(in[0]);
 			if (get_int_var(OLD_ENCRYPT_PROGRAM_VAR) == 0)
-				write(in[1], key, strlen(key));
+				write(in[1], key->key, strlen(key->key));
 			write(in[1], ptr, c);
 			new_close(in[1]);
- 			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);
+			c = read(out[0], lbuf, CRYPT_BUFFER_SIZE);
 			wait(NULL);
- 			lbuf[c] = (char) 0;
+			lbuf[c] = (char) 0;
 			new_close(out[0]);
 			break;
 		}
 		new_free(&ptr);
 		if (flag)
- 			ptr = ctcp_quote_it(lbuf, strlen(lbuf));
+			ptr = ctcp_quote_it(lbuf, strlen(lbuf));
 		else
 			malloc_strcpy(&ptr, lbuf);
 	}
@@ -324,15 +321,17 @@ do_crypt(str, key, flag)
 		c = strlen(str);
 		if (flag)
 		{
- 			encrypt_str(&str, (int *)&c, key);
+			key->crypt(&str, (int *)&c, key);
 			ptr = ctcp_quote_it(str, c);
 		}
 		else
 		{
 			ptr = ctcp_unquote_it(str, &c);
- 			decrypt_str(&ptr, (int *)&c, key);
+			key->decrypt(&ptr, (int *)&c, key);
 		}
 	}
+	if (type)
+		*type = key->type;
 	return (ptr);
 }
 
@@ -340,58 +339,57 @@ do_crypt(str, key, flag)
  * crypt_msg: Executes the encryption program on the given string with the
  * given key.  If flag is true, the string is encrypted and the returned
  * string is ready to be sent over irc.  If flag is false, the string is
- * decrypted and the returned string should be readable 
+ * decrypted and the returned string should be readable.
  */
 char	*
 crypt_msg(str, key, flag)
-	char	*str,
-		*key;
+	char	*str;
+	crypt_key *key;
 	int	flag;
 {
- 	static	char	lbuf[CRYPT_BUFFER_SIZE + 1];
- 	char	thing[CTCP_CRYPTO_LEN+3];
+	static	char	lbuf[CRYPT_BUFFER_SIZE + 1];
 	char	*ptr,
-		*rest;
+		*rest,
+		*type;
 	int	on = 1;
 
 	if (flag)
 	{
- 		sprintf(thing, "%c%s ", CTCP_DELIM_CHAR, CTCP_CRYPTO_TYPE);
- 		*lbuf = (char) 0;
+		*lbuf = (char) 0;
 		while ((rest = index(str, '\005')) != NULL)
 		{
 			*(rest++) = (char) 0;
-			if (on && *str && (ptr = do_crypt(str, key, flag)))
+			if (on && *str && (ptr = do_crypt(str, key, flag, &type)))
 			{
- 				strmcat(lbuf, thing, CRYPT_BUFFER_SIZE);
- 				strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
- 				strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
+				sprintf(lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
+				strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
+				strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 				new_free(&ptr);
 			}
 			else
- 				strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
+				strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 			on = !on;
 			str = rest;
 		}
-		if (on && (ptr = do_crypt(str, key, flag)))
+		if (on && (ptr = do_crypt(str, key, flag, &type)))
 		{
- 			strmcat(lbuf, thing, CRYPT_BUFFER_SIZE);
- 			strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
- 			strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
+			sprintf(lbuf, "%c%.30s ", CTCP_DELIM_CHAR, type);
+			strmcat(lbuf, ptr, CRYPT_BUFFER_SIZE);
+			strmcat(lbuf, CTCP_DELIM_STR, CRYPT_BUFFER_SIZE);
 			new_free(&ptr);
 		}
 		else
- 			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
+			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 	}
 	else
 	{
-		if ((ptr = do_crypt(str, key, flag)) != NULL)
+		if ((ptr = do_crypt(str, key, flag, &type)) != NULL)
 		{
- 			strmcpy(lbuf, ptr, CRYPT_BUFFER_SIZE);
+			strmcpy(lbuf, ptr, CRYPT_BUFFER_SIZE);
 			new_free(&ptr);
 		}
 		else
- 			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
+			strmcat(lbuf, str, CRYPT_BUFFER_SIZE);
 	}
- 	return (lbuf);
+	return (lbuf);
 }

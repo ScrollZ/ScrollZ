@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.10 1999-02-17 17:55:07 f Exp $
+ * $Id: server.c,v 1.11 1999-03-04 22:06:12 f Exp $
  */
 
 #include "irc.h"
@@ -415,7 +415,7 @@ a_hack:
  					int	old_psi = parsing_server_index;
 
   					parsing_server_index = i;
- 					parse_server(lbuf);
+ 					server_list[parsing_server_index].parse_server(lbuf);
   					new_free(&server_list[i].buffer);
  					parsing_server_index = old_psi;
   					break;

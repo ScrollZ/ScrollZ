@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.14 1999-03-02 18:00:32 f Exp $
+ * $Id: irc.c,v 1.15 1999-03-04 22:06:10 f Exp $
  */
 
 #define IRCII_VERSION	"4.4F"
@@ -1553,7 +1553,8 @@ old_main(int argc, char **argv)
 /*ARGSUSED*/
 main _((int, char *[], char *[]));
 
-int main(argc, argv, envp)
+int
+main(argc, argv, envp)
 	int	argc;
 	char	*argv[];
 	char	*envp[];

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.5 1999-02-17 17:55:08 f Exp $
+ * $Id: whois.c,v 1.6 1999-03-04 22:06:14 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -590,7 +590,7 @@ whois_oper(from, ArgList)
 					ArgList[1]))
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("%s %s %s%s", numeric_banner(), nick,
-					ArgList[1], (server_list[parsing_server_index].version >
+ 					ArgList[1], (get_server_version(parsing_server_index) >
 					Server2_7) ? empty_string
 						   : " (is an IRC operator)");*/
 #ifdef WANTANSI

@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.3 1999-02-15 21:20:20 f Exp $
+ * $Id: term.c,v 1.4 1999-03-04 22:06:13 f Exp $
  */
 
 #include "irc.h"
@@ -61,14 +61,14 @@
 # define CBREAK RAW
 #endif /* SVR3 */
 
-#ifdef SVR4
+#ifdef __SVR4
 # include <sys/stat.h>
 # include <termios.h>
 # include <sys/ttold.h>
 # include <sys/stream.h>
 # include <sys/ttcompat.h>
 # define CBREAK RAW
-#endif /* SVR4 */
+#endif /* __SVR4 */
 
 #ifdef M_UNIX
 # include <sys/stat.h>

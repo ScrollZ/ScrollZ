@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: scandir.h,v 1.1 1998-09-10 17:31:12 f Exp $
+ * $Id: scandir.h,v 1.2 1999-03-04 22:06:04 f Exp $
  */
 
 #ifndef __scandir_h__
@@ -35,9 +35,9 @@
 #ifndef HAVE_SCANDIR
 
 #if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE)) || defined(HPUX7)
-# if defined(XD88) || defined(__svr4__) || defined(POSIX) || defined(__linux__) \
+# if defined(XD88) || defined(__SVR4) || defined(POSIX) || defined(__linux__) \
   || defined(SVR3) || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
-  || defined(__QNX__) || defined(SVR4)
+  || defined(__QNX__)
 
 #if defined(__linux__) || defined(__sgi)
 int scandir _((const char *, struct dirent ***, int (*)(), int (*)()));
