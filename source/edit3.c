@@ -34,7 +34,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.41 2000-08-09 19:31:20 f Exp $
+ * $Id: edit3.c,v 1.42 2000-08-10 17:08:17 f Exp $
  */
 
 #include "irc.h"
@@ -2637,12 +2637,12 @@ char *subargs;
             count=0;
             found=0;
             for (tmp=chan->nicks;tmp;tmp=tmp->next)
-                if (!(tmp->chanop || tmp->voice)) count++;
+                if (!(tmp->chanop || tmp->hasvoice)) count++;
             if (count) {
                 srand(time(0));
                 random=rand()%count+1;
                 for (tmp=chan->nicks;tmp;tmp=tmp->next) {
-                    if (!(tmp->chanop || tmp->voice)) found++;
+                    if (!(tmp->chanop || tmp->hasvoice)) found++;
                     if (found==random) break;
                 }
                 if (tmp) {
