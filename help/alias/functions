@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.7 2003-05-13 18:41:39 f Exp $
+!	 $Id: functions,v 1.8 2005-04-08 19:01:09 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -136,6 +136,8 @@ ScrollZ Functions
                         to.
   RAND(LIMIT)           Returns a random number x such that 0<=x<LIMIT
   READ(HANDLE)          Returns one line from file denoted by HANDLE.
+  REGEXP(PATTERN STRING) Returns 1 if STRING matches given PATTERN, 0 if there is
+                        no match. POSIX.2 regular expressions are supported.
   RENAME(OLD NEW)       Renames file OLD to NEW.
   RIGHT(COUNT STRING)   Returns the COUNT rightmost bytes from the STRING.
   RINDEX(CHARLIST STRING) Returns the index to the last character in STRING
