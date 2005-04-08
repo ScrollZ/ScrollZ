@@ -1,0 +1,12 @@
+!	 $Id: dvoice,v 1.1 2005-04-08 19:00:30 f Exp $
+!
+! Copyright (c) 1994-2005 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: DVOICE [#channel] nick1 nick2 nick3 ...
+  Devoices line of nicks on your current channel
+
+See also:
+  VOICE
