@@ -1,11 +1,11 @@
-!	 $Id: voice,v 1.1 2005-04-08 19:00:30 f Exp $
+!	 $Id: voice,v 1.2 2005-04-08 19:03:20 f Exp $
 !
-! Copyright (c) 1994-2003 Flier
+! Copyright (c) 1994-2005 Flier
 !
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: VOICD [#channel] nick1 nick2 nick3 ...
+Usage: VOICE [#channel] nick1 nick2 nick3 ...
   Voices line of nicks on your current channel
 
 See also:
