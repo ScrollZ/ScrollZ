@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.102 2004-11-08 21:19:47 f Exp $
+ * $Id: edit.c,v 1.103 2005-04-08 19:02:47 f Exp $
  */
 
 #include "irc.h"
@@ -577,6 +577,7 @@ IrcCommand FAR irc_command[] =
   { "DOP", 		"DOP", 		Op, 			SERVERREQ },
   { "DPROT", 		"DPROT", 	ChannelCommand, 	0 },
   { "DUMP", 		NULL, 		Dump, 			0 },
+  { "DVOICE",           "DVOICE",       Op,                     SERVERREQ },
 	{ "ECHO",	NULL,		my_echo,		0 },
   { "EGO", 		"EGO", 		OnOffCommand, 		0 },
   { "ENCRMSG",		NULL, 		EncryptMsg, 		0 },
@@ -925,6 +926,7 @@ IrcCommand FAR irc_command[] =
 /**************************** PATCHED by Flier ******************************/
  	/*{ "VOICE",	"VOICE",	e_privmsg,		SERVERREQ },*/
 /****************************************************************************/
+  { "VOICE",            "VOICE",        Op,                     SERVERREQ },
   { "W", 		"WHO", 		who, 			SERVERREQ },
  	{ "WAIT",	NULL,		waitcmd,		SERVERREQ },
 /**************************** PATCHED by Flier ******************************/

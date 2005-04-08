@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.97 2004-04-25 09:54:18 f Exp $
+ * $Id: edit2.c,v 1.98 2005-04-08 19:02:47 f Exp $
  */
 
 #include "irc.h"
@@ -1084,56 +1084,63 @@ char *command;
 char *args;
 char *subargs;
 {
-    char flag=(!my_stricmp(command,"OP") || !my_stricmp(command, "HOP")) ? '+' : '-';
-    char type=(!my_stricmp(command,"OP") || !my_stricmp(command, "DOP")) ? 'o' : 'h';
-    int  count=0;
-    int  usage=0;
-    int  max=get_int_var(MAX_MODES_VAR);
+    char flag;
+    int  count = 0;
+    int  usage = 0;
+    int  max = get_int_var(MAX_MODES_VAR);
     char *tmpnick;
-    char *channel=(char *) 0;
-    char tmpbuf[mybufsize/2];
-    char modebuf[mybufsize/32];
+    char *channel = NULL;
+    char *type = NULL;
+    char tmpbuf[mybufsize / 2];
+    char modebuf[mybufsize / 32];
     register NickList *tmp;
     ChannelList *chan;
 
+    flag = (!my_stricmp(command, "OP") || !my_stricmp(command, "HOP") ||
+            !my_stricmp(command, "VOICE")) ? '+' : '-';
+    if (!my_stricmp(command, "OP") || !my_stricmp(command, "DOP"))
+        type = "oooooooooooooooo";
+    else if (!my_stricmp(command, "HOP") || !my_stricmp(command, "DHOP"))
+        type = "hhhhhhhhhhhhhhhh";
+    else type = "vvvvvvvvvvvvvvvv";
     if (args && *args) {
-        if (is_channel(args)) channel=new_next_arg(args,&args);
-        else if (!(channel=get_channel_by_refnum(0))) {
+        if (is_channel(args)) channel = new_next_arg(args, &args);
+        else if (!(channel = get_channel_by_refnum(0))) {
             NoWindowChannel();
             return;
         }
-        chan=lookup_channel(channel,curr_scr_win->server,0);
+        chan = lookup_channel(channel, curr_scr_win->server, 0);
         if (!chan) return;
         if (*args) {
             if (chan->status&CHAN_CHOP) {
-		snprintf(modebuf,sizeof(modebuf),"%c%s",flag,type=='o'?"oooooooo":"hhhhhhhh");
-                *tmpbuf='\0';
-                while ((tmpnick=new_next_arg(args,&args))) {
-                    if ((tmp=find_in_hash(chan,tmpnick))) {
-                        strmcat(tmpbuf," ",sizeof(tmpbuf));
-                        strmcat(tmpbuf,tmpnick,sizeof(tmpbuf));
+		snprintf(modebuf, sizeof(modebuf), "%c%s", flag, type);
+                *tmpbuf = '\0';
+                while ((tmpnick = new_next_arg(args, &args))) {
+                    if ((tmp = find_in_hash(chan, tmpnick))) {
+                        strmcat(tmpbuf, " ", sizeof(tmpbuf));
+                        strmcat(tmpbuf, tmpnick, sizeof(tmpbuf));
                         count++;
                     }
-                    else say("Can't find %s on %s",tmpnick,channel);
-                    if (count==max) {
-                        modebuf[count+1]='\0';
-                        send_to_server("MODE %s %s %s",channel,modebuf,tmpbuf);
-                        count=0;
-                        *tmpbuf='\0';
+                    else say("Can't find %s on %s", tmpnick, channel);
+                    if ((count == max) || (count >= strlen(modebuf) - 1)) {
+                        modebuf[count+1] = '\0';
+                        send_to_server("MODE %s %s %s", channel, modebuf, tmpbuf);
+                        count = 0;
+                        *tmpbuf = '\0';
                     }
                 }
                 if (count) {
-                    modebuf[count+1]='\0';
-                    send_to_server("MODE %s %s %s",channel,modebuf,tmpbuf);
+                    modebuf[count+1] = '\0';
+                    send_to_server("MODE %s %s %s", channel, modebuf, tmpbuf);
                 }
             }
             else NotChanOp(channel);
         }
-        else usage=1;
+        else usage = 1;
     }
-    else usage=1;
+    else usage = 1;
     if (usage) {
-        snprintf(tmpbuf,sizeof(tmpbuf),"%s nicks",command);
+        snprintf(tmpbuf, sizeof(tmpbuf), "%s nicks", command);
         PrintUsage(tmpbuf);
     }
 }
