@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.98 2005-04-08 19:02:47 f Exp $
+ * $Id: edit2.c,v 1.99 2005-04-19 15:22:55 f Exp $
  */
 
 #include "irc.h"
@@ -2120,6 +2120,7 @@ char *subargs;
     else if (ARinWindow==3) fprintf(usfile,"BOTH\n");
     else fprintf(usfile,"OFF\n");
     if (PermUserMode) fprintf(usfile,"USERMODE        %s\n",PermUserMode);
+    if (ExtTopicDelimiter) fprintf(usfile,"ETOPICDELIM     %s\n",ExtTopicDelimiter);
     fprintf(usfile,"#\n");
 #ifdef CELE
     fprintf(usfile,"SCROLLZSTR      %s\n",ScrollZstr);
@@ -3128,7 +3129,7 @@ char *args;
 char *subargs;
 {
     char *tmpchan = NULL;
-    char tmpbuf1[mybufsize];
+    char *banbuf = NULL;
     char tmpbuf2[mybufsize / 4];
     ChannelList *chan;
     struct bans *tmpban;
@@ -3146,13 +3147,13 @@ char *subargs;
     chan = lookup_channel(tmpchan, from_server, 0);
     if (!chan) return;
     if (HAS_OPS(chan->status)) {
-        *tmpbuf1 = '\0';
         for (tmpban = chan->banlist; tmpban; tmpban = tmpban->next) {
             if (tmpban->exception) continue;
-            strmcat(tmpbuf1, tmpban->ban, sizeof(tmpbuf2));
-            strmcat(tmpbuf1, " ", sizeof(tmpbuf2));
+            malloc_strcat(&banbuf, tmpban->ban);
+            malloc_strcat(&banbuf, " ");
         }
-        DoDops(tmpbuf1, tmpchan, 7);
+        DoDops(banbuf, tmpchan, 7);
+        new_free(&banbuf);
     }
     else NotChanOp(tmpchan);
 }
