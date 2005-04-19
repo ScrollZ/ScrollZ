@@ -1,4 +1,4 @@
-!	 $Id: topic,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: topic,v 1.4 2005-04-19 15:24:16 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -11,3 +11,6 @@ Usage: TOPIC [<channel>] [<topic for channel>]
   You have to be on the channel to change the topic and if
   the channel mode is +t then only a channel-operator can change
   the topic.
+
+See also:
+  TOPIC
