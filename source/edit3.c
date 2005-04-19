@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.84 2003-12-24 12:15:52 f Exp $
+ * $Id: edit3.c,v 1.85 2005-04-19 15:23:30 f Exp $
  */
 
 #include "irc.h"
@@ -2149,6 +2149,8 @@ void ScrollZLoad()
             OnOffSet(&pointer,&ExtPub,&loaderror,lineno,"EXTPUB");
         else if (!strcmp("AWAYENCRYPT",tmpbuf3))
             OnOffSet(&pointer,&AwayEncrypt,&loaderror,lineno,"AWAYENCRYPT");
+        else if (!strcmp("ETOPICDELIM",tmpbuf3))
+            StringSet(pointer,&ExtTopicDelimiter,&loaderror,lineno,"ETOPICDELIM");
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2430,6 +2432,7 @@ void InitVars() {
     malloc_strcpy(&BKChannels,"*");
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
+    malloc_strcpy(&ExtTopicDelimiter,"|");
     set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
     if (!AutoReplyBuffer) {
         i=strlen(nickname)>3?3:strlen(nickname);

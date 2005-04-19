@@ -69,10 +69,12 @@
  CdExceptions        Clears channel of ban exceptions
  SendToServer        Sends data to server (used from timer)
  RateLimitJoin       Should we rate limit the join
+ ExtendTopic         Extends current topic with given text
+ TopicDelimiter      Sets topic delimiter
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.152 2005-02-22 18:13:00 f Exp $
+ * $Id: edit6.c,v 1.153 2005-04-19 15:23:30 f Exp $
  */
 
 #include "irc.h"
@@ -3374,4 +3376,46 @@ int server_index;
     if (wild_match("ircd-ratbox-*", verstr) || wild_match("hybrid-7*", verstr))
         return 1;
     return 0;
+}
+
+/* Extends current topic */
+void ExtendTopic(command, args, subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *tmpchan = NULL;
+    ChannelList *chan;
+
+    if (args && *args) {
+        if (is_channel(args)) tmpchan = new_next_arg(args, &args);
+        else if (!(tmpchan = get_channel_by_refnum(0))) {
+            NoWindowChannel();
+            return;
+        }
+        chan = lookup_channel(tmpchan, curr_scr_win->server, 0);
+        if (!chan) return;
+        if (chan->topicstr) send_to_server("TOPIC %s :%s %s %s", chan->channel,
+                                           chan->topicstr, ExtTopicDelimiter, args);
+        else send_to_server("TOPIC %s :%s", chan->channel, args);
+    }
+    else PrintUsage("ETOPIC [#channel] text");
+}
+
+/* Sets topic delimiter */
+void TopicDelimiter(command, args, subargs)
+char *command;
+char *args;
+char *subargs;
+{
+    char *delim;
+    char tmpbuf[mybufsize / 32];
+
+    delim = new_next_arg(args, &args);
+    if (delim) {
+        snprintf(tmpbuf, sizeof(tmpbuf), "%s", delim);
+        tmpbuf[1] = '\0';
+        malloc_strcpy(&ExtTopicDelimiter, tmpbuf);
+    }
+    say("Topic delimiter is %s", ExtTopicDelimiter);
 }

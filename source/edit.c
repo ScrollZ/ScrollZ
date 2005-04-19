@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.103 2005-04-08 19:02:47 f Exp $
+ * $Id: edit.c,v 1.104 2005-04-19 15:23:30 f Exp $
  */
 
 #include "irc.h"
@@ -389,6 +389,8 @@ extern  void  CJoin _((char *, char *, char *));
 extern  void  ChanLogCommand _((char *, char *, char *));
 extern  void  ChannelLogSave _((char *, ChannelList *));
 extern  void  CdExceptions _((char *, char *, char *));
+extern  void  ExtendTopic _((char *, char *, char *));
+extern  void  TopicDelimiter _((char *, char *, char *));
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -584,6 +586,8 @@ IrcCommand FAR irc_command[] =
 #ifndef LITE
 	{ "ENCRYPT",	NULL,		encrypt_cmd,		0 },
 #endif
+  { "ETDELIM",		NULL, 		TopicDelimiter, 	0 },
+  { "ETOPIC",		NULL, 		ExtendTopic, 		0 },
 	{ "EVAL",	NULL,		evalcmd,		0 },
 	{ "EXEC",	NULL,		execcmd,		0 },
  	{ "EXIT",	"QUIT",		e_quit,			NONOVICEABBREV },
