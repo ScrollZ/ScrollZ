@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.119 2005-04-19 18:57:30 f Exp $
+ * $Id: irc.c,v 1.120 2005-04-19 19:59:55 f Exp $
  */
 
 #define IRCII_VERSION	"20041219"	/* YYYYMMDD */
@@ -571,6 +571,11 @@ char VersionInfo[] = {
     'Z',
 #else
     'z',
+#endif
+#ifdef BLAXTHOS
+    'B',
+#else
+    'b',
 #endif
 #ifdef OPER
     ' ',
