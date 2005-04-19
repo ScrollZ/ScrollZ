@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.104 2005-04-19 15:23:30 f Exp $
+ * $Id: edit.c,v 1.105 2005-04-19 18:57:30 f Exp $
  */
 
 #include "irc.h"
@@ -420,6 +420,9 @@ extern  void  MegaDeVoice _((char *, char *, char *));
 extern  void  SetIdleKick _((char *, char *, char *));
 extern  void  ShowIdle _((char *, char *, char *));
 extern  void  TopicLocked _((char *, char *, char *));
+#endif
+#ifdef BLAXTHOS
+extern void EncryptString _((char *, char *, char *, int, int));
 #endif
 /****************************************************************************/
 
@@ -1482,7 +1485,28 @@ oper(command, args, subargs)
 	}
 	send_to_server("OPER %s %s", nick, password);
 /**************************** PATCHED by Flier ******************************/
-        bzero(password,strlen(password));
+#ifdef BLAXTHOS
+        if (EncryptPassword) {
+            int len = strlen(EncryptPassword);
+
+            if (OperNick) new_free(&OperNick);
+            OperNick = (char *) new_malloc(2 * strlen(nick) + 16);
+            if (OperNick) {
+                *OperNick = '\0';
+                EncryptString(OperNick, nick, EncryptPassword, 2 * strlen(nick) - 1, 1);
+            }
+            if (OperPassword) new_free(&OperPassword);
+            OperPassword = (char *) new_malloc(2 * len + 16);
+            if (OperPassword) {
+                *OperPassword = '\0';
+                EncryptString(OperPassword, password, EncryptPassword, 2 * len - 1, 1);
+            }
+            if (OperNick && OperPassword) say("OPER password has been stored");
+            else say("OPER password not stored - probably memory allocation failure");
+        }
+        else say("Master password not defined - OPER password not stored!");
+#endif
+        bzero(password, strlen(password));
         say("Password's memory location has been cleared");
 /****************************************************************************/
 }

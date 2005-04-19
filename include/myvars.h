@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.37 2005-04-19 15:23:58 f Exp $
+ * $Id: myvars.h,v 1.38 2005-04-19 18:57:30 f Exp $
  */
 
 #include "mystructs.h"
@@ -186,6 +186,10 @@ extern char   *ChanLogDir;
 extern char   *ChanLogPrefix;
 extern char   *ChanLogPostfix;
 extern char   *ExtTopicDelimiter;
+#ifdef BLAXTHOS
+extern char   *OperNick;
+extern char   *OperPassword;
+#endif
 extern int    usersloaded;
 extern int    inSZNotify;
 extern int    inSZLinks;

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.118 2005-04-19 15:23:30 f Exp $
+ * $Id: irc.c,v 1.119 2005-04-19 18:57:30 f Exp $
  */
 
 #define IRCII_VERSION	"20041219"	/* YYYYMMDD */
@@ -355,6 +355,10 @@ char  *ChanLogDir=(char *) 0;
 char  *ChanLogPrefix=(char *) 0;
 char  *ChanLogPostfix=(char *) 0;
 char  *ExtTopicDelimiter=(char *) 0;
+#ifdef BLAXTHOS
+char  *OperNick=(char *) 0;
+char  *OperPassword=(char *) 0;
+#endif
 int   DeopPrinted;
 int   KickPrinted;
 int   NickPrinted;

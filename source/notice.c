@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.33 2004-07-02 18:04:52 f Exp $
+ * $Id: notice.c,v 1.34 2005-04-19 18:57:30 f Exp $
  */
 
 #include "irc.h"
@@ -64,6 +64,9 @@ extern void OVformat _((char *, char *));
 #endif
 extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
+#ifdef BLAXTHOS
+extern int  DecryptString _((char *, char *, char *, int, int));
+#endif
 /*********************************************************************/
 
 #ifndef LITE
@@ -509,6 +512,20 @@ got_initial_version(line)
 	malloc_strcpy(&server_list[parsing_server_index].version_string, version);
 	set_server_itsname(parsing_server_index, server);
 /**************************** Patched by Flier ******************************/
+        /* reinstate oper mode if password is stored */
+#ifdef BLAXTHOS
+        if (EncryptPassword && OperNick && OperPassword) {
+            char nickbuf[mybufsize];
+            char passbuf[mybufsize];
+
+            say("Reinstating OPER mode with stored password");
+            DecryptString(nickbuf, OperNick, EncryptPassword, sizeof(nickbuf) - 1, 1);
+            DecryptString(passbuf, OperPassword, EncryptPassword, sizeof(passbuf) - 1, 1);
+            send_to_server("OPER %s %s", nickbuf, passbuf);
+            bzero(nickbuf, strlen(nickbuf));
+            bzero(passbuf, strlen(passbuf));
+        }
+#endif
         /* read above, we already parsed this so skip it this time since
            it will corrupt all server information we stored in previous
            pass */
