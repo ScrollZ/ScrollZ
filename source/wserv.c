@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: wserv.c,v 1.8 2003-01-08 20:03:11 f Exp $
+ * $Id: wserv.c,v 1.9 2005-04-20 18:21:59 f Exp $
  */
 
 /*
@@ -61,11 +61,7 @@ int	control_sock;
 
 /* declare the signal handler */
 # if !defined(_RT) && defined(SIGWINCH)
-#  if defined(_POSIX_VERSION)
 RETSIGTYPE	got_sigwinch _((int));
-#  else
-RETSIGTYPE	got_sigwinch _((void));
-#  endif
 # endif /* _RT */
 
 /*
@@ -132,11 +128,7 @@ main(argc, argv)
 	 * Tell the master our screen size.
 	 */
 #if !defined(_RT) && defined(SIGWINCH)
-#if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE)
 	got_sigwinch(0);
-#else
-	got_sigwinch();
-#endif
 #endif
 
 	/*
@@ -170,11 +162,8 @@ main(argc, argv)
 /* got_sigwinch: we got a SIGWINCH, so we send it back to ircII */
 # if !defined(_RT) && defined(SIGWINCH)
 RETSIGTYPE
-#  if defined(_POSIX_VERSION)
 got_sigwinch(sig)
-#  else
-got_sigwinch(sig)
-#  endif
+    int sig;
 {
 #  ifdef TIOCGWINSZ
 	static int old_li = -1, old_co = -1;
