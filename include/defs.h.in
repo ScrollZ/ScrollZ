@@ -408,4 +408,8 @@
 
 /* Define this if you want mIRC compatible DCC resume */
 /* #undef BROKEN_MIRC_RESUME */
+
+/* Define this if you want client to remember /OPER password and
+   send it on reconnect */
+#undef BLAXTHOS
 /****************************************************************************/
