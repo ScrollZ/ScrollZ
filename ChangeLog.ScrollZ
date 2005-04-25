@@ -8,6 +8,25 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v1.9.5, 23.4.2005
+
+    ~ attempt has been made to work around a limitation on efnet
+      servers where you are not allowed to see ban exceptions unless
+      opped, client will resend MODE #chan e when opped
+    + REGEXP() which uses POSIX.2 regular expression matching,
+      requested by Mc
+    + SHOWIDLE -O|-N to display chan ops/non-ops only, requested by Blaxthos
+    + SHOWKILL will now show when were you killed (requested by Blaxthos)
+    ! weird crash upon channel join (seen on broken ircd, reported by kore)
+    + ETOPIC to extend current topic (requested by hapan)
+    + ETDELIM to set topic delimiter for ETOPIC (requested by hapan)
+    + VOICE/DVOICE to voice/devoice users (requested by hapan)
+    ! CDBAN not clearing all bans on channels with large ban list
+      (reported by Blaxthos)
+    ! wserv now compiles on FreeBSD (reported by sgm)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.4, 19.12.2004
 
     + DESTDIR support in Makefile, patch submitted by MadHack-
