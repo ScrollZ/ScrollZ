@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.153 2005-04-19 15:23:30 f Exp $
+ * $Id: edit6.c,v 1.154 2005-06-09 17:39:04 f Exp $
  */
 
 #include "irc.h"
@@ -1366,51 +1366,62 @@ char *subargs;
     char *tmpstr;
     char *tmpchan;
     char *quietstr;
-    char tmpbuf[mybufsize/8];
+    char *cmdchars;
+    char tmpbuf[mybufsize / 8];
 
     upper(command);
-    for (i=0;command_list[i].command;i++)
-        if (!strcmp(command_list[i].command,command)) break;
+    for (i = 0; command_list[i].command; i++)
+        if (!strcmp(command_list[i].command, command)) break;
     if (!(command_list[i].command)) return;
-    isorignick=!strcmp(command_list[i].command,"ORIGNICK");
-    tmpstr=new_next_arg(args,&args);
+    isorignick = !strcmp(command_list[i].command, "ORIGNICK");
+    tmpstr = new_next_arg(args, &args);
     if (tmpstr) {
-        if (!my_stricmp("ON",tmpstr)) {
-            tmpchan=new_next_arg(args,&args);
-            quietstr=new_next_arg(args,&args);
-            if (tmpchan && *tmpchan) malloc_strcpy(command_list[i].strvar,tmpchan);
+        if (!my_stricmp("ON", tmpstr)) {
+            tmpchan = new_next_arg(args, &args);
+            quietstr = new_next_arg(args, &args);
+            if (tmpchan && *tmpchan) malloc_strcpy(command_list[i].strvar, tmpchan);
             else {
-                snprintf(tmpbuf,sizeof(tmpbuf),"%s on %s%s/off",command_list[i].command,
-                        isorignick?"nick":"channels",isorignick?" [quiet]":"");
+                snprintf(tmpbuf, sizeof(tmpbuf), "%s on %s%s/off",
+                         command_list[i].command, isorignick ? "nick" : "channels",
+                         isorignick ? " [quiet]" : "");
                 PrintUsage(tmpbuf);
                 return;
             }
             if (isorignick) {
-                if (quietstr && *quietstr && !my_stricmp(quietstr,"QUIET")) OrigNickQuiet=1;
-                else OrigNickQuiet=0;
-                OrigNickNumber=0; /* start from scratch */
-                LastNick=time((time_t *) 0);
+                int x;
+
+                if (quietstr && *quietstr && !my_stricmp(quietstr,"QUIET"))
+                    OrigNickQuiet = 1;
+                else OrigNickQuiet = 0;
+                x = get_int_var(NO_ASK_NICKNAME_VAR);
+                if (x == 0) {
+                    if (!(cmdchars = get_string_var(CMDCHARS_VAR)))
+                        cmdchars = DEFAULT_CMDCHARS;
+                    say("You might want to %cSET NO_ASK_NICKNAME ON", *cmdchars);
+                }
+                OrigNickNumber = 0; /* start from scratch */
+                LastNick = time((time_t *) 0);
             }
-            *(command_list[i].var)=1;
+            *(command_list[i].var) = 1;
         }
-        else if (!my_stricmp("OFF",tmpstr)) {
-            *(command_list[i].var)=0;
+        else if (!my_stricmp("OFF", tmpstr)) {
+            *(command_list[i].var) = 0;
             new_free(command_list[i].strvar);
         }
         else {
-            snprintf(tmpbuf,sizeof(tmpbuf),"%s on %s%s/off",command_list[i].command,
-                    isorignick?"nick":"channels",isorignick?" [quiet]":"");
+            snprintf(tmpbuf, sizeof(tmpbuf), "%s on %s%s/off", command_list[i].command,
+                     isorignick ? "nick" : "channels", isorignick ? " [quiet]" : "");
             PrintUsage(tmpbuf);
             return;
         }
     }
-    tmpstr=command_list[i].setting2;
-    if (!tmpstr) tmpstr=" for channels :";
-    if (*(command_list[i].var)) PrintSetting(command_list[i].setting,"ON",tmpstr,
+    tmpstr = command_list[i].setting2;
+    if (!tmpstr) tmpstr = " for channels :";
+    if (*(command_list[i].var)) PrintSetting(command_list[i].setting, "ON", tmpstr,
                                              *(command_list[i].strvar));
-    else PrintSetting(command_list[i].setting,"OFF",empty_string,empty_string);
+    else PrintSetting(command_list[i].setting, "OFF", empty_string, empty_string);
     /* first update channel log filepath */
-    if (!strcmp(command_list[i].command,"CHANLOG")) SetChannels(100);
+    if (!strcmp(command_list[i].command, "CHANLOG")) SetChannels(100);
     SetChannels(i);
 }
 
