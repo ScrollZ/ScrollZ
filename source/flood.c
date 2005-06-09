@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.9 2002-01-25 17:56:17 f Exp $
+ * $Id: flood.c,v 1.10 2005-06-09 17:41:06 f Exp $
  */
 
 #include "irc.h"
@@ -50,6 +50,10 @@ typedef struct flood_stru
 }	Flooding;
 
 static	Flooding *flood = (Flooding *) 0;
+
+/**************************** PATCHED by Flier ******************************/
+static  int flood_users = 0;
+/****************************************************************************/
 
 /*
  * check_flooding: This checks for message flooding of the type specified for
@@ -160,13 +164,16 @@ check_flooding(nick, type, line)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all allocated memory */
-void CleanUpFlood() {
-    int i, users;
+void CleanUpFlood(void) {
+    int i;
 
-    users = get_int_var(FLOOD_USERS_VAR);
     if (flood) {
-        for (i = 0; i < users; i++) new_free(&(flood[i].nick));
+        for (i = 0; i < flood_users; i++) new_free(&(flood[i].nick));
     }
     new_free(&flood);
+}
+
+void UpdateFloodUsers(void) {
+    flood_users = get_int_var(FLOOD_USERS_VAR);
 }
 /****************************************************************************/

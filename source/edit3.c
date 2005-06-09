@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.85 2005-04-19 15:23:30 f Exp $
+ * $Id: edit3.c,v 1.86 2005-06-09 17:41:06 f Exp $
  */
 
 #include "irc.h"
@@ -88,6 +88,7 @@ extern void NotChanOp _((char *));
 extern void NoWindowChannel _((void));
 extern void PrintUsage _((char *));
 extern void EncryptString _((char *, char *, char *, int, int));
+extern void UpdateFloodUsers _((void));
 extern int  AddLast _((List *, List *));
 extern int  CheckPrivs _((char *, char *));
 extern int  CheckShit _((char *, char *));
@@ -2554,6 +2555,7 @@ void InitVars() {
     *tmpstr2='\0';
     malloc_strcpy(&ScrollZver1,tmpstr1);
     InitKeysColors();
+    UpdateFloodUsers();
 }
 
 #ifdef EXTRAS

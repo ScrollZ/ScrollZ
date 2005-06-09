@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.25 2003-05-04 18:06:59 f Exp $
+ * $Id: vars.c,v 1.26 2005-06-09 17:41:06 f Exp $
  */
 
 #include "irc.h"
@@ -114,6 +114,7 @@ static  void    SetAwayFile _((char *));
 void    SetStampFormat _((char *));
 
 extern  void    RedrawAll _((void));
+extern  void    UpdateFloodUsers _((void));
 
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
@@ -175,7 +176,10 @@ static	IrcVariable irc_variable[] =
 	{ "EXEC_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_EXEC_PROTECTION, NULL, exec_warning, 0, VF_NODAEMON },
 	{ "FLOOD_AFTER",		INT_TYPE_VAR,	DEFAULT_FLOOD_AFTER, NULL, NULL, 0, 0 },
 	{ "FLOOD_RATE",			INT_TYPE_VAR,	DEFAULT_FLOOD_RATE, NULL, NULL, 0, 0 },
-	{ "FLOOD_USERS",		INT_TYPE_VAR,	DEFAULT_FLOOD_USERS, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	/*{ "FLOOD_USERS",		INT_TYPE_VAR,	DEFAULT_FLOOD_USERS, NULL, NULL, 0, 0 },*/
+	{ "FLOOD_USERS",		INT_TYPE_VAR,	DEFAULT_FLOOD_USERS, NULL, UpdateFloodUsers, 0, 0 },
+/****************************************************************************/
 	{ "FLOOD_WARNING",		BOOL_TYPE_VAR,	DEFAULT_FLOOD_WARNING, NULL, NULL, 0, 0 },
 	{ "FULL_STATUS_LINE",		BOOL_TYPE_VAR,	DEFAULT_FULL_STATUS_LINE, NULL, update_all_status, 0, 0 },
 	{ "HELP_PAGER",			BOOL_TYPE_VAR,	DEFAULT_HELP_PAGER, NULL, NULL, 0, 0 },
