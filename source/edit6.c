@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.154 2005-06-09 17:39:04 f Exp $
+ * $Id: edit6.c,v 1.155 2005-07-27 18:01:10 f Exp $
  */
 
 #include "irc.h"
@@ -2805,24 +2805,25 @@ char *subargs;
 }
 
 /* Parses STATS i reply from server */
-void HandleStatsI(statschar,ipiline,uhiline)
+void HandleStatsI(statschar, ipiline, uhiline)
 char *statschar;
 char *ipiline;
 char *uhiline;
 {
     char *tmpstr;
-    char tmpbuf1[mybufsize/2+1];
+    char tmpbuf1[mybufsize / 2 + 1];
 
     if (!StatsiNumber) say("I-Line");
-    strmcpy(tmpbuf1,uhiline,mybufsize/2);
+    if (!uhiline) uhiline = empty_string;
+    strmcpy(tmpbuf1, uhiline, mybufsize / 2);
     if (StatsiFilter) {
-        tmpstr=new_next_arg(uhiline,&uhiline);
-        tmpstr=new_next_arg(uhiline,&uhiline);
-        if (!(tmpstr && *tmpstr)) tmpstr=empty_string;
+        tmpstr = new_next_arg(uhiline, &uhiline);
+        tmpstr = new_next_arg(uhiline, &uhiline);
+        if (!(tmpstr && *tmpstr)) tmpstr = empty_string;
     }
     if (!StatsiFilter || (StatsiFilter && 
-        (wild_match(StatsiFilter,tmpstr) || wild_match(StatsiFilter,ipiline))))
-        say("%s %s %s",statschar,ipiline,tmpbuf1);
+        (wild_match(StatsiFilter, tmpstr) || wild_match(StatsiFilter, ipiline))))
+        say("%s %s %s",statschar, ipiline, tmpbuf1);
     StatsiNumber++;
 }
 
