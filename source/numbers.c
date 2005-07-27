@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.80 2005-01-14 20:13:30 f Exp $
+ * $Id: numbers.c,v 1.81 2005-07-27 18:03:40 f Exp $
  */
 
 #include "irc.h"
@@ -1333,7 +1333,7 @@ numbered_command(from, comm, ArgList)
                     if (dumb || get_int_var(NO_ASK_NICKNAME_VAR))
                         AutoChangeNick(tmpbuf);
                 }
-                OrigNickSent=0;
+                if (OrigNickSent > 0) OrigNickSent--;
 /****************************************************************************/
 		break;
         case 437:		/* Nickname/channel temp. unavailable */

@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.155 2005-07-27 18:01:10 f Exp $
+ * $Id: edit6.c,v 1.156 2005-07-27 18:03:40 f Exp $
  */
 
 #include "irc.h"
@@ -1400,6 +1400,7 @@ char *subargs;
                     say("You might want to %cSET NO_ASK_NICKNAME ON", *cmdchars);
                 }
                 OrigNickNumber = 0; /* start from scratch */
+                OrigNickSent = 0;
                 LastNick = time((time_t *) 0);
             }
             *(command_list[i].var) = 1;
@@ -1943,7 +1944,7 @@ void SwitchNick() {
             if (my_stricmp(get_server_nickname(from_server),realnick))
                 e_nick(NULL,realnick,NULL);
             LastNick=timenow+1;
-            OrigNickSent=1;
+            OrigNickSent++;
             if (savechar && curnick) *curnick=savechar;
         }
     }
