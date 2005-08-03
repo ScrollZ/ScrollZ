@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.111 2004-07-02 19:57:53 f Exp $
+ * $Id: edit5.c,v 1.112 2005-08-03 15:36:25 f Exp $
  */
 
 #include "irc.h"
@@ -3333,7 +3333,8 @@ char *source;
 
                         if ((notefile = fopen(filepath, "a")) != NULL) {
                             now = time(NULL);
-                            fprintf(notefile,"## %s [%.24s]\n", urlnew->urls, ctime(&now));
+                            fprintf(notefile,"## %s %s [%.24s]\n",
+                                    urlnew->urls, urlnew->source, ctime(&now));
                             fclose(notefile);
                             urlnum++;
                         }
