@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.156 2005-07-27 18:03:40 f Exp $
+ * $Id: edit6.c,v 1.157 2005-08-03 15:40:15 f Exp $
  */
 
 #include "irc.h"
@@ -2194,6 +2194,9 @@ void CleanUp() {
         new_free(&(CmdsColors[i].color5));
         new_free(&(CmdsColors[i].color6));
     }
+#endif
+#ifdef HAVE_SSL
+    gnutls_global_deinit();
 #endif
 }
 

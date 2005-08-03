@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.h,v 1.4 2003-01-08 20:00:54 f Exp $
+ * $Id: newio.h,v 1.5 2005-08-03 15:40:15 f Exp $
  */
 
 #ifndef __newio_h_
@@ -49,7 +49,7 @@
         int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
 #ifdef HAVE_SSL
-        int     SSL_dgets _((char *, int, int, char *, SSL *));
+        int     SSL_dgets _((char *, int, int, char *, gnutls_session *));
 #endif
 /****************************************************************************/
 	int	new_select _((fd_set *, fd_set *, struct timeval *));

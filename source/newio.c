@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.11 2003-01-08 20:00:54 f Exp $
+ * $Id: newio.c,v 1.12 2005-08-03 15:40:15 f Exp $
  */
 
 #include "irc.h"
@@ -343,12 +343,12 @@ dgets(str, len, des, specials)
 
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-int SSL_dgets(str, len, des, specials, ssl_fd)
+int SSL_dgets(str, len, des, specials, session)
 char	*str;
 int	len;
 int	des;
 char	*specials;
-SSL	*ssl_fd;
+gnutls_session *session;
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -359,8 +359,7 @@ SSL	*ssl_fd;
 	int	i,
 		j;
 
-        if (!ssl_fd)
-            return(0);
+        if (gnutls_transport_get_ptr(*session) == NULL) return(0);
 	init_io();
 	if (io_rec[des] == (MyIO *) 0)
 	{
@@ -397,8 +396,9 @@ SSL	*ssl_fd;
 				dgets_errno = 0;
 				return (-1);
 			default:
-				c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
-				             IO_BUFFER_SIZE-io_rec[des]->write_pos);
+				c = gnutls_record_recv(*session,
+                                                       io_rec[des]->buffer + io_rec[des]->write_pos,
+				                       IO_BUFFER_SIZE - io_rec[des]->write_pos);
 				if (c <= 0)
 				{
 					if (c == 0)

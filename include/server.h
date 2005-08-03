@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.15 2004-07-02 19:57:53 f Exp $
+ * $Id: server.h,v 1.16 2005-08-03 15:40:15 f Exp $
  */
 
 #ifndef __server_h_
@@ -112,9 +112,8 @@ typedef	struct
 	ChannelList *ChanPendingList;   /* list of channels pending for join */
 #ifdef HAVE_SSL
         int        enable_ssl;
-        SSL        *ssl_fd;
-        SSL_CTX    *ctx;
-        SSL_METHOD *meth;
+        gnutls_session session;
+        gnutls_certificate_credentials xcred;
 #endif
 /****************************************************************************/
 }	Server;

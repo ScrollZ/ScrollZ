@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.121 2005-04-25 17:20:50 f Exp $
+ * $Id: irc.c,v 1.122 2005-08-03 15:40:15 f Exp $
  */
 
 #define IRCII_VERSION	"20050423"	/* YYYYMMDD */
@@ -1745,6 +1745,9 @@ main(argc, argv, envp)
 /**************************** Patched by Flier ******************************/
         memset(&forced_ip_addr, 0, sizeof(struct in_addr));
         memset(&MyHostAddr, 0, sizeof(struct in_addr));
+#ifdef HAVE_SSL
+        gnutls_global_init();
+#endif
 /****************************************************************************/
 #ifdef _Windows
 	reset_pointers();

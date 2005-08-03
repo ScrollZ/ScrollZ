@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.60 2004-07-02 19:57:53 f Exp $
+ * $Id: server.c,v 1.61 2005-08-03 15:40:15 f Exp $
  */
 
 #include "irc.h"
@@ -67,6 +67,7 @@ int	connect_to_unix _((int, char *));
 extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
 extern void ChannelLogReportAll _((char *, ChannelList *));
+extern char *OpenCreateFile _((char *, int));
 
 #ifdef HAVE_SSL
 int SSLconnect = 0;
@@ -181,8 +182,9 @@ close_server(server_index, message)
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
                                 if (server_list[i].connected && server_list[i].enable_ssl) {
-                                    if (server_list[i].ssl_fd)
-                                        SSL_write(server_list[i].ssl_fd, buffer, strlen(buffer));
+                                    if (gnutls_transport_get_ptr(server_list[i].session))
+                                        gnutls_record_send(server_list[i].session,
+                                                           buffer, strlen(buffer));
                                 }
                                 else
 #endif
@@ -208,11 +210,11 @@ close_server(server_index, message)
 #endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (server_list[i].enable_ssl && server_list[i].ssl_fd) {
-                    SSL_shutdown(server_list[i].ssl_fd);
-                    server_list[i].ssl_fd = NULL;
-                    server_list[i].ctx = NULL;
-                    server_list[i].meth = NULL;
+                if (server_list[i].enable_ssl &&
+                    gnutls_transport_get_ptr(server_list[i].session)) {
+                    gnutls_bye(server_list[i].session, GNUTLS_SHUT_RDWR);
+                    gnutls_deinit(server_list[i].session);
+                    gnutls_certificate_free_credentials(server_list[i].xcred);
                 }
 #endif
 /****************************************************************************/
@@ -307,7 +309,7 @@ do_server(rd, wd)
 #ifdef HAVE_SSL
                         if (server_list[from_server].enable_ssl)
                             junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0,
-                                             server_list[from_server].ssl_fd);
+                                             &server_list[from_server].session);
                         else
 #endif /* HAVE_SSL */
 /****************************************************************************/
@@ -544,9 +546,10 @@ add_to_server_list(server, port, password, nick, overwrite)
 /**************************** PATCHED by Flier ******************************/
 #ifdef HAVE_SSL
                 server_list[from_server].enable_ssl = 0;
-                server_list[from_server].ssl_fd = NULL;
-                server_list[from_server].ctx = NULL;
-                server_list[from_server].meth = NULL;
+                memset(&server_list[from_server].session, 0,
+                       sizeof(gnutls_session));
+                memset(&server_list[from_server].xcred, 0,
+                       sizeof(gnutls_certificate_credentials));
                 /* this is true only when adding server(s) from a command line */
                 if (*server == '!') {
                     server++;
@@ -703,10 +706,6 @@ remove_from_server_list(i)
 	if (server_list[i].ctcp_send_size)
 		new_free(&server_list[i].ctcp_send_size);
 /**************************** PATCHED by Flier ******************************/
-#ifdef HAVE_SSL
-        SSL_CTX_free(server_list[i].ctx);
-        new_free(&server_list[i].meth);
-#endif
         if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
         if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
         if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
@@ -1398,18 +1397,25 @@ login_to_server(server)
 #ifdef HAVE_SSL
         if (server_list[server].enable_ssl && (server_list[server].flags & SSL_CONNECT)) {
             int err;
+            int cert_type_priority[3] = { GNUTLS_CRT_X509,
+                                          GNUTLS_CRT_OPENPGP, 0 };
+            char *filepath;
 
+            filepath = OpenCreateFile("ca.pem", 1);
             say("SSL connect in progress ...");
-            SSLeay_add_ssl_algorithms();
-            server_list[server].meth = SSLv3_client_method();
-            SSL_load_error_strings();
-            server_list[server].ctx = SSL_CTX_new(server_list[server].meth);
-            CHK_NULL(server_list[server].ctx);
-            server_list[server].ssl_fd = SSL_new(server_list[server].ctx);
-            CHK_NULL(server_list[server].ssl_fd);
-            SSL_set_fd(server_list[server].ssl_fd, server_list[server].read);
-            err = SSL_connect(server_list[server].ssl_fd);
-            CHK_SSL(err);
+            gnutls_certificate_allocate_credentials(&server_list[server].xcred);
+            gnutls_certificate_set_x509_trust_file(server_list[server].xcred,
+                                                   filepath, GNUTLS_X509_FMT_PEM);
+            gnutls_init(&server_list[server].session, GNUTLS_CLIENT);
+            gnutls_set_default_priority(server_list[server].session);
+            gnutls_certificate_type_set_priority(server_list[server].session,
+                                                 cert_type_priority);
+            gnutls_credentials_set(server_list[server].session, GNUTLS_CRD_CERTIFICATE,
+                                   server_list[server].xcred);
+            gnutls_transport_set_ptr(server_list[server].session,
+                                     (gnutls_transport_ptr) server_list[server].read);
+            err = gnutls_handshake(server_list[server].session);
+
             server_list[server].flags &= ~SSL_CONNECT;
         }
 #endif
@@ -2400,11 +2406,12 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
                         if (server_list[server].enable_ssl) {
                             int err;
 
-                            if (!server_list[server].ssl_fd) {
-                                say("SSL write error - ssl socket = 0");
+                            if (!gnutls_transport_get_ptr(server_list[server].session)) {
+                                say("SSL write error - ssl socket");
                                 return;
                             }
-                            err = SSL_write(server_list[server].ssl_fd, lbuf, len);
+                            err = gnutls_record_send(server_list[server].session,
+                                                     lbuf, len);
                             }
                         else
 #endif
