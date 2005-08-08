@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.122 2005-08-03 15:40:15 f Exp $
+ * $Id: irc.c,v 1.123 2005-08-08 18:50:47 f Exp $
  */
 
 #define IRCII_VERSION	"20050423"	/* YYYYMMDD */
@@ -111,7 +111,7 @@ int	irc_port = IRC_PORT,			/* port of ircd */
 	who_mask = 0;				/* keeps track of which /who
 						 * switchs are set */
 
-char	*zero	= "0";
+char	*irczero	= "0";
 char	*one	= "1";
 
 char	oper_command = 0;	/* true just after an oper() command is

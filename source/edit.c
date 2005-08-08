@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.105 2005-04-19 18:57:30 f Exp $
+ * $Id: edit.c,v 1.106 2005-08-08 18:50:47 f Exp $
  */
 
 #include "irc.h"
@@ -1073,7 +1073,7 @@ ctcp(command, args, subargs)
 	{
 		if (!strcmp(to, "*"))
 			if ((to = get_channel_by_refnum(0)) == NULL)
-				to = zero;
+				to = irczero;
 		if ((tag = next_arg(args, &args)) != NULL)
 			upper(tag);
 		else
@@ -1705,7 +1705,7 @@ do_channel(chan, force, nowho)
 		/* only do this if we're actually joining a new channel */
 		if (get_int_var(NOVICE_VAR))
 		{
-			if ((old = get_channel_by_refnum(0)) && strcmp(old, zero))
+			if ((old = get_channel_by_refnum(0)) && strcmp(old, irczero))
 				send_to_server("PART %s", old);
 		}
 /**************************** Patched by Flier ******************************/
@@ -2632,7 +2632,7 @@ e_privmsg(command, args, subargs)
 		}
 		else if (!strcmp(nick, "*"))
 			if (!(nick = get_channel_by_refnum(0)))
-				nick = zero;
+				nick = irczero;
 /**************************** PATCHED by Flier ******************************/
                 if (my_stricmp(nick,"0")) AddNick2List(nick,from_server);
 /****************************************************************************/

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.75 2005-07-27 18:03:40 f Exp $
+ * $Id: parse.c,v 1.76 2005-08-08 18:50:47 f Exp $
  */
 
 #include "irc.h"
@@ -1190,7 +1190,7 @@ p_channel(from, ArgList)
 	if (!from)
 		return;
 	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
-        if (strcmp(ArgList[0], zero))
+        if (strcmp(ArgList[0], irczero))
 	{
 		join = 1;
 		channel = ArgList[0];
@@ -1217,7 +1217,7 @@ p_channel(from, ArgList)
 	}
 	else
 	{
-		channel = zero;
+		channel = irczero;
 		join = 0;
         }
 	if (!my_stricmp(from, get_server_nickname(parsing_server_index)))

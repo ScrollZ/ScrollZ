@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.16 2004-05-02 16:03:12 f Exp $
+ * $Id: irc.h,v 1.17 2005-08-08 18:50:47 f Exp $
  */
 
 #ifndef __irc_h
@@ -300,7 +300,7 @@ extern	int	use_flow_control;
 extern	u_char	*joined_nick;
 extern	u_char	*public_nick;
 extern	char	empty_string[];
-extern	char	*zero;
+extern	char	*irczero;
 extern	char	*one;
 
 extern	char	irc_version[];

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.44 2003-05-07 17:25:21 f Exp $
+ * $Id: window.c,v 1.45 2005-08-08 18:50:47 f Exp $
  */
 
 #include "irc.h"
@@ -2214,7 +2214,7 @@ set_channel_by_refnum(refnum, channel)
 
 	if ((tmp = get_window_by_refnum(refnum)) == (Window *) 0)
 		tmp = curr_scr_win;
-	if (channel && strcmp(channel, zero) == 0)
+	if (channel && strcmp(channel, irczero) == 0)
 		channel = (char *) 0;
 
 	stuff.flag = 1;
@@ -3156,7 +3156,7 @@ windowcmd(command, args, subargs)
 				}
 			}
 			else
-				set_channel_by_refnum(0, zero);
+				set_channel_by_refnum(0, irczero);
 		}
 		else if (strncmp("PREVIOUS", cmd, len) == 0)
 		{

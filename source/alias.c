@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.42 2005-08-08 18:49:50 f Exp $
+ * $Id: alias.c,v 1.43 2005-08-08 18:50:47 f Exp $
  */
 
 #include "irc.h"
@@ -965,7 +965,7 @@ next_unit(str, args, arg_flag, stage)
                                 }
 			    	result1 = find_inline(tptr);
                                 if (!result1) 
-                                        malloc_strcpy(&result1, zero);
+                                        malloc_strcpy(&result1, irczero);
 
                                 {           /* This isnt supposed to be
                                                 attached to the if, so
@@ -1293,7 +1293,7 @@ next_unit(str, args, arg_flag, stage)
 			if (!my_stricmp(result1, result2))
 				malloc_strcpy(&result1, one);
 			else
-				malloc_strcpy(&result1, zero);
+				malloc_strcpy(&result1, irczero);
 			new_free(&result2);
 			return result1;
 		case '>':
@@ -1385,7 +1385,7 @@ next_unit(str, args, arg_flag, stage)
 			result1 = next_unit(str, args, arg_flag, stage);
 			result2 = next_unit(ptr, args, arg_flag, stage);
 			if (!my_stricmp(result1, result2))
-				malloc_strcpy(&result1, zero);
+				malloc_strcpy(&result1, irczero);
 			else
 				malloc_strcpy(&result1, one);
 			new_free(&result2);
@@ -2402,7 +2402,7 @@ alias_channel()
 {
 	char	*tmp;
 
-	return (u_char *) ((tmp = get_channel_by_refnum(0)) ? tmp : zero);
+	return (u_char *) ((tmp = get_channel_by_refnum(0)) ? tmp : irczero);
 }
 
 static	u_char	*
@@ -3023,7 +3023,7 @@ function_ischannel(input)
 {
 	u_char	*result = (u_char *) 0;
 
-	malloc_strcpy((char **) &result, is_channel((char *) input) ? one : zero);
+	malloc_strcpy((char **) &result, is_channel((char *) input) ? one : irczero);
 	return (result);
 }
 
@@ -3036,9 +3036,9 @@ function_ischanop(input)
 	char	*channel = NULL;
 
 	if (!(nick = next_arg((char *) input, &channel)))
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	else
-		malloc_strcpy((char **) &result, is_chanop(channel, nick) ? one : zero);
+		malloc_strcpy((char **) &result, is_chanop(channel, nick) ? one : irczero);
 	return (result);
 }
 
@@ -3054,7 +3054,7 @@ function_crypt(input)
 	char	*key = NULL;
 
 	if (!(salt = next_arg((char *) input, &key)))
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	else
 		malloc_strcpy((char **) &result, (char *) crypt(key, salt));
 	return (result);
@@ -3070,9 +3070,9 @@ function_hasvoice(input)
 	char	*channel = NULL;
 
 	if (!(nick = next_arg((char *) input, &channel)))
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	else
-		malloc_strcpy((char **) &result, has_voice(channel, nick, from_server) ? one : zero);
+		malloc_strcpy((char **) &result, has_voice(channel, nick, from_server) ? one : irczero);
 	return (result);
 }
 
@@ -3087,7 +3087,7 @@ function_dcclist(Nick)
 	
 	if (!Nick)
 	{
-		malloc_strcpy((char **)&result, zero);
+		malloc_strcpy((char **)&result, irczero);
 		return (result);
 	}
 	
@@ -3304,7 +3304,7 @@ function_ignored(input)
 	}
 	else
 do_zero:
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	return (result);
 }
 
@@ -3458,7 +3458,7 @@ function_listen(input)
 
 #ifdef DAEMON_UID
 	if (getuid() == DAEMON_UID)
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	else
 #endif
 		result = (u_char *) dcc_raw_listen((u_int) atoi((char *) input));
@@ -3589,10 +3589,10 @@ function_onchannel(input)
 	char	*channel = NULL;
 
  	if (from_server < 0 || !(nick = next_arg((char *) input, &channel)))
-		malloc_strcpy((char **) &result, zero);
+		malloc_strcpy((char **) &result, irczero);
 	else
 		malloc_strcpy((char **) &result,
-			is_on_channel(channel, from_server, nick) ? one : zero);
+			is_on_channel(channel, from_server, nick) ? one : irczero);
 	return (result);
 }
 

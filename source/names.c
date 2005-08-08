@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.57 2005-01-14 20:13:30 f Exp $
+ * $Id: names.c,v 1.58 2005-08-08 18:50:47 f Exp $
  */
 
 #include "irc.h"
@@ -873,7 +873,7 @@ char    *servmodes;
 				limit_set = 1;
 				if (!(limit = next_arg(rest, &rest)))
 					limit = empty_string;
-				else if (0 == strncmp(limit, zero, 1))
+				else if (0 == strncmp(limit, irczero, 1))
 					limit_reset = 1, limit_set = 0, add = 0;
 			}
 			else
