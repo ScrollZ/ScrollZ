@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.8 2005-04-08 19:01:09 f Exp $
+!	 $Id: functions,v 1.9 2005-08-08 18:49:50 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -138,6 +138,11 @@ ScrollZ Functions
   READ(HANDLE)          Returns one line from file denoted by HANDLE.
   REGEXP(PATTERN STRING) Returns 1 if STRING matches given PATTERN, 0 if there is
                         no match. POSIX.2 regular expressions are supported.
+  REGEXPREP(PATTERN STRING) Performs search & replace using POSIX.2 regular
+                        expressions supporting up to 10 back references in $# style,
+                        example:
+                        REGEXP("/a (.*) c (.*)/$$1 $$2/" a b c d) would return
+                        b d
   RENAME(OLD NEW)       Renames file OLD to NEW.
   RIGHT(COUNT STRING)   Returns the COUNT rightmost bytes from the STRING.
   RINDEX(CHARLIST STRING) Returns the index to the last character in STRING

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.41 2005-01-18 19:43:00 f Exp $
+ * $Id: alias.c,v 1.42 2005-08-08 18:49:50 f Exp $
  */
 
 #include "irc.h"
@@ -317,6 +317,7 @@ static	FAR BuiltIns built_in[] =
 #endif
 #ifdef HAVE_REGCOMP
         u_char	*function_regexp _((u_char *));
+        u_char	*function_regexpreplace _((u_char *));
 #endif /* REGCOMP */
 #ifdef COUNTRY
         u_char	*function_country _((u_char *));
@@ -358,6 +359,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
 /**************************** PATCHED by Flier ******************************/
 #ifdef HAVE_REGCOMP
 	{ "REGEXP",             function_regexp },
+	{ "REGEXPREP",          function_regexpreplace },
 #endif /* HAVE_REGCOMP */
 /****************************************************************************/
 	{ "MATCH",		function_match },
@@ -4951,6 +4953,80 @@ u_char *input;
     }
 
     if (result == NULL) malloc_strcpy((char **) &result, "0");
+    return(result);
+}
+
+#define REGREPL_COUNT 10
+u_char *function_regexpreplace(input)
+u_char *input;
+{
+    char *x;
+    char *pattern;
+    char *search;
+    char *replace = NULL;
+    u_char *result = NULL;
+    regex_t regex;
+
+    if (((pattern = new_next_arg((char *) input, (char **) &input)) != NULL) &&
+        input && *input) {
+        search = pattern;
+        if (*search == '/') {
+            search++;
+            replace = search;
+            while (*replace && *replace != '/') replace++;
+            if (*replace) {
+                *replace++ = '\0';
+                x = replace;
+                while (*x && *x != '/') x++;
+                if (*x == '/') *x++ = '\0';
+            }
+        }
+        if (replace && *replace) {
+            if (regcomp(&regex, search, REG_EXTENDED | REG_ICASE) == 0) {
+                regmatch_t pmatch[REGREPL_COUNT];
+    
+                if (regexec(&regex, input, REGREPL_COUNT, pmatch, 0) == 0) {
+                    int i;
+                    char *tmp = replace;
+                    char *tmpstr = NULL;
+                    char *prevtmp = replace;
+
+                    while (*tmp) {
+                        if (*tmp == '$') {
+                            if (prevtmp != tmp) {
+                                tmpstr = (char *) new_malloc(tmp - prevtmp + 2);
+                                strmcpy(tmpstr, prevtmp, tmp - prevtmp + 1);
+                                malloc_strcat((char **) &result, tmpstr);
+                                new_free(&tmpstr);
+                            }
+                            tmp++;
+                            i = atoi(tmp);
+                            while (*tmp && isdigit(*tmp)) tmp++;
+                            prevtmp = tmp;
+                            if (i >=0 && i <= REGREPL_COUNT) {
+                                int l = pmatch[i].rm_eo - pmatch[i].rm_so;
+
+                                tmpstr = (char *) new_malloc(l + 2);
+                                strmcpy(tmpstr, &input[pmatch[i].rm_so], l + 1);
+                                malloc_strcat((char **) &result, tmpstr);
+                                new_free(&tmpstr);
+                            }
+                        }
+                        else tmp++;
+                    }
+                    if (prevtmp != tmp) {
+                        tmpstr = (char *) new_malloc(tmp - prevtmp + 2);
+                        strmcpy(tmpstr, prevtmp, tmp - prevtmp + 1);
+                        malloc_strcat((char **) &result, tmpstr);
+                        new_free(&tmpstr);
+                    }
+                }
+            }
+            regfree(&regex);
+        }
+    }
+
+    if (result == NULL) malloc_strcpy((char **) &result, empty_string);
     return(result);
 }
 #endif /* REGCOMP */
