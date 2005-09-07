@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.12 2005-08-03 15:40:15 f Exp $
+ * $Id: newio.c,v 1.13 2005-09-07 17:55:53 f Exp $
  */
 
 #include "irc.h"
@@ -359,6 +359,7 @@ gnutls_session *session;
 	int	i,
 		j;
 
+        if (!session || !(*session)) return(0);
         if (gnutls_transport_get_ptr(*session) == NULL) return(0);
 	init_io();
 	if (io_rec[des] == (MyIO *) 0)

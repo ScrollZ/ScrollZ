@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.61 2005-08-03 15:40:15 f Exp $
+ * $Id: server.c,v 1.62 2005-09-07 17:55:53 f Exp $
  */
 
 #include "irc.h"
@@ -181,7 +181,9 @@ close_server(server_index, message)
 				snprintf(buffer, sizeof buffer, "QUIT :%s\n", message);
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                                if (server_list[i].connected && server_list[i].enable_ssl) {
+                                if (server_list[i].connected &&
+                                    server_list[i].enable_ssl &&
+                                    server_list[i].session) {
                                     if (gnutls_transport_get_ptr(server_list[i].session))
                                         gnutls_record_send(server_list[i].session,
                                                            buffer, strlen(buffer));
@@ -210,11 +212,12 @@ close_server(server_index, message)
 #endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                if (server_list[i].enable_ssl &&
+                if (server_list[i].enable_ssl && server_list[i].session &&
                     gnutls_transport_get_ptr(server_list[i].session)) {
                     gnutls_bye(server_list[i].session, GNUTLS_SHUT_RDWR);
                     gnutls_deinit(server_list[i].session);
                     gnutls_certificate_free_credentials(server_list[i].xcred);
+                    memset(&server_list[from_server].session, 0, sizeof(gnutls_session));
                 }
 #endif
 /****************************************************************************/
@@ -2403,7 +2406,8 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		{
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
-                        if (server_list[server].enable_ssl) {
+                        if (server_list[server].enable_ssl &&
+                            server_list[server].session) {
                             int err;
 
                             if (!gnutls_transport_get_ptr(server_list[server].session)) {
