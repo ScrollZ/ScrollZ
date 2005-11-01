@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.35 2005-09-25 16:24:43 f Exp $
+dnl @(#)$Id: configure.in,v 1.36 2005-11-01 16:32:58 f Exp $
 
-AC_REVISION($Revision: 1.35 $)dnl
+AC_REVISION($Revision: 1.36 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.35 2005-09-25 16:24:43 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.36 2005-11-01 16:32:58 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -386,7 +386,7 @@ else
         AC_CHECK_LIB(curses, tgetent, LIBS="-lcurses $olibs",
           AC_CHECK_LIB(ncurses, tgetent, LIBS="-lncurses $olibs",
             AC_CHECK_LIB(xtermcap, tgetent, LIBS="-lxtermcap $olibs",
-              AC_MSG_WARN(i can not find tgetent.  you might need to help me))))))
+              AC_MSG_WARN(i can not find tgetent.  you might need to help me)))))))
   AC_MSG_CHECKING(for tputs in curses.h)
   AC_EGREP_CPP([tputs( |	|\()],[#include <curses.h>
 ], AC_DEFINE(INCLUDE_CURSES_H) AC_MSG_RESULT(yes), blahhack=1; AC_MSG_RESULT(no))
