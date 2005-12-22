@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.111 2005-03-21 21:10:45 f Exp $
+ * $Id: edit4.c,v 1.112 2005-12-22 17:07:16 f Exp $
  */
 
 #include "irc.h"
@@ -323,7 +323,7 @@ ChannelList *chan;
 }
 
 /* Checks joined person */
-NickList *CheckJoin(nick,userhost,channel,server,tmpchan)
+NickList *CheckJoin(nick, userhost, channel, server, tmpchan)
 char *nick;
 char *userhost;
 char *channel;
@@ -331,53 +331,51 @@ int  server;
 ChannelList *tmpchan;
 {
     int  privs;
-    char flag=0;
+    char flag = 0;
     int  ischanop;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
     NickList *tmpjoiner;
     ChannelList *chan;
 
-    if (tmpchan) chan=tmpchan;
-    else chan=lookup_channel(channel,server,0);
+    if (tmpchan) chan = tmpchan;
+    else chan = lookup_channel(channel, server, 0);
     if (!chan) return(NULL);
-    tmpjoiner=CheckJoiners(nick,channel,server,chan);
+    tmpjoiner = CheckJoiners(nick, channel, server, chan);
     if (tmpjoiner && tmpjoiner->frlist && !(tmpjoiner->frlist->passwd))
-        privs=tmpjoiner->frlist->privs;
-    else privs=0;
-    ischanop=HAS_OPS(chan->status);
-    snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",nick,userhost);
-    if (!privs && ischanop && chan->KickOnBan && IsBanned(tmpbuf,channel,server,chan))
+        privs = tmpjoiner->frlist->privs;
+    else privs = 0;
+    ischanop = HAS_OPS(chan->status);
+    snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", nick, userhost);
+    if (!privs && ischanop && chan->KickOnBan && IsBanned(tmpbuf, channel, server, chan))
 #ifdef CELE
-        send_to_server("KICK %s %s :Banned %s",channel,nick,CelerityL);
+        send_to_server("KICK %s %s :Banned %s", channel, nick, CelerityL);
 #else  /* CELE */
-        send_to_server("KICK %s %s :Banned",channel,nick);
+        send_to_server("KICK %s %s :Banned", channel, nick);
 #endif /* CELE */
-    else if (ischanop && tmpjoiner && tmpjoiner->shitlist && chan->BKList)
-        DoShitList(tmpjoiner,nick,channel,chan);
-    if (ischanop && tmpjoiner && chan->FriendList && ((privs&FLAUTOOP)|(privs&FLINSTANT))) {
-	if (chan->status&CHAN_CHOP) {
-	    if (privs&FLOP)
-		flag='o';
-	    else if (privs&FLHOP)
-		flag='h';
-	    else if (privs&FLVOICE)
-		flag='v';
-	} else {
-	    if (privs&FLVOICE)
-		flag='v';
+    else if (!privs && ischanop && tmpjoiner && tmpjoiner->shitlist && chan->BKList)
+        DoShitList(tmpjoiner, nick, channel, chan);
+    if (ischanop && tmpjoiner && chan->FriendList &&
+        ((privs & FLAUTOOP) | (privs & FLINSTANT))) {
+	if (chan->status & CHAN_CHOP) {
+	    if (privs & FLOP) flag = 'o';
+	    else if (privs & FLHOP) flag = 'h';
+	    else if (privs & FLVOICE) flag = 'v';
+	}
+        else {
+	    if (privs & FLVOICE) flag = 'v';
 	}
 	if (flag) {
-	    if ((privs&FLINSTANT) || !AutoOpDelay)
-		send_to_server("MODE %s +%c %s",channel,flag,nick);
+	    if ((privs & FLINSTANT) || !AutoOpDelay)
+		send_to_server("MODE %s +%c %s", channel, flag, nick);
 	    else
-		AddDelayOp(channel,nick,flag);
+		AddDelayOp(channel, nick, flag);
 	}
     }
     return(tmpjoiner);
 }
 
 /* Handles net joins */
-int HandleJoin(tmpnick,nick,userhost,channel,chan)
+int HandleJoin(tmpnick, nick, userhost, channel, chan)
 NickList *tmpnick;
 char *nick;
 char *userhost;
@@ -390,54 +388,55 @@ ChannelList *chan;
 #ifdef WANTANSI
     char *colnick;
 #endif
-    char tmpbuf1[mybufsize/4];
+    char tmpbuf1[mybufsize / 4];
 #ifdef WANTANSI
-    char tmpbuf2[mybufsize/4];
+    char tmpbuf2[mybufsize / 4];
 #endif
 
-    servername=tmpbuf1;
-    Check4Join(userhost,servername,channel);
-    if (!strcmp(servername,"000")) {
+    servername = tmpbuf1;
+    Check4Join(userhost, servername, channel);
+    if (!strcmp(servername, "000")) {
 #ifdef WANTANSI
-        if (tmpnick && tmpnick->shitlist && tmpnick->shitlist->shit)
-            colnick=CmdsColors[COLJOIN].color6;
-        else if (tmpnick && tmpnick->frlist && tmpnick->frlist->privs)
-            colnick=CmdsColors[COLJOIN].color5;
-        else colnick=CmdsColors[COLJOIN].color1;
-        ColorUserHost(userhost,CmdsColors[COLJOIN].color2,tmpbuf1,1);
+        if (tmpnick && tmpnick->frlist && tmpnick->frlist->privs)
+            colnick = CmdsColors[COLJOIN].color5;
+        else if (tmpnick && tmpnick->shitlist && tmpnick->shitlist->shit)
+            colnick = CmdsColors[COLJOIN].color6;
+        else colnick = CmdsColors[COLJOIN].color1;
+        ColorUserHost(userhost, CmdsColors[COLJOIN].color2, tmpbuf1, 1);
         say("%s%s%s %s has joined channel %s%s%s",
-            colnick,nick,Colors[COLOFF],tmpbuf1,
-            CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
+            colnick, nick, Colors[COLOFF], tmpbuf1,
+            CmdsColors[COLJOIN].color3, channel, Colors[COLOFF]);
 #else
-        say("%s (%s) has joined channel %s",nick,userhost,channel);
+        say("%s (%s) has joined channel %s", nick, userhost, channel);
 #endif
         if (chan->ChanLog) {
             char tmpbuf2[mybufsize];
 
-            snprintf(tmpbuf2,sizeof(tmpbuf2), "%s (%s) has joined channel %s", nick, userhost, channel);
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "%s (%s) has joined channel %s",
+                     nick, userhost, channel);
             ChannelLogSave(tmpbuf2, chan);
         }
         return(1);
     }
-    else if (strcmp(servername,"111")) {
+    else if (strcmp(servername, "111")) {
         if (NHDisp) {
-            tmpstr=tmpbuf1;
-            server=new_next_arg(tmpstr,&tmpstr);
+            tmpstr = tmpbuf1;
+            server = new_next_arg(tmpstr, &tmpstr);
 #ifdef WANTANSI
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"%sNetjoined%s%s%s%s%s : ",
-                    CmdsColors[COLNETSPLIT].color1,Colors[COLOFF],
-                    Stamp<2?" at ":empty_string,
+            snprintf(tmpbuf2, sizeof(tmpbuf2), "%sNetjoined%s%s%s%s%s : ",
+                    CmdsColors[COLNETSPLIT].color1, Colors[COLOFF],
+                    Stamp < 2 ? " at " : empty_string,
                     CmdsColors[COLNETSPLIT].color2,
-                    Stamp<2?update_clock(0,0,GET_TIME):empty_string,
+                    Stamp < 2 ? update_clock(0, 0, GET_TIME) : empty_string,
                     Colors[COLOFF]);
-            say("%s[%s%s%s %s<-%s %s%s%s]",tmpbuf2,
-                CmdsColors[COLNETSPLIT].color3,tmpstr,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color6,Colors[COLOFF],
-                CmdsColors[COLNETSPLIT].color3,server,Colors[COLOFF]);
+            say("%s[%s%s%s %s<-%s %s%s%s]", tmpbuf2,
+                CmdsColors[COLNETSPLIT].color3, tmpstr, Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color6, Colors[COLOFF],
+                CmdsColors[COLNETSPLIT].color3, server, Colors[COLOFF]);
 #else
             say("Netjoined%s%s : [%s <- %s]",
-                Stamp<2?" at ":empty_string,
-                Stamp<2?update_clock(0,0,GET_TIME):empty_string,tmpstr,server);
+                Stamp < 2 ? " at " : empty_string,
+                Stamp < 2 ? update_clock(0, 0, GET_TIME) : empty_string, tmpstr, server);
 #endif
         }
     }
