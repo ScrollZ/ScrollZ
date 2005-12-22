@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.16 2004-04-25 09:59:32 f Exp $
+ * $Id: ignore.c,v 1.17 2005-12-22 16:53:25 f Exp $
  */
 
 #include "irc.h"
@@ -709,6 +709,14 @@ double_ignore(nick, userhost, type)
 {
 /**************************** Patched by Flier ******************************/
         if (nick && userhost && is_channel(userhost)) {
+            char tmpbuf[mybufsize / 4 + 1];
+
+            strmcpy(tmpbuf, nick, mybufsize / 4);
+            strmcat(tmpbuf, "!", mybufsize / 4);
+            strmcat(tmpbuf, userhost, mybufsize / 4);
+            return(is_ignored(tmpbuf, type));
+        }
+        else if (nick && userhost) {
             char tmpbuf[mybufsize / 4 + 1];
 
             strmcpy(tmpbuf, nick, mybufsize / 4);
