@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.157 2005-08-03 15:40:15 f Exp $
+ * $Id: edit6.c,v 1.158 2006-01-27 17:55:05 f Exp $
  */
 
 #include "irc.h"
@@ -2731,11 +2731,7 @@ void TryChannelJoin() {
             if (tmptimer->command && tmptimer->func==func &&
                 !strcmp(tmptimer->command,"rejoin")) {
                 found++;
-#ifdef BETTERTIMER
-                lasttimer=tmptimer->time.tv_sec;
-#else
                 lasttimer=tmptimer->time;
-#endif
             }
         }
         if (found<2) {
