@@ -3,7 +3,7 @@
 # all rights reserved
 # written by matthew green.
 # copyright (c) 1993
-# @(#)$Id: Makefile.in,v 1.11 2006-01-31 17:22:43 f Exp $
+# @(#)$Id: Makefile.in,v 1.12 2006-01-31 17:33:07 f Exp $
 
 LIBS	= @LIBS@
 CC	= @CC@
@@ -572,10 +572,6 @@ window.o: window.c ../include/irc.h ../include/defs.h \
       ../include/input.h ../include/status.h ../include/output.h \
       ../include/log.h ../include/hook.h ../include/dcc.h \
       ../include/translat.h ../include/parse.h ../include/myvars.h
-rijndael-alg-ref.o: rijndael-alg-ref.c ../include/rijndael-alg-ref.h \
-      boxes-ref.dat
-rijndael-api-ref.o: rijndael-api-ref.c ../include/rijndael-alg-ref.h \
-      ../include/rijndael-api-ref.h
 ircio.o: ircio.c ../include/defs.h ../include/celerity.h \
       ../include/irc_std.h ../include/newio.h
 wserv.o: wserv.c ../include/defs.h ../include/celerity.h \
