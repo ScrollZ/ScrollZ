@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.20 2004-05-12 15:53:07 f Exp $
+# @(#)$Id: Makefile.in,v 1.21 2006-02-21 19:44:36 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -53,7 +53,7 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 sharedir = @prefix@/share
-mandir = ${prefix}/man/man1
+mandir = @prefix@/man/man1
 
 DESTDIR =
 
@@ -212,12 +212,12 @@ installwserv: wserv installdirs
 installdirs:
 	umask 022; ./mkinstalldirs $(DESTDIR)/$(IRCSHARE) $(DESTDIR)/$(bindir) \
 		$(DESTDIR)/$(TRANS_PATH) $(DESTDIR)/$(INSTALL_SCRIPT) \
-		$(DESTDIR)/$(HELP_DIR) $(DESTDIR)/$(IRCDOC)
+		$(DESTDIR)/$(HELP_DIR) $(DESTDIR)/$(IRCDOC) $(DESTDIR)/$(mandir)
 
 installhelp:
 	$(INSTALL_HELP_CMD)
-	find $(HELP_DIR) -type d -print | xargs chmod a+rx
-	find $(HELP_DIR) -type f -print | xargs chmod a+r
+	find $(DESTDIR)/$(HELP_DIR) -type d -print | xargs chmod a+rx
+	find $(DESTDIR)/$(HELP_DIR) -type f -print | xargs chmod a+r
 
 installtranslation: installdirs
 	$(INSTALL_TRANSLATION_CMD)
