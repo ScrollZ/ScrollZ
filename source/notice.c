@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.34 2005-04-19 18:57:30 f Exp $
+ * $Id: notice.c,v 1.35 2006-03-22 17:16:49 f Exp $
  */
 
 #include "irc.h"
@@ -507,8 +507,13 @@ got_initial_version(line)
 		set_server_version(parsing_server_index, Server2_9);
 	else if (!strncmp(version, "2.10", 4))
 		set_server_version(parsing_server_index, Server2_10);
+/**************************** Patched by Flier ******************************/
+        /* this is here so we can identify Freenode servers */
+	else if (strstr(version, "hyperion"))
+		set_server_version(parsing_server_index, Server2_90);
 	else
 		set_server_version(parsing_server_index, Server2_11);
+/****************************************************************************/
 	malloc_strcpy(&server_list[parsing_server_index].version_string, version);
 	set_server_itsname(parsing_server_index, server);
 /**************************** Patched by Flier ******************************/

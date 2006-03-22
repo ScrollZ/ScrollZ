@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.43 2005-08-08 18:50:47 f Exp $
+ * $Id: alias.c,v 1.44 2006-03-22 17:16:49 f Exp $
  */
 
 #include "irc.h"
@@ -3570,6 +3570,11 @@ function_servertype(input)
 		case Server2_11:
 			s = "IRC2.11";
 			break;
+/**************************** PATCHED by Flier ******************************/
+		case Server2_90:
+			s = "IRC2.90";
+			break;
+/****************************************************************************/
 		default:
 			s = "IRC unknown";
 			break;

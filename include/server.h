@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.16 2005-08-03 15:40:15 f Exp $
+ * $Id: server.h,v 1.17 2006-03-22 17:16:49 f Exp $
  */
 
 #ifndef __server_h_
@@ -56,6 +56,7 @@
 #define Server2_9	4
 #define Server2_10	5
 #define Server2_11	6
+#define Server2_90	90
 
 /* Server: a structure for the server_list */
 typedef	struct
