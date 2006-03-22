@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.86 2005-06-09 17:41:06 f Exp $
+ * $Id: edit3.c,v 1.87 2006-03-22 16:55:42 f Exp $
  */
 
 #include "irc.h"
@@ -166,9 +166,9 @@ char *subargs;
     put_it("                .sSSSS'   `juice'");
     put_it("               SSSSSS      `SSP'         %s",ScrollZver1);
     put_it("               `SSS'");
-    put_it("    coding   : flier (flier@globecom.net)");
-    put_it("    celerity : Zakath (jeremy@3Sheep.COM)");
-    put_it("    patches  : acidflash (acid@hostu.net)");
+    put_it("    coding   : flier");
+    put_it("    celerity : Zakath");
+    put_it("    patches  : acidflash");
     put_it("    type /SZINFO for more information");
     put_it("");
     put_it("");
