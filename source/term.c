@@ -35,7 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.14 2004-04-27 09:05:37 f Exp $
+ * $Id: term.c,v 1.15 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -248,7 +248,6 @@ int	SG;
 int	term_reset_flag = 0;
 
 static	FILE	*term_fp = 0;
-static	int	term_echo_flag = 1;
 static	int	li, co;
 
 /**************************** PATCHED by Flier ******************************/
@@ -268,135 +267,11 @@ int term_read(char *buf, size_t count) {
 #endif /* SZNCURSES */
 /****************************************************************************/
 
-/*
- * term_echo: if 0, echo is turned off (all characters appear as blanks), if
- * non-zero, all is normal.  The function returns the old value of the
- * term_echo_flag 
- */
-int
-term_echo(flag)
-	int	flag;
-{
-	int	old_echo;
-
-	old_echo = term_echo_flag;
-	term_echo_flag = flag;
-	return (old_echo);
-}
-
 void
 term_set_fp(fp)
 	FILE	*fp;
 {
 	term_fp = fp;
-}
-
-/*
- * term_putchar: puts a character to the screen, and displays control
- * characters as inverse video uppercase letters.  NOTE:  Dont use this to
- * display termcap control sequences!  It won't work! 
- */
-void
-term_putchar(i)
- 	u_int	i;
-{
-	u_char	c = (u_char)i & 0xff;
-	int	so = 0;
-
-	if (term_echo_flag)
-	{
-		if (translation)
- 			c = transToClient[(int)c];
-/**************************** PATCHED by Flier ******************************/
-		/*if (c < 0x20)*/
-#ifdef WANTANSI
-		if (c==0x1B) fputc(c, (current_screen?current_screen->fpout:stdout));
-                else if (c<0x20)
-#else
-                if (c<0x20)
-#endif
-/****************************************************************************/
-		{
-			c |= 0x40; so = 1;
-		}
-		/* These are latin1/ascii -specific. They are made
-		 * to prevent dos-ascii umlaut characters to cause
-		 * a linefeed. They are turned to latin1 umlauts
-		 * instead.
-		 */ /* Bisqwit */
-		switch (c) {
-		case 0x7f: c = '?';  so = 1; break;
-		case 0x84: c = 0xe4; so = 1; break;
-		case 0x8e: c = 0xc4; so = 1; break;
-		case 0x94: c = 0x76; so = 1; break;
-		case 0x99: c = 0xd6; so = 1; break;
-		}
-
-		if (so)
-		{
-			term_standout_on();
-/**************************** PATCHED by Flier ******************************/
-			/*fputc(c, term_fp);*/
-#ifdef SZNCURSES
- 			addch(c);
-#else
-			fputc(c, term_fp);
-#endif /* SZNCURSES */
-/****************************************************************************/
-			term_standout_off();
-		}
-		else
-/**************************** PATCHED by Flier ******************************/
-			/*fputc(c, term_fp);*/
-#ifdef SZNCURSES
- 			addch(c);
-#else
-			fputc(c, term_fp);
-#endif /* SZNCURSES */
-/****************************************************************************/
-	}
-	else
-	{
-/**************************** PATCHED by Flier ******************************/
-		/*fputc(' ', term_fp);*/
-#ifdef SZNCURSES
- 		addch(' ');
-#else
-		fputc(' ', term_fp);
-#endif /* SZNCURSES */
-/****************************************************************************/
-	}
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZNCURSES
-        refresh();
-#endif /* SZNCURSES */
-/****************************************************************************/
-}
-
-/* term_puts: uses term_putchar to print text */
-int
-term_puts(str, len)
-	char	*str;
- 	size_t	len;
-{
- 	size_t	i;
-
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZNCURSES
-        my_addstr(str,len);
-        i=len;
-#else
-/****************************************************************************/
-	for (i = 0; *str && (i < len); i++)
-/**************************** PATCHED by Flier ******************************/
-		/*term_putchar((u_int)*str++);*/
-                /* For ANSI colours in input prompt */
-                if (*str == 0x1B) putchar_x((u_char) *str++);
-                /* We need this for high ascii characters! */
-                else term_putchar((u_char) *str++);
-#endif /* SZNCURSES */
-/****************************************************************************/
-	return (i);
 }
 
 /**************************** PATCHED by Flier ******************************/
@@ -1112,7 +987,7 @@ u_int c;
         refresh();
 #else
 	tputs_x(IC);
-	term_putchar(c);
+	putchar_x(c);
 #endif /* SZNCURSES */
 /****************************************************************************/
 	return (0);
@@ -1130,7 +1005,7 @@ term_IMEI_insert(c)
  	u_int	c;
 {
 	tputs_x(IM);
-	term_putchar(c);
+	putchar_x(c);
 	tputs_x(EI);
 	return (0);
 }

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.58 2005-08-08 18:50:47 f Exp $
+ * $Id: names.c,v 1.59 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -812,7 +812,8 @@ char    *servmodes;
                         *mode_string == 'l' || *mode_string == 'm' || *mode_string == 'n' ||
                         *mode_string == 'p' || *mode_string == 'q' || *mode_string == 's' ||
                         *mode_string == 't' || *mode_string == 'c' || *mode_string == 'R' ||
-                        *mode_string == 'I' || *mode_string == 'S') {
+                        *mode_string == 'I' || *mode_string == 'S' || *mode_string == 'g' ||
+                        *mode_string == 'z' || *mode_string == 'Q') {
                         if (compadd != add) {
                             if (compmodelen < compmodemax) {
                                 if (add) *compmodeadd ++= '+';
@@ -847,6 +848,17 @@ char    *servmodes;
 		case 'i':
 			value = MODE_INVITE;
 			break;
+/**************************** PATCHED by Flier ******************************/
+                case 'g':
+                        value = MODE_ALLINVITE;
+                        break;
+                case 'Q':
+                        value = MODE_NOFORWARD;
+                        break;
+                case 'z':
+                        value = MODE_REDUCEMODERATED;
+                        break;
+/****************************************************************************/
 		case 'k':
 			value = MODE_KEY;
 			the_key = next_arg(rest, &rest);

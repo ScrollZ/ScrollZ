@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.54 2004-10-14 18:44:04 f Exp $
+ * $Id: cdcc.c,v 1.55 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -624,8 +624,13 @@ int type;
                     }
                     else {
 #define BARSIZE 10
+#ifdef HAVE_ICONV_H
+                        char *fillchar=highascii?"\342\226\223":" ";
+                        char *emptychar=highascii?"\342\226\221":"_";
+#else
                         char *fillchar=highascii?"²":" ";
                         char *emptychar=highascii?"°":"_";
+#endif /* HAVE_ICONV_H */
 
                         snprintf(tmpbuf2,sizeof(tmpbuf2)," %3d%%",fills);
                         fills=((fills+3)*BARSIZE)/100;

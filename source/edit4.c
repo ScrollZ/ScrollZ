@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.112 2005-12-22 17:07:16 f Exp $
+ * $Id: edit4.c,v 1.113 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -191,7 +191,7 @@ int  print;
 int  iscrypted;
 {
     int  numurl=0;
-    char thing;
+    char *thing;
     char *message;
     char *filepath=NULL;
     char tmpbuf1[mybufsize];
@@ -205,8 +205,12 @@ int  iscrypted;
 #endif
 
     if (!(userhost && *userhost)) userhost=(char *) 0;
-    if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
-    else thing='*';
+#ifdef HAVE_ICONV_H
+    if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\231";
+#else
+    if (get_int_var(HIGH_ASCII_VAR)) thing="ù";
+#endif /* HAVE_ICONV_H */
+    else thing="*";
     if (URLCatch) {
         filepath=OpenCreateFile("ScrollZ.notepad",1);
         numurl=GrabURL(msg,tmpbuf4,filepath,nick);
@@ -227,7 +231,7 @@ int  iscrypted;
     if (Stamp<2)
         snprintf(tmpbuf3,sizeof(tmpbuf3),"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
 #else  /* CELECOSM */
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%c%s%s%s%c %s%s%s",
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s%s%s %s%s%s",
             thing,CmdsColors[COLMSG].color1,nick,Colors[COLOFF],thing,
             CmdsColors[COLMSG].color3,message,Colors[COLOFF]);
     if (ExtMes && userhost) {
@@ -244,7 +248,7 @@ int  iscrypted;
     }
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%c%s%c %s",thing,nick,thing,message);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s %s",thing,nick,thing,message);
     if (ExtMes && userhost) {
         if (Stamp<2) snprintf(tmpbuf3,sizeof(tmpbuf3),"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
         else snprintf(tmpbuf3,sizeof(tmpbuf3),"  (%s)",userhost);
@@ -825,9 +829,8 @@ int IsCmdLine(char *str, char *cmd, int len)
 /* Insert next relevant nick/file when tab is pressed */
 void HandleTabNext(u_int key, char *ptr)
 {
-    int i;
-    int length;
-    int argc;
+    int i, length, argc;
+    unsigned pos, minpos;
     char argv[3][32] = { { 0 }, { 0 }, { 0 } };
     char *p;
     char *cur_pos, *min_pos, *cmdchars;
@@ -838,8 +841,10 @@ void HandleTabNext(u_int key, char *ptr)
     static ChannelList *channel_p;
 
     if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
-    cur_pos = &current_screen->input_buffer[current_screen->buffer_pos];
-    min_pos = &current_screen->input_buffer[current_screen->buffer_min_pos];
+    pos = current_screen->inputdata.buffer.pos;
+    minpos = current_screen->inputdata.buffer.minpos;
+    cur_pos = &current_screen->inputdata.buffer.buf[pos];
+    min_pos = &current_screen->inputdata.buffer.buf[minpos];
     if (!(*min_pos) || (IsCmdLine(min_pos, "msg ", 4) && key != 20)) {
         if (CheckServer(from_server)) {
             if (!server_list[from_server].nickcur)

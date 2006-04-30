@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.h,v 1.3 2003-01-08 20:00:54 f Exp $
+ * $Id: input.h,v 1.4 2006-04-30 14:15:43 f Exp $
  */
 
 #ifndef __input_h_
@@ -39,11 +39,14 @@
 
 	char	input_pause _((char *));
 	void	set_input _((char *));
+	void	set_input_raw _((char *));
 	void	set_input_prompt _((char *));
 	char	*get_input_prompt _((void));
 	char	*get_input _((void));
+	char	*get_input_raw _((void));
 	void	update_input _((int));
 	void	init_input _((void));
+	void	input_reset_screen _((Screen *));
 	void	input_move_cursor _((int));
 	void	change_input_prompt _((int));
 	void	cursor_to_input _((void));
@@ -62,6 +65,7 @@
  	void	input_backspace _((u_int, char *));
  	void	input_transpose_characters _((u_int, char *));
  	void	input_yank_cut_buffer _((u_int, char *));
+ 	u_char	*function_curpos _((u_char *));
 
 extern	int	str_start;
 extern	int	input_line;

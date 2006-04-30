@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.17 2003-05-04 18:06:58 f Exp $
+ * $Id: vars.h.proto,v 1.18 2006-04-30 14:15:43 f Exp $
  */
 
 #ifndef __vars_h_
@@ -105,6 +105,7 @@ extern	int	loading_global;
 /**************************** PATCHED by Flier ******************************/
 #define DISPLAY_ANSI_VAR $
 /****************************************************************************/
+#define DISPLAY_ENCODING_VAR $
 #define EIGHT_BIT_CHARACTERS_VAR $
 #define ENCRYPT_PROGRAM_VAR $
 #define EXEC_PROTECTION_VAR $
@@ -133,11 +134,13 @@ extern	int	loading_global;
 /****************************************************************************/
 #define INDENT_VAR $
 #define INPUT_ALIASES_VAR $
+#define INPUT_ENCODING_VAR $
 #define INPUT_PROMPT_VAR $
 #define INPUT_PROTECTION_VAR $
 #define INSERT_MODE_VAR $
 #define INVERSE_VIDEO_VAR $
 #define IRCHOST_VAR $
+#define IRC_ENCODING_VAR $
 #define LASTLOG_VAR $
 /**************************** PATCHED by Flier ******************************/
 #define LASTLOG_ANSI_VAR $
@@ -237,7 +240,6 @@ extern	int	loading_global;
 #define SUPPRESS_SERVER_MOTD_VAR $
 #define TAB_VAR $
 #define	TAB_MAX_VAR $
-#define TRANSLATION_VAR $
 /**************************** PATCHED by Flier ******************************/
 #define TRUNCATE_PUBLIC_CHANNEL_VAR $
 /****************************************************************************/

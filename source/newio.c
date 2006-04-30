@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.13 2005-09-07 17:55:53 f Exp $
+ * $Id: newio.c,v 1.14 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -290,9 +290,9 @@ dgets(str, len, des, specials)
 						}
 						else if (ch == specials[2])
 						{
-							for (j = i - 1; j >= 0 && isspace(ptr[j]); j--)
+							for (j = i - 1; j >= 0 && isspace((int)ptr[j]); j--)
 								;
-							for (; j >= 0 && !isspace(ptr[j]); j--)
+							for (; j >= 0 && !isspace((int)ptr[j]); j--)
 								;
 							bcopy(ptr + j + 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
 							c -= i - j;

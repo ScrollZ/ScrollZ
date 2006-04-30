@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.7 2003-01-08 20:00:54 f Exp $
+ * $Id: ircterm.h,v 1.8 2006-04-30 14:15:43 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -72,10 +72,7 @@
 #define	term_init()		(0)
 
 #define	term_cont()		(0)
-#define	term_echo(x)		(0)
 #define	term_init()		(0)
-#define	term_putchar(x)		(0)
-#define	term_puts(x, y)		(0)
 #define	term_reset()		(0)
 
 #define	term_cursor_left()	(0)
@@ -183,15 +180,9 @@ char *tgetstr(char *, char **);
 
 	RETSIGTYPE	term_cont _((void));
  	void	term_set_fp _((FILE *));
-	int	term_echo _((int));
 	void	term_init _((void));
 	int	term_resize _((void));
  	void	term_pause _((u_int, char *));
- 	void	term_putchar _((u_int));
-#if 0
-	void    term_putkanji _((u_int, u_int));
-#endif
- 	int	term_puts _((char *, size_t));
         int     tputs_s _((char *, size_t));
 	void	term_flush _((void));
 	void	term_space_erase _((int));

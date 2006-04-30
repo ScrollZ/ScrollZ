@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.17 2005-01-14 20:13:30 f Exp $
+ * $Id: struct.h,v 1.18 2006-04-30 14:15:43 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -282,6 +282,65 @@ typedef struct PromptStru
 }	WaitPrompt;
 
 
+typedef struct ScreenInputBufferData
+{
+	char buf[INPUT_BUFFER_SIZE+1];
+	unsigned pos;
+	unsigned minpos;
+	/* If you put pointers here, remember to change
+	 * change_input_prompt() which uses memcpy to
+	 * make copies of this struct
+	 */
+} ScreenInputBufferData;
+
+typedef struct ScreenInputData
+{
+	ScreenInputBufferData buffer;
+	ScreenInputBufferData saved_buffer;
+	
+	/* Used by update_input() to check if the screen geometry has changed */
+	int	old_co, old_li;
+
+	/* screen->co    = number of columns on screen
+	 *
+	 * buffer.buf    = input line and prompt (utf-8 encoded)
+	 * buffer.pos    = byte position of the cursor within string
+	 * buffer.minpos = length of prompt in bytes
+	 * 
+	 * When update_input() is ran,
+	 *   It checks if the prompt in buffer differs from input_prompt.
+	 *   If it does, it replaces the buffer-prompt with the new prompt.
+	 *        And sets update to UPDATE_ALL
+	 *
+	 * If geometry has changed,
+	 *        update is set to UPDATE_ALL
+	 *
+	 * left_ptr = byte-position of the left edge of screen in buffer
+	 *     recalculated when:
+	 *        update==UPDATE_JUST_CURSOR
+	 *        update==UPDATE_ALL
+	 *
+	 * pos_column = column position of the cursor in the buffer
+	 *     recalculated when left_ptr is too
+	 *
+	 * cursor_x = cursor horizontal position on screen (columns, not chars, not bytes)
+	 *     recalculated when:
+	 *        update==UPDATE_JUST_CURSOR
+	 *        update==UPDATE_ALL
+	 *
+	 * cursor_y = cursor vertical position on screen (lines)
+	 *     recalculated when screen geometry has changed
+	 *
+	 * zone     = screen width 
+	 */
+	
+	unsigned zone;
+	unsigned cursor_x;
+	unsigned cursor_y;
+	unsigned left_ptr;
+	unsigned pos_column;
+} ScreenInputData;
+
 typedef	struct	ScreenStru
 {
 	int	screennum;
@@ -324,14 +383,6 @@ typedef	struct	ScreenStru
 	int	fdout;
 	int	wservin;			/* control socket for wserv */
 
-	char	input_buffer[INPUT_BUFFER_SIZE+1];	/* the input buffer */
-	int	buffer_pos;			/* and the positions for the */
-	int	buffer_min_pos;			/* screen */
-
-	char	saved_input_buffer[INPUT_BUFFER_SIZE+1];
-	int	saved_buffer_pos;
-	int	saved_min_buffer_pos;
-
 	WaitPrompt	*promptlist;
 
 	char	*redirect_name;
@@ -341,30 +392,10 @@ typedef	struct	ScreenStru
 	char	*tty_name;
 	int	co, li;
 
-	/*
-	 * upper_mark and lower_mark: marks the upper and lower positions in
-	 * the input buffer which will cause the input display to switch to
-	 * the next or previous bunch of text
-	 */
-	int	lower_mark, upper_mark;
-
-	/* input.c:update_input() */
-	int	old_input_co, old_input_li;
-
-	/* the actual screen line where the input goes */
-	int	input_line;
-
-	/* position in buffer of first visible character in the input line */
-	int	str_start;
-
-	/* the amount of editable visible text on the screen */
-	int	zone;
-
-	/* position of the cursor in the input line on the screen */
-	int	cursor;
-
 	/* term.c:term_resize() */
 	int	old_term_co, old_term_li;
+
+	ScreenInputData inputdata;
 
 	int	alive;
 }	Screen;

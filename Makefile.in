@@ -28,21 +28,19 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.21 2006-02-21 19:44:36 f Exp $
+# @(#)$Id: Makefile.in,v 1.22 2006-04-30 14:15:42 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
 #   ircio		- compiles ircio
 #   ircflush		- compiles ircflush
 #   wserv		- compiles wserv
-#   install		- installs ircii, ircio, ircflush and wserv the scripts
-#			  and the translation tables.
+#   install		- installs ircii, ircio, ircflush and wserv
 #   installirc		- installs ircii
 #   installio		- installs ircio
 #   installwserv	- installs wserv
 #   installflush	- installs ircflush
 #   installscript 	- installs the scripts
-#   installtranslation	- installs the translation tables
 #   installhelp		- installs the help files
 #   installman          - installs the manual pages.
 #   installeverything   - all of the above
@@ -62,7 +60,7 @@ DESTDIR =
 INSTALL_IRC = ${bindir}/scrollz
 
 # Where the ircII library will be.  Generally this is the place that
-# you put the scripts, help pages and translation tables.  It is
+# you put the scripts and help pages.  It is
 # very important that you set this correctly.
 IRCSHARE = ${sharedir}/scrollz
 
@@ -101,9 +99,6 @@ INSTALL_SCRIPT = $(IRCSHARE)/script
 # because the 'global' script is expected to be found there.
 IRC_PATH = ~/.ScrollZ:$(INSTALL_SCRIPT):.
 
-# Path for TRANSLATION variable.
-TRANS_PATH = $(IRCSHARE)/translation
-
 # Set the next line to the full path for installation of the ircio program
 # if you wish to use it. 
 INSTALL_IRCIO = $(bindir)/ircio
@@ -121,11 +116,6 @@ INSTALL_WSERV = $(bindir)/wserv
 # want to install them, replace with the following:
 # INSTALL_HELP_CMD = @echo The help files have not been installed.
 INSTALL_HELP_CMD = @INSTALL_HELP_CMD@
-
-# This command will be used to install the irc translation files.  If you don't
-# want to install them, replace with the following:
-# INSTALL_TRANSLATION_CMD = @echo The translation files have not been installed.
-INSTALL_TRANSLATION_CMD = @INSTALL_TRANSLATION_CMD@
 
 ## You shouldn't have to change anything below here
 
@@ -156,12 +146,11 @@ MFLAGS ='CC=$(CC)'					\
 	'LEXLIB=$(LEXLIB)'				\
 	'LIBS=$(LIBS)'					\
 	'LN=$(LN)'					\
-	'RM=$(RM)'					\
-	'TRANS_DIR=$(TRANS_PATH)'
+	'RM=$(RM)'
 
 all: scrollz scrollz.1
 
-install: all installbin installdirs installman installhelp installtranslation
+install: all installbin installdirs installman installhelp
 
 scrollz: source/Makefile Makefile
 	@cd include; $(MAKE)
@@ -171,7 +160,7 @@ scrollz.1: scrollz.1.in
 	sed -e "s,SHAREDIR,$(IRCSHARE)," < scrollz.1.in > scrollz.1
 
 installeverything:  install installman installflush installio \
-		    installwserv installhelp installtranslation
+		    installwserv installhelp
 
 everything: all ircflush ircio wserv
 
@@ -211,18 +200,13 @@ installwserv: wserv installdirs
 
 installdirs:
 	umask 022; ./mkinstalldirs $(DESTDIR)/$(IRCSHARE) $(DESTDIR)/$(bindir) \
-		$(DESTDIR)/$(TRANS_PATH) $(DESTDIR)/$(INSTALL_SCRIPT) \
+		$(DESTDIR)/$(INSTALL_SCRIPT) \
 		$(DESTDIR)/$(HELP_DIR) $(DESTDIR)/$(IRCDOC) $(DESTDIR)/$(mandir)
 
 installhelp:
 	$(INSTALL_HELP_CMD)
 	find $(DESTDIR)/$(HELP_DIR) -type d -print | xargs chmod a+rx
 	find $(DESTDIR)/$(HELP_DIR) -type f -print | xargs chmod a+r
-
-installtranslation: installdirs
-	$(INSTALL_TRANSLATION_CMD)
-	find $(DESTDIR)/$(TRANS_PATH) -type d -print | xargs chmod a+rx
-	find $(DESTDIR)/$(TRANS_PATH) -type f -print | xargs chmod a+r
 
 clena clean:
 	@-if test -f source/Makefile; then cd source; $(MAKE) clean; fi

@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.12 2005-01-18 19:22:30 f Exp $
+ * $Id: acconfig.h,v 1.13 2006-04-30 14:15:43 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -275,6 +275,12 @@
 
 /* define this if your struct sockaddr has a sa_len member */
 #undef HAVE_SOCKADDR_SA_LEN
+
+/* define this if you have tzset(3) */
+#undef HAVE_TZSET
+
+/* define this if you have iconv_open(3) */
+#undef HAVE_ICONV_OPEN
 
 /**************************** PATCHED by Flier ******************************/
 /* define this if you have getloadavg() */

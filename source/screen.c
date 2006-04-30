@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.34 2004-11-25 17:49:27 f Exp $
+ * $Id: screen.c,v 1.35 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -39,6 +39,10 @@
 #ifdef HAVE_SYS_UN_H
 # include <sys/un.h>
 #endif /* HAVE_SYS_UN_H */
+
+#ifdef HAVE_ICONV_H
+# include <iconv.h>
+#endif /* HAVE ICONV_H */
 
 #include "screen.h"
 #include "menu.h"
@@ -95,6 +99,7 @@ static	void	scrollback_backwards_lines _((int));
 static	void	scrollback_forwards_lines _((int));
 static	char	display_highlight _((int));
 static	char	display_bold _((int));
+static	void	display_text _((char *, size_t));
 static	void	add_to_window _((Window *, char *));
 static	u_int	create_refnum _((void));
 /**************************** PATCHED by Flier ******************************/
@@ -104,6 +109,20 @@ void redraw_window _((Window *, int, int));
 static	char	*next_line_back _((Window *));
 static	int	lastlog_lines _((Window *));
 
+void debugit(char *format,...) {
+    FILE *fp = fopen("/tmp/zz", "a");
+    if (fp) {
+        va_list ap;
+        int rv;
+        char buf[4096];
+
+        va_start(ap, format);
+        rv = vsprintf(buf, format, ap);
+        va_end(ap);
+        fprintf(fp, "%s\n", buf);
+        fclose(fp);
+    }
+}
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
 void my_addstr(str,len)
@@ -204,8 +223,6 @@ create_new_screen()
         new->meta1_hit = new->meta2_hit = new->meta3_hit = new->meta4_hit = 0;
 	new->meta5_hit = new->meta6_hit = new->meta7_hit = new->meta8_hit = 0;
 	new->quote_hit = new->digraph_hit = new->inside_menu = 0;
-	new->buffer_pos = new->buffer_min_pos = 0;
-	new->input_buffer[0] = '\0';
 	new->fdout = 1;
 	new->fpout = stdout;
 	new->fdin = 0;
@@ -217,16 +234,11 @@ create_new_screen()
 	new->tty_name = (char *) 0;
 	new->li = main_screen ? main_screen->li : 24;
 	new->co = main_screen ? main_screen->co : 79;
-	new->old_input_li = -1;
-	new->old_input_co = -1;
 	new->old_term_li = -1;
 	new->old_term_co = -1;
-	new->upper_mark = 0;
-	new->lower_mark = 0;
-	new->cursor = 0;
-	new->lower_mark = 0;
-	new->str_start = 0;
-	new->input_line = 0;
+
+	input_reset_screen(new);
+
 	new->redirect_server = -1;
 	last_input_screen = new;
 	return new;
@@ -544,99 +556,197 @@ display_bold(flag)
 	return OFF;
 }
 
+static void
+display_text(str, length)
+	char   *str;
+	size_t length;
+{
+	if (length > 0)
+	{
+#ifdef HAVE_ICONV_OPEN
+		static iconv_t converter = NULL;
+
+		if (display_encoding)
+		{
+			if (!str)
+			{
+				/* str = NULL means reinitialize iconv. */
+				if (converter)
+				{
+					iconv_close(converter);
+					converter = NULL;
+				}
+				return;
+			}
+			if (!converter)
+			{
+				converter = iconv_open(display_encoding, "UTF-8");
+				if (converter == (iconv_t)(-1))
+				{
+					iconv_close(converter);
+					converter = NULL;
+				}
+			}
+		}
+		if (converter)
+		{
+			char final = 0;
+			while (!final)
+			{
+				char OutBuf[512], *outptr = OutBuf;
+				size_t outsize = sizeof OutBuf;
+				size_t retval = 0;
+				
+				if (length <= 0)
+				{
+					/* Reset the converter, create a reset-sequence */
+					retval = iconv(converter,
+					               NULL,    &length,
+					               &outptr, &outsize);
+					final = 1;
+				}
+				else
+				{
+					retval = iconv(converter,
+					               (iconv_const char **)&str, &length,
+					               &outptr, &outsize);
+				}
+			
+				/* Write out as much as we got */
+				fwrite(OutBuf, sizeof(OutBuf)-outsize, 1, current_screen->fpout);
+				
+				if (retval == (size_t)-1)
+				{
+					if (errno == E2BIG)
+					{
+						/* Outbuf could not contain everything. */
+						/* Try again with a new buffer. */
+						continue;
+					}
+					if (errno == EILSEQ)
+					{
+						/* Ignore 1 illegal byte silently. */
+						if (length > 0)
+						{
+							++str;
+							--length;
+						}
+					}
+					if (errno == EINVAL)
+					{
+						/* Input was terminated with a partial byte. */
+						/* Ignore the error silently. */
+						length = 0;
+					}
+				}
+			}
+			return;
+		}
+#endif /* HAVE_ICONV_OPEN */
+		/* No usable iconv, assume output must be ISO-8859-1 */
+		if (str != NULL)
+		{
+			char OutBuf[1024], *outptr=OutBuf;
+			/* Convert the input to ISO-8859-1 character
+			 * by character, flush to fpout in blocks.
+			 * Ignore undisplayable characters silently.
+			 */
+			while (*str != '\0' && length > 0)
+			{
+				unsigned len    = calc_unival_length(str);
+				unsigned unival;
+
+				if (!len)
+				{
+				    /* ignore illegal byte (shouldn't happen) */
+					++str;
+					continue;
+				}
+				if (len > length)
+					break;
+				length -= len;
+				
+				unival = calc_unival(str);
+				if (displayable_unival(unival, NULL))
+				{
+					if (outptr >= OutBuf+sizeof(OutBuf))
+					{
+						/* flush a block */
+						fwrite(OutBuf, outptr-OutBuf, 1,
+						       current_screen->fpout);
+						outptr = OutBuf;
+					}
+					*outptr++ = unival;
+				}
+				str += len;
+			}
+			if (outptr > OutBuf)
+			{
+				/* Flush the last block */
+				fwrite(OutBuf, outptr-OutBuf, 1,
+				       current_screen->fpout);
+			}
+		}
+	}
+}
+
+static void
+display_nonshift(void)
+{
+	display_text(NULL, 1);
+}
+
 /*
  * output_line prints the given string at the current screen position,
  * performing adjustments for ^_, ^B, ^V, and ^O
+ * If the input is longer than line may be, it cuts it.
+ * Return value: Number of columns printed
  */
 int
-output_line(str, result, startpos)
+output_line(str, startpos)
 	char	*str;
-	char	**result;
 	int	startpos;
 {
 	static	int	high = OFF,
 			bold = OFF;
 	int	rev_tog, und_tog, bld_tog, all_off;
-	char	*ptr;
- 	ssize_t	len;
-	int	written = 0;
-	char	c;
-	char	*original;
+	int     dobeep = 0;
+	int     written = 0;
 /**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-        int	ansi_count = 0;
-#endif
+        int     ansi_count;
+        char    *orig_str;
 /****************************************************************************/
 
-	original = str;
-	ptr = str;
 	display_highlight(high);
 	display_bold(bold);
 	/* do processing on the string, handle inverse and bells */
-	while (*ptr)
+	display_nonshift();
+	while (*str)
 	{
-		switch (*ptr)
+		switch (*str)
 		{
 		case REV_TOG:
 		case UND_TOG:
 		case BOLD_TOG:
 		case ALL_OFF:
-/**************************** PATCHED by Flier ******************************/
-                    {
-/****************************************************************************/
-			len = ptr - str;
-			written += len;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                        ansi_count = CountAnsi(str, ptr - str);
-                        written -= ansi_count;
-#endif
-/****************************************************************************/
-			if (startpos)
-			{
-				if (ptr - original > startpos)
-				{
-					str += len - (ptr - original - startpos);
-					len = ptr - original - startpos;
-					startpos = 0;
-				}
-			}
-			if (written > current_screen->co)
-				len = len - (written - current_screen->co);
- 			if (!startpos && len > 0)
-/**************************** PATCHED by Flier ******************************/
- 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
-#ifdef SZNCURSES
-                        	my_addstr(str, len);
-#else
- 				fwrite(str, (size_t)len, 1, current_screen->fpout);
-#endif /* SZNCURSES */
-#ifdef WANTANSI
-                        ansi_count = 0;
-#endif
-/****************************************************************************/
+			display_nonshift();
 			rev_tog = und_tog = bld_tog = all_off = 0;
-			do
+			switch (*str++)
 			{
-				switch(*ptr)
-
-				{
-				case REV_TOG:
-					rev_tog = 1 - rev_tog;
-					break;
-				case UND_TOG:
-					und_tog = 1 - und_tog;
-					break;
-				case BOLD_TOG:
-					bld_tog = 1 - bld_tog;
-					break;
-				case ALL_OFF:
-					all_off = 1;
-					und_tog = rev_tog = bld_tog = 0;
-					break;
-				}
-			} while ((ptr[1] == REV_TOG || ptr[1] == UND_TOG ||
-			    ptr[1] == BOLD_TOG || ptr[1] == ALL_OFF) && ptr++);
+			case REV_TOG:
+				rev_tog = 1 - rev_tog;
+				break;
+			case UND_TOG:
+				und_tog = 1 - und_tog;
+				break;
+			case BOLD_TOG:
+				bld_tog = 1 - bld_tog;
+				break;
+			case ALL_OFF:
+				all_off = 1;
+				und_tog = rev_tog = bld_tog = 0;
+				break;
+			}
 			if (all_off)
 			{
 				if (!underline)
@@ -646,16 +756,20 @@ output_line(str, result, startpos)
 				}
 				display_highlight(OFF);
 				display_bold(OFF);
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZNCURSES
-                                attrset(A_NORMAL);
-#endif /* SZNCURSES */
-/****************************************************************************/
 				high = 0;
 				bold = 0;
 			}
 			if (und_tog && get_int_var(UNDERLINE_VIDEO_VAR))
 			{
+				/*
+				 * Fix up after termcap may have turned
+				 * everything off.
+				 */
+				if (bold)
+					display_bold(ON);
+				if (high)
+					display_highlight(ON);
+
 				if ((underline = 1 - underline) != 0)
 					term_underline_off();
 				else
@@ -663,36 +777,36 @@ output_line(str, result, startpos)
 			}
 			if (rev_tog)
 			{
+				/*
+				 * Fix up after termcap may have turned
+				 * everything off.
+				 */
+				if (!underline)
+					term_underline_on();
+				if (bold)
+					display_bold(ON);
+
 				high = display_highlight(TOGGLE);
 				high = 1 - high;
 			}
 			if (bld_tog)
 			{
+				/*
+				 * Fix up after termcap may have turned
+				 * everything off.
+				 */
+				if (!underline)
+					term_underline_on();
+				if (high)
+					display_highlight(ON);
+
 				bold = display_bold(TOGGLE);
 				bold = 1 - bold;
 			}
-			str = ++ptr;
 			break;
-/**************************** PATCHED by Flier ******************************/
-                    }
-/****************************************************************************/
 		case FULL_OFF:
-			len = ptr - str;
-			written += len;
-			if (startpos)
-			{
-				if (ptr - original > startpos)
-				{
-					str += len - (ptr - original - startpos);
-					len = ptr - original - startpos;
-					startpos = 0;
-				}
-			}
-			if (written > current_screen->co)
-				len = len - (written - current_screen->co);
-			if (!startpos && len > 0)
-				fwrite(str, (size_t)len, 1, current_screen->fpout);
-			
+			++str;
+			display_nonshift();
 			if (!underline)
 			{
 				term_underline_off();
@@ -702,59 +816,51 @@ output_line(str, result, startpos)
 			display_bold(OFF);
 			high = 0;
 			bold = 0;
-			str = ++ptr;
+			/* fgcolour = bgcolour = 16; */
 			break;
 		case '\007':
-		/*
-		 * same as above, except after we display everything
-		 * so far, we beep the terminal 
-		 */
-			c = *ptr;
-			*ptr = '\0';
- 			len = (ssize_t)strlen(str);
-			written += len;
+			/* After we display everything, we beep the terminal */
+			++dobeep;
+			++str;
+			break;
 /**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                        ansi_count = CountAnsi(str, -1);
-                        written -= ansi_count;
-#endif
-/****************************************************************************/
-			if (startpos)
-			{
-				if (ptr - original > startpos)
-				{
-					str += len - (ptr - original - startpos);
-					len = ptr - original - startpos;
-					startpos = 0;
-				}
-			}
-			if (written > current_screen->co)
-				len = len - (written - current_screen->co);
-			if (!startpos)
-/**************************** PATCHED by Flier ******************************/
- 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
-#ifdef SZNCURSES
- 			  	my_addstr(str, len);
-#else
- 				fwrite(str, (size_t)len, 1, current_screen->fpout);
-#endif /* SZNCURSES */
-/****************************************************************************/
-			term_beep();
-			*ptr = c;
-			str = ++ptr;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
+                case '\033':
                         ansi_count = 0;
-#endif
+                        orig_str = str;
+                        while (vt100Decode(*str)) {
+                            str++;
+                            ansi_count++;
+                        }
+                        if (ansi_count) display_text(orig_str, ansi_count);
+                        break;
 /****************************************************************************/
-			break;
 		default:
-			ptr++;
-			break;
+			{
+				unsigned n = calc_unival_length(str);
+				/* n should never be 0 (that would mean a broken
+				 * character), but here we just ensure we
+				 * don't get an infinite loop.
+				 */
+				if (n == 0)
+					n = 1;
+				
+				/* Input is supposedly an UTF-8 character */
+				if (written < current_screen->co)
+				{
+					unsigned unival = calc_unival(str);
+					written += calc_unival_width(unival);
+					
+					display_text(str, n);
+				}
+				
+				str += n;
+				break;
+			}
 		}
 	}
-	if (result)
-		*result = str;
+	display_nonshift();
+	if (dobeep)
+		term_beep();
 	return written;
 }
 
@@ -783,14 +889,7 @@ rite(window, str, show, redraw, backscroll, logged)
 		logged;
 {
 	static	int	high = OFF;
- 	int	written = 0;
- 	ssize_t	len;
 	Screen	*old_current_screen = current_screen;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-	int	ansi_count = 0;
-#endif
-/****************************************************************************/
 
 	if (!redraw && !backscroll && window->scrolled_lines)
 		window->new_scrolled_lines++;
@@ -833,11 +932,8 @@ rite(window, str, show, redraw, backscroll, logged)
 		}
 		if (window->visible)
 		{
-/**************************** PATCHED by Flier ******************************/
-#ifdef SZNCURSES
- 		  	char *newstr;
-#endif /* SZNCURSES */
-/****************************************************************************/
+			int written;
+			
 			/* make sure the cursor is in the appropriate window */
 			if (current_screen->cursor_window != window &&
 					!redraw && !backscroll)
@@ -847,37 +943,12 @@ rite(window, str, show, redraw, backscroll, logged)
 				term_move_cursor(0, window->cursor +
 					window->top + window->menu.lines);
 			}
-/**************************** PATCHED by Flier ******************************/
-			/*written = output_line(str, &str, 0);
- 			len = (ssize_t)strlen(str);*/
-#ifdef SZNCURSES
-                        written = output_line(str, &newstr, 0);
- 			len = (ssize_t) strlen(newstr);
-#else
-                        written = output_line(str, &str, 0);
- 			len = (ssize_t) strlen(str);
-#endif /* SZNCURSES */
-/****************************************************************************/
-			written += len;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                        ansi_count = CountAnsi(str, -1);
-                        written -= ansi_count;
-#endif
-/****************************************************************************/
-			if (written > current_screen->co)
-				len = len - (written - current_screen->co);
-			if (len > 0)
-/**************************** PATCHED by Flier ******************************/
- 				/*fwrite(str, (size_t)len, 1, current_screen->fpout);*/
-#ifdef SZNCURSES
- 			  	my_addstr(newstr, len);
-#else
- 				fwrite(str, (size_t)len, 1, current_screen->fpout);
-#endif /* SZNCURSES */
-/****************************************************************************/
-			if (term_clear_to_eol())
-					term_space_erase(written);
+			written = output_line(str, 0);
+			if (term_clear_to_eol() && written < current_screen->co)
+			{
+				/* EOL wasn't implemented, so do it with spaces */
+				term_space_erase(current_screen->co - written);
+			}
 		}
 		else if (!(window->miscflags & WINDOW_NOTIFIED))
 		{
@@ -1302,6 +1373,157 @@ redraw_all_windows()
 		tmp->update |= REDRAW_STATUS | REDRAW_DISPLAY_FAST;
 }
 
+/* strlen() with internal format codes stripped */
+/* Return value: number of columns this string takes */
+int
+my_strlen_i(c)
+	char *c;
+{
+	int result = 0;
+	
+	struct mb_data mbdata;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata, irc_encoding);
+#else
+	mbdata_init(&mbdata, NULL);
+#endif /* HAVE_ICONV_OPEN */
+	
+	while (*c)
+	{
+		if (*c == REV_TOG || *c == UND_TOG || *c == BOLD_TOG || *c == ALL_OFF)
+		{
+			/* These don't add visual length */
+			++c;
+			continue;
+		}
+		
+		/* Anything else is character data. */
+		decode_mb(c, NULL, &mbdata);
+		result += mbdata.num_columns;
+		c      += mbdata.input_bytes;
+	}
+	
+	mbdata_done(&mbdata);
+	return result;
+}
+
+/* strlen() with colour codes stripped */
+/* Return value: number of columns this string takes */
+int
+my_strlen_c(c)
+	char *c;
+{
+	int result = 0;
+	
+	struct mb_data mbdata;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata, irc_encoding);
+#else
+	mbdata_init(&mbdata, NULL);
+#endif /* HAVE_ICONV_OPEN */
+	
+	while (*c)
+	{
+		if (*c == REV_TOG || *c == UND_TOG || *c == BOLD_TOG || *c == ALL_OFF)
+		{
+			/* These don't add visual length */
+			++c;
+			continue;
+		}
+/**************************** PATCHED by Flier ******************************/
+                if (*c == '\033') {
+                    while (vt100Decode(*c))
+                        c++;
+                    continue;
+                }
+/****************************************************************************/
+		
+		/* Anything else is character data. */
+		decode_mb(c, NULL, &mbdata);
+		result += mbdata.num_columns;
+		c      += mbdata.input_bytes;
+	}
+	
+	mbdata_done(&mbdata);
+	return result;
+}
+
+/* strlen() with colour codes converted to internal codes */
+/* Doesn't do actual conversion */
+/* Return value: Number of bytes this string takes when converted */
+int
+my_strlen_ci(c)
+	char *c;
+{
+	int result = 0;
+
+	struct mb_data mbdata;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata, irc_encoding);
+#else
+	mbdata_init(&mbdata, NULL);
+#endif /* HAVE_ICONV_OPEN */
+
+	while (*c)
+	{
+		if (*c == REV_TOG || *c == UND_TOG || *c == BOLD_TOG || *c == ALL_OFF)
+		{
+			/* These are preserved */
+			++c;
+			++result;
+			continue;
+		}
+		
+		/* Anything else is character data. */
+		decode_mb(c, NULL, &mbdata);
+		result += mbdata.output_bytes;
+		c      += mbdata.input_bytes;
+	}
+	mbdata_done(&mbdata);
+	return result;
+}
+
+/* strcpy() with colour codes converted to internal codes */
+/* Converts the codes */
+void
+my_strcpy_ci(dest, c)
+	char *dest;
+	char *c;
+{
+	struct mb_data mbdata;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata, irc_encoding);
+#else
+	mbdata_init(&mbdata, NULL);
+#endif /* HAVE_ICONV_OPEN */
+
+	/* FIXME: No array bound checking - very insecure */
+	
+	while (*c)
+	{
+		if (*c == REV_TOG || *c == UND_TOG || *c == BOLD_TOG || *c == ALL_OFF)
+		{
+			*dest++ = *c++;
+			continue;
+		}
+/**************************** PATCHED by Flier ******************************/
+                if (*c == '\033') {
+                    while (vt100Decode(*c)) {
+                        *dest++ = *c++;
+                    }
+                    continue;
+                }
+/****************************************************************************/
+		
+		/* Anything else is character data. */
+		decode_mb(c, dest, &mbdata);
+		dest   += mbdata.output_bytes;
+		c      += mbdata.input_bytes;
+	}
+	mbdata_done(&mbdata);
+	*dest++ = '\0';
+}
+
 #define	MAXIMUM_SPLITS	40
 static	char	**
 split_up_line(str)
@@ -1320,8 +1542,8 @@ split_up_line(str)
 		NULL, NULL, NULL, NULL,
 		NULL, NULL, NULL, NULL
 	};
- 	char	lbuf[BIG_BUFFER_SIZE + 1];
-	unsigned char *ptr;
+	char	lbuf[BIG_BUFFER_SIZE];
+	char	*ptr;
 	char	*cont_ptr,
 		*cont = NULL,
 		*temp = NULL,
@@ -1339,9 +1561,24 @@ split_up_line(str)
 		tab_cnt = 0,
 		tab_max,
 		line = 0;
- 	size_t	len;
+	int	bold_state = 0,
+		invert_state = 0,
+		underline_state = 0;
+/**************************** PATCHED by Flier ******************************/
+        int     ansi_count;
+/****************************************************************************/
+		
+	size_t	len;
 
+	struct mb_data mbdata;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata, irc_encoding);
+#else
+	mbdata_init(&mbdata, NULL);
+#endif /* HAVE_ICONV_OPEN */
+	
 	bzero(lbuf, sizeof(lbuf));
+	
 	for (i = 0; i < MAXIMUM_SPLITS; i++)
 		new_free(&output[i]);
 	if (!str || !*str)
@@ -1353,147 +1590,128 @@ split_up_line(str)
 
 	beep_max = get_int_var(BEEP_VAR) ? get_int_var(BEEP_MAX_VAR) : -1;
 	tab_max = get_int_var(TAB_VAR) ? get_int_var(TAB_MAX_VAR) : -1;
-	for (ptr = (u_char *) str; *ptr && (pos < BIG_BUFFER_SIZE - 8); ptr++)
+	for (ptr = str; *ptr && (pos < sizeof(lbuf) - 8); ptr++)
 	{
-		if (translation)
-			*ptr = transToClient[*ptr];
-/**************************** PATCHED by Flier ******************************/
- 		/*if (*ptr <= 32 || (*ptr > 127 && *ptr <= 160))*/
-		if (*ptr <= 32 || *ptr == '|')
-/****************************************************************************/
-		{	/* Isn't that if above a bit latin1-specific? */
-			switch (*ptr)
+		switch (*ptr)
+		{
+		case '\007':	/* bell */
+			if (beep_max == -1)
 			{
-			case '\007':	/* bell */
-				if (beep_max == -1)
-				{
-					lbuf[pos++] = REV_TOG;
-					lbuf[pos++] = (*ptr & 127) | 64;
-					lbuf[pos++] = REV_TOG;
-					nd_cnt += 2;
-					col++;
-				}
-				else if (!beep_max || (++beep_cnt <= beep_max))
-				{
-					lbuf[pos++] = *ptr;
-					nd_cnt++;
-					col++;
-				}
-				break;
-			case '\011':	/* tab */
-				if (tab_max && (++tab_cnt > tab_max))
-				{
-					lbuf[pos++] = REV_TOG;
-					lbuf[pos++] = (*ptr & 127) | 64;
-					lbuf[pos++] = REV_TOG;
-					nd_cnt += 2;
-					col++;
-				}
-				else
-				{
-					if (indent == 0)
-						indent = -1;
-					len = 8 - (col % 8);
-					word_break = pos;
-					for (i = 0; i < len; i++)
-						lbuf[pos++] = ' ';
-					col += len;
-				}
-				break;
-			case ' ':	/* word break */
-				if (indent == 0)
-					indent = -1;
-				word_break = pos;
-				lbuf[pos++] = *ptr;
-				col++;
-				break;
-			case UND_TOG:
-			case ALL_OFF:
-			case REV_TOG:
-			case BOLD_TOG:
-				lbuf[pos++] = *ptr;
-				nd_cnt++;
-				break;
-/**************************** Patched by Flier ******************************/
-			case '|':	/* possible word break if time stamp is set to max */
-                                if (Stamp == 2 && indent == 0 && pos < 30) indent = -1;
-                                lbuf[pos++] = *ptr;
-                                col++;
-                                break;
-/****************************************************************************/
-			default:	/* Anything else, make it displayable */
-				if (indent == -1)
-					indent = pos - nd_cnt;
-/**************************** PATCHED by Flier ******************************/
-				/*lbuf[pos++] = REV_TOG;
+				lbuf[pos++] = REV_TOG;
 				lbuf[pos++] = (*ptr & 127) | 64;
 				lbuf[pos++] = REV_TOG;
 				nd_cnt += 2;
-				col++;*/
-#ifdef WANTANSI
-                                if (vt100Decode(*ptr)) {
-                                    lbuf[pos++] = *ptr;
-                                    nd_cnt++;
-                                }
-                                else {
-                                    lbuf[pos++] = REV_TOG;
-                                    lbuf[pos++] = (*ptr & 127) | 64;
-                                    lbuf[pos++] = REV_TOG;
-                                    nd_cnt += 2;
-                                    col++;
-                                }
-#else
-                                lbuf[pos++] = REV_TOG;
-                                lbuf[pos++] = (*ptr & 127) | 64;
-                                lbuf[pos++] = REV_TOG;
-                                nd_cnt += 2;
-                                col++;
-#endif
+				col++;
+			}
+			else if (!beep_max || (++beep_cnt <= beep_max))
+			{
+				lbuf[pos++] = *ptr;
+				nd_cnt++;
+				col++;
+			}
+			break;
+		case '\011':	/* tab */
+			if (tab_max && (++tab_cnt > tab_max))
+			{
+				lbuf[pos++] = REV_TOG;
+				lbuf[pos++] = (*ptr & 127) | 64;
+				lbuf[pos++] = REV_TOG;
+				nd_cnt += 2;
+				col++;
+			}
+			else
+			{
+				if (indent == 0)
+					indent = -1;
+				len = 8 - (col % 8);
+				word_break = pos;
+				for (i = 0; i < len; i++)
+					lbuf[pos++] = ' ';
+				col += len;
+			}
+			break;
+		case UND_TOG:
+		case ALL_OFF:
+		case REV_TOG:
+		case BOLD_TOG:
+			switch(*ptr)
+			{
+			case UND_TOG:
+				underline_state = !underline_state;
+				break;
+			case REV_TOG:
+				invert_state = !invert_state;
+				break;
+			case BOLD_TOG:
+				bold_state = !bold_state;
+				break;
+			case ALL_OFF:
+				underline_state = invert_state = bold_state = 0;
+				break;
+			}
+			lbuf[pos++] = *ptr;
+			nd_cnt++;
+			break;
+/**************************** PATCHED by Flier ******************************/
+                case '\033':
+                        ansi_count = 0;
+                        while (vt100Decode(*ptr)) {
+                            lbuf[pos++] = *ptr;
+                            nd_cnt++;
+                            ptr++;
+                            ansi_count++;
+                        }
+                        if (ansi_count) ptr--;
+                        break;
+                case '|':       /* possible word break if time stamp is set to max */
+                        if (Stamp == 2 && indent == 0 && pos < 30) indent = -1;
+                        lbuf[pos++] = *ptr;
+                        col++;
+                        break;
 /****************************************************************************/
+		case ' ':	/* word break */
+			if (indent == 0)
+				indent = -1;
+			word_break = pos;
+			lbuf[pos++] = *ptr;
+			col++;
+			break;
+		default:	/* Anything else, make it displayable */
+			{
+   				if (indent == -1)
+					indent = pos - nd_cnt;
+	   		   	
+	   		   	/* FIXME: No array bound checking - very insecure */
+				decode_mb(ptr, lbuf+pos, &mbdata);
+				
+				/* If the sequence takes multiple columns,
+				 * be wrappable now when we can
+				 */
+				if (mbdata.num_columns > 1)
+					word_break = pos;
+				
+				pos	   += mbdata.output_bytes;
+				nd_cnt += mbdata.output_bytes - mbdata.num_columns;
+				ptr	   += mbdata.input_bytes - 1;
+				col	   += mbdata.num_columns;
 				break;
 			}
 		}
-		else
-		{
-			if (indent == -1)
-				indent = pos - nd_cnt;
-/**************************** PATCHED by Flier ******************************/
-			/*lbuf[pos++] = *ptr;
-			col++;*/
-                        if (*ptr == (u_char) '›' || *ptr == (u_char) '„' ||
-                            *ptr == (u_char) '…' || *ptr == (u_char) '') {
-                            lbuf[pos++] = REV_TOG;
-                            lbuf[pos++] = (*ptr & 127) | 64;
-                            lbuf[pos++] = REV_TOG;
-                            nd_cnt += 2;
-
-                        }
-                        else lbuf[pos++] = *ptr;
-#ifdef WANTANSI
-                        if (vt100Decode(*ptr)) nd_cnt++;
-                        else col++;
-#else
-                        col++;
-#endif
-/****************************************************************************/
-		}
-		if (pos == BIG_BUFFER_SIZE)
+		if (pos >= sizeof(lbuf)-1)
 			*ptr = '\0';
+		
 		if (col >= current_screen->co)
 		{
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                        while (*ptr && vt100Decode(*ptr)) {
-                            lbuf[pos++] = *ptr++;
-                            nd_cnt++;
-                        }
-#endif
-/****************************************************************************/
+			char c1;
+			int oldpos;
+
 			/* one big long line, no word breaks */
 			if (word_break == 0)
 				word_break = pos - (col - current_screen->co);
 			c = lbuf[word_break];
-			lbuf[word_break] = '\0';
+			c1 = lbuf[word_break+1];
+			lbuf[word_break] = FULL_OFF;
+			lbuf[word_break+1] = '\0';
 			if (cont)
 			{
 				malloc_strcpy(&temp, cont);
@@ -1503,57 +1721,84 @@ split_up_line(str)
 				malloc_strcpy(&temp, &(lbuf[start]));
 			malloc_strcpy(&output[line++], temp);
 			lbuf[word_break] = c;
+			lbuf[word_break+1] = c1;
 			start = word_break;
 			word_break = 0;
 			while (lbuf[start] == ' ')
 				start++;
 			if (start > pos)
 				start = pos;
+
 			if (!(cont_ptr = get_string_var(CONTINUED_LINE_VAR)))
-					
 				cont_ptr = empty_string;
+
 			if (get_int_var(INDENT_VAR) && (indent < current_screen->co / 3))
 			{
-		/*
-		 * INDENT thanks to Carlo "lynx" v. Loesch
-		 * - hehe, nice to see this is still here... -lynx 91
-		 */
-				if (!cont)
+				if (!cont) /* Build it only the first time */
 				{
-					if ((len = strlen(cont_ptr)) > indent)
+					/* Visual length */
+					int vlen = my_strlen_c(cont_ptr);
+					/* Converted length */
+					int clen = my_strlen_ci(cont_ptr);
+					int padlen = indent - vlen;
+
+					if (padlen < 0)
+						padlen = 0;
+					
+					cont = (char *) new_malloc(clen + padlen + 1);
+					my_strcpy_ci(cont, cont_ptr);
+					
+					for (; padlen > 0; --padlen)
 					{
-						cont = (char *) new_malloc(len
-							+ 1);
-						strcpy(cont, cont_ptr);
+						cont[clen++] = ' ';
+						/* Add space */
 					}
-					else
-					{
-/**************************** Patched by Flier ******************************/
-                                                /* fix ircII bug when
-                                                 * splitting long lines
-                                                 * without spaces */
-                                                if (indent == -1)
-                                                    indent = 0;
-/****************************************************************************/
-						cont = (char *)
- 							new_malloc((size_t)indent + 1);
-						strcpy(cont, cont_ptr);
-						for (i = len; i < indent; i++)
-							cont[i] = ' ';
-						cont[indent] = '\0';
-					}
+					cont[clen] = '\0';
 				}
 			}
 			else
-				malloc_strcpy(&cont, cont_ptr);
-			col = strlen(cont) + (pos - start);
+			{
+				/* Converted length */
+				int clen = my_strlen_ci(cont_ptr);
+				
+				/* No indent, just prefix only */				
+				cont = (char *) new_malloc(clen + 1);
+				my_strcpy_ci(cont, cont_ptr);
+			}
+			
+			/* cont contains internal codes, so use my_strlen_i */
+			col = my_strlen_i(cont) + (pos - start);
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
                         col -= CountAnsi(&lbuf[start], pos - start);
-#endif
+#endif /* WANTANSI */
 /****************************************************************************/
+			
+			/* rebuild previous state */
+			oldpos = pos;
+			if (underline_state)
+			{
+				lbuf[pos++] = UND_TOG;
+				nd_cnt++;
+			}
+			if (invert_state)
+			{
+				lbuf[pos++] = REV_TOG;
+				nd_cnt++;
+			}
+			if (bold_state)
+			{
+				lbuf[pos++] = BOLD_TOG;
+				nd_cnt++;
+			}
+			if (pos != oldpos)
+				while(start < oldpos)
+					lbuf[pos++] = lbuf[start++];
 		}
 	}
+	mbdata_done(&mbdata);
+	
+ 	lbuf[pos++] = FULL_OFF;
 	lbuf[pos] = '\0';
 	if (lbuf[start])
 	{
@@ -1607,6 +1852,11 @@ add_to_window(window, str)
 		my_str[len] = ALL_OFF;
 		my_str[len + 1] = '\0';
 		logged = islogged(window);
+
+		/* For each of the lines created by split_up_line(),
+		 * display the line.
+		 * Rite() will assume each input line fits on 1 line.
+		 */
 		for (lines = split_up_line(my_str); *lines; lines++)
 		{
 			rite(window, *lines, 0, 0, 0, logged);
@@ -1720,16 +1970,7 @@ add_to_screen(incoming)
 	}
 	if (dumb)
 	{
-		if (translation)
-		{
-			u_char	*ptr = (u_char *) incoming;
-
-			while (*ptr)
-			{
-				*ptr = transToClient[*ptr];
-				ptr++;
-			}
-		}
+		/* FIXME: Do iconv for "incoming" in dumb mode too */
 		add_to_lastlog(curr_scr_win, incoming);
 		if (do_hook(WINDOW_LIST, "%u %s", curr_scr_win->refnum, incoming))
 			puts(incoming);
@@ -2135,7 +2376,7 @@ create_additional_screen()
 		say("Can't create UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;
 	}
-	if (bind(s, (struct sockaddr *) &sock, (int)(2 + my_strlen(sock.sun_path))) < 0)
+	if (bind(s, (struct sockaddr *) &sock, (int)(2 + strlen(sock.sun_path))) < 0)
 	{
 		say("Can't bind UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;
@@ -2152,7 +2393,7 @@ create_additional_screen()
 		say("Can't create UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;
 	}
-	if (bind(es, (struct sockaddr *) &error_sock, (int)(2 + my_strlen(error_sock.sun_path))) < 0)
+	if (bind(es, (struct sockaddr *) &error_sock, (int)(2 + strlen(error_sock.sun_path))) < 0)
 	{
 		say("Can't bind UNIX socket, punting /WINDOW CREATE");
 		return (Window *) 0;

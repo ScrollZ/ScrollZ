@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.44 2006-03-22 17:16:49 f Exp $
+ * $Id: alias.c,v 1.45 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -306,6 +306,7 @@ static	FAR BuiltIns built_in[] =
         u_char	*function_strnum _((u_char *));
 #endif
         u_char	*function_fsize _((u_char *));
+        u_char	*function_chankey _((u_char *));
 #ifndef CELESCRP
         u_char	*function_sar _((u_char *));
         u_char	*function_cdccslots _((u_char *));
@@ -464,6 +465,7 @@ static BuiltInFunctions	FAR built_in_functions[] =
         { "CDCCSLOTS",          function_cdccslots },
         { "CDCCQSLOTS",         function_cdccqslots },
 #endif
+        { "CHANKEY",            function_chankey },
 #ifndef LITE
         { "OPEN",               function_open },
         { "FSIZE",              function_fsize },
@@ -3496,20 +3498,6 @@ function_tolower(input)
 	return new;
 }
 
-#ifndef LITE
-u_char	*
-function_curpos(input)
-	u_char	*input;
-{
-	u_char	*new = (u_char *) 0,
-		pos[8];
-
-	snprintf(CP(pos), sizeof pos, "%d", current_screen->buffer_pos);
-	malloc_strcpy((char **) &new, (char *) pos);
-	return new;
-}
-#endif
-
 u_char	*
 function_channels(input)
 	u_char	*input;
@@ -3524,6 +3512,8 @@ function_channels(input)
 
 	return (u_char *) create_channel_list(window);
 }
+
+/* function_curpos moved to input.c */
 
 #ifndef LITE
 u_char	*
@@ -4936,6 +4926,22 @@ u_char *input;
 
     if (stampbuf) malloc_strcpy((char **) &result, stampbuf);
     else malloc_strcpy((char **) &result,empty_string);
+    return(result);
+}
+
+u_char *function_chankey(input)
+u_char *input;
+{
+    char *channel;
+    u_char *result = NULL;
+    ChannelList *chan;
+
+    if ((channel = next_arg((char *) input,(char **) &channel)) &&
+        (chan = lookup_channel(channel, from_server, 0)) && chan->key) {
+        malloc_strcpy((char **) &result, chan->key);
+    }
+    else malloc_strcpy((char **) &result, empty_string);
+
     return(result);
 }
 

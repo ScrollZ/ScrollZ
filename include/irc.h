@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.17 2005-08-08 18:50:47 f Exp $
+ * $Id: irc.h,v 1.18 2006-04-30 14:15:43 f Exp $
  */
 
 #ifndef __irc_h
@@ -169,18 +169,39 @@
 #define UND_TOG		'\037'		/* ^_ */
 #define BOLD_TOG	'\002'		/* ^B */
 #define ALL_OFF		'\017'		/* ^O */
-#define CHARSET_TAG	'\001'		/* internal, should be different than all others */
 #define FULL_OFF	'\004'		/* internal, should be different than all others */
 
 #define IRCD_BUFFER_SIZE	1024
 #define BIG_BUFFER_SIZE		(IRCD_BUFFER_SIZE * 4)
 
 #ifndef INPUT_BUFFER_SIZE
-/**************************** PATCHED by Flier ******************************/
-/*#define INPUT_BUFFER_SIZE	(IRCD_BUFFER_SIZE / 4)*/
-#define INPUT_BUFFER_SIZE	IRCD_BUFFER_SIZE
-/****************************************************************************/
-#endif
+#define INPUT_BUFFER_SIZE	1536
+/* INPUT_BUFFER_SIZE:
+   irc servers generally accept 512 bytes of input per line.
+   Assuming the shortest considerable command begins
+   with "PRIVMSG x :" and ends with a linefeed, this
+   leaves 500 bytes of space for text.
+   In dcc-chats, the line length is unlimited.
+   In ircII, the input buffer is utf-8 encoded. This means
+   that certain european characters take two bytes of space
+   and most asian characters take three bytes of space.
+   ( Reference: http://www.utf-8.com/ )
+   However, in some encodings that are used in IRC
+   (such as ISO-8859-1 and SHIFT-JIS), some to most
+   of those characters only take 1 byte of space.
+   ( References: http://en.wikipedia.com/wiki/ISO_8859-1
+     http://en.wikipeda.com/wiki/SJIS )
+   Therefore, to be able to send a full 500-character line
+   regardless of what characters it contains, we need 1500
+   bytes of free buffer space.
+   We also need room for the command used to send the message
+   - for example, "/msg bisqwit,#nipponfever,#gurb ".
+   For that space, we use an arbitrarily chosen number
+   that is bigger than 20.
+   As a result, INPUT_BUFFER_SIZE is now set to 1536 (0x600).
+                         - Bisqwit
+ */
+#endif /* INPUT_BUFFER_SIZE */
 
 #include "struct.h"
 
@@ -286,6 +307,12 @@
 # define FAR
 #endif*/
 /****************************************************************************/
+
+#ifdef ICONV_CONST_ARG2
+#define iconv_const const
+#else
+#define iconv_const
+#endif
 
 /*
  * declared in irc.c 

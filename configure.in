@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.36 2005-11-01 16:32:58 f Exp $
+dnl @(#)$Id: configure.in,v 1.37 2006-04-30 14:15:43 f Exp $
 
-AC_REVISION($Revision: 1.36 $)dnl
+AC_REVISION($Revision: 1.37 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.36 2005-11-01 16:32:58 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.37 2006-04-30 14:15:43 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -223,7 +223,7 @@ AC_EGREP_CPP(yes,
 AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h sys/uio.h)dnl sys/ ones
 AC_CHECK_HEADERS(unistd.h fcntl.h string.h memory.h netdb.h limits.h)dnl non sys/ ones
 AC_CHECK_HEADERS(stdarg.h varargs.h, break)dnl look for varadic function header
-AC_CHECK_HEADERS(process.h termcap.h)dnl others
+AC_CHECK_HEADERS(process.h termcap.h iconv.h)dnl others
 if test -n "$ultrix" -o -n "$nextstep"; then
   # POSIX termios is broken on Ultrix so don't look for it.
   # NEXTSTEP POSIX is broken so don't look for it.
@@ -249,6 +249,7 @@ AC_CHECK_FUNC(fputc, AC_DEFINE(HAVE_FPUTC),)
 AC_CHECK_FUNC(fwrite, AC_DEFINE(HAVE_FWRITE),)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF),)
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF),)
+AC_CHECK_FUNC(iconv_open, AC_DEFINE([HAVE_ICONV_OPEN]),)
 
 AC_HEADER_STDC
 AC_HEADER_TIME
@@ -502,6 +503,15 @@ main()
   AC_DEFINE(SYS_ERRLIST_DECLARED),
   AC_MSG_RESULT(no), :)
 
+dnl
+dnl check the type of iconv(3)'s 2nd argument
+dnl
+
+AC_MSG_CHECKING(for const iconv 2nd argument)
+AC_EGREP_HEADER([iconv\\(.*const], iconv.h,
+  AC_MSG_RESULT(yes)
+  AC_DEFINE([ICONV_CONST_ARG2]),
+  AC_MSG_RESULT(no))
 
 dnl
 dnl need this for dcc stuff

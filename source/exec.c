@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.13 2003-01-08 20:00:54 f Exp $
+ * $Id: exec.c,v 1.14 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -54,6 +54,10 @@
 #ifdef XD88
 # define ISC
 #endif /* XD88 */
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include "exec.h"
 #include "vars.h"

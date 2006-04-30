@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.106 2005-08-08 18:50:47 f Exp $
+ * $Id: edit.c,v 1.107 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -2942,25 +2942,19 @@ send_text(org_nick, line, command)
 	int	do_final_send = 0;
 /**************************** PATCHED by Flier ******************************/
         int     iscrypted;
-        char    thing;
+        char    *thing;
         char    *mynick = get_server_nickname(from_server);
         char    tmpbuf[BIG_BUFFER_SIZE + 1];
         char    *stampbuf = TimeStamp(2);
         ChannelList *chan;
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing = 'ù';
-        else thing = '-';
+#ifdef HAVE_ICONV_H
+        if (get_int_var(HIGH_ASCII_VAR)) thing = "\342\210\231";
+#else
+        if (get_int_var(HIGH_ASCII_VAR)) thing = "ù";
+#endif /* HAVE_ICONV_H */
+        else thing = "-";
 /****************************************************************************/
-	if (dumb && translation)
-	{
-		ptr = line;
-		while (*ptr)
-		{
-			*ptr = transFromClient[*(u_char*) ptr];
-			ptr++;
-		}
-	}
-
 	*nick_list = '\0';
 	malloc_strcpy(&nick, org_nick);
 	free_nick = ptr = nick;
@@ -3188,7 +3182,7 @@ send_text(org_nick, line, command)
                                         CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #else  /* CELECOSM */
-                                snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%c%s%s%s%c%s]%s",
+                                snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s%s%s%s%s%s]%s",
 					CmdsColors[COLMSG].color5, Colors[COLOFF], thing,
 					CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         thing, CmdsColors[COLMSG].color5, Colors[COLOFF]);
@@ -3196,7 +3190,7 @@ send_text(org_nick, line, command)
                                 put_it("%s%s%s %s%s%s", stampbuf, iscrypted ? "[!]" : "", tmpbuf,
 				       CmdsColors[COLMSG].color3, line, Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s%s[%c%s%c] %s", stampbuf, iscrypted ? "[!]" : "",
+                                put_it("%s%s[%s%s%s] %s", stampbuf, iscrypted ? "[!]" : "",
                                        thing, nick, thing, line);
 #endif /* WANTANSI */
                             }
@@ -4313,10 +4307,7 @@ edit_char(ikey)
 	if (!get_int_var(EIGHT_BIT_CHARACTERS_VAR))
 		key &= 0x7f;			/* mask out non-ascii crap */
 
-	if (translation)
-		extended_key = transFromClient[key];
-	else
-		extended_key = key;
+	extended_key = key;
 
 	if (current_screen->meta1_hit)
 	{
@@ -4552,14 +4543,18 @@ describe(command, args, subargs)
 {
 	char	*target;
 /**************************** PATCHED by Flier ******************************/
-        char    thing;
+        char    *thing;
         char    *curchan;
 #ifdef WANTANSI
         char    tmpbuf[mybufsize/2];
 #endif
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing='ì';
-        else thing='*';
+#ifdef HAVE_ICONV_H
+        if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\236";
+#else
+        if (get_int_var(HIGH_ASCII_VAR)) thing="ì";
+#endif /* HAVE_ICONV_H */
+        else thing="*";
 /****************************************************************************/
 	target = next_arg(args, &args);
 	if (target && args && *args)
@@ -4594,26 +4589,26 @@ describe(command, args, subargs)
                     
                         malloc_strcpy(&tmpstr,stampbuf);
                         malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
-                        put_it("%s%c%s %s%s%s %s%s%s",
+                        put_it("%s%s%s %s%s%s %s%s%s",
                                tmpstr,thing,Colors[COLOFF],
                                CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
                                CmdsColors[COLME].color5,message,Colors[COLOFF]);
                         new_free(&tmpstr);
 #else
-                        put_it("%s%c%c%c %s %s",stampbuf,bold,thing,bold,
+                        put_it("%s%c%s%c %s %s",stampbuf,bold,thing,bold,
                                get_server_nickname(from_server),message);
 #endif
                     }
                     else {
 #ifdef WANTANSI
-                        snprintf(tmpbuf,sizeof(tmpbuf),"<%s%s%s> %s%c%s %s%s%s",
+                        snprintf(tmpbuf,sizeof(tmpbuf),"<%s%s%s> %s%s%s %s%s%s",
                                CmdsColors[COLME].color4,target,Colors[COLOFF],
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
                                CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF]);
                         put_it("%s%s %s%s%s",stampbuf,tmpbuf,
                               CmdsColors[COLME].color5,message,Colors[COLOFF]);
 #else
-                        put_it("%s<%s> %c%c%c %s %s",stampbuf,target,bold,thing,bold,
+                        put_it("%s<%s> %c%s%c %s %s",stampbuf,target,bold,thing,bold,
                                get_server_nickname(from_server),message);
 #endif
                     }
@@ -4646,10 +4641,14 @@ me(command, args, subargs)
 		*subargs;
 {
 /**************************** PATCHED by Flier ******************************/
-        char thing;
+        char *thing;
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing='ì';
-        else thing='*';
+#ifdef HAVE_ICONV_H
+        if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\236";
+#else
+        if (get_int_var(HIGH_ASCII_VAR)) thing="ì";
+#endif /* HAVE_ICONV_H */
+        else thing="*";
 /****************************************************************************/
         if (args && *args)
 	{
@@ -4694,13 +4693,13 @@ me(command, args, subargs)
 #ifdef WANTANSI
                             malloc_strcpy(&tmpstr,stampbuf);
                             malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
-                            put_it("%s%c%s %s%s%s %s%s%s",
+                            put_it("%s%s%s %s%s%s %s%s%s",
                                     tmpstr,thing,Colors[COLOFF],
                                     CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
                                     CmdsColors[COLME].color5,message,Colors[COLOFF]);
                             new_free(&tmpstr);
 #else
-                            put_it("%s%c%c%c %s %s",stampbuf,bold,thing,bold,
+                            put_it("%s%c%s%c %s %s",stampbuf,bold,thing,bold,
                                     get_server_nickname(from_server), message);
 #endif
                         }

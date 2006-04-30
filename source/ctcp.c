@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.50 2004-11-25 17:40:00 f Exp $
+ * $Id: ctcp.c,v 1.51 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -1430,7 +1430,7 @@ do_atmosphere(ctcp, from, to, cmd)
         int     foundar = 0;
 		int		isshit;
 		int		isfriend;
-        char    thing;
+        char    *thing;
 #ifdef WANTANSI
         char    *color = CmdsColors[COLME].color3;
 #else
@@ -1442,8 +1442,12 @@ do_atmosphere(ctcp, from, to, cmd)
 	NickList *joiner;
         Window *oldwin;
 
-        if (get_int_var(HIGH_ASCII_VAR)) thing = 'ì';
-        else thing = '*';
+#ifdef HAVE_ICONV_H
+        if (get_int_var(HIGH_ASCII_VAR)) thing = "\342\210\236";
+#else
+        if (get_int_var(HIGH_ASCII_VAR)) thing = "ì";
+#endif /* HAVE_ICONV_H */
+        else thing = "*";
         if (Stamp == 2) func = (void(*)()) say;
         else func = (void(*)()) put_it;
 /****************************************************************************/
@@ -1478,23 +1482,23 @@ do_atmosphere(ctcp, from, to, cmd)
 					put_it("* %s:%s %s", from, to, cmd);*/
 				if (is_current_channel(to, parsing_server_index, 0))
 #ifdef WANTANSI
-                                    func("%s%c%s %s%s%s %s%s%s",
+                                    func("%s%s%s %s%s%s %s%s%s",
                                           CmdsColors[COLME].color1, thing, Colors[COLOFF],
                                           color, from, Colors[COLOFF],
                                           CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-                                    func("%c %s%s%s %s", thing, color, from, color, cmd);
+                                    func("%s %s%s%s %s", thing, color, from, color, cmd);
 #endif
                                 else {
 #ifdef WANTANSI
-                                    snprintf(tmpbuf1,sizeof(tmpbuf1),"<%s%s%s> %s%c%s %s%s%s",
+                                    snprintf(tmpbuf1,sizeof(tmpbuf1),"<%s%s%s> %s%s%s %s%s%s",
                                            CmdsColors[COLME].color4, to, Colors[COLOFF],
                                            CmdsColors[COLME].color1, thing, Colors[COLOFF],
                                            color, from, Colors[COLOFF]);
                                     func("%s %s%s%s",tmpbuf1,
                                           CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
 #else
-                                    func("<%s> %c %s%s%s %s", to, thing, color, from, color, cmd);
+                                    func("<%s> %s %s%s%s %s", to, thing, color, from, color, cmd);
 #endif
                                 }
 /****************************************************************************/
@@ -1526,13 +1530,13 @@ do_atmosphere(ctcp, from, to, cmd)
                             (ARinWindow && chan->window != curr_scr_win))) {
 #ifdef WANTANSI
                             snprintf(tmpbuf1, sizeof(tmpbuf1),
-                                    "<%s%s%s> %s%c%s %s%s%s",
+                                    "<%s%s%s> %s%s%s %s%s%s",
                                     CmdsColors[COLME].color4, to, Colors[COLOFF],
                                     CmdsColors[COLME].color1, thing,
                                     Colors[COLOFF],
                                     color, from, Colors[COLOFF]);
 #else
-                            sprintf(tmpbuf1, "<%s> %c %s%s%s %s",
+                            sprintf(tmpbuf1, "<%s> %s %s%s%s %s",
                                     to, thing, color, from, color, cmd);
 #endif
                             oldwin = to_window;
@@ -1566,12 +1570,12 @@ do_atmosphere(ctcp, from, to, cmd)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("*> %s %s", from, cmd);*/
 #ifdef WANTANSI
-                                func("%s%c%s> %s%s%s %s%s%s",
+                                func("%s%s%s> %s%s%s %s%s%s",
                                       CmdsColors[COLME].color1, thing, Colors[COLOFF],
                                       color, from, Colors[COLOFF],
                                       CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-				func("%c> %s%s%s %s", thing, color, from, color, cmd);
+				func("%s> %s%s%s %s", thing, color, from, color, cmd);
 #endif
 /****************************************************************************/
 		}

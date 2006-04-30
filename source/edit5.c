@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.112 2005-08-03 15:36:25 f Exp $
+ * $Id: edit5.c,v 1.113 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -1123,8 +1123,8 @@ char *subargs;
     }
     else {
         /* no master password - ask for one */
-        if (!EncryptPassword) add_wait_prompt("Master password:", MasterPassword, NULL, WAIT_PROMPT_LINE);
-        else add_wait_prompt("Old master password:", MasterPasswordOld, NULL, WAIT_PROMPT_LINE);
+        if (!EncryptPassword) add_wait_prompt("Master Password:", MasterPassword, NULL, WAIT_PROMPT_LINE);
+        else add_wait_prompt("Old Master Password:", MasterPasswordOld, NULL, WAIT_PROMPT_LINE);
     }
 }
 
@@ -1143,7 +1143,7 @@ void MasterPasswordOld(char *x, char *pass)
         return;
     }
     new_free(&mastpass);
-    add_wait_prompt("Master password:", MasterPassword, pass, WAIT_PROMPT_LINE);
+    add_wait_prompt("Master Password:", MasterPassword, pass, WAIT_PROMPT_LINE);
 }
 
 /* Handle master password */
@@ -1678,8 +1678,13 @@ char *distance;
     dist=atoi(distance);
 #ifdef WANTANSI
     if (!LinksNumber) PrintLinksHead();
+#ifdef HAVE_ICONV_H
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s",CmdsColors[COLLINKS].color5,
+            get_int_var(HIGH_ASCII_VAR)?"\342\224\202":"|",Colors[COLOFF]);
+#else
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s",CmdsColors[COLLINKS].color5,
             get_int_var(HIGH_ASCII_VAR)?'³':'|',Colors[COLOFF]);
+#endif /* HAVE_ICONV_H */
     LinksNumber++;
     snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%3d%s %s %s%s%26s%s%s",
             tmpbuf1,CmdsColors[COLLINKS].color1,LinksNumber,Colors[COLOFF],tmpbuf1,
@@ -1772,7 +1777,7 @@ char *subargs;
             malloc_strcpy(&playpattern, tmpbuf);
         }
         if (AwayEncrypt && EncryptPassword)
-            add_wait_prompt("Master password:", EncryptMasterPlayBack, subargs, WAIT_PROMPT_LINE);
+            add_wait_prompt("Master Password:", EncryptMasterPlayBack, subargs, WAIT_PROMPT_LINE);
         else
             PlayBack2(subargs, empty_string);
     }
@@ -2302,7 +2307,7 @@ char *line;
 int  bytes;
 int  iscrypted;
 {
-    char thing;
+    char *thing;
     char tmpbuf[mybufsize/4];
 #ifdef WANTANSI
 #ifdef TDF
@@ -2314,10 +2319,14 @@ int  iscrypted;
     void (*func)()=(void(*)())put_it;
 
     if (Stamp==2) func=(void(*)())say;
-    if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
-    else thing='=';
-    snprintf(thingleft,sizeof(thingleft),"%s%c",iscrypted?"*":"",thing);
-    snprintf(thingright,sizeof(thingright),"%c%s",thing,iscrypted?"*":"");
+#ifdef HAVE_ICONV_H
+    if (get_int_var(HIGH_ASCII_VAR)) thing="\342\211\241";
+#else
+    if (get_int_var(HIGH_ASCII_VAR)) thing="ð";
+#endif
+    else thing="=";
+    snprintf(thingleft,sizeof(thingleft),"%s%s",iscrypted?"*":"",thing);
+    snprintf(thingright,sizeof(thingright),"%s%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
     snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s%s%s%s%s%s%s",
             CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
@@ -2347,7 +2356,7 @@ char *nick;
 char *line;
 int  iscrypted;
 {
-    char thing;
+    char *thing;
 #ifdef WANTANSI
     char tmpbuf[mybufsize/4];
 #endif
@@ -2356,10 +2365,14 @@ int  iscrypted;
     void (*func)()=(void(*)())put_it;
 
     if (Stamp==2) func=(void(*)())say;
-    if (get_int_var(HIGH_ASCII_VAR)) thing='ð';
-    else thing='=';
-    snprintf(thingleft,sizeof(thingleft),"%s%c",iscrypted?"*":"",thing);
-    snprintf(thingright,sizeof(thingright),"%c%s",thing,iscrypted?"*":"");
+#ifdef HAVE_ICONV_H
+    if (get_int_var(HIGH_ASCII_VAR)) thing="\342\211\241";
+#else
+    if (get_int_var(HIGH_ASCII_VAR)) thing="ð";
+#endif /* HAVE_ICONV_H */
+    else thing="=";
+    snprintf(thingleft,sizeof(thingleft),"%s%s",iscrypted?"*":"",thing);
+    snprintf(thingright,sizeof(thingright),"%s%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
     snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s%s%s%s%s%s%s%s%s%s]%s",
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF],
@@ -2543,12 +2556,6 @@ char *subargs;
     char *target;
     char *msgsent=server_list[from_server].LastMessageSent;
     char *ntcsent=server_list[from_server].LastNoticeSent;
-#ifdef WANTANSI
-    char thing;
-
-    if (get_int_var(HIGH_ASCII_VAR)) thing='ù';
-    else thing='-';
-#endif /* WANTANSI */
 
     if ((message && msgsent) || (!message && ntcsent)) {
         if (!(target=new_next_arg(args,&args))) {
@@ -3056,6 +3063,20 @@ void PrintLinksHead() {
     char tmpbuf2[mybufsize/4];
 
     if (get_int_var(HIGH_ASCII_VAR)) {
+#ifdef HAVE_ICONV_H
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s\342\224\214%s\302\267%sNo%s\302\267%s\342\224\220 \342\224\214\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200%s\302\267%sServer%s\302\267%s\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\220%s",
+                CmdsColors[COLLINKS].color5,Colors[COLOFF],
+                CmdsColors[COLLINKS].color1,Colors[COLOFF],
+                CmdsColors[COLLINKS].color5,Colors[COLOFF],
+                CmdsColors[COLLINKS].color1,Colors[COLOFF],
+                CmdsColors[COLLINKS].color5,Colors[COLOFF]);
+        snprintf(tmpbuf2,sizeof(tmpbuf2),"%s\342\224\214%s\302\267%sDs%s\302\267%s\342\224\220   \342\224\214\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200%s\302\267%sUplink%s\302\267%s\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\200\342\224\220%s",
+                CmdsColors[COLLINKS].color5,Colors[COLOFF],
+                CmdsColors[COLLINKS].color3,Colors[COLOFF],
+                CmdsColors[COLLINKS].color5,Colors[COLOFF],
+                CmdsColors[COLLINKS].color2,Colors[COLOFF],
+                CmdsColors[COLLINKS].color5,Colors[COLOFF]);
+#else
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%sÚ%sú%sNo%sú%s¿ ÚÄÄÄÄÄÄÄÄÄ%sú%sServer%sú%sÄÄÄÄÄÄÄÄÄ¿%s",
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color1,Colors[COLOFF],
@@ -3068,6 +3089,7 @@ void PrintLinksHead() {
                 CmdsColors[COLLINKS].color5,Colors[COLOFF],
                 CmdsColors[COLLINKS].color2,Colors[COLOFF],
                 CmdsColors[COLLINKS].color5,Colors[COLOFF]);
+#endif /* HAVE_ICONV_H */
     }
     else {
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%s.%s-%sNo%s-%s. .---------%s-%sServer%s-%s---------.%s",

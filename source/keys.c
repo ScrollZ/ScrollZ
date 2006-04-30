@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.11 2003-01-08 20:00:54 f Exp $
+ * $Id: keys.c,v 1.12 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -864,7 +864,7 @@ KeyMap	FAR keys[] =
 	/*{ TRANSPOSE_CHARACTERS,	0, 0,	(char *) 0 },*/
 	{ INSERT_TABKEY_NEXT,	0, 0,	(char *) 0 },
 /****************************************************************************/
-	{ ERASE_LINE,		0, 0,	(char *) 0 },
+	{ ERASE_TO_BEG_OF_LINE,	0, 0,	(char *) 0 },
 	{ SELF_INSERT,		0, 0,	(char *) 0 },
 /**************************** PATCHED by Flier ******************************/
 	/*{ SELF_INSERT,		0, 0,	(char *) 0 },*/

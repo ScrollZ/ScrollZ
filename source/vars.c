@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.26 2005-06-09 17:41:06 f Exp $
+ * $Id: vars.c,v 1.27 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -47,8 +47,8 @@
 #include "input.h"
 #include "ircaux.h"
 #include "whois.h"
-#include "translat.h"
 #include "ircterm.h"
+#include "translat.h"
 #include "output.h"
 #include "server.h"
 
@@ -171,6 +171,7 @@ static	IrcVariable irc_variable[] =
 /**************************** PATCHED by Flier ******************************/
 	{ "DISPLAY_ANSI",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, RedrawAll, 0, 0 },
 /****************************************************************************/
+	{ "DISPLAY_ENCODING",		STR_TYPE_VAR,	0, NULL, set_display_encoding, 0, 0 },
 	{ "EIGHT_BIT_CHARACTERS",	BOOL_TYPE_VAR,	DEFAULT_EIGHT_BIT_CHARACTERS, NULL, eight_bit_characters, 0, 0 },
 	{ "ENCRYPT_PROGRAM",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "EXEC_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_EXEC_PROTECTION, NULL, exec_warning, 0, VF_NODAEMON },
@@ -205,11 +206,13 @@ static	IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "INDENT",			BOOL_TYPE_VAR,	DEFAULT_INDENT, NULL, NULL, 0, 0 },
 	{ "INPUT_ALIASES",		BOOL_TYPE_VAR,	DEFAULT_INPUT_ALIASES, NULL, NULL, 0, 0 },
+	{ "INPUT_ENCODING",		STR_TYPE_VAR,	0, NULL, set_input_encoding, 0, 0 },
 	{ "INPUT_PROMPT",		STR_TYPE_VAR,	0, NULL, set_input_prompt, 0, 0 },
 	{ "INPUT_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_INPUT_PROTECTION, NULL, input_warning, 0, 0 },
 	{ "INSERT_MODE",		BOOL_TYPE_VAR,	DEFAULT_INSERT_MODE, NULL, update_all_status, 0, 0 },
 	{ "INVERSE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_INVERSE_VIDEO, NULL, NULL, 0, 0 },
 	{ "IRCHOST",			STR_TYPE_VAR,	0, NULL, set_irchost, 0, 0 },
+	{ "IRC_ENCODING",		STR_TYPE_VAR,	0, NULL, set_irc_encoding, 0, 0 },
 	{ "LASTLOG",			INT_TYPE_VAR,	DEFAULT_LASTLOG, NULL, set_lastlog_size, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "LASTLOG_ANSI",		BOOL_TYPE_VAR,	1, NULL, NULL, 0, 0 },
@@ -319,7 +322,6 @@ static	IrcVariable irc_variable[] =
 	{ "SUPPRESS_SERVER_MOTD",	BOOL_TYPE_VAR,	DEFAULT_SUPPRESS_SERVER_MOTD, NULL, NULL, 0, VF_NODAEMON },
 	{ "TAB",			BOOL_TYPE_VAR,	DEFAULT_TAB, NULL, NULL, 0, 0 },
 	{ "TAB_MAX",			INT_TYPE_VAR,	DEFAULT_TAB_MAX, NULL, NULL, 0, 0 },
-	{ "TRANSLATION",		STR_TYPE_VAR,	0, NULL, set_translation, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
 /****************************************************************************/
@@ -351,9 +353,12 @@ init_variables()
 	set_string_var(SHELL_VAR, DEFAULT_SHELL);
 	set_string_var(SHELL_FLAGS_VAR, DEFAULT_SHELL_FLAGS);
 	set_string_var(DECRYPT_PROGRAM_VAR, UP(DEFAULT_DECRYPT_PROGRAM));
+	set_string_var(DISPLAY_ENCODING_VAR, DEFAULT_DISPLAY_ENCODING);
 	set_string_var(ENCRYPT_PROGRAM_VAR, DEFAULT_ENCRYPT_PROGRAM);
 	set_string_var(CONTINUED_LINE_VAR, DEFAULT_CONTINUED_LINE);
+	set_string_var(INPUT_ENCODING_VAR, DEFAULT_INPUT_ENCODING);
 	set_string_var(INPUT_PROMPT_VAR, DEFAULT_INPUT_PROMPT);
+	set_string_var(IRC_ENCODING_VAR, DEFAULT_IRC_ENCODING);
 	set_string_var(HIGHLIGHT_CHAR_VAR, DEFAULT_HIGHLIGHT_CHAR);
 	set_string_var(HISTORY_FILE_VAR, DEFAULT_HISTORY_FILE);
 	set_string_var(IRCHOST_VAR, empty_string);
@@ -401,15 +406,12 @@ init_variables()
 	set_beep_on_msg(DEFAULT_BEEP_ON_MSG);
 	set_string_var(STATUS_NOTIFY_VAR, DEFAULT_STATUS_NOTIFY);
 	set_string_var(CLIENTINFO_VAR, IRCII_COMMENT);
+#ifdef HAVE_ICONV_OPEN
+	set_irc_encoding(irc_variable[IRC_ENCODING_VAR].string);
+	set_input_encoding(irc_variable[INPUT_ENCODING_VAR].string);
+	set_display_encoding(irc_variable[DISPLAY_ENCODING_VAR].string);
+#endif /* HAVE_ICONV_OPEN */
 /**************************** PATCHED by Flier ******************************/
-        /* set below */
-/*#ifdef _Windows
-	set_string_var(TRANSLATION_VAR, "LATIN_1");
-	set_translation("LATIN_1");
-#else
-	set_string_var(TRANSLATION_VAR, "ASCII");
-	set_translation("ASCII");
-#endif*/ /* _Windows */
 	/*set_string_var(HELP_PATH_VAR, DEFAULT_HELP_PATH);*/
 /****************************************************************************/
 	set_lastlog_size(irc_variable[LASTLOG_VAR].integer);
@@ -433,20 +435,6 @@ init_variables()
         set_string_var(NOTIFY_STRING_VAR,CelerityNtfy);
         old_disp=window_display;
         window_display=0;
-#ifdef _Windows
-	set_string_var(TRANSLATION_VAR, "LATIN_1");
-	set_translation("LATIN_1");
-#else
-#if defined(WANTANSI)
-        if (get_int_var(HIGH_ASCII_VAR)) {
-            set_string_var(TRANSLATION_VAR,"LATIN_1");
-            set_translation("LATIN_1");
-        }
-#else
-	set_string_var(TRANSLATION_VAR, "ASCII");
-        set_translation("ASCII");
-#endif /* WANTANSI && HIGHASCII */
-#endif /* _Windows */
         window_display=old_disp;
         if (HelpPathVar) {
             set_string_var(HELP_PATH_VAR,HelpPathVar);

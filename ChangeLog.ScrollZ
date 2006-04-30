@@ -24,6 +24,10 @@ Meaning of flags:
       *!*~*@* and still alow *!*user@*.host.com, requested by tel)
     ! DESTDIR errors for manual pages (fix provided by Matto Fransen)
     ! numeric 477 is properly handled on Freenode (reported by TrN)
+    + merged UTF-8 support from ircII - some things might be
+      broken because of that, please report bugs
+    + support for channel modes gzQ on freenode (requested by TrN)
+    + $chankey(#channel) returns channel key (requested by TrN)
 
 ------------------------------------------------------------------------------
 

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.45 2004-06-18 17:02:05 f Exp $
+ * $Id: dcc.c,v 1.46 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -1397,7 +1397,7 @@ dcc_filesend(args)
 	Client = dcc_searchlist(FileBuf, user, DCC_FILEOFFER, 1, filename);
 	if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
 	{
-		say("Unable to open %s: %s\n", Client->description,
+		say("Unable to open %s: %s", Client->description,
 			errno ? strerror(errno) : "Unknown Host");
 		new_close(Client->read);
 		Client->read = Client->write = (-1);
@@ -1482,7 +1482,7 @@ dcc_resend(args)
 	Client = dcc_searchlist(FileBuf, user, DCC_RESENDOFFER, 1, filename);
 	if ((Client->file = open(Client->description, O_RDONLY | O_BINARY)) == -1)
 	{
-		say("Unable to open %s: %s\n", Client->description,
+		say("Unable to open %s: %s", Client->description,
 			errno ? strerror(errno) : "Unknown Host");
 		new_close(Client->read);
 		Client->read = Client->write = (-1);

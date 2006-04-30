@@ -252,6 +252,9 @@
 /* Define if you have the <fcntl.h> header file.  */
 #undef HAVE_FCNTL_H
 
+/* Define if you have the <iconv.h> header file.  */
+#undef HAVE_ICONV_H
+
 /* Define if you have the <limits.h> header file.  */
 #undef HAVE_LIMITS_H
 
@@ -329,6 +332,12 @@
 
 /* Define if you have the sun library (-lsun).  */
 #undef HAVE_LIBSUN
+
+/* define this if you have iconv_open(3) */
+#undef HAVE_ICONV_OPEN
+
+/* define this if your iconv(3)'s 2nd argument is const */
+#undef ICONV_CONST_ARG2
 
 /**************************** PATCHED by Flier ******************************/
 /* Define this if you have OpenSSL */

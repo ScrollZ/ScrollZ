@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.158 2006-01-27 17:55:05 f Exp $
+ * $Id: edit6.c,v 1.159 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -555,7 +555,11 @@ void PrintMap() {
     char tmpbuf2[mybufsize/4];
     struct mapstr *tmpmap;
 
+#ifdef HAVE_ICONV_H
+    if (get_int_var(HIGH_ASCII_VAR)) ascii="\342\224\224\342\224\200> ";
+#else
     if (get_int_var(HIGH_ASCII_VAR)) ascii="юд> ";
+#endif /* HAVE_ICONV_H */
     else ascii="`-> ";
     if (maplist) prevdist=maplist->distance;
     for (tmpmap=maplist;maplist;tmpmap=maplist) {
@@ -2258,11 +2262,11 @@ char *subargs;
         if (key) EncryptAdd(tmpbuf, key);
         else if (*user == '-') {
             if (pass) EncryptDelUser(user + 1);
-            else add_wait_prompt("Master password:", EncryptMasterDelUser, user + 1, WAIT_PROMPT_LINE);
+            else add_wait_prompt("Master Password:", EncryptMasterDelUser, user + 1, WAIT_PROMPT_LINE);
         }
         else {
             if (pass) add_wait_prompt("Password:", EncryptAdd, tmpbuf, WAIT_PROMPT_LINE);
-            else add_wait_prompt("Master password:", EncryptMasterPass, tmpbuf, WAIT_PROMPT_LINE);
+            else add_wait_prompt("Master Password:", EncryptMasterPass, tmpbuf, WAIT_PROMPT_LINE);
         }
     }
     else {
@@ -2276,7 +2280,7 @@ char *subargs;
         else *(tmpbuf + 1) = '0';
         *(tmpbuf + 2) = '\0';
         if (pass || (!show_keys && !clear_all)) EncryptList(tmpbuf);
-        else add_wait_prompt("Master password:", EncryptMasterList, tmpbuf, WAIT_PROMPT_LINE);
+        else add_wait_prompt("Master Password:", EncryptMasterList, tmpbuf, WAIT_PROMPT_LINE);
     }
 }
 
@@ -2955,15 +2959,8 @@ char *channel;
 
 /* Force redraw of status bars and input prompt */
 void RedrawAll(void) {
-    char tmpbuf[INPUT_BUFFER_SIZE + 1];
-
     build_status(NULL);
-    strmcpy(tmpbuf, current_screen->input_buffer, INPUT_BUFFER_SIZE);
-    current_screen->input_buffer[0] = '\0';
-    current_screen->buffer_pos = 0;
-    current_screen->buffer_min_pos = 0;
     update_input(UPDATE_ALL);
-    set_input_prompt(tmpbuf);
     refresh_screen(0, NULL);
 }
 

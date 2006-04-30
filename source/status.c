@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.31 2003-10-04 18:15:23 f Exp $
+ * $Id: status.c,v 1.32 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
@@ -94,9 +94,9 @@ static	char	*status_refnum _((Window *));
 static	char	*status_null_function _((Window *));
 static	char	*status_notify_windows _((Window *));
 static	char	*status_group _((Window *));
-static	void	status_make_printable _((unsigned char *, int));
 static	void	alarm_switch _((int));
 static	char	*convert_sub_format _((char *, int));
+static	void	make_status_one _((Window *, int, int));
 /**************************** PATCHED by Flier ******************************/
 static	char	*status_user00 _((Window *));
 static	char	*status_user01 _((Window *));
@@ -611,7 +611,8 @@ convert_format(format, k)
 				switch (*(ptr++))
 				{
 				case '%':
-					strmcat(lbuf, "%", BIG_BUFFER_SIZE);
+					/* %% instead of %, because this will be passed to snprintf */
+					strmcat(lbuf, "%%", BIG_BUFFER_SIZE);
 					break;
 				case 'N':
 					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
@@ -1125,15 +1126,7 @@ void
 make_status(window)
 	Window	*window;
 {
-	int	i, len, k, l,
-		RJustifyPos = -1,
-		RealPosition;
-	u_char	lbuf[BIG_BUFFER_SIZE + 1];
-	char	*func_value[MAX_FUNCTIONS];
-	int	final;
-/**************************** PATCHED by Flier ******************************/
-        int     change = 1;
-/****************************************************************************/
+	int	k, l, final;
 
 	switch (window->double_status) {
 	case -1:
@@ -1147,12 +1140,12 @@ make_status(window)
 	case 1:
 		final = 2;
 		break;
-/**************************** Patched by Flier ******************************/
+/**************************** PATCHED by Flier ******************************/
 	case 2:
 		final = 3;
 		break;
-/****************************************************************************/
 	default:
+/****************************************************************************/
 		yell("--- make_status: unknown window->double value %d", window->double_status);
 		final = 1;
 	}
@@ -1161,196 +1154,176 @@ make_status(window)
 		if (k)
 /**************************** PATCHED by Flier ******************************/
 			/*l = 2;*/
-                        l = k + 1;
+			l = k + 1;
 /****************************************************************************/
 		else if (window->double_status)
 			l = 1;
 		else
 			l = 0;
-
+			
 		if (!dumb && status_format[l])
-		{
- 			/*
- 			 * XXX: note that this code below depends on the definition
-			 * of MAX_FUNCTIONS (currently 33), and the snprintf must
- 			 * be updated if MAX_FUNCTIONS is changed.
- 			 */
-			for (i = 0; i < MAX_FUNCTIONS; i++)
-				func_value[i] = (status_func[l][i]) (window);
-/**************************** PATCHED by Flier ******************************/
-			/*lbuf[0] = REV_TOG;*/
-                        lbuf[0] = get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
-/****************************************************************************/
-			snprintf(CP(lbuf+1), sizeof(lbuf) - 1, CP(status_format[l]),
-				func_value[0], func_value[1], func_value[2],
-				func_value[3], func_value[4], func_value[5],
-				func_value[6], func_value[7], func_value[8],
-				func_value[9], func_value[10], func_value[11],
-				func_value[12], func_value[13], func_value[14],
-				func_value[15], func_value[16], func_value[17],
-				func_value[18], func_value[19], func_value[20],
-				func_value[21], func_value[22], func_value[23],
-				func_value[24], func_value[25], func_value[26],
-				func_value[27], func_value[28], func_value[29],
-				func_value[30], func_value[31], func_value[32],
-				func_value[33], func_value[34], func_value[35]);
-			for (i = 0; i < MAX_FUNCTIONS; i++)
-				new_free(&(func_value[i]));
-			
-			/*  Patched 26-Mar-93 by Aiken
-			 *  make_window now right-justifies everything 
-			 *  after a %>
-			 *  it's also more efficient.
-			 */
-			
-			RealPosition = 0;
-			RJustifyPos = -1;
-			for (i = 0; lbuf[i]; i++)
-				/* formfeed is a marker for left/right border*/
-				if (lbuf[i] == '\f')
-				{
-					RJustifyPos = i;
-				}
-/**************************** PATCHED by Flier ******************************/
-				/*else if (lbuf[i] != REV_TOG
-					 && lbuf[i] != UND_TOG 
-					 && lbuf[i] != ALL_OFF 
-					 && lbuf[i] != BOLD_TOG)*/
-#ifdef WANTANSI
-                                else if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
-                                         lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG
-                                         && !vt100Decode(lbuf[i]))
-#else
-                                else if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
-                                         lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG)
-#endif
-/****************************************************************************/
-				{
-					if (RealPosition == current_screen->co)
-					{
-						lbuf[i] = '\0';
-						break;
-					}
-					RealPosition++;
-				}
-			
-			/* note that i points to the nul, 
-			   RealPosition is vis.chars */
-			
-			if (RJustifyPos == -1)
-			{
-				RJustifyPos = i;
-			}
-			else
-			{
-				/* get rid of the marker */
-				strcpy((char *) &lbuf[RJustifyPos], 
-					(char *) &lbuf[RJustifyPos+1]);
-				i--;
-			}
-			
-			if (get_int_var(FULL_STATUS_LINE_VAR))
-			{
-				int	diff;
-				u_char	c;
-				
-				if (RJustifyPos == 0)
-					c = ' ';
-				else
-					c = lbuf[RJustifyPos - 1];
-				
-				diff = current_screen->co - RealPosition;
-				
-				for ( ; i >= RJustifyPos; i--)
-					lbuf[i + diff] = lbuf[i];
-				
-				for (i++ ; diff > 0 ; diff--, i++)
-					lbuf[i] = c;
-			}
-
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                        if (get_int_var(DISPLAY_ANSI_VAR))
-                            strmcat(lbuf, "[0m", sizeof(lbuf));
-#endif
-/****************************************************************************/
-
-			len = strlen((char *) lbuf);
-			lbuf[len] = ALL_OFF;
-			lbuf[len+1] =  '\0';
-
-			status_make_printable(lbuf, len);
-
-	      /*
-	       * Thanks to Max Bell (mbell@cie.uoregon.edu) for info about TVI
-	       * terminals and the sg terminal capability 
-	       */
-			RealPosition = 0;
-/**************************** PATCHED by Flier ******************************/
-			/*if (window->status_line[k] && (SG == -1))
-			{
-				for (i = 0; lbuf[i] && window->status_line[k][i]; i++)
-				{
-					if ((char) lbuf[i] != window->status_line[k][i])
-						break;
-					if (lbuf[i] != REV_TOG 
-					    && lbuf[i] != UND_TOG
-					    && lbuf[i] != ALL_OFF
-					    && lbuf[i] != BOLD_TOG)
-						RealPosition++;
-				}
-			}
-			else
-				i = 0;
-			
-			if ((len = strlen((char *) lbuf + i)) 
-			     || lbuf[i] || window->status_line[k] 
-			     || window->status_line[k][i])*/
-#ifdef WANTANSI
-                        i=0;
-                        if (window->status_line[k])
-                            change = strcmp(lbuf, window->status_line[k]) != 0 ? 1 : 0;
-#else
-                        if (window->status_line[k] && (SG == -1))
-                        {
-                            for (i = 0; lbuf[i] && window->status_line[k][i]; i++)
-                            {
-                                if (lbuf[i] != window->status_line[k][i])
-                                    break;
-                                if (lbuf[i] != REV_TOG && lbuf[i] != UND_TOG &&
-                                    lbuf[i] != ALL_OFF && lbuf[i] != BOLD_TOG)
-                                    RealPosition++;
-                            }
-                        }
-                        else
-                            i=0;
-#endif
-                        if (change && ((len = strlen(lbuf + i)) || lbuf[i] ||
-                                          window->status_line[k] || window->status_line[k][i]))
-/****************************************************************************/
-			{
-				Screen *old_current_screen;
-				
-				old_current_screen = current_screen;
-				set_current_screen(window->screen);
-				term_move_cursor(RealPosition, window->bottom
-						 + k);
-/*
-				term_move_cursor(RealPosition, window->bottom
-						 + k - window->double_status);
-*/
-				output_line((char *)lbuf, NULL, i);
-				cursor_in_display();
-				if (term_clear_to_eol())
-					term_space_erase(len);
-				malloc_strcpy(&window->status_line[k],
-					      (char *) lbuf);
-				set_current_screen(old_current_screen);
-			}
-		}
+			make_status_one(window, k, l);
 	}
 out:
 	cursor_to_input();
+}
+
+static	void
+make_status_one(window, k, l)
+	Window	*window;
+	int	k;
+	int	l;
+{
+	u_char	lbuf[BIG_BUFFER_SIZE];
+	u_char	rbuf[BIG_BUFFER_SIZE];
+	u_char	*func_value[MAX_FUNCTIONS];
+	size_t	len;
+	int	i;
+	int rjustifypos;
+	int justifypadlen;
+	int RealPosition;
+
+	/*
+	 * XXX: note that this code below depends on the definition
+	 * of MAX_FUNCTIONS (currently 33), and the snprintf must
+	 * be updated if MAX_FUNCTIONS is changed.
+	 */
+	for (i = 0; i < MAX_FUNCTIONS; i++)
+		func_value[i] = (status_func[l][i]) (window);
+/**************************** PATCHED by Flier ******************************/
+	/*lbuf[0] = REV_TOG;*/
+        lbuf[0] = get_int_var(STATUS_REVERSE_VAR) ? REV_TOG : ALL_OFF;
+/****************************************************************************/
+	snprintf(CP(lbuf+1),
+	       sizeof(lbuf) - 1,
+	       CP(status_format[l]),
+		func_value[0], func_value[1], func_value[2],
+		func_value[3], func_value[4], func_value[5],
+		func_value[6], func_value[7], func_value[8],
+		func_value[9], func_value[10], func_value[11],
+		func_value[12], func_value[13], func_value[14],
+		func_value[15], func_value[16], func_value[17],
+		func_value[18], func_value[19], func_value[20],
+		func_value[21], func_value[22], func_value[23],
+		func_value[24], func_value[25], func_value[26],
+		func_value[27], func_value[28], func_value[29],
+		func_value[30], func_value[31], func_value[32],
+		func_value[33], func_value[34], func_value[35]);
+	for (i = 0; i < MAX_FUNCTIONS; i++)
+		new_free(&(func_value[i]));
+	
+	/*  Patched 26-Mar-93 by Aiken
+	 *  make_window now right-justifies everything 
+	 *  after a %>
+	 *  it's also more efficient.
+	 */
+	
+	rjustifypos   = -1;
+	justifypadlen = 0;
+	for (i = 0; lbuf[i]; i++)
+	{
+		/* formfeed is a marker for left/right border*/
+		if (lbuf[i] == '\f')
+		{
+			int len_left;
+			int len_right;
+			
+			/* Split the line to left and right part */
+			lbuf[i] = '\0';
+			
+			/* Get lengths of left and right part in number of columns */
+			len_right = my_strlen_c(lbuf);
+			len_left  = my_strlen_c(lbuf+i+1);
+			
+			justifypadlen = current_screen->co - len_right - len_left;
+			
+			if (justifypadlen < 0)
+				justifypadlen = 0;
+			
+			/* Delete the marker */
+			/* FIXME: strcpy may not be used for overlapping buffers */
+			strcpy(lbuf+i, lbuf+i+1);
+			
+			rjustifypos = i;
+		}
+	}
+	
+	if (get_int_var(FULL_STATUS_LINE_VAR))
+	{
+		if (rjustifypos == -1)
+		{
+			int length    = my_strlen_c(lbuf);
+
+			justifypadlen = current_screen->co - length;
+			if (justifypadlen < 0)
+				justifypadlen = 0;
+			rjustifypos = strlen(lbuf);
+		}
+		if (justifypadlen > 0)
+		{
+			/* Move a part of the data out of way */
+			memmove(lbuf + rjustifypos + justifypadlen,
+					lbuf + rjustifypos,
+					strlen(lbuf) - rjustifypos + 1); // +1 = zero terminator
+			
+			/* Then fill the part with spaces */
+			memset(lbuf + rjustifypos,
+				   ' ',
+				   justifypadlen);
+		}
+	}
+	
+	len = strlen(lbuf);
+	if (len > (sizeof(lbuf) - 2))
+		len = sizeof(lbuf) - 2;
+	lbuf[len] = ALL_OFF;
+	lbuf[len+1] =  '\0';
+	
+	my_strcpy_ci(rbuf, lbuf);
+	
+	RealPosition = 0;
+	i = 0;
+#if 0
+    /* obsoleted this stuff because the character set conversion
+     * thing may render the positions bad -Bisqwit
+     */
+-----
+	/*
+	 * Thanks to Max Bell (mbell@cie.uoregon.edu) for info
+	 * about TVI terminals and the sg terminal capability 
+	 */
+	if (window->status_line[k] && (SG == -1))
+	{
+		for (i = 0; rbuf[i] && window->status_line[k][i]; i++)
+		{
+			if ((u_char) rbuf[i] != window->status_line[k][i])
+				break;
+			if (rbuf[i] != REV_TOG 
+			    && rbuf[i] != UND_TOG
+			    && rbuf[i] != ALL_OFF
+			    && rbuf[i] != BOLD_TOG)
+				RealPosition++;
+		}
+	}
+	else
+		i = 0;
+	
+	if ((len = my_strlen(rbuf + i)) || rbuf[i] ||
+	    window->status_line[k] || window->status_line[k][i])
+#endif
+	{
+		Screen *old_current_screen;
+		
+		old_current_screen = current_screen;
+		set_current_screen(window->screen);
+		term_move_cursor(RealPosition, window->bottom + k);
+		len = output_line(rbuf, i);
+		cursor_in_display();
+		if (term_clear_to_eol() && len < current_screen->co)
+			term_space_erase(current_screen->co - len);
+		malloc_strcpy(&window->status_line[k], rbuf);
+		set_current_screen(old_current_screen);
+	}
 }
 
 static	char	*
@@ -1930,65 +1903,6 @@ status_null_function(window)
 
 	malloc_strcpy(&ptr, empty_string);
 	return (ptr);
-}
-
-/*
- * pass an already allocated char array with n bits, and this
- * gets rid of nasty unprintables.
- */
-static	void
-status_make_printable(str, n)
-	u_char	*str;
-	int n;
-{
-	u_char	*s;
-	int	pos;
-	char	lbuf[BIG_BUFFER_SIZE+1];
-
-	if (!str || !*str)
-		return;
-
-	bzero(lbuf, BIG_BUFFER_SIZE);
-	for (pos = 0, s = str; s && pos < BIG_BUFFER_SIZE && pos < n; s++)
-	{
-		if (translation)
-			*s = transToClient[*s];
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-                if (vt100Decode(*s)) {
-                    lbuf[pos++]=*s;
-                    continue;
-                }
-#endif
-/****************************************************************************/
-		if (*s < 32)
-		{
-			switch(*s)
-			{
-			case UND_TOG:
-			case ALL_OFF:
-			case REV_TOG:
-			case BOLD_TOG:
-				lbuf[pos++] = *s;
-				break;
-			default:
-				lbuf[pos++] = REV_TOG;
-				lbuf[pos++] = (*s & 0x7f) | 0x40;
-				lbuf[pos++] = REV_TOG;
-				break;
-			}
-		}
-		else if ((u_char) 0x7f == *s)
-		{
-			lbuf[pos++] = REV_TOG;
-			lbuf[pos++] = '?';
-			lbuf[pos++] = REV_TOG;
-		}
-		else
-			lbuf[pos++] = *s;
-	}
-	lbuf[pos] = '\0';
-	strncpy((char *) str, lbuf, pos);
 }
 
 /**************************** PATCHED by Flier ******************************/

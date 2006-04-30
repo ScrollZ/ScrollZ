@@ -33,10 +33,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.21 2004-04-27 09:04:53 f Exp $
+ * $Id: input.c,v 1.22 2006-04-30 14:15:43 f Exp $
  */
 
 #include "irc.h"
+
+#ifdef HAVE_ICONV_H
+# include <iconv.h>
+#endif /* HAVE ICONV_H */
 
 #include "input.h"
 #include "ircterm.h"
@@ -47,6 +51,7 @@
 #include "screen.h"
 #include "exec.h"
 #include "output.h"
+#include "translat.h"
 
 #include "debug.h"
 
@@ -65,15 +70,18 @@ extern NickList *tabnickcompl;
 /* input_prompt: contains the current, unexpanded input prompt */
 static	char	*input_prompt = (char *) 0;
 
+static struct mb_data mbdata;
+static int mbdata_ok = 0;
+
 /**************************** PATCHED by Flier ******************************/
 static void ResetNickCompletion() {
-    tabnickcompl=NULL;
+    tabnickcompl = NULL;
 }
 /****************************************************************************/
 
 /* cursor_to_input: move the cursor to the input line, if not there already */
 void
-cursor_to_input()
+cursor_to_input(void)
 {
 	Screen *old_current_screen, *screen;
 
@@ -83,13 +91,308 @@ cursor_to_input()
 		set_current_screen(screen);
 		if (screen->alive && is_cursor_in_display())
 		{
-			term_move_cursor(screen->cursor, screen->input_line);
+			term_move_cursor(screen->inputdata.cursor_x, screen->inputdata.cursor_y);
 			Debug((3, "cursor_to_input: moving cursor to input for screen %d", screen->screennum));
 			cursor_not_in_display();
 			term_flush();
 		}
 	}
 	set_current_screen(old_current_screen);
+}
+
+static unsigned
+input_do_calculate_width(unsigned unival, iconv_t conv)
+{
+	if (!displayable_unival(unival, conv))
+	{
+		/* undisplayable values are printed raw */
+		if (unival < 0x80)
+			return 1;
+		if (unival < 0x800)
+			return 2;
+		if (unival < 0x10000)
+			return 3;
+		return 4;
+	}
+	return calc_unival_width(unival);
+}
+
+static void
+input_do_set_cursor_pos(unsigned pos)
+{
+	cursor_to_input();
+	current_screen->inputdata.buffer.pos = pos;
+	update_input(UPDATE_JUST_CURSOR);
+}
+
+static void
+input_do_insert_raw(char* source)
+{
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	unsigned max = sizeof(current_screen->inputdata.buffer.buf);
+	unsigned inslen = strlen(source);
+	
+	/* This function inserts the given substring of bytes
+	 * to the input line at the current editing position.
+	 * Cursor is moved to point to the end of the substring.
+	 */
+	
+	if (pos + inslen > max)
+	{
+		inslen = max-pos;
+	}
+	
+	/* Move the tail out of way */
+	memmove(buf + pos + inslen,
+	        buf + pos,
+	        max - pos - inslen);
+	/* Then put the substring in */
+	memcpy(buf + pos,
+	       source,
+	       inslen);
+	/* Ensure the buffer is terminated */
+	buf[max-1] = '\0';
+
+	pos += inslen;
+	if (pos > max)
+		pos = max;
+	
+	/* Update the screen from the old cursor position */
+	cursor_to_input();
+	update_input(UPDATE_FROM_CURSOR);
+	/* Then place the cursor correctly */
+	input_do_set_cursor_pos(pos);
+}
+
+static void
+input_do_delete_raw(int n, int do_save_cut)
+{
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	unsigned max = sizeof(current_screen->inputdata.buffer.buf);
+
+	cursor_to_input();
+/*
+	fprintf(stderr, "pos(%u)max(%u)buf(%s)do_delete_raw(%d, %d)\n",
+	    pos,max,buf, n, do_save_cut);
+*/
+	/* If n>0, deletes from front
+	 * if n<0, deletes from back & moves cursor
+	 */
+	if (n < 0)
+	{
+		unsigned limit = current_screen->inputdata.buffer.minpos;
+		/* Number of bytes LEFT from the cursor (prompt excluding) */
+		unsigned oldbytes = pos-limit;
+		unsigned erasebytes = -n;
+
+		/* Don't delete more than we can */
+		if (erasebytes > oldbytes)
+			erasebytes = oldbytes;
+
+		/* Move cursor backward */
+		pos -= erasebytes;
+		input_do_set_cursor_pos(pos);
+
+		/* Then delete from forward */
+		n = erasebytes;
+	}
+	if (n > 0)
+	{
+		unsigned oldbytes = max-pos;
+		unsigned erasebytes = n > oldbytes ? oldbytes : n;
+		unsigned newbytes = oldbytes - erasebytes;
+		
+		if (do_save_cut)
+		{
+			if (cut_buffer) new_free(&cut_buffer);
+			cut_buffer = new_malloc(erasebytes+1);
+			memcpy(cut_buffer, buf+pos, erasebytes);
+			cut_buffer[erasebytes] = '\0';
+		}
+		
+		memmove(buf+pos,
+		        buf+pos+erasebytes,
+		        newbytes);
+		buf[pos+newbytes] = '\0';
+	}
+/*
+	fprintf(stderr, "-> pos(%u)max(%u)buf(%s)\n",
+	    pos,max,buf);
+*/
+	/* Now update the right side from cursor */
+	update_input(UPDATE_FROM_CURSOR);
+}
+
+static void
+input_do_delete_chars(int n, int do_save_cut)
+{
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+
+	/* The usage of this function is identical to input_do_delete_raw(),
+	 * but instead of bytes, n means the number of characters.
+	 * Since characters may consist of 1-4 bytes, this
+	 * function converts the number to bytes and then
+	 * calls input_do_delete_raw().
+	 */
+	if (n > 0)
+	{
+		int bytes;
+		for (bytes = 0; buf[pos] != '\0' && n > 0; --n)
+		{
+			unsigned length = calc_unival_length(buf+pos);
+			bytes += length;
+			pos   += length;
+		}
+		input_do_delete_raw(bytes, do_save_cut);
+	}
+	else if (n < 0)
+	{
+		unsigned limit = current_screen->inputdata.buffer.minpos;
+		
+		int bytes;
+		for(bytes=0; n<0 && pos > limit; ++n)
+		{
+			/* Go back until we reach a beginning of a character */
+			for(;;)
+			{
+				unsigned length = calc_unival_length(buf + --pos);
+				if (length) { bytes += length; break; }
+				/* But don't go more than we're allowed to */
+				if (pos == limit) break;
+			}
+		}
+		input_do_delete_raw(-bytes, do_save_cut);
+	}
+}
+
+static void
+input_do_replace_prompt(u_char *newprompt)
+{
+	ScreenInputBufferData* bufdata = &current_screen->inputdata.buffer;
+	char* buf  = bufdata->buf;
+	unsigned oldlen = bufdata->minpos;
+	unsigned newlen = strlen(newprompt);
+	unsigned max = sizeof(bufdata->buf);
+	unsigned saved_len = max - (oldlen > newlen ? oldlen : newlen);
+/*
+	fprintf(stderr, "oldlen=%u, newlen=%u, max=%u, saved_len=%u\n",
+		oldlen,newlen, max, saved_len);
+*/
+	memmove(buf+newlen,
+	        buf+oldlen,
+	        saved_len);
+	memcpy(buf,
+	       newprompt,
+	       newlen);
+	buf[max-1] = '\0'; /* prevent dragons */
+	
+	bufdata->minpos = newlen;
+	bufdata->pos	= bufdata->pos - oldlen + newlen;
+	
+	if (bufdata->pos < newlen)
+		bufdata->pos = newlen;	
+}
+
+static int
+input_is_password_prompt(void)
+{
+	char* buf    = current_screen->inputdata.buffer.buf;
+	unsigned limit = current_screen->inputdata.buffer.minpos;
+	
+	if (limit < 9)
+		return 0;
+	
+	/* If the prompt ends with "Password:", it is a password prompt. */
+	/* This includes the following known prompts:
+	 *   "Password:"
+	 *   "Operator Password:"
+	 *   "Server Password:"
+         * PATCHED by Flier
+	 *   "Master Password:"
+	 *   "Old Master Password:"
+	 */
+	return my_strnicmp(buf+limit-9, "Password:", 9) == 0;
+}
+
+static char
+input_do_check_prompt(int update)
+{
+	char	*prompt;
+	
+	char changed = 0;
+
+	if (current_screen->promptlist)
+		prompt = current_screen->promptlist->prompt;
+	else
+/**************************** PATCHED by Flier ******************************/
+        {
+/****************************************************************************/
+		prompt = input_prompt;
+/**************************** PATCHED by Flier ******************************/
+                /*
+                 * fix bug where old prompt was not replaced in case of
+                 * an empty input_prompt
+                 */
+                if (prompt == NULL) prompt = empty_string;
+        }
+/****************************************************************************/
+	if (prompt)
+	{
+		if (update != NO_UPDATE)
+		{
+			int free_it = 1;
+			unsigned len;
+			char	*ptr;
+			int	args_used;	/* this isn't used here but is
+						 * passed to expand_alias()
+						 */
+#ifndef _Windows
+			if (is_process(get_target_by_refnum(0)))
+			{
+				ptr = get_prompt_by_refnum(0);
+				free_it = 0;
+			}
+			else
+#endif /* _Windows */
+				ptr = expand_alias((u_char *) 0, prompt, empty_string, &args_used, NULL);
+
+			len = strlen(ptr);
+			if (strncmp(ptr, current_screen->inputdata.buffer.buf, len) || !len)
+			{
+				input_do_replace_prompt(ptr);
+				changed = 1;
+			}
+			if (free_it)
+				new_free(&ptr);
+		}
+	}
+	return changed;
+}
+
+static char
+input_check_resized(void)
+{
+	ScreenInputData* inputdata = &current_screen->inputdata;
+
+	if (inputdata->old_li == current_screen->li
+	    && inputdata->old_co == current_screen->co)
+		return 0;
+
+	/* resized?  Keep it simple and reset everything */
+	inputdata->cursor_x = 0;
+	inputdata->cursor_y = current_screen->li - 1;
+	inputdata->old_li   = current_screen->li;
+	inputdata->old_co   = current_screen->co;
+	
+	inputdata->zone     = current_screen->co;
+	if (inputdata->zone > WIDTH)
+		inputdata->zone -= WIDTH;
+	if (inputdata->zone > WIDTH)
+		inputdata->zone -= WIDTH;
+	return 1;
 }
 
 /*
@@ -113,201 +416,165 @@ void
 update_input(update)
 	int	update;
 {
-	int	old_start;
-	char	*ptr;
- 	int	free_it = 1,
-		cnt,
-		max;
-	char	*prompt;
- 	size_t	len;
-/**************************** PATCHED by Flier ******************************/
-        int     ansi_count = 0;
-/****************************************************************************/
+	ScreenInputData* inputdata = &current_screen->inputdata;
+	iconv_t display_conv = NULL;
+	
+	int term_echo = 1;
 
 	if (dumb)
 		return;
+
 	cursor_to_input();
-	if (current_screen->promptlist)
-		prompt = current_screen->promptlist->prompt;
-	else
-		prompt = input_prompt;
-	if (prompt)
-	{
-		if (update != NO_UPDATE)
-		{
-			char	*inp_ptr = (char *) 0;
-			int	args_used;	/* this isn't used here but is
-						 * passed to expand_alias()
-						 */
-#ifndef _Windows
-			if (is_process(get_target_by_refnum(0)))
-			{
-				ptr = (char *)get_prompt_by_refnum(0);
-				free_it = 0;
-			}
-			else
-#endif /* _Windows */
-				ptr = expand_alias((char *) 0, prompt, empty_string, &args_used, NULL);
 
-			len = strlen(ptr);
-			if (*ptr && ((len == 9 && my_strnicmp(ptr, "Password:", 9) == 0) ||
-				     (len == 18 && my_strnicmp(ptr, "Operator Password:", 18) == 0) ||
-/**************************** Patched by Flier ******************************/
-				     (len == 16 && my_strnicmp(ptr, "Master password:", len) == 0) ||
-				     (len == 20 && my_strnicmp(ptr, "Old master password:", len) == 0) ||
-/****************************************************************************/
-					(len == 16 && my_strnicmp(ptr, "Server Password:", 16) == 0)))
-				term_echo(0);
+	if (input_do_check_prompt(update))
+		update = UPDATE_ALL;
+	
+	term_echo = !input_is_password_prompt();
+
+	if (input_check_resized())
+		update = UPDATE_ALL;
+	
+	if (update != NO_UPDATE)
+	{
+#ifdef HAVE_ICONV_OPEN
+		const char *enc = display_encoding;
+		if (!enc)
+			enc = "ISO-8859-1";
+		display_conv = iconv_open(enc, "UTF-8");
+#endif /* HAVE_ICONV_OPEN */
+	}
+	
+/*
+	{
+		unsigned a;
+		u_char* buf  = inputdata->buffer.buf;
+		fputc('"', stderr);
+		for (a = 0; buf[a]; ++a)
+			fputc(buf[a], stderr);
+		fprintf(stderr, "\"\n");
+		fputc('>', stderr);
+		for (a = 0; buf[a]; ++a)
+			if (a == inputdata->buffer.pos)
+				fputc('^', stderr);
+			else if (a == inputdata->buffer.minpos)
+				fputc('|', stderr);
 			else
-				term_echo(1);
-			if (strncmp(ptr, current_screen->input_buffer, len) || !len)
+				fputc(' ', stderr);
+		fprintf(stderr, "\n");
+	}
+*/
+	if (update == UPDATE_JUST_CURSOR || update == UPDATE_ALL)
+	{
+		char* buf  = inputdata->buffer.buf;
+		unsigned pos = inputdata->buffer.pos;
+		unsigned limit = inputdata->buffer.minpos;
+		unsigned column, ptr;
+		
+		unsigned window;
+		
+		/* Recalculate pos_column */
+		for (column = ptr = 0; ptr < pos; )
+		{
+			unsigned unival = calc_unival(buf+ptr);
+
+			if (!term_echo && ptr >= limit)
+				unival = ' ';
+
+			column += input_do_calculate_width(unival, display_conv);
+			ptr    += calc_unival_length(buf+ptr);
+		}
+		inputdata->pos_column = column;
+
+		window = column - (column % inputdata->zone);
+		
+		/* Recalculate left_ptr */
+		for (column = ptr = 0; column < window; )
+		{
+			unsigned unival = calc_unival(buf+ptr);
+			
+			if (!term_echo && ptr >= limit)
+				unival = ' ';
+			
+			column += input_do_calculate_width(unival, display_conv);
+			ptr    += calc_unival_length(buf+ptr);
+		}
+		/* If the left edge has been moved, redraw the input line */
+		if (ptr != inputdata->left_ptr)
+			update = UPDATE_ALL;
+		inputdata->left_ptr = ptr;
+		
+		/* Recalculate cursor_x */
+		inputdata->cursor_x = inputdata->pos_column - column;
+	}
+	
+	if (update == UPDATE_FROM_CURSOR || update == UPDATE_ALL)
+	{
+		unsigned limit = inputdata->buffer.minpos;
+		char *buf = inputdata->buffer.buf;
+		char VisBuf[BIG_BUFFER_SIZE];
+		unsigned column, iptr, optr;
+		int written;
+		
+		for (column = 0, optr = 0, iptr = inputdata->left_ptr;
+			buf[iptr] != '\0' && column < current_screen->co; )
+		{
+			unsigned unival = calc_unival(buf+iptr);
+			unsigned len = calc_unival_length(buf+iptr);
+			
+			if (!term_echo && iptr >= limit)
+				unival = ' ';
+			
+			if (displayable_unival(unival, display_conv))
 			{
-				malloc_strcpy(&inp_ptr, current_screen->input_buffer + current_screen->buffer_min_pos);
-/**************************** Patched by Flier ******************************/
-				/*strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);*/
-                                if (get_int_var(DISPLAY_ANSI_VAR))
-                                    strmcpy(current_screen->input_buffer, ptr, INPUT_BUFFER_SIZE);
-                                else {
-                                    StripAnsi(ptr, current_screen->input_buffer, 2);
-                                    len = strlen(current_screen->input_buffer);
+				column += calc_unival_width(unival);
+/**************************** PATCHED by Flier ******************************/
+                                /*
+                                 * hide password prompts
+                                 */
+                                if (!term_echo && (unival == ' ')) {
+                                    char *space = " ";
+
+                                    memcpy(VisBuf+optr, space, 1);
                                 }
+                                else
 /****************************************************************************/
-				current_screen->buffer_pos += (len - current_screen->buffer_min_pos);
-/**************************** Patched by Flier ******************************/
-				/*current_screen->buffer_min_pos = strlen(ptr);*/
-				current_screen->buffer_min_pos = len;
-/****************************************************************************/
-				strmcat(current_screen->input_buffer, inp_ptr, INPUT_BUFFER_SIZE);
-				new_free(&inp_ptr);
-				update = UPDATE_ALL;
+				memcpy(VisBuf+optr, buf+iptr, len);
+				optr += len;
+				iptr += len;
 			}
-			if (free_it)
-				new_free(&ptr);
-		}
-	}
-	else
-		term_echo(1);
-	if ((current_screen->old_input_li != current_screen->li) || (current_screen->old_input_co != current_screen->co))
-	{
-		/* resized?  Keep it simple and reset everything */
-		current_screen->input_line = current_screen->li - 1;
-		current_screen->zone = current_screen->co - (WIDTH * 2);
-		current_screen->lower_mark = WIDTH;
-		current_screen->upper_mark = current_screen->co - WIDTH;
-		current_screen->cursor = current_screen->buffer_min_pos;
-		current_screen->old_input_li = current_screen->li;
-		current_screen->old_input_co = current_screen->co;
-	}
-	old_start = current_screen->str_start;
-/**************************** PATCHED by Flier ******************************/
-	/*while ((current_screen->buffer_pos < current_screen->lower_mark) && current_screen->lower_mark > WIDTH)
-	{
-		current_screen->upper_mark = current_screen->lower_mark;
-		current_screen->lower_mark -= current_screen->zone;
-		current_screen->str_start -= current_screen->zone;
-	}
-	while (current_screen->buffer_pos >= current_screen->upper_mark)
-	{
-		current_screen->lower_mark = current_screen->upper_mark;
-		current_screen->upper_mark += current_screen->zone;
-		current_screen->str_start += current_screen->zone;
-	}*/
-#ifdef WANTANSI
-        ansi_count = CountAnsiInput(current_screen->input_buffer,
-                                    current_screen->buffer_pos);
-#endif
-	while ((current_screen->buffer_pos - ansi_count < current_screen->lower_mark) &&
-	        current_screen->lower_mark > WIDTH)
-	{
-		current_screen->upper_mark = current_screen->lower_mark;
-                current_screen->lower_mark -= current_screen->zone;
-                current_screen->str_start -= current_screen->zone;
-                if (current_screen->lower_mark < current_screen->zone) current_screen->str_start -= ansi_count;
-	}
-	while (current_screen->buffer_pos - ansi_count >= current_screen->upper_mark)
-        {
-                if (current_screen->lower_mark < current_screen->zone) current_screen->str_start += ansi_count;
-                current_screen->lower_mark = current_screen->upper_mark;
-                current_screen->upper_mark += current_screen->zone;
-                current_screen->str_start += current_screen->zone;
-        }
-/****************************************************************************/
-
-	/* sanity check */
-	if (current_screen->lower_mark < 0)
-	{
-		yell("-- lower_mark = %d (less than zero)", current_screen->lower_mark);
-		current_screen->lower_mark = WIDTH;
-	}
-	if (current_screen->upper_mark < 0)
-	{
-		yell("-- upper_mark = %d (less than zero)", current_screen->upper_mark);
-		current_screen->upper_mark = current_screen->co - WIDTH;
-	}
-	if (current_screen->str_start < 0)
-	{
-		yell("-- str_start = %d (less than zero)", current_screen->str_start);
-		current_screen->str_start = 0;
-	}
-
-/**************************** PATCHED by Flier ******************************/
-	/*current_screen->cursor = current_screen->buffer_pos - current_screen->str_start;*/
-#ifdef WANTANSI
-        ansi_count = CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
-                                    current_screen->zone);
-#endif
-	current_screen->cursor = current_screen->buffer_pos - current_screen->str_start - ansi_count;
-/****************************************************************************/
-	if ((old_start != current_screen->str_start) || (update == UPDATE_ALL))
-	{
-		term_move_cursor(0, current_screen->input_line);
-		if ((current_screen->str_start == 0) && (current_screen->buffer_min_pos > 0))
-		{
- 			int	isecho;
-
- 			isecho = term_echo(1);
-/**************************** PATCHED by Flier ******************************/
-			/*if (current_screen->buffer_min_pos > (current_screen->co - WIDTH))*/
-			if (current_screen->buffer_min_pos - ansi_count > (current_screen->co - WIDTH))
-/****************************************************************************/
-				len = current_screen->co - WIDTH - 1;
 			else
-				len = current_screen->buffer_min_pos;
-			cnt = term_puts(&(current_screen->input_buffer[
-				current_screen->str_start]), len);
- 			term_echo(isecho);
-/**************************** PATCHED by Flier ******************************/
-			/*cnt += term_puts(&(current_screen->input_buffer[
-				current_screen->str_start + len]), current_screen->co - len);*/
-			cnt += term_puts(&(current_screen->input_buffer[
-				current_screen->str_start + len]), current_screen->co - len + ansi_count);
-/****************************************************************************/
+			{
+				unsigned n;
+				VisBuf[optr++] = REV_TOG;
+				for (n = 0; n < len; ++n)
+					VisBuf[optr++] = (buf[iptr++] & 127) | 64;
+				VisBuf[optr++] = REV_TOG;
+				column += len;
+			}
 		}
-		else
-			cnt = term_puts(&(current_screen->input_buffer[current_screen->str_start]), (size_t)current_screen->co);
-		if (term_clear_to_eol())
-			term_space_erase(cnt);
-		term_move_cursor(current_screen->cursor, current_screen->input_line);
+		VisBuf[optr] = '\0';
+		term_move_cursor(0, inputdata->cursor_y);
+		written = output_line(VisBuf, 0);
+		if (term_clear_to_eol() && written < current_screen->co)
+		{
+			/* EOL wasn't implemented, so do it with spaces */
+			term_space_erase(current_screen->co - written);
+		}
 	}
-	else if (update == UPDATE_FROM_CURSOR)
+	
+	if (update != NO_UPDATE)
 	{
-		term_move_cursor(current_screen->cursor, current_screen->input_line);
-		cnt = current_screen->cursor;
-/**************************** PATCHED by Flier ******************************/
-		/*max = current_screen->co - (current_screen->buffer_pos - current_screen->str_start);*/
-                max = current_screen->co - (current_screen->buffer_pos - current_screen->str_start) + ansi_count;
-/****************************************************************************/
-		if ((len = strlen(&(current_screen->input_buffer[
-				current_screen->buffer_pos]))) > max)
-			len = max;
-		cnt += term_puts(&(current_screen->input_buffer[
-			current_screen->buffer_pos]), len);
-		if (term_clear_to_eol())
-			term_space_erase(cnt);
-		term_move_cursor(current_screen->cursor, current_screen->input_line);
+		/* Always update cursor */
+		term_move_cursor(inputdata->cursor_x, inputdata->cursor_y);
 	}
-	else if (update == UPDATE_JUST_CURSOR)
-		term_move_cursor(current_screen->cursor, current_screen->input_line);
+	
+	if (update != NO_UPDATE)
+	{
+#ifdef HAVE_ICONV_OPEN
+		iconv_close(display_conv);
+#endif /* HAVE_ICONV_OPEN */
+	}
+
 	term_flush();
 }
 
@@ -325,58 +592,64 @@ change_input_prompt(direction)
 {
 	if (!current_screen->promptlist)
 	{
-		strcpy(current_screen->input_buffer,
-				current_screen->saved_input_buffer);
-		current_screen->buffer_pos =
-				current_screen->saved_buffer_pos;
-		current_screen->buffer_min_pos =
-				current_screen->saved_min_buffer_pos;
-		update_input(UPDATE_ALL);
+		/* Restore stuff */
+		memcpy(&current_screen->inputdata.saved_buffer,
+		       &current_screen->inputdata.buffer,
+		       sizeof(current_screen->inputdata.buffer));
 	}
 	else if (direction == -1)
 	{
-		update_input(UPDATE_ALL);
+		/* Just update whatever should be on screen */
 	}
 	else if (!current_screen->promptlist->next)
 	{
-		strcpy(current_screen->saved_input_buffer,
-				current_screen->input_buffer);
-		current_screen->saved_buffer_pos =
-				current_screen->buffer_pos;
-		current_screen->saved_min_buffer_pos =
-				current_screen->buffer_min_pos;
-		*current_screen->input_buffer = '\0';
-		current_screen->buffer_pos =
-				current_screen->buffer_min_pos = 0;
-		update_input(UPDATE_ALL);
+		/* Save stuff */
+		memcpy(&current_screen->inputdata.buffer,
+		       &current_screen->inputdata.saved_buffer,
+		       sizeof(current_screen->inputdata.buffer));
+		
+		/* Erase input line */
+		*current_screen->inputdata.buffer.buf = '\0';
+		current_screen->inputdata.buffer.pos =
+				current_screen->inputdata.buffer.minpos = 0;
 	}
+	update_input(UPDATE_ALL);
 }
 
 /* input_move_cursor: moves the cursor left or right... got it? */
+/* zero=left, nonzero=right */
 void
 input_move_cursor(dir)
 	int	dir;
 {
-	cursor_to_input();
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
 	if (dir)
 	{
-		if (current_screen->input_buffer[current_screen->buffer_pos])
+		/* if there are still chars remaining */
+		if (buf[pos] != '\0')
 		{
-			current_screen->buffer_pos++;
-			if (term_cursor_right())
-				term_move_cursor(current_screen->cursor + 1, current_screen->input_line);
+			/* Skip over 1 character */
+			pos += calc_unival_length(buf+pos);
+			
+			input_do_set_cursor_pos(pos);
 		}
 	}
 	else
 	{
-		if (current_screen->buffer_pos > current_screen->buffer_min_pos)
+		unsigned limit = current_screen->inputdata.buffer.minpos;
+
+		if (pos > limit)
 		{
-			current_screen->buffer_pos--;
-			if (term_cursor_left())
-				term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
+			/* Go back until we reach a beginning of a character */
+			while(!calc_unival_length(buf + --pos))
+			{
+				/* But don't go more than we're allowed to */
+				if (pos == limit) break;
+			}
+			input_do_set_cursor_pos(pos);
 		}
 	}
-	update_input(NO_UPDATE);
 }
 
 /*
@@ -388,21 +661,28 @@ input_forward_word(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	int i;
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	
+	/* Skip while definitely space, then skip while definitely nonspace */ 
+	/* For nontypical characters, does nothing */
+	
+	while (buf[pos] != '\0')
+	{
+		unsigned unival = calc_unival(buf+pos);
 
-	cursor_to_input();
-	while (
-	  (isspace(current_screen->input_buffer[current_screen->buffer_pos]) ||
-	  ispunct(current_screen->input_buffer[current_screen->buffer_pos])) &&
-	  current_screen->input_buffer[current_screen->buffer_pos])
-		current_screen->buffer_pos++;
-	while
-	 (!(ispunct(current_screen->input_buffer[current_screen->buffer_pos]) ||
-	 isspace(current_screen->input_buffer[current_screen->buffer_pos])) &&
-	 current_screen->input_buffer[current_screen->buffer_pos])
-		current_screen->buffer_pos++;
-	i = current_screen->input_buffer[current_screen->buffer_pos];
-	update_input(UPDATE_JUST_CURSOR);
+		if (!isspace(unival) && !ispunct(unival))
+			break;
+		pos += calc_unival_length(buf+pos);
+	}
+	while (buf[pos] != '\0')
+	{
+		unsigned unival = calc_unival(buf+pos);
+		if (isspace(unival) || ispunct(unival) || unival >= 0x300)
+			break;
+		pos += calc_unival_length(buf+pos);
+	}
+	input_do_set_cursor_pos(pos);
 }
 
 /* input_backward_word: move the cursor left on word in the input line */
@@ -411,16 +691,37 @@ input_backward_word(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	cursor_to_input();
-	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 (isspace(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
-	 ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1])))
-		current_screen->buffer_pos--;
-	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 !(ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
-	 isspace(current_screen->input_buffer[current_screen->buffer_pos - 1])))
-		current_screen->buffer_pos--;
-	update_input(UPDATE_JUST_CURSOR);
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	unsigned limit = current_screen->inputdata.buffer.minpos;
+	
+	/* Skip while previous is definitely space,         */
+	/* then skip while previous is definitely nonspace. */
+	/* For nontypical characters, does nothing */
+	while (pos > limit)
+	{
+		unsigned prevpos = pos, unival;
+
+		while (!calc_unival_length(buf + --prevpos))
+			if (prevpos <= limit)
+				break;
+		unival = calc_unival(buf + prevpos);
+		if (!isspace(unival) && !ispunct(unival))
+			break;
+		pos = prevpos;
+	}
+	while (pos > limit)
+	{
+		unsigned prevpos = pos, unival;
+		while (!calc_unival_length(buf + --prevpos))
+			if (prevpos <= limit)
+				break;
+		unival = calc_unival(buf + prevpos);
+		if (isspace(unival) || ispunct(unival) || unival >= 0x300)
+			break;
+		pos = prevpos;
+	}
+	input_do_set_cursor_pos(pos);
 }
 
 /* input_delete_character: deletes a character from the input line */
@@ -429,35 +730,7 @@ input_delete_character(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	cursor_to_input();
-	if (current_screen->input_buffer[current_screen->buffer_pos])
-	{
- 		char	*s = (char *) 0;
-		int	pos;
-
- 		malloc_strcpy(&s, &(current_screen->input_buffer[current_screen->buffer_pos + 1]));
- 		strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), s);
- 		new_free(&s);
-		if (term_delete())
-			update_input(UPDATE_FROM_CURSOR);
-		else
-		{
-			pos = current_screen->str_start + current_screen->co - 1;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-			pos += CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
-					      current_screen->zone);
-#endif
-/****************************************************************************/
-			if (pos < (int) strlen(current_screen->input_buffer))
-			{
-				term_move_cursor(current_screen->co - 1, current_screen->input_line);
- 				term_putchar((u_int)current_screen->input_buffer[pos]);
-				term_move_cursor(current_screen->cursor, current_screen->input_line);
-			}
-			update_input(NO_UPDATE);
-		}
-	}
+	input_do_delete_chars(1, 0);
 /**************************** PATCHED by Flier ******************************/
         ResetNickCompletion();
 /****************************************************************************/
@@ -470,50 +743,7 @@ input_backspace(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	cursor_to_input();
-	if (current_screen->buffer_pos > current_screen->buffer_min_pos)
-	{
- 		char	*s = (char *) 0;
-		int	pos;
-
- 		malloc_strcpy(&s, &(current_screen->input_buffer[current_screen->buffer_pos]));
- 		strcpy(&(current_screen->input_buffer[current_screen->buffer_pos - 1]), s);
- 		new_free(&s);
-		current_screen->buffer_pos--;
-		if (term_cursor_left())
-			term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
-		if (current_screen->input_buffer[current_screen->buffer_pos])
-		{
-			if (term_delete())
-			{
-				update_input(UPDATE_FROM_CURSOR);
-				return;
-			}
-			else
-			{
-				pos = current_screen->str_start + current_screen->co - 1;
-/**************************** PATCHED by Flier ******************************/
-#ifdef WANTANSI
-				pos += CountAnsiInput(&(current_screen->input_buffer[current_screen->str_start]),
-						      current_screen->zone);
-#endif
-/****************************************************************************/
-				if (pos < (int) strlen(current_screen->input_buffer))
-				{
-					term_move_cursor(current_screen->co - 1, current_screen->input_line);
-	 				term_putchar((u_int)current_screen->input_buffer[pos]);
-				}
-				update_input(UPDATE_JUST_CURSOR);
-			}
-		}
-		else
-		{
-			term_putchar(' ');
-			if (term_cursor_left())
-				term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
-			update_input(NO_UPDATE);
-		}
-	}
+	input_do_delete_chars(-1, 0);
 /**************************** PATCHED by Flier ******************************/
         ResetNickCompletion();
 /****************************************************************************/
@@ -528,9 +758,7 @@ input_beginning_of_line(key, ptr)
  	u_int	key;
 	char	*ptr;
 {
-	cursor_to_input();
-	current_screen->buffer_pos = current_screen->buffer_min_pos;
-	update_input(UPDATE_JUST_CURSOR);
+	input_do_set_cursor_pos(current_screen->inputdata.buffer.minpos);
 }
 
 /*
@@ -542,9 +770,7 @@ input_end_of_line(key, ptr)
  	u_int	key;
 	char	*ptr;
 {
-	cursor_to_input();
-	current_screen->buffer_pos = strlen(current_screen->input_buffer);
-	update_input(UPDATE_JUST_CURSOR);
+	input_do_set_cursor_pos(strlen(current_screen->inputdata.buffer.buf));
 }
 
 /*
@@ -556,25 +782,16 @@ input_delete_previous_word(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	int	old_pos;
-	char	c;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	int bytes;
 
-	cursor_to_input();
-	old_pos = current_screen->buffer_pos;
-	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 (isspace(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
-	 ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1])))
-		current_screen->buffer_pos--;
-	while ((current_screen->buffer_pos > current_screen->buffer_min_pos) &&
-	 !(ispunct(current_screen->input_buffer[current_screen->buffer_pos - 1]) ||
-	 isspace(current_screen->input_buffer[current_screen->buffer_pos - 1])))
-		current_screen->buffer_pos--;
-	c = current_screen->input_buffer[old_pos];
-	current_screen->input_buffer[old_pos] = (char) 0;
-	malloc_strcpy(&cut_buffer, &(current_screen->input_buffer[current_screen->buffer_pos]));
-	current_screen->input_buffer[old_pos] = c;
-	strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), &(current_screen->input_buffer[old_pos]));
-	update_input(UPDATE_FROM_CURSOR);
+	/* moves cursor backwards */
+	input_backward_word(key,ptr);
+	
+	bytes = pos - current_screen->inputdata.buffer.pos;
+	
+	/* now that we're back, delete next n bytes */
+	input_do_delete_raw(bytes, 1);
 /**************************** PATCHED by Flier ******************************/
         tabnickcompl = NULL;
 /****************************************************************************/
@@ -589,33 +806,20 @@ input_delete_next_word(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	int	pos;
-	char	*str = (char *) 0,
-		c;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	int bytes;
 
-	cursor_to_input();
-	pos = current_screen->buffer_pos;
-	while ((isspace(current_screen->input_buffer[pos]) ||
-	    ispunct(current_screen->input_buffer[pos])) &&
-	    current_screen->input_buffer[pos])
-		pos++;
-	while (!(ispunct(current_screen->input_buffer[pos]) ||
-	    isspace(current_screen->input_buffer[pos])) &&
-	    current_screen->input_buffer[pos])
-		pos++;
-	c = current_screen->input_buffer[pos];
-	current_screen->input_buffer[pos] = (char) 0;
-	malloc_strcpy(&cut_buffer,
-		&(current_screen->input_buffer[current_screen->buffer_pos]));
-	current_screen->input_buffer[pos] = c;
-	malloc_strcpy(&str, &(current_screen->input_buffer[pos]));
-	strcpy(&(current_screen->input_buffer[current_screen->buffer_pos]), str);
-	new_free(&str);
-	update_input(UPDATE_FROM_CURSOR);
+	/* moves cursor forward */
+	input_forward_word(key,ptr);
+	
+	bytes = current_screen->inputdata.buffer.pos - pos;
+	
+	/* now that we're after the word, delete past n bytes */
+	input_do_delete_raw(-bytes, 1);
 }
 
 /*
- * input_add_character: adds the character c to the input buffer, repecting
+ * input_add_character: adds the byte c to the input buffer, repecting
  * the current overwrite/insert mode status, etc 
  */
 /*ARGSUSED*/
@@ -624,48 +828,70 @@ input_add_character(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	int	display_flag = NO_UPDATE;
+	u_char output_buffer[8];
+	
+#ifdef HAVE_ICONV_OPEN
+	static u_char   input_buffer[32]="";
+	static unsigned input_pos=0;
+	size_t retval;
+	
+	u_char *iptr, *optr;
+	size_t isize, osize;
+	
+	input_buffer[input_pos++] = key;
 
-	cursor_to_input();
-	if (current_screen->buffer_pos < INPUT_BUFFER_SIZE)
+	if (!mbdata_ok)
 	{
-		if (get_int_var(INSERT_MODE_VAR))
-		{
-			if (current_screen->input_buffer[current_screen->buffer_pos])
-			{
-				char	*str = (char *) 0;
-
-				malloc_strcpy(&str, &(current_screen->input_buffer[current_screen->buffer_pos]));
-				current_screen->input_buffer[current_screen->buffer_pos] = key;
-				current_screen->input_buffer[current_screen->buffer_pos + 1] = (char) 0;
-				strmcat(current_screen->input_buffer, str, INPUT_BUFFER_SIZE);
-				new_free(&str);
-				if (term_insert(key))
-				{
-					term_putchar(key);
-					if (current_screen->input_buffer[current_screen->buffer_pos + 1])
-					    display_flag = UPDATE_FROM_CURSOR;
-					else
-					    display_flag = NO_UPDATE;
-				}
-			}
-			else
-			{
-				current_screen->input_buffer[current_screen->buffer_pos] = key;
-				current_screen->input_buffer[current_screen->buffer_pos + 1] = (char) 0;
-				term_putchar(key);
-			}
-		}
-		else
-		{
-			if (current_screen->input_buffer[current_screen->buffer_pos] == (char) 0)
-				current_screen->input_buffer[current_screen->buffer_pos + 1] = (char) 0;
-			current_screen->input_buffer[current_screen->buffer_pos] = key;
-			term_putchar(key);
-		}
-		current_screen->buffer_pos++;
-		update_input(display_flag);
+		mbdata_init(&mbdata, input_encoding);
+		mbdata_ok = 1;
 	}
+
+re_encode:
+	if (!input_pos)
+	{
+		return;
+	}
+	iptr = input_buffer;
+	isize = input_pos;
+	optr = output_buffer;
+	osize = sizeof output_buffer;
+	
+	retval = iconv(mbdata.conv_in,
+	               (iconv_const char **)&iptr, &isize,
+	               (char **)&optr, &osize);
+	
+	if (retval == (size_t)-1)
+	{
+		switch(errno)
+		{
+			case EINVAL:
+			{
+				/* User didn't give enough bytes. Must give more later. */
+				return;
+			}
+			case EILSEQ:
+			{
+				/* User gave a bad byte. Ignore bad bytes! */
+				memmove(input_buffer+1,
+				        input_buffer,
+				        --input_pos);
+				goto re_encode;
+			}
+		}
+	}
+	*optr = '\0';
+	input_pos = 0;
+#else
+	/* no iconv, assume in=iso-8859-1 */
+	utf8_sequence(key, output_buffer);
+#endif /* HAVE_ICONV_OPEN */
+
+	if (!get_int_var(INSERT_MODE_VAR))
+	{
+		/* Delete the next character */
+		input_do_delete_chars(1, 0);
+	}
+	input_do_insert_raw(output_buffer);
 /**************************** PATCHED by Flier ******************************/
         if (key == ' ') ResetNickCompletion();
 /****************************************************************************/
@@ -680,9 +906,61 @@ void
 set_input(str)
 	char	*str;
 {
-	strmcpy(current_screen->input_buffer + current_screen->buffer_min_pos,
- 		str, (size_t)INPUT_BUFFER_SIZE - current_screen->buffer_min_pos);
-	current_screen->buffer_pos = strlen(current_screen->input_buffer);
+	u_char converted_input[INPUT_BUFFER_SIZE];
+	struct mb_data mbdata1;
+	unsigned dest;
+#ifdef HAVE_ICONV_OPEN
+	mbdata_init(&mbdata1, irc_encoding);
+#else
+	mbdata_init(&mbdata1, NULL);
+#endif /* HAVE_ICONV_OPEN */
+	for (dest = 0; *str != '\0'; )
+	{
+		if (dest + 8 >= sizeof(converted_input))
+			break;
+		
+/**************************** PATCHED by Flier ******************************/
+                /*
+                 * copy attribute characters/beeps directly so we can
+                 * properly recall previous commands
+                 */
+                if (*str == REV_TOG || *str == UND_TOG || *str == BOLD_TOG ||
+                    *str == ALL_OFF || *str == '\007') {
+                    converted_input[dest++] = *str++;
+                    continue;
+                }
+/****************************************************************************/
+
+		decode_mb(str, converted_input+dest, &mbdata1);
+		dest += mbdata1.output_bytes;
+		str  += mbdata1.input_bytes;
+	}
+	converted_input[dest] = '\0';
+
+	set_input_raw(converted_input);
+}
+
+void
+set_input_raw(str)
+	char* str;
+{
+	char* buf    = current_screen->inputdata.buffer.buf;
+	unsigned pos   = current_screen->inputdata.buffer.pos;
+	unsigned limit = current_screen->inputdata.buffer.minpos;
+
+	strmcpy(buf + limit,
+		str,
+		(size_t)sizeof(current_screen->inputdata.buffer.buf) - limit);
+	
+	pos = strlen(buf);
+	
+	current_screen->inputdata.buffer.pos = pos;
+		
+	if (mbdata_ok)
+	{
+		mbdata_done(&mbdata);
+		mbdata_ok = 0;
+	}
 }
 #endif /* _Windows */
 
@@ -694,7 +972,92 @@ set_input(str)
 char	*
 get_input()
 {
-	return (&(current_screen->input_buffer[current_screen->buffer_min_pos]));
+	char* source = get_input_raw();
+	
+	/* The input buffer is UTF-8 encoded. Clients will want irc_encoding instead. */
+	
+	static char converted_buffer[INPUT_BUFFER_SIZE];
+
+#ifdef HAVE_ICONV_OPEN
+	iconv_t conv = iconv_open(irc_encoding, "UTF-8");
+	char* dest = converted_buffer;
+	size_t left, space;
+
+	left = strlen(source);
+	space  = sizeof(converted_buffer);
+	while (*source != '\0')
+	{
+		size_t retval;
+
+		retval = iconv(conv,
+		               (iconv_const char**) &source, &left,
+		                (char **)&dest, &space);
+		if (retval == (size_t)-1)
+		{
+			if (errno == E2BIG)
+				break;
+			if (errno == EILSEQ)
+			{
+				/* Ignore silently 1 illegal byte */
+				if (left > 0)
+				{
+					++source;
+					--left;
+				}
+			}
+			if (errno == EINVAL)
+			{
+				/* Input terminated with a partial byte. */
+				/* Ignore the error silently. */
+				break;
+			}
+		}
+	}
+	/* Reset the converter, create a reset-sequence */
+	iconv(conv, NULL, &left, (char **)&dest, &space);
+	
+	/* Ensure null-terminators are where they should be */
+	converted_buffer[sizeof(converted_buffer)-1] = '\0';
+	*dest = '\0';
+	
+	iconv_close(conv);
+#else
+	/* Must convert manually - assume output is ISO-8859-1 */
+	unsigned dest = 0;
+
+	while (*source != '\0')
+	{
+		unsigned len = calc_unival_length(source);
+		unsigned unival;
+
+		if (!len)
+		{
+			/* ignore illegal byte (shouldn't happen) */
+			++source;
+			continue;
+		}
+		unival = calc_unival(source);
+		if (displayable_unival(unival, NULL))
+		{
+			converted_buffer[dest++] = unival;
+			if (dest+1 >= sizeof(converted_buffer))
+				break;
+		}
+		source += len;
+	}
+	converted_buffer[dest] = '\0';
+#endif /* HAVE_ICONV_OPEN */
+	
+	return converted_buffer;
+}
+
+char	*
+get_input_raw()
+{
+	char* buf    = current_screen->inputdata.buffer.buf;
+	unsigned limit = current_screen->inputdata.buffer.minpos;
+	
+	return buf+limit;
 }
 
 /* input_clear_to_eol: erases from the cursor to the end of the input buffer */
@@ -703,16 +1066,18 @@ input_clear_to_eol(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	cursor_to_input();
-	malloc_strcpy(&cut_buffer,
-		&(current_screen->input_buffer[current_screen->buffer_pos]));
-	current_screen->input_buffer[current_screen->buffer_pos] = (char) 0;
-	if (term_clear_to_eol())
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	int bytes;
+	
+	for (bytes = 0; buf[pos] != '\0';)
 	{
-		term_space_erase(current_screen->cursor);
-		term_move_cursor(current_screen->cursor, current_screen->input_line);
+		unsigned length = calc_unival_length(buf+pos);
+		bytes += length;
+		pos   += length;
 	}
-	update_input(NO_UPDATE);
+	
+	input_do_delete_raw(bytes, 1);
 }
 
 /*
@@ -724,23 +1089,19 @@ input_clear_to_bol(key, ptr)
  	u_int	key;
 	char	*ptr;
 {
-	char	*str = (char *) 0;
-
-	cursor_to_input();
-	malloc_strcpy(&cut_buffer, &(current_screen->input_buffer[current_screen->buffer_min_pos]));
-	cut_buffer[current_screen->buffer_pos - current_screen->buffer_min_pos] = (char) 0;
-	malloc_strcpy(&str, &(current_screen->input_buffer[current_screen->buffer_pos]));
-	current_screen->input_buffer[current_screen->buffer_min_pos] = (char) 0;
-	strmcat(current_screen->input_buffer, str, INPUT_BUFFER_SIZE);
-	new_free(&str);
-	current_screen->buffer_pos = current_screen->buffer_min_pos;
-	term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
-	if (term_clear_to_eol())
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	int bytes;
+	
+	unsigned limit = current_screen->inputdata.buffer.minpos;
+	for (bytes = 0; limit < pos; )
 	{
-		term_space_erase(current_screen->buffer_min_pos);
-		term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
+		unsigned length = calc_unival_length(buf+limit);
+		bytes += length;
+		limit += length;
 	}
-	update_input(UPDATE_FROM_CURSOR);
+	
+	input_do_delete_raw(-bytes, 1);
 }
 
 /*
@@ -751,73 +1112,69 @@ input_clear_line(key, ptr)
  	u_int	key;
 	char	*ptr;
 {
-	cursor_to_input();
-	malloc_strcpy(&cut_buffer, current_screen->input_buffer + current_screen->buffer_min_pos);
-	current_screen->input_buffer[current_screen->buffer_min_pos] = (char) 0;
-	current_screen->buffer_pos = current_screen->buffer_min_pos;
+	input_beginning_of_line(key, ptr);
+	input_clear_to_eol(key, ptr);
 /**************************** PATCHED by Flier ******************************/
-	/*term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);*/
-#ifdef WANTANSI
-        term_move_cursor(current_screen->buffer_min_pos -
-                         CountAnsiInput(current_screen->input_buffer, current_screen->zone),
-                         current_screen->input_line);
-#else
-        term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
-#endif
         tabnickcompl = NULL;
 /****************************************************************************/
-	if (term_clear_to_eol())
-	{
-		term_space_erase(current_screen->buffer_min_pos);
-		term_move_cursor(current_screen->buffer_min_pos, current_screen->input_line);
-	}
-	update_input(NO_UPDATE);
 }
 
 /*
  * input_transpose_characters: swaps the positions of the two characters
  * before the cursor position 
+ * and moves cursor 1 forward
  */
 void
 input_transpose_characters(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	cursor_to_input();
-	if (current_screen->buffer_pos > current_screen->buffer_min_pos)
+	char* buf  = current_screen->inputdata.buffer.buf;
+	unsigned pos = current_screen->inputdata.buffer.pos;
+	
+	/*
+	  delete previous char,
+	  then move 1 right,
+	  then insert the deleted char
+	  
+	  example (^ denotes cursor position):
+	  
+		before:
+		  defg
+		    ^
+		after:
+		  dfeg
+		     ^
+	  
+	  this is how bash transposes at least /Bisqwit
+	  
+	  FIXME: cut-buffer shouldn't be affected when transposing
+	*/
+	if (!buf[pos])
 	{
-		u_char	c1, c2;
-		int	pos, end_of_line = 0;
-
-		if (current_screen->input_buffer[current_screen->buffer_pos])
-			pos = current_screen->buffer_pos;
-		else if ((int) strlen(current_screen->input_buffer) > current_screen->buffer_min_pos + 2)
+		/* back off 1 char */
+		input_move_cursor(0);
+		pos = current_screen->inputdata.buffer.pos;
+		/* If we're still at the end of the string,
+		 * the string consists of only 1 char.
+		 * In which case there's nothing to transpose.
+		 */
+		if (!buf[pos])
 		{
-			pos = current_screen->buffer_pos - 1;
-			end_of_line = 1;
-		}
-		else
 			return;
-
-		c1 = current_screen->input_buffer[pos];
-		c2 = current_screen->input_buffer[pos] = current_screen->input_buffer[pos - 1];
-		current_screen->input_buffer[pos - 1] = c1;
-		if (term_cursor_left() || (end_of_line && term_cursor_left()))
-			term_move_cursor(current_screen->cursor - end_of_line ? 2 : 1, current_screen->input_line);
-		term_putchar(c1);
-		term_putchar(c2);
-		if (!end_of_line && term_cursor_left())
-			term_move_cursor(current_screen->cursor - 1, current_screen->input_line);
-		update_input(NO_UPDATE);
+		}
 	}
+	input_do_delete_chars(-1, 1);
+	input_move_cursor(1);
+	input_yank_cut_buffer(key, ptr);
 }
 
 /* init_input: initialized the input buffer by clearing it out */
 void
 init_input()
 {
-	*current_screen->input_buffer = (char) 0;
-	current_screen->buffer_pos = current_screen->buffer_min_pos;
+	*current_screen->inputdata.buffer.buf = (char) 0;
+	current_screen->inputdata.buffer.pos = current_screen->inputdata.buffer.minpos;
 }
 
 /*
@@ -829,21 +1186,8 @@ input_yank_cut_buffer(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-	char	*str = (char *) 0;
-
 	if (cut_buffer)
-	{
-		malloc_strcpy(&str, &(current_screen->input_buffer[current_screen->buffer_pos]));
-		current_screen->input_buffer[current_screen->buffer_pos] = (char) 0;
-		strmcat(current_screen->input_buffer, cut_buffer, INPUT_BUFFER_SIZE);
-		strmcat(current_screen->input_buffer, str, INPUT_BUFFER_SIZE);
-		new_free(&str);
-		update_input(UPDATE_FROM_CURSOR);
-		current_screen->buffer_pos += strlen(cut_buffer);
-		if (current_screen->buffer_pos > INPUT_BUFFER_SIZE)
-			current_screen->buffer_pos = INPUT_BUFFER_SIZE;
-		update_input(UPDATE_JUST_CURSOR);
-	}
+		input_do_insert_raw(cut_buffer);
 }
 
 /* get_input_prompt: returns the current input_prompt */
@@ -862,95 +1206,33 @@ void
 set_input_prompt(prompt)
 	char	*prompt;
 {
-/**************************** PATCHED by Flier ******************************/
-#ifdef CELE
-        char *ptr = NULL;
-        char *color = NULL;
-        char inpbuf[mybufsize + 1];
-        static char crap[] = "%% ";
-#endif
-/****************************************************************************/
-
-	if (prompt)
-	{
-		if (input_prompt && !strcmp (prompt, input_prompt))
-			return;
-/**************************** PATCHED by Flier ******************************/
-		/*malloc_strcpy(&input_prompt, prompt);*/
-#ifdef CELE
-                *inpbuf = (char) 0;
-                while (prompt) {
-                    if ((ptr = (char *) index(prompt, '%')) != NULL) {
-                        *ptr = '\0';
-                        strmcat(inpbuf, prompt, mybufsize);
-                        *(ptr++) = '%';
-                        if ((*ptr == 'Y') || (*ptr == 'y')) {
-                            switch (*(++ptr)) {
-                                case '0':
-                                    color = Colors[COLOFF];
-                                    break;
-                                case '1':
-                                    color = CmdsColors[COLSBAR1].color1;
-                                    break;
-                                case '2':
-                                    color = CmdsColors[COLSBAR1].color2;
-                                    break;
-                                case '3':
-                                    color = CmdsColors[COLSBAR1].color3;
-                                    break;
-                                case '4':
-                                    color = CmdsColors[COLSBAR1].color4;
-                                    break;
-                                case '5':
-                                    color = CmdsColors[COLSBAR1].color5;
-                                    break;
-                                case '6':
-                                    color = CmdsColors[COLSBAR1].color6;
-                                    break;
-                                case '7':
-                                    color = CmdsColors[COLSBAR2].color1;
-                                    break;
-                                case '8':
-                                    color = CmdsColors[COLSBAR2].color2;
-                                    break;
-                                case '9':
-                                    color = CmdsColors[COLSBAR2].color3;
-                                    break;
-                                case 'a':
-                                    color = CmdsColors[COLSBAR2].color4;
-                                    break;
-                                case 'b':
-                                    color = CmdsColors[COLSBAR2].color5;
-                                    break;
-                                case 'c':
-                                    color = CmdsColors[COLSBAR2].color6;
-                                    break;
-                                default:
-                                    color = empty_string;
-                                    break;
-                            }
-                            strmcat(inpbuf, color, mybufsize);
-                        }
-                        else {
-                            crap[2] = *ptr;
-                            strmcat(inpbuf, crap, mybufsize);
-                        }
-                        ptr++;
-                    }
-                    else strmcat(inpbuf, prompt, mybufsize);
-                    prompt=ptr;
-                }
-                malloc_strcpy(&input_prompt, inpbuf);
-#else
-                malloc_strcpy(&input_prompt,prompt);
-#endif /* CELE */
-/****************************************************************************/
-	}
-	else
+	if (!prompt)
 	{
 		if (!input_prompt)
 			return;
 		malloc_strcpy(&input_prompt, empty_string);
+	}
+	else
+	{
+		char converted_prompt[INPUT_BUFFER_SIZE];
+		struct mb_data mbdata1;
+		unsigned dest;
+#ifdef HAVE_ICONV_OPEN
+		mbdata_init(&mbdata1, irc_encoding);
+#else
+		mbdata_init(&mbdata1, NULL);
+#endif /* HAVE_ICONV_OPEN */
+		for (dest = 0; *prompt != '\0'; )
+		{
+			decode_mb(prompt, converted_prompt+dest, &mbdata1);
+			dest   += mbdata1.output_bytes;
+			prompt += mbdata1.input_bytes;
+		}
+		converted_prompt[dest] = '\0';
+
+		if (input_prompt && !strcmp(converted_prompt, input_prompt))
+			return;
+		malloc_strcpy(&input_prompt, converted_prompt);
 	}
 	update_input(UPDATE_ALL);
 }
@@ -990,4 +1272,31 @@ input_pause(msg)
 		new_free(&ptr);
 	}
 	return (c);
+}
+
+void
+input_reset_screen(Screen* new)
+{
+	new->inputdata.old_li = -1;
+	new->inputdata.old_co = -1;
+	new->inputdata.cursor_x = 0;
+	new->inputdata.cursor_y = 0;
+	new->inputdata.left_ptr = 0;
+	new->inputdata.pos_column = 0;
+	new->inputdata.buffer.pos = 0;
+	new->inputdata.buffer.minpos = 0;
+	new->inputdata.buffer.buf[0] = '\0';
+}
+
+/* moved from alias.c */
+u_char	*
+function_curpos(input)
+	u_char	*input;
+{
+	char	*new = (char *) 0,
+		pos[8];
+
+	snprintf(pos, sizeof pos, "%d", current_screen->inputdata.buffer.pos);
+	malloc_strcpy(&new, pos);
+	return new;
 }

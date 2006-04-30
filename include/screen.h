@@ -31,7 +31,7 @@
  *
  * see the copyright file, or type help ircii copyright
  *
- * $Id: screen.h,v 1.5 2003-01-08 20:00:54 f Exp $
+ * $Id: screen.h,v 1.6 2006-04-30 14:15:43 f Exp $
  */
 
 #ifndef __screen_h_
@@ -53,7 +53,7 @@
 
 	void	clear_window _((Window *));
 	void	recalculate_window_positions _((void));
-	int	output_line _((char *, char **, int));
+	int	output_line _((char *, int));
 	void	recalculate_windows _((void));
 	Window	*create_additional_screen _((void));
 	void	scroll_window _((Window *));
@@ -83,6 +83,11 @@
 /**************************** PATCHED by Flier ******************************/
 	void	redraw_window _((Window *, int, int));
 /****************************************************************************/
+
+	int	my_strlen_i _((char *));
+	int	my_strlen_c _((char *));
+	int	my_strlen_ci _((char *));
+	void	my_strcpy_ci _((char *, char *));
 
 extern	Window	*to_window;
 extern	Screen	*current_screen;
