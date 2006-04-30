@@ -1,0 +1,40 @@
+!	 $Id: display_encoding,v 1.1 2006-04-30 14:17:41 f Exp $
+!
+! Copyright (c) 2004 Joel Yliluoma.
+!
+Usage: SET DISPLAY_ENCODING <encoding>
+  The DISPLAY_ENCODING variable defines which character encoding
+  your terminal is using for the text it draws.
+  By default, ircII assumes that your terminal uses ISO-8859-1.
+
+  Examples of common encodings:
+    UTF-8               Unicode encoding, supports almost all languages
+    ISO-8859-1          Most widely used "latin1" encoding.
+    ISO-8859-2          Polish, Czech, Slovak, Slovenian, Hungarian
+    ISO-8859-5          Cyrillic encoding: Russian, Ukrainian, Belarusian
+    ISO-8859-6          An incomplete Arabic encoding
+    ISO-8859-7          Greek encoding
+    ISO-8859-8          Modern Hebrew encoding
+    ISO-8859-9          Turkish, Maltese, Esperanto
+    ISO-8859-10         Estonian, Latvian, Lithuanian, Greenlandic, Saami
+    ISO-8859-11		Thai
+    ISO-8859-15         Latin1 revised, with Euro for Finnish and French
+    ISO-8859-16         Albanian, Croatian, Romanian, Gaelic etc with Euro
+    EUC-JP              Doublebyte Japanese JIS-X-0208 encoding
+    SHIFT-JIS           Microsoft doublebyte Japanese encoding
+    GB18030             Chinese multibyte encoding
+    CP437               Old IBM PC, compatibles and Atari ST.
+    CP850               New IBM PC compatibles and IBM PS/2.
+    HP-ROMAN8           Hewlett Packard Extended Roman 8.
+    MACROMAN            Apple Macintosh computers and boat anchors.
+    ASCII               For American terminals in 7-bit environments.
+    ISO-2022-JP         Traditional 7-bit Japanese JIS-X-0208 encoding
+
+  You can get the complete list of available encodings
+  with the command /EXEC iconv -l if your system has it installed.
+
+See Also:
+  SET IRC_ENCODING
+  SET INPUT_ENCODING
+  DIGRAPH
+  BIND ENTER_DIGRAPH
