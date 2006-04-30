@@ -8,6 +8,25 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+    ! core dump on exit when FLOOD_USERS was increased (reported by jm_)
+    ! crash on IrcNet when doing /FILINE (reported by kore)
+    ! orig nick displaying server messages even if quiet mode
+      was enabled (it happened if lag is greater than orig nick timer,
+      reported by wood)
+    ! GNU TLS 1.0 is required for SSL support now, OpenSSL is no
+      longer supported
+    + REGEXPREPL() which offers POSIX.2 compatible search & replace
+      functionality with back references support, see HELP ALIAS FUNCTIONS
+      for an example
+    ! ncurses check during configure, should fix build on SuSE Linux
+    + IGNORE nick!user@host now works (reported by pluto)
+    ~ userlist takes precedence over shitlist (so you can shitlist
+      *!*~*@* and still alow *!*user@*.host.com, requested by tel)
+    ! DESTDIR errors for manual pages (fix provided by Matto Fransen)
+    ! numeric 477 is properly handled on Freenode (reported by TrN)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.5, 23.4.2005
 
     ~ attempt has been made to work around a limitation on efnet
