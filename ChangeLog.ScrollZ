@@ -8,6 +8,8 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v1.9.98, 1.5.2006
+
     ! core dump on exit when FLOOD_USERS was increased (reported by jm_)
     ! crash on IrcNet when doing /FILINE (reported by kore)
     ! orig nick displaying server messages even if quiet mode
