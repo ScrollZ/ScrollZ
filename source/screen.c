@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.36 2006-05-03 16:04:07 f Exp $
+ * $Id: screen.c,v 1.37 2006-05-03 16:49:15 f Exp $
  */
 
 #include "irc.h"
@@ -109,6 +109,8 @@ void redraw_window _((Window *, int, int));
 static	char	*next_line_back _((Window *));
 static	int	lastlog_lines _((Window *));
 
+/**************************** PATCHED by Flier ******************************/
+#if 0
 void debugit(char *format,...) {
     FILE *fp = fopen("/tmp/zz", "a");
     if (fp) {
@@ -123,7 +125,8 @@ void debugit(char *format,...) {
         fclose(fp);
     }
 }
-/**************************** PATCHED by Flier ******************************/
+#endif
+
 #ifdef SZNCURSES
 void my_addstr(str,len)
 char *str;
@@ -678,6 +681,32 @@ display_text(str, length)
 					}
 					*outptr++ = unival;
 				}
+/**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
+                                else if ((*str == '\033') && (len == 1)) {
+                                    int ansi_count;
+                                    char *orig_str = str;
+
+                                    if (outptr >= OutBuf + sizeof(OutBuf)) {
+                                        /* flush a block */
+                                        fwrite(OutBuf, outptr-OutBuf, 1,
+                                               current_screen->fpout);
+                                        outptr = OutBuf;
+                                    }
+                                    while (vt100Decode(*str)) {
+                                        ansi_count++;
+                                        *outptr++ = *str++;
+                                        length--;
+                                        len++;
+                                    }
+                                    if (ansi_count) {
+                                        length++;
+                                        len--;
+                                    }
+                                    str = orig_str;
+                                }
+#endif /* WANTANSI */
+/****************************************************************************/
 				str += len;
 			}
 			if (outptr > OutBuf)
