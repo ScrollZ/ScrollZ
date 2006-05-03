@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.35 2006-04-30 14:15:43 f Exp $
+ * $Id: screen.c,v 1.36 2006-05-03 16:04:07 f Exp $
  */
 
 #include "irc.h"
@@ -713,8 +713,10 @@ output_line(str, startpos)
 	int     dobeep = 0;
 	int     written = 0;
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
         int     ansi_count;
         char    *orig_str;
+#endif /* WANTANSI */
 /****************************************************************************/
 
 	display_highlight(high);
@@ -824,6 +826,7 @@ output_line(str, startpos)
 			++str;
 			break;
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
                 case '\033':
                         ansi_count = 0;
                         orig_str = str;
@@ -833,6 +836,7 @@ output_line(str, startpos)
                         }
                         if (ansi_count) display_text(orig_str, ansi_count);
                         break;
+#endif /* WANTANSI */
 /****************************************************************************/
 		default:
 			{
@@ -1431,11 +1435,13 @@ my_strlen_c(c)
 			continue;
 		}
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
                 if (*c == '\033') {
                     while (vt100Decode(*c))
                         c++;
                     continue;
                 }
+#endif /* WANTANSI */
 /****************************************************************************/
 		
 		/* Anything else is character data. */
@@ -1507,12 +1513,14 @@ my_strcpy_ci(dest, c)
 			continue;
 		}
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
                 if (*c == '\033') {
                     while (vt100Decode(*c)) {
                         *dest++ = *c++;
                     }
                     continue;
                 }
+#endif /* WANTANSI */
 /****************************************************************************/
 		
 		/* Anything else is character data. */
@@ -1565,7 +1573,9 @@ split_up_line(str)
 		invert_state = 0,
 		underline_state = 0;
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
         int     ansi_count;
+#endif /* WANTANSI */
 /****************************************************************************/
 		
 	size_t	len;
@@ -1653,6 +1663,7 @@ split_up_line(str)
 			nd_cnt++;
 			break;
 /**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
                 case '\033':
                         ansi_count = 0;
                         while (vt100Decode(*ptr)) {
@@ -1663,6 +1674,7 @@ split_up_line(str)
                         }
                         if (ansi_count) ptr--;
                         break;
+#endif /* WANTANSI */
                 case '|':       /* possible word break if time stamp is set to max */
                         if (Stamp == 2 && indent == 0 && pos < 30) indent = -1;
                         lbuf[pos++] = *ptr;
