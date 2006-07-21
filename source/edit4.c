@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.113 2006-04-30 14:15:43 f Exp $
+ * $Id: edit4.c,v 1.114 2006-07-21 15:26:50 f Exp $
  */
 
 #include "irc.h"
@@ -554,82 +554,112 @@ char *reason;
 }
 
 /* Handles nick change */
-void HandleNickChange(oldnick,newnick,userhost,server)
+void HandleNickChange(oldnick, newnick, userhost, server)
 char *oldnick;
 char *newnick;
 char *userhost;
 int  server;
 {
-    int  privs=0;
-    int  printed=0;
-    int  curserv=from_server;
+    int  privs = 0;
+    int  printed = 0;
+    int  curserv = from_server;
     char *mynick;
-    char tmpbuf[mybufsize/2];
+    char tmpbuf[mybufsize / 2];
     time_t timenow;
     NickList *tmp;
     ChannelList *chan;
     struct nicks *nickstr;
 
-    mynick=get_server_nickname(server);
-    timenow=time((time_t *) 0);
-    for (chan=server_list[server].chan_list;chan;chan=chan->next)
+    mynick = get_server_nickname(server);
+    timenow = time((time_t *) 0);
+    for (chan = server_list[server].chan_list; chan; chan = chan->next)
         if (chan->NickWatch) {
-            if ((tmp=find_in_hash(chan,oldnick))) {
+            if ((tmp = find_in_hash(chan, oldnick))) {
                 tmp->nickc++;
-                if (!(!my_stricmp(oldnick,mynick) || !my_stricmp(newnick,mynick))) {
-                    if (tmp->frlist) privs=tmp->frlist->privs;
-                    else privs=0;
+                if (!(!my_stricmp(oldnick, mynick) || !my_stricmp(newnick, mynick))) {
+                    if (tmp->frlist) privs = tmp->frlist->privs;
+                    else privs = 0;
                     if (!(privs&(FLPROT | FLGOD))) {
-                        snprintf(tmpbuf,sizeof(tmpbuf),"%s!%s",newnick,userhost);
-                        tmp->shitlist=(struct autobankicks *) FindShit(tmpbuf,chan->channel);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", newnick, userhost);
+                        tmp->shitlist = (struct autobankicks *) FindShit(tmpbuf, chan->channel);
                         if (tmp->shitlist && chan->BKList)
-                            DoShitList(tmp,newnick,chan->channel,chan);
-                        if (timenow-tmp->nickt>=NickTimer) {
-                            tmp->curn=1;
-                            tmp->nickp=0;
-                            tmp->nickt=timenow;
+                            DoShitList(tmp, newnick, chan->channel, chan);
+                        if (timenow-tmp->nickt >= NickTimer) {
+                            tmp->curn = 1;
+                            tmp->nickp = 0;
+                            tmp->nickt = timenow;
                         }
                         else tmp->curn++;
-                        if (!tmp->nickp && tmp->curn>=NickSensor && HAS_OPS(chan->status)) {
+                        if (!tmp->nickp && tmp->curn >= NickSensor && HAS_OPS(chan->status)) {
 #ifdef CELE
                             send_to_server("KICK %s %s :Nick flood detected %s",
-                                           chan->channel,oldnick,CelerityL);
+                                           chan->channel, oldnick, CelerityL);
 #else  /* CELE */
                             send_to_server("KICK %s %s :Nick flood detected",
-                                           chan->channel,oldnick);
+                                           chan->channel, oldnick);
 #endif /* CELE */
 #ifdef WANTANSI
                             if (!printed) {
                                 say("%sNick flood%s detected by %s%s%s",
-                                    CmdsColors[COLWARNING].color1,Colors[COLOFF],
-                                    CmdsColors[COLWARNING].color2,newnick,Colors[COLOFF]);
-                                printed=1;
+                                    CmdsColors[COLWARNING].color1, Colors[COLOFF],
+                                    CmdsColors[COLWARNING].color2, newnick, Colors[COLOFF]);
+                                printed = 1;
                             }
 #else  /* WANTANSI */
                             if (!printed) {
-                                say("%cNick flood%c detected by %s",bold,bold,newnick);
-                                printed=1;
+                                say("%cNick flood%c detected by %s", bold, bold, newnick);
+                                printed = 1;
                             }
 #endif /* WANTANSI */
                             if (away_set || LogOn) {
-                                snprintf(tmpbuf,sizeof(tmpbuf),"Nick flood detected by %s (%s)",newnick,userhost);
-                                AwaySave(tmpbuf,SAVEMASS);
+                                snprintf(tmpbuf, sizeof(tmpbuf), "Nick flood detected by %s (%s)", newnick, userhost);
+                                AwaySave(tmpbuf, SAVEMASS);
                             }
-                            tmp->nickp=1;
+                            tmp->nickp = 1;
                         }
                     }
                 }
             }
         }
     if (CheckServer(curserv)) {
-        for (nickstr=server_list[curserv].nicklist;nickstr;nickstr=nickstr->next)
-            if (!my_stricmp(nickstr->nick,oldnick))
-                malloc_strcpy(&(nickstr->nick),newnick);
-        for (nickstr=server_list[curserv].arlist;nickstr;nickstr=nickstr->next)
-            if (!my_stricmp(nickstr->nick,oldnick))
-                malloc_strcpy(&(nickstr->nick),newnick);
+        for (nickstr = server_list[curserv].nicklist; nickstr; nickstr = nickstr->next)
+            if (!my_stricmp(nickstr->nick, oldnick))
+                malloc_strcpy(&(nickstr->nick), newnick);
+        for (nickstr = server_list[curserv].arlist; nickstr; nickstr = nickstr->next)
+            if (!my_stricmp(nickstr->nick, oldnick))
+                malloc_strcpy(&(nickstr->nick), newnick);
     }
-    CdccQueueNickChange(oldnick,newnick);
+    CdccQueueNickChange(oldnick, newnick);
+    /* rename queried nick */
+    if (curr_scr_win && curr_scr_win->query_nick &&
+        !my_stricmp(oldnick, curr_scr_win->query_nick)) {
+        char *ptr;
+        NickList *tmp;
+
+        if (curr_scr_win->query_nick) {
+            char *oldnick;
+
+            oldnick = curr_scr_win->query_nick;
+            while (oldnick) {
+                if ((ptr = (char *) index(oldnick,',')) != NULL) *(ptr++) = '\0';
+                if ((tmp = (NickList *) remove_from_list((List **) &(curr_scr_win->nicks), oldnick)) != NULL) {
+                    new_free(&tmp->nick);
+                    new_free(&tmp->userhost);
+                    new_free(&tmp);
+                }
+                oldnick = ptr;
+            }
+            new_free(&curr_scr_win->query_nick);
+        }
+        malloc_strcpy(&(curr_scr_win->query_nick), newnick);
+        curr_scr_win->update |= UPDATE_STATUS;
+        tmp = (NickList *) new_malloc(sizeof(NickList));
+        tmp->nick = (char *) 0;
+        tmp->userhost = (char *) 0;
+        malloc_strcpy(&tmp->nick, newnick);
+        add_to_list((List **) &(curr_scr_win->nicks), (List *) tmp);
+        update_window_status(curr_scr_win, 0);
+    }
 }
 
 /* Adds comment to buffer */
