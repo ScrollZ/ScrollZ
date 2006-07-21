@@ -1,4 +1,4 @@
-!	 $Id: levels,v 1.4 2003-01-08 20:00:54 f Exp $
+!	 $Id: levels,v 1.5 2006-07-21 16:11:27 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
@@ -40,3 +40,4 @@ Usage: LEVELS
   B   user will be banned on join
   I   user will be ignored on join
   P   permanent ban, enforced at all times if possible
+  T   temporary ban, it will be removed after timeout expires

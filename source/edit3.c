@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.87 2006-03-22 16:55:42 f Exp $
+ * $Id: edit3.c,v 1.88 2006-07-21 16:11:27 f Exp $
  */
 
 #include "irc.h"
@@ -695,6 +695,10 @@ char *subargs;
                 ShowFakesChannels,Colors[COLOFF]);
     else snprintf(tmpbuf2,sizeof(tmpbuf2),"%sOFF%s",CmdsColors[COLSETTING].color2,Colors[COLOFF]);
     say("%s%s",tmpbuf1,tmpbuf2);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ban time         : %s%-3d%ss   ",
+            CmdsColors[COLSETTING].color2,BanTime,Colors[COLOFF]);
+    strmcat(tmpbuf1,"|",sizeof(tmpbuf1));
+    say("%s",tmpbuf1);
     strmcpy(tmpbuf1,"Server notices   : ",sizeof(tmpbuf1));
     if (ServerNotice) snprintf(tmpbuf2,sizeof(tmpbuf2),"%sON%s     ",CmdsColors[COLSETTING].color2,
                               Colors[COLOFF]);
@@ -926,6 +930,8 @@ char *subargs;
         snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c for %c%s%c",bold,bold,bold,ShowFakesChannels,bold);
     else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c",bold,bold);
     say("%s%s",tmpbuf1,tmpbuf2);
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"Ban time         : %c%-3d%cs   ",bold,BanTime,bold);
+    say("%s",tmpbuf1);
     strmcpy(tmpbuf1,"Server notices   : ",sizeof(tmpbuf1));
     if (ServerNotice) snprintf(tmpbuf2,sizeof(tmpbuf2),"%cON%c     ",bold,bold);
     else snprintf(tmpbuf2,sizeof(tmpbuf2),"%cOFF%c    ",bold,bold);
@@ -1905,6 +1911,8 @@ void ScrollZLoad()
         else if (!strcmp("IDLETIME",tmpbuf3))
             NumberSet(&pointer,&IdleTime,&loaderror,lineno,"IDLETIME");
 #endif
+        else if (!strcmp("BANTIME",tmpbuf3))
+            NumberSet(&pointer,&BanTime,&loaderror,lineno,"BANTIME");
         else if (!strcmp("NICKWATCH",tmpbuf3))
             ChannelsSet(&pointer,&NickWatch,&NickWatchChannels,&loaderror,lineno,"NICKWATCH",NULL);
         else if (!strcmp("MDOPWATCH",tmpbuf3))
@@ -2547,6 +2555,7 @@ void InitVars() {
     ExtPub=0;
     ChanLog=0;
     AwayEncrypt=0;
+    BanTime=10;
     usersloaded=0;
     strmcpy(tmpbuf,ScrollZver,sizeof(tmpbuf));
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;

@@ -1,4 +1,4 @@
-!	 $Id: addbk,v 1.4 2003-01-08 20:00:53 f Exp $
+!	 $Id: addbk,v 1.5 2006-07-21 16:11:27 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
@@ -13,10 +13,11 @@ Usage: ADDBK nick|filter channels shit-level [comment]
   Channels is a list of channels separated by ',' where nick will be 
   shitted. You can use * and ? (like : #chat*,#tes?,#chan).
   Comment is used as kick comment.
-  Available shit-levels are: D=DEOP, K=KICK, B=BBAN, I=IGNORE and
-  P=PERMBAN.
+  Available shit-levels are: D=DEOP, K=KICK, B=BBAN, I=IGNORE,
+  P=PERMBAN and T=TIMEDBAN.
 
 See also:
+  BANTIME
   BKLIST
   REMBK
   LISTBK

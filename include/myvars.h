@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.38 2005-04-19 18:57:30 f Exp $
+ * $Id: myvars.h,v 1.39 2006-07-21 16:11:27 f Exp $
  */
 
 #include "mystructs.h"
@@ -286,6 +286,7 @@ extern int    ShowNickAllChan;
 extern int    ExtPub;
 extern int    ChanLog;
 extern int    AwayEncrypt;
+extern int    BanTime;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

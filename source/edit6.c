@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.159 2006-04-30 14:15:43 f Exp $
+ * $Id: edit6.c,v 1.160 2006-07-21 16:11:27 f Exp $
  */
 
 #include "irc.h"
@@ -1105,6 +1105,7 @@ char *subargs;
         char *setting;
     } command_list[]= {
         { "AWAYT"       , &AutoAwayTime   , "Minutes before automatically setting you away" },
+        { "BANTIME"     , &BanTime        , "Timeout for temporary bans" },
         { "DEOPS"       , &DeopSensor     , "Mass deop sensor" },
         { "DEOPT"       , &MDopTimer      , "Mass deop timer" },
         { "IDLE"        , &CdccIdle       , "Cdcc auto-close time" },

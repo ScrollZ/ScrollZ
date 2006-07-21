@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.11 2003-12-24 12:19:33 f Exp $
+ * $Id: mystructs.h,v 1.12 2006-07-21 16:11:27 f Exp $
  */
 
 /* don't change!! */
@@ -52,6 +52,7 @@
 #define SLIGNORE 4
 #define SLPERMBAN 8
 #define SLDEOP 16
+#define SLTIMEDBAN 32
 
 struct friends {
      struct friends *next;

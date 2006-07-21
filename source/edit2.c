@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.99 2005-04-19 15:22:55 f Exp $
+ * $Id: edit2.c,v 1.100 2006-07-21 16:11:27 f Exp $
  */
 
 #include "irc.h"
@@ -1648,16 +1648,17 @@ char *subargs;
 
 
 /* Returns shit level as flags */
-void BuildShit(shitentry,buffer)
+void BuildShit(shitentry, buffer)
 struct autobankicks *shitentry;
 char *buffer;
 {
     if (shitentry && shitentry->shit) {
-        if ((shitentry->shit)&SLKICK) strcat(buffer,"K");
-        if ((shitentry->shit)&SLBAN) strcat(buffer,"B");
-        if ((shitentry->shit)&SLIGNORE) strcat(buffer,"I");
-        if ((shitentry->shit)&SLPERMBAN) strcat(buffer,"P");
-        if ((shitentry->shit)&SLDEOP) strcat(buffer,"D");
+        if ((shitentry->shit) & SLKICK) strcat(buffer, "K");
+        if ((shitentry->shit) & SLBAN) strcat(buffer, "B");
+        if ((shitentry->shit) & SLIGNORE) strcat(buffer, "I");
+        if ((shitentry->shit) & SLPERMBAN) strcat(buffer, "P");
+        if ((shitentry->shit) & SLDEOP) strcat(buffer, "D");
+        if ((shitentry->shit) & SLTIMEDBAN) strcat(buffer, "T");
     }
 }
 
@@ -2066,6 +2067,7 @@ char *subargs;
 #ifdef EXTRAS
     fprintf(usfile,"IDLETIME        %d\n",IdleTime);
 #endif
+    fprintf(usfile,"BANTIME         %d\n",BanTime);
 #ifndef CELE
     fprintf(usfile,"DEFSERVER       %s\n",DefaultServer);
 #endif
@@ -2650,40 +2652,45 @@ char *text;
 }
 
 /* Returns integer from specified shit level */
-int CheckShit(shit,buffer)
+int CheckShit(shit, buffer)
 char *shit;
 char *buffer;
 {
-    int i=0;
-    char *tmpshit=(char *) 0;
+    int i = 0;
+    char *tmpshit = (char *) 0;
 
-    if (buffer) *buffer='\0';
-    for (tmpshit=new_next_arg(shit,&shit);tmpshit && *tmpshit;tmpshit++) {
+    if (buffer) *buffer = '\0';
+    for (tmpshit = new_next_arg(shit, &shit); tmpshit && *tmpshit; tmpshit++) {
         switch (*tmpshit) {
             case 'k':
             case 'K':
-                i|=SLKICK;
-                if (buffer) strcat(buffer,"KICK ");
+                i |= SLKICK;
+                if (buffer) strcat(buffer, "KICK ");
                 break;
             case 'b':
             case 'B':
-                i|=SLBAN;
-                if (buffer) strcat(buffer,"BAN ");
+                i |= SLBAN;
+                if (buffer) strcat(buffer, "BAN ");
                 break;
             case 'i':
             case 'I':
-                i|=SLIGNORE;
-                if (buffer) strcat(buffer,"IGNORE ");
+                i |= SLIGNORE;
+                if (buffer) strcat(buffer, "IGNORE ");
                 break;
             case 'p':
             case 'P':
-                i|=SLPERMBAN;
-                if (buffer) strcat(buffer,"PERMBAN ");
+                i |= SLPERMBAN;
+                if (buffer) strcat(buffer, "PERMBAN ");
                 break;
             case 'd':
             case 'D':
-                i|=SLDEOP;
-                if (buffer) strcat(buffer,"DEOP ");
+                i |= SLDEOP;
+                if (buffer) strcat(buffer, "DEOP ");
+                break;
+            case 't':
+            case 'T':
+                i |= SLTIMEDBAN;
+                if (buffer) strcat(buffer, "TIMEDBAN ");
                 break;
         }
     }

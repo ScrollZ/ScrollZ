@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.107 2006-04-30 14:15:43 f Exp $
+ * $Id: edit.c,v 1.108 2006-07-21 16:11:27 f Exp $
  */
 
 #include "irc.h"
@@ -501,6 +501,7 @@ IrcCommand FAR irc_command[] =
   { "AWAYSAVE", 	NULL, 		AwaySaveToggle, 	0 },
   { "AWAYT", 		"AWAYT", 	NumberCommand, 		0 },
   { "BAN", 		NULL,  		Ban,      		SERVERREQ },
+  { "BANTIME", 		"BANTIME", 	NumberCommand, 		0 },
   { "BANTYPE", 		NULL,  		BanType, 		0 },
 #ifndef LITE
 	{ "BEEP",	0,		beepcmd,		0 },

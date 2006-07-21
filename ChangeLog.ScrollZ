@@ -8,6 +8,20 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ
+
+    + temporary ban shitlist type (see help on commands ADDBK
+      and BANTIME, requested by duckdown)
+
+------------------------------------------------------------------------------
+
+ScrollZ v1.9.98.1, 4.5.2006
+
+    ! compilation without ANSI colour support
+    ! ANSI colour support when compiled without iconv support
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.98, 1.5.2006
 
     ! core dump on exit when FLOOD_USERS was increased (reported by jm_)

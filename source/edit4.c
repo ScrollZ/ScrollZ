@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.114 2006-07-21 15:26:50 f Exp $
+ * $Id: edit4.c,v 1.115 2006-07-21 16:11:27 f Exp $
  */
 
 #include "irc.h"
@@ -291,7 +291,7 @@ int  *netsplit;
 }
 
 /* Do the shitlist action */
-void DoShitList(tmpjoiner,nick,channel,chan)
+void DoShitList(tmpjoiner, nick, channel, chan)
 NickList *tmpjoiner;
 char *nick;
 char *channel;
@@ -299,30 +299,39 @@ ChannelList *chan;
 {
     char *comment;
     char *tmpignore;
-    char tmpbuf[mybufsize/4];
-    struct autobankicks *tmpabk=tmpjoiner->shitlist;
+    char tmpbuf[mybufsize / 2];
+    struct autobankicks *tmpabk = tmpjoiner->shitlist;
 
-    if ((tmpabk->shit)&SLBAN) {
+    if ((tmpabk->shit) & SLBAN) {
         if (!(tmpjoiner->chanop))
-            send_to_server("MODE %s +b %s",channel,tmpabk->userhost);
+            send_to_server("MODE %s +b %s", channel, tmpabk->userhost);
         else
-            send_to_server("MODE %s -o+b %s %s",channel,nick,tmpabk->userhost);
+            send_to_server("MODE %s -o+b %s %s", channel, nick, tmpabk->userhost);
     }
-    if ((tmpabk->shit)&SLKICK) {
-        if (tmpabk->reason[0]) comment=tmpabk->reason;
-        else comment=DefaultABK;
+    if ((tmpabk->shit) & SLTIMEDBAN) {
+        if (!(tmpjoiner->chanop))
+            send_to_server("MODE %s +b %s", channel, tmpabk->userhost);
+        else
+            send_to_server("MODE %s -o+b %s %s", channel, nick, tmpabk->userhost);
+        snprintf(tmpbuf, sizeof(tmpbuf), "-INV %d MODE %s -b %s",
+                 BanTime, channel, tmpabk->userhost);
+        timercmd("TIMER", tmpbuf, NULL);
+    }
+    if ((tmpabk->shit) & SLKICK) {
+        if (tmpabk->reason[0]) comment = tmpabk->reason;
+        else comment = DefaultABK;
 #ifdef CELE
-        send_to_server("KICK %s %s :%s %s>",channel,nick,comment,CelerityL);
+        send_to_server("KICK %s %s :%s %s>", channel, nick, comment, CelerityL);
 #else  /* CELE */
-        send_to_server("KICK %s %s :%s",channel,nick,comment);
+        send_to_server("KICK %s %s :%s", channel, nick, comment);
 #endif /* CELE */
     }
-    if ((tmpabk->shit)&SLIGNORE) {
-        tmpignore=index(tmpabk->userhost,'!');
+    if ((tmpabk->shit) & SLIGNORE) {
+        tmpignore = index(tmpabk->userhost, '!');
         if (tmpignore) tmpignore++;
-        else tmpignore=tmpabk->userhost;
-        snprintf(tmpbuf,sizeof(tmpbuf),"%s ALL",tmpignore);
-        Ignore(NULL,tmpbuf,tmpbuf);
+        else tmpignore = tmpabk->userhost;
+        snprintf(tmpbuf, sizeof(tmpbuf), "%s ALL", tmpignore);
+        Ignore(NULL, tmpbuf, tmpbuf);
     }
 }
 
