@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.21 2006-04-30 14:15:43 f Exp $
+ * $Id: config.h,v 1.22 2006-10-25 17:20:35 f Exp $
  */
 
 #ifndef __config_h_
@@ -211,6 +211,7 @@
 #define DEFAULT_STATUS_HOLD " [..more..]"
 #define DEFAULT_STATUS_HOLD_LINES " (%B)"
 #define DEFAULT_STATUS_INSERT ""
+#define DEFAULT_STATUS_LINES 2
 #define DEFAULT_STATUS_MAIL "[m %M]"
 #define DEFAULT_STATUS_MODE " (+%+)"
 #define DEFAULT_STATUS_NOTIFY " [a:%F]"

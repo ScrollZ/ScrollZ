@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.127 2006-07-21 16:11:27 f Exp $
+ * $Id: irc.c,v 1.128 2006-10-25 17:20:35 f Exp $
  */
 
 #define IRCII_VERSION	"20060504"	/* YYYYMMDD */
@@ -465,6 +465,7 @@ int   ExtPub;
 int   ChanLog;
 int   AwayEncrypt;
 int   BanTime;
+int   StatusLines = DEFAULT_STATUS_LINES - 1;
 #ifdef ACID
 int   ForceJoin;
 #endif

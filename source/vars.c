@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.27 2006-04-30 14:15:43 f Exp $
+ * $Id: vars.c,v 1.28 2006-10-25 17:20:35 f Exp $
  */
 
 #include "irc.h"
@@ -112,6 +112,7 @@ static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
 void    SetStampFormat _((char *));
+static  void    SetStatusLines _((int));
 
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
@@ -286,6 +287,7 @@ static	IrcVariable irc_variable[] =
 	{ "STATUS_HOLD_LINES",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_INSERT",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
+        { "STATUS_LINES",		INT_TYPE_VAR,	DEFAULT_STATUS_LINES, NULL, SetStatusLines, 0, 0 },
         { "STATUS_LOADAVG",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /****************************************************************************/
 	{ "STATUS_MAIL",		STR_TYPE_VAR,	0, NULL, build_status, 0, VF_NODAEMON },
@@ -1043,5 +1045,14 @@ char *tsformat;
                                    format ? format : empty_string,
                                    empty_string, &flag, NULL);
 #endif /* HAVE_STRFTIME */
+}
+
+static void SetStatusLines(value)
+int value;
+{
+    if (value > 3) value = 3;
+    if (value < 1) value = 1;
+    set_int_var(STATUS_LINES_VAR, value);
+    StatusLines = value - 1;
 }
 /****************************************************************************/

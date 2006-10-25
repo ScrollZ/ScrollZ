@@ -1,0 +1,13 @@
+!	 $Id: status_lines,v 1.1 2006-10-25 17:20:35 f Exp $
+!
+! Copyright (c) 1994-2003 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_LINES <Number of status lines for new windows>
+  The value of STATUS_LINES sets number of status lines for
+  newly created windows. Valid numbers are 1, 2 or 3.
+
+See Also:
+  WINDOW DOUBLE

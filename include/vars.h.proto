@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h.proto,v 1.18 2006-04-30 14:15:43 f Exp $
+ * $Id: vars.h.proto,v 1.19 2006-10-25 17:20:35 f Exp $
  */
 
 #ifndef __vars_h_
@@ -208,6 +208,7 @@ extern	int	loading_global;
 #define STATUS_HOLD_LINES_VAR $
 #define STATUS_INSERT_VAR $
 /**************************** PATCHED by Flier ******************************/
+#define STATUS_LINES_VAR $
 #define STATUS_LOADAVG_VAR $
 /****************************************************************************/
 #define STATUS_MAIL_VAR $
