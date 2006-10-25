@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.22 2006-04-30 14:15:43 f Exp $
+ * $Id: input.c,v 1.23 2006-10-25 17:20:56 f Exp $
  */
 
 #include "irc.h"
@@ -938,6 +938,11 @@ set_input(str)
 	converted_input[dest] = '\0';
 
 	set_input_raw(converted_input);
+
+/**************************** PATCHED by Flier ******************************/
+        /* fix memory leak */
+        mbdata_done(&mbdata1);
+/****************************************************************************/
 }
 
 void
