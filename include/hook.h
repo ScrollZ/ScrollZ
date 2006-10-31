@@ -1,6 +1,4 @@
 /*
- * hook.h.proto: header for hook.c
- *
  * Copyright (c) 1990 Michael Sandrof.
  * Copyright (c) 1991, 1992 Troy Rollo.
  * Copyright (c) 1992-2003 Matthew R. Green.
@@ -28,12 +26,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- */
-
-/*
- * Generated from hook.h.proto automatically by the Makefile
  *
- * $Id: hook.h.proto,v 1.8 2003-01-08 20:00:54 f Exp $
+ * $Id: hook.h,v 1.1 2006-10-31 12:31:27 f Exp $
  */
 
 #ifndef __hook_h_
@@ -94,96 +88,6 @@ typedef struct numericlist_stru
 	Hook	*list;
 }	NumericList;
 
-#define ACTION_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define CDCC_PLIST $
-#define CDCC_PLIST_FOOTER $
-#define CDCC_PLIST_HEADER $
-/****************************************************************************/
-#define CHANNEL_NICK_LIST $
-#define CHANNEL_SIGNOFF_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define CHANNEL_SYNCH_LIST $
-#define CHANNEL_WALLOP_LIST $
-/****************************************************************************/
-#define CONNECT_LIST $
-#define CTCP_LIST $
-#define CTCP_REPLY_LIST $
-#define DCC_CHAT_LIST $
-#define DCC_CONNECT_LIST $
-#define DCC_ERROR_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define DCC_LIST $
-#define DCC_LIST_FOOTER $
-#define DCC_LIST_HEADER $
-/****************************************************************************/
-#define DCC_LOST_LIST $
-#define DCC_RAW_LIST $
-#define DCC_REQUEST_LIST $
-#define DISCONNECT_LIST $
-#define ENCRYPTED_NOTICE_LIST $
-#define ENCRYPTED_PRIVMSG_LIST $
-#define EXEC_LIST $
-#define EXEC_ERRORS_LIST $
-#define EXEC_EXIT_LIST $
-#define EXEC_PROMPT_LIST $
-#define EXIT_LIST $
-#define FLOOD_LIST $
-#define HELP_LIST $
-#define HOOK_LIST $
-#define IDLE_LIST $
-#define INPUT_LIST $
-#define INVITE_LIST $
-#define JOIN_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define JOIN_ME_LIST $
-/****************************************************************************/
-#define KICK_LIST $
-#define LEAVE_LIST $
-#define LIST_LIST $
-#define MAIL_LIST $
-#define MODE_LIST $
-#define MSG_LIST $
-#define MSG_GROUP_LIST $
-#define NAMES_LIST $
-#define NICKNAME_LIST $
-#define NOTE_LIST $
-#define NOTICE_LIST $
-#define NOTIFY_SIGNOFF_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define NOTIFY_SIGNOFF_UH_LIST $
-/****************************************************************************/
-#define NOTIFY_SIGNON_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define NOTIFY_SIGNON_UH_LIST $
-/****************************************************************************/
-#define PUBLIC_LIST $
-#define PUBLIC_MSG_LIST $
-#define PUBLIC_NOTICE_LIST $
-#define PUBLIC_OTHER_LIST $
-#define RAW_IRC_LIST $
-#define RAW_SEND_LIST $
-#define SEND_ACTION_LIST $
-/**************************** PATCHED by Flier ******************************/
-#define SEND_CTCP_LIST $
-/****************************************************************************/
-#define SEND_DCC_CHAT_LIST $
-#define SEND_MSG_LIST $
-#define SEND_NOTICE_LIST $
-#define SEND_PUBLIC_LIST $
-#define SERVER_NOTICE_LIST $
-#define SIGNOFF_LIST $
-#define TIMER_LIST $
-#define TOPIC_LIST $
-#define WALL_LIST $
-#define WALLOP_LIST $
-#define WHO_LIST $
-#define WIDELIST_LIST $
-#define WINDOW_LIST $
-#define WINDOW_KILL_LIST $
-#define WINDOW_SWAP_LIST $
-#define NUMBER_OF_LISTS $
-
 #ifdef HAVE_STDARG_H
 	int	do_hook _((int, char *, ...));
 #else
@@ -200,4 +104,95 @@ extern	HookFunc hook_functions[];
 
 extern	int	in_on_who;
 
+enum {
+	ACTION_LIST = 0,
+/**************************** PATCHED by Flier ******************************/
+	CDCC_PLIST,
+	CDCC_PLIST_FOOTER,
+	CDCC_PLIST_HEADER,
+/****************************************************************************/
+	CHANNEL_NICK_LIST,
+	CHANNEL_SIGNOFF_LIST,
+/**************************** PATCHED by Flier ******************************/
+	CHANNEL_SYNCH_LIST,
+	CHANNEL_WALLOP_LIST,
+/****************************************************************************/
+	CONNECT_LIST,
+	CTCP_LIST,
+	CTCP_REPLY_LIST,
+	DCC_CHAT_LIST,
+	DCC_CONNECT_LIST,
+	DCC_ERROR_LIST,
+/**************************** PATCHED by Flier ******************************/
+	DCC_LIST,
+	DCC_LIST_FOOTER,
+	DCC_LIST_HEADER,
+/****************************************************************************/
+	DCC_LOST_LIST,
+	DCC_RAW_LIST,
+	DCC_REQUEST_LIST,
+	DISCONNECT_LIST,
+	ENCRYPTED_NOTICE_LIST,
+	ENCRYPTED_PRIVMSG_LIST,
+	EXEC_LIST,
+	EXEC_ERRORS_LIST,
+	EXEC_EXIT_LIST,
+	EXEC_PROMPT_LIST,
+	EXIT_LIST,
+	FLOOD_LIST,
+	HELP_LIST,
+	HOOK_LIST,
+	IDLE_LIST,
+	INPUT_LIST,
+	INVITE_LIST,
+	JOIN_LIST,
+/**************************** PATCHED by Flier ******************************/
+	JOIN_ME_LIST,
+/****************************************************************************/
+	KICK_LIST,
+	LEAVE_LIST,
+	LIST_LIST,
+	MAIL_LIST,
+	MODE_LIST,
+	MSG_LIST,
+	MSG_GROUP_LIST,
+	NAMES_LIST,
+	NICKNAME_LIST,
+	NOTE_LIST,
+	NOTICE_LIST,
+	NOTIFY_SIGNOFF_LIST,
+/**************************** PATCHED by Flier ******************************/
+	NOTIFY_SIGNOFF_UH_LIST,
+/****************************************************************************/
+	NOTIFY_SIGNON_LIST,
+/**************************** PATCHED by Flier ******************************/
+	NOTIFY_SIGNON_UH_LIST,
+/****************************************************************************/
+	PUBLIC_LIST,
+	PUBLIC_MSG_LIST,
+	PUBLIC_NOTICE_LIST,
+	PUBLIC_OTHER_LIST,
+	RAW_IRC_LIST,
+	RAW_SEND_LIST,
+	SEND_ACTION_LIST,
+/**************************** PATCHED by Flier ******************************/
+	SEND_CTCP_LIST,
+/****************************************************************************/
+	SEND_DCC_CHAT_LIST,
+	SEND_MSG_LIST,
+	SEND_NOTICE_LIST,
+	SEND_PUBLIC_LIST,
+	SERVER_NOTICE_LIST,
+	SIGNOFF_LIST,
+	TIMER_LIST,
+	TOPIC_LIST,
+	WALL_LIST,
+	WALLOP_LIST,
+	WHO_LIST,
+	WIDELIST_LIST,
+	WINDOW_LIST,
+	WINDOW_KILL_LIST,
+	WINDOW_SWAP_LIST,
+	NUMBER_OF_LISTS
+};
 #endif /* __hook_h_ */

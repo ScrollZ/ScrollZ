@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.16 2003-01-08 20:00:54 f Exp $
+ * $Id: output.c,v 1.17 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -66,7 +66,7 @@
  * put_it has to be reentrant - this works because the text is used before
  * it's overwritten by the reentering, but it's not The Right Thing ...
  */
-static	u_char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
+static	u_char	putbuf[4*BIG_BUFFER_SIZE + 1] = "";
 #endif
 
 	int	in_help = 0;

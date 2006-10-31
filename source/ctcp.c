@@ -31,14 +31,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.51 2006-04-30 14:15:43 f Exp $
+ * $Id: ctcp.c,v 1.52 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
 
-#ifndef _Windows
 #include <pwd.h>
-#endif /* _Windows */
 
 #ifdef HAVE_UNAME
 # include <sys/utsname.h>
@@ -95,7 +93,7 @@ extern int  AutoReplyMatch _((char *));
 extern void Check4WordKick _((char *, NickList *, int, ChannelList *));
 /****************************************************************************/
 
-static	char	FAR CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
+static	char	CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
 
 static	void	do_new_notice_ctcp _((char *, char *, char **, char *));
 
@@ -211,7 +209,7 @@ char	*ctcp_type[] =
 	"NOTICE"
 };
 
-static	char	FAR ctcp_buffer[BIG_BUFFER_SIZE + 1];
+static	char	ctcp_buffer[BIG_BUFFER_SIZE + 1];
 
 /* This is set to one if we parsed an SED */
 int     sed = 0;
@@ -1254,11 +1252,7 @@ do_version(ctcp, from, to, cmd)
         }
         send_ctcp_reply(from, ctcp->name, "ircII %s %s %s :%s", irc_version, the_unix, the_version,
 #else
-#ifdef _Windows
-        send_ctcp_reply(from, ctcp->name, "ircII %s MS-Windows :%s", irc_version,
-#else
         send_ctcp_reply(from, ctcp->name, "ircII %s *IX :%s", irc_version,
-#endif /* _Windows */
 #endif /* HAVE_UNAME */
 		(tmp = get_string_var(CLIENTINFO_VAR)) ?  tmp : IRCII_COMMENT);
 #endif /* PARANOID */
@@ -1374,37 +1368,31 @@ do_finger(ctcp, from, to, cmd)
 	diff = time(0) - idle_time;
 	c = (diff == 1) ? ' ' : 's';
 	/* XXX - fix me */
-# ifdef _Windows
-	send_ctcp_reply(from, ctcp->name,
-		"IRCII For MS-Windows User Idle %d second%c",
-		(int)diff, c);
-# else
 	uid = getuid();
-#  ifdef DAEMON_UID
+# ifdef DAEMON_UID
 	if (uid != DAEMON_UID)
 	{
-#  endif /* DAEMON_UID */
+# endif /* DAEMON_UID */
 		if ((pwd = getpwuid(uid)) != NULL)
 		{
 			char	*tmp;
 
-#  ifndef GECOS_DELIMITER
-#   define GECOS_DELIMITER ','
-#  endif /* GECOS_DELIMITER */
+# ifndef GECOS_DELIMITER
+#  define GECOS_DELIMITER ','
+# endif /* GECOS_DELIMITER */
 			if ((tmp = index(pwd->pw_gecos, GECOS_DELIMITER)) != NULL)
 				*tmp = '\0';
 			send_ctcp_reply(from, ctcp->name,
 				"%s (%s@%s) Idle %d second%c", pwd->pw_gecos,
 				pwd->pw_name, hostname, (int)diff, c);
 		}
-#  ifdef DAEMON_UID
+# ifdef DAEMON_UID
 	}
 	else
 		send_ctcp_reply(from, ctcp->name,
 			"IRCII Telnet User (%s) Idle %d second%c",
 			realname, (int)diff, c);
-#  endif /* DAEMON_UID */
-# endif /* _Windows */
+# endif /* DAEMON_UID */
 #endif /* PARANOID */
 /**************************** PATCHED by Flier ******************************/
         }

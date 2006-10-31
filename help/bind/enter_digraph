@@ -1,9 +1,9 @@
-!	 $Id: enter_digraph,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: enter_digraph,v 1.5 2006-10-31 12:31:27 f Exp $
 !
-! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! Copyright (c) 1990-2006  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
 !
-! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
 ! information.
 !
 Usage: BIND <key> ENTER_DIGRAPH
@@ -15,16 +15,16 @@ Usage: BIND <key> ENTER_DIGRAPH
   followed by two "s".  Note that, in order to display this
   character on your screen, your terminal must be capable of
   doing so.  If you, for instance, have an American 7-bit ASCII
-  terminal, and have informed ScrollZ of this (by entering the
-  command "SET TRANSLATION ASCII"), only a normal "s" will
-  displayed, eventhough it will be treated as a German sharp
-  "s" internally.
+  terminal only a normal "s" will displayed, eventhough it will
+  be treated as a German sharp "s" internally.
 
   To view the available digraphs, enter the "DIGRAPH" command
-  with no arguments.  By default, ScrollZ uses the same sequences
+  with no arguments.  By default, ircII uses the same sequences
   as available on Digital VT320/VT420 terminals as well as in
   the editor Elvis.
 
 See Also:
   DIGRAPH
-  SET TRANSLATION
+  SET IRC_ENCODING
+  SET INPUT_ENCODING
+  SET DISPLAY_ENCODING

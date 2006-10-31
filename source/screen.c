@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.38 2006-10-25 17:20:35 f Exp $
+ * $Id: screen.c,v 1.39 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -560,10 +560,12 @@ display_bold(flag)
 }
 
 static void
-display_text(str, length)
-	char   *str;
+display_text(ustr, length)
+	char   *ustr;
 	size_t length;
 {
+	iconv_const char *str = (iconv_const char *)ustr;
+
 	if (length > 0)
 	{
 #ifdef HAVE_ICONV_OPEN
@@ -611,7 +613,7 @@ display_text(str, length)
 				else
 				{
 					retval = iconv(converter,
-					               (iconv_const char **)&str, &length,
+					               &str, &length,
 					               &outptr, &outsize);
 				}
 			
@@ -2802,6 +2804,8 @@ scrollback_backwards_lines(ScrollDist)
 	    window);
 	cursor_not_in_display();
 	update_input(UPDATE_JUST_CURSOR);
+	window->update |= UPDATE_STATUS;
+	update_window_status(window, 0);
 }
 
 static	void
@@ -2857,6 +2861,8 @@ scrollback_forwards_lines(ScrollDist)
 		else
 			hold_mode(window, OFF, 0);
 	}
+	window->update |= UPDATE_STATUS;
+	update_window_status(window, 0);
 }
 
 /*
@@ -2916,6 +2922,8 @@ scrollback_end(key, ptr)
 			hold_mode(window, ON, 1);
 		else
 			hold_mode(window, OFF, 0);
+		window->update |= UPDATE_STATUS;
+		update_window_status(window, 0);
 	}
 }
 
@@ -2959,6 +2967,8 @@ scrollback_start(key, ptr)
 			hold_mode(window, ON, 1);
 		else
 			hold_mode(window, OFF, 0);
+		window->update |= UPDATE_STATUS;
+		update_window_status(window, 0);
 	}
 }
 

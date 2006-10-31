@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# @(#)$Id: Makefile.in,v 1.22 2006-04-30 14:15:42 f Exp $
+# @(#)$Id: Makefile.in,v 1.23 2006-10-31 12:31:27 f Exp $
 
 # targets recognised by this makefile:
 #   all, everything	- compiles ircii, ircio, ircflush and wserv
@@ -66,11 +66,6 @@ IRCSHARE = ${sharedir}/scrollz
 
 # The documentation directory
 IRCDOC = ${IRCSHARE}/doc
-
-# Set this to the lex you want to use, and if they lex uses a library.
-
-LEX = @LEX@
-LEXLIB = @LEXLIB@
 
 CC = @CC@
 DEFS = @DEFS@
@@ -153,7 +148,6 @@ all: scrollz scrollz.1
 install: all installbin installdirs installman installhelp
 
 scrollz: source/Makefile Makefile
-	@cd include; $(MAKE)
 	@cd source; $(MAKE) all
 
 scrollz.1: scrollz.1.in
@@ -210,10 +204,9 @@ installhelp:
 
 clena clean:
 	@-if test -f source/Makefile; then cd source; $(MAKE) clean; fi
-	@-if test -f include/Makefile; then cd include; $(MAKE) clean; fi
 
 distclean cleandir realclean: clean
-	$(RM) Makefile include/Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h include/hook.h include/keys.h include/vars.h ircbug scrollz.1
+	$(RM) Makefile source/Makefile source/sig.inc config.status config.cache config.log include/defs.h ircbug scrollz.1
 
 lint:
 	@if test -f source/Makefile; then cd source; $(MAKE) lint; fi
@@ -228,13 +221,10 @@ autoheader: include/defs.h.in
 include/defs.h.in: configure.in acconfig.h aclocal.m4
 	autoheader
 
-headers:
-	@-if test -f include/Makefile; then cd include; $(MAKE) headers; fi
-
-autofiles: headers autoconf autoheader
+autofiles: autoconf autoheader
 
 config_h:
 	$(RM) include/config.h
 	cp include/config.h.dist include/config.h
 
-export: headers distclean autoconf autoheader
+export: distclean autoconf autoheader

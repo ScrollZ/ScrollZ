@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.23 2006-10-25 17:20:56 f Exp $
+ * $Id: input.c,v 1.24 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -93,6 +93,7 @@ cursor_to_input(void)
 		{
 			term_move_cursor(screen->inputdata.cursor_x, screen->inputdata.cursor_y);
 			Debug((3, "cursor_to_input: moving cursor to input for screen %d", screen->screennum));
+			Debug((3, "- x %u; y %u", screen->inputdata.cursor_x, screen->inputdata.cursor_y));
 			cursor_not_in_display();
 			term_flush();
 		}
@@ -327,18 +328,7 @@ input_do_check_prompt(int update)
 	if (current_screen->promptlist)
 		prompt = current_screen->promptlist->prompt;
 	else
-/**************************** PATCHED by Flier ******************************/
-        {
-/****************************************************************************/
-		prompt = input_prompt;
-/**************************** PATCHED by Flier ******************************/
-                /*
-                 * fix bug where old prompt was not replaced in case of
-                 * an empty input_prompt
-                 */
-                if (prompt == NULL) prompt = empty_string;
-        }
-/****************************************************************************/
+		prompt = input_prompt ? input_prompt : empty_string;
 	if (prompt)
 	{
 		if (update != NO_UPDATE)
@@ -349,14 +339,12 @@ input_do_check_prompt(int update)
 			int	args_used;	/* this isn't used here but is
 						 * passed to expand_alias()
 						 */
-#ifndef _Windows
 			if (is_process(get_target_by_refnum(0)))
 			{
 				ptr = get_prompt_by_refnum(0);
 				free_it = 0;
 			}
 			else
-#endif /* _Windows */
 				ptr = expand_alias((u_char *) 0, prompt, empty_string, &args_used, NULL);
 
 			len = strlen(ptr);
@@ -388,8 +376,6 @@ input_check_resized(void)
 	inputdata->old_co   = current_screen->co;
 	
 	inputdata->zone     = current_screen->co;
-	if (inputdata->zone > WIDTH)
-		inputdata->zone -= WIDTH;
 	if (inputdata->zone > WIDTH)
 		inputdata->zone -= WIDTH;
 	return 1;
@@ -527,19 +513,16 @@ update_input(update)
 			if (displayable_unival(unival, display_conv))
 			{
 				column += calc_unival_width(unival);
-/**************************** PATCHED by Flier ******************************/
-                                /*
-                                 * hide password prompts
-                                 */
-                                if (!term_echo && (unival == ' ')) {
-                                    char *space = " ";
-
-                                    memcpy(VisBuf+optr, space, 1);
-                                }
-                                else
-/****************************************************************************/
-				memcpy(VisBuf+optr, buf+iptr, len);
-				optr += len;
+				if (!term_echo && unival == ' ')
+				{
+					memcpy(VisBuf+optr, " ", 1);
+					optr += 1;
+				}
+				else
+				{
+					memcpy(VisBuf+optr, buf+iptr, len);
+					optr += len;
+				}
 				iptr += len;
 			}
 			else
@@ -835,7 +818,8 @@ input_add_character(key, ptr)
 	static unsigned input_pos=0;
 	size_t retval;
 	
-	u_char *iptr, *optr;
+	iconv_const char *iptr;
+	char *optr;
 	size_t isize, osize;
 	
 	input_buffer[input_pos++] = key;
@@ -851,14 +835,14 @@ re_encode:
 	{
 		return;
 	}
-	iptr = input_buffer;
+	iptr = (iconv_const char *)input_buffer;
 	isize = input_pos;
-	optr = output_buffer;
+	optr = (char *)output_buffer;
 	osize = sizeof output_buffer;
 	
 	retval = iconv(mbdata.conv_in,
-	               (iconv_const char **)&iptr, &isize,
-	               (char **)&optr, &osize);
+		       &iptr, &isize,
+		       (char **)&optr, &osize);
 	
 	if (retval == (size_t)-1)
 	{
@@ -897,7 +881,6 @@ re_encode:
 /****************************************************************************/
 }
 
-#ifndef _Windows
 /*
  * set_input: sets the input buffer to the given string, discarding whatever
  * was in the input buffer before 
@@ -918,18 +901,6 @@ set_input(str)
 	{
 		if (dest + 8 >= sizeof(converted_input))
 			break;
-		
-/**************************** PATCHED by Flier ******************************/
-                /*
-                 * copy attribute characters/beeps directly so we can
-                 * properly recall previous commands
-                 */
-                if (*str == REV_TOG || *str == UND_TOG || *str == BOLD_TOG ||
-                    *str == ALL_OFF || *str == '\007') {
-                    converted_input[dest++] = *str++;
-                    continue;
-                }
-/****************************************************************************/
 
 		decode_mb(str, converted_input+dest, &mbdata1);
 		dest += mbdata1.output_bytes;
@@ -967,7 +938,6 @@ set_input_raw(str)
 		mbdata_ok = 0;
 	}
 }
-#endif /* _Windows */
 
 /*
  * get_input: returns a pointer to the input buffer.  Changing this will
@@ -977,15 +947,14 @@ set_input_raw(str)
 char	*
 get_input()
 {
-	char* source = get_input_raw();
+	iconv_const char* source = (iconv_const char*)get_input_raw();
 	
 	/* The input buffer is UTF-8 encoded. Clients will want irc_encoding instead. */
-	
-	static char converted_buffer[INPUT_BUFFER_SIZE];
+	static u_char converted_buffer[INPUT_BUFFER_SIZE];
 
 #ifdef HAVE_ICONV_OPEN
 	iconv_t conv = iconv_open(irc_encoding, "UTF-8");
-	char* dest = converted_buffer;
+	char* dest = (char *)converted_buffer;
 	size_t left, space;
 
 	left = strlen(source);
@@ -995,8 +964,8 @@ get_input()
 		size_t retval;
 
 		retval = iconv(conv,
-		               (iconv_const char**) &source, &left,
-		                (char **)&dest, &space);
+		                &source, &left,
+		                &dest, &space);
 		if (retval == (size_t)-1)
 		{
 			if (errno == E2BIG)
@@ -1019,7 +988,7 @@ get_input()
 		}
 	}
 	/* Reset the converter, create a reset-sequence */
-	iconv(conv, NULL, &left, (char **)&dest, &space);
+	iconv(conv, NULL, &left, &dest, &space);
 	
 	/* Ensure null-terminators are where they should be */
 	converted_buffer[sizeof(converted_buffer)-1] = '\0';
@@ -1213,8 +1182,6 @@ set_input_prompt(prompt)
 {
 	if (!prompt)
 	{
-		if (!input_prompt)
-			return;
 		malloc_strcpy(&input_prompt, empty_string);
 	}
 	else

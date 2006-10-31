@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.8 2006-04-30 14:15:43 f Exp $
+ * $Id: ircterm.h,v 1.9 2006-10-31 12:31:27 f Exp $
  */
 
 #ifndef __ircterm_h_
@@ -64,24 +64,6 @@
 # include <sys/ttold.h>
 #endif /* MUNIX */
 
-#ifdef _Windows
-#define	CO	term_get_columns()
-#define	LI	term_get_rows()
-#define	term_eight_bit()	(1)
-#define	set_term_eight_bit(x)	(0)
-#define	term_init()		(0)
-
-#define	term_cont()		(0)
-#define	term_init()		(0)
-#define	term_reset()		(0)
-
-#define	term_cursor_left()	(0)
-#define	term_cursor_right()	(0)
-#define	term_insert(x)		(0)
-
-int	term_pause();
-
-#else
 extern	int	term_reset_flag;
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
@@ -290,7 +272,5 @@ struct tchars
 #endif /* linux && __alpha__ */
 /****** ***************** ******/
 /****************************************************************************/
-
-#endif /* _Windows */
 
 #endif /* __ircterm_h_ */

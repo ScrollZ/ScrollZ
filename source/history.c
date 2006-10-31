@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: history.c,v 1.9 2003-01-08 20:00:54 f Exp $
+ * $Id: history.c,v 1.10 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -39,6 +39,7 @@
 #include "history.h"
 #include "output.h"
 #include "input.h"
+#include "debug.h"
 
 static	int	parse_history _((char *, char **));
 static	char	*history_match _((char *));
@@ -350,6 +351,7 @@ add_to_history(line)
 		{
 			if ((ptr = sindex(line, "\n\r")) != NULL)
 				*(ptr++) = '\0';
+			Debug((3, "add_to_history: adding ``%s''", line));
 			add_to_history_list(hist_count, line);
 			add_to_history_file(hist_count, line);
 			last_dir = PREV;

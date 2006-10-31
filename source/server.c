@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.62 2005-09-07 17:55:53 f Exp $
+ * $Id: server.c,v 1.63 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -203,13 +203,11 @@ close_server(server_index, message)
 			new_close(server_list[i].read);
 			server_list[i].read = -1;
 		}
-#ifndef _Windows
 		if (-1 != server_list[i].pid)
 		{
 			kill(server_list[i].pid, SIGKILL);
 			server_list[i].pid = (pid_t) -1;
 		}
-#endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 #ifdef HAVE_SSL
                 if (server_list[i].enable_ssl && server_list[i].session &&
@@ -740,9 +738,7 @@ remove_from_server_list(i)
 	/* update all the structs with server in them */
 	channel_server_delete(i);	/* fix `higher' servers */
 	clear_channel_list(i);
-#ifndef _Windows
 	exec_server_delete(i);
-#endif /* _Windows */
 	if (i < primary_server)
 		--primary_server;
 	if (i < from_server)
@@ -1045,9 +1041,6 @@ connect_to_server_process(server_name, port, nick)
 	int	port;
 	char	*nick;
 {
-#ifdef _Windows
-	return -1;
-#else
 	int	write_des[2],
 		read_des[2],
 		pid,
@@ -1142,7 +1135,6 @@ connect_to_server_process(server_name, port, nick)
 	server_list[from_server].pid = pid;
 	server_list[from_server].operator = 0;
 	return (0);
-#endif /* _Windows */
 }
 
 /*

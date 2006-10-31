@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.19 2006-10-31 09:32:55 f Exp $
+ * $Id: irc.h,v 1.20 2006-10-31 12:31:27 f Exp $
  */
 
 #ifndef __irc_h
@@ -39,23 +39,10 @@
 
 /**************************** PATCHED by Flier ******************************/
 /*#define IRCRC_NAME "/.ircrc"*/
-#ifdef __MSDOS__
-#define IRCRC_NAME "/scrollz.rc"
-#else
 #define IRCRC_NAME "/.scrollzrc"
-#endif
-
-/* we need it in IrcCommand structure */
-#ifndef _Windows
-# define FAR
-#endif
-/****************************************************************************/
-
-#ifdef __MSDOS__
-#define IRCQUICK_NAME "/scrollzq.rc"
-#else
+/*#define IRCQUICK_NAME "/.ircquick"*/
 #define IRCQUICK_NAME "/.scrollzquick"
-#endif
+/****************************************************************************/
 
 /*
  * Here you can set the in-line quote character, normally backslash, to
@@ -302,12 +289,6 @@
 #define WHO_SHOW_SERVER 0x8000
 /****************************************************************************/
 
-/**************************** Patched by Flier ******************************/
-/*#ifndef _Windows
-# define FAR
-#endif*/
-/****************************************************************************/
-
 #ifdef ICONV_CONST_ARG2
 #define iconv_const const
 #else
@@ -334,9 +315,9 @@ extern	char	irc_version[];
 extern	char	*nickname;
 extern	char	*ircrc_file;
 extern	char	*ircquick_file;
-extern	char	FAR hostname[];
-extern	char	FAR realname[];
-extern	char	FAR username[];
+extern	char	hostname[];
+extern	char	realname[];
+extern	char	username[];
 extern	char	*send_umode;
 extern	u_char	*last_notify_nick;
 extern	int	away_set;

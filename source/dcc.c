@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.46 2006-04-30 14:15:43 f Exp $
+ * $Id: dcc.c,v 1.47 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -215,7 +215,7 @@ struct	deadlist
 }	*deadlist = NULL;
 
 extern	int	in_ctcp_flag;
-extern	char	FAR MyHostName[];
+extern	char	MyHostName[];
 extern	struct	in_addr	MyHostAddr, forced_ip_addr;
 extern int dgets_errno;
 static	off_t	filesize = 0;
@@ -2137,7 +2137,7 @@ process_incoming_chat(Client)
 		sra = sizeof(struct sockaddr_in);
 		Client->write = accept(Client->read, (struct sockaddr *)
 			&remaddr, &sra);
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 		mark_socket(Client->write);
 #endif
 		new_close(Client->read);
@@ -2260,7 +2260,7 @@ process_incoming_listen(Client)
 		Name = hp->h_name;
 	else
 		Name = inet_ntoa(remaddr.sin_addr);
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 	mark_socket(new_socket);
 #endif
 	snprintf(FdName, sizeof FdName, "%d", new_socket);
@@ -2447,7 +2447,7 @@ DCC_list *Client;
 		sra = sizeof(struct sockaddr_in);
 		Client->write = accept(Client->read,
 				(struct sockaddr *) &remaddr, &sra);
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 		mark_socket(Client->write);
 #endif
 /**************************** Patched by Flier ******************************/
@@ -2511,15 +2511,6 @@ DCC_list *Client;
 	{
  		if ((bytesread = recv(Client->read, (char *) &bytesrecvd, sizeof(u_32int), 0)) < sizeof(u_32int))
 		{
-#ifdef _Windows
-                    int	recv_error;
-
-                    recv_error = WSAGetLastError();
-                    if (bytesread == -1 &&
-                        recv_error == WSAEWOULDBLOCK ||
-                        recv_error == WSAEINTR)
-                             goto out;
-#endif /* _Windows */
 /**************************** Patched by Flier ******************************/
 	       		/*say("DCC SEND:%s connection to %s lost: %s", Client->description, Client->user, strerror(errno));*/
                         if ((Client->flags&DCC_TYPES)==DCC_RESENDOFFER)
@@ -2644,17 +2635,6 @@ process_incoming_file(Client)
 		snprintf(lame_ultrix, sizeof lame_ultrix, "%2.4g", (sent / (double)xtime));
 		say("DCC GET:%s from %s completed %s kb/sec",
 			Client->description, Client->user, lame_ultrix);*/
-#ifdef _Windows
-		{
-                    int	recv_error;
-
-                    recv_error = WSAGetLastError();
-                    if (bytesread == -1 &&
-                        recv_error == WSAEWOULDBLOCK ||
-                        recv_error == WSAEINTR)
-                        return;
-		}
-#endif /* _Windows */
  		save_message_from();
  		message_from(Client->user, LOG_DCC);
                 if ((Client->flags&DCC_TYPES)==DCC_FILEREGET)

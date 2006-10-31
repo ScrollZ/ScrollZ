@@ -1,0 +1,17 @@
+!	 $Id: status_scrolled,v 1.1 2006-10-31 12:31:27 f Exp $
+!
+! Copyright (c) 2006  Matthew Green
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_SCROLLED <text for status line scrolled mode>
+  The value of STATUS_SCROLLED is replaced in the STATUS_FORMAT
+  variable for any occurence of %P if the display is current on
+  hold.  If the display is not on hold, %P is replaced with nothing.
+
+See Also:
+  BIND SCROLL_BACKWARD
+  BIND SCROLL_FORWARD
+  BIND SCROLL_START
+  BIND SCROLL_END

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.108 2006-07-21 16:11:27 f Exp $
+ * $Id: edit.c,v 1.109 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -431,7 +431,7 @@ extern void EncryptString _((char *, char *, char *, int, int));
 /* IrcCommand: structure for each command in the command table */
 /*typedef	struct
 {
-	char	FAR *name;*/				/* what the user types */
+	char	*name;*/				/* what the user types */
 	/*char	*server_func;*/				/* what gets sent to the server
 							 * (if anything) */
 	/*void	(*func) _((char *, char *, char *));*/	/* function that is the command */
@@ -454,8 +454,8 @@ static	IrcCommand *find_command _((char *, int *));
  * etc.  Neato.  This list MUST be sorted.
  */
 /**************************** Patched by Flier ******************************/
-/*static IrcCommand FAR irc_command[] =*/
-IrcCommand FAR irc_command[] =
+/*static IrcCommand irc_command[] =*/
+IrcCommand irc_command[] =
 /****************************************************************************/
 {
 	{ "",		empty_string,	do_send_text,		NOSIMPLESCRIPT| NOCOMPLEXSCRIPT },
@@ -917,7 +917,7 @@ IrcCommand FAR irc_command[] =
 #endif
 /****************************************************************************/
 #ifndef LITE
-	{ "TYPE",	NULL,		type,			0 },
+	{ "TYPE",	NULL,		typecmd,			0 },
 #endif
   { "UMODE", 		NULL, 		UserMode, 		SERVERREQ },
   { "UNBAN", 		NULL, 		Unban, 			SERVERREQ },
@@ -1224,9 +1224,6 @@ waitcmd(command, args, subargs)
 		*args,
 		*subargs;
 {
-#ifdef _Windows
-	yell("WAIT is not available under Windows");
-#else /* Windows */
 	int	wait_index;
 	char	*flag;
 	char	*procindex;
@@ -1290,7 +1287,6 @@ waitcmd(command, args, subargs)
 	waiting++;
 	irc_io(NULL, NULL, 0, 1);
 	waiting--;
-#endif /* _Windows */
 }
 
 int
@@ -1373,16 +1369,12 @@ sleepcmd(command, args, subargs)
 		*args,
 		*subargs;
 {
-#ifndef _Windows
 	char	*arg;
 
 	if ((arg = next_arg(args, &args)) != NULL)
  		sleep((unsigned)atoi(arg));
 	else
 		say("SLEEP: you must specify the amount of time to sleep (in seconds)");
-#else
-	say("SLEEP: Not available under Windows");
-#endif /* _Windows */
 }
 
 /*
@@ -2382,7 +2374,6 @@ query(command, args, subargs)
 				goto out;
 			}
 
-#ifndef _Windows
 		if (*nick == '%')
 		{
 			if (is_process(nick) == 0)
@@ -2391,7 +2382,6 @@ query(command, args, subargs)
 				goto out;
 			}
 		}
-#endif /* _Windows */
 		say("Starting conversation with %s", nick);
 		set_query_nick(nick);
 	}
@@ -2966,7 +2956,6 @@ send_text(org_nick, line, command)
 			*(ptr++) = (char) 0;
 		if (!*nick)
 			continue;
-#ifndef _Windows
 		if (is_process(nick))
 		{
 			int	i;
@@ -2977,7 +2966,6 @@ send_text(org_nick, line, command)
 				text_to_process(i, line, 1);
 			continue;
 		}
-#endif /* _Windows */
 		if (!*line)
 			continue; /* lynx */
 		if (in_on_who && *nick != '=') /* allow dcc messages anyway */
@@ -4037,7 +4025,8 @@ get_history(which)
 
 	if ((ptr = get_from_history(which)) != NULL)
 	{
-		set_input(ptr);
+		Debug((3, "get_history: get_from_history(%d) gave ``%s''", which, ptr));
+		set_input_raw(ptr);
 		update_input(UPDATE_ALL);
 	}
 }
@@ -5156,13 +5145,10 @@ xtypecmd(command, args, subargs)
 				for (; *args; args++)
  					input_add_character((u_int)*args, (char *) 0);
 			}
-#ifdef _Windows
 			else if (!my_strnicmp(arg, "REPLACE", len))
 			{
 				set_input(args);
-				term_resetall();
 			}
-#endif /* _Windows */
 			else
 				say ("Unknown flag -%s to XTYPE", arg);
 			return;
@@ -5170,7 +5156,7 @@ xtypecmd(command, args, subargs)
 		input_add_character('-', (char *) 0);
 	}
 	else
-		type(command, args, empty_string);
+		typecmd(command, args, empty_string);
 	return;
 }
 

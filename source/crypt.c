@@ -33,7 +33,7 @@
  */
 
 #include "irc.h"
-IRCII_RCSID("@(#)$Id: crypt.c,v 1.13 2003-01-08 20:00:54 f Exp $");
+IRCII_RCSID("@(#)$Id: crypt.c,v 1.14 2006-10-31 12:31:27 f Exp $");
 
 #include "crypt.h"
 #include "vars.h"
@@ -265,7 +265,6 @@ do_crypt(str, key, flag, type)
 		*decrypt_program,
 		*crypt_str;
 
-#ifndef _Windows
 	encrypt_program = get_string_var(ENCRYPT_PROGRAM_VAR);
 	decrypt_program = get_string_var(DECRYPT_PROGRAM_VAR);
 	if ((flag && encrypt_program) || (!flag && decrypt_program))
@@ -356,7 +355,6 @@ do_crypt(str, key, flag, type)
 			malloc_strcpy((char **) &ptr, lbuf);
 	}
 	else
-#endif /* _Windows */
 	{
 		c = strlen((char *) str);
 		if (flag)

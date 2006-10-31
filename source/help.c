@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.14 2003-01-08 20:00:54 f Exp $
+ * $Id: help.c,v 1.15 2006-10-31 12:31:27 f Exp $
  */
 
 /*
@@ -98,7 +98,7 @@ static	int	dont_pause_topic = 0;
 static	Screen  *help_screen = (Screen *) 0;
 static	char	*help_paused_topic[100];	/* 100 should be enough */
 static	char	paused_topic[128];
-static	char	FAR help_topic_list[BIG_BUFFER_SIZE + 1] = "";
+static	char	help_topic_list[BIG_BUFFER_SIZE + 1] = "";
 static	int	use_help_window = 0;
 
 /* we are piglet */
@@ -543,21 +543,9 @@ help_me(topics, args)
 #endif
 		ptr = get_string_var(HELP_PATH_VAR);
 
-#ifndef _Windows
 	snprintf(path, sizeof path, "%s/%s", ptr, topics);
-#else
-	snprintf(path, sizeof path, "%s\\%s", ptr, topics);
-#endif /* _Windows */
 	for (ptr = path; (ptr = index(ptr, ' '));)
 		*ptr = '/';
-#ifdef _Windows
-	for (ptr = path; (ptr = index(ptr, ' '));)
-		*ptr = '\\';
-	for (ptr = path; (ptr = index(ptr, '/'));)
-		*ptr = '\\';
-	if (path[strlen(path) - 1] == '\\') path[strlen(path) - 1] = '\0';
-#endif /* _Windows */
-
 
 	/*
 	 * first we check access to the help dir, whinge if we can't, then
@@ -572,11 +560,7 @@ help_me(topics, args)
 	}
 		
 	finished_help_paging = 0;
-#ifndef _Windows
 	if (access(path, R_OK|X_OK))
-#else
-	if (access(path, R_OK))
-#endif /* _Windows */
 	{
 		help_put_it(no_help, "*** Cannot access help directory!");
 		set_help_screen((Screen *) 0);

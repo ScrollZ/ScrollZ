@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: hook.c,v 1.15 2003-01-08 20:00:54 f Exp $
+ * $Id: hook.c,v 1.16 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -88,7 +88,7 @@ extern	int	load_depth;
 
 	NumericList *numeric_list = (NumericList *) 0;
 /* hook_functions: the list of all hook functions available */
-	HookFunc FAR hook_functions[] =
+	HookFunc hook_functions[] =
 {
 	{ "ACTION",		(Hook *) 0,	3,	0,	0 },
 /**************************** PATCHED by Flier ******************************/
@@ -229,7 +229,7 @@ struct	CmpInfoStruc
 #define	CIF_NOSERNUM	0x0001
 #define	CIF_SKIP	0x0002
 
-int     cmpinfodone = 0;
+int   cmpinfodone = 0;
 
 static void
 setup_struct(ServReq, SkipSer, SerNum, flags)
@@ -284,12 +284,11 @@ add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
 	char	buf[4];
 
 	snprintf(buf, sizeof buf, "%3.3u", numeric);
-	if ((entry = (NumericList *) find_in_list((List **) &numeric_list, buf, 0)) ==
-			(NumericList *) 0)
+	if ((entry = (NumericList *) find_in_list((List **) &numeric_list, buf, 0)) == NULL)
 	{
 		entry = (NumericList *) new_malloc(sizeof(NumericList));
-		entry->name = (char *) 0;
-		entry->list = (Hook *) 0;
+		entry->name = NULL;
+		entry->list = NULL;
 		malloc_strcpy(&(entry->name), buf);
 		add_to_list((List **) &numeric_list, (List *) entry);
 	}
@@ -337,6 +336,11 @@ add_hook(which, nick, stuff, noisy, not, server, sernum)
 	{
 		add_numeric_hook(-which, nick, stuff, noisy, not, server,
 			sernum);
+		return;
+	}
+	if (which >= NUMBER_OF_LISTS)
+	{
+		yell("add_hook: which > NUMBER_OF_LISTS");
 		return;
 	}
 	setup_struct((server == -1) ? -1 : (server & ~HS_NOGENERIC), sernum-1, sernum, 0);
@@ -429,6 +433,11 @@ show_list(which)
 	Hook	*list;
 	int	cnt = 0;
 
+	if (which >= NUMBER_OF_LISTS)
+	{
+		yell("show_list: which >= NUMBER_OF_LISTS");
+		return 0;
+	}
 	/* Less garbage when issueing /on without args. (lynx) */
 	for (list = hook_functions[which].list; list; list = list->next, cnt++)
 		show_hook(list, hook_functions[which].name);
@@ -473,12 +482,12 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 {
 #endif
 	Hook	*tmp, **list;
-	char	*name = (char *) 0;
+	char	*name = NULL;
 	int	RetVal = 1;
 	unsigned int	display;
 	int	i,
 		old_in_on_who;
-	Hook	*hook_array[2048];
+	Hook	*hook_array[2048];      /* XXX ugh */
 	int	hook_num = 0;
 	static	int hook_level = 0;
  	size_t	len;
@@ -488,6 +497,10 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 	u_char	putbuf[2*BIG_BUFFER_SIZE + 1] = "";
 #endif
 	PUTBUF_INIT
+	int currser = 0, oldser = 0;
+	int currmatch = 0, oldmatch = 0;
+	Hook *bestmatch = (Hook *) 0;
+	int nomorethisserial = 0;
 
 	hook_level++;
 
@@ -518,6 +531,11 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 	}
 	else
 	{
+		if (which >= NUMBER_OF_LISTS)
+		{
+			yell("do_hook: which >= NUMBER_OF_LISTS");
+			goto out;
+		}
 		if (hook_functions[which].mark && (hook_functions[which].flags & HF_NORECURSE))
 			list = (Hook **) 0;
 		else
@@ -534,49 +552,42 @@ do_hook(which, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 
 	if (which >= 0)
 		hook_functions[which].mark++;
-			/* not attached, so dont "fix" it */
+
+	for (tmp = *list;tmp;tmp = tmp->next)
 	{
-		int currser = 0, oldser = 0;
-		int currmatch = 0, oldmatch = 0;
-		Hook *bestmatch = (Hook *) 0;
-		int nomorethisserial = 0;
-
-		for (tmp = *list;tmp;tmp = tmp->next)
+		currser = tmp->sernum;
+		if (currser != oldser)      /* new serial number */
 		{
-			currser = tmp->sernum;
-			if (currser != oldser)      /* new serial number */
-			{
-                        	oldser = currser;
-				currmatch = oldmatch = nomorethisserial = 0;
-				if (bestmatch)
-					hook_array[hook_num++] = bestmatch;
-				bestmatch = (Hook *) 0;
-			}
-
-			if (nomorethisserial) 
-				continue;
-					/* if there is a specific server
-			   		hook and it doesnt match, then
-			   		we make sure nothing from
-			   		this serial number gets hooked */
-			if ((tmp->server != -1) &&
- 		   	    (tmp->server & HS_NOGENERIC) &&
- 		   	    (tmp->server != (from_server & HS_NOGENERIC)))
-			{
-				nomorethisserial = 1;
-				bestmatch = (Hook *) 0;
-				continue;
-			}
-			currmatch = wild_match(tmp->nick, putbuf);
-			if (currmatch > oldmatch)
-			{
-				oldmatch = currmatch;
-				bestmatch = tmp;
-			}
+			oldser = currser;
+			currmatch = oldmatch = nomorethisserial = 0;
+			if (bestmatch)
+				hook_array[hook_num++] = bestmatch;
+			bestmatch = (Hook *) 0;
 		}
-		if (bestmatch)
-			hook_array[hook_num++] = bestmatch;
+
+		if (nomorethisserial) 
+			continue;
+				/* if there is a specific server
+				 hook and it doesnt match, then
+				 we make sure nothing from
+				 this serial number gets hooked */
+		if ((tmp->server != -1) &&
+		    (tmp->server & HS_NOGENERIC) &&
+		    (tmp->server != (from_server & HS_NOGENERIC)))
+		{
+			nomorethisserial = 1;
+			bestmatch = (Hook *) 0;
+			continue;
+		}
+		currmatch = wild_match(tmp->nick, putbuf);
+		if (currmatch > oldmatch)
+		{
+			oldmatch = currmatch;
+			bestmatch = tmp;
+		}
 	}
+	if (bestmatch)
+		hook_array[hook_num++] = bestmatch;
 
 	for (i = 0; i < hook_num; i++)
 	{
@@ -712,6 +723,11 @@ remove_hook(which, nick, server, sernum, quiet)
 	if (which < 0)
 	{
 		remove_numeric_hook(-which, nick, server, sernum, quiet);
+		return;
+	}
+	if (which >= NUMBER_OF_LISTS)
+	{
+		yell("remove_hook: which >= NUMBER_OF_LISTS");
 		return;
 	}
 	if (nick)

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.12 2006-04-30 14:15:43 f Exp $
+ * $Id: keys.c,v 1.13 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -703,7 +703,7 @@ change_send_line(func)
 /*ARGSUSED*/
 #ifndef LITE
 void
-type(command, args, subargs)
+typecmd(command, args, subargs)
 	char	*command,
 		*args,
 		*subargs;
@@ -747,7 +747,7 @@ type(command, args, subargs)
 #endif
 
 /* The string values for these *MUST* be in ALL CAPITALS */
-KeyMapNames FAR key_names[] =
+KeyMapNames key_names[] =
 {
 	{ "BACKSPACE",			input_backspace },
 	{ "BACKWARD_CHARACTER",		backward_character },
@@ -821,7 +821,7 @@ KeyMapNames FAR key_names[] =
 /****************************************************************************/
 };
 
-KeyMap	FAR keys[] =
+KeyMap	keys[] =
 {
 	{ SELF_INSERT,		0, 0,	(char *) 0 },	/* 0 */
 	{ BEGINNING_OF_LINE,	0, 0,	(char *) 0 },
@@ -1152,7 +1152,7 @@ KeyMap	FAR keys[] =
 /*	{ DELETE_PREVIOUS_WORD,	0, 0,	(char *) 0 } */
 };
 
-KeyMap	FAR meta1_keys[] =
+KeyMap	meta1_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -1446,7 +1446,7 @@ KeyMap	FAR meta1_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
-KeyMap	FAR meta2_keys[] =
+KeyMap	meta2_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -1759,7 +1759,7 @@ KeyMap	FAR meta2_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
-KeyMap	FAR meta3_keys[] =
+KeyMap	meta3_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -2050,7 +2050,7 @@ KeyMap	FAR meta3_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
-KeyMap	FAR meta4_keys[] =
+KeyMap	meta4_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -2342,7 +2342,7 @@ KeyMap	FAR meta4_keys[] =
 };
 
 /**************************** PATCHED by Flier ******************************/
-KeyMap	FAR meta5_keys[] =
+KeyMap	meta5_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -2634,7 +2634,7 @@ KeyMap	FAR meta5_keys[] =
 };
 
 #ifndef LITE
-KeyMap	FAR meta6_keys[] =
+KeyMap	meta6_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -2925,7 +2925,7 @@ KeyMap	FAR meta6_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
-KeyMap	FAR meta7_keys[] =
+KeyMap	meta7_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },
@@ -3216,7 +3216,7 @@ KeyMap	FAR meta7_keys[] =
 	{ NOTHING,		0, 0,	(char *) 0 }
 };
 
-KeyMap	FAR meta8_keys[] =
+KeyMap	meta8_keys[] =
 {
 	{ NOTHING,		0, 0,	(char *) 0 },	/* 0 */
 	{ NOTHING,		0, 0,	(char *) 0 },

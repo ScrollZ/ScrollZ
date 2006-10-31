@@ -1,0 +1,19 @@
+!	 $Id: status_scrolled_lines,v 1.1 2006-10-31 12:31:27 f Exp $
+!
+! Copyright (c) 2006  Matthew Green
+!
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_SCROLLED_LINES <text of message for status line>
+  The value of STATUS_SCROLLED_LINES is replaced in the STATUS_FORMAT
+  variable for any occurence of %s if the display is current on 
+  hold.  This shows the number of lines currently scrolled up in
+  the buffer. If the display is not being scrolled, it is replaced 
+  with nothing.
+
+See Also:
+  BIND SCROLL_BACKWARD
+  BIND SCROLL_FORWARD
+  BIND SCROLL_START
+  BIND SCROLL_END

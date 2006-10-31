@@ -31,74 +31,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * This file is automatically created from keys.h.proto.
- *
- * $Id: keys.h.proto,v 1.5 2003-01-08 20:00:54 f Exp $
+ * $Id: keys.h,v 1.1 2006-10-31 12:31:27 f Exp $
  */
 
 #ifndef __keys_h_
 #define __keys_h_
-
-#define BACKSPACE $
-#define BACKWARD_CHARACTER $
-#define BACKWARD_HISTORY $
-#define BACKWARD_WORD $
-#define BEGINNING_OF_LINE $
-#define CLEAR_SCREEN $
-#define COMMAND_COMPLETION $
-#define DELETE_CHARACTER $
-#define DELETE_NEXT_WORD $
-#define DELETE_PREVIOUS_WORD $
-#define END_OF_LINE $
-#define ENTER_DIGRAPH $
-#define	ENTER_MENU $
-#define ERASE_LINE $
-#define ERASE_TO_BEG_OF_LINE $
-#define ERASE_TO_END_OF_LINE $
-#define FORWARD_CHARACTER $
-#define FORWARD_HISTORY $
-#define FORWARD_WORD $
-#define META1_CHARACTER $
-#define META2_CHARACTER $
-#define META3_CHARACTER $
-#define META4_CHARACTER $
-#define META5_CHARACTER $
-#define META6_CHARACTER $
-#define META7_CHARACTER $
-#define META8_CHARACTER $
-#define NEXT_WINDOW $
-#define NOTHING $
-#define PARSE_COMMAND $
-#define PREVIOUS_WINDOW $
-#define QUIT_IRC $
-#define QUOTE_CHARACTER $
-#define REFRESH_INPUTLINE $
-#define REFRESH_SCREEN $
-#define	SCROLL_BACKWARD $
-#define	SCROLL_END $
-#define SCROLL_FORWARD $
-#define SCROLL_START $
-#define SELF_INSERT $
-#define SEND_LINE $
-#define STOP_IRC $
-#define SWAP_LAST_WINDOW $
-#define SWAP_NEXT_WINDOW $
-#define SWAP_PREVIOUS_WINDOW $
-#define SWITCH_CHANNELS $
-#define TOGGLE_INSERT_MODE $
-#define TOGGLE_STOP_SCREEN $
-#define TRANSPOSE_CHARACTERS $
-#define TYPE_TEXT $
-#define UNSTOP_ALL_WINDOWS $
-#define YANK_FROM_CUTBUFFER $
-/**************************** PATCHED by Flier ******************************/
-#define INSERT_AUTOREPLY $
-#define LASTJOINER_KICK $
-#define ACCEPT_LAST_CHAT $
-#define INSERT_TABKEY_NEXT $
-#define INSERT_TABKEY_PREV $
-/****************************************************************************/
-#define NUMBER_OF_FUNCTIONS $
 
 /* KeyMap: the structure of the irc keymaps */
 typedef struct
@@ -133,6 +70,68 @@ extern	KeyMapNames key_names[];
 	void	bindcmd _((char *, char *, char *));
 	void	rbindcmd _((char *, char *, char *));
 	void	parsekeycmd _((char *, char *, char *));
-	void	type _((char *, char *, char *));
+	void	typecmd _((char *, char *, char *));
 
+enum {
+	BACKSPACE = 0,
+	BACKWARD_CHARACTER,
+	BACKWARD_HISTORY,
+	BACKWARD_WORD,
+	BEGINNING_OF_LINE,
+	CLEAR_SCREEN,
+	COMMAND_COMPLETION,
+	DELETE_CHARACTER,
+	DELETE_NEXT_WORD,
+	DELETE_PREVIOUS_WORD,
+	END_OF_LINE,
+	ENTER_DIGRAPH,
+	ENTER_MENU,
+	ERASE_LINE,
+	ERASE_TO_BEG_OF_LINE,
+	ERASE_TO_END_OF_LINE,
+	FORWARD_CHARACTER,
+	FORWARD_HISTORY,
+	FORWARD_WORD,
+	META1_CHARACTER,
+	META2_CHARACTER,
+	META3_CHARACTER,
+	META4_CHARACTER,
+	META5_CHARACTER,
+	META6_CHARACTER,
+	META7_CHARACTER,
+	META8_CHARACTER,
+	NEXT_WINDOW,
+	NOTHING,
+	PARSE_COMMAND,
+	PREVIOUS_WINDOW,
+	QUIT_IRC,
+	QUOTE_CHARACTER,
+	REFRESH_INPUTLINE,
+	REFRESH_SCREEN,
+	SCROLL_BACKWARD,
+	SCROLL_END,
+	SCROLL_FORWARD,
+	SCROLL_START,
+	SELF_INSERT,
+	SEND_LINE,
+	STOP_IRC,
+	SWAP_LAST_WINDOW,
+	SWAP_NEXT_WINDOW,
+	SWAP_PREVIOUS_WINDOW,
+	SWITCH_CHANNELS,
+	TOGGLE_INSERT_MODE,
+	TOGGLE_STOP_SCREEN,
+	TRANSPOSE_CHARACTERS,
+	TYPE_TEXT,
+	UNSTOP_ALL_WINDOWS,
+	YANK_FROM_CUTBUFFER,
+/**************************** PATCHED by Flier ******************************/
+	INSERT_AUTOREPLY,
+	LASTJOINER_KICK,
+	ACCEPT_LAST_CHAT,
+	INSERT_TABKEY_NEXT,
+	INSERT_TABKEY_PREV,
+/****************************************************************************/
+	NUMBER_OF_FUNCTIONS
+};
 #endif /* __keys_h_ */

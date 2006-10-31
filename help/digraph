@@ -1,9 +1,9 @@
-!	 $Id: digraph,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: digraph,v 1.5 2006-10-31 12:31:27 f Exp $
 !
-! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! Copyright (c) 1990-2006  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
 !
-! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! All rights reserved.  See the HELP IRCII COPYRIGHT file for more
 ! information.
 !
 Usage: DIGRAPH [-<flag> [<arg0> <arg1> ...]]
@@ -12,10 +12,8 @@ Usage: DIGRAPH [-<flag> [<arg0> <arg1> ...]]
 
   Use the DIGRAPH command without any arguments to display the
   current digraph table.  Note that if you are using a map
-  other than Latin-1, (your TRANSLATION variable is set to
-  something else than LATIN-1), many characters might be
-  converted on the screen to something that your terminal is
-  capable of displaying.
+  other than Latin-1, many characters might be converted on the
+  screen to something that your terminal is capable of displaying.
 
 Available flags:
   -ADD <arg0> <arg1> <arg2>
@@ -40,12 +38,14 @@ Available flags:
   -CLEAR
     Removes ALL digraph entries from the table.
     Use this command only if you know what you are doing.
-    It's primary use is when loading the .scrollzrc file.
+    It's primary use is when loading the .ircrc file.
 
   If you do any changes in the digraph table, using -ADD,
-  -REMOVE or -CLEAR flags, they will be recorded in your .scrollzrc
+  -REMOVE or -CLEAR flags, they will be recorded in your .ircrc
   file if you chose to save it.
 
 See Also:
   BIND ENTER_DIGRAPH
-  SET TRANSLATION
+  SET IRC_ENCODING
+  SET INPUT_ENCODING
+  SET DISPLAY_ENCODING

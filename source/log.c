@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: log.c,v 1.7 2003-01-08 20:00:54 f Exp $
+ * $Id: log.c,v 1.8 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -105,7 +105,6 @@ do_log(flag, logfile, fp)
 				if ((*fp = fopen(logfile, "a")) != NULL)
 /****************************************************************************/
 				{
-#ifndef _Windows
 #ifdef NEED_FCHMOD
 					chmod(logfile, S_IREAD | S_IWRITE);
 #else
@@ -123,7 +122,6 @@ do_log(flag, logfile, fp)
 							S_IWRITE);
 #endif /* !_IBMR2 */
 #endif /* M_UNIX */
-#endif /* _Windows */
 /**************************** PATCHED by Flier ******************************/
 					/*fprintf(fp, "IRC log started %.16s\n",
 							ctime(&t));

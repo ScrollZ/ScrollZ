@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.37 2006-04-30 14:15:43 f Exp $
+dnl @(#)$Id: configure.in,v 1.38 2006-10-31 12:31:27 f Exp $
 
-AC_REVISION($Revision: 1.37 $)dnl
+AC_REVISION($Revision: 1.38 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.37 2006-04-30 14:15:43 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.38 2006-10-31 12:31:27 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -110,7 +110,6 @@ AC_EGREP_CPP(yes,
   AC_DEFINE(_ALL_SOURCE),
   AC_MSG_RESULT(no))
 
-AC_PROG_LEX
 AC_PROG_GCC_TRADITIONAL
 AC_CHECK_LIB(sun, getpwnam)
 
@@ -508,7 +507,7 @@ dnl check the type of iconv(3)'s 2nd argument
 dnl
 
 AC_MSG_CHECKING(for const iconv 2nd argument)
-AC_EGREP_HEADER([iconv\\(.*const], iconv.h,
+AC_EGREP_HEADER([\\<iconv\\>.*\\(.*const], iconv.h,
   AC_MSG_RESULT(yes)
   AC_DEFINE([ICONV_CONST_ARG2]),
   AC_MSG_RESULT(no))
@@ -1334,7 +1333,7 @@ AC_FIND_PROGRAM(SENDMAIL,sendmail,/usr/sbin:/usr/lib:/usr/ucblib)
 
 AC_SUBST(RM)
 AC_SUBST(LN)
-AC_OUTPUT(Makefile include/Makefile source/Makefile ircbug)
+AC_OUTPUT(Makefile source/Makefile ircbug)
 
 #if test ! -f config.h; then
 #  cp ${srcdir}/include/config.h.dist config.h

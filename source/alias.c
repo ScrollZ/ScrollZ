@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.46 2006-07-21 16:11:27 f Exp $
+ * $Id: alias.c,v 1.47 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -166,7 +166,7 @@ typedef struct
  	u_char	*(*func) _((void));
 }	BuiltIns;
 
-static	FAR BuiltIns built_in[] =
+static	BuiltIns built_in[] =
 {
 	{ '.',		alias_sent_nick },
 	{ ',',		alias_recv_nick },
@@ -337,7 +337,7 @@ typedef struct
 	u_char	*(*func) _((u_char *));
 }	BuiltInFunctions;
 
-static BuiltInFunctions	FAR built_in_functions[] =
+static BuiltInFunctions	built_in_functions[] =
 {
 /**************************** Patched by Flier ******************************/
 	{ "UH",                 function_intuhost },
@@ -494,7 +494,7 @@ static	char	*alias_string = (char *) 0;
 static	int	eval_args;
 
 /* function_stack and function_stkptr - hold the return values from functions */
-static	u_char	* FAR function_stack[128] =
+static	u_char	* function_stack[128] =
 { 
 	(u_char *) 0
 };

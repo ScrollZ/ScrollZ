@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.28 2006-10-25 17:20:35 f Exp $
+ * $Id: vars.c,v 1.29 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -97,6 +97,7 @@ extern  Screen	*screen_list, *current_screen;
 
 	int	loading_global = 0;
 
+static  void	check_variable_order _((void));
 static	int	find_variable _((char *, int *));
 static	void	exec_warning _((int));
 static	void	input_warning _((int));
@@ -122,14 +123,14 @@ extern  int     DCCHighPort;
 extern	char	*CelerityNtfy;
 /****************************************************************************/
 
-#ifdef _Windows
-extern	char *get_ini_value(char *pchEntry);
-#endif /* _Windows */
-
 /*
  * irc_variable: all the irc variables used.  Note that the integer and
  * boolean defaults are set here, which the string default value are set in
- * the init_variables() procedure 
+ * the init_variables() procedur .
+ *
+ * this structure needs to be in alphabetical order, and the
+ * check_variable_order() procedure will assert that it is from
+ * init_variables()
  */
 static	IrcVariable irc_variable[] =
 {
@@ -238,8 +239,6 @@ static	IrcVariable irc_variable[] =
 #endif
 	{ "MINIMUM_SERVERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_SERVERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "MINIMUM_USERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_USERS, NULL, NULL, 0, VF_NODAEMON },
-	{ "NO_ASK_NICKNAME",		BOOL_TYPE_VAR,	DEFAULT_NO_ASK_NICKNAME, NULL, NULL, 0, 0 },
-	{ "NO_CTCP_FLOOD",		BOOL_TYPE_VAR,	DEFAULT_NO_CTCP_FLOOD, NULL, NULL, 0, 0 },
 	{ "NOTIFY_HANDLER",		STR_TYPE_VAR, 	0, 0, set_notify_handler, 0, 0 },
 	{ "NOTIFY_LEVEL",		STR_TYPE_VAR,	0, NULL, set_notify_level, 0, 0 },
 	{ "NOTIFY_ON_TERMINATION",	BOOL_TYPE_VAR,	DEFAULT_NOTIFY_ON_TERMINATION, NULL, NULL, 0, VF_NODAEMON },
@@ -247,15 +246,17 @@ static	IrcVariable irc_variable[] =
 	{ "NOTIFY_STRING",		STR_TYPE_VAR,	0, NULL, Cnotifystring, 0, 0 },
 /****************************************************************************/
 	{ "NOVICE",			BOOL_TYPE_VAR,	DEFAULT_NOVICE, NULL, NULL, 0, 0 },
+	{ "NO_ASK_NICKNAME",		BOOL_TYPE_VAR,	DEFAULT_NO_ASK_NICKNAME, NULL, NULL, 0, 0 },
+	{ "NO_CTCP_FLOOD",		BOOL_TYPE_VAR,	DEFAULT_NO_CTCP_FLOOD, NULL, NULL, 0, 0 },
 	{ "OLD_ENCRYPT_PROGRAM",	BOOL_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "REALNAME",			STR_TYPE_VAR,	0, 0, set_realname, 0, VF_NODAEMON },
 	{ "SAME_WINDOW_ONLY",		BOOL_TYPE_VAR,	DEFAULT_SAME_WINDOW_ONLY, NULL, NULL, 0, 0 },
 	{ "SCREEN_OPTIONS", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "SCROLL",			BOOL_TYPE_VAR,	DEFAULT_SCROLL, NULL, set_scroll, 0, 0 },
-	{ "SCROLL_LINES",		INT_TYPE_VAR,	DEFAULT_SCROLL_LINES, NULL, set_scroll_lines, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "SCROLLZ_STRING",             STR_TYPE_VAR,   0, NULL, SetScrollZstr, 0, 0 },
 /****************************************************************************/
+	{ "SCROLL_LINES",		INT_TYPE_VAR,	DEFAULT_SCROLL_LINES, NULL, set_scroll_lines, 0, 0 },
 	{ "SEND_IGNORE_MSG",		BOOL_TYPE_VAR,	DEFAULT_SEND_IGNORE_MSG, NULL, NULL, 0, 0 },
 	{ "SHELL",			STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "SHELL_FLAGS",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
@@ -303,6 +304,8 @@ static	IrcVariable irc_variable[] =
         { "STATUS_REVERSE",		BOOL_TYPE_VAR,	1, NULL, build_status, 0, 0 },
 #endif
 /****************************************************************************/
+	{ "STATUS_SCROLLED",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+	{ "STATUS_SCROLLED_LINES",	STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_SERVER",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_UMODE",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
@@ -328,7 +331,6 @@ static	IrcVariable irc_variable[] =
         { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
 /****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
-	{ "USE_OLD_MSG",		BOOL_TYPE_VAR,	DEFAULT_USE_OLD_MSG, NULL, NULL, 0, 0 },
 	{ "USER_INFORMATION", 		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "USER_WALLOPS",		BOOL_TYPE_VAR,	DEFAULT_USER_WALLOPS, NULL, NULL, 0, 0 },
 	{ "VERBOSE_CTCP",		BOOL_TYPE_VAR,	DEFAULT_VERBOSE_CTCP, NULL, NULL, 0, 0 },
@@ -350,6 +352,8 @@ init_variables()
         int old_disp;
 /****************************************************************************/
 
+	check_variable_order();
+
 	set_string_var(CMDCHARS_VAR, DEFAULT_CMDCHARS);
 	set_string_var(LOGFILE_VAR, DEFAULT_LOGFILE);
 	set_string_var(SHELL_VAR, DEFAULT_SHELL);
@@ -363,7 +367,6 @@ init_variables()
 	set_string_var(IRC_ENCODING_VAR, DEFAULT_IRC_ENCODING);
 	set_string_var(HIGHLIGHT_CHAR_VAR, DEFAULT_HIGHLIGHT_CHAR);
 	set_string_var(HISTORY_FILE_VAR, DEFAULT_HISTORY_FILE);
-	set_string_var(IRCHOST_VAR, empty_string);
 	set_string_var(LASTLOG_LEVEL_VAR, DEFAULT_LASTLOG_LEVEL);
 	set_string_var(NOTIFY_HANDLER_VAR, DEFAULT_NOTIFY_HANDLER);
 	set_string_var(NOTIFY_LEVEL_VAR, DEFAULT_NOTIFY_LEVEL);
@@ -393,6 +396,8 @@ init_variables()
 	set_string_var(STATUS_OPER_VAR, DEFAULT_STATUS_OPER);
 	set_string_var(STATUS_OVERWRITE_VAR, DEFAULT_STATUS_OVERWRITE);
 	set_string_var(STATUS_QUERY_VAR, DEFAULT_STATUS_QUERY);
+	set_string_var(STATUS_SCROLLED_VAR, DEFAULT_STATUS_SCROLLED);
+	set_string_var(STATUS_SCROLLED_LINES_VAR, DEFAULT_STATUS_SCROLLED_LINES);
 	set_string_var(STATUS_SERVER_VAR, DEFAULT_STATUS_SERVER);
 	set_string_var(STATUS_UMODE_VAR, DEFAULT_STATUS_UMODE);
 	set_string_var(STATUS_USER_VAR, DEFAULT_STATUS_USER);
@@ -445,6 +450,24 @@ init_variables()
 	else set_string_var(HELP_PATH_VAR, DEFAULT_HELP_PATH);
         set_string_var(DCC_PORTS_VAR,"0");
 /****************************************************************************/
+}
+
+/*
+ * check_variable_order: make sure irc_variable[] is properly ordered.
+ */
+static  void
+check_variable_order(void)
+{
+	IrcVariable *curr, *prev = NULL;
+	size_t  len;
+
+	for (curr = irc_variable; curr->name; prev = curr++)
+		if (prev && (len = strlen(prev->name)) && strncmp(prev->name, curr->name, len) > 0)
+		{
+			yell("irc_variables[] order is wrong at elements \"%s\" and \"%s\"!", prev->name, curr->name);
+			abort();
+		}
+
 }
 
 /*

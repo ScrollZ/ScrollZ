@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.18 2003-12-24 11:12:10 f Exp $
+ * $Id: ircaux.c,v 1.19 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -46,9 +46,7 @@
 #include <sys/un.h>
 #endif /* HAVE_SYS_UN_H */
 
-#ifndef _Windows
 #include <pwd.h>
-#endif /* _Windows */
 
 #include "ircaux.h"
 #include "output.h"
@@ -61,7 +59,7 @@ int DCCHighPort;
 /****************************************************************************/
 
 #ifdef INET6
-extern	char	FAR MyHostName[];
+extern	char	MyHostName[];
 static int bind_local_addr _((char *, char *, int, int));
 #else
 extern	struct	in_addr	MyHostAddr;
@@ -235,7 +233,7 @@ new_free(iptr)
 }
 
 #define WAIT_BUFFER 2048
-static char * FAR wait_pointers[WAIT_BUFFER] = {0}, **current_wait_ptr = wait_pointers;
+static char * wait_pointers[WAIT_BUFFER] = {0}, **current_wait_ptr = wait_pointers;
 
 /*
  * wait_new_free: same as new_free() except that free() is postponed.
@@ -1135,20 +1133,13 @@ expand_twiddle(str)
 		else
 		{
 			char	*rest;
-#ifndef _Windows
 			struct	passwd *entry;
-#endif /* _Windows */
 
 			if ((rest = index(str, '/')) != NULL)
 				*rest++ = '\0';
-#ifdef _Windows
- 			if (GetProfileString("IRC", "StartDir", "", lbuf, BIG_BUFFER_SIZE))
-			{
-#else
 			if ((entry = getpwnam(str)) != NULL)
 			{
  				strmcpy(lbuf, entry->pw_dir, BIG_BUFFER_SIZE);
-#endif /* _Windows */
 				if (rest)
 				{
  					strmcat(lbuf, "/", BIG_BUFFER_SIZE);
@@ -1384,7 +1375,7 @@ path_search(name, path)
 	char	*name;
 	char	*path;
 {
- 	static	char	FAR lbuf[BIG_BUFFER_SIZE + 1] = "";
+ 	static	char	lbuf[BIG_BUFFER_SIZE + 1] = "";
 	char	*ptr,
 		*free_path = (char *) 0;
 
@@ -1392,11 +1383,7 @@ path_search(name, path)
 	path = free_path;
 	while (path)
 	{
-#if defined(__MSDOS__)
-		if ((ptr = index(path, ';')) != NULL)
-#else
 		if ((ptr = index(path, ':')) != NULL)
-#endif /* __MSDOS */
 			*(ptr++) = '\0';
 /**************************** PATCHED by Flier ******************************/
  		/*strcpy(lbuf, empty_string);*/

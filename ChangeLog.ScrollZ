@@ -8,10 +8,17 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ
+ScrollZ v1.9.99, 30.10.2006
 
     + temporary ban shitlist type (see help on commands ADDBK
       and BANTIME, requested by duckdown)
+    ! crash on SET -STATUS_FORMAT (reported on Debian BT)
+    ! memory leak (ircII bug from UTF-8 code merge)
+    + SET STATUS_LINES to set default number of status lines
+      for new windows (requested by a Debian user)
+    + SET STATUS_SCROLLED, SET STATUS_SCROLLED_LINES (ircII merge)
+    - SET USE_OLD_MSG (ircII merge)
+    ~ flood protection status bar variable has been renamed to %X
 
 ------------------------------------------------------------------------------
 

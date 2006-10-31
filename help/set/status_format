@@ -1,4 +1,4 @@
-!	 $Id: status_format,v 1.7 2002-02-25 18:03:21 f Exp $
+!	 $Id: status_format,v 1.8 2006-10-31 12:31:27 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -28,7 +28,8 @@ Usage: SET STATUS_FORMAT <format description for status line>
        M          Value of STATUS_MAIL variable. *
        N          Your current nickname.
        O          Value of STATUS_OVERWRITE variables. *
-       P          Current status of flood protection (M=max, P=on, p=off). *
+       P          Value of STATUS_SCROLLED variable. *
+       s          Value of STATUS_SCROLLED_LINES variable. *
        Q          Value of STATUS_QUERY variable. *
        R          Current window refnum or name.
        S          Value of STATUS_SERVER variable. *
@@ -36,6 +37,7 @@ Usage: SET STATUS_FORMAT <format description for status line>
        U	  Value of STATUS_CHANNELCOUNT variable. *
        V          Current ircII version
        W          Value of STATUS_WINDOW variable. *
+       X          Current status of flood protection (M=max, P=on, p=off). *
        Z	  Value of STATUS_LOADAVG variable (only in Cele). *
        +          Value of STATUS_MODE variable. *
        !00 - !09  Value of STATUS_USER,
@@ -106,6 +108,8 @@ See Also:
   SET STATUS_QUERY
   SET STATUS_REVERSE
   SET STATUS_SERVER
+  SET STATUS_SCROLLED
+  SET STATUS_SCROLLED_LINES
   SET STATUS_UMODE
   SET STATUS_UPTIME
   SET STATUS_USER

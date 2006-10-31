@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.129 2006-10-31 09:32:55 f Exp $
+ * $Id: irc.c,v 1.130 2006-10-31 12:31:27 f Exp $
  */
 
 #define IRCII_VERSION	"20061030"	/* YYYYMMDD */
@@ -42,9 +42,7 @@
 #include "irc.h"
 
 #include <sys/stat.h>
-#ifndef __MSDOS__
 #include <pwd.h>
-#endif /* __MSDOS__ */
 
 #ifdef ISC22
 # include <sys/bsdtypes.h>
@@ -120,7 +118,7 @@ char	oper_command = 0;	/* true just after an oper() command is
 				 * an oper() command and one generated when
 				 * connecting to a new server */
 
-char	FAR MyHostName[80];	       	/* The local machine name. Used by
+char	MyHostName[80];	       		/* The local machine name. Used by
 					 * DCC TALK */
 	struct	in_addr	MyHostAddr;	/* The local machine address */
 	struct	in_addr forced_ip_addr;	/* The local machine address */
@@ -133,9 +131,9 @@ char	*invite_channel = (char *) 0,	/* last channel of an INVITE */
 	*irc_path = (char *) 0,		/* paths used by /load */
 	*irc_lib = (char *) 0,		/* path to the ircII library */
  	*nickname = (char *) 0,		/* users nickname */
-	FAR hostname[NAME_LEN + 1],    	/* name of current host */
-	FAR realname[REALNAME_LEN + 1],	/* real name of user */
-	FAR username[NAME_LEN + 1],    	/* usernameof user */
+	hostname[NAME_LEN + 1],    	/* name of current host */
+	realname[REALNAME_LEN + 1],	/* real name of user */
+	username[NAME_LEN + 1],    	/* usernameof user */
 	*source_host = NULL,		/* specify a specific source host
 					 * for multi-homed machines */
 	*send_umode = NULL,		/* sent umode */
@@ -195,7 +193,7 @@ static	int	cntl_c_hit = 0;
 
 	char	irc_version[] = IRCII_VERSION;
 
-static	char	FAR switch_help[] =
+static	char	switch_help[] =
 /**************************** Patched by Flier ******************************/
 /*"Usage: irc [switches] [nickname] [server list] \n\*/
 /****************************************************************************/
@@ -618,9 +616,7 @@ irc_exit(quit)
 	close_server(-1, empty_string);
 	logger(0);
 	set_history_file((char *) 0);
-#ifndef _Windows
 	clean_up_processes();
-#endif /* _Windows */
 	if (!dumb)
 	{
 		cursor_to_input();	/* Needed so that ircII doesn't gobble
@@ -643,11 +639,7 @@ irc_exit(quit)
 /**************************** PATCHED by Flier ******************************/
         /*exit(0);*/
         CleanUp();
-#ifdef _Windows
-   DestroyWindow(hwndMain);
-#else
         exit(quit);
-#endif /* _Windows */
 /****************************************************************************/
 }
 
@@ -746,9 +738,7 @@ real_sig_user1()
 {
 	say("Got SIGUSR1, closing DCC connections and EXECed processes");
 	close_all_dcc();
-#ifndef _Windows
 	close_all_exec();
-#endif /* _Windows */
 }
 
 /**************************** PATCHED by Flier ******************************
@@ -871,9 +861,6 @@ parse_args(argv, argc)
 	int	add_servers = 0;
 	char	*channel = (char *) NULL;
 	struct	passwd	*entry;
-#ifdef _Windows
-	u_char	buffer[BIG_BUFFER_SIZE];
-#endif
 /**************************** PATCHED by Flier ******************************/
 	/*int	minus_minus = 0;*/
         char    *CloakCommand = NULL;
@@ -1077,11 +1064,7 @@ parse_args(argv, argc)
 #ifdef IRCPATH
 		malloc_strcpy(&irc_path, IRCPATH);
 #else
-#ifdef __MSDOS__
-		malloc_strcpy(&irc_path, ".:~/irc:");
-#else
 		malloc_strcpy(&irc_path, ".:~/.irc:");
-#endif /* __MSDOS__ */
 		malloc_strcat(&irc_path, irc_lib);
 		malloc_strcat(&irc_path, "script");
 #endif
@@ -1099,29 +1082,11 @@ parse_args(argv, argc)
 		{
  			char *s = (char *) 0;
 
-#ifdef _Windows
-			GetProfileString("IRC", "Server",
-						"Choose.File->Setup.From.Menu",
-						buffer, sizeof(buffer));
- 			malloc_strcpy(&s, buffer);
-#else
  			malloc_strcpy(&s, DEFAULT_SERVER);
-#endif /* _Windows */
  			build_server_list(s);
  			new_free(&s);
 		}
 	}
-#ifdef _Windows
- 	if (nickname == 0 || !*nickname)
- 	{
- 		GetProfileString("IRC", "Nick", "ircuser", buffer, BIG_BUFFER_SIZE);
- 		malloc_strcpy(&nickname, buffer);
- 	}
-	GetProfileString("IRC", "UserName", "ircuser", username, NAME_LEN + 1);
-	GetProfileString("IRC", "RealName", "ircuser", realname, REALNAME_LEN + 1);
-	GetProfileString("IRC", "StartDir", get_path(4), buffer, BIG_BUFFER_SIZE);
-	malloc_strcpy(&my_path, buffer);
-#else /* _Windows */
 	if ((struct passwd *) 0 != (entry = getpwuid(getuid())))
 	{
 		if ((*realname == '\0') && entry->pw_gecos && *(entry->pw_gecos))
@@ -1154,7 +1119,6 @@ parse_args(argv, argc)
 		if (entry->pw_dir && *(entry->pw_dir))
 			malloc_strcpy(&my_path, entry->pw_dir);
 	}
-#endif /* _Windows */
 	if ((char *) 0 != (ptr = getenv("HOME")))
 		malloc_strcpy(&my_path, ptr);
 	else if (*my_path == '\0')
@@ -1423,7 +1387,6 @@ irc_io(prompt, func, my_use_input, loop)
 		FD_ZERO(&wd);
 		set_process_bits(&rd);
 		set_server_bits(&rd, &wd);
-#ifndef _Windows
 		if (my_use_input)
 			for (screen = screen_list;screen; screen = screen->next)
 				if (screen->alive)
@@ -1438,7 +1401,6 @@ irc_io(prompt, func, my_use_input, loop)
 			refresh_screen(0, (char *) 0);
 			term_reset_flag = 0;
 		}
-#endif /* _Windows */
 		TimerTimeout(&timer);
 		if (timer.tv_sec <= timeptr->tv_sec)
 			timeptr = &timer;
@@ -1494,13 +1456,11 @@ irc_io(prompt, func, my_use_input, loop)
 /****************************************************************************/
 			break;
 		default:
-#ifndef _Windows
 			if (term_reset_flag)
 			{
 				refresh_screen(0, (char *) 0);
 				term_reset_flag = 0;
 			}
-#endif /* _Windows */
 			old_current_screen = current_screen;
 			set_current_screen(last_input_screen);
 			if (!break_io_processing)
@@ -1593,11 +1553,9 @@ irc_io(prompt, func, my_use_input, loop)
 #ifdef WINDOW_CREATE
 					else
 					{
-#ifndef _Windows
 						if (!is_main_screen(screen))
 							kill_screen(screen);
 						else
-#endif /* _Windows */
 /**************************** PATCHED by Flier ******************************/
 							/*irc_exit();*/
 							irc_exit(0);
@@ -1647,18 +1605,14 @@ irc_io(prompt, func, my_use_input, loop)
 				}
 			}
 			set_current_screen(old_current_screen);
-#ifndef _Windows
 			if (!break_io_processing)
 				do_processes(&rd);
-#endif /* _Windows */
 			break;
 		}
 		execute_timer();
-#ifndef _Windows
 		check_process_limits();
 		while (check_wait_status(-1) >= 0)
 			;
-#endif /* _Windows */
 		if ((primary_server == -1) && !never_connected)
 			do_hook(DISCONNECT_LIST, "%s", nickname);
 		timeptr = &clock_timeout;
@@ -1735,9 +1689,6 @@ irc_io(prompt, func, my_use_input, loop)
 }
 
 int
-#ifdef _Windows
-old_main(int argc, char **argv)
-#else
 /*ARGSUSED*/
 main _((int, char *[], char *[]));
 
@@ -1746,7 +1697,6 @@ main(argc, argv, envp)
 	int	argc;
 	char	*argv[];
 	char	*envp[];
-#endif /* _Windows */
 {
 	char	*channel;
 
@@ -1759,9 +1709,6 @@ main(argc, argv, envp)
         gnutls_global_init();
 #endif
 /****************************************************************************/
-#ifdef _Windows
-	reset_pointers();
-#endif /* _Windows */
 	start_time = time((time_t *)0);
 #ifdef	SOCKS
 	SOCKSinit(argv[0]);
@@ -1776,42 +1723,19 @@ main(argc, argv, envp)
 		cbreak();
 	}
 #endif /* ESIX */
-#ifndef _Windows
 	if ((use_input == 0) && !no_fork)
 	{
 		if (fork())
 			_exit(0);
 	}
-#endif /* _Windows */
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 	if (gethostname(hostname, NAME_LEN) == NULL)
 #else
 	if (gethostname(hostname, NAME_LEN))
 #endif /* ESIX */
 	{
-#ifdef _Windows
-		switch(WSAGetLastError())
-	{
-	case WSAEFAULT:
-      		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-		break;
-	case WSANOTINITIALISED:
-		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-		break;
-	case WSAENETDOWN:
-		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-		break;
-	case WSAEINPROGRESS:
-		MessageBox(0, "Couldn't get host name", 0, MB_OK);
-		break;
-	default:
-		break;
-	}
-
-#else
 		fprintf(stderr, "irc: couldn't figure out the name of your machine!\n");
 		exit(1);
-#endif /* _Windows */
 	}
 /**************************** PATCHED by Flier ******************************/
         printf("Process [%d] connected to tty [%s]\n",getpid(),ttyname(0));
@@ -1822,7 +1746,6 @@ main(argc, argv, envp)
 	else
 	{
 		init_screen();
-#ifndef _Windows
 /**************************** PATCHED by Flier ******************************/
 /* Patch for OS/2 EMX */
 /*#if !defined(MUNIX) && !defined(_RT) && !defined(ESIX)*/
@@ -1865,7 +1788,6 @@ main(argc, argv, envp)
 /**************************** PATCHED by Flier ******************************/
 /*#endif*/
 /****************************************************************************/
-#endif /* _Windows */
 	}
 
 /**************************** Patched by Flier ******************************/
@@ -1896,11 +1818,7 @@ main(argc, argv, envp)
 			u_char	*s = (u_char *) 0;
 
 			malloc_strcpy(&s, my_path);
-#ifdef __MSDOS__
-			malloc_strcat(&s, "/ircmotd.red");
-#else
 			malloc_strcat(&s, "/.ircmotd");
-#endif /* __MSDOS__ */
 			if (stat(s, &my_stat))
 			{
 				my_stat.st_atime = 0L;
@@ -1961,13 +1879,11 @@ main(argc, argv, envp)
 	}
 	idle_time = time(0);
 	set_input(empty_string);
-#ifndef _Windows
 	irc_io(get_string_var(INPUT_PROMPT_VAR), NULL, use_input, irc_io_loop);
 /**************************** PATCHED by Flier ******************************/
         /*irc_exit();*/
         irc_exit(0);
 /****************************************************************************/
-#endif /* _Windows */
  	return 0;
 }
 

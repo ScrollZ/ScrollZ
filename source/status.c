@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.33 2006-10-31 09:32:55 f Exp $
+ * $Id: status.c,v 1.34 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -50,6 +50,7 @@
 #include "names.h"
 #include "ircaux.h"
 #include "translat.h"
+#include "debug.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "ctcp.h"
@@ -94,6 +95,8 @@ static	char	*status_refnum _((Window *));
 static	char	*status_null_function _((Window *));
 static	char	*status_notify_windows _((Window *));
 static	char	*status_group _((Window *));
+static	char	*status_scrolled _((Window *));
+static	char	*status_scrolled_lines _((Window *));
 static	void	alarm_switch _((int));
 static	char	*convert_sub_format _((char *, int));
 static	void	make_status_one _((Window *, int, int));
@@ -152,7 +155,7 @@ static	char	*status_Cbarcolorc _((Window *));
  * Maximum number of "%" expressions in a status line format.  If you change
  * this number, you must manually change the snprintf() in make_status
  */
-#define MAX_FUNCTIONS 36
+#define MAX_FUNCTIONS 45
 
 /* The format statements to build each portion of the status line */
 static	char	*mode_format = (char *) 0;
@@ -164,6 +167,7 @@ static	char	*status_format[4] = {(char *) 0, (char *) 0, (char *) 0,};
 static	char	*query_format = (char *) 0;
 static	char	*clock_format = (char *) 0;
 static	char	*hold_lines_format = (char *) 0;
+static	char	*scrolled_lines_format = (char *) 0;
 static	char	*channel_format = (char *) 0;
 static	char	*mail_format = (char *) 0;
 static	char	*server_format = (char *) 0;
@@ -755,6 +759,21 @@ convert_format(format, k)
 					status_func[k][(*cp)++] =
 						status_hold_lines;
 					break;
+				case 'P':
+					strmcat(lbuf, "%s", sizeof lbuf);
+					status_func[k][(*cp)++] =
+						status_scrolled;
+					Debug((2, "got P in status"));
+					break;
+				case 's':
+					new_free(&scrolled_lines_format);
+					scrolled_lines_format =
+		convert_sub_format(get_string_var(STATUS_SCROLLED_LINES_VAR), 's');
+					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
+					status_func[k][(*cp)++] =
+						status_scrolled_lines;
+					Debug((2, "got s in status: sl-format '%s'", scrolled_lines_format));
+					break;
 				case '*':
 					strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
 					status_func[k][(*cp)++] =
@@ -853,7 +872,7 @@ convert_format(format, k)
                                         status_func[k][(*cp)++] =
                                                  status_nhprot;
                                         break;
-                                case 'P':
+                                case 'X':
                                         strmcat(lbuf, "%s", BIG_BUFFER_SIZE);
                                         status_func[k][(*cp)++] =
                                                  status_floodp;
@@ -1174,6 +1193,7 @@ make_status_one(window, k, l)
 	int	k;
 	int	l;
 {
+	Screen  *old_current_screen;
 	u_char	lbuf[BIG_BUFFER_SIZE];
 	u_char	rbuf[BIG_BUFFER_SIZE];
 	u_char	*func_value[MAX_FUNCTIONS];
@@ -1185,7 +1205,7 @@ make_status_one(window, k, l)
 
 	/*
 	 * XXX: note that this code below depends on the definition
-	 * of MAX_FUNCTIONS (currently 33), and the snprintf must
+	 * of MAX_FUNCTIONS (currently 45), and the snprintf must
 	 * be updated if MAX_FUNCTIONS is changed.
 	 */
 	for (i = 0; i < MAX_FUNCTIONS; i++)
@@ -1208,7 +1228,10 @@ make_status_one(window, k, l)
 		func_value[24], func_value[25], func_value[26],
 		func_value[27], func_value[28], func_value[29],
 		func_value[30], func_value[31], func_value[32],
-		func_value[33], func_value[34], func_value[35]);
+		func_value[33], func_value[34], func_value[35],
+		func_value[36], func_value[37], func_value[38],
+		func_value[39], func_value[40], func_value[41],
+		func_value[42], func_value[43], func_value[44]);
 	for (i = 0; i < MAX_FUNCTIONS; i++)
 		new_free(&(func_value[i]));
 	
@@ -1283,47 +1306,16 @@ make_status_one(window, k, l)
 	
 	RealPosition = 0;
 	i = 0;
-#if 0
-    /* obsoleted this stuff because the character set conversion
-     * thing may render the positions bad -Bisqwit
-     */
------
-	/*
-	 * Thanks to Max Bell (mbell@cie.uoregon.edu) for info
-	 * about TVI terminals and the sg terminal capability 
-	 */
-	if (window->status_line[k] && (SG == -1))
-	{
-		for (i = 0; rbuf[i] && window->status_line[k][i]; i++)
-		{
-			if ((u_char) rbuf[i] != window->status_line[k][i])
-				break;
-			if (rbuf[i] != REV_TOG 
-			    && rbuf[i] != UND_TOG
-			    && rbuf[i] != ALL_OFF
-			    && rbuf[i] != BOLD_TOG)
-				RealPosition++;
-		}
-	}
-	else
-		i = 0;
-	
-	if ((len = my_strlen(rbuf + i)) || rbuf[i] ||
-	    window->status_line[k] || window->status_line[k][i])
-#endif
-	{
-		Screen *old_current_screen;
-		
-		old_current_screen = current_screen;
-		set_current_screen(window->screen);
-		term_move_cursor(RealPosition, window->bottom + k);
-		len = output_line(rbuf, i);
-		cursor_in_display();
-		if (term_clear_to_eol() && len < current_screen->co)
-			term_space_erase(current_screen->co - len);
-		malloc_strcpy(&window->status_line[k], rbuf);
-		set_current_screen(old_current_screen);
-	}
+
+	old_current_screen = current_screen;
+	set_current_screen(window->screen);
+	term_move_cursor(RealPosition, window->bottom + k);
+	len = output_line(rbuf, i);
+	cursor_in_display();
+	if (term_clear_to_eol() && len < current_screen->co)
+		term_space_erase(current_screen->co - len);
+	malloc_strcpy(&window->status_line[k], rbuf);
+	set_current_screen(old_current_screen);
 }
 
 static	char	*
@@ -1613,6 +1605,45 @@ status_hold_lines(window)
 	}
 	else
 		malloc_strcpy(&ptr, empty_string);
+	return (ptr);
+}
+
+static	char	*
+status_scrolled(window)
+Window  *window;
+{
+	char  *ptr = (u_char *) 0,
+	      *text;
+
+	Debug((2, "status_scrolled: lines = %d", window->scrolled_lines + window->new_scrolled_lines));
+	if ((window->scrolled_lines + window->new_scrolled_lines) &&
+	    (text = get_string_var(STATUS_SCROLLED_VAR)))
+		malloc_strcpy(&ptr, text);
+	else
+		malloc_strcpy(&ptr, empty_string);
+	return (ptr);
+}
+
+static	char	*
+status_scrolled_lines(window)
+Window  *window;
+{
+	char  *ptr = (char *) 0;
+	int   num;
+	char  localbuf[40];
+
+	num = window->scrolled_lines + window->new_scrolled_lines;
+	if (num)
+	{
+		char  lbuf[BIG_BUFFER_SIZE];
+
+		snprintf(localbuf, sizeof localbuf, "%d", num);
+		snprintf(lbuf, sizeof lbuf, scrolled_lines_format, localbuf);
+		malloc_strcpy(&ptr, lbuf);
+	}
+	else
+		malloc_strcpy(&ptr, empty_string);
+	Debug((2, "status_scrolled_lines: lines = %d, str = '%s'", num, ptr));
 	return (ptr);
 }
 

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: struct.h,v 1.18 2006-04-30 14:15:43 f Exp $
+ * $Id: struct.h,v 1.19 2006-10-31 12:31:27 f Exp $
  */
 
 /**************************** PATCHED by Flier ******************************/
@@ -461,7 +461,7 @@ typedef	struct	list_stru
 /* IrcCommand: structure for each command in the command table */
 typedef struct
 {
-	char	FAR *name;				/* what the user types */
+	char	*name;				/* what the user types */
 	char	*server_func;				/* what gets sent to the server
 							 * (if anything) */
 	void	(*func) _((char *, char *, char *));	/* function that is the command */

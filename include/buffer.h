@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: buffer.h,v 1.1 2002-01-21 21:37:35 f Exp $
+ * $Id: buffer.h,v 1.2 2006-10-31 12:31:27 f Exp $
  *
  */
 
@@ -61,7 +61,7 @@ if (vasprintf((char **) &putbuf, f, v) == -1)		\
 /*
  * need the caller to define the `putbuf'. something like this, though
  * it might need to be automatic for recursive purposes.
- *	static	u_char	FAR putbuf[4*BIG_BUFFER_SIZE + 1] = "";
+ *	static	u_char	putbuf[4*BIG_BUFFER_SIZE + 1] = "";
  */
 # define NEED_PUTBUF_DECLARED
 

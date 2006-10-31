@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.76 2005-08-08 18:50:47 f Exp $
+ * $Id: parse.c,v 1.77 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -1907,10 +1907,9 @@ irc2_parse_server(line)
 		return;		/* Empty line from server - ByeBye */
 
 	/*
-	 * XXX!!!
-	 * this should fail on '1xxx'!!!
+	 * only allow numbers 1 .. 999.
 	 */
-	if (0 != (numeric = atoi(comm)))
+	if ((numeric = atoi(comm)) > 0 && numeric < 1000)
 		numbered_command(from, numeric, ArgList);
 	else if (strcmp(comm, "NAMREPLY") == 0)
 		funny_namreply(from, ArgList);

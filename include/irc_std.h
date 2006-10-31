@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc_std.h,v 1.7 2003-01-08 20:00:54 f Exp $
+ * $Id: irc_std.h,v 1.8 2006-10-31 12:31:27 f Exp $
  */
 
 #ifndef __irc_std_h
@@ -208,28 +208,22 @@ sigfunc *my_signal _((int, sigfunc *, int));
 # endif /* STDC_HEADERS || HAVE_STRING_H */
 #endif /* !NeXT */
 
-#if defined(_Windows)
-# define IS_ABSOLUTE_PATH(file) ((file)[0] == '/' || (file)[0] == '\\' || ((file)[0] && (file)[1] == ':'))
-#else
-# define IS_ABSOLUTE_PATH(file) ((file)[0] == '/')
-#endif
+#define IS_ABSOLUTE_PATH(file) ((file)[0] == '/')
 
-#if !defined(SYS_ERRLIST_DECLARED) && !defined(_Windows)
+#if !defined(SYS_ERRLIST_DECLARED)
 extern	char	*sys_errlist[];
 extern	int	sys_nerr;
 #endif
 
-#ifdef _Windows
-extern char FAR * FAR winsock_errors[];
-# define strerror(e) ((e) >= 0 && (e) < sys_nerr ? sys_errlist[e] : ((e) >=WSABASEERR ? winsock_errors[(e) - WSABASEERR] : "(unknown)"))
-#else
-# ifdef NEED_STRERROR
-#  undef strerror
-#  define strerror(e) ((e) < 0 || (e) >= sys_nerr ? "(unknown)" : sys_errlist[e])
-# endif
+#ifdef NEED_STRERROR
+# undef strerror
+# define strerror(e) ((e) < 0 || (e) >= sys_nerr ? "(unknown)" : sys_errlist[e])
 #endif
 
-/* we need an unsigned 32 bit integer for dcc, how lame */
+/*
+ * we need an unsigned 32 bit integer for dcc, how lame.
+ * XXX look for <stdint.h> and use uint32_t?
+ */
 
 #ifdef UNSIGNED_LONG32
 

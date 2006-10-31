@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.14 2006-04-30 14:15:43 f Exp $
+ * $Id: newio.c,v 1.15 2006-10-31 12:31:27 f Exp $
  */
 
 #include "irc.h"
@@ -91,12 +91,9 @@ typedef	struct	myio_struct
 	unsigned int	read_pos,
 			write_pos;
 	unsigned	misc_flags;
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 	unsigned	flags;
 #endif /* ESIX */
-#ifdef _Windows
-	int		fd;
-#endif /* _Windows */
 }           MyIO;
 
 #define IO_SOCKET 1
@@ -562,7 +559,7 @@ extern	void
 set_socket_options(s)
 	int	s;
 {
-#if defined(ESIX) || defined(_Windows)
+#if defined(ESIX)
 	mark_socket(s);
 #else
 #ifndef NO_STRUCT_LINGER
