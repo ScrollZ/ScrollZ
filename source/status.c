@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.32 2006-04-30 14:15:43 f Exp $
+ * $Id: status.c,v 1.33 2006-10-31 09:32:55 f Exp $
  */
 
 #include "irc.h"
@@ -2178,36 +2178,36 @@ static char *status_uptime(window)
 Window	*window;
 {
     int tmpvar;
-    char *ptr=(char *) 0;
+    char *ptr = (char *) 0;
     char *tmpstr1;
     char *tmpstr2;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
     time_t timediff;
 
-    if (get_int_var(SHOW_STATUS_ALL_VAR) || current_screen->current_window==window) {
-        timediff=time((time_t *) 0)-start_time;
-        for (tmpstr1=uptime_format,tmpstr2=tmpbuf;*tmpstr1;tmpstr1++) {
-            if (*tmpstr1=='%') {
+    if (get_int_var(SHOW_STATUS_ALL_VAR) || current_screen->current_window == window) {
+        timediff = time(NULL) - start_time;
+        for (tmpstr1 = uptime_format, tmpstr2 = tmpbuf; tmpstr1 && *tmpstr1; tmpstr1++) {
+            if (*tmpstr1 == '%') {
                 tmpstr1++;
-                if (*tmpstr1=='%') tmpstr1++;
-                if (*tmpstr1=='d' || *tmpstr1=='D') tmpvar=timediff/86400;
-                else if (*tmpstr1=='h' || *tmpstr1=='H') tmpvar=(timediff/3600)%24;
-                else if (*tmpstr1=='m' || *tmpstr1=='M') tmpvar=(timediff/60)%60;
-                else tmpvar=-1;
-                if (tmpvar>=0) {
-                    snprintf(locbuf,sizeof(locbuf),"%02d",tmpvar);
-                    *tmpstr2='\0';
-                    strmcat(tmpstr2,locbuf,sizeof(tmpbuf));
-                    tmpstr2+=strlen(locbuf);
+                if (*tmpstr1 == '%') tmpstr1++;
+                if (*tmpstr1 == 'd' || *tmpstr1 == 'D') tmpvar = timediff / 86400;
+                else if (*tmpstr1 == 'h' || *tmpstr1 == 'H') tmpvar = (timediff / 3600) % 24;
+                else if (*tmpstr1 == 'm' || *tmpstr1 == 'M') tmpvar = (timediff / 60) % 60;
+                else tmpvar = -1;
+                if (tmpvar >= 0) {
+                    snprintf(locbuf, sizeof(locbuf), "%02d", tmpvar);
+                    *tmpstr2 = '\0';
+                    strmcat(tmpstr2, locbuf, sizeof(tmpbuf));
+                    tmpstr2 += strlen(locbuf);
                 }
-                else *tmpstr2++=*tmpstr1;
+                else *tmpstr2++ = *tmpstr1;
             }
-            else *tmpstr2++=*tmpstr1;
+            else *tmpstr2++ = *tmpstr1;
         }
-        *tmpstr2='\0';
-        malloc_strcpy(&ptr,tmpbuf);
+        *tmpstr2 = '\0';
+        malloc_strcpy(&ptr, tmpbuf);
     }
-    else malloc_strcpy(&ptr,empty_string);
+    else malloc_strcpy(&ptr, empty_string);
     return(ptr);
 }
 
