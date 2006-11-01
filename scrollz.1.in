@@ -173,14 +173,14 @@ available in ircII.
 .SH AUTHORS
 This manual page was written by Mike Markley <mike@markley.org>,
 for the Debian GNU/Linux system (but may be used by others).
-Updated for ScrollZ by Flier <flier@scrollz.com> (the
+Updated for ScrollZ by Flier <flier@scrollz.org> (the
 ScrollZ maintainer).
 .PP
 .B ScrollZ
-home page: http://www.scrollz.com/
+home page: http://www.scrollz.org/
 .PP
 .B ScrollZ
-FTP site: ftp://ftp.scrollz.com/
+FTP site: ftp://ftp.scrollz.org/
 .SH BUG REPORTS
 If you find a bug in 
 .B ScrollZ

@@ -10,6 +10,8 @@ Meaning of flags:
 
 ScrollZ v1.9.99, 30.10.2006
 
+NOTE: Homepage has been changed to http://www.scrollz.org/
+
     + temporary ban shitlist type (see help on commands ADDBK
       and BANTIME, requested by duckdown)
     ! crash on SET -STATUS_FORMAT (reported on Debian BT)

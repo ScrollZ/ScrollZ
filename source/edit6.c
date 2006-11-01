@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.160 2006-07-21 16:11:27 f Exp $
+ * $Id: edit6.c,v 1.161 2006-11-01 11:46:16 f Exp $
  */
 
 #include "irc.h"
@@ -1679,8 +1679,8 @@ char *subargs;
     }
     say("Support channel: #ScrollZ on Efnet");
     say("Mailing list: scrollz@ahnberg.pp.se");
-    say("Home page: http://www.scrollz.com/");
-    say("FTP: ftp://ftp.scrollz.com/");
+    say("Home page: http://www.scrollz.org/");
+    say("FTP: ftp://ftp.scrollz.org/");
 }
 
 /* Handles reply number 329 from server */
