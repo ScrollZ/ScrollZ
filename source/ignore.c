@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.17 2005-12-22 16:53:25 f Exp $
+ * $Id: ignore.c,v 1.18 2007-01-16 16:43:26 f Exp $
  */
 
 #include "irc.h"
@@ -717,12 +717,19 @@ double_ignore(nick, userhost, type)
             return(is_ignored(tmpbuf, type));
         }
         else if (nick && userhost) {
+            int isignored;
             char tmpbuf[mybufsize / 4 + 1];
 
             strmcpy(tmpbuf, nick, mybufsize / 4);
             strmcat(tmpbuf, "!", mybufsize / 4);
             strmcat(tmpbuf, userhost, mybufsize / 4);
-            return(is_ignored(tmpbuf, type));
+            isignored = is_ignored(tmpbuf, type);
+            if (isignored == 0) {
+                if (userhost)
+                    return(ignore_combo(is_ignored(nick, type), is_ignored(userhost, type)));
+                else return(is_ignored(nick, type));
+            }
+            return(isignored);
         }
 /****************************************************************************/
 	if (userhost)
