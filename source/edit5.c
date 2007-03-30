@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.113 2006-04-30 14:15:43 f Exp $
+ * $Id: edit5.c,v 1.114 2007-03-30 15:25:40 f Exp $
  */
 
 #include "irc.h"
@@ -1485,8 +1485,11 @@ int  iscrypted;
     mynick=get_server_nickname(from_server);
     isitme=!my_stricmp(mynick,nick);
     if (!isitme && URLCatch) {
+        char tmpbuf5[mybufsize/2];
+
+        snprintf(tmpbuf5,sizeof(tmpbuf5),"%s %s",nick,channel);
         filepath=OpenCreateFile("ScrollZ.notepad",1);
-        numurl=GrabURL(line,tmpbuf4,filepath,channel);
+        numurl=GrabURL(line,tmpbuf4,filepath,tmpbuf5);
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
