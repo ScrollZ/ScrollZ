@@ -29,14 +29,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.h,v 1.5 2005-08-03 15:40:15 f Exp $
+ * $Id: newio.h,v 1.6 2007-03-30 15:27:36 f Exp $
  */
 
 #ifndef __newio_h_
 # define __newio_h_
 
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 #include "myssl.h"
 #endif
 /****************************************************************************/
@@ -48,8 +48,10 @@
 	time_t	dgets_timeout _((int));
         int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL)
         int     SSL_dgets _((char *, int, int, char *, gnutls_session *));
+#elif defined(HAVE_OPENSSL)
+        int     SSL_dgets _((char *, int, int, char *, SSL *));
 #endif
 /****************************************************************************/
 	int	new_select _((fd_set *, fd_set *, struct timeval *));

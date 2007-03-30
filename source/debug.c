@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: debug.c,v 1.3 2000-08-09 19:31:20 f Exp $
+ * $Id: debug.c,v 1.4 2007-03-30 15:27:36 f Exp $
  */
 
 /*

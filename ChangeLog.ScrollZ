@@ -8,6 +8,14 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ
+
+    ! IGNORE nick ignore_type works again (reported by -jff-)
+    + URL catcher now saves nick and channel in publics
+    + OpenSSL support (use configure --with-openssl)
+
+------------------------------------------------------------------------------
+
 ScrollZ v1.9.99, 30.10.2006
 
 NOTE: Homepage has been changed to http://www.scrollz.org/

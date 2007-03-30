@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.45 2005-08-08 18:50:47 f Exp $
+ * $Id: window.c,v 1.46 2007-03-30 15:27:37 f Exp $
  */
 
 #include "irc.h"
@@ -87,7 +87,7 @@ extern	char	*redirect_nick;
 
 /**************************** PATCHED by Flier ******************************/
 extern NickList *tabnickcompl;
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 extern int SSLconnect;
 #endif
 /****************************************************************************/
@@ -2892,7 +2892,7 @@ windowcmd(command, args, subargs)
 			grow_window(window, get_number("GROW", &args));
 		else if (strncmp("SIZE", cmd, len) == 0)
 			size_window(window, get_number("SIZE", &args));
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 		else if (strncmp("SSL", cmd, len) == 0 || strncmp("-SSL", cmd, len) == 0)
 			SSLconnect = 1;
 #endif
@@ -3423,7 +3423,7 @@ out:
 	update_all_windows();
         cursor_to_input();
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         SSLconnect = 0;
 #endif
 /****************************************************************************/

@@ -340,8 +340,11 @@
 #undef ICONV_CONST_ARG2
 
 /**************************** PATCHED by Flier ******************************/
-/* Define this if you have OpenSSL */
+/* Define this if you have GNU TLS */
 #undef HAVE_SSL
+
+/* Define this if you have OpenSSL */
+#undef HAVE_OPENSSL
 
 /* Define this if you have getloadavg(), BSD systems do */
 #undef HAVEGETLOADAVG

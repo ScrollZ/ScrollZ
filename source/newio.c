@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.15 2006-10-31 12:31:27 f Exp $
+ * $Id: newio.c,v 1.16 2007-03-30 15:27:37 f Exp $
  */
 
 #include "irc.h"
@@ -339,13 +339,22 @@ dgets(str, len, des, specials)
 }
 
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+#if defined(HAVE_SSL)
 int SSL_dgets(str, len, des, specials, session)
 char	*str;
 int	len;
 int	des;
 char	*specials;
 gnutls_session *session;
+#elif defined(HAVE_OPENSSL)
+int SSL_dgets(str, len, des, specials, ssl_fd)
+char	*str;
+int	len;
+int	des;
+char	*specials;
+SSL     *ssl_fd;
+#endif
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -356,8 +365,12 @@ gnutls_session *session;
 	int	i,
 		j;
 
+#if defined(HAVE_SSL)
         if (!session || !(*session)) return(0);
         if (gnutls_transport_get_ptr(*session) == NULL) return(0);
+#elif defined(HAVE_OPENSSL)
+        if (!ssl_fd) return(0);
+#endif
 	init_io();
 	if (io_rec[des] == (MyIO *) 0)
 	{
@@ -394,9 +407,14 @@ gnutls_session *session;
 				dgets_errno = 0;
 				return (-1);
 			default:
+#if defined(HAVE_SSL)
 				c = gnutls_record_recv(*session,
                                                        io_rec[des]->buffer + io_rec[des]->write_pos,
 				                       IO_BUFFER_SIZE - io_rec[des]->write_pos);
+#elif defined(HAVE_OPENSSL)
+                                c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
+                                             IO_BUFFER_SIZE-io_rec[des]->write_pos);
+#endif
 				if (c <= 0)
 				{
 					if (c == 0)

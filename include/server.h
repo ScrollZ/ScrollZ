@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.h,v 1.17 2006-03-22 17:16:49 f Exp $
+ * $Id: server.h,v 1.18 2007-03-30 15:27:36 f Exp $
  */
 
 #ifndef __server_h_
@@ -40,7 +40,7 @@
 /* for ChannelList */
 #include "names.h"
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 #include "myssl.h"
 #endif
 /****************************************************************************/
@@ -111,10 +111,16 @@ typedef	struct
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;
 	ChannelList *ChanPendingList;   /* list of channels pending for join */
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         int        enable_ssl;
+#if defined(HAVE_SSL)
         gnutls_session session;
         gnutls_certificate_credentials xcred;
+#elif defined(HAVE_OPENSSL)
+        SSL        *ssl_fd;
+        SSL_CTX    *ctx;
+        SSL_METHOD *meth;
+#endif
 #endif
 /****************************************************************************/
 }	Server;

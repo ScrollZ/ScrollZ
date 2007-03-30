@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.63 2006-10-31 12:31:27 f Exp $
+ * $Id: server.c,v 1.64 2007-03-30 15:27:37 f Exp $
  */
 
 #include "irc.h"
@@ -69,7 +69,7 @@ extern int  CheckServer _((int));
 extern void ChannelLogReportAll _((char *, ChannelList *));
 extern char *OpenCreateFile _((char *, int));
 
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 int SSLconnect = 0;
 #endif
 /****************************************************************************/
@@ -180,13 +180,17 @@ close_server(server_index, message)
 			{
 				snprintf(buffer, sizeof buffer, "QUIT :%s\n", message);
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
-                                if (server_list[i].connected &&
-                                    server_list[i].enable_ssl &&
-                                    server_list[i].session) {
-                                    if (gnutls_transport_get_ptr(server_list[i].session))
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+                                if (server_list[i].connected && server_list[i].enable_ssl) {
+#if defined(HAVE_SSL)
+                                    if (server_list[i].session && gnutls_transport_get_ptr(server_list[i].session))
                                         gnutls_record_send(server_list[i].session,
                                                            buffer, strlen(buffer));
+#elif defined(HAVE_OPENSSL)
+                                    if (server_list[i].ssl_fd)
+                                        SSL_write(server_list[i].ssl_fd, buffer, strlen(buffer));
+
+#endif
                                 }
                                 else
 #endif
@@ -209,13 +213,23 @@ close_server(server_index, message)
 			server_list[i].pid = (pid_t) -1;
 		}
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
-                if (server_list[i].enable_ssl && server_list[i].session &&
-                    gnutls_transport_get_ptr(server_list[i].session)) {
-                    gnutls_bye(server_list[i].session, GNUTLS_SHUT_RDWR);
-                    gnutls_deinit(server_list[i].session);
-                    gnutls_certificate_free_credentials(server_list[i].xcred);
-                    memset(&server_list[from_server].session, 0, sizeof(gnutls_session));
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+                if (server_list[i].enable_ssl) {
+#if defined(HAVE_SSL)
+                    if (server_list[i].session && gnutls_transport_get_ptr(server_list[i].session)) {
+                        gnutls_bye(server_list[i].session, GNUTLS_SHUT_RDWR);
+                        gnutls_deinit(server_list[i].session);
+                        gnutls_certificate_free_credentials(server_list[i].xcred);
+                        memset(&server_list[from_server].session, 0, sizeof(gnutls_session));
+                    }
+#elif defined(HAVE_OPENSSL)
+                    if (server_list[i].ssl_fd) {
+                        SSL_shutdown(server_list[i].ssl_fd);
+                        server_list[i].ssl_fd = NULL;
+                        server_list[i].ctx = NULL;
+                        server_list[i].meth = NULL;
+                    }
+#endif
                 }
 #endif
 /****************************************************************************/
@@ -307,10 +321,14 @@ do_server(rd, wd)
 			if (len >= BIG_BUFFER_SIZE)
 				goto buffer_is_full_hack;	/* XXX? */
 /**************************** PATCHED by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                         if (server_list[from_server].enable_ssl)
                             junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0,
+#if defined(HAVE_SSL)
                                              &server_list[from_server].session);
+#elif defined(HAVE_OPENSSL)
+                                             server_list[from_server].ssl_fd);
+#endif
                         else
 #endif /* HAVE_SSL */
 /****************************************************************************/
@@ -545,12 +563,18 @@ add_to_server_list(server, port, password, nick, overwrite)
 		server_list[from_server].whois = 0;
 		server_list[from_server].flags = SERVER_2_6_2;
 /**************************** PATCHED by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 server_list[from_server].enable_ssl = 0;
+#if defined(HAVE_SSL)
                 memset(&server_list[from_server].session, 0,
                        sizeof(gnutls_session));
                 memset(&server_list[from_server].xcred, 0,
                        sizeof(gnutls_certificate_credentials));
+#elif defined(HAVE_OPENSSL)
+                server_list[from_server].ssl_fd = NULL;
+                server_list[from_server].ctx = NULL;
+                server_list[from_server].meth = NULL;
+#endif
                 /* this is true only when adding server(s) from a command line */
                 if (*server == '!') {
                     server++;
@@ -707,6 +731,10 @@ remove_from_server_list(i)
 	if (server_list[i].ctcp_send_size)
 		new_free(&server_list[i].ctcp_send_size);
 /**************************** PATCHED by Flier ******************************/
+#if defined(HAVE_OPENSSL)
+        SSL_CTX_free(server_list[i].ctx);
+        new_free(&server_list[i].meth);
+#endif
         if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
         if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
         if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
@@ -952,7 +980,7 @@ connect_to_server_direct(server_name, port, nick)
 /**************************** PATCHED by Flier ******************************/
 		/*new_des = connect_by_number(port, server_name, 1);*/
         {
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 if (*server_name == '!') server_name++;
 #endif
 		new_des = connect_by_number(port, server_name, 1, 0);
@@ -1262,7 +1290,7 @@ connect_to_server(server_name, port, nick, c_server)
 			attempting_to_connect = 0;
  			restore_message_from();
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                         SSLconnect = 0;
                         if (*server_name == '!') server_list[server_index].enable_ssl = 1;
 #endif
@@ -1294,7 +1322,7 @@ connect_to_server(server_name, port, nick, c_server)
 			server_list[from_server].close_serv = -1;
 		}
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 if (SSLconnect || *server_name == '!' || server_list[from_server].enable_ssl) {
                     server_list[from_server].enable_ssl = 1;
                     server_list[from_server].flags |= SSL_CONNECT;
@@ -1389,15 +1417,18 @@ login_to_server(server)
 #endif
 #endif /* NON_BLOCKING_CONNECTS */
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         if (server_list[server].enable_ssl && (server_list[server].flags & SSL_CONNECT)) {
             int err;
+#if defined(HAVE_SSL)
             int cert_type_priority[3] = { GNUTLS_CRT_X509,
                                           GNUTLS_CRT_OPENPGP, 0 };
             char *filepath;
 
             filepath = OpenCreateFile("ca.pem", 1);
+#endif
             say("SSL connect in progress ...");
+#if defined(HAVE_SSL)
             gnutls_certificate_allocate_credentials(&server_list[server].xcred);
             gnutls_certificate_set_x509_trust_file(server_list[server].xcred,
                                                    filepath, GNUTLS_X509_FMT_PEM);
@@ -1410,6 +1441,18 @@ login_to_server(server)
             gnutls_transport_set_ptr(server_list[server].session,
                                      (gnutls_transport_ptr) server_list[server].read);
             err = gnutls_handshake(server_list[server].session);
+#elif defined(HAVE_OPENSSL)
+            SSLeay_add_ssl_algorithms();
+            server_list[server].meth = SSLv3_client_method();
+            SSL_load_error_strings();
+            server_list[server].ctx = SSL_CTX_new(server_list[server].meth);
+            CHK_NULL(server_list[server].ctx);
+            server_list[server].ssl_fd = SSL_new(server_list[server].ctx);
+            CHK_NULL(server_list[server].ssl_fd);
+            SSL_set_fd(server_list[server].ssl_fd, server_list[server].read);
+            err = SSL_connect(server_list[server].ssl_fd);
+            CHK_SSL(err);
+#endif
 
             server_list[server].flags &= ~SSL_CONNECT;
         }
@@ -1575,7 +1618,7 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 				/*say("\t%d) %s %d%s", i,*/
 				say("\t%c%d) %s %d%s%s",
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                         server_list[i].enable_ssl ? '!' : ' ',
 #else
                                         ' ',
@@ -1596,7 +1639,7 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (was %s)", i,*/
 					say("\t%c%d) %s %d (was %s)",
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                                 server_list[i].enable_ssl ? '!' : ' ',
 #else
                                                 ' ',
@@ -1610,7 +1653,7 @@ display_server_list()
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (%s)", i,*/
 					say("\t%c%d) %s %d (%s)%s",
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                                 server_list[i].enable_ssl ? '!' : ' ',
 #else
                                                 ' ',
@@ -1718,7 +1761,7 @@ servercmd(command, args, subargs)
 		new_server_flags;
 
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         SSLconnect = 0;
 #endif
 /****************************************************************************/
@@ -1766,7 +1809,7 @@ servercmd(command, args, subargs)
 				return;
 			}
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                         else if (!strncmp(server, "SSL", len)) SSLconnect = 1;
 #endif
 /****************************************************************************/
@@ -2397,7 +2440,7 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		if (do_hook(RAW_SEND_LIST, "%s", lbuf))
 		{
 /**************************** Patched by Flier ******************************/
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL)
                         if (server_list[server].enable_ssl &&
                             server_list[server].session) {
                             int err;
@@ -2408,7 +2451,18 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
                             }
                             err = gnutls_record_send(server_list[server].session,
                                                      lbuf, len);
+                        }
+                        else
+#elif defined(HAVE_OPENSSL)
+                        if (server_list[server].enable_ssl) {
+                            int err;
+
+                            if (!server_list[server].ssl_fd) {
+                                say("SSL write error - ssl socket = 0");
+                                return;
                             }
+                            err = SSL_write(server_list[server].ssl_fd, lbuf, len);
+                        }
                         else
 #endif
 /****************************************************************************/

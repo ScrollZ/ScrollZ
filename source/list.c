@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: list.c,v 1.3 2003-01-08 20:00:54 f Exp $
+ * $Id: list.c,v 1.4 2007-03-30 15:27:36 f Exp $
  */
 
 #include "irc.h"

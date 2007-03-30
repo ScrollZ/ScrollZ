@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.115 2006-07-21 16:11:27 f Exp $
+ * $Id: edit4.c,v 1.116 2007-03-30 15:27:36 f Exp $
  */
 
 #include "irc.h"
@@ -2894,14 +2894,14 @@ char *subargs;
     say("List of servers on your server list");
     for (i = 0; i < number_of_servers; i++) {
         if (i != from_server) say("%c%-2d %s  %d",
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                   server_list[i].enable_ssl ? '!' : ' ',
 #else
                                   ' ',
 #endif
                                   i, server_list[i].name, server_list[i].port);
         else say("%c%-2d %c%s%c  %d",
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 server_list[i].enable_ssl ? '!' : ' ',
 #else
                                   ' ',

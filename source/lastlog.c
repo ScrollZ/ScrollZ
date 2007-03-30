@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: lastlog.c,v 1.10 2003-01-08 20:00:54 f Exp $
+ * $Id: lastlog.c,v 1.11 2007-03-30 15:27:36 f Exp $
  */
 
 #include "irc.h"

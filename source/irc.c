@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.130 2006-10-31 12:31:27 f Exp $
+ * $Id: irc.c,v 1.131 2007-03-30 15:27:36 f Exp $
  */
 
 #define IRCII_VERSION	"20061030"	/* YYYYMMDD */
@@ -584,7 +584,7 @@ char VersionInfo[] = {
     'E',
     'R',
 #endif
-#ifdef HAVE_SSL
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
     ' ',
     'S',
     'S',
