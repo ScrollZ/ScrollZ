@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.109 2006-10-31 12:31:27 f Exp $
+ * $Id: edit.c,v 1.110 2007-03-31 10:56:17 f Exp $
  */
 
 #include "irc.h"
@@ -4026,7 +4026,7 @@ get_history(which)
 	if ((ptr = get_from_history(which)) != NULL)
 	{
 		Debug((3, "get_history: get_from_history(%d) gave ``%s''", which, ptr));
-		set_input_raw(ptr);
+		set_input(ptr);
 		update_input(UPDATE_ALL);
 	}
 }

@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.24 2006-10-31 12:31:27 f Exp $
+ * $Id: input.c,v 1.25 2007-03-31 10:56:17 f Exp $
  */
 
 #include "irc.h"
@@ -899,6 +899,13 @@ set_input(str)
 #endif /* HAVE_ICONV_OPEN */
 	for (dest = 0; *str != '\0'; )
 	{
+/**************************** PATCHED by Flier ******************************/
+                if (*str == REV_TOG || *str == UND_TOG || *str == BOLD_TOG ||
+                    *str == ALL_OFF || *str == '\007') {
+                    converted_input[dest++] = *str++;
+                    continue;
+                }
+/****************************************************************************/
 		if (dest + 8 >= sizeof(converted_input))
 			break;
 

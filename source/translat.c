@@ -7,7 +7,7 @@
  *
  * Joel Yliluoma.
  *
- * $Id: translat.c,v 1.7 2006-04-30 14:15:43 f Exp $
+ * $Id: translat.c,v 1.8 2007-03-31 10:56:17 f Exp $
  *
  */
 
