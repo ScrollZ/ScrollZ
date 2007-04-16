@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.39 2006-10-31 12:31:27 f Exp $
+ * $Id: screen.c,v 1.40 2007-04-16 15:39:45 f Exp $
  */
 
 #include "irc.h"
@@ -686,7 +686,7 @@ display_text(ustr, length)
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
                                 else if ((*str == '\033') && (len == 1)) {
-                                    int ansi_count;
+                                    int ansi_count = 0;
                                     char *orig_str = str;
 
                                     if (outptr >= OutBuf + sizeof(OutBuf)) {
