@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.25 2007-03-31 10:56:17 f Exp $
+ * $Id: input.c,v 1.26 2007-04-16 15:40:57 f Exp $
  */
 
 #include "irc.h"
@@ -554,6 +554,9 @@ update_input(update)
 	if (update != NO_UPDATE)
 	{
 #ifdef HAVE_ICONV_OPEN
+/**************************** PATCHED by Flier ******************************/
+            if (display_conv != (iconv_t) (-1))
+/****************************************************************************/
 		iconv_close(display_conv);
 #endif /* HAVE_ICONV_OPEN */
 	}
@@ -840,6 +843,19 @@ re_encode:
 	optr = (char *)output_buffer;
 	osize = sizeof output_buffer;
 	
+/**************************** PATCHED by Flier ******************************/
+        if (mbdata.conv_in == NULL) {
+            size_t cnt = isize < osize ? isize : osize;
+
+            strmcpy(output_buffer, input_buffer, cnt + 1);
+            while (cnt > 0) {
+                optr++;
+                cnt--;
+            }
+            retval = 0;
+        }
+        else
+/****************************************************************************/
 	retval = iconv(mbdata.conv_in,
 		       &iptr, &isize,
 		       (char **)&optr, &osize);
@@ -960,10 +976,17 @@ get_input()
 	static u_char converted_buffer[INPUT_BUFFER_SIZE];
 
 #ifdef HAVE_ICONV_OPEN
-	iconv_t conv = iconv_open(irc_encoding, "UTF-8");
+	iconv_t conv = (iconv_t) (-1);
 	char* dest = (char *)converted_buffer;
 	size_t left, space;
 
+/**************************** PATCHED by Flier ******************************/
+	if (irc_encoding) conv = iconv_open(irc_encoding, "UTF-8");
+        if (conv == (iconv_t) (-1)) {
+            strmcpy(dest, source, sizeof(converted_buffer));
+            return(converted_buffer);
+        }
+/****************************************************************************/
 	left = strlen(source);
 	space  = sizeof(converted_buffer);
 	while (*source != '\0')
