@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.23 2006-10-31 12:31:27 f Exp $
+ * $Id: config.h,v 1.24 2007-04-16 15:43:06 f Exp $
  */
 
 #ifndef __config_h_
