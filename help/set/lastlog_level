@@ -1,4 +1,4 @@
-!	 $Id: lastlog_level,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: lastlog_level,v 1.4 2007-08-02 16:12:15 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -35,6 +35,7 @@ Usage: SET LASTLOG_LEVEL [ALL|NONE|[-]<level> [-]<level> ...]
     BEEP            Beeps
     HELP            Any help text
     CRAP            Anything not covered by the above categories
+    CTCP            CTCP messages
   You can combine these on a command line to make the lastlog
   save just what you want.  Also, by putting a - before any
   level, you remove that one from the list.  For example, if you
