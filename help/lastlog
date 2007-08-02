@@ -1,4 +1,4 @@
-!	 $Id: lastlog,v 1.4 2002-02-23 11:23:50 f Exp $
+!	 $Id: lastlog,v 1.5 2007-08-02 16:12:30 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -41,6 +41,17 @@ Available flags:
     -TIME           Only display the entries from the given
                     time interval (it only works if STAMP is
                     enabled, example: -TIME 19:00-20:00)
+    -OPNOTE         Operator notifications
+    -SNOTE          Server notices
+    -ACTION         In and outgoing CTCP ACTION lines
+    -DCC            DCC connections
+    -CTCP           CTCP messages
+    -HELP           Any help text
+    -BEEP           Beeps
+    -USERLOG1       User reserved messages
+    -USERLOG2       User reserved messages
+    -USERLOG3       User reserved messages
+    -USERLOG4       User reserved messages
 
   The lastlog will only display messages of the type specified
   by the flag.
