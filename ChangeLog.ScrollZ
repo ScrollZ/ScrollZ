@@ -13,6 +13,18 @@ ScrollZ
     ! IGNORE nick ignore_type works again (reported by -jff-)
     + URL catcher now saves nick and channel in publics
     + OpenSSL support (use configure --with-openssl)
+    ! input encodings other than UTF-8 produced garbled non-ASCII
+      characters when input history was used (reported by biini)
+    ! crashes when iconv fails (reported by ShadowImg)
+    + $stripcrap() which strips all non-printable characters
+      from a string (requested by JohnnyM)
+    + $tr() which translates characters in set1 from characters
+      in set2 (similar to a Unix tr utility, requested by JohnnyM)
+    + $pattern() which returns all words from a list that are
+      matched by a pattern (requested by JohhnyM)
+    + $chr() which returns string from a list of ascii codes
+    ! DCC RAW connections executed connect hook too early when
+      non blocking connections were enabled
 
 ------------------------------------------------------------------------------
 
