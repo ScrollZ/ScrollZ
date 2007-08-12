@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.9 2005-08-08 18:49:50 f Exp $
+!	 $Id: functions,v 1.10 2007-08-12 10:55:57 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -40,6 +40,7 @@ ScrollZ Functions
   CHECKSHIT(n!u@h channel) Returns user flags, filter and channels
                         for shitlist entry matching n!u@h and channel
                         or -1 on error
+  CHR(LIST)             Returns string from a list of ascii codes
   CLOSE(HANDLE)         Closes the file denoted by HANDLE.
   COLOR(STRING)         STRING can be two numbers in which case the first
                         number is the event and the second number is in
@@ -130,6 +131,9 @@ ScrollZ Functions
                         r - read
                         w - write
                         a - append
+  PATTERN(PATTERN WORDS) Returns all words from a list that are matched
+                        by a pattern
+                        the first word, 0 if it matches none.
   PID()                 Returns the current process ID.
   PPID()                Returns the current parent process iD.
   QUERYNICK(refnum)     Returns the nick, if any, that the window is queried
@@ -173,6 +177,8 @@ ScrollZ Functions
                         listed in CHARLIST removed.
   STRIPANSI(STRING)     Returns the STRING with all ANSI color sequences
                         removed from it
+  STRIPCRAP(STRING)     Returns the STRING with all non-printable characters
+                        removed from it
   STRLEN(STRING)        Returns the length of STRING
   STRNUM(STRING)        Returns the number of words in STRING
   STRSTR(STR1 STR2)     Returns the substring STR2 in STR1
@@ -192,6 +198,8 @@ ScrollZ Functions
                         set and who set the topic.
   TOUPPER(string)       Convert string to upper case.
   TOLOWER(string)       Convert string to lower case.
+  TR(/set1/set2/string) Returns translated string where character from set1 is
+                        replaced with character on the same position in set2
   UH(nickname)          Returns nick!user@host for given nickname or -1
                         if the information is not available
   UHOST(n!u@h)          Returns the user@host from nick!user@host
