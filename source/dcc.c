@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.47 2006-10-31 12:31:27 f Exp $
+ * $Id: dcc.c,v 1.48 2007-08-12 10:54:14 f Exp $
  */
 
 #include "irc.h"
@@ -623,6 +623,14 @@ dcc_check(rd, wd)
                                 set_blocking((*Client)->read);
 				if ((*Client)->read != (*Client)->write)
 					set_blocking((*Client)->write);
+                                /* Fix by flier: execute hook for DCC RAW connect */
+                                if ((((*Client)->flags & DCC_TYPES) == DCC_RAW) &&
+                                    do_hook(DCC_RAW_LIST, "%d %s E %d",
+                                            (*Client)->write, (*Client)->description,
+                                            (*Client)->remport))
+                                    put_it("DCC RAW connection to %s on %d via %d established",
+                                            (*Client)->description, (*Client)->remport,
+                                            (*Client)->write);
 			} /* else we're not connected yet */
 		}
 #endif
@@ -1032,7 +1040,14 @@ dcc_raw_connect(host, iport)
 		return RetName;
 	snprintf(PortName, sizeof PortName, "%d", Client->read);
 	malloc_strcpy(&Client->user, PortName);
+        /* Fix by flier: don't execute hook if connection is still
+           pending (e.g. in case of non-blocking connects) */
+	/*if (do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))*/
+#ifdef DCC_CNCT_PEND
+	if (!(Client->flags & DCC_CNCT_PEND) && do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))
+#else
 	if (do_hook(DCC_RAW_LIST, "%s %s E %d", PortName, host, port))
+#endif
 		put_it("DCC RAW connection to %s on %s via %d established",
 				host, PortName, port);
 	malloc_strcpy(&RetName, PortName);
