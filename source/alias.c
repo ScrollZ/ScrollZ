@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.47 2006-10-31 12:31:27 f Exp $
+ * $Id: alias.c,v 1.48 2007-08-12 10:55:32 f Exp $
  */
 
 #include "irc.h"
@@ -284,6 +284,7 @@ static	BuiltIns built_in[] =
 	u_char	*function_notify _((u_char *));
 	u_char	*function_ignored _((u_char *));
 	u_char	*function_urlencode _((u_char *));
+	u_char	*function_chr _((u_char *));
 	u_char	*function_shellfix _((u_char *));
 	u_char	*function_filestat _((u_char *));
 #endif
@@ -297,6 +298,7 @@ static	BuiltIns built_in[] =
         u_char  *function_checkuser _((u_char *));
         u_char  *function_checkshit _((u_char *));
         u_char  *function_stripansi _((u_char *));
+        u_char  *function_stripcrap _((u_char *));
 #ifndef CELESCRP
 	u_char	*function_isvoiced _((u_char *));
         u_char	*function_uhost _((u_char *));
@@ -309,6 +311,7 @@ static	BuiltIns built_in[] =
         u_char	*function_chankey _((u_char *));
 #ifndef CELESCRP
         u_char	*function_sar _((u_char *));
+	u_char	*function_tr _((u_char *));
         u_char	*function_cdccslots _((u_char *));
         u_char	*function_cdccqslots _((u_char *));
         u_char	*function_url _((u_char *));
@@ -326,8 +329,8 @@ static	BuiltIns built_in[] =
 #ifdef WANTANSI
         u_char  *function_color _((u_char *));
 #endif
-    /*  u_char  *function_pattern _((u_char *));
-        u_char  *function_chops _((u_char *));
+        u_char  *function_pattern _((u_char *));
+    /*  u_char  *function_chops _((u_char *));
         u_char  *function_chnops _((u_char *));  */
 /****************************************************************************/
 
@@ -373,6 +376,7 @@ static BuiltInFunctions	built_in_functions[] =
 	{ "DECODE",		function_decode },
 /**************************** Patched by Flier ******************************/
 	{ "STRIPANSI",          function_stripansi },
+	{ "STRIPCRAP",          function_stripcrap },
 #if !defined(CELESCRP) && !defined(LITE)
 	{ "STRSTR",             function_strstr },
 	{ "STRLEN",             function_strlen },
@@ -446,16 +450,18 @@ static BuiltInFunctions	built_in_functions[] =
 	{ "NOTIFY",		function_notify },
 	{ "IGNORED",		function_ignored },
 	{ "URLENCODE",		function_urlencode },
+	{ "CHR",		function_chr },
 	{ "SHELLFIX",		function_shellfix },
 	{ "FILESTAT",		function_filestat },
 #endif
-	/*{ "PATTERN",            function_pattern },
-	{ "CHOPS",              function_chops },
+	{ "PATTERN",            function_pattern },
+	/*{ "CHOPS",              function_chops },
 	{ "CHNOPS",             function_chnops },*/
 #if !defined(CELESCRP) && !defined(LITE)
         { "SZVAR",              function_szvar },
         { "TOPIC",              function_topic },
         { "SAR",                function_sar },
+        { "TR",                 function_tr },
 #endif
 #ifdef COUNTRY
         { "COUNTRY",            function_country },
@@ -3745,41 +3751,55 @@ function_idle(input)
 #ifndef LITE
 u_char	*
 function_urlencode(input)
-	u_char *input;
+u_char *input;
 {
-	u_char	*result;
-	u_char	*c;
-	int	i = 0;
-	
-	for (c = input; *c; c++)
-		if(*c == '+' || *c == '%' || *c == '&')
-			i += 3;
-		else
-			++i;
-	
-	result = (u_char *) new_malloc(i + 1);
+    int	i = 0;
+    u_char *result;
+    u_char *c;
+    char buf[8];
 
-	for (i = 0, c = input; *c; c++)
-	{
-		if (*c == ' ')
-			result[i++] = '+';
-		else if (*c == '+')
-		{
-			result[i++] = '%';
-			result[i++] = '2';
-			result[i++] = 'B';
-		}
-		else if (*c == '&')
-		{
-			result[i++] = '%';
-			result[i++] = '2';
-			result[i++] = '6';
-		}
-		else
-			result[i++] = *c;
-	}
-	result[i] = '\0';
-	return (result);
+    for (c = input; *c; c++)
+        if (*c < '/' || *c > 'z' || (*c > ':' && *c < 'A') || (*c > 'Z' && *c < 'a'))
+            i += 3;
+        else
+            i++;
+
+    result = (u_char *) new_malloc(i + 15);
+
+    for (i = 0, c = input; *c; c++)
+    {
+        if (*c < '/' || *c > 'z' || (*c > ':' && *c < 'A') || (*c > 'Z' && *c < 'a'))
+        {
+            sprintf(buf, "%02X", *c);
+            result[i++] = '%';
+            result[i++] = buf[0];
+            result[i++] = buf[1];
+        }
+        else
+            result[i++] = *c;
+    }
+    result[i] = '\0';
+    return (result);
+}
+
+u_char	*
+function_chr(input)
+u_char *input;
+{
+    char c;
+    char *tmpstr;
+    char buf[16];
+    u_char *result = NULL;
+
+    if (input && *input) {
+        while ((tmpstr = new_next_arg(input, (char **) &input))) {
+            c = (char) atoi(tmpstr);
+            sprintf(buf, "%c", c);
+            malloc_strcat((char **) &result, buf);
+        }
+    }
+    if (!result) malloc_strcpy((char **) &result, empty_string);
+    return (result);
 }
 
 u_char	*
@@ -4043,29 +4063,40 @@ u_char *words;
     return(result);
 }
 
-/*u_char *function_pattern(words)
+u_char *function_stripcrap(words)
+u_char *words;
+{
+    u_char *result = NULL;
+    char locbuf[2 * mybufsize];
+
+    if (words && *words) {
+        StripAnsi(words, locbuf, 1);
+        malloc_strcpy((char **) &result, locbuf);
+    }
+    else malloc_strcpy((char **) &result, empty_string);
+    return(result);
+}
+
+u_char *function_pattern(words)
 u_char *words;
 {
     char    *tmpstr;
     char    *pattern;
-    u_char  *result=(char *) 0;
+    u_char  *result = NULL;
 
-    *tmpbuf='\0';
-    if ((pattern=next_arg((char *) words,(char **) &words))) {
-        while (((tmpstr=next_arg((char *) words,(char **) &words))!=NULL)) {
-            if (wild_match(pattern,tmpstr)) {
-                strcat(tmpbuf,tmpstr);
-                strcat(tmpbuf," ");
+    if ((pattern = next_arg((char *) words, (char **) &words))) {
+        while (((tmpstr = next_arg((char *) words, (char **) &words)) != NULL)) {
+            if (wild_match(pattern, tmpstr)) {
+                malloc_strcat((char **) &result, tmpstr);
+                malloc_strcat((char **) &result, " ");
             }
         }
-        tmpbuf[strlen(tmpbuf)-1]='\0';
-        malloc_strcpy((char **) &result,tmpbuf);
     } 
-    else malloc_strcpy((char **) &result,empty_string);
+    if (!result) malloc_strcpy((char **) &result, empty_string);
     return(result);
 }
 
-u_char *function_chops(words)
+/*u_char *function_chops(words)
 u_char *words;
 {
     u_char *nicks=(char *) 0;
@@ -4404,6 +4435,47 @@ u_char *word;
         window_display=display;
     }
     new_free(&svalue);
+    return(result);
+}
+
+/* Translate characters
+   Usage:   $sar(/set1/set2/data)
+   The delimiter may be any character
+   Replaces character from set1 with character on the same position in set2 
+   Returns empty string on error
+*/
+u_char *function_tr(input)
+u_char *input;
+{
+    int i;
+    char delim;
+    char *x, *y;
+    char *search = NULL;
+    char *replace = NULL;
+    char *string = NULL;
+    u_char *result = NULL;
+
+    if (input && *input) {
+        delim = *input;
+        search = input;
+        search++;
+        replace = strchr(search, delim);
+        if (replace && replace != search) {
+            *replace++ = '\0';
+            if ((string = strchr(replace, delim))) {
+                *string++ = '\0';
+                if (strlen(search) == strlen(replace)) {
+                    malloc_strcpy((char **) &result, string);
+                    for (i = 0, x = search; *x; x++, i++)
+                        for (y = result; *y; y++)
+                            if (*y == *x) {
+                                *y = replace[i];
+                            }
+                }
+            }
+        }
+    }
+    if (!result) malloc_strcpy((char **) &result, empty_string);
     return(result);
 }
 #endif /* CELESCRP */
