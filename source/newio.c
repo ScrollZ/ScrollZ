@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.16 2007-03-30 15:27:37 f Exp $
+ * $Id: newio.c,v 1.17 2007-08-20 10:54:17 f Exp $
  */
 
 #include "irc.h"
@@ -68,7 +68,9 @@
 #   define IO_ARRAYLEN NFDBITS
 #  endif /* FD_SETSIZE */
 # endif /* FDSETSIZE */
-#else /* SZ32 */
+#elif defined(__APPLE__)
+# define IO_ARRAYLEN FD_SETSIZE
+#else /* __APPLE__ */
 # ifdef OPEN_MAX
 #  define IO_ARRAYLEN OPEN_MAX
 #  else /* OPEN_MAX */
