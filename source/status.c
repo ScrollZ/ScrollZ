@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.34 2006-10-31 12:31:27 f Exp $
+ * $Id: status.c,v 1.35 2007-08-21 12:52:49 f Exp $
  */
 
 #include "irc.h"
@@ -1660,6 +1660,11 @@ status_channel(window)
 	{
 		char	lbuf[BIG_BUFFER_SIZE+1];
 
+/**************************** PATCHED by Flier ******************************/
+                if (!ShowChan || !CheckChannel(ShowChanChannels, window->current_channel))
+                    ptr = "*private*";
+                else
+/****************************************************************************/
 		if (get_int_var(HIDE_PRIVATE_CHANNELS_VAR) &&
 		    is_channel_mode(window->current_channel,
 				MODE_PRIVATE | MODE_SECRET,

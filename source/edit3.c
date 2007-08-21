@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.89 2007-03-30 15:27:36 f Exp $
+ * $Id: edit3.c,v 1.90 2007-08-21 12:52:48 f Exp $
  */
 
 #include "irc.h"
@@ -2160,6 +2160,8 @@ void ScrollZLoad()
             OnOffSet(&pointer,&AwayEncrypt,&loaderror,lineno,"AWAYENCRYPT");
         else if (!strcmp("ETOPICDELIM",tmpbuf3))
             StringSet(pointer,&ExtTopicDelimiter,&loaderror,lineno,"ETOPICDELIM");
+        else if (!strcmp("SHOWCHANNELS",tmpbuf3))
+            ChannelsSet(&pointer,&ShowChan,&ShowChanChannels,&loaderror,lineno,"SHOWCHANNELS",NULL);
 #ifdef WANTANSI
         else if (!strcmp("MIRCCOLORS",tmpbuf3))
             OnOffSet(&pointer,&DisplaymIRC,&loaderror,lineno,"MIRCCOLORS");
@@ -2442,6 +2444,7 @@ void InitVars() {
     malloc_strcpy(&AutoReplyString,": ");
     malloc_strcpy(&CelerityNtfy,ScrollZstr);
     malloc_strcpy(&ExtTopicDelimiter,"|");
+    malloc_strcpy(&ShowChanChannels,"*");
     set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
     if (!AutoReplyBuffer) {
         i=strlen(nickname)>3?3:strlen(nickname);
@@ -2556,6 +2559,7 @@ void InitVars() {
     ChanLog=0;
     AwayEncrypt=0;
     BanTime=10;
+    ShowChan=1;
     usersloaded=0;
     strmcpy(tmpbuf,ScrollZver,sizeof(tmpbuf));
     for (i=0,tmpstr1=tmpbuf;i<2;tmpstr1++) if (*tmpstr1==' ') i++;

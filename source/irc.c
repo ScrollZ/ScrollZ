@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.131 2007-03-30 15:27:36 f Exp $
+ * $Id: irc.c,v 1.132 2007-08-21 12:52:49 f Exp $
  */
 
 #define IRCII_VERSION	"20061030"	/* YYYYMMDD */
@@ -353,6 +353,7 @@ char  *ChanLogDir=(char *) 0;
 char  *ChanLogPrefix=(char *) 0;
 char  *ChanLogPostfix=(char *) 0;
 char  *ExtTopicDelimiter=(char *) 0;
+char  *ShowChanChannels=(char *) 0;
 #ifdef BLAXTHOS
 char  *OperNick=(char *) 0;
 char  *OperPassword=(char *) 0;
@@ -464,6 +465,7 @@ int   ChanLog;
 int   AwayEncrypt;
 int   BanTime;
 int   StatusLines = DEFAULT_STATUS_LINES - 1;
+int   ShowChan;
 #ifdef ACID
 int   ForceJoin;
 #endif

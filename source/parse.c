@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.77 2006-10-31 12:31:27 f Exp $
+ * $Id: parse.c,v 1.78 2007-08-21 12:52:49 f Exp $
  */
 
 #include "irc.h"

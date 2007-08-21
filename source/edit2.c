@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.100 2006-07-21 16:11:27 f Exp $
+ * $Id: edit2.c,v 1.101 2007-08-21 12:52:48 f Exp $
  */
 
 #include "irc.h"
@@ -2032,6 +2032,9 @@ char *subargs;
 #endif
     fprintf(usfile,"BANKICKLIST     ");
     if (BKList) fprintf(usfile,"ON %s\n",BKChannels);
+    else fprintf(usfile,"OFF\n");
+    fprintf(usfile,"SHOWCHANNELS    ");
+    if (ShowChan) fprintf(usfile,"ON %s\n",ShowChanChannels);
     else fprintf(usfile,"OFF\n");
     fprintf(usfile,"STAMP           ");
     if (Stamp==2) fprintf(usfile,"MAX\n");

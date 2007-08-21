@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.48 2007-08-12 10:55:32 f Exp $
+ * $Id: alias.c,v 1.49 2007-08-21 12:52:48 f Exp $
  */
 
 #include "irc.h"
@@ -4935,6 +4935,7 @@ u_char *input;
 #endif
         { "AWAYENCR"       , 1, &AwayEncrypt     , NULL                   },
         { "BANTIME"        , 1, &BanTime         , NULL                   },
+        { "SHOWCHAN"       , 3, &ShowChan        , &ShowChanChannels      },
         { NULL             , 0, NULL             , NULL                   }
     };
 

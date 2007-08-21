@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.161 2006-11-01 11:46:16 f Exp $
+ * $Id: edit6.c,v 1.162 2007-08-21 12:52:49 f Exp $
  */
 
 #include "irc.h"
@@ -223,6 +223,7 @@ static struct commands {
 #ifdef ACID
     { "FORCEJOIN"   , &ForceJoin      , &ForceJoinChannels     , "Force channel join"         , NULL },
 #endif
+    { "SHOWCHAN"    , &ShowChan       , &ShowChanChannels      , "Show channels in status bar", NULL },
     { NULL          , NULL            , NULL                   , NULL                         , NULL }
 };
 
@@ -2054,6 +2055,7 @@ void CleanUpScrollZVars() {
     new_free(&ForceJoinChannels);
 #endif
     new_free(&ChanLogChannels);
+    new_free(&ShowChanChannels);
 }
 
 /* Clean up all stuff from memory on exit */

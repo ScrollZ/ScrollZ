@@ -4,7 +4,7 @@
 /*
  * My variables
  *
- * $Id: myvars.h,v 1.40 2006-10-25 17:20:35 f Exp $
+ * $Id: myvars.h,v 1.41 2007-08-21 12:52:48 f Exp $
  */
 
 #include "mystructs.h"
@@ -190,6 +190,7 @@ extern char   *ExtTopicDelimiter;
 extern char   *OperNick;
 extern char   *OperPassword;
 #endif
+extern char   *ShowChanChannels;
 extern int    usersloaded;
 extern int    inSZNotify;
 extern int    inSZLinks;
@@ -288,6 +289,7 @@ extern int    ChanLog;
 extern int    AwayEncrypt;
 extern int    BanTime;
 extern int    StatusLines;
+extern int    ShowChan;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

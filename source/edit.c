@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.110 2007-03-31 10:56:17 f Exp $
+ * $Id: edit.c,v 1.111 2007-08-21 12:52:48 f Exp $
  */
 
 #include "irc.h"
@@ -850,6 +850,7 @@ IrcCommand irc_command[] =
   { "SETTINGS", 	NULL, 		Settings, 		0 },
 #endif
   { "SHOWAWAY", 	"SHOWAWAY", 	ChannelCommand, 	0 },
+  { "SHOWCHAN", 	"SHOWCHAN", 	ChannelCommand, 	0 },
 #ifdef EXTRAS
   { "SHOWIDLE", 	NULL, 		ShowIdle, 		0 },
 #endif
