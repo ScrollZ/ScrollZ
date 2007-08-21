@@ -1,0 +1,16 @@
+!	 $Id: showchan,v 1.1 2007-08-21 12:48:46 f Exp $
+!
+! Copyright (c) 1994-2007 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SHOWCHAN on channels|off
+  Toggles channel visibility on status bar on/off
+
+  Using this command you can hide certain channels from the
+  status bar. Hidden channels will be displayed on status
+  bar as *private*
+
+See also:
+  SET STATUS_CHANNEL
