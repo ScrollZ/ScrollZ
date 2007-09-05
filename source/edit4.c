@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.116 2007-03-30 15:27:36 f Exp $
+ * $Id: edit4.c,v 1.117 2007-09-05 16:08:41 f Exp $
  */
 
 #include "irc.h"
@@ -2307,7 +2307,7 @@ int isfriend;
 }
 
 /* Lists all users on notify list */
-void ListNotify(command,args,subargs)
+void ListNotify(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
@@ -2315,6 +2315,9 @@ char *subargs;
     int  i;
     int  count;
     int  maskmatch;
+    int  doonline = 1;
+    int  dooffline = 1;
+    char *opt;
 #ifdef WANTANSI
     char *ncolor;
 #endif
@@ -2326,10 +2329,28 @@ char *subargs;
 #endif
     NotifyList *notify, *tmp;
 
+    if (*args) {
+        while ((opt = new_next_arg(args, &args))) {
+            if (!my_stricmp(opt, "-O")) dooffline = 0;
+            else if (!my_stricmp(opt, "-N")) doonline = 0;
+            else {
+                PrintUsage("LISTN [-O|-N]");
+                return;
+            }
+        }
+    }
+    if (!doonline && !dooffline) {
+        say("Nothing to display on notify list (both -O and -N specified)");
+        return;
+    }
     say("Listing all the people on your notify list");
     for (tmp = notify_list; tmp; tmp = tmp->next)
         tmp->printed = 0;
     for (i = 0; i < 2; i++) {
+        if (i == 0 && !doonline)
+            continue;
+        else if (i == 1 && !dooffline)
+            continue;
         if (i == 0) {
 #ifdef CELECOSM
             msg = "/present/";
