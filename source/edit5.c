@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.114 2007-03-30 15:25:40 f Exp $
+ * $Id: edit5.c,v 1.115 2007-09-15 08:35:00 f Exp $
  */
 
 #include "irc.h"
@@ -1642,25 +1642,26 @@ int  iscrypted;
 }
 
 /* Returns path to filename */
-char *OpenCreateFile(filename,create)
+char *OpenCreateFile(filename, create)
 char *filename;
 int  create;
 {
     char *path;
     char *filepath;
-    char tmpbuf[mybufsize/4];
-    static char newfilepath[mybufsize/8];
+    char tmpbuf[mybufsize / 4];
+    static char newfilepath[mybufsize / 8];
 
     if (!filename) return(NULL);
-    if (!(path=get_string_var(LOAD_PATH_VAR))) path=".";
-    if ((filepath=path_search(filename,path))) return(filepath);
+    if (*filename == '/') path = empty_string;
+    else if (!(path = get_string_var(LOAD_PATH_VAR))) path = ".";
+    if ((filepath = path_search(filename, path))) return(filepath);
     if (!create) return(NULL);
-    strmcpy(tmpbuf,path,sizeof(tmpbuf));
-    if ((filepath=index(tmpbuf,':'))) *filepath='\0';
-    if (*tmpbuf && tmpbuf[strlen(tmpbuf)-1]!='/') strmcat(tmpbuf,"/",sizeof(tmpbuf));
-    strmcat(tmpbuf,filename,sizeof(tmpbuf));
-    filepath=expand_twiddle(tmpbuf);
-    strmcpy(newfilepath,filepath,sizeof(newfilepath));
+    strmcpy(tmpbuf, path, sizeof(tmpbuf));
+    if ((filepath = index(tmpbuf, ':'))) *filepath = '\0';
+    if (*tmpbuf && tmpbuf[strlen(tmpbuf) - 1] != '/') strmcat(tmpbuf, "/", sizeof(tmpbuf));
+    strmcat(tmpbuf, filename, sizeof(tmpbuf));
+    filepath = expand_twiddle(tmpbuf);
+    strmcpy(newfilepath, filepath, sizeof(newfilepath));
     new_free(&filepath);
     return(newfilepath);
 }
