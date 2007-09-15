@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.49 2007-08-21 12:52:48 f Exp $
+ * $Id: alias.c,v 1.50 2007-09-15 08:34:03 f Exp $
  */
 
 #include "irc.h"
@@ -4824,22 +4824,21 @@ u_char *input;
 u_char *function_strstr(input)
 u_char *input;
 {
-    u_char *result=(char *) 0;
-    char *tmpstr=(char *) 0;
-    char *findstr=(char *) 0;
-    char locbuf[2*mybufsize+1];
+    u_char *result = (char *) 0;
+    char *tmpstr = (char *) 0;
+    char *findstr = (char *) 0;
+    char locbuf[2 * mybufsize + 1];
 
     if (input && *input) {
-        strmcpy(locbuf,&input[1],2*mybufsize);
-        if ((tmpstr=index(locbuf,*input))) {
-            *tmpstr++='\0';
-            if (*tmpstr) tmpstr++;
-            else tmpstr=(char *) 0;
+        strmcpy(locbuf, &input[1], 2 * mybufsize);
+        if ((tmpstr = index(locbuf, *input))) {
+            *tmpstr ++= '\0';
+            if (*tmpstr == '\0') tmpstr = (char *) 0;
         }
-        if (tmpstr) findstr=strstr(locbuf,tmpstr);
+        if (tmpstr) findstr = strstr(locbuf, tmpstr);
     }
-    if (!findstr) findstr=empty_string;
-    malloc_strcpy((char **) &result,findstr);
+    if (!findstr) findstr = empty_string;
+    malloc_strcpy((char **) &result, findstr);
     return(result);
 }
 
