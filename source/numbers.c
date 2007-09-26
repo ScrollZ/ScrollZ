@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.82 2006-04-30 14:15:43 f Exp $
+ * $Id: numbers.c,v 1.83 2007-09-26 08:58:52 f Exp $
  */
 
 #include "irc.h"
@@ -1494,6 +1494,12 @@ numbered_command(from, comm, ArgList)
                         else if ((comm == 367 || comm == 348) && 
                                  server_list[from_server].SZUnban) {
                             OnBans(ArgList,comm == 348 ? 1 : 0);
+                            skipit = 1;
+                        }
+                        else if (comm == 349 && server_list[from_server].SZUnban) {
+                            if (server_list[from_server].SZUnban > 2)
+                                server_list[from_server].SZUnban--;
+                            else server_list[from_server].SZUnban = 0;
                             skipit = 1;
                         }
                         else
