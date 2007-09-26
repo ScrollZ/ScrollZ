@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.78 2007-08-21 12:52:49 f Exp $
+ * $Id: parse.c,v 1.79 2007-09-26 08:43:47 f Exp $
  */
 
 #include "irc.h"
@@ -102,6 +102,7 @@ extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern void SendToServer _((void));
 extern int  RateLimitJoin _((int));
+extern char *OpenCreateFile _((char *, int));
 
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
@@ -314,6 +315,16 @@ p_topic(from, ArgList)
                 snprintf(tmpbuf, sizeof(tmpbuf), "%s has changed the topic on channel %s to %s", from, ArgList[0], ArgList[1]);
                 ChannelLogSave(tmpbuf, chan);
             }
+        }
+        if (URLCatch) {
+            int numurl;
+            char tmpbuf2[mybufsize];
+            char tmpbuf3[mybufsize / 2];
+            char *filepath = NULL;
+
+            snprintf(tmpbuf3, sizeof(tmpbuf3), "%s topic %s", from, ArgList[0]);
+            filepath = OpenCreateFile("ScrollZ.notepad", 1);
+            numurl = GrabURL(ArgList[1], tmpbuf2, filepath, tmpbuf3);
         }
         if ((double_ignore(ArgList[0], NULL, IGNORE_CRAP)) == IGNORED) return;
         if ((double_ignore(FromUserHost, ArgList[0], IGNORE_CRAP)) == IGNORED) return;
