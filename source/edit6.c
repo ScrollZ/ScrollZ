@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.162 2007-08-21 12:52:49 f Exp $
+ * $Id: edit6.c,v 1.163 2007-09-27 15:31:53 f Exp $
  */
 
 #include "irc.h"
@@ -3385,6 +3385,8 @@ int RateLimitJoin(server_index)
 int server_index;
 {
     char *verstr = server_list[server_index].version_string;
+   
+    if (!verstr) return 0;
     if (wild_match("ircd-ratbox-*", verstr) || wild_match("hybrid-7*", verstr))
         return 1;
     return 0;
