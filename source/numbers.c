@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.83 2007-09-26 08:58:52 f Exp $
+ * $Id: numbers.c,v 1.84 2007-10-21 11:58:43 f Exp $
  */
 
 #include "irc.h"
@@ -1418,7 +1418,12 @@ numbered_command(from, comm, ArgList)
                  */
                 for (chan = server_list[from_server].chan_list; chan; chan = chan->next) {
                     if (!(chan->gotbans) || !(chan->gotwho)) {
-                        chan->repeatexceptions = 1;
+                        if (server_list[from_server].SZUnban > 2)
+                            server_list[from_server].SZUnban--;
+                        else server_list[from_server].SZUnban = 0;
+                        /* But only if we don't have operator status */
+                        if (!HAS_OPS(chan->status))
+                            chan->repeatexceptions = 1;
                         break;
                     }
                 }
