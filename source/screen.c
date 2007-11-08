@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.40 2007-04-16 15:39:45 f Exp $
+ * $Id: screen.c,v 1.41 2007-11-08 16:07:08 f Exp $
  */
 
 #include "irc.h"
@@ -1604,6 +1604,8 @@ split_up_line(str)
 		invert_state = 0,
 		underline_state = 0;
 /**************************** PATCHED by Flier ******************************/
+        int     iso2022 = get_int_var(ISO2022_SUPPORT_VAR);
+        int     isiso;
 #ifdef WANTANSI
         int     ansi_count;
 #endif /* WANTANSI */
@@ -1695,15 +1697,32 @@ split_up_line(str)
 			break;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
+                        /* XXX: flier fix for ISO-2022-JP */
                 case '\033':
                         ansi_count = 0;
-                        while (vt100Decode(*ptr)) {
+                        isiso = 0;
+                        while ((c = vt100Decode(*ptr))) {
+                            /* terminate on escape if ISO-2022-JP support is enabled */
+                            if (iso2022 && *ptr == '\033' && ansi_count) break;
+                            if (c > 1) isiso = 1;
                             lbuf[pos++] = *ptr;
                             nd_cnt++;
                             ptr++;
                             ansi_count++;
                         }
-                        if (ansi_count) ptr--;
+                        if (isiso || ansi_count) ptr--;
+                        if (ansi_count && iso2022 && isiso) {
+                            char lbuf2[BIG_BUFFER_SIZE];
+                            char lbuf3[BIG_BUFFER_SIZE];
+
+                            memcpy(lbuf2, lbuf + pos - ansi_count, ansi_count);
+                            lbuf2[ansi_count] = '\0';
+                            pos -= ansi_count;
+                            nd_cnt -= ansi_count;
+
+                            /* FIXME: No array bound checking - very insecure */
+                            decode_mb(lbuf2, lbuf3, &mbdata);
+                        }
                         break;
 #endif /* WANTANSI */
                 case '|':       /* possible word break if time stamp is set to max */

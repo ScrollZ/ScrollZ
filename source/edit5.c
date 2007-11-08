@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.115 2007-09-15 08:35:00 f Exp $
+ * $Id: edit5.c,v 1.116 2007-11-08 16:07:08 f Exp $
  */
 
 #include "irc.h"
@@ -379,18 +379,19 @@ int vt100Decode(chr)
 register char chr;
 {
     static enum {
-        Normal,Escape,SCS,CSI,DCS,DCSData,DCSEscape
-    } vtstate=Normal;
+        Normal, Escape, SCS, CSI, DCS, DCSData, DCSEscape, DCS2, DCS3, DCS4
+    } vtstate = Normal;
+    int iso2022 = get_int_var(ISO2022_SUPPORT_VAR);
 
-    if (chr==0x1B)
-        if (vtstate==DCSData || vtstate==DCSEscape) vtstate=DCSEscape;
+    if (chr == 0x1B)
+        if (vtstate == DCSData || vtstate == DCSEscape) vtstate = DCSEscape;
         else {
-            vtstate=Escape;
+            vtstate = Escape;
             return(1);
         }
-    else if (chr==0x18 || chr==0x1A) vtstate=Normal;
-    else if (chr==0xE || chr==0xF) ;
-    else if (chr<0x20) return(0);
+    else if (chr == 0x18 || chr == 0x1A) vtstate = Normal;
+    else if (chr == 0xE || chr == 0xF) ;
+    else if (chr < 0x20) return(0);
     switch (vtstate) {
     case Normal:
         return 0;
@@ -405,7 +406,21 @@ register char chr;
             break;
         case '(':
         case ')':
-            vtstate = SCS;
+            if (iso2022 && chr == '(') {
+                vtstate = DCS2;
+                return(2);
+            }
+            else vtstate = SCS;
+            break;
+        case '$':
+            if (iso2022) {
+                vtstate = DCS3;
+                return(2);
+            }
+            else {
+                vtstate = Normal;
+                return(0);
+            }
             break;
         default:
             vtstate = Normal;
@@ -416,15 +431,34 @@ register char chr;
         vtstate = Normal;
         break;
     case CSI:
-        if (isalpha(chr)) vtstate=Normal;
+        if (isalpha(chr)) vtstate = Normal;
         break;
     case DCS:
-        if (chr>=0x40 && chr<=0x7E) vtstate=DCSData;
+        if (chr >= 0x40 && chr <= 0x7E) vtstate = DCSData;
         break;
     case DCSData:
         break;
     case DCSEscape:
-        vtstate=Normal;
+        vtstate = Normal;
+        break;
+    case DCS2:
+        vtstate = Normal;
+        if (chr == 'J' || chr == 'I' || chr == 'B') return(2);
+        else return(0);
+        break;
+    case DCS3:
+        if (chr == '(') {
+            vtstate = DCS4;
+            return(2);
+        }
+        vtstate = Normal;
+        if (chr == '@' || chr == 'B') return(2);
+        else return(0);
+        break;
+    case DCS4:
+        vtstate = Normal;
+        if (chr == 'D' || chr == 'O' || chr == 'P' || chr == 'Q') return(2);
+        else return(0);
         break;
     }
     return(1);
@@ -434,46 +468,59 @@ register char chr;
 void FixColorAnsi(str)
 char *str;
 {
-    register int  val=0;
-    register int  what=0;
-    register int  numbers=0;
-    register char *tmpstr;
-    register char *tmpstr1=NULL;
+    int  val = 0;
+    int  what = 0;
+    int  numbers = 0;
+    int  iso2022 = get_int_var(ISO2022_SUPPORT_VAR);
+    char *tmpstr;
+    char *tmpstr1 = NULL;
 
-    for (tmpstr=str;*tmpstr;tmpstr++) {
-        if ((*tmpstr>='0' && *tmpstr<='9')) {
-            numbers=1;
-            val=val*10+(*tmpstr-'0');
+    for (tmpstr = str; *tmpstr; tmpstr++) {
+        if ((*tmpstr >= '0' && *tmpstr <= '9')) {
+            numbers = 1;
+            val = val * 10 + (*tmpstr - '0');
         }
-        else if (*tmpstr==';') {
-            numbers=1;
-            val=0;
+        else if (*tmpstr == ';') {
+            numbers = 1;
+            val = 0;
         }
         /*else if (!(*tmpstr=='m' || *tmpstr=='C')) numbers=val=0;*/
-        else if (!(*tmpstr=='m')) numbers=val=0;
-        if (*tmpstr==0x1B) {
-            if (what && tmpstr1) *tmpstr1+=64;
-            what=1;
-            tmpstr1=tmpstr;
-            numbers=val=0;
+        else if (!(*tmpstr == 'm')) numbers = val = 0;
+        if (*tmpstr == 0x1B) {
+            if (what && tmpstr1) *tmpstr1 += 64;
+            what = 1;
+            tmpstr1 = tmpstr;
+            numbers = val = 0;
         }
         /*if (what && (*tmpstr=='m' || *tmpstr=='C')) {*/
-        if (what && *tmpstr=='m') {
-            if (!numbers || val==12) {
-                *tmpstr1+=64;
-                tmpstr1=tmpstr;
+        if (what && *tmpstr == 'm') {
+            if (!numbers || val == 12) {
+                *tmpstr1 += 64;
+                tmpstr1 = tmpstr;
             }
-            what=0;
-            numbers=val=0;
+            what = 0;
+            numbers = val = 0;
         }
-        else if (what==1 && *tmpstr=='(') what=2;
-        else if (what==2 && *tmpstr=='U') what=0;
+        else if (what == 1 && *tmpstr == '(') what = 2;
+        else if (what == 2 && *tmpstr == 'U') what = 0;
+        /* ISO-2022-JP */
+        else if (what == 2 && iso2022 && *tmpstr == 'B') what = 0;
+        else if (what == 2 && iso2022 && *tmpstr == 'J') what = 0;
+        else if (what == 2 && iso2022 && *tmpstr == 'I') what = 0;
+        else if (what == 1 && iso2022 && *tmpstr == '$') what = 3;
+        else if (what == 3 && iso2022 && *tmpstr == '@') what = 0;
+        else if (what == 3 && iso2022 && *tmpstr == 'B') what = 0;
+        else if (what == 3 && iso2022 && *tmpstr == '(') what = 4;
+        else if (what == 4 && iso2022 && *tmpstr == 'D') what = 0;
+        else if (what == 4 && iso2022 && *tmpstr == 'O') what = 0;
+        else if (what == 4 && iso2022 && *tmpstr == 'P') what = 0;
+        else if (what == 4 && iso2022 && *tmpstr == 'Q') what = 0;
         else if (what && isalpha(*tmpstr)) {
-            *tmpstr1+=64;
-            what=0;
+            *tmpstr1 += 64;
+            what = 0;
         }
     }
-    if (what && tmpstr1) *tmpstr1+=64;
+    if (what && tmpstr1) *tmpstr1 += 64;
 }
 
 /* Counts ansi chars in string */

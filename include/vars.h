@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.1 2006-10-31 12:31:27 f Exp $
+ * $Id: vars.h,v 1.2 2007-11-08 16:07:08 f Exp $
  */
 
 #ifndef __vars_h_
@@ -140,6 +140,9 @@ enum {
 	INVERSE_VIDEO_VAR,
 	IRCHOST_VAR,
 	IRC_ENCODING_VAR,
+/**************************** PATCHED by Flier ******************************/
+	ISO2022_SUPPORT_VAR,
+/****************************************************************************/
 	LASTLOG_VAR,
 /**************************** PATCHED by Flier ******************************/
 	LASTLOG_ANSI_VAR,

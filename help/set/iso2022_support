@@ -1,0 +1,15 @@
+!	 $Id: iso2022_support,v 1.1 2007-11-08 16:07:08 f Exp $
+!
+! Copyright (c) 1994-2007 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET ISO2022_SUPPORT [ON|OFF|TOGGLE]
+  When ON, support for character set ISO-2022-JP is enabled.
+  When OFF, client will not support ISO-2022-JP encoding.
+
+See Also:
+  SET DISPLAY_ENCODING
+  SET INPUT_ENCODING
+  SET IRC_ENCODING

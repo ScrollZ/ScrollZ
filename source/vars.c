@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.29 2006-10-31 12:31:27 f Exp $
+ * $Id: vars.c,v 1.30 2007-11-08 16:07:08 f Exp $
  */
 
 #include "irc.h"
@@ -215,6 +215,9 @@ static	IrcVariable irc_variable[] =
 	{ "INVERSE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_INVERSE_VIDEO, NULL, NULL, 0, 0 },
 	{ "IRCHOST",			STR_TYPE_VAR,	0, NULL, set_irchost, 0, 0 },
 	{ "IRC_ENCODING",		STR_TYPE_VAR,	0, NULL, set_irc_encoding, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+        { "ISO2022_SUPPORT",		BOOL_TYPE_VAR,	DEFAULT_ISO2022_SUPPORT, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "LASTLOG",			INT_TYPE_VAR,	DEFAULT_LASTLOG, NULL, set_lastlog_size, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
         { "LASTLOG_ANSI",		BOOL_TYPE_VAR,	1, NULL, NULL, 0, 0 },
