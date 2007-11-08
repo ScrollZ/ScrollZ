@@ -1,4 +1,4 @@
-!	 $Id: functions,v 1.10 2007-08-12 10:55:57 f Exp $
+!	 $Id: functions,v 1.11 2007-11-08 16:02:34 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -206,8 +206,8 @@ ScrollZ Functions
   URL(NUMBER [string])  Returns URL NUMBER from internally stored URLs
                         If string is not empty it also returns source of URL
   USERHOST()            Returns the user@host value under which the current
-  WINDOWS()             Returns a list of the current windows.
                         message was sent if you are on a 2.7 server or better.
+  WINDOWS()             Returns a list of the current windows.
   WINNUM()              Returns the current window number.  This is always 
                         the window which is indicated by STATUS_WINDOW.
   WINNAM()              Returns the current window name.
