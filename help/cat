@@ -1,4 +1,4 @@
-!	 $Id: cat,v 1.3 2002-02-19 19:43:28 f Exp $
+!	 $Id: cat,v 1.4 2007-11-24 15:49:52 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,7 +6,7 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: ^BCAT^B <file> [<line>]
+Usage: CAT <file> [<line>]
   Adds <line> (text) to the specified <file>.
   This is a much easier way to add a text line to a file than
   to /^_EXEC^_ cat ... something. And a more secure also.

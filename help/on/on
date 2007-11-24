@@ -1,4 +1,4 @@
-!	 $Id: on,v 1.4 2002-02-21 17:16:31 f Exp $
+!	 $Id: on,v 1.5 2007-11-24 15:49:52 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,7 +6,7 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: ON [#|+|-|^|&|@]<event> [serial] [-|^]<match> [action]
+Usage: ON [#|+|-|^|&|@]<event> [serial] [-|^]<match> [action]
   The ON command lets you set up actions which will occur when
   certains events happen.  For example, you can create
   "personalized" away messages for different individuals,
