@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.101 2007-08-21 12:52:48 f Exp $
+ * $Id: edit2.c,v 1.102 2008-02-01 16:34:25 f Exp $
  */
 
 #include "irc.h"
@@ -1213,7 +1213,7 @@ char *subargs;
         NoWindowChannel();
         return;
     }
-    comment = new_next_arg(args, &args);
+    comment = args;
     if (comment && *comment) send_to_server("PART %s :%s", tmpchannel, comment);
     else send_to_server("PART %s", tmpchannel);
 }
