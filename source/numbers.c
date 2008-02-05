@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.84 2007-10-21 11:58:43 f Exp $
+ * $Id: numbers.c,v 1.85 2008-02-05 16:28:59 f Exp $
  */
 
 #include "irc.h"
@@ -1772,8 +1772,13 @@ numbered_command(from, comm, ArgList)
 #define RPL_CLOSEEND         363
 #define RPL_SERVLISTEND      235
 		case 315:		/* #define RPL_ENDOFWHO         315 */
-			if (cannot_open != (char *) 0)
-				yell("Cannot open: %s", cannot_open);
+			if (who_mask & WHO_FILE) {
+				if (cannot_open != (char *) 0) {
+					yell("Cannot open: %s", cannot_open);
+					cannot_open = (char *) 0;
+				}
+				who_mask &= ~WHO_FILE;
+			}
 
 		case 323:               /* #define RPL_LISTEND          323 */
 			funny_print_widelist();

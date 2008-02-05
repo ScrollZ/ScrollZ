@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.111 2007-08-21 12:52:48 f Exp $
+ * $Id: edit.c,v 1.112 2008-02-05 16:28:59 f Exp $
  */
 
 #include "irc.h"
@@ -2274,10 +2274,10 @@ who(command, args, subargs)
 			}
 			else if (strncmp(cmd, "file", len) == 0)
 			{
-				who_mask |= WHO_FILE;
 				if ((arg = next_arg(args, &args)) != NULL)
 				{
 					malloc_strcpy(&who_file, arg);
+					who_mask |= WHO_FILE;
 				}
 				else
 				{

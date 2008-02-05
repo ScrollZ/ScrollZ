@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.79 2007-09-26 08:43:47 f Exp $
+ * $Id: parse.c,v 1.80 2008-02-05 16:28:59 f Exp $
  */
 
 #include "irc.h"
@@ -508,7 +508,7 @@ whoreply(from, ArgList)
         int     show_server = 0;
 /****************************************************************************/
 
-	FILE	*fip;
+	FILE	*fip = NULL;
 	char	buf_data[BUFSIZ];
 
 	if (last_width != get_int_var(CHANNEL_NAME_WIDTH_VAR))
@@ -539,12 +539,14 @@ whoreply(from, ArgList)
  	if (*status == 'S')	/* this only true for the header WHOREPLY */
 	{
 		channel = "Channel";
-		if (((who_mask & WHO_FILE) == 0) || (fopen (who_file, "r")))
+		if (((who_mask & WHO_FILE) == 0) || (fip = fopen (who_file, "r")))
 		{
 			if (do_hook(WHO_LIST, "%s %s %s %s %s %s", channel,
  					nick, status, user, host, ArgList[6]))
  				put_it(format, channel, nick, status, user,
 					host, ArgList[6]);
+			if (fip)
+				fclose(fip);
 			return;
 		}
 	}
