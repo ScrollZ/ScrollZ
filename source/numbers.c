@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.85 2008-02-05 16:28:59 f Exp $
+ * $Id: numbers.c,v 1.86 2008-02-11 18:47:59 f Exp $
  */
 
 #include "irc.h"
@@ -790,10 +790,10 @@ cannot_join_channel(from, ArgList)
 /**************************** PATCHED by Flier ******************************/
         /*PasteArgs(ArgList, 0);
 	strcpy(buffer, ArgList[0]);*/
-        if (-current_numeric == 437) {
+        if (-current_numeric == 437 || -current_numeric == 479) {
             /* special case for ircd 2.9 */
             strmcpy(buffer, ArgList[0], sizeof(buffer));
-            strmcat(buffer, " Cannot join channel ", sizeof(buffer));
+            strmcat(buffer, " Cannot join channel", sizeof(buffer));
         }
         else if (-current_numeric == 515) {
             PasteArgs(ArgList, 1);
@@ -856,6 +856,9 @@ cannot_join_channel(from, ArgList)
 		case 477:
 			strmcat(buffer, " (You must first identify yourself with NickServ to join that channel)", sizeof(buffer));
                         break;
+		case 479:
+			strmcat(buffer, " (Illegal channel name)", sizeof(buffer));
+			break;
 		case 515:
 			strmcat(buffer, " (You need to be identified to join that channel)", sizeof(buffer));
                         break;
@@ -1401,6 +1404,7 @@ numbered_command(from, comm, ArgList)
  	case 476:		/* #define ERR_BADCHANMASK      476 */
 /**************************** PATCHED by Flier ******************************/
  	case 477:               /* restricted to identified users */
+	case 479:		/* illegal channel name */
  	case 276:               /* hybrid7 - virtual channels       */
  	case 515:               /* freenode - restricted to identified users */
 /****************************************************************************/
