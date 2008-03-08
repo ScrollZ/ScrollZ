@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.48 2007-08-12 10:54:14 f Exp $
+ * $Id: dcc.c,v 1.49 2008-03-08 16:54:24 f Exp $
  */
 
 #include "irc.h"
@@ -2779,18 +2779,29 @@ dcc_message_transmit(user, text, type, flag)
 #ifdef HAVE_WRITEV
 	{
 		struct iovec iov[2];
+/**************************** PATCHED by Flier *****************************/
+                int cnt = 2;
+
+                if (type == DCC_RAW) cnt = 1;
+/***************************************************************************/
 
 		iov[0].iov_base = line;
  		iov[0].iov_len = len = strlen(line);
  		iov[1].iov_base = "\n";
 		iov[1].iov_len = 1;
 		len++;
- 		(void)writev(Client->write, iov, 2);
+/**************************** PATCHED by Flier *****************************/
+ 		/*(void)writev(Client->write, iov, 2);*/
+ 		(void)writev(Client->write, iov, cnt);
+/***************************************************************************/
 	}
 #else
  	/* XXX XXX XXX THIS IS TERRIBLE! XXX XXX XXX */
 #define CRYPT_BUFFER_SIZE (IRCD_BUFFER_SIZE - 50)    /* XXX XXX FROM: crypt.c XXX XXX */
-	strmcat(line, "\n", (size_t)((line == tmp) ? BIG_BUFFER_SIZE : CRYPT_BUFFER_SIZE));
+/**************************** PATCHED by Flier *****************************/
+	/*strmcat(line, "\n", (size_t)((line == tmp) ? BIG_BUFFER_SIZE : CRYPT_BUFFER_SIZE));*/
+	if (type != DCC_RAW) strmcat(line, "\n", (size_t)((line == tmp) ? BIG_BUFFER_SIZE : CRYPT_BUFFER_SIZE));
+/***************************************************************************/
 	len = strlen(line);
  	(void)send(Client->write, line, len, 0);
 #endif
