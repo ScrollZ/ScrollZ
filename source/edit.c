@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.113 2008-03-08 15:22:13 f Exp $
+ * $Id: edit.c,v 1.114 2008-03-08 15:43:13 f Exp $
  */
 
 #include "irc.h"
@@ -2608,6 +2608,10 @@ e_privmsg(command, args, subargs)
 		*subargs;
 {
 	char	*nick;
+/**************************** PATCHED by Flier ******************************/
+        int     orig_server = -1;
+        char    *server;
+/****************************************************************************/
 
 	if ((nick = next_arg(args, &args)) != NULL)
 	{
@@ -2632,9 +2636,29 @@ e_privmsg(command, args, subargs)
 			if (!(nick = get_channel_by_refnum(0)))
 				nick = irczero;
 /**************************** PATCHED by Flier ******************************/
-                if (my_stricmp(nick,"0")) AddNick2List(nick,from_server);
+		if (!my_stricmp(nick, "-server")) {
+                    int i;
+
+                    if ((server = next_arg(args, &args)) == NULL) {
+                        say("You have to specify a server with -server");
+                        return;
+                    }
+                    if ((nick = next_arg(args, &args)) == NULL)
+                        say("You must specify a nickname or channel!");
+                    i = find_in_server_list(server, 0, NULL);
+                    if (i == -1) {
+                        say("Server %s not found", server);
+                        return;
+                    }
+                    orig_server = from_server;
+                    from_server = i;
+                }
+                if (my_stricmp(nick, "0")) AddNick2List(nick, from_server);
 /****************************************************************************/
 		send_text(nick, args, command);
+/**************************** PATCHED by Flier ******************************/
+                if (orig_server != -1) from_server = orig_server;
+/****************************************************************************/
 	}
 	else
 		say("You must specify a nickname or channel!");
