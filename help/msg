@@ -1,4 +1,4 @@
-!	$Id: msg,v 1.3 2002-02-19 19:43:28 f Exp $
+!	$Id: msg,v 1.4 2008-03-08 15:42:48 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -6,7 +6,7 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: MSG <nicknames>|<channel>|%<pid>|=<nick>|@<user>|<n>|<command> <text>
+Usage: MSG [-server <server name>] <nicknames>|<channel>|%<pid>|=<nick>|@<user>|<n>|<command> <text>
   Sends a private message to the nicknames or list of nicknames
   specified.  A list of nicknames should by separated by commas
   (no spaces).  Four special case nicknames are defined.  If the
@@ -41,6 +41,9 @@ Usage: MSG <nicknames>|<channel>|%<pid>|=<nick>|@<user>|<n>|<command> <text>
   The last form allows messages of the type MSG COMMAND <message>
   which allows you to send a message to some command.  Try MSG /ECHO blue
   This is meant to be used with QUERY primarily.
+
+  Optional -server allows you to specify through server you wish to
+  send message.
 
 *  There is also a use of wildcards for operators.
 *    MSG $*.edu
