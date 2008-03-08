@@ -352,6 +352,9 @@
 /* Define this if you have regexec(), POSIX.2 systems do */
 #undef HAVE_REGCOMP
 
+/* Define this if you have MIRACL library */
+#undef HAVE_MIRACL
+
 /* Define this if you want one OperVision window for several servers */
 #undef MULTI_SERVER_OV
 

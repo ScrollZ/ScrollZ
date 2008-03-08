@@ -1,0 +1,12 @@
+!      $Id: keyx,v 1.1 2008-03-08 15:22:13 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: KEYX nick
+  Initiate DH1080 key exchange with nick
+
+See also:
+  ENCRMSG

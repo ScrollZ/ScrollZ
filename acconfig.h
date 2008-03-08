@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.13 2006-04-30 14:15:43 f Exp $
+ * $Id: acconfig.h,v 1.14 2008-03-08 15:22:13 f Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -291,4 +291,7 @@
 
 /* define this if you have regexec() */
 #undef HAVE_REGCOMP
+
+/* define this if you have MIRACL library */
+#undef HAVE_MIRACL
 /****************************************************************************/

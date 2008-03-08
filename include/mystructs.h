@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.12 2006-07-21 16:11:27 f Exp $
+ * $Id: mystructs.h,v 1.13 2008-03-08 15:22:13 f Exp $
  */
 
 /* don't change!! */
@@ -144,6 +144,7 @@ struct encrstr {
     struct encrstr *next;
     char *user;
     char *key;
+    int type; /* 0 = SZ crypto, 2 = FiSH */
 };
 
 struct channels {

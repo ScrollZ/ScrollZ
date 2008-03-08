@@ -25,6 +25,28 @@ ScrollZ
     + $chr() which returns string from a list of ascii codes
     ! DCC RAW connections executed connect hook too early when
       non blocking connections were enabled
+    ! ScrollZ now runs fine on Mac OS X x86
+    + SHOWCHAN which allows one to hide certain channels from
+      status bar (requested by juha)
+    + LISTN now has options to list only online/offline notifies
+      (requested by ol@fson)
+    ! STRSTR() which returned wrong string
+    ! SET AWAY_FILE now accepts full path for ScrollZ.away file
+      (reported by gebion)
+    + URL catcher now also handles channel topics
+    ! don't print join sync msg when sending mode #chan +b, this
+      happens upon receiveing channel operator status after join
+      because we send MODE #chan e to obtain ban exceptions
+      (reported by wiz)
+    + ISO-2022-JP encoding support, /SET ISO2022_SUPPORT ON
+      if you need it
+    ! bug when nick ended with a tilde, client would still show
+      nick as present even though they parted the channel
+      (reported by juha)
+    ! WHO -FILE fixes by braneded
+    + support for numeric #479 (illegal channel name, coded by
+      braneded)
+    + FiSH support has been integrated in main src
 
 ------------------------------------------------------------------------------
 

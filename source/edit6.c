@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.163 2007-09-27 15:31:53 f Exp $
+ * $Id: edit6.c,v 1.164 2008-03-08 15:22:14 f Exp $
  */
 
 #include "irc.h"
@@ -2318,17 +2318,33 @@ char *key;
         user++;
     }
     tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, !REMOVE_FROM_LIST);
-    if (tmp) malloc_strcpy(&(tmp->key), key);
+    if (tmp) {
+        if (*key == '+') {
+            tmp->type = 2;
+            key++;
+        }
+        malloc_strcpy(&(tmp->key), key);
+    }
     else {
         tmp = (struct encrstr *) new_malloc(sizeof(struct encrstr));
         tmp->next = (struct encrstr *) 0;
         tmp->user = (char *) 0;
         tmp->key = (char *) 0;
+        tmp->type = 0;
+        if (*key == '+') {
+            tmp->type = 2;
+            key++;
+        }
         malloc_strcpy(&(tmp->user), user);
         malloc_strcpy(&(tmp->key), key);
         add_to_list((List **) &encrlist, (List *) tmp);
     }
-    if (show_keys) say("Communication with %s will be encrypted using key %s", tmp->user, tmp->key);
+    if (show_keys) {
+        if (tmp->type == 2)
+            say("Communication with %s will be encrypted using key %s (FiSH)", tmp->user, tmp->key);
+        else say("Communication with %s will be encrypted using key %s", tmp->user, tmp->key);
+    }
+    else if (tmp->type == 2) say("Communication with %s will be encrypted using FiSH", tmp->user);
     else say("Communication with %s will be encrypted", tmp->user);
 }
 
@@ -2404,8 +2420,11 @@ void EncryptList(char *flags)
         }
         else {
             if (tmp == encrlist) say("Listing all users on encryption list");
-            if (show_keys) say("User %s with key %s", tmp->user, tmp->key);
-            else say("User %s", tmp->user);
+            if (show_keys) say("User %s with key %s%s%s", tmp->user, tmp->key,
+                               tmp->type ? " " : empty_string,
+                               tmp->type ? "(FiSH)" : empty_string);
+            else say("User %s%s%s", tmp->user, tmp->type ? " " : empty_string,
+                     tmp->type ? "(FiSH)" : empty_string);
         }
         tmp = tmpnext;
     }
@@ -2413,32 +2432,36 @@ void EncryptList(char *flags)
 }
 
 /* Encrypt message */
-int EncryptMessage(message,user)
+int EncryptMessage(message, user)
 char *message;
 char *user;
 {
+    int type = 1;
     struct encrstr *tmp;
 
-    if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
-                                            !REMOVE_FROM_LIST))) {
+    if ((tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS,
+                                              !REMOVE_FROM_LIST))) {
         /* cut long messages before irc server does it so we don't have
            problems at the other end during decryption */
-        if (strlen(message)>SZMAXCRYPTSIZE) message[SZMAXCRYPTSIZE]='\0';
-        return(EncryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1));
+        if (strlen(message) > SZMAXCRYPTSIZE) message[SZMAXCRYPTSIZE] = '\0';
+        if (tmp->type == 2) type = 2;
+        return(EncryptString(message, message, tmp->key, BIG_BUFFER_SIZE - 16, type));
     }
     return(0);
 }
 
 /* Decrypt message */
-int DecryptMessage(message,user)
+int DecryptMessage(message, user)
 char *message;
 char *user;
 {
+    int type = 1;
     struct encrstr *tmp;
 
-    if ((tmp=(struct encrstr *) list_lookup((List **) &encrlist,user,!USE_WILDCARDS,
-                                            !REMOVE_FROM_LIST))) {
-        return(DecryptString(message,message,tmp->key,BIG_BUFFER_SIZE-16,1));
+    if ((tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS,
+                                              !REMOVE_FROM_LIST))) {
+        if (tmp->type == 2) type = 2;
+        return(DecryptString(message, message, tmp->key, BIG_BUFFER_SIZE - 16, type));
     }
     return(0);
 }

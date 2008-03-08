@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.11 2001-11-17 10:57:44 f Exp $
+ * $Id: blowfish.c,v 1.12 2008-03-08 15:22:13 f Exp $
  */
 
 #include "irc.h"
@@ -19,6 +19,8 @@
 #define NUMSBOX       2
 #define SZCRYPTSTROLD "++SZ"
 #define SZCRYPTSTR    "+/SZ"
+#define SZBLOWSTR1    "+OK "
+#define SZBLOWSTR2    "mcps "
 #define SZOLDCRYPT    '-'
 
 static char *base64="./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -28,12 +30,12 @@ static char encrbuf[BIG_BUFFER_SIZE+1];
 static unsigned int pbox[NUMPBOX+2];
 static unsigned int sbox[NUMSBOX][256];
 
-static unsigned int PBOX[NUMPBOX+2]={
+static unsigned int PBOX[NUMPBOX+2] = {
     0x243A6A88, 0x85C308D3, 0x17198A2E, 0x03787344, 0xA9093822, 0x499F31D0,
     0x082E6A98, 0xEC3E6C89, 0xC52821E6, 0x38D013F7, 0xBE5E66CF, 0x54E90C6C,
     0xC0A329B7, 0xC57C50DD, 0x3F84DDB5, 0xB5440917, 0x9218D5D9, 0x8379FB1B
 };
-static unsigned int SBOX[NUMSBOX][256]={
+static unsigned int SBOX[NUMSBOX][256] = {
     {
         0xA1310BA6, 0x38DFB5AC, 0x4FFD72DB, 0x501ADFB7, 0xA8E1AFED, 0x6A257E96,
         0xBA7C9045, 0xF12C7F99, 0x24A19947, 0xB3916CF7, 0x0801F2E2, 0x858EFC16,
@@ -126,116 +128,121 @@ static unsigned int SBOX[NUMSBOX][256]={
     }
 };
 
+#ifdef HAVE_MIRACL
+extern FishDecrypt _((char *, char *, char *, int));
+extern FishEncrypt _((char *, char *, char *, int));
+#endif
+
 static unsigned int F(x)
 unsigned int x;
 {
-    unsigned int a,b,c,d,y;
+    unsigned int a, b, c, d, y;
 
-    d=x&0xFF;
-    x>>=8;
-    c=x&0xFF;
-    x>>=8;
-    b=x&0xFF;
-    x>>=8;
-    a=x&0xFF;
-    y=sbox[0][a]+sbox[1][b];
-    y=y^sbox[1][c];
-    y=y+sbox[0][d];
+    d = x & 0xFF;
+    x >>= 8;
+    c = x & 0xFF;
+    x >>= 8;
+    b = x & 0xFF;
+    x >>= 8;
+    a = x & 0xFF;
+    y = sbox[0][a] + sbox[1][b];
+    y = y ^ sbox[1][c];
+    y = y + sbox[0][d];
     return(y);
 }
 
-static void BlowfishEncipher(xl,xr)
+static void BlowfishEncipher(xl, xr)
 unsigned int *xl;
 unsigned int *xr;
 {
     int i;
-    unsigned int Xl,Xr,temp;
+    unsigned int Xl, Xr, temp;
 
-    Xl=*xl;
-    Xr=*xr;
-    for (i=0;i<NUMPBOX;++i) {
-        Xl=Xl^pbox[i];
-        Xr=F(Xl)^Xr;
-        temp=Xl;
-        Xl=Xr;
-        Xr=temp;
+    Xl = *xl;
+    Xr = *xr;
+    for (i = 0; i < NUMPBOX; ++i) {
+        Xl = Xl ^ pbox[i];
+        Xr = F(Xl) ^ Xr;
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
     }
-    temp=Xl;
-    Xl=Xr;
-    Xr=temp;
-    Xr=Xr^pbox[NUMPBOX];
-    Xl=Xl^pbox[NUMPBOX+1];
-    *xl=Xl;
-    *xr=Xr;
+    temp = Xl;
+    Xl = Xr;
+    Xr = temp;
+    Xr = Xr ^ pbox[NUMPBOX];
+    Xl = Xl ^ pbox[NUMPBOX + 1];
+    *xl = Xl;
+    *xr = Xr;
 }
 
-static void BlowfishDecipher(xl,xr)
+static void BlowfishDecipher(xl, xr)
 unsigned int *xl;
 unsigned int *xr;
 {
     int i;
-    unsigned int Xl,Xr,temp;
+    unsigned int Xl, Xr, temp;
 
-    Xl=*xl;
-    Xr=*xr;
-    for (i=NUMPBOX+1;i>1;--i) {
-        Xl=Xl^pbox[i];
-        Xr=F(Xl)^Xr;
-        temp=Xl;
-        Xl=Xr;
-        Xr=temp;
+    Xl = *xl;
+    Xr = *xr;
+    for (i = NUMPBOX + 1; i > 1; --i) {
+        Xl = Xl ^ pbox[i];
+        Xr = F(Xl) ^ Xr;
+        temp = Xl;
+        Xl = Xr;
+        Xr = temp;
     }
-    temp=Xl;
-    Xl=Xr;
-    Xr=temp;
-    Xr=Xr^pbox[1];
-    Xl=Xl^pbox[0];
-    *xl=Xl;
-    *xr=Xr;
+    temp = Xl;
+    Xl = Xr;
+    Xr = temp;
+    Xr = Xr ^ pbox[1];
+    Xl = Xl ^ pbox[0];
+    *xl = Xl;
+    *xr = Xr;
 }
 
-static void BlowfishInit(key,keybytes,oldkey)
+static void BlowfishInit(key, keybytes, oldkey)
 char *key;
 int keybytes;
 int oldkey;
 {
-    int i,j,k,cnt;
-    unsigned int data,datal,datar;
+    int i, j, k, cnt;
+    unsigned int data, datal, datar;
 
-    memcpy(pbox,PBOX,sizeof(PBOX));
-    memcpy(sbox,SBOX,sizeof(SBOX));
-    j=0;
-    cnt=0;
-    for (i=0;i<NUMPBOX+2;++i) {
-        data=0;
-        for (k=0;k<4;++k) {
-            data=(data<<8)|key[j];
+    memcpy(pbox, PBOX, sizeof(PBOX));
+    memcpy(sbox, SBOX, sizeof(SBOX));
+    j = 0;
+    cnt = 0;
+    for (i = 0; i < NUMPBOX + 2; ++i) {
+        data = 0;
+        for (k = 0; k < 4; ++k) {
+            data = (data << 8) | key[j];
             j++;
-            if (j>=keybytes) {
-                j=0;
+            if (j >= keybytes) {
+                j = 0;
                 cnt++;
             }
         }
-        pbox[i]=pbox[i]^data;
-        if (!oldkey) pbox[i]^=cnt;
+        pbox[i] = pbox[i] ^ data;
+        if (!oldkey) pbox[i] ^= cnt;
     }
-    datal=0;
-    datar=0;
-    for (i=0;i<NUMPBOX+2;i+=2) {
-        BlowfishEncipher(&datal,&datar);
-        pbox[i]=datal;
-        pbox[i+1]=datar;
+    datal =0;
+    datar =0;
+    for (i = 0; i < NUMPBOX + 2; i += 2) {
+        BlowfishEncipher(&datal, &datar);
+        pbox[i] = datal;
+        pbox[i + 1] = datar;
     }
-    for (i=0;i<NUMSBOX;++i) {
-        for (j=0;j<256;j+=2) {
-            BlowfishEncipher(&datal,&datar);
-            sbox[i][j]=datal;
-            sbox[i][j+1]=datar;
+    for (i = 0; i < NUMSBOX; ++i) {
+        for (j = 0; j < 256; j += 2) {
+            BlowfishEncipher(&datal, &datar);
+            sbox[i][j] = datal;
+            sbox[i][j + 1] = datar;
         }
     }
 }
 
-int EncryptString(dest,src,key,bufsize,szenc)
+int EncryptString(dest, src, key, bufsize, szenc)
 char *dest;
 char *src;
 char *key;
@@ -243,41 +250,46 @@ int  bufsize;
 int  szenc;
 {
     int i;
-    int oldk=0;
-    unsigned int l,r;
-    unsigned char *s,*d;
+    int oldk = 0;
+    unsigned int l, r;
+    unsigned char *s, *d;
 
-    if (szenc) {
-        if (*key==SZOLDCRYPT) {
-            oldk=1;
+    if (szenc == 1) {
+        if (*key == SZOLDCRYPT) {
+            oldk = 1;
             key++;
         }
     }
-    else oldk=1;
-    BlowfishInit(key,strlen(key),oldk);
-    strmcpy(encrbuf,src,bufsize);
-    s=encrbuf+strlen(encrbuf);
-    for (i=0;i<8;i++) *s++='\0';
-    s=encrbuf;
-    d=dest;
+#ifdef HAVE_MIRACL
+    else if (szenc == 2) {
+        return(FishEncrypt(dest, src, key, bufsize));
+    }
+#endif
+    else oldk = 1;
+    BlowfishInit(key, strlen(key), oldk);
+    strmcpy(encrbuf, src, bufsize);
+    s = encrbuf + strlen(encrbuf);
+    for (i = 0; i < 8; i++) *s ++= '\0';
+    s = encrbuf;
+    d = dest;
     if (szenc) {
-        strcpy(dest,oldk?SZCRYPTSTROLD:SZCRYPTSTR);
-        d+=strlen(dest);
+        strcpy(dest, oldk ? SZCRYPTSTROLD : SZCRYPTSTR);
+        d += strlen(dest);
     }
     while (s && *s) {
-        l=((*s++)<<24); l|=((*s++)<<16); l|=((*s++)<<8); l|=*s++;
-        r=((*s++)<<24); r|=((*s++)<<16); r|=((*s++)<<8); r|=*s++;
-        BlowfishEncipher(&l,&r);
-        for (i=0;i<6;i++) {
-            *d++=base64[r&0x3F];
-            r=(r>>6);
+        l =((*s++) << 24); l |= ((*s++) << 16); l |=((*s++) << 8); l |= *s++;
+        r =((*s++) << 24); r |= ((*s++) << 16); r |=((*s++) << 8); r |= *s++;
+        BlowfishEncipher(&l, &r);
+        for (i = 0; i < 6; i++) {
+            *d ++= base64[r & 0x3F];
+            r = (r >> 6);
         }
-        for (i=0;i<6;i++) {
-            *d++=base64[l&0x3F];
-            l=(l>>6);
+        for (i = 0; i < 6; i++) {
+            *d ++= base64[ l & 0x3F];
+            l = (l >> 6);
         }
     }
-    *d=0;
+    *d = 0;
     return(szenc);
 }
 
@@ -286,11 +298,11 @@ char c;
 {
     int i;
 
-    for (i=0;i<64;i++) if (base64[i]==c) return(i);
+    for (i = 0; i < 64; i++) if (base64[i] == c) return(i);
     return(0);
 }
 
-int DecryptString(dest,src,key,bufsize,szenc)
+int DecryptString(dest, src, key, bufsize, szenc)
 char *dest;
 char *src;
 char *key;
@@ -298,35 +310,41 @@ int  bufsize;
 int  szenc;
 {
     int i;
-    int oldk=0;
-    unsigned int l,r;
-    unsigned char *s,*d,*x=src;
+    int oldk = 0;
+    unsigned int l, r;
+    unsigned char *s, *d, *x = src;
 
     if (szenc) {
-        if (!(!strncmp(x,SZCRYPTSTR,4) || !strncmp(x,SZCRYPTSTROLD,4))) {
-            strmcpy(dest,x,bufsize);
+        if (!(!strncmp(x, SZCRYPTSTR, 4) || !strncmp(x, SZCRYPTSTROLD, 4) ||
+              !strncmp(x, SZBLOWSTR1, 4) || !strncmp(x, SZBLOWSTR2, 5))) {
+            strmcpy(dest, x, bufsize);
             return(0);
         }
-        if (!strncmp(x,SZCRYPTSTROLD,4)) oldk=1;
-        x+=strlen(SZCRYPTSTR);
+#ifdef HAVE_MIRACL
+        if (!strncmp(x, SZBLOWSTR1, 4) || !strncmp(x, SZBLOWSTR2, 5)) {
+            return(FishDecrypt(dest, src, key, bufsize));
+        }
+#endif
+        if (!strncmp(x, SZCRYPTSTROLD, 4)) oldk = 1;
+        x += strlen(SZCRYPTSTR);
     }
-    else oldk=1;
-    if (oldk && *key==SZOLDCRYPT) key++;
-    BlowfishInit(key,strlen(key),oldk);
-    strmcpy(encrbuf,x,bufsize);
-    s=encrbuf+strlen(encrbuf);
-    for (i=0;i<12;i++) *s++='\0';
-    s=x;
-    d=dest;
+    else oldk = 1;
+    if (oldk && *key == SZOLDCRYPT) key++;
+    BlowfishInit(key, strlen(key), oldk);
+    strmcpy(encrbuf, x, bufsize);
+    s = encrbuf + strlen(encrbuf);
+    for (i = 0; i < 12; i++) *s ++= '\0';
+    s = x;
+    d = dest;
     while (s && *s) {
-        l=0;
-        r=0;
-        for (i=0;i<6;i++) r|=(Base64Decode(*s++))<<(i*6);
-        for (i=0;i<6;i++) l|=(Base64Decode(*s++))<<(i*6);
-        BlowfishDecipher(&l,&r);
-        for (i=0;i<4;i++) *d++=(l & (0xFF<<((3-i)*8)))>>((3-i)*8);
-        for (i=0;i<4;i++) *d++=(r & (0xFF<<((3-i)*8)))>>((3-i)*8);
+        l = 0;
+        r = 0;
+        for (i = 0;i < 6; i++) r |= (Base64Decode(*s++)) << (i * 6);
+        for (i = 0;i < 6; i++) l |= (Base64Decode(*s++)) << (i * 6);
+        BlowfishDecipher(&l, &r);
+        for (i =0 ; i < 4; i++) *d ++= (l & (0xFF << ((3 - i) * 8))) >> ((3 - i) * 8);
+        for (i =0 ; i < 4; i++) *d ++= (r & (0xFF << ((3 - i) * 8))) >> ((3 - i) * 8);
     }
-    *d=0;
+    *d = 0;
     return(szenc);
 }

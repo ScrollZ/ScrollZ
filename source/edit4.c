@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.118 2007-10-21 11:58:43 f Exp $
+ * $Id: edit4.c,v 1.119 2008-03-08 15:22:14 f Exp $
  */
 
 #include "irc.h"
@@ -163,6 +163,9 @@ extern char *TimeStamp _((int));
 extern struct autobankicks *FindShit _((char *, char *));
 extern void ChannelLogReport _((char *, ChannelList *));
 extern void ChannelLogSave _((char *, ChannelList *));
+#ifdef HAVE_MIRACL
+extern void FishAddRemoteKey _((char *, char *));
+#endif
 
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
@@ -183,17 +186,17 @@ extern DCC_list *ClientList;
 extern IrcCommand irc_command[];
 
 /* Prints received message */
-void PrintMessage(nick,userhost,msg,print,iscrypted)
+void PrintMessage(nick, userhost, msg, print, iscrypted)
 char *nick;
 char *userhost;
 char *msg;
 int  print;
 int  iscrypted;
 {
-    int  numurl=0;
+    int  numurl = 0;
     char *thing;
     char *message;
-    char *filepath=NULL;
+    char *filepath = NULL;
     char tmpbuf1[mybufsize];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize];
@@ -201,78 +204,86 @@ int  iscrypted;
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
 #ifndef TDF
-    char *stampbuf=TimeStamp(2);
+    char *stampbuf = TimeStamp(2);
 #endif
+    char *cstr = empty_string;
 
-    if (!(userhost && *userhost)) userhost=(char *) 0;
+    if (!(userhost && *userhost)) userhost = NULL;
 #ifdef HAVE_ICONV_H
-    if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\231";
+    if (get_int_var(HIGH_ASCII_VAR)) thing = "\342\210\231";
 #else
-    if (get_int_var(HIGH_ASCII_VAR)) thing="ù";
+    if (get_int_var(HIGH_ASCII_VAR)) thing = "ù";
 #endif /* HAVE_ICONV_H */
-    else thing="*";
+    else thing = "*";
     if (URLCatch) {
-        filepath=OpenCreateFile("ScrollZ.notepad",1);
-        numurl=GrabURL(msg,tmpbuf4,filepath,nick);
-        message=tmpbuf4;
+        filepath = OpenCreateFile("ScrollZ.notepad", 1);
+        numurl = GrabURL(msg,tmpbuf4,filepath,nick);
+        message = tmpbuf4;
     }
-    else message=msg;
-    *tmpbuf3='\0';
+    else message = msg;
+    *tmpbuf3 = '\0';
 #ifdef WANTANSI
 #ifdef CELECOSM
     if (ExtMes && userhost)
-        ColorUserHost(userhost,CmdsColors[COLMSG].color2,tmpbuf2,1);
-    else *tmpbuf2='\0';
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s[%s%s%s%s%s%s]%s %s%s%s",
-            CmdsColors[COLMSG].color5,Colors[COLOFF],
-            CmdsColors[COLMSG].color1,nick,Colors[COLOFF],tmpbuf2,
-            CmdsColors[COLMSG].color5,Colors[COLOFF],
-            CmdsColors[COLMSG].color3,message,Colors[COLOFF]);
+        ColorUserHost(userhost, CmdsColors[COLMSG].color2, tmpbuf2, 1);
+    else *tmpbuf2 = '\0';
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s[%s%s%s%s%s%s]%s %s%s%s",
+            CmdsColors[COLMSG].color5, Colors[COLOFF],
+            CmdsColors[COLMSG].color1, nick, Colors[COLOFF], tmpbuf2,
+            CmdsColors[COLMSG].color5, Colors[COLOFF],
+            CmdsColors[COLMSG].color3, message, Colors[COLOFF]);
     if (Stamp<2)
-        snprintf(tmpbuf3,sizeof(tmpbuf3),"  <%s%s%s>",CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
+        snprintf(tmpbuf3, sizeof(tmpbuf3), "  <%s%s%s>",
+                 CmdsColors[COLMSG].color4, update_clock(0, 0, GET_TIME), Colors[COLOFF]);
 #else  /* CELECOSM */
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s%s%s %s%s%s",
-            thing,CmdsColors[COLMSG].color1,nick,Colors[COLOFF],thing,
-            CmdsColors[COLMSG].color3,message,Colors[COLOFF]);
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s%s%s %s%s%s",
+            thing, CmdsColors[COLMSG].color1, nick, Colors[COLOFF], thing,
+            CmdsColors[COLMSG].color3, message, Colors[COLOFF]);
     if (ExtMes && userhost) {
-        ColorUserHost(userhost,CmdsColors[COLMSG].color2,tmpbuf2,1);
+        ColorUserHost(userhost, CmdsColors[COLMSG].color2, tmpbuf2, 1);
 #ifdef TDF
-        snprintf(tmpbuf3,sizeof(tmpbuf3),"  <[%s%s%s]%s>",
-                CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],tmpbuf2);
+        snprintf(tmpbuf3, sizeof(tmpbuf3), "  <[%s%s%s]%s>",
+                CmdsColors[COLMSG].color4, update_clock(0, 0, GET_TIME), Colors[COLOFF],
+                tmpbuf2);
 #else  /* TDF */
-        if (Stamp<2)
-            snprintf(tmpbuf3,sizeof(tmpbuf3),"  %s [%s%s%s]",tmpbuf2,
-                    CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF]);
-        else snprintf(tmpbuf3,sizeof(tmpbuf3),"  %s",tmpbuf2);
+        if (Stamp < 2)
+            snprintf(tmpbuf3, sizeof(tmpbuf3), "  %s [%s%s%s]", tmpbuf2,
+                    CmdsColors[COLMSG].color4, update_clock(0, 0, GET_TIME),
+                    Colors[COLOFF]);
+        else snprintf(tmpbuf3, sizeof(tmpbuf3), "  %s", tmpbuf2);
 #endif /* TDF */
     }
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s %s",thing,nick,thing,message);
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s %s", thing, nick, thing, message);
     if (ExtMes && userhost) {
-        if (Stamp<2) snprintf(tmpbuf3,sizeof(tmpbuf3),"  (%s) [%s]",userhost,update_clock(0,0,GET_TIME));
-        else snprintf(tmpbuf3,sizeof(tmpbuf3),"  (%s)",userhost);
+        if (Stamp < 2) snprintf(tmpbuf3, sizeof(tmpbuf3), "  (%s) [%s]", userhost,
+                                update_clock(0, 0, GET_TIME));
+        else snprintf(tmpbuf3, sizeof(tmpbuf3), "  (%s)", userhost);
     }
 #endif /* WANTANSI */
+    if (iscrypted == 2) cstr = "[*]";
+    else if (iscrypted) cstr = "[!]";
 #ifdef TDF
-    if (print) put_it("%s%s%s",iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
+    if (print) put_it("%s%s%s", cstr, tmpbuf1, tmpbuf3);
 #else
-    if (print) put_it("%s%s%s%s",stampbuf,iscrypted?"[!]":"",tmpbuf1,tmpbuf3);
+    if (print) put_it("%s%s%s%s", stampbuf, cstr, tmpbuf1, tmpbuf3);
 #endif
-    StripAnsi(message,tmpbuf3,2);
-    if (!(userhost && *userhost)) userhost=empty_string;
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"*%s* %s  (%s [%s])",nick,tmpbuf3,userhost,update_clock(0,0,GET_TIME));
-    malloc_strcpy(&(server_list[from_server].LastMessage),tmpbuf1);
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"*%s* %s  (%s)",nick,tmpbuf3,userhost);
+    StripAnsi(message, tmpbuf3, 2);
+    if (!(userhost && *userhost)) userhost = empty_string;
+    snprintf(tmpbuf1, sizeof(tmpbuf1), "*%s* %s  (%s [%s])", nick, tmpbuf3, userhost,
+             update_clock(0, 0, GET_TIME));
+    malloc_strcpy(&(server_list[from_server].LastMessage), tmpbuf1);
+    snprintf(tmpbuf1, sizeof(tmpbuf1),"*%s* %s  (%s)", nick, tmpbuf3, userhost);
     if (away_set || LogOn) {
-       AwaySave(tmpbuf1,SAVEMSG);
+       AwaySave(tmpbuf1, SAVEMSG);
        AwayMsgNum++;
        update_all_status();
     }
-    AddNick2List(nick,from_server);
-    if (URLCatch && URLCatch<3 && numurl)
-        say("Added %d URL%s to NotePad (%c%s%c)",numurl,numurl==1?"":"s",
-            bold,filepath,bold);
+    AddNick2List(nick, from_server);
+    if (URLCatch && URLCatch < 3 && numurl)
+        say("Added %d URL%s to NotePad (%c%s%c)",numurl, numurl == 1 ? "" : "s",
+            bold, filepath, bold);
 }
 
 /* Handles net splits */
@@ -1204,7 +1215,7 @@ int *iscrypted;
     ChannelList *chan;
     ChannelList *foundchan = NULL;
 
-    isme=!my_stricmp(to, get_server_nickname(parsing_server_index));
+    isme = !my_stricmp(to, get_server_nickname(parsing_server_index));
     strmcpy(tmpbuf, notice, mybufsize/16);
     upper(tmpbuf);
     wallop = strstr(tmpbuf,"WALL");
@@ -1233,11 +1244,21 @@ int *iscrypted;
     if ((*iscrypted == 0) && DecryptMessage(notice,nick)) *iscrypted = 1;
     /* Check for invite notices which might hold key */
     if (!print) {
-        if (!strncmp(notice, "You have been ctcp invited to ",30)) AddJoinKey(1, notice);
-        else if (!strncmp(notice, "Use channel key ",16)) AddJoinKey(2, notice);
-        else if (!strncmp(notice, "Channel key for ",17)) AddJoinKey(3, notice);
-        else if (!strncmp(notice, "Ctcp-inviting you to ",22)) AddJoinKey(4, notice);
-        else if (!strncmp(notice, "The channel ",12)) AddJoinKey(5, notice);
+        if (!strncmp(notice, "You have been ctcp invited to ", 30)) AddJoinKey(1, notice);
+        else if (!strncmp(notice, "Use channel key ", 16)) AddJoinKey(2, notice);
+        else if (!strncmp(notice, "Channel key for ", 17)) AddJoinKey(3, notice);
+        else if (!strncmp(notice, "Ctcp-inviting you to ", 22)) AddJoinKey(4, notice);
+        else if (!strncmp(notice, "The channel ", 12)) AddJoinKey(5, notice);
+#ifdef HAVE_MIRACL
+        else if (!strncmp(notice, "DH1080_FINISH ", 14) && to && !is_channel(to)) {
+            FishAddRemoteKey(nick, notice);
+            return(0);
+        }
+        else if (!strncmp(notice, "DH1080_INIT ", 12) && to && !is_channel(to)) {
+            FishAddRemoteKey(nick, notice);
+            return(0);
+        }
+#endif /* HAVE_MIRACL */
     }
     if (!foundchan
 #ifndef LITE
@@ -1248,6 +1269,10 @@ int *iscrypted;
         if (foundchan || (!foundchan && !print)) hooked = 0;
         if (print) {
             char *stampbuf = TimeStamp(2);
+            char *cstr = empty_string;
+
+            if (*iscrypted == 2) cstr = "[*]";
+            else if (*iscrypted) cstr = "[!]";
 
 #ifdef WANTANSI
 #ifdef CELECOSM
@@ -1258,18 +1283,18 @@ int *iscrypted;
             snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s%s%s%s%s%s", tmpbuf,
                     CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF],
                     isme ? "" : ":", isme ? "" : to, tmpbuf2, tmpbuf);
-            put_it("%s%s%s %s%s%s", *iscrypted ? "[!]" : "", stampbuf,
+            put_it("%s%s%s %s%s%s", cstr, stampbuf,
                     tmpbuf1, CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
 #else  /* CELECOSM */
             snprintf(tmpbuf, sizeof(tmpbuf), "%s-%s", CmdsColors[COLNOTICE].color5, Colors[COLOFF]);
             snprintf(tmpbuf2, sizeof(tmpbuf2), "%s%s%s%s", tmpbuf,
                     CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF]);
-            put_it("%s%s%s%s%s%s %s%s%s", *iscrypted ? "[!]" : "", stampbuf,
+            put_it("%s%s%s%s%s%s %s%s%s", cstr, stampbuf,
                    tmpbuf2, isme ? "" : ":", isme ? "" : to, tmpbuf,
                    CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
-            put_it("%s%s-%s%s%s- %s", *iscrypted ? "[!]" : "", stampbuf,
+            put_it("%s%s-%s%s%s- %s", cstr, stampbuf,
                     nick, isme ? "" : ":", isme ? "" : to, notice);
 #endif /* WANTANSI */
         }

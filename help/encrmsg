@@ -1,4 +1,4 @@
-!	 $Id: encrmsg,v 1.4 2003-01-08 20:00:54 f Exp $
+!	 $Id: encrmsg,v 1.5 2008-03-08 15:22:13 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
@@ -15,14 +15,15 @@ Usage: ENCRMSG [-PASS master password] [-CLEAR] [-SHOW] [target [key]]
   is ended. If neither user nor key are given all users in encryption
   list are listed. DCC CHAT sessions can be encrypted if nick starts
   with '='. Use '-' as first character in key if you want to communicate
-  with users of ScrollZ v1.8j and older. Whenever encrypted communication
-  is used publics and private messages are prepended with [!]. DCC CHAT
-  messages are encrypted if nick is enclosed in *. Warning: messages are
-  cut at 304 characters to avoid decryption problems when IRC server cuts
-  the message. To see the passwords used for encryption specify -SHOW.
-  To clear the encryption list specify -CLEAR. You can set master
-  password with command PASSWD. Use -PASS to specify master password
-  on a command line.
+  with users of ScrollZ v1.8j and older. Use '+' as first character in key
+  if you want to use FiSH encryption. Whenever encrypted communication
+  is used publics and private messages are prepended with [!] (* in case
+  of FiSH encryption). DCC CHAT messages are encrypted if nick is enclosed
+  in *. Warning: messages are cut at 304 characters to avoid decryption
+  problems when IRC server cuts the message. To see the passwords used
+  for encryption specify -SHOW.  To clear the encryption list specify
+  -CLEAR. You can set master password with command PASSWD. Use -PASS to
+  specify master password on a command line.
 
 See also:
   PASSWD

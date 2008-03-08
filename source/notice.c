@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.35 2006-03-22 17:16:49 f Exp $
+ * $Id: notice.c,v 1.36 2008-03-08 15:22:14 f Exp $
  */
 
 #include "irc.h"
@@ -349,9 +349,14 @@ parse_notice(from, Args)
 							    do_hook(type, "%s %s %s", from, to, line))
 /**************************** Patched by Flier ******************************/
 								/*put_it("%s-%s:%s-%s %s", high, from, to, high, line);*/
+                                                        {
+                                                            char *cstr = empty_string;
+                                                            
+                                                            if (iscrypted == 2) cstr = "[*]";
+                                                            else if (iscrypted) cstr = "[!]";
                                                             put_it("%s%s%s-%s:%s-%s %s",
-                                                                   iscrypted ? "[!]" : "",
-                                                                   stampbuf, high, from, to, high, line);
+                                                                   cstr, stampbuf, high, from, to, high, line);
+                                                        }
                                                         if (ChanLog) {
                                                             ChannelList *chan;
 

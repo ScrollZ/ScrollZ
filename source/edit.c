@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.112 2008-02-05 16:28:59 f Exp $
+ * $Id: edit.c,v 1.113 2008-03-08 15:22:13 f Exp $
  */
 
 #include "irc.h"
@@ -391,6 +391,9 @@ extern  void  ChannelLogSave _((char *, ChannelList *));
 extern  void  CdExceptions _((char *, char *, char *));
 extern  void  ExtendTopic _((char *, char *, char *));
 extern  void  TopicDelimiter _((char *, char *, char *));
+#ifdef HAVE_MIRACL
+extern  void  KeyExchange _((char *, char *, char *));
+#endif
 /* Coded by Zakath */
 extern	void  NewHost _((char *, char *, char *));
 extern	void  MegaReop _((char *, char *, char *));
@@ -661,6 +664,9 @@ IrcCommand irc_command[] =
   { "J", 		"JOIN", 	e_channel, 		SERVERREQ },
  	{ "JOIN",	"JOIN",		e_channel,		SERVERREQ },
   { "K", 		NULL, 		Kick, 			SERVERREQ },
+#ifdef HAVE_MIRACL
+  { "KEYX",		NULL,           KeyExchange,		SERVERREQ },
+#endif
  	{ "KICK",	"KICK",		send_channel_2args,	SERVERREQ },
   { "KICKONBAN", 	"KICKONBAN", 	ChannelCommand, 	0 },
   { "KICKONFLOOD", 	"KICKONFLOOD", 	ChannelCommand, 	0 },
@@ -3056,15 +3062,19 @@ send_text(org_nick, line, command)
 				else
 					put_it("%c%s> %s", the_thing, nick,
 						line);*/
+                                char *cstr = empty_string;
+
+                                if (iscrypted == 2) cstr = "[*]";
+                                else if (iscrypted) cstr = "[!]";
                                 if (current) {
                                     if (!my_stricmp(command, "NOTICE")) put_it("%s%s-%s- %s", 
-                                                                               iscrypted ? "[!]" : "",
+                                                                               cstr,
                                                                                stampbuf, nick, line);
                                     else PrintPublic(mynick, NULL, nick, line, 1, iscrypted);
                                 }
                                 else {
                                     if (!my_stricmp(command, "NOTICE")) put_it("%s%s-%s- %s",
-                                                                               iscrypted ? "[!]" : "",
+                                                                               cstr,
                                                                                stampbuf, nick, line);
                                     else PrintPublic(mynick, ":", nick, line, 1, iscrypted);
                                 }
@@ -3142,6 +3152,10 @@ send_text(org_nick, line, command)
 /**************************** PATCHED by Flier ******************************/ 
                         /*if (window_display && do_hook(list_type, "%s %s", nick, line))
 				put_it("-> %c%s%c %s", the_thing, nick, the_thing, line);*/
+                        char *cstr = empty_string;
+
+                        if (iscrypted == 2) cstr = "[*]";
+                        else if (iscrypted) cstr = "[!]";
                         if (window_display && do_hook(list_type, "%s %s", nick, line)) {
                             if (!my_stricmp(command, "NOTICE")) {
 #ifdef WANTANSI
@@ -3157,10 +3171,10 @@ send_text(org_nick, line, command)
                                         CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s%s %s%s%s", iscrypted ? "[!]" : "", stampbuf, tmpbuf,
+                                put_it("%s%s%s %s%s%s", cstr, stampbuf, tmpbuf,
                                         CmdsColors[COLNOTICE].color3, line, Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s%s<-%s-> %s", iscrypted ? "[!]" : "", stampbuf, nick, line);
+                                put_it("%s%s<-%s-> %s", cstr, stampbuf, nick, line);
 #endif /* WANTANSI */
                             }
                             else {
@@ -3177,10 +3191,10 @@ send_text(org_nick, line, command)
 					CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         thing, CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #endif /* CELECOSM */
-                                put_it("%s%s%s %s%s%s", stampbuf, iscrypted ? "[!]" : "", tmpbuf,
+                                put_it("%s%s%s %s%s%s", stampbuf, cstr, tmpbuf,
 				       CmdsColors[COLMSG].color3, line, Colors[COLOFF]);
 #else  /* WANTANSI */
-                                put_it("%s%s[%s%s%s] %s", stampbuf, iscrypted ? "[!]" : "",
+                                put_it("%s%s[%s%s%s] %s", stampbuf, cstr,
                                        thing, nick, thing, line);
 #endif /* WANTANSI */
                             }
