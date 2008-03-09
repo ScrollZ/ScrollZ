@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.102 2008-02-01 16:34:25 f Exp $
+ * $Id: edit2.c,v 1.103 2008-03-09 11:18:52 f Exp $
  */
 
 #include "irc.h"
@@ -1739,14 +1739,25 @@ char *command;
 char *args;
 char *subargs;
 {
+    int iscrypted;
     char *channel;
     char *tmparg;
+    char *x;
+    char *cstr = "";
+    char tmpbuf[BIG_BUFFER_SIZE + 1];
     ChannelList *chan;
 
     channel = get_channel_by_refnum(0);
+    x = tmpbuf;
     if (!(args && *args)) {
         if (channel && (chan = lookup_channel(channel, from_server, 0))) {
-            if (chan->topicstr) say("Topic for %s: %s", chan->channel, chan->topicstr);
+            if (chan->topicstr) {
+                strmcpy(tmpbuf, chan->topicstr, sizeof(tmpbuf));
+                iscrypted = DecryptMessage(tmpbuf, chan->channel);
+                if (iscrypted == 2) cstr = "[*]";
+                else if (iscrypted) cstr = "[!]";
+                say("Topic for %s%s: %s", cstr, chan->channel, x);
+            }
             else say("No topic is set for %s", chan->channel);
             if (chan->topicwho)
                 say("%s by %s on %.19s", chan->topicstr ? "Set" : "Unset",
@@ -1758,10 +1769,12 @@ char *subargs;
         if (!is_channel(args)) {
             if (channel) {
                 if ((chan = lookup_channel(channel, from_server, 0))) {
+                    strmcpy(tmpbuf, args, sizeof(tmpbuf));
+                    EncryptMessage(tmpbuf, channel);
                     if (((chan->mode) & MODE_TOPIC) && HAS_OPS(chan->status))
-                        send_to_server("TOPIC %s :%s", channel, args);
+                        send_to_server("TOPIC %s :%s", channel, tmpbuf);
                     else if ((chan->mode) & MODE_TOPIC) NotChanOp(channel);
-                    else send_to_server("TOPIC %s :%s", channel, args);
+                    else send_to_server("TOPIC %s :%s", channel, tmpbuf);
                 }
             }
             else NoWindowChannel();
@@ -1769,10 +1782,12 @@ char *subargs;
         else {
             tmparg = new_next_arg(args, &args);
             if ((chan = lookup_channel(tmparg, from_server, 0))) {
+                strmcpy(tmpbuf, args, sizeof(tmpbuf));
+                EncryptMessage(tmpbuf, channel);
                 if (((chan->mode) & MODE_TOPIC) && HAS_OPS(chan->status))
-                    send_to_server("TOPIC %s :%s", chan->channel, args);
+                    send_to_server("TOPIC %s :%s", chan->channel, tmpbuf);
                 else if ((chan->mode) & MODE_TOPIC) NotChanOp(chan->channel);
-                else send_to_server("TOPIC %s :%s", chan->channel, args);
+                else send_to_server("TOPIC %s :%s", chan->channel, tmpbuf);
             }
             else say("You are not on channel %s", tmparg);
         }

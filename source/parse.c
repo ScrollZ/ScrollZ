@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.80 2008-02-05 16:28:59 f Exp $
+ * $Id: parse.c,v 1.81 2008-03-09 11:18:52 f Exp $
  */
 
 #include "irc.h"
@@ -350,18 +350,29 @@ p_topic(from, ArgList)
 	}
 	else
 	{
+/**************************** PATCHED by Flier ******************************/
+                int iscrypted;
+                char *cstr = "";
+                char tmpbuf[BIG_BUFFER_SIZE + 1];
+
+                strmcpy(tmpbuf, ArgList[1], sizeof(tmpbuf));
+                iscrypted = DecryptMessage(tmpbuf, ArgList[0]);
+                if (iscrypted == 2) cstr = "[*]";
+                else if (iscrypted) cstr = "[!]";
+/****************************************************************************/
+
 		message_from(ArgList[0], LOG_CRAP);
-		if (do_hook(TOPIC_LIST, "%s %s %s", from, ArgList[0], ArgList[1]))
+		if (do_hook(TOPIC_LIST, "%s %s %s", from, ArgList[0], tmpbuf))
 /**************************** PATCHED by Flier ******************************/
 			/*say("%s has changed the topic on channel %s to %s",
 				from, ArgList[0], ArgList[1]);*/
                 {
                         if (*ArgList[1])
-                            say("%s has set the topic on channel %s to %s",
-                                    from, ArgList[0], ArgList[1]);
+                            say("%s has set the topic on channel %s%s to %s",
+                                    from, cstr, ArgList[0], ArgList[1]);
                         else
-                            say("%s has unset the topic on channel %s",
-                                    from, ArgList[0]);
+                            say("%s has unset the topic on channel %s%s",
+                                    from, cstr, ArgList[0]);
                 }
 /****************************************************************************/
 	}

@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.86 2008-02-11 18:47:59 f Exp $
+ * $Id: numbers.c,v 1.87 2008-03-09 11:18:52 f Exp $
  */
 
 #include "irc.h"
@@ -635,6 +635,9 @@ channel_topic(from, ArgList)
 {
 	char	*topic, *channel;
 /**************************** Patched by Flier ******************************/
+        int iscrypted;
+        char *cstr = "";
+        char tmpbuf[BIG_BUFFER_SIZE + 1];
         ChannelList *chan;
 
         topic = channel = NULL;
@@ -647,7 +650,12 @@ channel_topic(from, ArgList)
 		message_from(channel, LOG_CRAP);
 /**************************** Patched by Flier ******************************/
 		/*put_it("%s Topic for %s: %s", numeric_banner(), channel,*/
-		put_it("%sTopic for %s: %s", numeric_banner(), channel,
+		strmcpy(tmpbuf, topic, sizeof(tmpbuf));
+                iscrypted = DecryptMessage(tmpbuf, channel);
+                if (iscrypted == 2) cstr = "[*]";
+                else if (iscrypted) cstr = "[!]";
+                if (iscrypted) topic = tmpbuf;
+                put_it("%sTopic for %s%s: %s", numeric_banner(), cstr, channel,
 /****************************************************************************/
 			topic);
 	}
