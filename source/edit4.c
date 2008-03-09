@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.119 2008-03-08 15:22:14 f Exp $
+ * $Id: edit4.c,v 1.120 2008-03-09 09:26:30 f Exp $
  */
 
 #include "irc.h"
@@ -2559,31 +2559,31 @@ ChannelList *chan;
     int  opped;
     int  countv = 0;
     int  max = get_int_var(MAX_MODES_VAR);
-    char *tmpmode = (char *) 0;
-    char *tmpmodev = (char *) 0;
+    char *tmpmode = NULL;
+    char *tmpmodev = NULL;
     char *reason;
     char tmpbuf[mybufsize / 4];
-    char modebuf[mybufsize / 32];
-    char modebufv[mybufsize / 32];
+    char modebuf[mybufsize / 8];
+    char modebufv[mybufsize / 8];
     NickList *tmp;
     WhowasList *ww;
     struct bans *tmpban;
 
     if (chan && (chan->FriendList || chan->BKList)) {
-        count=0;
-        *modebuf = '\0';
-        *modebufv = '\0';
+        count = 0;
+        memset(modebuf, 0, sizeof(modebuf));
+        memset(modebufv, 0, sizeof(modebufv));
         if (chan->FriendList) {
             for (tmpban = chan->banlist; tmpban; tmpban = tmpban->next) {
                 if (tmpban->exception) continue;
-                for (tmp=chan->nicks; tmp; tmp = tmp->next) {
+                for (tmp = chan->nicks; tmp; tmp = tmp->next) {
                     if (tmp->frlist && ((tmp->frlist->privs) & (FLPROT | FLGOD)) &&
                             ((tmp->frlist->privs) & FLUNBAN)) {
                         snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s",
                                  tmp->nick, tmp->userhost);
                         if (wild_match(tmpban->ban, tmpbuf)) {
                             count++;
-                            strcat(modebuf, "-b");
+                            strmcat(modebuf, "-b", sizeof(modebuf));
                             snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmpban->ban);
                             malloc_strcat(&tmpmode, tmpbuf);
                             break;
@@ -2601,7 +2601,7 @@ ChannelList *chan;
                             else strmcpy(tmpbuf, ww->nicklist->nick, sizeof(tmpbuf));
                             if (wild_match(tmpban->ban, tmpbuf)) {
                                 count++;
-                                strcat(modebuf, "-b");
+                                strmcat(modebuf, "-b", sizeof(modebuf));
                                 snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmpban->ban);
                                 malloc_strcat(&tmpmode, tmpbuf);
                             }
@@ -2613,14 +2613,14 @@ ChannelList *chan;
                     count = 0;
                     send_to_server("MODE %s %s %s", chan->channel, modebuf, tmpmode);
                     new_free(&tmpmode);
-                    *modebuf = '\0';
+                    memset(modebuf, 0, sizeof(modebuf));
                 }
             }
             if (count) {
                 count = 0;
                 send_to_server("MODE %s %s %s", chan->channel, modebuf, tmpmode);
                 new_free(&tmpmode);
-                *modebuf = '\0';
+                memset(modebuf, 0, sizeof(modebuf));
             }
             for (tmp = chan->nicks; tmp; tmp = tmp->next) {
                 opped = 0;
@@ -2632,15 +2632,15 @@ ChannelList *chan;
                     {
                         count++;
                         opped = 1;
-                        strcat(modebuf, "+o");
+                        strmcat(modebuf, "+o", sizeof(modebuf));
                         snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmp->nick);
                         malloc_strcat(&tmpmode, tmpbuf);
-                        if (count ==max) {
+                        if (count == max) {
                             count = 0;
                             send_to_server("MODE %s %s %s", chan->channel,
                                     modebuf, tmpmode);
                             new_free(&tmpmode);
-                            *modebuf = '\0';
+                            memset(modebuf, 0, sizeof(modebuf));
                         }
                     }
                 }
@@ -2650,15 +2650,15 @@ ChannelList *chan;
                         ((tmp->frlist->privs) & FLINSTANT)))
                     {
                         countv++;
-                        strcat(modebufv, "+v");
+                        strmcat(modebufv, "+v", sizeof(modebufv));
                         snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmp->nick);
                         malloc_strcat(&tmpmodev, tmpbuf);
                         if (countv == max) {
                             countv = 0;
                             send_to_server("MODE %s %s %s", chan->channel,
-                                    modebufv, tmpmodev);
+                                           modebufv, tmpmodev);
                             new_free(&tmpmodev);
-                            *modebufv = '\0';
+                            memset(modebufv, 0, sizeof(modebufv));
                         }
                     }
                 }
@@ -2673,7 +2673,7 @@ ChannelList *chan;
             }
         }
         if (chan->BKList) {
-            *modebuf = '\0';
+            memset(modebuf, 0, sizeof(modebuf));
             count = 0;
             for (tmp = chan->nicks; tmp; tmp = tmp->next) {
                 done = 0;
@@ -2681,17 +2681,17 @@ ChannelList *chan;
                     && (!tmp->frlist ||
                         (tmp->frlist &&
                          !((tmp->frlist->privs) & (FLOP | FLAUTOOP | FLINSTANT))))) {
-                    strcat(modebuf, "-o");
+                    strmcat(modebuf, "-o", sizeof(modebuf));
                     snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmp->nick);
                     malloc_strcat(&tmpmode, tmpbuf);
                     count++;
                     done = 1;
                 }
                 if (tmp->shitlist && tmp->shitlist->shit) {
-                    reason = (char *) 0;
+                    reason = NULL;
                     if ((tmp->shitlist->shit) & SLDEOP) {
                         if (!done && tmp->chanop) {
-                            strcat(modebuf, "-o");
+                            strmcat(modebuf, "-o", sizeof(modebuf));
                             snprintf(tmpbuf, sizeof(tmpbuf), " %s", tmp->nick);
                             malloc_strcat(&tmpmode, tmpbuf);
                             count++;
@@ -2723,7 +2723,7 @@ ChannelList *chan;
                                    tmpmode);
                     new_free(&tmpmode);
                     count = 0;
-                    *modebuf = '\0';
+                    memset(modebuf, 0, sizeof(modebuf));
                 }
             }
             if (count) {
