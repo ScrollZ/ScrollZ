@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.39 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.40 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -566,7 +566,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.40 2008-03-08 15:22:13 f Exp $' > /dev/null
+echo '$Id: configure,v 1.41 2008-03-10 15:49:46 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -5610,10 +5610,10 @@ if test "${with_miracl+set}" = set; then
      echo $ac_n "checking for MIRACL""... $ac_c" 1>&6
 echo "configure:5612: checking for MIRACL" >&5
      if test -n "$miracl_prefix"; then
-       CFLAGS="-I$miracl_prefix $CFLAGS"
+       CFLAGS="-I$miracl_prefix/include $CFLAGS"
      fi
      if test -n "$miracl_prefix"; then
-       LIBS="$LIBS $miracl_prefix/miracl.a"
+       LIBS="$LIBS $miracl_prefix/lib/miracl.a"
      fi
      cat > conftest.$ac_ext <<EOF
 #line 5620 "configure"
