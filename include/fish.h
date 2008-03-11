@@ -1,3 +1,12 @@
+#ifndef _fish_h_
+#define _fish_h_
+
+/*
+ * FiSH encryption
+ *
+ * $Id: fish.h,v 1.2 2008-03-11 15:51:03 f Exp $
+ */
+
 #include "dh1080.h"
 #include "irc.h"
 
@@ -329,3 +338,5 @@ char g_myPrivKey[300], g_myPubKey[300];
 char *strfcpy(unsigned char *dest, char *buffer); /* removes leading and trailing blanks from string */
 
 static int FiSH_decrypt(char *msg_ptr, char *msg_bak, const char *target);
+
+#endif /* _fish_h_ */

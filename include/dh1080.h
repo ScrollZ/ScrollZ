@@ -1,3 +1,12 @@
+#ifndef _dh1080_h_
+#define _dh1080_h_
+
+/*
+ * DH key exchange
+ *
+ * $Id: dh1080.h,v 1.2 2008-03-11 15:51:04 f Exp $
+ */
+
 #include "miracl.h"
 #include <stdlib.h>
 
@@ -26,3 +35,5 @@ void memXOR(unsigned char *s1, const unsigned char *s2, int n);
 
 extern unsigned char B64ABC[];
 extern unsigned char iniPath[];
+
+#endif /* _dh1080_h_ */
