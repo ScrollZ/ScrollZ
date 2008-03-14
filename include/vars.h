@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.2 2007-11-08 16:07:08 f Exp $
+ * $Id: vars.h,v 1.3 2008-03-14 16:13:22 f Exp $
  */
 
 #ifndef __vars_h_
@@ -70,6 +70,7 @@ enum {
 /**************************** PATCHED by Flier ******************************/
 	AUTO_RECONNECT_VAR,
 /****************************************************************************/
+	AUTO_RECONNECT_CHANNELS_VAR,
 	AUTO_UNMARK_AWAY_VAR,
 	AUTO_WHOWAS_VAR ,
 /**************************** PATCHED by Flier ******************************/

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.30 2007-11-08 16:07:08 f Exp $
+ * $Id: vars.c,v 1.31 2008-03-14 16:13:22 f Exp $
  */
 
 #include "irc.h"
@@ -137,6 +137,7 @@ static	IrcVariable irc_variable[] =
 	{ "ALWAYS_SPLIT_BIGGEST",	BOOL_TYPE_VAR,	DEFAULT_ALWAYS_SPLIT_BIGGEST, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
 	{ "AUTO_RECONNECT",		BOOL_TYPE_VAR,	DEFAULT_AUTO_RECONNECT, NULL, NULL, 0, 0 },
+	{ "AUTO_RECONNECT_CHANNELS",	BOOL_TYPE_VAR,	DEFAULT_AUTO_RECONNECT_CHANNELS, NULL, NULL, 0, 0 },
 /****************************************************************************/
 	{ "AUTO_UNMARK_AWAY",		BOOL_TYPE_VAR,	DEFAULT_AUTO_UNMARK_AWAY, NULL, NULL, 0, 0 },
 	{ "AUTO_WHOWAS",		BOOL_TYPE_VAR,	DEFAULT_AUTO_WHOWAS, NULL, NULL, 0, 0 },

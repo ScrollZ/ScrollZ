@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: config.h,v 1.24 2007-04-16 15:43:06 f Exp $
+ * $Id: config.h,v 1.25 2008-03-14 16:13:22 f Exp $
  */
 
 #ifndef __config_h_
@@ -111,6 +111,7 @@
 /**************************** PATCHED by Flier ******************************/
 #define DEFAULT_ALWAYS_SPLIT_BIGGEST 1
 #define DEFAULT_AUTO_RECONNECT 1
+#define DEFAULT_AUTO_RECONNECT_CHANNELS 1
 #define DEFAULT_AUTO_UNMARK_AWAY 0
 #define DEFAULT_AUTO_WHOWAS 0
 #define DEFAULT_AWAY_FILE "ScrollZ.away"

@@ -1,0 +1,10 @@
+!	 $Id: auto_reconnect_channels,v 1.1 2008-03-14 16:13:22 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET AUTO_RECONNECT_CHANNELS [ON|OFF|TOGGLE]
+  When ON, client will automatically rejoin channels in memory after
+  reconnecting to a server. When OFF no rejoining takes place.

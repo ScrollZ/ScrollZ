@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: notice.c,v 1.36 2008-03-08 15:22:14 f Exp $
+ * $Id: notice.c,v 1.37 2008-03-14 16:13:22 f Exp $
  */
 
 #include "irc.h"
@@ -545,7 +545,8 @@ got_initial_version(line)
             return;
         }
 /****************************************************************************/
-	reconnect_all_channels(parsing_server_index);
+	if (get_int_var(AUTO_RECONNECT_CHANNELS_VAR))
+		reconnect_all_channels(parsing_server_index);
 	reinstate_user_modes(/* parsing_server_index */); /* XXX */
 	maybe_load_ircrc();
 	if (server_list[parsing_server_index].away)
