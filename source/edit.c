@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.114 2008-03-08 15:43:13 f Exp $
+ * $Id: edit.c,v 1.115 2008-03-14 17:51:18 f Exp $
  */
 
 #include "irc.h"
@@ -3060,6 +3060,9 @@ send_text(org_nick, line, command)
                 if (is_channel(nick))
 		{
 			int	current;
+/**************************** PATCHED by Flier ******************************/
+                        char *cstr = empty_string;
+/****************************************************************************/
 
 			current = is_current_channel(nick, curr_scr_win->server, 0);
 			if (!command || strcmp(command, "NOTICE"))
@@ -3086,8 +3089,6 @@ send_text(org_nick, line, command)
 				else
 					put_it("%c%s> %s", the_thing, nick,
 						line);*/
-                                char *cstr = empty_string;
-
                                 if (iscrypted == 2) cstr = "[*]";
                                 else if (iscrypted) cstr = "[!]";
                                 if (current) {
