@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.133 2008-03-08 15:22:14 f Exp $
+ * $Id: irc.c,v 1.134 2008-03-16 10:40:09 f Exp $
  */
 
 #define IRCII_VERSION	"20061030"	/* YYYYMMDD */
@@ -1211,6 +1211,7 @@ TimerTimeout(struct timeval *tv)
 {
 	struct timeval current;
 /**************************** PATCHED by Flier ******************************/
+        int do_clock, sec_to_minute;
         time_t nickt = LastNick + OrigNickDelay;
 	struct timeval largest;
 /****************************************************************************/
@@ -1220,9 +1221,11 @@ TimerTimeout(struct timeval *tv)
 
 /**************************** PATCHED by Flier ******************************/
         DoOrigNick = 0;
+        do_clock = get_int_var(CLOCK_VAR);
 	/* If ORIGNICK is off set nickt to current + 75 to prevent excessive
 	   CPU usage (meaning we actually ignore this event, see below) */
 	gettimeofday(&current, NULL);
+        if (do_clock) sec_to_minute = (current.tv_sec / 60 + 1) * 60 - current.tv_sec;
         if (!OrigNickChange) nickt = current.tv_sec + 75;
 /****************************************************************************/
 
@@ -1233,6 +1236,7 @@ TimerTimeout(struct timeval *tv)
                 if (nickt - current.tv_sec < 70) DoOrigNick = 1;
                 tv->tv_sec = nickt - current.tv_sec > 70 ? 70 : nickt - current.tv_sec;
                 if (DoOrigNick && tv->tv_sec <= 0) tv->tv_sec = 70;
+                if (do_clock && sec_to_minute < tv->tv_sec) tv->tv_sec = sec_to_minute;
 /****************************************************************************/
 		return;
 	}
@@ -1246,6 +1250,10 @@ TimerTimeout(struct timeval *tv)
         else {
             largest.tv_sec = PendingTimers->time;
             largest.tv_usec = PendingTimers->microseconds;
+        }
+        if (do_clock && (sec_to_minute < current.tv_sec + largest.tv_sec)) {
+            largest.tv_sec = current.tv_sec + sec_to_minute;
+            largest.tv_usec = 0;
         }
 /****************************************************************************/
 
