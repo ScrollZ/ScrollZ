@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.134 2008-03-16 10:40:09 f Exp $
+ * $Id: irc.c,v 1.135 2008-03-17 15:39:07 f Exp $
  */
 
 #define IRCII_VERSION	"20061030"	/* YYYYMMDD */
@@ -184,6 +184,7 @@ static	char	*get_arg _((char *, char *, int *));
 static	char	*parse_args _((char **, int));
 
 static	int	cntl_c_hit = 0;
+static	int	connect_at_startup = 1;
 
 /**************************** PATCHED by Flier ******************************
 #ifdef DO_USER2
@@ -214,6 +215,7 @@ static	char	switch_help[] =
    -q\t\tdoes not load .scrollzrc nor .scrollzquick\n\
    -a\t\tadds default servers and command line servers to server list\n\
    -b\t\tload .scrollzrc before connecting to a server\n\
+   -n\t\tdo not connect to a server on startup\n\
    -t\t\tdo not use termcap ti and te sequences at startup\n\
    -T\t\tuse termcap ti and te sequences at startup (default)\n\
    -l <file>\tloads <file> in place of your .scrollzrc\n\
@@ -1004,6 +1006,9 @@ parse_args(argv, argc)
 						exit(1);
 					}
 					qflag = 1;
+					break;
+				case 'n':
+					connect_at_startup = 0;
 					break;
 /**************************** PATCHED by Flier ******************************/
                                 /* what the hell is this */
@@ -1879,7 +1884,8 @@ main(argc, argv, envp)
 		load_ircrc();
 	}
 
-	get_connected(0, 0);
+	if (connect_at_startup)
+		get_connected(0, 0);
         if (channel)
 	{
 		char    *ptr;
