@@ -19,6 +19,7 @@ ScrollZ \- An advanced ircII-based IRC client
 .IR name ]
 .RB [ \-s ]
 .RB [ \-S ]
+.RB [ \-n ]
 .RB [ \-d ]
 .RB [ \-q ]
 .RB [ \-a ]
@@ -76,6 +77,9 @@ Cloak process as name
 .TP
 .B \-S/\-s
 Do/don't use separate server processes (ircio)
+.TP
+.B \-n
+Do not connect to a server on startup
 .TP
 .B \-d
 Runs
