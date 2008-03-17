@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.42 2008-03-10 15:55:11 f Exp $
+dnl @(#)$Id: configure.in,v 1.43 2008-03-17 16:09:24 f Exp $
 
-AC_REVISION($Revision: 1.42 $)dnl
+AC_REVISION($Revision: 1.43 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.42 2008-03-10 15:55:11 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.43 2008-03-17 16:09:24 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -218,6 +218,19 @@ AC_EGREP_CPP(yes,
   yes
 #endif
 ], LIBS="$LIBS -lseq" seqptx=1 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+dnl check for FreeBSD, so we can find iconv.h in /usr/local/include
+AC_MSG_CHECKING(for FreeBSD)
+case "`uname -s`" in
+  FreeBSD*)
+    AC_MSG_RESULT(yes)
+    CFLAGS="$CFLAGS -I/usr/local/include"
+    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+    LIBS="$LIBS -L/usr/local/lib -liconv"
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+esac
 
 AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h sys/uio.h)dnl sys/ ones
 AC_CHECK_HEADERS(unistd.h fcntl.h string.h memory.h netdb.h limits.h)dnl non sys/ ones
