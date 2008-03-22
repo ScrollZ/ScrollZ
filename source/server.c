@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.64 2007-03-30 15:27:37 f Exp $
+ * $Id: server.c,v 1.65 2008-03-22 16:33:13 f Exp $
  */
 
 #include "irc.h"
@@ -127,6 +127,9 @@ close_server(server_index, message)
 	int	i,
 		min,
 		max;
+/**************************** Patched by Flier ******************************/
+        int     wasconnected = 0;
+/****************************************************************************/
 
 	if (server_index == -1)
 	{
@@ -154,6 +157,9 @@ close_server(server_index, message)
 		mark_not_connected(i);
 		from_server = old_server;
 
+/**************************** PATCHED by Flier ******************************/
+                wasconnected = server_list[i].connected;
+/****************************************************************************/
 		server_list[i].operator = 0;
 		server_list[i].connected = 0;
 		server_list[i].buffer = (char *) 0;
@@ -181,7 +187,7 @@ close_server(server_index, message)
 				snprintf(buffer, sizeof buffer, "QUIT :%s\n", message);
 /**************************** Patched by Flier ******************************/
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
-                                if (server_list[i].connected && server_list[i].enable_ssl) {
+                                if (wasconnected && server_list[i].enable_ssl) {
 #if defined(HAVE_SSL)
                                     if (server_list[i].session && gnutls_transport_get_ptr(server_list[i].session))
                                         gnutls_record_send(server_list[i].session,
