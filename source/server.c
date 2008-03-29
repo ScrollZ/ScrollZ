@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.66 2008-03-29 13:21:39 f Exp $
+ * $Id: server.c,v 1.67 2008-03-29 13:37:48 f Exp $
  */
 
 #include "irc.h"
@@ -227,6 +227,7 @@ close_server(server_index, message)
                         gnutls_deinit(server_list[i].session);
                         gnutls_certificate_free_credentials(server_list[i].xcred);
                         server_list[i].session = NULL;
+                        server_list[i].xcred = NULL;
                     }
 #elif defined(HAVE_OPENSSL)
                     if (server_list[i].ssl_fd) {
@@ -572,10 +573,8 @@ add_to_server_list(server, port, password, nick, overwrite)
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 server_list[from_server].enable_ssl = 0;
 #if defined(HAVE_SSL)
-                memset(&server_list[from_server].session, 0,
-                       sizeof(gnutls_session));
-                memset(&server_list[from_server].xcred, 0,
-                       sizeof(gnutls_certificate_credentials));
+                server_list[from_server].session = NULL;
+                server_list[from_server].xcred = NULL;
 #elif defined(HAVE_OPENSSL)
                 server_list[from_server].ssl_fd = NULL;
                 server_list[from_server].ctx = NULL;
@@ -1445,7 +1444,7 @@ login_to_server(server)
             gnutls_credentials_set(server_list[server].session, GNUTLS_CRD_CERTIFICATE,
                                    server_list[server].xcred);
             gnutls_transport_set_ptr(server_list[server].session,
-                                     (gnutls_transport_ptr) server_list[server].read);
+                                     (gnutls_transport_ptr_t) server_list[server].read);
             err = gnutls_handshake(server_list[server].session);
 #elif defined(HAVE_OPENSSL)
             SSLeay_add_ssl_algorithms();
