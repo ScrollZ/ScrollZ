@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.65 2008-03-22 16:33:13 f Exp $
+ * $Id: server.c,v 1.66 2008-03-29 13:21:39 f Exp $
  */
 
 #include "irc.h"
@@ -226,7 +226,7 @@ close_server(server_index, message)
                         gnutls_bye(server_list[i].session, GNUTLS_SHUT_RDWR);
                         gnutls_deinit(server_list[i].session);
                         gnutls_certificate_free_credentials(server_list[i].xcred);
-                        memset(&server_list[from_server].session, 0, sizeof(gnutls_session));
+                        server_list[i].session = NULL;
                     }
 #elif defined(HAVE_OPENSSL)
                     if (server_list[i].ssl_fd) {
