@@ -36,7 +36,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.17 2007-08-20 10:54:17 f Exp $
+ * $Id: newio.c,v 1.18 2008-03-30 15:31:22 f Exp $
  */
 
 #include "irc.h"
@@ -348,7 +348,7 @@ char	*str;
 int	len;
 int	des;
 char	*specials;
-gnutls_session *session;
+gnutls_session_t *session;
 #elif defined(HAVE_OPENSSL)
 int SSL_dgets(str, len, des, specials, ssl_fd)
 char	*str;
