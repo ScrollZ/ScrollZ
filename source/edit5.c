@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.117 2008-03-08 15:22:14 f Exp $
+ * $Id: edit5.c,v 1.118 2008-04-21 17:59:03 f Exp $
  */
 
 #include "irc.h"
@@ -226,13 +226,13 @@ char **ArgList;
             malloc_strcpy(&(chan->topicwho), ArgList[1]);
             save_message_from();
             message_from(channel, LOG_CRAP);
-            put_it("%sSet by %s on %.19s", numeric_banner(), chan->topicwho,
+            put_it("%sSet by %s on %.24s", numeric_banner(), chan->topicwho,
                    ctime(&(chan->topicwhen)));
             restore_message_from();
             if (chan->ChanLog) {
                 char tmpbuf[mybufsize];
 
-                snprintf(tmpbuf, sizeof(tmpbuf), "Set by %s on %.19s", chan->topicwho, ctime(&(chan->topicwhen)));
+                snprintf(tmpbuf, sizeof(tmpbuf), "Set by %s on %.24s", chan->topicwho, ctime(&(chan->topicwhen)));
                 ChannelLogSave(tmpbuf, chan);
             }
         }
