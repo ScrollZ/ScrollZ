@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.31 2008-03-14 16:13:22 f Exp $
+ * $Id: vars.c,v 1.32 2008-05-05 15:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -60,18 +60,6 @@ extern char *HelpPathVar;
 extern char *TimeStampString;
 extern time_t LastTS;
 /****************************************************************************/
-
-/* IrcVariable: structure for each variable in the variable table */
-typedef struct
-{
-	char	*name;			/* what the user types */
-	int	type;			/* variable types, see below */
-	int	integer;		/* int value of variable */
-	char	*string;		/* string value of variable */
- 	void	(*func) ();		/* function to do every time variable is set */
-	char	int_flags;		/* internal flags to the variable */
-	unsigned short	flags;		/* flags for this variable */
-}	IrcVariable;
 
 #define	VF_NODAEMON	0x0001
 #define VF_EXPAND_PATH	0x0002
@@ -132,7 +120,7 @@ extern	char	*CelerityNtfy;
  * check_variable_order() procedure will assert that it is from
  * init_variables()
  */
-static	IrcVariable irc_variable[] =
+IrcVariable irc_variable[] =
 {
 	{ "ALWAYS_SPLIT_BIGGEST",	BOOL_TYPE_VAR,	DEFAULT_ALWAYS_SPLIT_BIGGEST, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/

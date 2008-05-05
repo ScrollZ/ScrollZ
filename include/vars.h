@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.3 2008-03-14 16:13:22 f Exp $
+ * $Id: vars.h,v 1.4 2008-05-05 15:33:08 f Exp $
  */
 
 #ifndef __vars_h_
@@ -63,6 +63,18 @@ extern	int	loading_global;
 #define DEBUG_COMMANDS		0x0001
 #define DEBUG_EXPANSIONS	0x0002
 #define DEBUG_FUNCTIONS		0x0004
+
+/* IrcVariable: structure for each variable in the variable table */
+typedef struct
+{
+        char    *name;                  /* what the user types */
+        int     type;                   /* variable types, see below */
+        int     integer;                /* int value of variable */
+        char    *string;                /* string value of variable */
+        void    (*func) ();             /* function to do every time variable is set */
+        char    int_flags;              /* internal flags to the variable */
+        unsigned short  flags;          /* flags for this variable */
+}       IrcVariable;
 
 /* indexes for the irc_variable array */
 enum {

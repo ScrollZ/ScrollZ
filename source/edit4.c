@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.120 2008-03-09 09:26:30 f Exp $
+ * $Id: edit4.c,v 1.121 2008-05-05 15:33:08 f Exp $
  */
 
 #include "irc.h"
@@ -184,6 +184,8 @@ extern NickList *tabnickcompl;
 extern DCC_list *ClientList;
 
 extern IrcCommand irc_command[];
+
+extern IrcVariable irc_variable[];
 
 /* Prints received message */
 void PrintMessage(nick, userhost, msg, print, iscrypted)
@@ -1079,6 +1081,30 @@ command_begin:
             }
         }
         else next_p = command_p + 1;
+    }
+    else if (IsCmdLine(argv[0], "set", 3) && argc == 1) {
+        IrcVariable *variable_p;
+
+variable_begin:
+        if (next_p) variable_p = next_p;
+	else variable_p = irc_variable;
+        while (variable_p->name) {
+            if (!my_strnicmp(variable_p->name, completing, strlen(completing))) {
+                for (i = 0; i < length; i++) input_backspace(' ', NULL);
+                for (p = variable_p->name; *p; p++) input_add_character(*p, NULL);
+                last_completion = variable_p->name;
+                break;
+            }
+            variable_p++;
+        }
+        if (!variable_p->name) {
+            if (last_completion) {
+                last_completion = 0;
+	        next_p = 0;
+                goto variable_begin;
+            }
+        }
+        else next_p = variable_p + 1;
     }
     else if (is_channel(completing)) {
 channel_begin:
