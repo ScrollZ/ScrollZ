@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.49 2008-03-08 16:54:24 f Exp $
+ * $Id: dcc.c,v 1.50 2008-05-13 14:58:48 f Exp $
  */
 
 #include "irc.h"
@@ -3150,3 +3150,42 @@ add_to_dcc_buffer(Client, buf)
 			malloc_strcpy(&Client->buffer, buf);
 	}
 }
+
+void dcc_reject(user, type, filename)
+char *user;
+char *type;
+char *filename;
+{
+    int i;
+    DCC_list *Client;
+#ifdef WANTANSI
+    char tmpbuf[mybufsize / 2];
+    char tmpbuf2[mybufsize / 4 + 1];
+#endif
+    char tmpbuf3[mybufsize];
+
+    if (!user || !type || !filename) return;
+    for (i = 0; dcc_types[i] != NULL; i++) {
+        if (!strcmp(dcc_types[i], type))
+            break;
+    }
+    if (i == 0) return;
+    Client = dcc_searchlist(filename, user, i, 0, (char *) 0);
+    if (!Client) return;
+#ifdef WANTANSI
+    snprintf(tmpbuf, sizeof(tmpbuf), "%sDCC%s %sREJECT%s (%s%s%s) request ",
+             CmdsColors[COLDCC].color5, Colors[COLOFF],
+             CmdsColors[COLDCC].color3, Colors[COLOFF],
+             CmdsColors[COLDCC].color4, filename, Colors[COLOFF]);
+    ColorUserHost(FromUserHost, CmdsColors[COLDCC].color2, tmpbuf2, 1);
+    snprintf(tmpbuf3, sizeof(tmpbuf3), "%s%sreceived%s from %s%s%s %s", tmpbuf,
+             CmdsColors[COLDCC].color4, Colors[COLOFF],
+             CmdsColors[COLDCC].color1, user, Colors[COLOFF], tmpbuf2);
+#else
+    snprintf(tmpbuf3, sizeof(tmpbuf3), "DCC REJECT (%s) request received from %s (%s)",
+             type, description, (long) Client->filesize, user, FromUserHost);
+#endif
+    say("%s", tmpbuf3);
+    dcc_erase(Client);
+}
+/****************************************************************************/

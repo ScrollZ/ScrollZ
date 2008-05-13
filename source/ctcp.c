@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.52 2006-10-31 12:31:27 f Exp $
+ * $Id: ctcp.c,v 1.53 2008-05-13 14:58:48 f Exp $
  */
 
 #include "irc.h"
@@ -91,6 +91,7 @@ extern void EncryptString _((char *, char *, char *, int, int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  AutoReplyMatch _((char *));
 extern void Check4WordKick _((char *, NickList *, int, ChannelList *));
+extern void dcc_reject _((char *, char *, char *));
 /****************************************************************************/
 
 static	char	CTCP_Reply_Buffer[BIG_BUFFER_SIZE + 1] = "";
@@ -1592,9 +1593,20 @@ do_dcc(ctcp, from, to, args)
 
 	if (my_stricmp(to, get_server_nickname(parsing_server_index)))
 		return NULL;
-	if (!(type = next_arg(args, &args)) ||
 /**************************** PATCHED by Flier ******************************/
-			/*!(description = next_arg(args, &args)) ||*/
+        /* handle DCC reject separately */
+	/*if (!(type = next_arg(args, &args)) ||
+			!(description = next_arg(args, &args)) ||*/
+        type = next_arg(args, &args);
+        if (type && !my_stricmp(type, "REJECT")) {
+            char *dcc_type = next_arg(args, &args);
+            char *dcc_file = new_next_arg(args, &args);
+
+            if (dcc_type && dcc_file)
+                dcc_reject(from, dcc_type, dcc_file);
+            return NULL;
+        }
+        else if (!type ||
                         /* support filenames enclosed in quotes */
 			!(description = new_next_arg(args, &args)) ||
 /****************************************************************************/
@@ -2021,7 +2033,7 @@ do_new_notice_ctcp(from, to, str, cmd)
 /**************************** PATCHED by Flier ******************************/
                         /*say("CTCP %s reply from %s: %s", cmd, from,
 				args);*/
-                        if (my_stricmp(cmd,"PING")) {
+                        if (my_stricmp(cmd, "PING") && my_stricmp(cmd, "DCC")) {
 #ifdef WANTANSI
                             say("%sCTCP %s%s reply from %s%s%s: %s",
                                 CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
@@ -2030,7 +2042,8 @@ do_new_notice_ctcp(from, to, str, cmd)
                             say("CTCP %s reply from %s: %s",cmd,from,args);
 #endif
                         }
-                        else {
+                        else if (my_stricmp(cmd, "DCC") &&
+                                 my_strnicmp(args, "REJECT ", 7)) {
                             isitme=!my_stricmp(from,get_server_nickname(from_server));
 #ifdef WANTANSI
                             say("%sCTCP %s%s reply from %s%s%s: %s",
