@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.87 2008-03-09 11:18:52 f Exp $
+ * $Id: numbers.c,v 1.88 2008-05-13 14:55:48 f Exp $
  */
 
 #include "irc.h"
@@ -1451,6 +1451,11 @@ numbered_command(from, comm, ArgList)
                 set_server_umode_flag(parsing_server_index,'r',1);
 /****************************************************************************/
 		break;
+/**************************** PATCHED by Flier ******************************/
+        case 671:		/* #define RPL_WHOISSECURE	671 */
+                whois_secure(from, ArgList);
+                break;
+/****************************************************************************/
 
 		/*
 		 * The following accumulates the remaining arguments

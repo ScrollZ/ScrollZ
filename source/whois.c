@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: whois.c,v 1.21 2003-07-06 10:19:42 f Exp $
+ * $Id: whois.c,v 1.22 2008-05-13 14:55:48 f Exp $
  */
 
 #undef MONITOR_Q /* this one is for monitoring of the 'whois queue' (debug) */
@@ -664,6 +664,40 @@ char **ArgList;
 #else  /* WANTANSI */
                 put_it("%sAdmin     : %s %s",
                        numeric_banner(),nick,ArgList[1]);
+#endif /* WANTANSI */
+            }
+        }
+    }
+}
+
+/* by flashback */
+void whois_secure(from,ArgList)
+    char *from;
+    char **ArgList;
+{
+    if (!ignore_whois_crap) {
+        char *nick;
+
+        nick = ArgList[0];
+        if (nick) {
+            if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1])) {
+#ifdef WANTANSI
+#ifdef GENX
+                put_it("%s³    %ssecure%s ³ %s %s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], nick, ArgList[1]);
+#elif defined(CELECOSM)
+                put_it("%s%ssecure%s:     %s %s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], nick, ArgList[1]);
+#else  /* CELECOSM */
+                put_it("%s%sSecure%s    : %s %s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5,
+                       Colors[COLOFF], nick, ArgList[1]);
+#endif /* GENX */
+#else  /* WANTANSI */
+                put_it("%sSecure    : %s %s",
+                       numeric_banner(), nick, ArgList[1]);
 #endif /* WANTANSI */
             }
         }
