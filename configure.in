@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.43 2008-03-17 16:09:24 f Exp $
+dnl @(#)$Id: configure.in,v 1.44 2008-05-20 17:41:50 f Exp $
 
-AC_REVISION($Revision: 1.43 $)dnl
+AC_REVISION($Revision: 1.44 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.43 2008-03-17 16:09:24 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.44 2008-05-20 17:41:50 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -403,6 +403,15 @@ else
   AC_MSG_CHECKING(for tputs in curses.h)
   AC_EGREP_CPP([tputs( |	|\()],[#include <curses.h>
 ], AC_DEFINE(INCLUDE_CURSES_H) AC_MSG_RESULT(yes), blahhack=1; AC_MSG_RESULT(no))
+fi
+
+dnl
+dnl libiconv (Sunfreeware gcc)
+dnl
+dnl
+if test -n "$svr4" -a -n "$GCC"
+then
+  AC_CHECK_LIB(iconv, iconv_open, LIBS="$LIBS -liconv")
 fi
 
 dnl <term.h> is broken on most systems; ignoreit.
