@@ -1,0 +1,9 @@
+!	 $Id: netsplit_time,v 1.1 2008-09-15 16:47:48 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET NETSPLIT_TIME <time in seconds>
+  The amount of time netsplits are tracked.

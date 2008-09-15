@@ -74,7 +74,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.164 2008-03-08 15:22:14 f Exp $
+ * $Id: edit6.c,v 1.165 2008-09-15 16:47:48 f Exp $
  */
 
 #include "irc.h"
@@ -699,7 +699,7 @@ void CheckTimeMinute() {
     wholeft=wholist;
     tmpwholeft=wholist;
     while (wholeft) {
-        if (timenow-wholeft->time>600) {
+        if (timenow-wholeft->time>get_int_var(NETSPLIT_TIME_VAR)) {
             wholch=wholeft->channels;
             while (wholch) {
                 while (wholch->nicklist) {
