@@ -1,0 +1,15 @@
+!	 $Id: addmon,v 1.1 2008-09-15 16:49:28 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: ADDMON nick1[,nick2,nick3,...]
+  Add a nick or series of nicks to your monitor list
+
+See also:
+  REMMON
+  CLEARMON
+  LISTMON
+  MONITOR

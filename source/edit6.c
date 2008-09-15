@@ -71,10 +71,11 @@
  RateLimitJoin       Should we rate limit the join
  ExtendTopic         Extends current topic with given text
  TopicDelimiter      Sets topic delimiter
+ Monitor             Commands for ircd-ratbox's MONITOR
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.165 2008-09-15 16:47:48 f Exp $
+ * $Id: edit6.c,v 1.166 2008-09-15 16:49:28 f Exp $
  */
 
 #include "irc.h"
@@ -3455,4 +3456,36 @@ char *subargs;
         malloc_strcpy(&ExtTopicDelimiter, tmpbuf);
     }
     say("Topic delimiter is %s", ExtTopicDelimiter);
+}
+
+void Monitor(command, args, subargs)
+char *command;
+char *args;
+char *subargs;
+{
+	char *nicks;
+
+	switch (*command) {
+		case '+':
+			nicks = new_next_arg(args, &args);
+			if (nicks)
+				send_to_server("MONITOR + %s", nicks);
+			else
+				PrintUsage("ADDMON nick1[,nick2,nickN,...]");
+			break;
+
+		case '-':
+			nicks = new_next_arg(args, &args);
+			if (nicks)
+				send_to_server("MONITOR - %s", nicks);
+			else
+				PrintUsage("REMMON nick1[,nick2,nickN,...]");
+			break;
+
+		case 'c':
+		case 'l':
+		case 's':
+			send_to_server("MONITOR %c", *command);
+			break;
+	}
 }

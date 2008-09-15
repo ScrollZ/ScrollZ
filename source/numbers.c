@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.89 2008-09-15 16:44:38 f Exp $
+ * $Id: numbers.c,v 1.90 2008-09-15 16:49:28 f Exp $
  */
 
 #include "irc.h"
@@ -1457,6 +1457,74 @@ numbered_command(from, comm, ArgList)
                 break;
 /****************************************************************************/
 
+	case 730:	/* RPL_MONONLINE :serv 730 nick :n!u@h[,n!u@h,...] */
+	{
+		char buf[512];
+		char *p;
+
+		if (do_hook(current_numeric, "%s %s", from, ArgList[0])) {
+			if (strchr(ArgList[0], ','))
+			{
+				strmcpy(buf, ArgList[0], sizeof(buf));
+				for (p = strtok(buf, ","); p; p = strtok(NULL, ","))
+					say("Now online: %s", p);
+			}
+			else
+				say("Now online: %s", ArgList[0]);
+		}
+		break;
+	}
+	case 731:	/* RPL_MONOFFLINE :serv 731 nick :nick[,nick2,...] */
+	{
+		char buf[512];
+		char *p;
+
+		if (do_hook(current_numeric, "%s %s", from, ArgList[0])) {
+			if (strchr(ArgList[0], ',')) {
+				strmcpy(buf, ArgList[0], sizeof(buf));
+				for (p = strtok(buf, ","); p; p = strtok(NULL, ","))
+					say("Now offline: %s", p);
+			}
+			else
+				say("Now offline: %s", ArgList[0]);
+		}
+		break;
+	}
+	case 732:	/* RPL_MONLIST :serv 732 nick :nick[,nick2,...] */
+	{
+		char buf[512];
+		char *p;
+
+		if (do_hook(current_numeric, "%s %s", from, ArgList[0])) {
+			if (strchr(ArgList[0], ',')) {
+				strmcpy(buf, ArgList[0], sizeof(buf));
+				for (p = strtok(buf, ","); p; p = strtok(NULL, ","))
+					say("Monitoring: %s", p);
+			}
+			else
+				say("Monitoring: %s", ArgList[0]);
+		}
+		break;
+	}
+	/* RPL_MONLISTFULL :serv 734 nick limit nick[,nick2,...] :Monit... */
+	case 734:
+	{
+		char buf[512];
+		char *p;
+
+		if (do_hook(current_numeric, "%s %s", from, ArgList[0])) {
+			say("Monitor list full (limit %s)", ArgList[0]);
+			if (strchr(ArgList[1], ',')) {
+				strmcpy(buf, ArgList[1], sizeof(buf));
+				for (p = strtok(buf, ","); p; p = strtok(NULL, ","))
+					say("Could not add %s to monitor list", p);
+			}
+			else
+				say("Could not add %s to monitor list", ArgList[1]);
+		}
+		break;
+	}
+	
 		/*
 		 * The following accumulates the remaining arguments
 		 * in ArgSpace for hook detection.  We can't use
@@ -1854,6 +1922,7 @@ numbered_command(from, comm, ArgList)
 		case 394:		/* #define RPL_ENDOFUSERS       394 */
 /**************************** PATCHED by Flier ******************************/
 		case 349:               /* end of exception list */
+		case 733:		/* RPL_ENDOFMONLIST */
 /****************************************************************************/
 			if (!get_int_var(SHOW_END_OF_MSGS_VAR))
 				break;

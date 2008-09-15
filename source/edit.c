@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.115 2008-03-14 17:51:18 f Exp $
+ * $Id: edit.c,v 1.116 2008-09-15 16:49:28 f Exp $
  */
 
 #include "irc.h"
@@ -427,6 +427,9 @@ extern  void  TopicLocked _((char *, char *, char *));
 #ifdef BLAXTHOS
 extern void EncryptString _((char *, char *, char *, int, int));
 #endif
+#ifndef LITE
+extern  void  Monitor _((char *, char *, char *));
+#endif
 /****************************************************************************/
 
 /**************************** Patched by Flier ******************************/
@@ -478,6 +481,9 @@ IrcCommand irc_command[] =
   { "ADDF", 		NULL, 		AddFriend, 		0 },
   { "ADDFCHAN", 	"ADD", 		AddFriendChannel, 	0 },
   { "ADDFFLAG", 	"ADD", 		AddFriendPrivs, 	0 },
+#ifndef LITE
+	{ "ADDMON",	"+",		Monitor,		SERVERREQ },
+#endif
   { "ADDN", 		NULL, 		AddNotify, 		SERVERREQ },
 #ifndef LITE
   { "ADDS", 		NULL, 		AddServer, 		0 },
@@ -544,6 +550,9 @@ IrcCommand irc_command[] =
 #endif
   { "CJOIN",		"CJOIN", 	CJoin,		 	SERVERREQ },
 	{ "CLEAR",	NULL,		my_clear,		0 },
+#ifndef LITE
+	{ "CLEARMON",	"c",		Monitor,		SERVERREQ },
+#endif
   { "CLEARTAB", 	NULL, 		ClearTab, 		0 },
 #ifdef WANTANSI
   { "COLOR", 		NULL, 		SetColor, 		0 },
@@ -683,6 +692,9 @@ IrcCommand irc_command[] =
  	{ "LIST",	"LIST",		funny_stuff,		SERVERREQ },
   { "LISTBK", 		NULL, 		ListAutoBanKicks, 	0 },
   { "LISTF", 		NULL, 		ListFriends, 		0 },
+#ifndef LITE
+	{ "LISTMON",	"l",		Monitor,		SERVERREQ },
+#endif
   { "LISTN", 		NULL, 		ListNotify, 		0 },
 #ifndef LITE
   { "LISTS", 		NULL, 		ListServers, 		0 },
@@ -727,6 +739,9 @@ IrcCommand irc_command[] =
 #ifdef EXTRAS
   { "MODELOCK", 	NULL, 		ModeLocked, 		0 },
   { "MODEUNLOCK", 	NULL, 		ModeUnlocked, 		0 },
+#endif
+#ifndef LITE
+	{ "MONITOR",	"s",		Monitor,		SERVERREQ },
 #endif
   { "MOP", 		NULL, 		MassOp, 		SERVERREQ },
  	{ "MOTD",	"MOTD",		send_comm,		SERVERREQ },
@@ -820,6 +835,9 @@ IrcCommand irc_command[] =
   { "REMFCHAN",		"REM", 		AddFriendChannel,	0 },
   { "REMFFLAG",		"REM", 		AddFriendPrivs,		0 },
   { "REMLOG", 		NULL, 		RemoveLog, 		0 },
+#ifndef LITE
+	{ "REMMON",	"-",		Monitor,		SERVERREQ },
+#endif
   { "REMN", 		NULL, 		RemoveNotify, 		0 },
 #ifndef LITE
   { "REMS", 		NULL, 		RemoveServer, 		0 },
