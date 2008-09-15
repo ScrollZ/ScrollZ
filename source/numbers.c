@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: numbers.c,v 1.88 2008-05-13 14:55:48 f Exp $
+ * $Id: numbers.c,v 1.89 2008-09-15 16:44:38 f Exp $
  */
 
 #include "irc.h"
@@ -1337,7 +1337,7 @@ numbered_command(from, comm, ArgList)
 /**************************** Patched by Flier ******************************/
                 if (server_list[parsing_server_index].connected) {
                     tmpnick=tmpbuf;
-                    if (DisplayNickInfo())
+                    if (DisplayNickInfo() && get_int_var(SEND_USERHOST_ON_NICK_IN_USE_VAR))
                         userhost(NULL,next_arg(tmpnick,&tmpnick),NULL); /* uhost - Zakath */
                 }
                 else {

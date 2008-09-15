@@ -1,0 +1,11 @@
+!	 $Id: send_userhost_on_nick_in_use,v 1.1 2008-09-15 16:44:38 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET SEND_USERHOST_ON_NICK_IN_USE [ON|OFF|TOGGLE]
+  When OFF, client will not send userhost query when server
+  sends nickname already in use reply.
+  When ON, userhost query is sent in such a case.

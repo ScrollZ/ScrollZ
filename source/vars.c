@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.32 2008-05-05 15:33:08 f Exp $
+ * $Id: vars.c,v 1.33 2008-09-15 16:44:38 f Exp $
  */
 
 #include "irc.h"
@@ -250,6 +250,9 @@ IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "SCROLL_LINES",		INT_TYPE_VAR,	DEFAULT_SCROLL_LINES, NULL, set_scroll_lines, 0, 0 },
 	{ "SEND_IGNORE_MSG",		BOOL_TYPE_VAR,	DEFAULT_SEND_IGNORE_MSG, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+        { "SEND_USERHOST_ON_NICK_IN_USE",BOOL_TYPE_VAR, 0, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "SHELL",			STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "SHELL_FLAGS",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "SHELL_LIMIT",		INT_TYPE_VAR,	DEFAULT_SHELL_LIMIT, NULL, NULL, 0, VF_NODAEMON },

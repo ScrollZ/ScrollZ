@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.4 2008-05-05 15:33:08 f Exp $
+ * $Id: vars.h,v 1.5 2008-09-15 16:44:38 f Exp $
  */
 
 #ifndef __vars_h_
@@ -195,6 +195,9 @@ enum {
 /****************************************************************************/
 	SCROLL_LINES_VAR,
 	SEND_IGNORE_MSG_VAR,
+/**************************** PATCHED by Flier ******************************/
+	SEND_USERHOST_ON_NICK_IN_USE_VAR,
+/****************************************************************************/
 	SHELL_VAR,
 	SHELL_FLAGS_VAR,
 	SHELL_LIMIT_VAR,
