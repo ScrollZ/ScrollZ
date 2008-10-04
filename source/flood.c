@@ -9,7 +9,7 @@
  *
  * Thanks to Tomi Ollila <f36664r@puukko.hut.fi> for this one. 
  *
- * $Id: flood.c,v 1.10 2005-06-09 17:41:06 f Exp $
+ * $Id: flood.c,v 1.11 2008-10-04 17:50:01 f Exp $
  */
 
 #include "irc.h"
@@ -98,6 +98,9 @@ check_flooding(nick, type, line)
 	}
 	if (users == 0)
 		return (1);
+/**************************** PATCHED by Flier ******************************/
+        if (nick == NULL) return(0);
+/****************************************************************************/
         for (i = 0; i < users; i++)
 	{
  		if (flood[i].nick && *(flood[i].nick))
@@ -175,5 +178,6 @@ void CleanUpFlood(void) {
 
 void UpdateFloodUsers(void) {
     flood_users = get_int_var(FLOOD_USERS_VAR);
+    check_flooding(NULL, 0, NULL);
 }
 /****************************************************************************/
