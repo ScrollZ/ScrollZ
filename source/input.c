@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: input.c,v 1.26 2007-04-16 15:40:57 f Exp $
+ * $Id: input.c,v 1.27 2008-10-04 17:37:46 f Exp $
  */
 
 #include "irc.h"
@@ -871,6 +871,22 @@ re_encode:
 			}
 			case EILSEQ:
 			{
+/**************************** PATCHED by Flier ******************************/
+                                static time_t lastkeypress = 0;
+
+                                if (lastkeypress == 0) lastkeypress = time(NULL);
+                                else {
+                                    time_t timenow = time(NULL);
+
+                                    if (timenow - lastkeypress > 2) {
+                                        /* Probably bad input encoding, ignore bad bytes! */
+                                        say("Wrong input sequence, resetting");
+                                        input_pos = 0;
+                                        input_buffer[0] = '\0';
+                                        return;
+                                    }
+                                }
+/****************************************************************************/
 				/* User gave a bad byte. Ignore bad bytes! */
 				memmove(input_buffer+1,
 				        input_buffer,
