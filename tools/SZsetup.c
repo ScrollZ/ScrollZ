@@ -23,7 +23,7 @@
  * own problem. If it fucks up your ScrollZ it's your problem too. In another
  * word, author is not responsible for anything caused by this code.
  *
- * $Id: SZsetup.c,v 1.7 2006-11-01 11:46:16 f Exp $
+ * $Id: SZsetup.c,v 1.8 2008-10-04 17:54:48 f Exp $
  */
 
 #include <stdio.h>
@@ -66,7 +66,6 @@ struct setstr SettingNames[NUMCMDCOLORS]={
     { "Invite",   disp_invite },
     { "Mode",     disp_mode },
     { "Setting",  disp_setting },
-    { "Help",     disp_help },
     { "Leave",    disp_leave },
     { "Notify",   disp_notify },
     { "Ctcp",     disp_ctcp },
