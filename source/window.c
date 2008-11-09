@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.46 2007-03-30 15:27:37 f Exp $
+ * $Id: window.c,v 1.47 2008-11-09 17:21:44 f Exp $
  */
 
 #include "irc.h"
@@ -3017,6 +3017,13 @@ windowcmd(command, args, subargs)
 			else
 				say("You must specify a name for the window!");
 		}
+/**************************** PATCHED by Flier ******************************/
+                else if (strncmp("UNNAME", cmd, len) == 0)
+                {
+                    new_free(&(window->name));
+                    update_window_status(window, 0);
+                }
+/****************************************************************************/
 		else if (strncmp("PROMPT", cmd, len) == 0)
 		{
 			if ((arg = next_arg(args, &args)) != NULL)
