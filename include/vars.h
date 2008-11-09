@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.6 2008-09-15 16:47:48 f Exp $
+ * $Id: vars.h,v 1.7 2008-11-09 17:24:33 f Exp $
  */
 
 #ifndef __vars_h_
@@ -181,6 +181,7 @@ enum {
 	NOTIFY_LEVEL_VAR,
 	NOTIFY_ON_TERMINATION_VAR,
 /**************************** PATCHED by Flier ******************************/
+	NOTIFY_SHOW_NAME_VAR,
 	NOTIFY_STRING_VAR,
 /****************************************************************************/
 	NOVICE_VAR,

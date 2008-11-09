@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.35 2007-08-21 12:52:49 f Exp $
+ * $Id: status.c,v 1.36 2008-11-09 17:24:33 f Exp $
  */
 
 #include "irc.h"
@@ -1439,7 +1439,10 @@ status_notify_windows(window)
 	int	doneone = 0;
 	char	*ptr = (char *) 0;
 	int	flag = 1;
-	char	buf2[81];
+/**************************** PATCHED by Flier ******************************/
+	/*char	buf2[81];*/
+	char	buf2[512];
+/****************************************************************************/
 
 	if (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    window == window->screen->current_window)
@@ -1457,6 +1460,12 @@ status_notify_windows(window)
 				else
 					snprintf(refnum, sizeof refnum, ",%d", window->refnum);
 				strmcat(buf2, refnum, 81);
+/**************************** PATCHED by Flier ******************************/
+                                if (get_int_var(NOTIFY_SHOW_NAME_VAR) && window->name) {
+                                    strmcat(buf2, "/", sizeof(buf2));
+                                    strmcat(buf2, window->name, sizeof(buf2));
+                                }
+/****************************************************************************/
 			}
 		}
 	}

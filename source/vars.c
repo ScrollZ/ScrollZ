@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.34 2008-09-15 16:47:48 f Exp $
+ * $Id: vars.c,v 1.35 2008-11-09 17:24:33 f Exp $
  */
 
 #include "irc.h"
@@ -236,6 +236,7 @@ IrcVariable irc_variable[] =
 	{ "NOTIFY_LEVEL",		STR_TYPE_VAR,	0, NULL, set_notify_level, 0, 0 },
 	{ "NOTIFY_ON_TERMINATION",	BOOL_TYPE_VAR,	DEFAULT_NOTIFY_ON_TERMINATION, NULL, NULL, 0, VF_NODAEMON },
 /**************************** PATCHED by Flier ******************************/
+	{ "NOTIFY_SHOW_NAME",		BOOL_TYPE_VAR,	DEFAULT_NOTIFY_SHOW_NAME, NULL, NULL, 0, 0 },
 	{ "NOTIFY_STRING",		STR_TYPE_VAR,	0, NULL, Cnotifystring, 0, 0 },
 /****************************************************************************/
 	{ "NOVICE",			BOOL_TYPE_VAR,	DEFAULT_NOVICE, NULL, NULL, 0, 0 },
