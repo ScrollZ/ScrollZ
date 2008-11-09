@@ -1,0 +1,9 @@
+!	 $Id: unname,v 1.1 2008-11-09 17:23:35 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: WINDOW UNNAME
+  Removes the name set for the window.

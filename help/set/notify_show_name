@@ -1,0 +1,14 @@
+!	 $Id: notify_show_name,v 1.1 2008-11-09 17:23:35 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET NOTIFY_SHOW_NAME [ON|OFF|TOGGLE]
+  When ON, the STATUS_NOTIFY (%F) expando will also include the window
+  name, if one is set.
+
+See also:
+  WINDOW NAME
+  WINDOW UNNAME
