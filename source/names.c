@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: names.c,v 1.61 2008-03-09 10:50:23 f Exp $
+ * $Id: names.c,v 1.62 2008-11-10 15:28:48 f Exp $
  */
 
 #include "irc.h"
@@ -766,6 +766,7 @@ char    *servmodes;
             if (isserver) userhost = NULL;
             *servmodeadd = '\0';
             *tmpbufmode = '\0';
+            *modebuf = '\0';
             *servline = '\0';
             *lastdeop = '\0';
             *lastvoice = '\0';
