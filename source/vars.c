@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.35 2008-11-09 17:24:33 f Exp $
+ * $Id: vars.c,v 1.36 2008-11-13 18:23:41 f Exp $
  */
 
 #include "irc.h"
@@ -140,6 +140,9 @@ IrcVariable irc_variable[] =
 	{ "BEEP_ON_MSG",		STR_TYPE_VAR,	0, NULL, set_beep_on_msg, 0, 0 },
 	{ "BEEP_WHEN_AWAY",		INT_TYPE_VAR,	DEFAULT_BEEP_WHEN_AWAY, NULL, NULL, 0, 0 },
 	{ "BOLD_VIDEO",			BOOL_TYPE_VAR,	DEFAULT_BOLD_VIDEO, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "CHANLOG_STRIP_ANSI",		BOOL_TYPE_VAR,	DEFAULT_CHANLOG_STRIP_ANSI, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "CHANNEL_NAME_WIDTH",		INT_TYPE_VAR,	DEFAULT_CHANNEL_NAME_WIDTH, NULL, update_all_status, 0, 0 },
 	{ "CLIENT_INFORMATION",		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "CLOCK",			BOOL_TYPE_VAR,	DEFAULT_CLOCK, NULL, update_all_status, 0, 0 },

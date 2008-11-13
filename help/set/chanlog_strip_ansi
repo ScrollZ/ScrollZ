@@ -1,0 +1,12 @@
+!	 $Id: chanlog_strip_ansi,v 1.1 2008-11-13 18:23:41 f Exp $
+!
+! Copyright (c) 1994-2008 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET CHANLOG_STRIP_ANSI [ON|OFF|TOGGLE]
+  When ON, ANSI will be stripped from chanlogs.
+
+See Also:
+  SET LASTLOG_ANSI

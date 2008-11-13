@@ -75,7 +75,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.166 2008-09-15 16:49:28 f Exp $
+ * $Id: edit6.c,v 1.167 2008-11-13 18:23:41 f Exp $
  */
 
 #include "irc.h"
@@ -3270,7 +3270,8 @@ ChannelList *chan;
     if ((logfile = fopen(chan->chanlogfpath, "a")) != NULL) {
         now = time((time_t *) 0);
         snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
-        StripAnsi(tmpbuf2, tmpbuf1, 2);
+        if (get_int_var(CHANLOG_STRIP_ANSI_VAR)) StripAnsi(tmpbuf2, tmpbuf1, 2);
+        else strmcpy(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
         if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
         else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(logfile, "%s\n", tmpbuf2);
