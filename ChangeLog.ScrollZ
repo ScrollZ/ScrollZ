@@ -8,7 +8,7 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ
+ScrollZ v1.9.100
 
     ! IGNORE nick ignore_type works again (reported by -jff-)
     + URL catcher now saves nick and channel in publics
@@ -43,10 +43,43 @@ ScrollZ
     ! bug when nick ended with a tilde, client would still show
       nick as present even though they parted the channel
       (reported by juha)
-    ! WHO -FILE fixes by braneded
+    ! WHO -FILE fixes by flashback
     + support for numeric #479 (illegal channel name, coded by
-      braneded)
+      flashback)
     + FiSH support has been integrated in main src
+    + MSG -SERVER (requested by smk)
+    ~ DCC RAW no longer sends newline by default, fix your scripts
+      in case you need this!
+    + SET AUTO_RECONNECT_CHANNELS (coded by flashback)
+    + -n CLI parameter, if specified no server is connected at
+      startup (coded by flashback)
+    ! configure should now properly find iconv.h on FreeBSD
+    ! don't send disconnect notice in plain text when SSL
+      connection is used (reported by wiz)
+    ! crash when server connection is closed in case of SSL connections
+      (if GNUTLS is used, reported by q)
+    + tab completion for SET variables (implemented by flashback)
+    + WHOIS now recognises numeric 671 (secure connection, implemented
+      by flashback)
+    + upon receipt of DCC REJECT CTCP reply the corresponding DCC
+      is closed
+    + SET SEND_USERHOST_ON_NICK_IN_USE (if set to off client will
+      not send userhost query when server sends nickname already
+      in use reply)
+    + MONITOR support (available on ircd-ratbox, coded by flashback)
+    + SET NETSPLIT_TIME (to set how long client keeps netsplit info,
+      patch by flashback)
+    ! stuck input prompt bug (thanks to wiz for testing)
+    ! SZsetup was missing some colours (reported by jm_)
+    ! crash upon exit if flood list was not yet initialized
+    + SET NOTIFY_SHOW_NAME (if enabled activity includes
+      window name, patch by flashback)
+    + WINDOW UNNAME (unset window name, patch by flashback)
+    ! long standing bug where client would send stuff from
+      unnitialised buffer to server (thanks to Jugernaut
+      for helping me with this)
+    + SET CHANLOG_STRIP_ANSI (by flashback, when enabled ANSI
+      colour codes are stripped from chanlog)
 
 ------------------------------------------------------------------------------
 
