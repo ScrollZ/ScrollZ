@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.46 2008-12-01 15:51:20 f Exp $
+dnl @(#)$Id: configure.in,v 1.47 2008-12-01 15:55:19 f Exp $
 
-AC_REVISION($Revision: 1.46 $)dnl
+AC_REVISION($Revision: 1.47 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.46 2008-12-01 15:51:20 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.47 2008-12-01 15:55:19 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1242,7 +1242,7 @@ AC_ARG_WITH(ssl,
            CFLAGS="$ocflags `libgnutls-config --cflags`"
          fi
          if test -d "$gnutls_prefix/lib" -a -n "$gnutls_prefix"; then
-           LIBS="$olibs -L$gnutls_prefix/lib -lssl -lcrypto"
+           LIBS="$olibs -L$gnutls_prefix/lib -lgnutls"
          else
            LIBS="$olibs `libgnutls-config --libs`"
          fi
