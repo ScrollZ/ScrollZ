@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: status.c,v 1.36 2008-11-09 17:24:33 f Exp $
+ * $Id: status.c,v 1.37 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -1435,23 +1435,27 @@ static	char	*
 status_notify_windows(window)
 	Window	*window;
 {
-	char	refnum[10];
+	char	refnum[40];
 	int	doneone = 0;
 	char	*ptr = (char *) 0;
+        char    *s, *e;
 	int	flag = 1;
-/**************************** PATCHED by Flier ******************************/
-	/*char	buf2[81];*/
 	char	buf2[512];
-/****************************************************************************/
 
 	if (get_int_var(SHOW_STATUS_ALL_VAR) ||
 	    window == window->screen->current_window)
 	{
-		*buf2='\0';
+		*buf2 = '\0';
+                s = get_string_var(STATUS_NOTIFY_REPW_START_VAR);
+                e = get_string_var(STATUS_NOTIFY_REPW_END_VAR);
 		while ((window = traverse_all_windows(&flag)) != NULL)
 		{
 			if (window->miscflags & WINDOW_NOTIFIED)
 			{
+/**************************** PATCHED by Flier ******************************/
+                            if (window->miscflags & WINDOW_REPWORD && s)
+                                strmcat(buf2, s, sizeof(buf2));
+/****************************************************************************/
 				if (!doneone)
 				{
 					doneone++;
@@ -1459,12 +1463,14 @@ status_notify_windows(window)
 				}
 				else
 					snprintf(refnum, sizeof refnum, ",%d", window->refnum);
-				strmcat(buf2, refnum, 81);
+				strmcat(buf2, refnum, sizeof(buf2));
 /**************************** PATCHED by Flier ******************************/
                                 if (get_int_var(NOTIFY_SHOW_NAME_VAR) && window->name) {
                                     strmcat(buf2, "/", sizeof(buf2));
                                     strmcat(buf2, window->name, sizeof(buf2));
                                 }
+                                if (window->miscflags & WINDOW_REPWORD && e)
+                                    strmcat(buf2, e, sizeof(buf2));
 /****************************************************************************/
 			}
 		}

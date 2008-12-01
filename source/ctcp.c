@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.53 2008-05-13 14:58:48 f Exp $
+ * $Id: ctcp.c,v 1.54 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -1426,10 +1426,10 @@ do_atmosphere(ctcp, from, to, cmd)
         char    *color = "";
 #endif
         char    tmpbuf1[mybufsize / 2];
-        void    (*func)();
+        Window *(*func)();
         ChannelList *chan;
 	NickList *joiner;
-        Window *oldwin;
+        Window *oldwin, *w = NULL;
 
 #ifdef HAVE_ICONV_H
         if (get_int_var(HIGH_ASCII_VAR)) thing = "\342\210\236";
@@ -1437,8 +1437,8 @@ do_atmosphere(ctcp, from, to, cmd)
         if (get_int_var(HIGH_ASCII_VAR)) thing = "ì";
 #endif /* HAVE_ICONV_H */
         else thing = "*";
-        if (Stamp == 2) func = (void(*)()) say;
-        else func = (void(*)()) put_it;
+        if (Stamp == 2) func = (Window *(*)()) say;
+        else func = (Window *(*)()) put_it;
 /****************************************************************************/
         if (cmd && *cmd)
 	{
@@ -1471,12 +1471,12 @@ do_atmosphere(ctcp, from, to, cmd)
 					put_it("* %s:%s %s", from, to, cmd);*/
 				if (is_current_channel(to, parsing_server_index, 0))
 #ifdef WANTANSI
-                                    func("%s%s%s %s%s%s %s%s%s",
-                                          CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                          color, from, Colors[COLOFF],
-                                          CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
+                                    w = func("%s%s%s %s%s%s %s%s%s",
+                                             CmdsColors[COLME].color1, thing, Colors[COLOFF],
+                                             color, from, Colors[COLOFF],
+                                             CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-                                    func("%s %s%s%s %s", thing, color, from, color, cmd);
+                                    w = func("%s %s%s%s %s", thing, color, from, color, cmd);
 #endif
                                 else {
 #ifdef WANTANSI
@@ -1484,10 +1484,10 @@ do_atmosphere(ctcp, from, to, cmd)
                                            CmdsColors[COLME].color4, to, Colors[COLOFF],
                                            CmdsColors[COLME].color1, thing, Colors[COLOFF],
                                            color, from, Colors[COLOFF]);
-                                    func("%s %s%s%s",tmpbuf1,
-                                          CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
+                                    w = func("%s %s%s%s",tmpbuf1,
+                                             CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
 #else
-                                    func("<%s> %s %s%s%s %s", to, thing, color, from, color, cmd);
+                                    w = func("<%s> %s %s%s%s %s", to, thing, color, from, color, cmd);
 #endif
                                 }
 /****************************************************************************/
@@ -1537,10 +1537,10 @@ do_atmosphere(ctcp, from, to, cmd)
                                     to_window = curr_scr_win;
                             }
 #ifdef WANTANSI
-                            func("%s %s%s%s", tmpbuf1,
-                                 CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
+                            w = func("%s %s%s%s", tmpbuf1,
+                                     CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-                            func("%s", tmpbuf1);
+                            w = func("%s", tmpbuf1);
 #endif
                             to_window = oldwin;
                         }
@@ -1559,18 +1559,22 @@ do_atmosphere(ctcp, from, to, cmd)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it("*> %s %s", from, cmd);*/
 #ifdef WANTANSI
-                                func("%s%s%s> %s%s%s %s%s%s",
-                                      CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                      color, from, Colors[COLOFF],
-                                      CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
+                                w = func("%s%s%s> %s%s%s %s%s%s",
+                                         CmdsColors[COLME].color1, thing, Colors[COLOFF],
+                                         color, from, Colors[COLOFF],
+                                         CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
-				func("%s> %s%s%s %s", thing, color, from, color, cmd);
+				w = func("%s> %s%s%s %s", thing, color, from, color, cmd);
 #endif
 /****************************************************************************/
 		}
 		set_lastlog_msg_level(old);
  		restore_message_from();
 	}
+        if (foundar && w != curr_scr_win) {
+            w->miscflags |= WINDOW_REPWORD;
+            update_all_status();
+        }
 	return NULL;
 }
 

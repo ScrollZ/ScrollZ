@@ -1,0 +1,16 @@
+!	 $Id: status_notify_repw_start_var,v 1.1 2008-12-01 15:41:36 f Exp $
+!
+! Copyright (c) 1994-2008  Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET STATUS_NOTIFY_START_VAR <Status line text>
+  The contents of STATUS_NOTIFY_START_VAR are placed in the
+  STATUS_NOTIFY format before window number that triggered REPWORD.
+  This can be used to highlight windows where REPWORD is triggered
+  with a different color.
+
+See also:
+  SET STATUS_NOTIFY_VAR, SET STATUS_NOTIFY_END_VAR,
+  REPWORD

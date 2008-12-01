@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.h,v 1.9 2003-01-08 20:00:54 f Exp $
+ * $Id: window.h,v 1.10 2008-12-01 15:41:36 f Exp $
  */
 
 #ifndef __window_h_
@@ -153,6 +153,7 @@ extern	u_int	window_display;
 
 #define WINDOW_NOTIFY	((unsigned) 0x0001)
 #define WINDOW_NOTIFIED	((unsigned) 0x0002)
+#define WINDOW_REPWORD	((unsigned) 0x0004)
 
 /* for window_set_server() -Sol */
 #define	WIN_ALL		0x01

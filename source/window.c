@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.47 2008-11-09 17:21:44 f Exp $
+ * $Id: window.c,v 1.48 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -533,6 +533,7 @@ remove_from_invisible_list(window)
 	window->visible = 1;
 	window->screen = current_screen;
 	window->miscflags &= ~WINDOW_NOTIFIED;
+	window->miscflags &= ~WINDOW_REPWORD;
 	if (window->prev)
 		window->prev->next = window->next;
 	else

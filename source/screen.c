@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.41 2007-11-08 16:07:08 f Exp $
+ * $Id: screen.c,v 1.42 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -1948,12 +1948,12 @@ int in_redirect;
  * lastlog the information should be added to, which log the information
  * should be sent to, etc 
  */
-void
+Window *
 add_to_screen(incoming)
 	char	*incoming;
 {
 	int	flag;
-	Window	*tmp;
+	Window	*tmp, *w = NULL;
 	char	buffer[BIG_BUFFER_SIZE + 1];
 /**************************** PATCHED by Flier ******************************/
         char tmpbuf[BIG_BUFFER_SIZE + 1];
@@ -2034,22 +2034,25 @@ add_to_screen(incoming)
 	{
 		/* FIXME: Do iconv for "incoming" in dumb mode too */
 		add_to_lastlog(curr_scr_win, incoming);
+                w = curr_scr_win;
 		if (do_hook(WINDOW_LIST, "%u %s", curr_scr_win->refnum, incoming))
 			puts(incoming);
   		term_flush();
-		return;
+		return w;
 	}
 	if (in_window_command)
 		update_all_windows();
 	if ((who_level == LOG_CURRENT) && (curr_scr_win->server == from_server))
         {
 		add_to_window(curr_scr_win, incoming);
-		return;
+                w = curr_scr_win;
+		return w;
 	}
 	if (to_window)
 	{
 		add_to_window(to_window, incoming);
-		return;
+                w = to_window;
+		return w;
 	}
 	if (who_from)
 	{
@@ -2060,7 +2063,8 @@ add_to_screen(incoming)
 			if ((chan = lookup_channel(who_from, from_server, CHAN_NOUNLINK)))
 			{
 				add_to_window(chan->window ? chan->window : curr_scr_win, incoming);
-				return;
+                                w = chan->window ? chan->window : curr_scr_win;
+				return w;
 			}
 			if (who_level == LOG_DCC)
 			{
@@ -2069,7 +2073,8 @@ add_to_screen(incoming)
 				if ((chan = lookup_channel(buffer, from_server, CHAN_NOUNLINK)))
 				{
 					add_to_window(chan->window ? chan->window : curr_scr_win, incoming);
-					return;
+                                        w = chan->window ? chan->window : curr_scr_win;
+					return w;
 				}
 			}
 		}
@@ -2087,7 +2092,8 @@ add_to_screen(incoming)
 					my_stricmp(who_from, tmp->query_nick + 1) == 0)))
 				{
 					add_to_window(tmp, incoming);
-					return;
+                                        w = tmp;
+					return w;
 				}
 			}
 			flag = 1;
@@ -2098,7 +2104,8 @@ add_to_screen(incoming)
 					if (find_in_list((List **) &(tmp->nicks), who_from, !USE_WILDCARDS))
 					{
 						add_to_window(tmp, incoming);
-						return;
+                                                w = tmp;
+						return w;
 					}
 				}
 			}
@@ -2111,7 +2118,8 @@ add_to_screen(incoming)
 		    (who_level & tmp->window_level))
 		{
 			add_to_window(tmp, incoming);
-			return;
+                        w = tmp;
+			return w;
 		}
 	}
 	if (from_server == curr_scr_win->server)
@@ -2128,6 +2136,8 @@ add_to_screen(incoming)
 			tmp = curr_scr_win;
 	}
 	add_to_window(tmp, incoming);
+        w = tmp;
+        return w;
 }
 
 /*

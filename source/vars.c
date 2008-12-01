@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.36 2008-11-13 18:23:41 f Exp $
+ * $Id: vars.c,v 1.37 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -294,6 +294,8 @@ IrcVariable irc_variable[] =
 	{ "STATUS_MAIL",		STR_TYPE_VAR,	0, NULL, build_status, 0, VF_NODAEMON },
 	{ "STATUS_MODE",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_NOTIFY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+	{ "STATUS_NOTIFY_REPW_END_VAR",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
+	{ "STATUS_NOTIFY_REPW_START_VAR",	STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_OPER",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_OVERWRITE",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
 	{ "STATUS_QUERY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },

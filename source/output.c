@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.c,v 1.17 2006-10-31 12:31:27 f Exp $
+ * $Id: output.c,v 1.18 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -150,7 +150,7 @@ put_file(filename)
  * It just doesn't work.  - phone, jan 1993.
  */
 /*VARARGS*/
-void
+Window *
 #ifdef HAVE_STDARG_H
 put_it(char *format, ...)
 {				/* } */
@@ -170,6 +170,8 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		*arg10;
 {
 #endif
+        Window *w = NULL;
+
 	if (window_display)
 	{
 #ifdef HAVE_STDARG_H
@@ -181,15 +183,16 @@ put_it(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
-		add_to_screen(putbuf);
+		w = add_to_screen(putbuf);
 		PUTBUF_END
 	}
+        return w;
 }
 
 /* This is an alternative form of put_it which writes three asterisks
  * before actually putting things out.
  */
-void
+Window *
 #ifdef HAVE_STDARG_H
 say(char *format, ...)
 #else
@@ -212,6 +215,7 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 #endif /* HAVE_STDARG_H */
 /**************************** PATCHED by Flier ******************************/
         char *stampbuf=TimeStamp(2);
+        Window *w = NULL;
 /****************************************************************************/
 
 	if (window_display)
@@ -237,11 +241,12 @@ say(format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 		snprintf(putbuf, sizeof putbuf, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 #endif
 		add_to_log(irclog_fp, putbuf);
-		add_to_screen(putbuf);
+		w = add_to_screen(putbuf);
 		PUTBUF_END
 		if (fmt)
 			new_free(&fmt);
 	}
+        return w;
 }
 
 void

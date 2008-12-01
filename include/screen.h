@@ -31,7 +31,7 @@
  *
  * see the copyright file, or type help ircii copyright
  *
- * $Id: screen.h,v 1.6 2006-04-30 14:15:43 f Exp $
+ * $Id: screen.h,v 1.7 2008-12-01 15:41:36 f Exp $
  */
 
 #ifndef __screen_h_
@@ -78,7 +78,7 @@
 	int	rite _((Window *, char *, int, int, int, int));
 	ShrinkInfo	resize_display _((Window *));
 	void	redraw_all_windows _((void));
-	void	add_to_screen _((char *));
+	Window *add_to_screen _((char *));
 	void	screen_wserv_message _((Screen *screen));
 /**************************** PATCHED by Flier ******************************/
 	void	redraw_window _((Window *, int, int));

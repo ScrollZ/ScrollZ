@@ -31,22 +31,22 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: output.h,v 1.5 2003-01-08 20:00:54 f Exp $
+ * $Id: output.h,v 1.6 2008-12-01 15:41:36 f Exp $
  */
 
 #ifndef __output_h_
 #define __output_h_
 
 #ifdef HAVE_STDARG_H
-	void	put_it _((char *, ...));
+	Window *put_it _((char *, ...));
 	void	send_to_server _((char *, ...));
-	void	say _((char *, ...));
+	Window *say _((char *, ...));
 	void	yell _((char *, ...));
 	void	help_put_it _((char *, char *, ...));
 # else
-	void	put_it _(());
+	Window *put_it _(());
 	void	send_to_server _(());
-	void	say _(());
+	Window *say _(());
 	void	yell _(());
 	void	help_put_it _(());
 #endif /* HAVE_STDARG_H */

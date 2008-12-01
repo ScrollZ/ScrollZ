@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.118 2008-04-21 17:59:03 f Exp $
+ * $Id: edit5.c,v 1.119 2008-12-01 15:41:36 f Exp $
  */
 
 #include "irc.h"
@@ -1507,6 +1507,7 @@ int  iscrypted;
     char pubechar='>';
 #endif
     char *cstr = empty_string;
+    Window *w;
 
     if (iscrypted == 2) cstr = "[*]";
     else if (iscrypted) cstr = "[!]";
@@ -1604,8 +1605,8 @@ int  iscrypted;
                         CmdsColors[COLPUBLIC].color3,channel,Colors[COLOFF],
 #endif
                         CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF]);
-                put_it("%s%s%s%s%s%s",cstr,stampbuf,tmpbuf2,
-                        CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+                w = put_it("%s%s%s%s%s%s",cstr,stampbuf,tmpbuf2,
+                           CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
                 to_window=oldwin; 
             }
         }
@@ -1622,8 +1623,8 @@ int  iscrypted;
                     CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF]
 #endif
                     );
-            put_it("%s%s%s%s %s%s%s",cstr,stampbuf,tmpbuf2,tmpbuf5,
-                   CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+            w = put_it("%s%s%s%s %s%s%s",cstr,stampbuf,tmpbuf2,tmpbuf5,
+                       CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
 	/* AwaySave needs to go after the put_it(). Two if's doesn't hurt */
 	if (foundar && (away_set || LogOn)) {
@@ -1637,16 +1638,16 @@ int  iscrypted;
         else if (isfriend) coln=CmdsColors[COLMISC].color4;
         else coln=CmdsColors[COLPUBLIC].color2;
         if (!col && print)
-            put_it("%s%s%s%c%s %s%s%s",cstr,stampbuf,
-                   coln,pubechar,Colors[COLOFF],
-                   CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+            w = put_it("%s%s%s%c%s %s%s%s",cstr,stampbuf,
+                       coln,pubechar,Colors[COLOFF],
+                       CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         else if (print) {
             snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%c%s%s%s%s%s>%s ",
                     coln,pubechar,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF],
                     CmdsColors[COLPUBLIC].color2,Colors[COLOFF]);
-            put_it("%s%s%s%s%s%s",cstr,stampbuf,tmpbuf1,
-                   CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
+            w = put_it("%s%s%s%s%s%s",cstr,stampbuf,tmpbuf1,
+                       CmdsColors[COLPUBLIC].color5,tmpbuf4,Colors[COLOFF]);
         }
     }
 #else  /* WANTANSI */
@@ -1663,13 +1664,13 @@ int  iscrypted;
         }
         if (print && (!foundar || isitme)) {
             snprintf(tmpbuf3,sizeof(tmpbuf3),"%s%s%c%s",cstr,stampbuf,pubschar,tmpbuf2);
-            put_it("%s%s%s%s%s%s%c %s",tmpbuf3,
-                   (isitme && Ego)?"":"",nick,(isitme && Ego)?"":"",newcol,newchan,pubechar,tmpbuf4);
+            w = put_it("%s%s%s%s%s%s%c %s",tmpbuf3,
+                       (isitme && Ego)?"":"",nick,(isitme && Ego)?"":"",newcol,newchan,pubechar,tmpbuf4);
         }
         else {
             if (print)
-                put_it("%s%s%c%s%s%s%s%c %s",cstr,
-                        stampbuf,pubschar,tmpbuf2,nick,newcol,newchan,pubechar,tmpbuf4);
+                w = put_it("%s%s%c%s%s%s%s%c %s",cstr,
+                           stampbuf,pubschar,tmpbuf2,nick,newcol,newchan,pubechar,tmpbuf4);
             if (away_set || LogOn) {
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"<%s:%s> %s",nick,channel,tmpbuf4);
                 AwaySave(tmpbuf2,SAVEAREPLY);
@@ -1677,8 +1678,8 @@ int  iscrypted;
         }
     }
     else {
-        if (!col && print) put_it("%s%s%c %s",cstr,stampbuf,pubechar,tmpbuf4);
-        else if (print) put_it("%s%s%c%s> %s",cstr,stampbuf,pubechar,newchan,tmpbuf4);
+        if (!col && print) w = put_it("%s%s%c %s",cstr,stampbuf,pubechar,tmpbuf4);
+        else if (print) w = put_it("%s%s%c%s> %s",cstr,stampbuf,pubechar,newchan,tmpbuf4);
     }
 #endif /* WANTANSI */
     if (URLCatch && URLCatch<3 && numurl)
@@ -1689,6 +1690,10 @@ int  iscrypted;
     if (chan && chan->ChanLog) {
         snprintf(tmpbuf3,sizeof(tmpbuf3),"<%s> %s", nick, line);
         ChannelLogSave(tmpbuf3, chan);
+    }
+    if (foundar && w != curr_scr_win) {
+        w->miscflags |= WINDOW_REPWORD;
+        update_all_status();
     }
 }
 
