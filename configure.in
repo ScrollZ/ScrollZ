@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.44 2008-05-20 17:41:50 f Exp $
+dnl @(#)$Id: configure.in,v 1.45 2008-12-01 15:50:16 f Exp $
 
-AC_REVISION($Revision: 1.44 $)dnl
+AC_REVISION($Revision: 1.45 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.44 2008-05-20 17:41:50 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.45 2008-12-01 15:50:16 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1221,6 +1221,8 @@ AC_ARG_WITH(ssl,
   no)  AC_MSG_RESULT(no)
        ;;		
   *) AC_MSG_RESULT(yes)
+     olibs="$LIBS"
+     ocflags="$CFLAGS"
      if test "x$withval" = "xyes";
      then
        gnutls_prefix=""
@@ -1228,25 +1230,34 @@ AC_ARG_WITH(ssl,
        gnutls_prefix="$withval"
      fi
      AC_MSG_CHECKING(for GNU TLS)
-     if test -d "$gnutls_prefix/include" -a -n "$gnutls_prefix"; then
-       CFLAGS="-I$gnutls_prefix/include $CFLAGS"
-     fi
-     CFLAGS="$CFLAGS `libgnutls-config --cflags`"
-     if test -d "$gnutls_prefix/lib" -a -n "$gnutls_prefix"; then
-       LIBS="-L$gnutls_prefix/lib $LIBS -lssl -lcrypto"
+     libgnutls-config --version >/dev/null 2>&1
+     if test $? -ne 0;
+     then
+         AC_MSG_RESULT(no)
+         ssl=no
      else
-       LIBS="$LIBS `libgnutls-config --libs`"
-     fi
-     AC_TRY_LINK([
+         if test -d "$gnutls_prefix/include" -a -n "$gnutls_prefix"; then
+           CFLAGS="-I$gnutls_prefix/include"
+         fi
+         else
+           CFLAGS="$ocflags `libgnutls-config --cflags`"
+         fi
+         if test -d "$gnutls_prefix/lib" -a -n "$gnutls_prefix"; then
+           LIBS="$olibs -L$gnutls_prefix/lib -lssl -lcrypto"
+         else
+           LIBS="$olibs `libgnutls-config --libs`"
+         fi
+         AC_TRY_LINK([
 #include <gnutls/gnutls.h>
-],   [ gnutls_check_version(NULL); ],
-     [ AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_SSL)
-     ssl=yes ],
-     [ AC_MSG_RESULT(no)
-     LIBS="$ac_save_LIBS"
-     ssl=no ])
-     ;;
+    ],   [ gnutls_check_version(NULL); ],
+         [ AC_MSG_RESULT(yes)
+         AC_DEFINE(HAVE_SSL)
+         ssl=yes ],
+         [ AC_MSG_RESULT(no)
+         LIBS="$olibs"
+         CFLAGS="$ocflags"
+         ssl=no ])
+    fi
   esac ],
   AC_MSG_RESULT(no)
 )
