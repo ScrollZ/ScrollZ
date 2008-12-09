@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.50 2007-09-15 08:34:03 f Exp $
+ * $Id: alias.c,v 1.51 2008-12-09 15:58:11 f Exp $
  */
 
 #include "irc.h"
@@ -4796,10 +4796,10 @@ u_char *input;
 u_char *function_url(input)
 u_char *input;
 {
-    int urlnum = 99;
+    int urlnum = 9999;
     int showtarget = 0;
     u_char *result = NULL;
-    struct urlstr *tmpurl = urllist;
+    struct urlstr *tmpurl = urllist, *prevurl = NULL;
 
     if (!tmpurl) malloc_strcpy((char **) &result, empty_string);
     else {
@@ -4808,8 +4808,12 @@ u_char *input;
             urlnum = atoi(tmpstr);
             if (input && *input) showtarget = 1;
         }
-        while (tmpurl && urlnum--) tmpurl = tmpurl->next;
-        if (tmpurl) {
+        while (tmpurl && urlnum--) {
+            prevurl = tmpurl;
+            tmpurl = tmpurl->next;
+        }
+        if (tmpurl || (prevurl && (urlnum > 0))) {
+            if (!tmpurl) tmpurl = prevurl;
             malloc_strcpy((char **) &result, tmpurl->urls);
             if (showtarget && tmpurl->source) {
                 malloc_strcat((char **) &result, " ");
