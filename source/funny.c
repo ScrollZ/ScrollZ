@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: funny.c,v 1.24 2004-07-02 18:04:52 f Exp $
+ * $Id: funny.c,v 1.25 2008-12-22 09:57:47 f Exp $
  */
 
 #include "irc.h"
@@ -436,9 +436,16 @@ funny_mode(from, ArgList)
 					channel, mode))
 /**************************** Patched by Flier ******************************/
 				/*put_it("%s Mode for channel %s is \"%s\"",*/
+#ifdef WANTANSI
+				put_it("%sMode for channel %s%s%s is \"%s\"",
+					numeric_banner(),
+					CmdsColors[COLJOIN].color3, channel,
+					Colors[COLOFF], mode);
+#else
 				put_it("%sMode for channel %s is \"%s\"",
 /****************************************************************************/
 					numeric_banner(), channel, mode);
+#endif
 		}
 		else
 		{
