@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.47 2008-12-01 15:55:19 f Exp $
+dnl @(#)$Id: configure.in,v 1.48 2008-12-29 17:25:01 f Exp $
 
-AC_REVISION($Revision: 1.47 $)dnl
+AC_REVISION($Revision: 1.48 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.47 2008-12-01 15:55:19 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.48 2008-12-29 17:25:01 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1271,6 +1271,8 @@ AC_ARG_WITH(openssl,
   no)  AC_MSG_RESULT(no)
        ;;		
   *) AC_MSG_RESULT(yes)
+     olibs="$LIBS"
+     ocflags="$CFLAGS"
      if test "x$withval" = "xyes";
      then
        openssl_prefix=""
@@ -1293,7 +1295,8 @@ AC_ARG_WITH(openssl,
      AC_DEFINE(HAVE_OPENSSL)
      openssl=yes ],
      [ AC_MSG_RESULT(no)
-     LIBS="$ac_save_LIBS"
+     LIBS="$olibs"
+     CFLAGS="$ocflags"
      openssl=no ])
      ;;
   esac ],
@@ -1333,6 +1336,8 @@ AC_ARG_WITH(miracl,
   no)  AC_MSG_RESULT(no)
        ;;             
   *) AC_MSG_RESULT(yes)
+     olibs="$LIBS"
+     ocflags="$CFLAGS"
      if test "x$withval" = "xyes";
      then
        miracl_prefix=""
@@ -1353,8 +1358,11 @@ AC_ARG_WITH(miracl,
      AC_DEFINE(HAVE_MIRACL)
      miracl=yes ],
      [ AC_MSG_RESULT(no)
-     LIBS="$ac_save_LIBS"
+     LIBS="$olibs"
+     CFLAGS="$ocflags"
      miracl=no ])
+     LIBS="$olibs"
+     CFLAGS="$ocflags"
      ;;
   esac ],
   AC_MSG_RESULT(no)
