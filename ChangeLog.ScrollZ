@@ -8,7 +8,7 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ v1.9.100
+ScrollZ v2.0, 30.12.2008
 
     ! IGNORE nick ignore_type works again (reported by -jff-)
     + URL catcher now saves nick and channel in publics
@@ -80,6 +80,8 @@ ScrollZ v1.9.100
       for helping me with this)
     + SET CHANLOG_STRIP_ANSI (by flashback, when enabled ANSI
       colour codes are stripped from chanlog)
+    + SET STATUS_NOTIFY_END and SET STATUS_NOTIFY_START
+      (see help for more info, patch by jm_)
 
 ------------------------------------------------------------------------------
 
