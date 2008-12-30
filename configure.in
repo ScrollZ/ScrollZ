@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.48 2008-12-29 17:25:01 f Exp $
+dnl @(#)$Id: configure.in,v 1.49 2008-12-30 08:37:12 f Exp $
 
-AC_REVISION($Revision: 1.48 $)dnl
+AC_REVISION($Revision: 1.49 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.48 2008-12-29 17:25:01 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.49 2008-12-30 08:37:12 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1340,7 +1340,7 @@ AC_ARG_WITH(miracl,
      ocflags="$CFLAGS"
      if test "x$withval" = "xyes";
      then
-       miracl_prefix=""
+       miracl_prefix="/usr/local"
      else
        miracl_prefix="$withval"
      fi
