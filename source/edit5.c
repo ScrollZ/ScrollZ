@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.119 2008-12-01 15:41:36 f Exp $
+ * $Id: edit5.c,v 1.120 2008-12-31 15:02:36 f Exp $
  */
 
 #include "irc.h"
@@ -877,6 +877,25 @@ char *setting2;
 #endif
 }
 
+/* append given characters to string */
+void append_esc(c1, c2, c3, dst)
+char c1;
+char c2;
+char c3;
+unsigned char **dst;
+{
+    **dst = 0x1B;
+    (*dst)++;
+    **dst = c1;
+    (*dst)++;
+    **dst = c2;
+    (*dst)++;
+    if (c3 != 0) {
+        **dst = c3;
+        (*dst)++;
+    }
+}
+
 /* Strips ANSI codes from string */
 /* printonly = 0 ... don't strip non-printable characters
                1 ... strip non-printable characters
@@ -891,11 +910,56 @@ int  printonly;
 {
     int what = 0;
     int isattr;
+    int iso2022 = get_int_var(ISO2022_SUPPORT_VAR);
     unsigned char *tmpstr;
     unsigned char *newstr = destline;
 
     for (tmpstr = line; *tmpstr; tmpstr++) {
         if (*tmpstr == 0x1B) what = 1;
+        /* ISO-2022-JP */
+        else if (what == 1 && iso2022 && *tmpstr == '(') what = 2;
+        else if (what == 2 && iso2022 && *tmpstr == 'U') {
+            append_esc('(', 'U', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 2 && iso2022 && *tmpstr == 'B') {
+            append_esc('(', 'B', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 2 && iso2022 && *tmpstr == 'J') {
+            append_esc('(', 'J', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 2 && iso2022 && *tmpstr == 'I') {
+            append_esc('(', 'I', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 1 && iso2022 && *tmpstr == '$') what = 3;
+        else if (what == 3 && iso2022 && *tmpstr == '@') {
+            append_esc('$', '@', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 3 && iso2022 && *tmpstr == 'B') {
+            append_esc('$', 'B', 0, &newstr);
+            what = 0;
+        }
+        else if (what == 3 && iso2022 && *tmpstr == '(') what = 4;
+        else if (what == 4 && iso2022 && *tmpstr == 'D') {
+            append_esc('$', '(', 'D', &newstr);
+            what = 0;
+        }
+        else if (what == 4 && iso2022 && *tmpstr == 'O') {
+            append_esc('$', '(', 'O', &newstr);
+            what = 0;
+        }
+        else if (what == 4 && iso2022 && *tmpstr == 'P') {
+            append_esc('$', '(', 'P', &newstr);
+            what = 0;
+        }
+        else if (what == 4 && iso2022 && *tmpstr == 'Q') {
+            append_esc('$', '(', 'Q', &newstr);
+            what = 0;
+        }
         else if (what && isalpha(*tmpstr)) what = 0;
         else if (!what) {
             if (printonly && (*tmpstr < ' ' || *tmpstr > '~')) {
