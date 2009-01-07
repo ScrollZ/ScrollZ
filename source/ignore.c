@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.18 2007-01-16 16:43:26 f Exp $
+ * $Id: ignore.c,v 1.19 2009-01-07 17:47:51 f Exp $
  */
 
 #include "irc.h"
@@ -284,7 +284,11 @@ ignore_nickname(nick, type, flag, timedignore)
                                 else say("%s from %s", buffer, new->nick);
 /****************************************************************************/
 			}
-			if ((new->type == 0) && (new->high == 0))
+/**************************** PATCHED by Flier ******************************/
+			/*if ((new->type == 0) && (new->high == 0))*/
+                        /* fixes /ignore nick ^type */
+                        if ((new->type == 0) && (new->high == 0) && (new->dont == 0))
+/****************************************************************************/
 				remove_ignore(new->nick);
 		}
 		if (ptr)
@@ -714,7 +718,7 @@ double_ignore(nick, userhost, type)
             strmcpy(tmpbuf, nick, mybufsize / 4);
             strmcat(tmpbuf, "!", mybufsize / 4);
             strmcat(tmpbuf, userhost, mybufsize / 4);
-            return(is_ignored(tmpbuf, type));
+            return(ignore_combo(is_ignored(tmpbuf, type), is_ignored(userhost, type)));
         }
         else if (nick && userhost) {
             int isignored;
@@ -723,10 +727,11 @@ double_ignore(nick, userhost, type)
             strmcpy(tmpbuf, nick, mybufsize / 4);
             strmcat(tmpbuf, "!", mybufsize / 4);
             strmcat(tmpbuf, userhost, mybufsize / 4);
-            isignored = is_ignored(tmpbuf, type);
+            isignored = ignore_combo(is_ignored(tmpbuf, type), is_ignored(nick, type));
             if (isignored == 0) {
                 if (userhost)
-                    return(ignore_combo(is_ignored(nick, type), is_ignored(userhost, type)));
+                    return(ignore_combo(is_ignored(nick, type),
+                                        is_ignored(userhost, type)));
                 else return(is_ignored(nick, type));
             }
             return(isignored);
