@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.116 2008-09-15 16:49:28 f Exp $
+ * $Id: edit.c,v 1.117 2009-01-07 17:44:38 f Exp $
  */
 
 #include "irc.h"
@@ -3176,6 +3176,10 @@ send_text(org_nick, line, command)
 		}
 		else
 		{
+/**************************** PATCHED by Flier ******************************/ 
+                        char *cstr = empty_string;
+/****************************************************************************/
+
 			if (!command || strcmp(command, "NOTICE"))
 			{
  				check_away = 1;
@@ -3195,7 +3199,6 @@ send_text(org_nick, line, command)
 /**************************** PATCHED by Flier ******************************/ 
                         /*if (window_display && do_hook(list_type, "%s %s", nick, line))
 				put_it("-> %c%s%c %s", the_thing, nick, the_thing, line);*/
-                        char *cstr = empty_string;
 
                         if (iscrypted == 2) cstr = "[*]";
                         else if (iscrypted) cstr = "[!]";
