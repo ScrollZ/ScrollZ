@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ignore.c,v 1.19 2009-01-07 17:47:51 f Exp $
+ * $Id: ignore.c,v 1.20 2009-01-08 15:47:06 f Exp $
  */
 
 #include "irc.h"
@@ -712,16 +712,20 @@ double_ignore(nick, userhost, type)
 	int	type;
 {
 /**************************** Patched by Flier ******************************/
+        int isignored;
+
         if (nick && userhost && is_channel(userhost)) {
             char tmpbuf[mybufsize / 4 + 1];
 
             strmcpy(tmpbuf, nick, mybufsize / 4);
             strmcat(tmpbuf, "!", mybufsize / 4);
             strmcat(tmpbuf, userhost, mybufsize / 4);
-            return(ignore_combo(is_ignored(tmpbuf, type), is_ignored(userhost, type)));
+            isignored = ignore_combo(is_ignored(tmpbuf, type),
+                                     is_ignored(userhost, type));
+            isignored = ignore_combo(isignored, is_ignored(nick, type));
+            return(isignored);
         }
         else if (nick && userhost) {
-            int isignored;
             char tmpbuf[mybufsize / 4 + 1];
 
             strmcpy(tmpbuf, nick, mybufsize / 4);
@@ -729,9 +733,8 @@ double_ignore(nick, userhost, type)
             strmcat(tmpbuf, userhost, mybufsize / 4);
             isignored = ignore_combo(is_ignored(tmpbuf, type), is_ignored(nick, type));
             if (isignored == 0) {
-                if (userhost)
-                    return(ignore_combo(is_ignored(nick, type),
-                                        is_ignored(userhost, type)));
+                if (userhost) return(ignore_combo(is_ignored(nick, type),
+                                                  is_ignored(userhost, type)));
                 else return(is_ignored(nick, type));
             }
             return(isignored);
