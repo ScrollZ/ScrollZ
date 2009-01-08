@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.81 2008-03-09 11:18:52 f Exp $
+ * $Id: parse.c,v 1.82 2009-01-08 15:46:39 f Exp $
  */
 
 #include "irc.h"
@@ -744,11 +744,14 @@ p_privmsg(from, Args)
 		break;
 	}
 /**************************** Patched by Flier ******************************/
-        if (ignore_type == IGNORE_PUBLIC && double_ignore(to, NULL, IGNORE_PUBLIC) == IGNORED)
+        if ((flag != DONT_IGNORE) && (ignore_type == IGNORE_PUBLIC) &&
+            (double_ignore(to, NULL, IGNORE_PUBLIC) == IGNORED))
             goto out;
-        if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(from, to, IGNORE_PUBLIC) == IGNORED)
+        if ((flag != DONT_IGNORE) && (ignore_type == IGNORE_PUBLIC) && is_channel(to) &&
+            (double_ignore(from, to, IGNORE_PUBLIC) == IGNORED))
             goto out;
-        if (ignore_type == IGNORE_PUBLIC && is_channel(to) && double_ignore(FromUserHost, to, IGNORE_PUBLIC) == IGNORED)
+        if ((flag != DONT_IGNORE) && (ignore_type == IGNORE_PUBLIC) && is_channel(to) &&
+            (double_ignore(FromUserHost, to, IGNORE_PUBLIC) == IGNORED))
             goto out;
         if (FloodProt > 1 && flood_type == MSG_FLOOD) {
             snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", from, FromUserHost);
