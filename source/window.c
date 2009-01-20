@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.48 2008-12-01 15:41:36 f Exp $
+ * $Id: window.c,v 1.49 2009-01-20 16:52:37 f Exp $
  */
 
 #include "irc.h"
@@ -1936,8 +1936,8 @@ bind_channel(channel, window)
 		{
 /**************************** PATCHED by Flier ******************************/
 			/*say("Channel %s is already bound to window %d", channel, window->refnum);*/
-                        if (window->name) strmcpy(tmpbuf, window->name, sizeof(tmpbuf) - 1);
-                        else snprintf(tmpbuf, sizeof(tmpbuf), "%d", window->refnum);
+                        if (tmp->name) strmcpy(tmpbuf, tmp->name, sizeof(tmpbuf) - 1);
+                        else snprintf(tmpbuf, sizeof(tmpbuf), "%d", tmp->refnum);
 			say("Channel %s is already bound to window %s", channel, tmpbuf);
 /****************************************************************************/
 			return;
