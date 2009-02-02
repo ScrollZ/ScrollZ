@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.117 2009-01-07 17:44:38 f Exp $
+ * $Id: edit.c,v 1.118 2009-02-02 15:56:42 f Exp $
  */
 
 #include "irc.h"
@@ -3328,7 +3328,14 @@ do_send_text(command, args, subargs)
 /****************************************************************************/
 
 	if (command)
+/**************************** PATCHED by Flier ******************************/ 
+        {
+/****************************************************************************/
 		tmp = get_channel_by_refnum(0);
+/**************************** PATCHED by Flier ******************************/ 
+                if (!tmp) tmp = query_nick();
+        }
+/****************************************************************************/
 	else
 		tmp = get_target_by_refnum(0);
 /**************************** PATCHED by Flier ******************************/ 
