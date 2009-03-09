@@ -1,0 +1,10 @@
+!	 $Id: dcc_host,v 1.1 2009-03-09 15:53:48 f Exp $
+!
+! Copyright (c) 1994-2009 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET DCC_HOST <new host>
+  Set source IP address used in outgoing DCC requests. New
+  host can be either an IP address or a hostname.

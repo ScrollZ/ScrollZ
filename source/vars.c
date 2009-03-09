@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.37 2008-12-01 15:41:36 f Exp $
+ * $Id: vars.c,v 1.38 2009-03-09 15:53:48 f Exp $
  */
 
 #include "irc.h"
@@ -59,6 +59,7 @@
 extern char *HelpPathVar;
 extern char *TimeStampString;
 extern time_t LastTS;
+extern struct in_addr forced_ip_addr;
 /****************************************************************************/
 
 #define	VF_NODAEMON	0x0001
@@ -97,6 +98,7 @@ static  void    SetScrollZstr _((char *));
 static  void    SetMaxModes _((int));
 static  void    SetMaxWallopNicks _((int));
 static  void    SetDCCBlockSize _((int));
+static  void    SetDCCHost _((char *));
 static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
@@ -157,6 +159,7 @@ IrcVariable irc_variable[] =
 /**************************** PATCHED by Flier ******************************/
 /*        { "DCC_BLOCK_SIZE",		INT_TYPE_VAR,	DEFAULT_DCC_BLOCK_SIZE, NULL, NULL, 0, 0 },*/
 	{ "DCC_BLOCK_SIZE",		INT_TYPE_VAR,	DEFAULT_DCC_BLOCK_SIZE, NULL, SetDCCBlockSize, 0, 0 },
+	{ "DCC_HOST",		        STR_TYPE_VAR,	0, NULL, SetDCCHost, 0, 0 },
 	{ "DCC_PORTS",		        STR_TYPE_VAR,	0, NULL, SetDCCPorts, 0, 0 },
 /****************************************************************************/
 	{ "DEBUG",			INT_TYPE_VAR,	0, NULL, NULL, 0, 0 },
@@ -988,6 +991,22 @@ int value;
 {
     if (value>BIG_BUFFER_SIZE || value<16 || (value%2)) value=1024;
     set_int_var(DCC_BLOCK_SIZE_VAR,value);
+}
+
+static void SetDCCHost(value)
+char *value;
+{
+    if (value && *value) {
+        struct in_addr inp;
+        struct hostent *hp;
+
+        if (inet_aton(value, &inp) == 0) {
+            if ((hp = gethostbyname(value)) != NULL)
+                bcopy(hp->h_addr, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
+            else say("DNS lookup for %s failed", value);
+        }
+        else bcopy(&inp, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
+    }
 }
 
 static void SetDCCPorts(value)

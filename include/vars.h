@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.9 2008-12-01 15:41:36 f Exp $
+ * $Id: vars.h,v 1.10 2009-03-09 15:53:47 f Exp $
  */
 
 #ifndef __vars_h_
@@ -110,6 +110,7 @@ enum {
 	CTCP_REPLY_IGNORE_SECONDS_VAR,
 	DCC_BLOCK_SIZE_VAR,
 /**************************** PATCHED by Flier ******************************/
+	DCC_HOST_VAR,
 	DCC_PORTS_VAR,
 /****************************************************************************/
 	DEBUG_VAR,
