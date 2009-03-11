@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.42 2008-12-01 15:41:36 f Exp $
+ * $Id: screen.c,v 1.43 2009-03-11 16:49:57 f Exp $
  */
 
 #include "irc.h"
@@ -1770,6 +1770,11 @@ split_up_line(str)
 			/* one big long line, no word breaks */
 			if (word_break == 0)
 				word_break = pos - (col - current_screen->co);
+/**************************** PATCHED by Flier ******************************/
+                        /* Do not put one big long line in new row */
+                        else if (word_break < current_screen->co / 3)
+                            word_break = pos - 1;
+/****************************************************************************/
 			c = lbuf[word_break];
 			c1 = lbuf[word_break+1];
 			lbuf[word_break] = FULL_OFF;
