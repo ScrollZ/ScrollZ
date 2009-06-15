@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.21 2008-12-29 08:59:13 f Exp $
+ * $Id: irc.h,v 1.22 2009-06-15 15:02:26 f Exp $
  */
 
 #ifndef __irc_h
@@ -288,6 +288,7 @@
 #define WHO_HOPS        0x1000
 #define WHO_SHOW_SERVER 0x8000
 /****************************************************************************/
+#define WHO_NONCHOPS	0x10000
 
 #ifdef ICONV_CONST_ARG2
 #define iconv_const const

@@ -1,4 +1,4 @@
-!	 $Id: who,v 1.5 2002-02-23 11:23:50 f Exp $
+!	 $Id: who,v 1.6 2009-06-15 15:02:26 f Exp $
 !
 ! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
 ! and other ircII contributors.
@@ -18,6 +18,7 @@ Usage: WHO [-switch [<arg>]] [<wildcard expression>]
     -OPERATORS            - lists only operators
     -LUSERS		  - lists only non operators
     -CHOPS		  - lists only channel operators
+    -NONCHOPS             - lists only non channel operators
     -NAME <username>      - lists only people with matching 
                             user-ids
     -FILE <filename>      - lists only people listed in the

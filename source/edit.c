@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.118 2009-02-02 15:56:42 f Exp $
+ * $Id: edit.c,v 1.119 2009-06-15 15:02:26 f Exp $
  */
 
 #include "irc.h"
@@ -2215,6 +2215,8 @@ who(command, args, subargs)
 /**************************** Patched by Flier ******************************/
                         else if (strncmp(cmd, "hops", len) == 0)
                                 who_mask |= WHO_HOPS;
+                        else if (strncmp(cmd, "nonchops", len) == 0)
+                                who_mask |= WHO_NONCHOPS;
 /****************************************************************************/
 			else if (strncmp(cmd, "hosts", len) == 0)
 			{

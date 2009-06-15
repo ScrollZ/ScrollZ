@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: parse.c,v 1.82 2009-01-08 15:46:39 f Exp $
+ * $Id: parse.c,v 1.83 2009-06-15 15:02:26 f Exp $
  */
 
 #include "irc.h"
@@ -584,6 +584,11 @@ whoreply(from, ArgList)
 		if (who_mask & WHO_CHOPS)
 			ok = ok && ((*(status + 1) == '@') ||
 			(*(status + 2) == '@'));
+/**************************** PATCHED by Flier ******************************/
+                if (who_mask & WHO_NONCHOPS)
+                        ok = ok && ((*(status + 1) != '@') &&
+                        (*(status + 2) != '@'));
+/****************************************************************************/
 		if (who_mask & WHO_HOPS)
 			ok = ok && (*(status + 1) == '%');
 		if (who_mask & WHO_NAME)
