@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: list.c,v 1.4 2007-03-30 15:27:36 f Exp $
+ * $Id: list.c,v 1.5 2009-06-23 15:40:46 f Exp $
  */
 
 #include "irc.h"
@@ -260,23 +260,26 @@ list_lookup(list, name, wild, delete)
 /* Looks up nick in hash table */
 NickList *
 find_in_hash(chan,nick)
-        ChannelList *chan;
-	char *nick;
+ChannelList *chan;
+char *nick;
 {
-        int i=HashFunc(nick);
-        struct hashstr *tmp;
-        struct hashstr *prev=NULL;
+    int i;
+    struct hashstr *tmp;
+    struct hashstr *prev = NULL;
 
-        if (!chan || !nick) return((NickList *) 0);
-        for (tmp=chan->nickshash[i];tmp;tmp=tmp->next) {
-            if (!my_stricmp(tmp->nick->nick,nick)) break;
-            prev=tmp;
-        }
-        if (tmp && prev) {
-            prev->next=tmp->next;
-            tmp->next=chan->nickshash[i];
-            chan->nickshash[i]=tmp;
-        }
-        return(tmp?tmp->nick:(NickList *) 0);
+    if (!chan || !nick) return((NickList *) 0);
+
+    i = HashFunc(nick);
+
+    for (tmp = chan->nickshash[i]; tmp; tmp = tmp->next) {
+        if (!my_stricmp(tmp->nick->nick, nick)) break;
+        prev = tmp;
+    }
+    if (tmp && prev) {
+        prev->next = tmp->next;
+        tmp->next = chan->nickshash[i];
+        chan->nickshash[i] = tmp;
+    }
+    return(tmp ? tmp->nick : (NickList *) 0);
 }
 /****************************************************************************/
