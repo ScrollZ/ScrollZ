@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.50 2009-01-07 17:45:57 f Exp $
+dnl @(#)$Id: configure.in,v 1.51 2009-06-27 09:17:41 f Exp $
 
-AC_REVISION($Revision: 1.50 $)dnl
+AC_REVISION($Revision: 1.51 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.50 2009-01-07 17:45:57 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.51 2009-06-27 09:17:41 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1230,7 +1230,7 @@ AC_ARG_WITH(ssl,
        gnutls_prefix="$withval"
      fi
      AC_MSG_CHECKING(for GNU TLS)
-     libgnutls-config --version >/dev/null 2>&1
+     pkg-config --exists gnutls >/dev/null 2>&1
      if test $? -ne 0;
      then
          AC_MSG_RESULT(no)
@@ -1239,12 +1239,12 @@ AC_ARG_WITH(ssl,
          if test -d "$gnutls_prefix/include" -a -n "$gnutls_prefix"; then
            CFLAGS="-I$gnutls_prefix/include"
          else
-           CFLAGS="$ocflags `libgnutls-config --cflags`"
+           CFLAGS="$ocflags `pkg-config --cflags gnutls`"
          fi
          if test -d "$gnutls_prefix/lib" -a -n "$gnutls_prefix"; then
            LIBS="$olibs -L$gnutls_prefix/lib -lgnutls"
          else
-           LIBS="$olibs `libgnutls-config --libs`"
+           LIBS="$olibs `pkg-config --libs gnutls`"
          fi
          AC_TRY_LINK([
 #include <gnutls/gnutls.h>

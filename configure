@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.49 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.50 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -566,7 +566,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.50 2009-01-07 17:45:57 f Exp $' > /dev/null
+echo '$Id: configure,v 1.51 2009-06-27 09:17:41 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
@@ -5496,7 +5496,7 @@ if test "${with_ssl+set}" = set; then
      fi
      echo $ac_n "checking for GNU TLS""... $ac_c" 1>&6
 echo "configure:5499: checking for GNU TLS" >&5
-     libgnutls-config --version >/dev/null 2>&1
+     pkg-config --exists gnutls >/dev/null 2>&1
      if test $? -ne 0;
      then
          echo "$ac_t""no" 1>&6
@@ -5505,12 +5505,12 @@ echo "configure:5499: checking for GNU TLS" >&5
          if test -d "$gnutls_prefix/include" -a -n "$gnutls_prefix"; then
            CFLAGS="-I$gnutls_prefix/include"
          else
-           CFLAGS="$ocflags `libgnutls-config --cflags`"
+           CFLAGS="$ocflags `pkg-config --cflags gnutls`"
          fi
          if test -d "$gnutls_prefix/lib" -a -n "$gnutls_prefix"; then
            LIBS="$olibs -L$gnutls_prefix/lib -lgnutls"
          else
-           LIBS="$olibs `libgnutls-config --libs`"
+           LIBS="$olibs `pkg-config --libs gnutls`"
          fi
          cat > conftest.$ac_ext <<EOF
 #line 5517 "configure"
