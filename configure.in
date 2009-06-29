@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.52 2009-06-29 15:13:02 f Exp $
+dnl @(#)$Id: configure.in,v 1.53 2009-06-29 15:16:33 f Exp $
 
-AC_REVISION($Revision: 1.52 $)dnl
+AC_REVISION($Revision: 1.53 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.52 2009-06-29 15:13:02 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.53 2009-06-29 15:16:33 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -239,7 +239,7 @@ AC_CHECK_HEADERS(process.h termcap.h)dnl others
 
 AC_MSG_CHECKING(whether to enable UTF-8 (iconv) support)
 AC_ARG_ENABLE(utf8,
-[  --enable-utf8           enable UTF-8 (iconv) support],
+[  --disable-utf8          Disable UTF-8 (iconv) support],
 [ case "$enableval" in
   no) AC_MSG_RESULT(no)
       ;;

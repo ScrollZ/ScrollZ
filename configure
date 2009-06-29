@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in Revision: 1.51 # Guess values for system-dependent variables and create Makefiles.
+# From configure.in Revision: 1.52 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.13 
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
@@ -12,7 +12,7 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
-  --enable-utf8           enable UTF-8 (iconv) support"
+  --disable-utf8          Disable UTF-8 (iconv) support"
 ac_help="$ac_help
   --with-efence[=PATH]    Compile with the ElectricFence debugging library."
 ac_help="$ac_help
@@ -568,7 +568,7 @@ echo
 CATEGORIES='build change-request doc pending runtime'
 
 
-echo '$Id: configure,v 1.52 2009-06-29 15:13:02 f Exp $' > /dev/null
+echo '$Id: configure,v 1.53 2009-06-29 15:16:33 f Exp $' > /dev/null
 
 
 # Extract the first word of "gcc", so it can be a program name with args.
