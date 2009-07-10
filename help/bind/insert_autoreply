@@ -1,0 +1,14 @@
+!	 $Id: insert_autoreply,v 1.1 2009-07-10 17:49:13 f Exp $
+!
+! Copyright (c) 1994-2003 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: BIND <key> INSERT_AUTOREPLY
+  Insert the next entry from the reply list.  The reply
+  list includes all the users that have triggered a reply.
+
+See also:
+  REPWORD
+  ARINWIN
