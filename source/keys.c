@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.c,v 1.13 2006-10-31 12:31:27 f Exp $
+ * $Id: keys.c,v 1.14 2009-07-10 17:50:53 f Exp $
  */
 
 #include "irc.h"
@@ -57,6 +57,8 @@ extern void LastJoinerKick _((u_int, char *));
 extern void AcceptLastChat _((u_int, char *));
 extern void HandleTabNext _((u_int, char *));
 extern void HandleTabPrev _((u_int, char *));
+extern void PushLine _((u_int, char *));
+extern void PushEmptyStack _((u_int, char *));
 /****************************************************************************/
 
 static	int	lookup_function _((char *, int *));
@@ -817,7 +819,9 @@ KeyMapNames key_names[] =
         { "LASTJOINER_KICK",            LastJoinerKick },
         { "ACCEPT_LAST_CHAT",           AcceptLastChat },
 	{ "INSERT_TABKEY_NEXT",	        HandleTabNext },
-	{ "INSERT_TABKEY_PREV",	        HandleTabPrev }
+	{ "INSERT_TABKEY_PREV",	        HandleTabPrev },
+	{ "PUSH_LINE",                  PushLine },
+	{ "PUSH_EMPTY_STACK",           PushEmptyStack }
 /****************************************************************************/
 };
 

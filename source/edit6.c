@@ -72,10 +72,13 @@
  ExtendTopic         Extends current topic with given text
  TopicDelimiter      Sets topic delimiter
  Monitor             Commands for ircd-ratbox's MONITOR
+ PushLine            Push-line input functionality - push line on stack
+ PopLine             Push-line input functionality - pop line from stack
+ PushEmptyStack      Push-line input functionality - empty stack
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.167 2008-11-13 18:23:41 f Exp $
+ * $Id: edit6.c,v 1.168 2009-07-10 17:50:53 f Exp $
  */
 
 #include "irc.h"
@@ -139,6 +142,7 @@ extern void AutoJoinOnInvToggle _((char *, char *, char *));
 extern void NHProtToggle _((char *, char *, char *));
 extern int  matchmcommand _((char *, int));
 extern int  AddLast _((List *, List *));
+extern int  AddFirst _((List *, List *));
 extern void AddJoinChannel _((void));
 extern void HandleUserhost _((WhoisStuff *, char *, char *));
 extern void CreateBan _((char *, char *, char *));
@@ -235,12 +239,15 @@ static struct joinkeystr {
     char *channel;
 } joinkeys[NUM_JOIN_KEYS];
 
+static List *saved_lines;
+
 extern char *ScrollZver1;
 extern char *HelpPathVar;
 extern char *CelerityNtfy;
 extern char *TimeStampString;
 
 extern time_t start_time;
+
 
 #if defined(EXTRAS) || defined(FLIER)
 /* Checks if signed on user should be invited */
@@ -2074,6 +2081,7 @@ void CleanUp() {
     struct wholeftstr *tmpwho;
     DCC_list *tmpdcc,*tmpdccfree;
     ChannelList *tmpch,*tmpchfree;
+    List *pushlist;
 
     for (tmpdcc=ClientList;tmpdcc;) {
         tmpdccfree=tmpdcc;
@@ -2192,6 +2200,12 @@ void CleanUp() {
         }
         new_free(&(tmpwho->splitserver));
         new_free(&tmpwho);
+    }
+    while (saved_lines) {
+        pushlist=saved_lines;
+        saved_lines=saved_lines->next;
+        new_free(&(pushlist->name));
+        new_free(&pushlist);
     }
 #ifdef WANTANSI
     for (i=0;i<NUMCMDCOLORS;i++) {
@@ -3489,4 +3503,62 @@ char *subargs;
 			send_to_server("MONITOR %c", *command);
 			break;
 	}
+}
+
+/* Push-line functionality - push line on stack */
+void PushLine(key, ptr)
+u_int key;
+char *ptr;
+{
+    char *input_line;
+    List *entry;
+
+    input_line = get_input();
+    if (!(input_line && *input_line))
+        return;
+
+    entry = (List *) new_malloc(sizeof(List));
+    if (!entry)
+        return;
+
+    entry->next = NULL;
+    entry->name = NULL;
+    malloc_strcpy(&(entry->name), input_line);
+    add_to_list_ext(&saved_lines, entry, AddFirst);
+    set_input(empty_string);
+    update_input(UPDATE_ALL);
+}
+
+/* Push-line functionality - pop line from stack */
+void PopLine(void)
+{
+    List *entry;
+
+    entry = remove_from_list_ext(&saved_lines, NULL,
+                                 (int (*) (List *, char *)) AddLast);
+    if (entry)
+    {
+        set_input(entry->name);
+        update_input(UPDATE_ALL);
+        new_free(&(entry->name));
+        new_free(&entry);
+    }
+}
+
+/* Push-line functionality - empty the stack */
+void PushEmptyStack(key, ptr)
+u_int key;
+char *ptr;
+{
+    List *entry;
+
+    while (saved_lines)
+    {
+        entry = saved_lines;
+        saved_lines = saved_lines->next;
+        new_free(&(entry->name));
+        new_free(&entry);
+    }
+
+    saved_lines = NULL;
 }

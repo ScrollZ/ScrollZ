@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.119 2009-06-15 15:02:26 f Exp $
+ * $Id: edit.c,v 1.120 2009-07-10 17:50:53 f Exp $
  */
 
 #include "irc.h"
@@ -3769,6 +3769,9 @@ parse_command(line, hist_flag, sub_args)
 	}
 	new_free(&this_cmd);
 	level--;
+/**************************** PATCHED by Flier ******************************/
+        PopLine();
+/****************************************************************************/
 }
 
 /*

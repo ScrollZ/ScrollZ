@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.120 2008-12-31 15:02:36 f Exp $
+ * $Id: edit5.c,v 1.121 2009-07-10 17:50:53 f Exp $
  */
 
 #include "irc.h"
@@ -3620,6 +3620,8 @@ void InitKeysColors() {
     strcpy(tmpbuf,"^Wr parse_command window shrink 1");
     bindcmd(NULL,tmpbuf,NULL);
     strcpy(tmpbuf,"meta1-i insert_tabkey_prev");
+    bindcmd(NULL,tmpbuf,NULL);
+    strcpy(tmpbuf,"meta1-q push_line");
     bindcmd(NULL,tmpbuf,NULL);
 
 #ifdef CELE /* Celerity Binds */

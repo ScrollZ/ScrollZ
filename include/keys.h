@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: keys.h,v 1.1 2006-10-31 12:31:27 f Exp $
+ * $Id: keys.h,v 1.2 2009-07-10 17:50:53 f Exp $
  */
 
 #ifndef __keys_h_
@@ -131,6 +131,8 @@ enum {
 	ACCEPT_LAST_CHAT,
 	INSERT_TABKEY_NEXT,
 	INSERT_TABKEY_PREV,
+        PUSH_LINE,
+        PUSH_STACK_EMPTY,
 /****************************************************************************/
 	NUMBER_OF_FUNCTIONS
 };
