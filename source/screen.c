@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: screen.c,v 1.43 2009-03-11 16:49:57 f Exp $
+ * $Id: screen.c,v 1.44 2009-07-29 15:52:20 f Exp $
  */
 
 #include "irc.h"
@@ -1609,6 +1609,7 @@ split_up_line(str)
 #ifdef WANTANSI
         int     ansi_count;
 #endif /* WANTANSI */
+        int     word_break_col;
 /****************************************************************************/
 		
 	size_t	len;
@@ -1668,6 +1669,9 @@ split_up_line(str)
 					indent = -1;
 				len = 8 - (col % 8);
 				word_break = pos;
+/**************************** PATCHED by Flier ******************************/
+                                word_break_col = col;
+/****************************************************************************/
 				for (i = 0; i < len; i++)
 					lbuf[pos++] = ' ';
 				col += len;
@@ -1735,6 +1739,9 @@ split_up_line(str)
 			if (indent == 0)
 				indent = -1;
 			word_break = pos;
+/**************************** PATCHED by Flier ******************************/
+                        word_break_col = col;
+/****************************************************************************/
 			lbuf[pos++] = *ptr;
 			col++;
 			break;
@@ -1750,7 +1757,14 @@ split_up_line(str)
 				 * be wrappable now when we can
 				 */
 				if (mbdata.num_columns > 1)
+/**************************** PATCHED by Flier ******************************/
+                                {
+/****************************************************************************/
 					word_break = pos;
+/**************************** PATCHED by Flier ******************************/
+                                        word_break_col = col;
+                                }
+/****************************************************************************/
 				
 				pos	   += mbdata.output_bytes;
 				nd_cnt += mbdata.output_bytes - mbdata.num_columns;
@@ -1771,9 +1785,8 @@ split_up_line(str)
 			if (word_break == 0)
 				word_break = pos - (col - current_screen->co);
 /**************************** PATCHED by Flier ******************************/
-                        /* Do not put one big long line in new row */
-                        else if (word_break < current_screen->co / 3)
-                            word_break = pos - 1;
+                        else if (word_break_col < current_screen->co / 5)
+                            word_break = pos;
 /****************************************************************************/
 			c = lbuf[word_break];
 			c1 = lbuf[word_break+1];
