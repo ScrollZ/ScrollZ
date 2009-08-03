@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: window.c,v 1.49 2009-01-20 16:52:37 f Exp $
+ * $Id: window.c,v 1.50 2009-08-03 15:57:22 f Exp $
  */
 
 #include "irc.h"
@@ -3376,7 +3376,11 @@ windowcmd(command, args, subargs)
 		if (window->server == -1)
 			say("\tServer: <None>");
 		else
-			say("\tServer: %s", get_server_name(window->server));
+/**************************** PATCHED by Flier ******************************/
+ 			/*say("\tServer: %s", get_server_name(window->server));*/
+                    say("\tServer: %s:%d", get_server_name(window->server),
+                        get_server_port(window->server));
+/****************************************************************************/
 		say("\tCurrent channel: %s", window->current_channel ?  window->current_channel : "<None>");
 		say("\tQuery User: %s", (window->query_nick ?  window->query_nick : "<None>"));
 		say("\tPrompt: %s", window->prompt ?  window->prompt : "<None>");
