@@ -78,7 +78,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.168 2009-07-10 17:50:53 f Exp $
+ * $Id: edit6.c,v 1.169 2009-09-03 16:26:55 f Exp $
  */
 
 #include "irc.h"
@@ -1687,7 +1687,6 @@ char *subargs;
                 get_server_name(from_server), timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
     }
     say("Support channel: #ScrollZ on Efnet");
-    say("Mailing list: scrollz@ahnberg.pp.se");
     say("Home page: http://www.scrollz.org/");
     say("FTP: ftp://ftp.scrollz.org/");
 }

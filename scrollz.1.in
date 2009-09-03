@@ -192,12 +192,9 @@ you should report it. But first, you should make sure that it
 really is a bug, and that it appears in the latest version of
 .BR ScrollZ .
 .PP
-Once you have determined that a bug actually exists, mail the
-bug report to
-.B ScrollZ
-mailing list
-.BR scrollz@ahnberg.pp.se .
-If you have a fix, you are encouraged to mail that as well!
+Once you have determined that a bug actually exists, report the
+bug in channel #ScrollZ on Efnet.
+If you have a fix, you are encouraged to provide that as well!
 .PP
 ALL bug reports should include:
 .PP
