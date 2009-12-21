@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.55 2009-12-21 14:14:17 f Exp $
+dnl @(#)$Id: configure.in,v 1.56 2009-12-21 14:56:02 f Exp $
 
-AC_REVISION($Revision: 1.55 $)dnl
+AC_REVISION($Revision: 1.56 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.55 2009-12-21 14:14:17 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.56 2009-12-21 14:56:02 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -623,6 +623,7 @@ main()
   AC_CHECK_LIB(nsl, gethostbyname,
     olibs=$LIBS
     LIBS="$LIBS -lnsl"))
+AC_CHECK_LIB(resolv, inet_aton, LIBS="$LIBS -lresolv",)
 dnl AC_HAVE_LIBRARY(PW, LIBS="$LIBS -lPW",)
 
 dnl
