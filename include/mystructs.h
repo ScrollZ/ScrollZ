@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.14 2009-12-21 14:14:17 f Exp $
+ * $Id: mystructs.h,v 1.15 2009-12-21 14:38:30 f Exp $
  */
 
 /* don't change!! */
@@ -58,6 +58,9 @@
 #define SLPERMBAN 8
 #define SLDEOP 16
 #define SLTIMEDBAN 32
+
+/* helper macro */
+#define EMPTY_STR(x) (x ? x : empty_string)
 
 struct friends {
      struct friends *next;
