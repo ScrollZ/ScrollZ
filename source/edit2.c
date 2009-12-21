@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.104 2009-12-21 14:14:17 f Exp $
+ * $Id: edit2.c,v 1.105 2009-12-21 14:31:19 f Exp $
  */
 
 #include "irc.h"
@@ -4119,7 +4119,7 @@ char *subargs;
 #endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
     struct splitstr *tmplist = NULL, *listnew;
-    unsigned long ipnum;
+    uint32_t ipnum;
 #endif /* JIMMIE */
 
     newhname = new_next_arg(args, &args);

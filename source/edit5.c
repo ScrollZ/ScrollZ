@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.122 2009-12-21 14:14:17 f Exp $
+ * $Id: edit5.c,v 1.123 2009-12-21 14:31:19 f Exp $
  */
 
 #include "irc.h"
@@ -2229,7 +2229,7 @@ char *host;
     int    isip=1;
     char   *tmpstr;
     struct hostent *hostaddr;
-    unsigned long ipnum;
+    uint32_t ipnum;
 
     for (tmpstr=host;tmpstr && *tmpstr;tmpstr++)
         isip&=(*tmpstr=='.' || isdigit(*tmpstr));
