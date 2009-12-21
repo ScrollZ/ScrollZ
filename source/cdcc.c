@@ -10,7 +10,7 @@
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.55 2006-04-30 14:15:43 f Exp $
+ * $Id: cdcc.c,v 1.56 2009-12-21 14:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -464,7 +464,7 @@ char *line;
     char *fullname=(char *) 0;
     char tmpbuf[mybufsize/4];
 
-    getcwd(tmpbuf,mybufsize);
+    getcwd(tmpbuf,sizeof(tmpbuf));
     if ((newdir=new_next_arg(line,&line))) {
         fullname=expand_twiddle(newdir);
         if (!chdir(fullname)) malloc_strcpy(&CdccUlDir,fullname);
@@ -494,7 +494,7 @@ char *line;
     char *fullname=(char *) 0;
     char tmpbuf[mybufsize/4];
 
-    getcwd(tmpbuf,mybufsize);
+    getcwd(tmpbuf,sizeof(tmpbuf));
     if ((newdir=new_next_arg(line,&line))) {
         fullname=expand_twiddle(newdir);
         if (!chdir(fullname)) malloc_strcpy(&CdccDlDir,fullname);

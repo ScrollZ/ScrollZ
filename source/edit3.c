@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.91 2009-12-21 14:14:17 f Exp $
+ * $Id: edit3.c,v 1.92 2009-12-21 14:44:07 f Exp $
  */
 
 #include "irc.h"
@@ -805,7 +805,7 @@ char *subargs;
     if (CdccUlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %s%s%s",
                            CmdsColors[COLSETTING].color2,CdccUlDir,Colors[COLOFF]);
     else {
-        getcwd(tmpbuf2,mybufsize);
+        getcwd(tmpbuf2,sizeof(tmpbuf2));
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %s%s%s - current dir",
                 CmdsColors[COLSETTING].color2,tmpbuf2,Colors[COLOFF]);
     }
@@ -813,7 +813,7 @@ char *subargs;
     if (CdccDlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %s%s%s",
                            CmdsColors[COLSETTING].color2,CdccDlDir,Colors[COLOFF]);
     else {
-        getcwd(tmpbuf2,mybufsize);
+        getcwd(tmpbuf2,sizeof(tmpbuf2));
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %s%s%s - current dir",
                 CmdsColors[COLSETTING].color2,tmpbuf2,Colors[COLOFF]);
     }
@@ -1020,13 +1020,13 @@ char *subargs;
     say("%s%s",tmpbuf1,tmpbuf2);
     if (CdccUlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %c%s%c",bold,CdccUlDir,bold);
     else {
-        getcwd(tmpbuf2,mybufsize);
+        getcwd(tmpbuf2,sizeof(tmpbuf2));
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc uldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
     }
     say("%s",tmpbuf1);
     if (CdccDlDir) snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %c%s%c",bold,CdccDlDir,bold);
     else {
-        getcwd(tmpbuf2,mybufsize);
+        getcwd(tmpbuf2,sizeof(tmpbuf2));
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Cdcc dldir       : %c%s%c - current dir",bold,tmpbuf2,bold);
     }
     say("%s",tmpbuf1);
