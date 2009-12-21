@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.124 2009-12-21 14:32:35 f Exp $
+ * $Id: edit5.c,v 1.125 2009-12-21 14:35:53 f Exp $
  */
 
 #include "irc.h"
@@ -2659,8 +2659,9 @@ ChannelList *chan;
         ChannelList *tmpchan = server_list[from_server].ChanPendingList;
         if (tmpchan) {
             server_list[from_server].ChanPendingList = tmpchan->next;
-            send_to_server("%s %s %s %s", tmpchan->topicstr, tmpchan->channel,
-                           tmpchan->s_mode, tmpchan->key ? tmpchan->key : empty_string);
+            send_to_server("%s %s %s %s", EMPTY_STR(tmpchan->topicstr),
+                           EMPTY_STR(tmpchan->channel), EMPTY_STR(tmpchan->s_mode),
+                           EMPTY_STR(tmpchan->key));
             new_free(&tmpchan->channel);
             new_free(&tmpchan->key);
             new_free(&tmpchan->s_mode);
