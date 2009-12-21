@@ -33,7 +33,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit3.c,v 1.90 2007-08-21 12:52:48 f Exp $
+ * $Id: edit3.c,v 1.91 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -87,7 +87,7 @@ extern void InitKeysColors _((void));
 extern void NotChanOp _((char *));
 extern void NoWindowChannel _((void));
 extern void PrintUsage _((char *));
-extern void EncryptString _((char *, char *, char *, int, int));
+extern void EncryptString _((char *, char *, char *, int, int, int));
 extern void UpdateFloodUsers _((void));
 extern int  AddLast _((List *, List *));
 extern int  CheckPrivs _((char *, char *));
@@ -217,7 +217,7 @@ int  type;
         if (*tmpbuf1) snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s: %s", ctime(&now), tmpbuf1, message);
         else snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         StripAnsi(tmpbuf2, tmpbuf1, 2);
-        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0, SZ_ENCR_OTHER);
         else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(awayfile, "%s\n", tmpbuf2);
         fclose(awayfile);
@@ -1531,6 +1531,7 @@ void ScrollZLoad()
     int  number;
     int  ulnumber=0;
     int  loaderror=0;
+    int  encrwarn=0;
     char *pointer;
     char *chanlist=NULL;
     char *filepath;
@@ -1792,6 +1793,62 @@ void ScrollZLoad()
             ignore(NULL,ign,NULL);
             window_display=display;
             new_free(&ign);
+        }
+        else if (!strcmp("ENCRKEY",tmpbuf3)) {
+            char userbuf[mybufsize], userbuf2[mybufsize];
+            char passbuf[mybufsize], passbuf2[mybufsize];
+            struct encrstr *tmpkey, *newkey;
+
+            if (!EncryptPassword) {
+                if (!encrwarn) {
+                    char *cmdchars;
+                    char tmpbuf[mybufsize / 2];
+
+                    if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
+                    say("Encrypted keys found but master password has not been set! Set your master password and issue a %cRELOAD", *cmdchars);
+                    encrwarn = 1;
+                }
+                continue;
+            }
+            NextArg(pointer,&pointer,tmpbuf2);
+            NextArg(pointer,&pointer,tmpbuf3);
+            if (!(*tmpbuf2)) {
+                PrintError("missing USER","in ENCRKEY",lineno);
+                loaderror=1;
+                continue;
+            }
+            if (!(*tmpbuf3)) {
+                PrintError("missing KEY","in ENCRKEY",lineno);
+                loaderror=1;
+                continue;
+            }
+#define SZBLOWSTR1 "+OK "
+            sprintf(userbuf, "%s%s", SZBLOWSTR1, tmpbuf2);
+            sprintf(passbuf, "%s%s", SZBLOWSTR1, tmpbuf3);
+            DecryptString(userbuf2, userbuf, EncryptPassword, sizeof(userbuf2), 2);
+            DecryptString(passbuf2, passbuf, EncryptPassword, sizeof(passbuf2), 2);
+            tmpkey = (struct encrstr *) list_lookup((List **) &encrlist, userbuf2,
+                                                    !USE_WILDCARDS, !REMOVE_FROM_LIST);
+            if (tmpkey) malloc_strcpy(&(tmpkey->key), passbuf2);
+            else {
+                tmpkey = (struct encrstr *) new_malloc(sizeof(struct encrstr));
+                if (!tmpkey) {
+#ifdef WANTANSI
+                    say("%sError%s: Not enough memory to load encrypted keys!",
+                         CmdsColors[COLWARNING].color1,Colors[COLOFF]);
+#else
+                    say("Not enough memory to load friend list!");
+#endif
+                    continue;
+                }
+                tmpkey->next = NULL;
+                tmpkey->user = NULL;
+                tmpkey->key = NULL;
+                tmpkey->type = 2;
+                malloc_strcpy(&(tmpkey->user), userbuf2);
+                malloc_strcpy(&(tmpkey->key), passbuf2);
+                add_to_list((List **) &encrlist, (List *) tmpkey);
+            }
         }
         else if (!strcmp("EXTMES",tmpbuf3))
             OnOffSet(&pointer,&ExtMes,&loaderror,lineno,"EXTMES");

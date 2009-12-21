@@ -1,0 +1,17 @@
+!	 $Id: encrypt_pad_msgs,v 1.1 2009-12-21 14:14:17 f Exp $
+!
+! Copyright (c) 1994-2009  Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET ENCRYPT_PAD_MSGS [ON|OFF|TOGGLE]
+  Pad private messages with random invisible characters to
+  make encryption less susceptible to frequency analysis
+  attacks. It is recommended that the option is kept enabled,
+  unless parties you are communicating with have known issues
+  (with invisible characters) or experience problems. The
+  aforementioned applies only to FiSH encryption.
+
+See also:
+  SET ENCRYPT_PAD_PUBLIC

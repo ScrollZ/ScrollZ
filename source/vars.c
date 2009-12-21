@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.c,v 1.38 2009-03-09 15:53:48 f Exp $
+ * $Id: vars.c,v 1.39 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -170,6 +170,10 @@ IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "DISPLAY_ENCODING",		STR_TYPE_VAR,	0, NULL, set_display_encoding, 0, 0 },
 	{ "EIGHT_BIT_CHARACTERS",	BOOL_TYPE_VAR,	DEFAULT_EIGHT_BIT_CHARACTERS, NULL, eight_bit_characters, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "ENCRYPT_PAD_MSGS",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, 0, 0, 0 },
+	{ "ENCRYPT_PAD_PUBLIC",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, 0, 0, 0 },
+/****************************************************************************/
 	{ "ENCRYPT_PROGRAM",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "EXEC_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_EXEC_PROTECTION, NULL, exec_warning, 0, VF_NODAEMON },
 	{ "FLOOD_AFTER",		INT_TYPE_VAR,	DEFAULT_FLOOD_AFTER, NULL, NULL, 0, 0 },
@@ -251,6 +255,9 @@ IrcVariable irc_variable[] =
 	{ "OLD_ENCRYPT_PROGRAM",	BOOL_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "REALNAME",			STR_TYPE_VAR,	0, 0, set_realname, 0, VF_NODAEMON },
 	{ "SAME_WINDOW_ONLY",		BOOL_TYPE_VAR,	DEFAULT_SAME_WINDOW_ONLY, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+        { "SAVE_ENCRYPTION_KEYS",		BOOL_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "SCREEN_OPTIONS", 		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
 	{ "SCROLL",			BOOL_TYPE_VAR,	DEFAULT_SCROLL, NULL, set_scroll, 0, 0 },
 /**************************** PATCHED by Flier ******************************/

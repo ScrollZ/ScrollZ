@@ -58,7 +58,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit4.c,v 1.122 2009-07-28 16:43:37 f Exp $
+ * $Id: edit4.c,v 1.123 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -163,7 +163,7 @@ extern char *TimeStamp _((int));
 extern struct autobankicks *FindShit _((char *, char *));
 extern void ChannelLogReport _((char *, ChannelList *));
 extern void ChannelLogSave _((char *, ChannelList *));
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 extern void FishAddRemoteKey _((char *, char *));
 #endif
 
@@ -1286,7 +1286,7 @@ int *iscrypted;
             savemessage = 1;
         }
     }
-    if ((*iscrypted == 0) && DecryptMessage(notice,nick)) *iscrypted = 1;
+	*iscrypted = DecryptMessage(notice,to);
     /* Check for invite notices which might hold key */
     if (!print) {
         if (!strncmp(notice, "You have been ctcp invited to ", 30)) AddJoinKey(1, notice);
@@ -1294,7 +1294,7 @@ int *iscrypted;
         else if (!strncmp(notice, "Channel key for ", 17)) AddJoinKey(3, notice);
         else if (!strncmp(notice, "Ctcp-inviting you to ", 22)) AddJoinKey(4, notice);
         else if (!strncmp(notice, "The channel ", 12)) AddJoinKey(5, notice);
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
         else if (!strncmp(notice, "DH1080_FINISH ", 14) && to && !is_channel(to)) {
             FishAddRemoteKey(nick, notice);
             return(0);
@@ -1303,7 +1303,7 @@ int *iscrypted;
             FishAddRemoteKey(nick, notice);
             return(0);
         }
-#endif /* HAVE_MIRACL */
+#endif /* HAVE_GMP */
     }
     if (!foundchan
 #ifndef LITE

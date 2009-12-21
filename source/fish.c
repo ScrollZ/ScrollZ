@@ -1,14 +1,15 @@
 /*
  * Most of this comes from FiSH sources, adapted for ScrollZ by flier
  *
- * $Id: fish.c,v 1.1 2008-03-08 15:22:14 f Exp $
+ * $Id: fish.c,v 1.2 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
 #include "ircaux.h"
 #include "list.h"
+#include "vars.h"
 
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 #include "fish.h"
 
 /* #define S(x,i) (bf_S[i][x.w.byte##i]) */
@@ -18,6 +19,8 @@
 #define S3(x) (bf_S[3][x.w.byte3])
 #define bf_F(x) (((S0(x) + S1(x)) ^ S2(x)) + S3(x))
 #define ROUND(a,b,n) (a.word ^= bf_F(b) ^ bf_P[n])
+
+#define MAX_MSG_LEN 304
 
 /* Public Base64 conversion tables */ 
 unsigned char B64ABC[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -409,18 +412,65 @@ int bufsize;
     return(2);
 }
 
-int FishEncrypt(dest, src, key, bufsize)
+/* type = 0 ... private msg
+          1 ... public msg */
+int FishEncrypt(dest, src, key, bufsize, type)
 char *dest;
 char *src;
 char *key;
 int bufsize;
+int type;
 {
     int len = strlen(src);
+    int i = 0, j, padlen;
+    int dopad = 1;
     char tmp[mybufsize];
+    char msg[mybufsize];
+    char *x = src;
+    typedef struct { int len; char ch; } padstr;
+#define NUM_PADCHARS 4
+    padstr padchars[NUM_PADCHARS] = { { 1, ALL_OFF }, { 2, BOLD_TOG },
+                                      { 2, REV_TOG }, { 2, UND_TOG  } };
 
+    /* check if msg padding is enabled for given msg type */
+    switch (type) {
+        case SZ_ENCR_PRIVMSG:
+            if (get_int_var(ENCRYPT_PAD_MSGS_VAR) == 0) dopad = 0;
+            break;
+        case SZ_ENCR_PUBLIC:
+            if (get_int_var(ENCRYPT_PAD_PUBLIC_VAR) == 0) dopad = 0;
+            break;
+        default:
+            dopad = 0;
+            break;
+    }
+    /* pad the msg to max. allowed length by inserting a random
+       sequence of invisible characters */
+    if (dopad && (len > 0) && (len < MAX_MSG_LEN)) {
+        memset(msg, 0, sizeof(msg));
+        padlen = MAX_MSG_LEN - len;
+        while ((padlen > 0) && (i < sizeof(msg) - 1)) {
+            /* copy one character from src */
+            if (*x) {
+                msg[i++] = *x;
+                x++;
+            }
+            if (i < sizeof(msg) - 1) {
+                /* append a random pad character, if we have space for only
+                   one character it has to be ALL_OFF */
+                if (padlen == 1) j = 0;
+                else j = rand() % NUM_PADCHARS;
+                msg[i++] = padchars[j].ch;
+                if (padchars[j].len == 2) msg[i++] = padchars[j].ch;
+                padlen -= padchars[j].len;
+            }
+        }
+        len = strlen(msg);
+    }
+    else strncpy(msg, src, sizeof(msg));
     if (sizeof(tmp) < len) len = sizeof(tmp);
-    encrypt_string(key, src, tmp, len);
+    encrypt_string(key, msg, tmp, len);
     snprintf(dest, bufsize, "%s%s", SZBLOWSTR1, tmp);
     return(2);
 }
-#endif /* HAVE_MIRACL */
+#endif /* HAVE_GMP */

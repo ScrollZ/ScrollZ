@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.121 2009-07-10 17:50:53 f Exp $
+ * $Id: edit5.c,v 1.122 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -150,7 +150,7 @@ extern int  AddLast _((List *, List *)); /* needed for GrabURL, by Zakath */
 extern int  CheckServer _((int));
 extern char *TimeStamp _((int));
 extern void ChannelLogSave _((char *, ChannelList *));
-extern int  EncryptString _((char *, char *, char *, int, int));
+extern int  EncryptString _((char *, char *, char *, int, int, int));
 extern int  DecryptString _((char *, char *, char *, int, int));
 extern int  RateLimitJoin _((int));
 
@@ -1187,7 +1187,7 @@ char *subargs;
         char *newpass = (char *) new_malloc(pwlen + 1);
 
         /* a-la master password in Mozilla - store encrypted password */
-        EncryptString(newpass, newpwd, newpwd, pwlen, 0);
+        EncryptString(newpass, newpwd, newpwd, pwlen, 0, SZ_ENCR_OTHER);
         if (!(args && *args)) {
             if (EncryptPassword) {
                 if (!strcmp(newpass, EncryptPassword)) {
@@ -1214,7 +1214,7 @@ char *subargs;
             if (oldpwd) {
                 oldpwlen = 2 * strlen(oldpwd) + 16;
                 oldpass = (char *) new_malloc(oldpwlen + 1);
-                EncryptString(oldpass, oldpwd, oldpwd, oldpwlen, 0);
+                EncryptString(oldpass, oldpwd, oldpwd, oldpwlen, 0, SZ_ENCR_OTHER);
                 bzero(oldpwd, strlen(oldpwd));
             }
             if (!EncryptPassword)
@@ -1247,7 +1247,7 @@ void MasterPasswordOld(char *x, char *pass)
 
     pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, pass, pass, pwlen, 0);
+    EncryptString(mastpass, pass, pass, pwlen, 0, SZ_ENCR_OTHER);
     if (strcmp(EncryptPassword, mastpass)) {
         say("Incorrect master password!");
         new_free(&mastpass);
@@ -1855,7 +1855,7 @@ char *line;
 
     pwlen = 2 * strlen(line) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, line, line, pwlen, 0);
+    EncryptString(mastpass, line, line, pwlen, 0, SZ_ENCR_OTHER);
     if (strcmp(EncryptPassword, mastpass)) {
         say("Incorrect master password!");
         new_free(&mastpass);

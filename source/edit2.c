@@ -67,7 +67,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit2.c,v 1.103 2008-03-09 11:18:52 f Exp $
+ * $Id: edit2.c,v 1.104 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -166,7 +166,7 @@ extern struct autobankicks *FindShit _((char *, char *));
 extern void PlayBack _((char *, char *, char *));
 extern void PrintUsage _((char *));
 extern void CheckJoinChannel _((WhoisStuff *, char *, char *));
-extern void EncryptString _((char *, char *, char *, int, int));
+extern void EncryptString _((char *, char *, char *, int, int, int));
 extern int  CheckServer _((int));
 extern char *FormatTime _((int));
 extern int  IgnoreSave _((FILE *));
@@ -1847,6 +1847,7 @@ char *subargs;
     int  nlistcount;
     int  wlistcount;
     int  ilistcount;
+    int  enckeyscount;
     int  oldumask=umask(0177);
     char *filepath;
     char *filebak;
@@ -1944,8 +1945,27 @@ char *subargs;
     fprintf(usfile,"# IGN    pattern level\n");
     fprintf(usfile,"#\n");
     ilistcount=IgnoreSave(usfile);
-    say("Saved %d fl, %d sl, %d nl, %d wk and %d il entries",ulistcount,
-        slistcount,nlistcount,wlistcount,ilistcount);
+    if (get_int_var(SAVE_ENCRYPTION_KEYS_VAR)) {
+        char userbuf[mybufsize];
+        char passbuf[mybufsize];
+        struct encrstr *tmpkey;
+
+        if (EncryptPassword) {
+            fprintf(usfile,"#\n");
+            fprintf(usfile,"# Encryption keys\n");
+            fprintf(usfile,"#\n");
+            for (tmpkey=encrlist,enckeyscount=0;tmpkey;tmpkey=tmpkey->next,enckeyscount++) {
+                EncryptString(userbuf,tmpkey->user,EncryptPassword,sizeof(userbuf),2,SZ_ENCR_OTHER);
+                EncryptString(passbuf,tmpkey->key,EncryptPassword,sizeof(passbuf),2,SZ_ENCR_OTHER);
+                fprintf(usfile,"ENCRKEY %s %s\n",&userbuf[4],&passbuf[4]);
+            }
+            say("Saved %d fl, %d sl, %d nl, %d wk, %d il and %d ek entries",ulistcount,
+                slistcount,nlistcount,wlistcount,ilistcount,enckeyscount);
+        }
+        else say("Warning, SAVE_ENCRYPTION_KEYS is on but master password is not set");
+    }
+    else say("Saved %d fl, %d sl, %d nl, %d wk and %d il entries",ulistcount,
+             slistcount,nlistcount,wlistcount,ilistcount);
     fprintf(usfile,"#\n");
     fprintf(usfile,"# Various user definable settings\n");
     fprintf(usfile,"#\n");
@@ -2551,7 +2571,7 @@ char *buffer;
         malloc_strcpy(&(tmpfriend->userhost),userhost);
         malloc_strcpy(&(tmpfriend->channels),chanlist);
         if (passwd && *passwd) {
-            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
+            EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0,SZ_ENCR_OTHER);
             malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
         }
         else new_free(&(tmpfriend->passwd));

@@ -6,6 +6,36 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
+ScrollZ vx.x, y.y.yyyy
+
+    NOTICE: Mailing list is no longer operational. It only received
+    spam so we have decided to turn it off.
+
+    ! ISO 2022 JP encoding in lastlog
+    ! compilation using older compilers (gcc 2.95, reported by aflux)
+    ! IGNORE blah ^TYPE (reported by one)
+    + SET DCC_HOST (requested by wiz)
+    ! line wrapping improvements (patch by jm_)
+    ! GNU TLS now uses pkg-config (patch by Mike Markley, thanks)
+    + configure option to disable UTF-8 support
+    + push line functionality, default bind is alt-q, see help
+      for more info (patch by jm_)
+    ! default STATUS_FORMAT now properly terminates colour sequence
+      to prevent background colour overflowing to next lines
+      (reported by TrN)
+    ~ FiSH encryption now requires libgmp (patch by TrN based on
+      implementation by Dcoder)
+    + SET ENCRYPT_PAD_MSGS and SET ENCRYPT_PAD_PUBLIC (an effort to 
+      make encryption less prone to frequency analysis attacks)
+    + SET SAVE_ENCRYPTION_KEYS, when enabled keys used for encryption
+      are saved to ScrollZ.save (requires master password to be set
+      as keys are encrypted using master password, requested by TrN,
+      you are prompted to enter master password when client is restarted
+      if keys are found in ScrollZ.save)
+    + improvements to tabkey handling for directories (patch by jm_)
+    + various small improvements
+    + fixes for 64-bit systems
+
 ------------------------------------------------------------------------------
 
 ScrollZ v2.0, 30.12.2008

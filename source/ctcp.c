@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.54 2008-12-01 15:41:36 f Exp $
+ * $Id: ctcp.c,v 1.55 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -87,7 +87,7 @@ extern void AwaySave _((char *, int));
 extern void CheckCdcc _((char *, char *, char *, int));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern char *YNreply _((int));
-extern void EncryptString _((char *, char *, char *, int, int));
+extern void EncryptString _((char *, char *, char *, int, int, int));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  AutoReplyMatch _((char *));
 extern void Check4WordKick _((char *, NickList *, int, ChannelList *));
@@ -408,16 +408,16 @@ char *nick;
     send_to_server("NOTICE %s :This function has been disabled  -ScrollZ-",nick);
 }
 
-static int checkpassword(tmpfriend,passwd)
+static int checkpassword(tmpfriend, passwd)
 struct friends *tmpfriend;
 char *passwd;
 {
-    char passbuf[mybufsize/8];
+    char passbuf[mybufsize / 8];
 
     if (tmpfriend->passwd) {
         if (passwd && *passwd) {
-            EncryptString(passbuf,passwd,passwd,mybufsize/16,0);
-            return((!strcmp(passbuf,tmpfriend->passwd))?0:1);
+            EncryptString(passbuf, passwd, passwd, mybufsize/16, 0, SZ_ENCR_OTHER);
+            return((!strcmp(passbuf, tmpfriend->passwd)) ? 0 : 1);
         }
         return(1);
     }

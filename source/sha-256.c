@@ -1,7 +1,7 @@
 /*
  * This is from FiSH, adapted for ScrollZ by flier
  *
- * $Id: sha-256.c,v 1.1 2008-03-08 15:22:14 f Exp $
+ * $Id: sha-256.c,v 1.2 2009-12-21 14:14:17 f Exp $
  */
 
 /*
@@ -20,16 +20,16 @@
 #include <stdio.h>
 #include "irc.h"
 
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 
 typedef struct {
-    unsigned long state[8], length, curlen;
+    uint32_t state[8], length, curlen;
     unsigned char buf[64];
 }
 sha_state;
 
 /* the K array */
-static const unsigned long K[64] = {
+static const uint32_t K[64] = {
     0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
     0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
     0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -59,7 +59,7 @@ static const unsigned long K[64] = {
 /* compress 512-bits */
 static void sha_compress(sha_state * md)
 {
-    unsigned long S[8], W[64], t0, t1;
+    uint32_t S[8], W[64], t0, t1;
     int i;
 
     /* copy state into S */
@@ -68,10 +68,10 @@ static void sha_compress(sha_state * md)
 
     /* copy the state into 512-bits into W[0..15] */
     for (i = 0; i < 16; i++)
-        W[i] = (((unsigned long) md->buf[(4 * i) + 0]) << 24) |
-            (((unsigned long) md->buf[(4 * i) + 1]) << 16) |
-            (((unsigned long) md->buf[(4 * i) + 2]) << 8) |
-            (((unsigned long) md->buf[(4 * i) + 3]));
+        W[i] = (((uint32_t) md->buf[(4 * i) + 0]) << 24) |
+            (((uint32_t) md->buf[(4 * i) + 1]) << 16) |
+            (((uint32_t) md->buf[(4 * i) + 2]) << 8) |
+            (((uint32_t) md->buf[(4 * i) + 3]));
 
     /* fill W[16..63] */
     for (i = 16; i < 64; i++)
@@ -197,4 +197,4 @@ int sha_file(unsigned char *filename, unsigned char *hash)
     fclose(in);
     return 1;
 }
-#endif /* HAVE_MIRACL */
+#endif /* HAVE_GMP */

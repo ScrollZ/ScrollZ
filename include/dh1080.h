@@ -4,13 +4,11 @@
 /*
  * DH key exchange
  *
- * $Id: dh1080.h,v 1.2 2008-03-11 15:51:04 f Exp $
+ * $Id: dh1080.h,v 1.3 2009-12-21 14:14:17 f Exp $
  */
 
-#include "miracl.h"
+#include <gmp.h>
 #include <stdlib.h>
-
-miracl *mip;
 
 /* Input:  priv_key = buffer of 200 bytes
            pub_key  = buffer of 200 bytes

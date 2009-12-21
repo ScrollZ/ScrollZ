@@ -78,7 +78,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit6.c,v 1.169 2009-09-03 16:26:55 f Exp $
+ * $Id: edit6.c,v 1.170 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -156,7 +156,7 @@ extern void CleanUpWindows _((void));
 extern void CleanUpFlood _((void));
 extern void CleanUpVars _((void));
 extern void Dump _((char *, char *, char *));
-extern int  EncryptString _((char *, char *, char *, int, int));
+extern int  EncryptString _((char *, char *, char *, int, int, int));
 extern int  DecryptString _((char *, char *, char *, int, int));
 extern void queuemcommand _((char *));
 extern void CheckDCCSpeed _((DCC_list *, time_t));
@@ -2264,7 +2264,7 @@ char *subargs;
     if (pass) {
         pwlen = 2 * strlen(pass) + 16;
         mastpass = (char *) new_malloc(pwlen + 1);
-        EncryptString(mastpass, pass, pass, pwlen, 0);
+        EncryptString(mastpass, pass, pass, pwlen, 0, SZ_ENCR_OTHER);
         if (strcmp(EncryptPassword, mastpass)) {
             say("Incorrect master password!");
             new_free(&mastpass);
@@ -2309,7 +2309,7 @@ void EncryptMasterPass(char *user, char *pass)
 
     pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, pass, pass, pwlen, 0);
+    EncryptString(mastpass, pass, pass, pwlen, 0, SZ_ENCR_OTHER);
     if (strcmp(EncryptPassword, mastpass)) {
         say("Incorrect master password!");
         new_free(&mastpass);
@@ -2370,7 +2370,7 @@ void EncryptMasterDelUser(char *user, char *pass)
 
     pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, pass, pass, pwlen, 0);
+    EncryptString(mastpass, pass, pass, pwlen, 0, SZ_ENCR_OTHER);
     if (strcmp(EncryptPassword, mastpass)) {
         say("Incorrect master password!");
         new_free(&mastpass);
@@ -2404,7 +2404,7 @@ void EncryptMasterList(char *flags, char *pass)
 
     pwlen = 2 * strlen(pass) + 16;
     mastpass = (char *) new_malloc(pwlen + 1);
-    EncryptString(mastpass, pass, pass, pwlen, 0);
+    EncryptString(mastpass, pass, pass, pwlen, 0, SZ_ENCR_OTHER);
     if (strcmp(EncryptPassword, mastpass)) {
         say("Incorrect master password!");
         new_free(&mastpass);
@@ -2451,6 +2451,7 @@ char *message;
 char *user;
 {
     int type = 1;
+    int encr_type = SZ_ENCR_PRIVMSG;
     struct encrstr *tmp;
 
     if ((tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS,
@@ -2459,7 +2460,8 @@ char *user;
            problems at the other end during decryption */
         if (strlen(message) > SZMAXCRYPTSIZE) message[SZMAXCRYPTSIZE] = '\0';
         if (tmp->type == 2) type = 2;
-        return(EncryptString(message, message, tmp->key, BIG_BUFFER_SIZE - 16, type));
+        if (is_channel(user)) encr_type = SZ_ENCR_PUBLIC;
+        return(EncryptString(message, message, tmp->key, BIG_BUFFER_SIZE - 16, type, encr_type));
     }
     return(0);
 }
@@ -2822,7 +2824,7 @@ char *subargs;
             /* if password is set to minus remove it */
             if (!strcmp(passwd,"-")) new_free(&(tmpfriend->passwd));
             else {
-                EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0);
+                EncryptString(tmpbuf1,passwd,passwd,mybufsize/16,0,SZ_ENCR_OTHER);
                 malloc_strcpy(&(tmpfriend->passwd),tmpbuf1);
             }
         }
@@ -3285,7 +3287,7 @@ ChannelList *chan;
         snprintf(tmpbuf2, sizeof(tmpbuf2), "[%.24s] %s", ctime(&now), message);
         if (get_int_var(CHANLOG_STRIP_ANSI_VAR)) StripAnsi(tmpbuf2, tmpbuf1, 2);
         else strmcpy(tmpbuf1, tmpbuf2, sizeof(tmpbuf1));
-        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0);
+        if (AwayEncrypt && EncryptPassword) EncryptString(tmpbuf2, tmpbuf1, EncryptPassword, mybufsize, 0, SZ_ENCR_OTHER);
         else strmcpy(tmpbuf2, tmpbuf1, sizeof(tmpbuf2));
         fprintf(logfile, "%s\n", tmpbuf2);
         fclose(logfile);

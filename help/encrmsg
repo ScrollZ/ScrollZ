@@ -1,4 +1,4 @@
-!	 $Id: encrmsg,v 1.5 2008-03-08 15:22:13 f Exp $
+!	 $Id: encrmsg,v 1.6 2009-12-21 14:14:17 f Exp $
 !
 ! Copyright (c) 1994-2003 Flier
 !
@@ -27,3 +27,4 @@ Usage: ENCRMSG [-PASS master password] [-CLEAR] [-SHOW] [target [key]]
 
 See also:
   PASSWD
+  SET SAVE_ENCRYPTION_KEYS

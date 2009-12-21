@@ -1,0 +1,15 @@
+!	 $Id: save_encryption_keys,v 1.1 2009-12-21 14:14:17 f Exp $
+!
+! Copyright (c) 1994-2009  Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET SAVE_ENCRYPTION_KEYS [ON|OFF|TOGGLE]
+  If ON, encryption keys used by FiSH encryption are saved
+  to ScrollZ.save. Master password must be set.
+
+See also:
+  PASSWD
+  ENCRMSG
+  SVE

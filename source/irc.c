@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.136 2008-12-29 08:59:13 f Exp $
+ * $Id: irc.c,v 1.137 2009-12-21 14:14:17 f Exp $
  */
 
 #define IRCII_VERSION	"20081231"	/* YYYYMMDD */
@@ -360,7 +360,7 @@ char  *ShowChanChannels=(char *) 0;
 char  *OperNick=(char *) 0;
 char  *OperPassword=(char *) 0;
 #endif
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 char  MyPrivKey[mybufsize / 2];
 char  MyPubKey[mybufsize / 2];
 #endif
@@ -606,7 +606,7 @@ char VersionInfo[] = {
     '-',
     '8',
 #endif
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
     ' ',
     'F',
     'i',

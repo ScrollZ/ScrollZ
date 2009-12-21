@@ -31,9 +31,9 @@ dnl
 dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
-dnl @(#)$Id: configure.in,v 1.54 2009-06-30 15:42:36 f Exp $
+dnl @(#)$Id: configure.in,v 1.55 2009-12-21 14:14:17 f Exp $
 
-AC_REVISION($Revision: 1.54 $)dnl
+AC_REVISION($Revision: 1.55 $)dnl
 AC_INIT(${srcdir}/source/irc.c)
 AC_CONFIG_HEADER(include/defs.h)
 
@@ -62,7 +62,7 @@ CATEGORIES='build change-request doc pending runtime'
 AC_SUBST(CATEGORIES)
 
 dnl so that the generated configure has an id.
-echo '$Id: configure.in,v 1.54 2009-06-30 15:42:36 f Exp $' > /dev/null
+echo '$Id: configure.in,v 1.55 2009-12-21 14:14:17 f Exp $' > /dev/null
 
 dnl
 dnl initial stuff
@@ -1357,41 +1357,29 @@ if test "x$regexp" = "xno" -o "x$regexp" = "x" ; then
 fi
 
 AC_MSG_CHECKING(whether to enable FiSH support)
-AC_ARG_WITH(miracl,
-[  --with-miracl=PATH      Prefix where MIRACL is installed],
-[ case "$withval" in
-  no)  AC_MSG_RESULT(no)
-       ;;             
-  *) AC_MSG_RESULT(yes)
-     olibs="$LIBS"
-     ocflags="$CFLAGS"
-     if test "x$withval" = "xyes";
-     then
-       miracl_prefix="/usr/local"
-     else
-       miracl_prefix="$withval"
-     fi
-     AC_MSG_CHECKING(for MIRACL)
-     if test -n "$miracl_prefix"; then
-       CFLAGS="-I$miracl_prefix/include $CFLAGS"
-     fi
-     if test -n "$miracl_prefix"; then
-       LIBS="$LIBS -L$miracl_prefix/lib -lmiracl"
-     fi
-     AC_TRY_LINK([
-#include "miracl.h"
-],   [ miracl *mip = mirsys(10, 1); ],
+AC_ARG_ENABLE(fish,
+[  --enable-fish           Enable FiSH encryption support],
+[ case "$enableval" in
+  yes) olibs="$LIBS"
+       LIBS="$LIBS -lgmp"
+       AC_TRY_LINK([
+#include <sys/types.h>
+#include <gmp.h>
+],   [ int rc;
+       mpz_t val;
+       mpz_init(val);
+       return 0; ],
      [ AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_MIRACL)
-     miracl=yes ],
-     [ AC_MSG_RESULT(no)
-     LIBS="$olibs"
-     CFLAGS="$ocflags"
-     miracl=no ])
+     AC_DEFINE(HAVE_GMP)
+     fish=yes ],
+     [ LIBS="$olibs"
+       fish=no ])
      ;;
-  esac ],
-  AC_MSG_RESULT(no)
-)
+  esac ])
+if test "x$fish" = "xno" -o "x$fish" = "x" ; then
+    AC_MSG_RESULT(no)
+    fish=no
+fi
 
 if test -n "$hpux"
 then

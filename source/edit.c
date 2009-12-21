@@ -32,7 +32,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.120 2009-07-10 17:50:53 f Exp $
+ * $Id: edit.c,v 1.121 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -391,7 +391,7 @@ extern  void  ChannelLogSave _((char *, ChannelList *));
 extern  void  CdExceptions _((char *, char *, char *));
 extern  void  ExtendTopic _((char *, char *, char *));
 extern  void  TopicDelimiter _((char *, char *, char *));
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 extern  void  KeyExchange _((char *, char *, char *));
 #endif
 /* Coded by Zakath */
@@ -425,7 +425,7 @@ extern  void  ShowIdle _((char *, char *, char *));
 extern  void  TopicLocked _((char *, char *, char *));
 #endif
 #ifdef BLAXTHOS
-extern void EncryptString _((char *, char *, char *, int, int));
+extern void EncryptString _((char *, char *, char *, int, int, int));
 #endif
 #ifndef LITE
 extern  void  Monitor _((char *, char *, char *));
@@ -673,7 +673,7 @@ IrcCommand irc_command[] =
   { "J", 		"JOIN", 	e_channel, 		SERVERREQ },
  	{ "JOIN",	"JOIN",		e_channel,		SERVERREQ },
   { "K", 		NULL, 		Kick, 			SERVERREQ },
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
   { "KEYX",		NULL,           KeyExchange,		SERVERREQ },
 #endif
  	{ "KICK",	"KICK",		send_channel_2args,	SERVERREQ },
@@ -1511,13 +1511,13 @@ oper(command, args, subargs)
             OperNick = (char *) new_malloc(2 * strlen(nick) + 16);
             if (OperNick) {
                 *OperNick = '\0';
-                EncryptString(OperNick, nick, EncryptPassword, 2 * strlen(nick) - 1, 1);
+                EncryptString(OperNick, nick, EncryptPassword, 2 * strlen(nick) - 1, 1, SZ_ENCR_OTHER);
             }
             if (OperPassword) new_free(&OperPassword);
             OperPassword = (char *) new_malloc(2 * len + 16);
             if (OperPassword) {
                 *OperPassword = '\0';
-                EncryptString(OperPassword, password, EncryptPassword, 2 * len - 1, 1);
+                EncryptString(OperPassword, password, EncryptPassword, 2 * len - 1, 1, SZ_ENCR_OTHER);
             }
             if (OperNick && OperPassword) say("OPER password has been stored");
             else say("OPER password not stored - probably memory allocation failure");

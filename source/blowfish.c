@@ -8,7 +8,7 @@
  *
  * Routines for encryption
  *
- * $Id: blowfish.c,v 1.12 2008-03-08 15:22:13 f Exp $
+ * $Id: blowfish.c,v 1.13 2009-12-21 14:14:17 f Exp $
  */
 
 #include "irc.h"
@@ -128,9 +128,9 @@ static unsigned int SBOX[NUMSBOX][256] = {
     }
 };
 
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
 extern FishDecrypt _((char *, char *, char *, int));
-extern FishEncrypt _((char *, char *, char *, int));
+extern FishEncrypt _((char *, char *, char *, int, int));
 #endif
 
 static unsigned int F(x)
@@ -242,12 +242,13 @@ int oldkey;
     }
 }
 
-int EncryptString(dest, src, key, bufsize, szenc)
+int EncryptString(dest, src, key, bufsize, szenc, type)
 char *dest;
 char *src;
 char *key;
 int  bufsize;
 int  szenc;
+int  type;
 {
     int i;
     int oldk = 0;
@@ -260,9 +261,9 @@ int  szenc;
             key++;
         }
     }
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
     else if (szenc == 2) {
-        return(FishEncrypt(dest, src, key, bufsize));
+        return(FishEncrypt(dest, src, key, bufsize, type));
     }
 #endif
     else oldk = 1;
@@ -320,7 +321,7 @@ int  szenc;
             strmcpy(dest, x, bufsize);
             return(0);
         }
-#ifdef HAVE_MIRACL
+#ifdef HAVE_GMP
         if (!strncmp(x, SZBLOWSTR1, 4) || !strncmp(x, SZBLOWSTR2, 5)) {
             return(FishDecrypt(dest, src, key, bufsize));
         }

@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: vars.h,v 1.10 2009-03-09 15:53:47 f Exp $
+ * $Id: vars.h,v 1.11 2009-12-21 14:14:17 f Exp $
  */
 
 #ifndef __vars_h_
@@ -121,6 +121,10 @@ enum {
 /****************************************************************************/
 	DISPLAY_ENCODING_VAR,
 	EIGHT_BIT_CHARACTERS_VAR,
+/**************************** PATCHED by Flier ******************************/
+	ENCRYPT_PAD_MSGS_VAR,
+	ENCRYPT_PAD_PUBLIC_VAR,
+/****************************************************************************/
 	ENCRYPT_PROGRAM_VAR,
 	EXEC_PROTECTION_VAR,
 	FLOOD_AFTER_VAR,
@@ -192,6 +196,9 @@ enum {
 	OLD_ENCRYPT_PROGRAM_VAR,
 	REALNAME_VAR,
 	SAME_WINDOW_ONLY_VAR,
+/**************************** PATCHED by Flier ******************************/
+	SAVE_ENCRYPTION_KEYS_VAR,
+/****************************************************************************/
 	SCREEN_OPTIONS_VAR,
 	SCROLL_VAR,
 /**************************** PATCHED by Flier ******************************/

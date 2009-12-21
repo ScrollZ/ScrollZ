@@ -4,7 +4,7 @@
 /*
  * Structures for my use
  *
- * $Id: mystructs.h,v 1.13 2008-03-08 15:22:13 f Exp $
+ * $Id: mystructs.h,v 1.14 2009-12-21 14:14:17 f Exp $
  */
 
 /* don't change!! */
@@ -28,6 +28,11 @@
 
 #define SZNUMCOLORS     22
 #endif /* WANTANSI */
+
+/* for FiSH encryption */
+#define SZ_ENCR_PRIVMSG 0
+#define SZ_ENCR_PUBLIC  1
+#define SZ_ENCR_OTHER   -1
 
 /* some defines for friends list */
 #define FLINVITE 1
