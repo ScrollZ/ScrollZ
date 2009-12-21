@@ -6,7 +6,10 @@ Meaning of flags:
 - = removed stuff
 ~ = changed stuff
 
-ScrollZ vx.x, y.y.yyyy
+ScrollZ v2.1, 23.12.2009
+
+    I'd like to dedicate this release to frash who passed away on
+    September 28, 2009.
 
     NOTICE: Mailing list is no longer operational. It only received
     spam so we have decided to turn it off.
@@ -34,7 +37,10 @@ ScrollZ vx.x, y.y.yyyy
       if keys are found in ScrollZ.save)
     + improvements to tabkey handling for directories (patch by jm_)
     + various small improvements
-    + fixes for 64-bit systems
+    ! fixes for 64-bit systems (reported by Jugernaut)
+    ! some bugs that led to crashes (mostly dereferencing NULL pointers)
+    ~ W without arguments uses current channel (patch by flashback)
+    ! buffer overflow crash (reported by fet)
 
 ------------------------------------------------------------------------------
 
