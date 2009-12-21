@@ -73,7 +73,7 @@
 ******************************************************************************/
 
 /*
- * $Id: edit5.c,v 1.125 2009-12-21 14:35:53 f Exp $
+ * $Id: edit5.c,v 1.126 2009-12-21 14:39:21 f Exp $
  */
 
 #include "irc.h"
@@ -1571,7 +1571,7 @@ int  iscrypted;
     char pubechar='>';
 #endif
     char *cstr = empty_string;
-    Window *w;
+    Window *w = NULL;
 
     if (iscrypted == 2) cstr = "[*]";
     else if (iscrypted) cstr = "[!]";
@@ -1755,7 +1755,7 @@ int  iscrypted;
         snprintf(tmpbuf3,sizeof(tmpbuf3),"<%s> %s", nick, line);
         ChannelLogSave(tmpbuf3, chan);
     }
-    if (foundar && w != curr_scr_win) {
+    if (foundar && w && (w != curr_scr_win)) {
         w->miscflags |= WINDOW_REPWORD;
         update_all_status();
     }

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.55 2009-12-21 14:14:17 f Exp $
+ * $Id: ctcp.c,v 1.56 2009-12-21 14:39:21 f Exp $
  */
 
 #include "irc.h"
@@ -1417,8 +1417,8 @@ do_atmosphere(ctcp, from, to, cmd)
 {
 /**************************** PATCHED by Flier ******************************/
         int     foundar = 0;
-		int		isshit;
-		int		isfriend;
+        int     isshit;
+        int     isfriend;
         char    *thing;
 #ifdef WANTANSI
         char    *color = CmdsColors[COLME].color3;
@@ -1571,7 +1571,7 @@ do_atmosphere(ctcp, from, to, cmd)
 		set_lastlog_msg_level(old);
  		restore_message_from();
 	}
-        if (foundar && w != curr_scr_win) {
+        if (foundar && w && (w != curr_scr_win)) {
             w->miscflags |= WINDOW_REPWORD;
             update_all_status();
         }
