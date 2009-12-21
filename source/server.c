@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.67 2008-03-29 13:37:48 f Exp $
+ * $Id: server.c,v 1.68 2009-12-21 14:30:27 f Exp $
  */
 
 #include "irc.h"
@@ -2207,6 +2207,14 @@ int server_index;
 }
 /****************************************************************************/
 
+/**************************** PATCHED by Flier ******************************/
+int is_server_ok(int server_index) {
+    if (server_list == NULL) return(0);
+    if (is_server_valid(server_index) == 0) return(0);
+    return(1);
+}
+/****************************************************************************/
+
 /*
  * is_server_connected: returns true if the given server is connected.  This
  * means that both the tcp connection is open and the user is properly
@@ -2219,7 +2227,7 @@ is_server_connected(server_index)
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index < 0)
 		return (0);*/
-        if (server_index < 0 || server_index >= number_of_servers) return(0);
+        if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
 	return (server_list[server_index].connected && (server_list[server_index].flags & LOGGED_IN));
 }
@@ -2231,6 +2239,9 @@ get_server_port(server_index)
 {
 	if (server_index == -1)
 		server_index = primary_server;
+/**************************** PATCHED by Flier ******************************/
+        if (!is_server_ok(server_index)) return(0);
+/****************************************************************************/
 	return (server_list[server_index].port);
 }
 
@@ -2243,7 +2254,7 @@ get_server_nickname(server_index)
 	int	server_index;
 {
 /**************************** PATCHED by Flier ******************************/
-        if (server_index >= number_of_servers)
+        if (!is_server_ok(server_index)) return(0);
             return(nickname);
 /****************************************************************************/
 	if ((server_index != -1) && server_list[server_index].nickname)
@@ -2260,7 +2271,14 @@ get_server_qhead(server_index)
 	int	server_index;
 {
 	if (server_index != -1)
+/**************************** PATCHED by Flier ******************************/
+        {
+                if (!is_server_ok(server_index)) return(0);
+/****************************************************************************/
 		return server_list[server_index].WQ_head;
+/**************************** PATCHED by Flier ******************************/
+        }
+/****************************************************************************/
 	else
 		return WQ_head;
 }
@@ -2281,7 +2299,14 @@ get_server_qtail(server_index)
 	int	server_index;
 {
 	if (server_index !=-1)
+/**************************** PATCHED by Flier ******************************/
+        {
+                if (!is_server_ok(server_index)) return(0);
+/****************************************************************************/
 		return server_list[server_index].WQ_tail;
+/**************************** PATCHED by Flier ******************************/
+        }
+/****************************************************************************/
 	else
 		return WQ_tail;
 }
@@ -2295,7 +2320,14 @@ set_server_qhead(server_index, value)
 	WhoisQueue *value;
 {
 	if (server_index != -1)
+/**************************** PATCHED by Flier ******************************/
+        {
+                if (!is_server_ok(server_index)) return;
+/****************************************************************************/
 		server_list[server_index].WQ_head = value;
+/**************************** PATCHED by Flier ******************************/
+        }
+/****************************************************************************/
 	else
 		WQ_head = value;
 }
@@ -2307,7 +2339,14 @@ set_server_qtail(server_index, value)
 	WhoisQueue *value;
 {
 	if (server_index !=-1)
+/**************************** PATCHED by Flier ******************************/
+        {
+                if (!is_server_ok(server_index)) return;
+/****************************************************************************/
 		server_list[server_index].WQ_tail = value;
+/**************************** PATCHED by Flier ******************************/
+        }
+/****************************************************************************/
 	else
 		WQ_tail = value;
 }
@@ -2322,6 +2361,9 @@ int
 get_server_operator(server_index)
 	int	server_index;
 {
+/**************************** PATCHED by Flier ******************************/
+        if (!is_server_ok(server_index)) return(0);
+/****************************************************************************/
 	return (server_list[server_index].operator);
 }
 
@@ -2334,6 +2376,9 @@ set_server_operator(server_index, flag)
 	int	server_index;
 	int	flag;
 {
+/**************************** PATCHED by Flier ******************************/
+        if (!is_server_ok(server_index)) return;
+/****************************************************************************/
 	server_list[server_index].operator = flag;
 }
 
@@ -2349,9 +2394,15 @@ set_server_nickname(server_index, nick)
 {
 	if (server_index != -1)
 	{
+/**************************** PATCHED by Flier ******************************/
+            if (is_server_ok(server_index)) {
+/****************************************************************************/
 		malloc_strcpy(&(server_list[server_index].nickname), nick);
 		if (server_index == primary_server)
  			malloc_strcpy(&nickname, nick);
+/**************************** PATCHED by Flier ******************************/
+            }
+/****************************************************************************/
 	}
 	update_all_status();
 }
@@ -2361,7 +2412,10 @@ set_server_motd(server_index, flag)
 	int	server_index;
 	int	flag;
 {
-	if (server_index != -1)
+/**************************** PATCHED by Flier ******************************/
+	/*if (server_index != -1)*/
+        if (!is_server_ok(server_index)) return;
+/****************************************************************************/
 		server_list[server_index].motd = flag;
 }
 
@@ -2369,7 +2423,10 @@ int
 get_server_motd(server_index)
 	int	server_index;
 {
-	if (server_index != -1)
+/**************************** PATCHED by Flier ******************************/
+	/*if (server_index != -1)*/
+        if (!is_server_ok(server_index)) return(0);
+/****************************************************************************/
 		return(server_list[server_index].motd);
 	return (0);
 }
@@ -2379,6 +2436,9 @@ server_is_connected(server_index, value)
 	int	server_index,
 		value;
 {
+/**************************** PATCHED by Flier ******************************/
+        if (!is_server_ok(server_index)) return;
+/****************************************************************************/
 	server_list[server_index].connected = value;
 	if (value)
 		server_list[server_index].eof = 0;
