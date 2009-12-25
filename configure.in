@@ -233,18 +233,23 @@ AC_ARG_ENABLE(utf8,
 ])
 
 dnl check for FreeBSD, so we can find iconv.h in /usr/local/include
-if test "x$enable_utf8" = "xyes" ; then
 AC_MSG_CHECKING(for FreeBSD)
 case "`uname -s`" in
   FreeBSD*)
     AC_MSG_RESULT(yes)
     CFLAGS="$CFLAGS -I/usr/local/include"
     CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-    LIBS="$LIBS -L/usr/local/lib -liconv"
+    LIBS="$LIBS -L/usr/local/lib"
+    freebsd=1
     ;;
   *)
     AC_MSG_RESULT(no)
 esac
+
+if test "x$enable_utf8" = "xyes" ; then
+if test -n "$freebsd"; then
+    LIBS="$LIBS -liconv"
+fi
 fi
 
 AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h sys/uio.h)dnl sys/ ones
