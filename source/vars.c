@@ -104,6 +104,7 @@ static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
 void    SetStampFormat _((char *));
 static  void    SetStatusLines _((int));
+static  void    SetUsername _((char *));
 
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
@@ -343,6 +344,9 @@ IrcVariable irc_variable[] =
         { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
 /****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+        { "USERNAME",		STR_TYPE_VAR,	0, NULL, SetUsername, 0, 0 },
+/****************************************************************************/
 	{ "USER_INFORMATION", 		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "USER_WALLOPS",		BOOL_TYPE_VAR,	DEFAULT_USER_WALLOPS, NULL, NULL, 0, 0 },
 	{ "VERBOSE_CTCP",		BOOL_TYPE_VAR,	DEFAULT_VERBOSE_CTCP, NULL, NULL, 0, 0 },
@@ -1105,5 +1109,12 @@ int value;
     if (value < 1) value = 1;
     set_int_var(STATUS_LINES_VAR, value);
     StatusLines = value - 1;
+}
+
+static void SetUsername(new_username)
+char *new_username;
+{
+    if (new_username) strmcpy(username, new_username, NAME_LEN);
+    else strmcpy(username, empty_string, NAME_LEN);
 }
 /****************************************************************************/

@@ -1,0 +1,9 @@
+!	 $Id$
+!
+! Copyright (c) 1994-2010 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET USERNAME <your user name>
+  Change the user name that ScrollZ reports to a IRC server
