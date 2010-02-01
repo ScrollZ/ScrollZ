@@ -1418,6 +1418,9 @@ window_check_servers()
 	Window	*tmp;
 	int	flag, cnt, max, i, not_connected,
 	prime = -1;
+/**************************** PATCHED by Flier ******************************/
+        int primary_grp = 0;
+/****************************************************************************/
 
 	connected_to_server = 0;
 	max = number_of_servers;
@@ -1438,6 +1441,10 @@ window_check_servers()
 				}
 				else
 				{
+/**************************** PATCHED by Flier ******************************/
+                                    if (primary_grp == 0)
+                                        primary_grp = tmp->server;
+/****************************************************************************/
 					prime = tmp->server;
 					cnt++;
 				}
@@ -1453,11 +1460,17 @@ window_check_servers()
 		else
 			connected_to_server++;
 	}
+
 	if (!is_server_open(primary_server))
 	{
 		flag = 1;
 		while ((tmp = traverse_all_windows(&flag)) != NULL)
-			if (tmp->server == primary_server)
+/**************************** PATCHED by Flier ******************************/
+			/*if (tmp->server == primary_server)*/
+                        if (tmp->server == primary_server &&
+                            (tmp->server_group == 0 ||
+                             tmp->server_group == primary_grp))
+/****************************************************************************/
 			{
 				tmp->server = prime;
 			}
