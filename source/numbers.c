@@ -549,8 +549,10 @@ nickname_sendline(data, nick)
 		if (nick && *nick)
 		{
 /**************************** PATCHED by Flier ******************************/
+                    if (is_server_connected(new_server)) {
                         SentNick++;
                         malloc_strcpy(&OldNick, get_server_nickname(new_server));
+                    }
 /****************************************************************************/
 			send_to_server("NICK %s", nick);
 			if (new_server == primary_server)
