@@ -326,4 +326,7 @@ extern int  set_away;
 extern struct in_addr local_ip_address;
 extern char *channel_join;
 
+extern void   *ComplLast;
+extern void   *ComplNext;
+
 #endif /* _myvars_h_ */

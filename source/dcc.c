@@ -504,6 +504,10 @@ dcc_erase(Element)
 			if (Element->file != -1)
 				new_close(Element->file);
 			new_free(&Element->description);
+/**************************** PATCHED by Flier ******************************/
+                        if (Element->user == ComplLast || Element == ComplNext)
+                            ComplLast = ComplNext = NULL;
+/****************************************************************************/
 			new_free(&Element->user);
  			new_free(&Element->othername);
 			new_free(&Element->buffer);

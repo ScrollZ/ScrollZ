@@ -600,6 +600,9 @@ add_to_server_list(server, port, password, nick, overwrite)
                 server_list[from_server].nicklist = NULL;
                 server_list[from_server].ConnectTime = 0;
                 server_list[from_server].ChanPendingList = NULL;
+                server_list[from_server].compl_last = NULL;
+                server_list[from_server].compl_next = NULL;
+                server_list[from_server].compl_channel = NULL;
 /****************************************************************************/
 		server_list[from_server].nickname = (char *) 0;
 		server_list[from_server].connected = 0;
@@ -1393,6 +1396,9 @@ login_to_server(server)
 	server_list[server].SZWho = 0;
 	server_list[server].SZUnban = 0;
 	server_list[server].ConnectTime = time(NULL);
+	server_list[server].compl_last = NULL;
+	server_list[server].compl_next = NULL;
+	server_list[server].compl_channel = NULL;
 /****************************************************************************/
 	server_list[server].flags |= LOGGED_IN;
 #ifdef NON_BLOCKING_CONNECTS

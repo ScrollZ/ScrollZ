@@ -177,6 +177,9 @@ static struct bans *tmpbn;
 static struct bans *tmpbanlist;
 static int listcount;
 
+void *ComplLast;      /* Last completion string used */
+void *ComplNext;      /* Next completion element to use */
+
 extern NotifyList *notify_list;
 
 extern NickList *tabnickcompl;
@@ -878,124 +881,152 @@ int IsCmdLine(char *str, char *cmd, int len)
     else return (!my_stricmp(str, cmdbuf));
 }
 
-/* Insert next relevant nick/file when tab is pressed */
-void HandleTabNext(u_int key, char *ptr)
+/* Change the right pointers to NULL if needed */
+void FixCompl(last, next, completing, newcompl, length)
+void **last;
+void **next;
+char *completing;
+char *newcompl;
+int length;
 {
-    int i, length, argc;
-    unsigned pos, minpos;
-    char argv[3][32] = { { 0 }, { 0 }, { 0 } };
-    char *p;
-    char *cur_pos, *min_pos, *cmdchars;
-    static char completing[mybufsize / 2 + 1];
-    static char *last_completion = NULL;
-    static void *next_p;        /* where to start */
-    static NickList *nick_p;
-    static ChannelList *channel_p;
 
-    if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
-    pos = current_screen->inputdata.buffer.pos;
-    minpos = current_screen->inputdata.buffer.minpos;
-    cur_pos = &current_screen->inputdata.buffer.buf[pos];
-    min_pos = &current_screen->inputdata.buffer.buf[minpos];
-    if (!(*min_pos) || (IsCmdLine(min_pos, "msg ", 4) && key != 20)) {
-        if (CheckServer(from_server)) {
-            if (!server_list[from_server].nickcur)
-                server_list[from_server].nickcur = server_list[from_server].nicklist;
-            else NickNext();
-            InsertTabNick();
-        }
-        return;
-    }
-    p = cur_pos - 1;    /* at string to complete */
-    length = argc = 0;
-    while (!isspace(*p) && *p != ',' && *p != '=' &&
-           (strchr(cmdchars, *min_pos) ? p >= min_pos + 1 : p >= min_pos)) {   
-        p--;            /* walk left until white-space, beginning of line, */
-        length++;	/* comma, or / if it's the first character */
-    }
-    p++;                /* back to beginning */
-    length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
-    if (last_completion &&
-        my_strnicmp(last_completion, p, strlen(last_completion)) == 0 &&
-        *(p + strlen(p) - 1) == '/')
+    if (*last &&
+        my_strnicmp(*last, newcompl, strlen(*last)) == 0 &&
+        *(newcompl + strlen(newcompl) - 1) == '/')
     {
-        *(p + strlen(p) - 1) = '\0';
+        *(newcompl + strlen(newcompl) - 1) = '\0';
     }
-    if (!last_completion || my_stricmp(last_completion, p)) {
-        strmcpy(completing, p, length + 1);
-        last_completion = NULL;
-        next_p = 0;
+    if (!*last || my_stricmp(*last, newcompl))
+{
+        strmcpy(completing, newcompl, length + 1);
+        *last = NULL;
+        *next = NULL;
     }
-    p--;
-    i = 0;	/* in space? */
-    while (p >= min_pos) {
-        if (isspace(*p--)) {
-            if (!i) argc++;
-            i = 1;
-        }
-        else i = 0;
-    }
-    sscanf(min_pos, "%31s %31s %31s", argv[0], argv[1], argv[2]);
-    if (IsCmdLine(argv[0], "m", 1) && *argv[1] == '=') {
+}
+
+/* Handle DCC chat completion */
+int HandletabNextDCCChat(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    if (IsCmdLine(argv[0], "m", 1) && *argv[1] == '=')
+    {
+        int i;
+        char *p;
         DCC_list *dcc_p;
 
+        FixCompl(&ComplLast, &ComplNext, completing, newcompl, length);
+
 chat_begin:
-        if (next_p) dcc_p = next_p;
+
+        if (ComplNext) dcc_p = ComplNext;
         else dcc_p = ClientList;
         while (dcc_p) {
-            if (!my_strnicmp(argv[1] + 1, dcc_p->user, strlen(completing)) && (dcc_p->flags & DCC_TYPES) == DCC_CHAT)
+            if (!my_strnicmp(argv[1] + 1, dcc_p->user, strlen(completing)) &&
+                (dcc_p->flags & DCC_TYPES) == DCC_CHAT)
+            {
                 break;
+            }
             dcc_p = dcc_p->next;
         }
         if (!dcc_p) {
-            if (last_completion) {
-                last_completion = NULL;
-                next_p = 0;
+            if (ComplLast) {
+                ComplLast = NULL;
+                ComplNext = NULL;
                 goto chat_begin;
             }
-            else return;
+            else return(1);
         }
         for (i = 0; i < length; i++) input_backspace(' ', NULL);
         for (p = dcc_p->user; *p; p++) input_add_character(*p, NULL);
-        last_completion = dcc_p->user;
-        if (dcc_p->next) next_p = dcc_p->next;
-        else next_p = 0;
+        ComplLast = dcc_p->user;
+        if (dcc_p->next) ComplNext = dcc_p->next;
+        else ComplNext = NULL;
+
+        return(1);
     }
-    else if (IsCmdLine(argv[0], "dc", 2) && (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) || !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)) && argc == 3) {
+    return(0);
+}
+
+/* Handle DCC get completion */
+int HandletabNextDCCGet(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    if (argc == 3 && IsCmdLine(argv[0], "dc", 2) &&
+        (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) ||
+         !my_strnicmp(argv[1], "resu", 4) || !my_strnicmp(argv[1], "reg", 3)))
+    {
+        int i;
+        char *p;
         DCC_list *dcc_p;
 
+        FixCompl(&ComplLast, &ComplNext, completing, newcompl, length);
+
 get_begin:
-        if (next_p) dcc_p = next_p;
+        if (ComplNext) dcc_p = ComplNext;
         else dcc_p = ClientList;
         while (dcc_p) {
-            if (!my_stricmp(argv[2], dcc_p->user) && (dcc_p->flags & DCC_TYPES) == DCC_FILEREAD && !my_strnicmp(dcc_p->description, completing, strlen(completing)))
+            if (!my_stricmp(argv[2], dcc_p->user) &&
+                (dcc_p->flags & DCC_TYPES) == DCC_FILEREAD &&
+                !my_strnicmp(dcc_p->description, completing, strlen(completing)))
+            {
                 break;
+            }
             dcc_p = dcc_p->next;
         }
         if (!dcc_p) {
-            if (last_completion) {
-                last_completion = NULL;
-                next_p = 0;
+            if (ComplLast) {
+                ComplLast = NULL;
+                ComplNext = NULL;
                 goto get_begin;
             }
-            else return;
+            else return(1);
         }
-        for (i = 0; i < length; i++) input_backspace(' ', NULL);
+        for (i = 0; i < length; i++)input_backspace(' ', NULL);
         for (p = dcc_p->description; *p; p++) input_add_character(*p, NULL);
-        last_completion = dcc_p->description;
-        if (dcc_p->next) next_p = dcc_p->next;
-        else next_p = 0;
+        ComplLast = dcc_p->description;
+        if (dcc_p->next) ComplNext = dcc_p->next;
+        else ComplNext = NULL;
+
+        return(1);
     }
-    else if ((IsCmdLine(argv[0], "dc", 2) && !my_strnicmp(argv[1], "se", 2) && argc == 3) ||
-            (IsCmdLine(argv[0], "cdc", 3) && !my_strnicmp(argv[1], "sen", 3) && argc >= 2 &&
-             !strchr(min_pos, ',')) ||
-            (IsCmdLine(argv[0], "loa", 3) && argc >= 1)) {
+    return(0);
+}
+
+/* Handle DCC send completion */
+int HandletabNextDCCSend(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    unsigned minpos = current_screen->inputdata.buffer.minpos;
+    char *min_pos = &current_screen->inputdata.buffer.buf[minpos];
+
+    if ((argc == 3 && IsCmdLine(argv[0], "dc", 2) &&
+         !my_strnicmp(argv[1], "se", 2)) ||
+        (argc >= 2 && IsCmdLine(argv[0], "cdc", 3) &&
+         !my_strnicmp(argv[1], "sen", 3) && !strchr(min_pos, ',')) ||
+        (argc >= 1 && IsCmdLine(argv[0], "loa", 3)))
+    {
+        int i;
+        char *p;
         char dir[191] = "", file[63] = "", root[191] = "";
         static char buffer[256];
         char filepath[256] = "";
         int j, n;
         struct dirent **dir_list;
         struct stat stf;
+
+        FixCompl(&ComplLast, &ComplNext, completing, newcompl, length);
 
 send_begin:
         p = strrchr(completing, '/');
@@ -1040,12 +1071,12 @@ send_begin:
             n = scandir(root, &dir_list, NULL, alphasort);
             strmcpy(filepath, root, sizeof(filepath));
         }
-        if (n < 0) return;
+        if (n < 0) return(1);
         j = 2;		/* skip . and .. */
-        if (last_completion) {
-            p = strrchr(last_completion, '/');
+        if (ComplLast) {
+            p = strrchr(ComplLast, '/');
             if (p) p++;
-            else p = last_completion;
+            else p = ComplLast;
             while (j < n - 1 && strcmp(dir_list[j]->d_name, p)) j++;
             j++;
         }
@@ -1064,142 +1095,301 @@ send_begin:
                 strmcat(filepath, dir_list[j]->d_name, sizeof(filepath));
                 if (stat(filepath, &stf) == 0 && S_ISDIR(stf.st_mode))
                     input_add_character('/', NULL);
-                last_completion = buffer;
+                ComplLast = buffer;
                 break;
             }
             j++;
         }
         for (i = 0; i < n; i++) free(dir_list[i]);
         if (j == n) {
-            if (last_completion) {
-                last_completion = NULL;
+            if (ComplLast) {
+                ComplLast = NULL;
                 goto send_begin;
             }
         }
+
+        return(1);
     }
-    else if ((*min_pos == *cmdchars && argc == 0) || IsCmdLine(argv[0], "he", 2)) {
+    return(0);
+}
+
+/* Handle commands completion */
+int HandletabNextCommand(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    unsigned minpos = current_screen->inputdata.buffer.minpos;
+    char *min_pos = &current_screen->inputdata.buffer.buf[minpos];
+    char *cmdchars;
+
+    if (!(cmdchars = get_string_var(CMDCHARS_VAR)))
+        cmdchars = DEFAULT_CMDCHARS;
+
+    if ((argc == 0 && *min_pos == *cmdchars) ||
+        IsCmdLine(argv[0], "he", 2))
+    {
+        int i;
+        char *p;
         IrcCommand *command_p;
 
+        FixCompl(&ComplLast, &ComplNext, completing, newcompl, length);
+
 command_begin:
-        if (next_p) command_p = next_p;
+        if (ComplNext) command_p = ComplNext;
         else command_p = &irc_command[1];	/* skip "" */
         while (command_p->name) {
-            if (!my_strnicmp(command_p->name, completing, strlen(completing))) {
+            if (!my_strnicmp(command_p->name, completing, strlen(completing)))
+            {
                 for (i = 0; i < length; i++) input_backspace(' ', NULL);
                 for (p = command_p->name; *p; p++) input_add_character(*p, NULL);
-                last_completion = command_p->name;
+                ComplLast = command_p->name;
                 break;
             }
             command_p++;
         }
         if (!command_p->name) {
-            if (last_completion) {
-                last_completion = 0;
-	        next_p = 0;
+            if (ComplLast) {
+                ComplLast = NULL;
+	        ComplNext = NULL;
                 goto command_begin;
             }
         }
-        else next_p = command_p + 1;
+        else ComplNext = command_p + 1;
+
+        return(1);
     }
-    else if (IsCmdLine(argv[0], "set", 3) && argc == 1) {
+    return(0);
+}
+
+/* Handle variables completion */
+int HandletabNextVariable(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    if (argc == 3 && IsCmdLine(argv[0], "set", 3))
+    {
+        int i;
+        char *p;
         IrcVariable *variable_p;
 
+        FixCompl(&ComplLast, &ComplNext, completing, newcompl, length);
+
 variable_begin:
-        if (next_p) variable_p = next_p;
+        if (ComplNext) variable_p = ComplNext;
 	else variable_p = irc_variable;
         while (variable_p->name) {
-            if (!my_strnicmp(variable_p->name, completing, strlen(completing))) {
+            if (!my_strnicmp(variable_p->name, completing, strlen(completing)))
+            {
                 for (i = 0; i < length; i++) input_backspace(' ', NULL);
                 for (p = variable_p->name; *p; p++) input_add_character(*p, NULL);
-                last_completion = variable_p->name;
+                ComplLast = variable_p->name;
                 break;
             }
             variable_p++;
         }
         if (!variable_p->name) {
-            if (last_completion) {
-                last_completion = 0;
-	        next_p = 0;
+            if (ComplLast) {
+                ComplLast = NULL;
+	        ComplNext = NULL;
                 goto variable_begin;
             }
         }
-        else next_p = variable_p + 1;
+        else ComplNext = variable_p + 1;
+
+        return(1);
     }
-    else if (is_channel(completing)) {
+    return(0);
+}
+
+/* Handle channel completion */
+int HandletabNextChannel(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    if (!CheckServer(curr_scr_win->server)) return(0);
+
+    FixCompl(&server_list[curr_scr_win->server].compl_last,
+             &server_list[curr_scr_win->server].compl_next,
+             completing, newcompl, length);
+
+    if (is_channel(completing))
+    {
+        int i;
+        char *p;
+        ChannelList *channel_p;
+
 channel_begin:
-        if (!CheckServer(curr_scr_win->server)) return;
-        if (next_p) channel_p = next_p;
-        else channel_p = server_list[curr_scr_win->server].chan_list;
+        if (server_list[curr_scr_win->server].compl_next)
+            channel_p = server_list[curr_scr_win->server].compl_next;
+        else
+            channel_p = server_list[curr_scr_win->server].chan_list;
         while (channel_p && my_strnicmp(completing, channel_p->channel, strlen(completing)))
             channel_p = channel_p->next;
         if (!channel_p) {
-            if (last_completion) {
-                last_completion = NULL;
-                next_p = 0;
+            if (server_list[curr_scr_win->server].compl_last)
+            {
+                server_list[curr_scr_win->server].compl_last = NULL;
+                server_list[curr_scr_win->server].compl_next = NULL;
                 goto channel_begin;
             }
-            else return;
+            else return(1);
         }
         for (i = 0; i < length; i++) input_backspace(' ', NULL);
         for (p = channel_p->channel; *p; p++) input_add_character(*p, NULL);
-        last_completion = channel_p->channel;
-        if (channel_p->next) next_p = channel_p->next;    /* start here */
-        else next_p = 0;            /* start over */
+
+        server_list[curr_scr_win->server].compl_last = channel_p->channel;
+        server_list[curr_scr_win->server].compl_next = channel_p->next;
+
+        return(1);
     }
-    else {
-        static int channel_count;
-        static int our_count;		/* how many we've checked */
+    return(0);
+}
+
+/* Handle nick completion */
+int HandletabNextNick(argc, argv, completing, newcompl, length)
+int argc;
+char argv[3][32];
+char *completing;
+char *newcompl;
+int length;
+{
+    int i;
+    char *p;
+    ChannelList *channel_p = NULL, *start_chan = NULL;
+    NickList *nick_p;
+
+    if (!CheckServer(curr_scr_win->server)) return(0);
+
+    FixCompl(&server_list[curr_scr_win->server].compl_last,
+             &server_list[curr_scr_win->server].compl_next,
+             completing, newcompl, length);
 
 nick_begin:
-        if (!CheckServer(curr_scr_win->server)) return;
-        if (!last_completion) {
-            channel_p = server_list[curr_scr_win->server].chan_list;
-            channel_count = 0;
-            while (channel_p) {
-                channel_count++;
-                channel_p = channel_p->next;
-            }
-            p = get_channel_by_refnum(0);
-            if (p) channel_p = lookup_channel(p, from_server, 0);
-            else channel_p = server_list[curr_scr_win->server].chan_list;
-            if (!channel_p) return; /* not on any channels */
-            our_count = 0;
-        }
-next_channel:
-        while (channel_p && our_count < channel_count) {
-            if (next_p) nick_p = next_p;
-            else nick_p = channel_p->nicks;
-            while (nick_p) {
-                if (!my_strnicmp( nick_p->nick, completing, strlen(completing))) break;
-                nick_p = nick_p->next;
-            }
-            if (nick_p) {
-                for (i = 0; i < length; i++) input_backspace(' ', NULL);
-                for (p = nick_p->nick; *p; p++) input_add_character(*p, NULL);
-                last_completion = nick_p->nick;
-                if (nick_p->next) next_p = nick_p->next;
-                else {
-                    channel_p = channel_p->next;
-                    next_p = 0;
-                }
-                return;
-            }
-            channel_p = channel_p->next;
-            next_p = 0;
-            our_count++;
-        }
-        /* if we started at chan_list our_count will equal
-           channel_count, skipping this */
-        if (our_count < channel_count) {
-            channel_p = server_list[curr_scr_win->server].chan_list;
-            goto next_channel;
-        }
-        /* we've had a match, find it again */
-        if (last_completion) {
-            last_completion = NULL;
-            goto nick_begin;
-        }
+    if (!server_list[curr_scr_win->server].compl_channel)
+    {
+        p = get_channel_by_refnum(0);
+        if (p) channel_p = lookup_channel(p, from_server, 0);
+        else channel_p = server_list[curr_scr_win->server].chan_list;
+        if (!channel_p) return(0); /* not on any channels */
+
+        server_list[curr_scr_win->server].compl_channel = channel_p;
     }
+    else
+    {
+        channel_p = server_list[curr_scr_win->server].compl_channel;
+    }
+
+next_channel:
+    while (channel_p && channel_p != start_chan)
+    {
+        /* remember where we started */
+        if (!start_chan) start_chan = channel_p;
+
+        if (server_list[curr_scr_win->server].compl_next)
+            nick_p = server_list[curr_scr_win->server].compl_next;
+        else
+            nick_p = channel_p->nicks;
+
+        while (nick_p) {
+            if (!my_strnicmp( nick_p->nick, completing, strlen(completing)))
+                break;
+            nick_p = nick_p->next;
+        }
+        if (nick_p) {
+            for (i = 0; i < length; i++) input_backspace(' ', NULL);
+            for (p = nick_p->nick; *p; p++) input_add_character(*p, NULL);
+            server_list[curr_scr_win->server].compl_last = nick_p->nick;
+            if (nick_p->next)
+                server_list[curr_scr_win->server].compl_next = nick_p->next;
+            else {
+                channel_p = channel_p->next;
+                server_list[curr_scr_win->server].compl_channel = channel_p;
+                server_list[curr_scr_win->server].compl_next = NULL;
+            }
+            return(1);
+        }
+        channel_p = channel_p->next;
+        server_list[curr_scr_win->server].compl_next = NULL;
+    }
+    if (channel_p != start_chan) {
+        channel_p = server_list[curr_scr_win->server].chan_list;
+        goto next_channel;
+    }
+    /* we've had a match, find it again */
+    if (server_list[curr_scr_win->server].compl_last) {
+        server_list[curr_scr_win->server].compl_last = NULL;
+        goto nick_begin;
+    }
+    return(1);
+}
+
+/* Insert next relevant nick/file when tab is pressed */
+void HandleTabNext(u_int key, char *ptr)
+{
+    int i, length, argc;
+    unsigned pos, minpos;
+    char argv[3][32] = { { 0 }, { 0 }, { 0 } };
+    char *p, *newcompl = NULL;
+    char *cur_pos, *min_pos, *cmdchars;
+    static char completing[mybufsize / 2 + 1];
+
+    if (!(cmdchars = get_string_var(CMDCHARS_VAR))) cmdchars = DEFAULT_CMDCHARS;
+    pos = current_screen->inputdata.buffer.pos;
+    minpos = current_screen->inputdata.buffer.minpos;
+    cur_pos = &current_screen->inputdata.buffer.buf[pos];
+    min_pos = &current_screen->inputdata.buffer.buf[minpos];
+    if (!(*min_pos) || (IsCmdLine(min_pos, "msg ", 4) && key != 20)) {
+        if (CheckServer(from_server)) {
+            if (!server_list[from_server].nickcur)
+                server_list[from_server].nickcur = server_list[from_server].nicklist;
+            else NickNext();
+            InsertTabNick();
+        }
+        return;
+    }
+    p = cur_pos - 1;    /* at string to complete */
+    length = argc = 0;
+    while (!isspace(*p) && *p != ',' && *p != '=' &&
+           (strchr(cmdchars, *min_pos) ? p >= min_pos + 1 : p >= min_pos)) {   
+        p--;            /* walk left until white-space, beginning of line, */
+        length++;	/* comma, or / if it's the first character */
+    }
+    p++;                /* back to beginning */
+    length = length > sizeof(completing) - 1 ? sizeof(completing) - 1 : length;
+    newcompl = p;
+    p--;
+    i = 0;	/* in space? */
+    while (p >= min_pos) {
+        if (isspace(*p--)) {
+            if (!i) argc++;
+            i = 1;
+        }
+        else i = 0;
+    }
+    sscanf(min_pos, "%31s %31s %31s", argv[0], argv[1], argv[2]);
+
+    if (HandletabNextDCCChat(argc, argv, completing, newcompl, length))
+        return;
+    if (HandletabNextDCCGet(argc, argv, completing, newcompl, length))
+        return;
+    if (HandletabNextDCCSend(argc, argv, completing, newcompl, length))
+        return;
+    if (HandletabNextCommand(argc, argv, completing, newcompl, length))
+        return;
+    if (HandletabNextVariable(argc, argv, completing, newcompl, length))
+        return;
+    if (HandletabNextChannel(argc, argv, completing, newcompl, length))
+        return;
+    HandletabNextNick(argc, argv, completing, newcompl, length);
 }
 
 /* Handles alt-i (prev nick in nick list) */

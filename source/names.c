@@ -1682,6 +1682,16 @@ remove_channel(channel, server)
 			tmp = lookup_channel(channel, server, CHAN_UNLINK);
 			if (tmp->window)
 				refnum = tmp->window->refnum;
+/**************************** PATCHED by Flier ******************************/
+                        if (server_list[server].compl_last == tmp->channel ||
+                            server_list[server].compl_channel == tmp ||
+                            server_list[server].compl_next == tmp)
+                        {
+                            server_list[server].compl_last = NULL;
+                            server_list[server].compl_next = NULL;
+                            server_list[server].compl_channel = NULL;
+                        }
+/****************************************************************************/
 			free_channel(&tmp);
 		}
 
@@ -1697,6 +1707,11 @@ remove_channel(channel, server)
 			free_channel(&tmp);
 		}
 		server_list[server].chan_list = (ChannelList *) 0;
+/**************************** PATCHED by Flier ******************************/
+                server_list[server].compl_last = NULL;
+                server_list[server].compl_next = NULL;
+                server_list[server].compl_channel = NULL;
+/****************************************************************************/
 	}
 	update_all_windows();
 }
@@ -1770,6 +1785,13 @@ remove_from_channel(channel, nick, server)
 				new_free(&tmp);*/
                                 remove_nick_from_hash(chan,tmp);
                                 add_to_whowas_buffer(tmp,channel);
+                                if (server_list[curr_scr_win->server].compl_last == tmp->nick ||
+                                    server_list[curr_scr_win->server].compl_next == tmp)
+                                {
+                                    server_list[server].compl_last = NULL;
+                                    server_list[server].compl_next = NULL;
+                                }
+
 /****************************************************************************/
 			}
 		}
@@ -1785,6 +1807,12 @@ remove_from_channel(channel, nick, server)
 				new_free(&tmp);*/
                                 remove_nick_from_hash(chan,tmp);
                                 add_to_whowas_buffer(tmp,chan->channel);
+                                if (server_list[curr_scr_win->server].compl_last == tmp->nick ||
+                                    server_list[curr_scr_win->server].compl_next == tmp)
+                                {
+                                    server_list[server].compl_last = NULL;
+                                    server_list[server].compl_next = NULL;
+                                }
 /****************************************************************************/
 			}
 		}

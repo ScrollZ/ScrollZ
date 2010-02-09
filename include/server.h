@@ -111,6 +111,10 @@ typedef	struct
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;
 	ChannelList *ChanPendingList;   /* list of channels pending for join */
+        void    *compl_last;            /* pointer to last completion string */
+        void    *compl_next;            /* where to start next completion */
+        ChannelList *compl_channel;     /* last channel completion */
+
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         int        enable_ssl;
 #if defined(HAVE_SSL)
