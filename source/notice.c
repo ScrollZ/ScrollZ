@@ -179,9 +179,7 @@ parse_server_notice(from, to, line)
                 {
 #if defined(OPERVISION) && defined(WANTANSI)
                         if (OperV &&
-                           (get_server_version(from_server)==Server2_9 || 
-                            get_server_version(from_server)==Server2_10 ||
-                            get_server_version(from_server)==Server2_11) &&
+                           (get_server_version(from_server)==Server2_11) &&
                            IsIrcNetOperChannel(to))
                             OVformat(line,NULL);
                         else
@@ -514,10 +512,12 @@ got_initial_version(line)
 		set_server_version(parsing_server_index, Server2_10);
 /**************************** Patched by Flier ******************************/
         /* this is here so we can identify Freenode servers */
-	else if (strstr(version, "hyperion"))
-		set_server_version(parsing_server_index, Server2_90);
-	else
-		set_server_version(parsing_server_index, Server2_11);
+        else if (strstr(version, "hyperion"))
+                set_server_version(parsing_server_index, Server2_90);
+        else if (!strncmp(version, "2.11", 4))
+                set_server_version(parsing_server_index, Server2_11);
+        else
+                set_server_version(parsing_server_index, Server2_12);
 /****************************************************************************/
 	malloc_strcpy(&server_list[parsing_server_index].version_string, version);
 	set_server_itsname(parsing_server_index, server);

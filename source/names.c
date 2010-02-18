@@ -915,7 +915,7 @@ char    *servmodes;
 				if (add) {
 					/* we can only have one of ohv on a hybrid7 server.
 				   	   +v, +h, -h != +v */
-					if (get_server_version(server) == Server2_11)
+					if (get_server_version(server) == Server2_12)
 						*chop &= ~CHAN_VOICE;
 
 					*chop |= CHAN_HALFOP;
@@ -965,7 +965,7 @@ char    *servmodes;
                         }
 			if (ThisNick) {
 				ThisNick->halfop = add;
-				if (add && get_server_version(server) == Server2_11)
+				if (add && get_server_version(server) == Server2_12)
 					ThisNick->hasvoice = 0;
 			}
 			if (check && tmpjoiner) {
@@ -995,7 +995,7 @@ char    *servmodes;
                                 if (add) {
 					/* we can only have one of ohv on a hybrid7 server.
 					   +h, +o, -o != +h */
-					if (get_server_version(server) == Server2_11)
+					if (get_server_version(server) == Server2_12)
 						*chop &= ~(CHAN_HALFOP | CHAN_VOICE);
 
 					*chop |= CHAN_CHOP;
@@ -1142,7 +1142,7 @@ char    *servmodes;
 			{
 				ThisNick->chanop = add;
 
-				if (add && get_server_version(server) == Server2_11)
+				if (add && get_server_version(server) == Server2_12)
 					ThisNick->halfop = ThisNick->hasvoice = 0;
 			}
 			break;

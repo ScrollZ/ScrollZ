@@ -56,6 +56,7 @@
 #define Server2_9	4
 #define Server2_10	5
 #define Server2_11	6
+#define Server2_12	7
 #define Server2_90	90
 
 /* Server: a structure for the server_list */

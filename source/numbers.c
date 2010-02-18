@@ -779,12 +779,10 @@ cannot_join_channel(from, ArgList)
 		return;
 
 /**************************** Patched by Flier ******************************/
-        /* handle ircd 2.9/2.10 here because numeric 477 has totally
+        /* handle ircd 2.11 here because numeric 477 has totally
            different meaning than on networks with NickServ */
         if ((-current_numeric == 477) &&
-            ((get_server_version(from_server) == Server2_9) ||
-             (get_server_version(from_server) == Server2_10) ||
-             (get_server_version(from_server) == Server2_11))) {
+            (get_server_version(from_server) == Server2_11)) {
             PasteArgs(ArgList, 0);
             if (do_hook(current_numeric, "%s %s", from, *ArgList))
                 put_it("%s%s", numeric_banner(), ArgList[0]);

@@ -2976,7 +2976,7 @@ ChannelList *chan;
         /* request topic when we get opped on anonymous channel
            to show correct topic info on hybrid7 ircd */
         if (chan && ((chan->mode) & MODE_ANONYMOUS) &&
-            (get_server_version(from_server) == Server2_11)) {
+            (get_server_version(from_server) == Server2_12)) {
             send_to_server("TOPIC %s", chan->channel);
         }
         if (chan->repeatexceptions) {

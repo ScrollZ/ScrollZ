@@ -1263,9 +1263,7 @@ p_channel(from, ArgList)
 			add_channel(channel, parsing_server_index, CHAN_JOINED, NULL, NULL,
                                     chan ? chan->gotwho : 0);
                         chan = lookup_channel(channel, parsing_server_index, 0);
-                        if ((get_server_version(parsing_server_index) == Server2_9 || 
-                             get_server_version(parsing_server_index) == Server2_10 ||
-                             get_server_version(parsing_server_index) == Server2_11) &&
+                        if ((get_server_version(parsing_server_index) == Server2_11) &&
                             IsIrcNetOperChannel(channel)) {
                             snprintf(tmpbuf,sizeof(tmpbuf), "MODE %s", channel);
                         }

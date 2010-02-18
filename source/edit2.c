@@ -1232,7 +1232,7 @@ char *subargs;
     if (channel && (chan=lookup_channel(channel,from_server,0))) {
         if (HAS_OPS(chan->status)) {
             snprintf(tmpbuf,sizeof(tmpbuf),"MODE %s -ntislmp",channel);
-	    if (get_server_version(from_server)==Server2_11)
+	    if (get_server_version(from_server)==Server2_12)
 		strmcat(tmpbuf,"a",sizeof(tmpbuf));
             if ((chan->mode)&MODE_KEY && chan->key) {
                 strmcat(tmpbuf,"k ",sizeof(tmpbuf));

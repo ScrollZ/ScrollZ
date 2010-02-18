@@ -404,9 +404,7 @@ funny_mode(from, ArgList)
 		/*update_channel_mode(channel, parsing_server_index, mode);*/
 		update_channel_mode(channel, parsing_server_index, mode, strlen(mode),
                                     NULL, NULL, NULL, NULL, tmp);
-                if ((get_server_version(from_server) == Server2_9 || 
-                     get_server_version(from_server) == Server2_10 ||
-                     get_server_version(from_server) == Server2_11) &&
+                if ((get_server_version(from_server) == Server2_11) &&
                     IsIrcNetOperChannel(channel)) {
                     tmp->gotbans = 1;
                     tmp->gotwho = 1;

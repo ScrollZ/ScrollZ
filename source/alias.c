@@ -3567,9 +3567,12 @@ function_servertype(input)
 			s = "IRC2.11";
 			break;
 /**************************** PATCHED by Flier ******************************/
-		case Server2_90:
-			s = "IRC2.90";
-			break;
+                case Server2_12:
+                        s = "IRC2.12";
+                        break;
+                case Server2_90:
+                        s = "IRC2.90";
+                        break;
 /****************************************************************************/
 		default:
 			s = "IRC unknown";
