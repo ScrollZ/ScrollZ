@@ -8,6 +8,18 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+    + SET USERNAME to set username sent to IRC server (requested by jm_)
+    ! a silly bug that made client confused about the nickname (if
+      initial connect returned invalid nickname error, thanks to enkil
+      for debugging)
+    ! a bug where bound channel was bound to another window on
+      reconnect (patch by jm_)
+    ! tab handling should no longer crash after reconnects (patch by jm_)
+    ! handling of numeric 477 for networks with NickServ (reported
+      by several users)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.1, 23.12.2009
 
     I'd like to dedicate this release to frash who passed away in
