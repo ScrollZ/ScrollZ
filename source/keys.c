@@ -253,83 +253,131 @@ parse_key(key_str)
 		upper(cmd);
 		if (strncmp(cmd, "META1-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 1;
 		}
 		else if (strncmp(cmd, "META2-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 2;
 		}
 		else if (strncmp(cmd, "META3-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 3;
 		}
 		else if (strncmp(cmd, "META4-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 4;
 		}
 		else if (strncmp(cmd, "META5-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 5;
 		}
 		else if (strncmp(cmd, "META6-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 6;
 		}
 		else if (strncmp(cmd, "META7-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 7;
 		}
 		else if (strncmp(cmd, "META8-", 6) == 0)
 		{
-			strcpy((char *) key_str, (char *) key_str + 6);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 6);*/
+                        memmove(key_str, key_str + 6, strlen(key_str + 6) + 1);
+/****************************************************************************/
 			m = 8;
 		}
 		else if (keys[(u_char) *key_str].index == META1_CHARACTER)
 		{
 			m = 1;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META2_CHARACTER)
 		{
 			m = 2;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META3_CHARACTER)
 		{
 			m = 3;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META4_CHARACTER)
 		{
 			m = 4;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META5_CHARACTER)
 		{
 			m = 5;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META6_CHARACTER)
 		{
 			m = 6;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META7_CHARACTER)
 		{
 			m = 7;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else if (keys[(u_char) *key_str].index == META8_CHARACTER)
 		{
 			m = 8;
-			strcpy((char *) key_str, (char *) key_str + 1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy((char *) key_str, (char *) key_str + 1);*/
+                        memmove(key_str, key_str + 1, strlen(key_str + 1) + 1);
+/****************************************************************************/
 		}
 		else
 		{

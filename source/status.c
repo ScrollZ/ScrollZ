@@ -1265,7 +1265,10 @@ make_status_one(window, k, l)
 			
 			/* Delete the marker */
 			/* FIXME: strcpy may not be used for overlapping buffers */
-			strcpy(lbuf+i, lbuf+i+1);
+/**************************** PATCHED by Flier ******************************/
+			/*strcpy(lbuf+i, lbuf+i+1);*/
+                        memmove(lbuf + i, lbuf + i + 1, strlen(lbuf + i + 1) + 1);
+/****************************************************************************/
 			
 			rjustifypos = i;
 		}
