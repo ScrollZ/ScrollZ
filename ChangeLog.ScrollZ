@@ -8,6 +8,8 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v2.2, 14.5.2011
+
     + SET USERNAME to set username sent to IRC server (requested by jm_)
     ! a silly bug that made client confused about the nickname (if
       initial connect returned invalid nickname error, thanks to enkil
@@ -17,6 +19,22 @@ Meaning of flags:
     ! tab handling should no longer crash after reconnects (patch by jm_)
     ! handling of numeric 477 for networks with NickServ (reported
       by several users)
+    ! crash when delay joining a channel (reported by flashback)
+    ! DCC speed reporting (fix by flashback)
+    ! WHOIS actually (fix by flashback)
+    ! LINKS command would stop working when server throttling
+      kicked in (fix by flashback)
+    + SET RATELIMIT_JOIN - configurable server versions on which channel
+      joins are rate limited (implemented by flashback)
+    + client with UTF-8 support should be buildable on SGI IRIX
+    + tabkey improvements for OP, DOP, HOP, DH, VO and DV
+      (patch by flashback)
+    ! status bar corruption on 64-bit systems due to overlapping
+      string copy
+    ! number of DCC GET/SEND requests in status bar is now correctly
+      set to zero when a signal USR1 is received
+    + SHOWIDLE can now be sorted, see help for details
+      (requested by Blaxthos)
 
 ------------------------------------------------------------------------------
 
