@@ -246,6 +246,20 @@ case "`uname -s`" in
     AC_MSG_RESULT(no)
 esac
 
+dnl check for IRIX, so we can find iconv.h in /usr/nekoware/include
+AC_MSG_CHECKING(for IRIX)
+case "`uname -s`" in
+  IRIX*)
+    AC_MSG_RESULT(yes)
+    CFLAGS="$CFLAGS -I/usr/nekoware/include"
+    CPPFLAGS="$CPPFLAGS -I/usr/nekoware/include"
+    LIBS="$LIBS -L/usr/nekoware/lib"
+    freebsd=1
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+esac
+
 if test "x$enable_utf8" = "xyes" ; then
 if test -n "$freebsd"; then
     LIBS="$LIBS -liconv"
