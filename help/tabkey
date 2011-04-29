@@ -34,3 +34,10 @@ SPECIAL
 /<tab>                  cycles through command names
 /he <tab>
 /set <tab>		cycles through variable names
+
+/op <tab>		cycles through deopped nicks
+/dop <tab>		cycles through opped nicks
+/hop <tab>		cycles through dehalfopped nicks
+/dh <tab>		cycles through halfopped nicks
+/vo <tab>		cycles through devoiced nicks
+/dv <tab>		cycles through voiced nicks

@@ -1300,8 +1300,34 @@ next_channel:
             nick_p = channel_p->nicks;
 
         while (nick_p) {
-            if (!my_strnicmp( nick_p->nick, completing, strlen(completing)))
-                break;
+            if (!my_strnicmp(nick_p->nick, completing, strlen(completing))) {
+                if (IsCmdLine(argv[0], "op", 2)) {
+                    if (!nick_p->chanop)
+			break;
+                }
+                else if (IsCmdLine(argv[0], "dop", 3)) {
+                    if (nick_p->chanop)
+			break;
+                }
+                else if (IsCmdLine(argv[0], "vo", 2)) {
+                    if (!nick_p->hasvoice)
+                        break;
+                }
+                else if (IsCmdLine(argv[0], "dv", 2)) {
+                    if (nick_p->hasvoice)
+                        break;
+                }
+                else if (IsCmdLine(argv[0], "hop", 3)) {
+                    if (!nick_p->halfop)
+                        break;
+                }
+                else if (IsCmdLine(argv[0], "dh", 2)) {
+                    if (nick_p->halfop)
+                        break;
+                }
+                else
+                    break;
+            }
             nick_p = nick_p->next;
         }
         if (nick_p) {
