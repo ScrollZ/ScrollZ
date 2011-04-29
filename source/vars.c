@@ -254,6 +254,7 @@ IrcVariable irc_variable[] =
 	{ "NO_ASK_NICKNAME",		BOOL_TYPE_VAR,	DEFAULT_NO_ASK_NICKNAME, NULL, NULL, 0, 0 },
 	{ "NO_CTCP_FLOOD",		BOOL_TYPE_VAR,	DEFAULT_NO_CTCP_FLOOD, NULL, NULL, 0, 0 },
 	{ "OLD_ENCRYPT_PROGRAM",	BOOL_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
+	{ "RATE_LIMIT_JOIN",		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "REALNAME",			STR_TYPE_VAR,	0, 0, set_realname, 0, VF_NODAEMON },
 	{ "SAME_WINDOW_ONLY",		BOOL_TYPE_VAR,	DEFAULT_SAME_WINDOW_ONLY, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
@@ -386,6 +387,7 @@ init_variables()
 	set_string_var(LASTLOG_LEVEL_VAR, DEFAULT_LASTLOG_LEVEL);
 	set_string_var(NOTIFY_HANDLER_VAR, DEFAULT_NOTIFY_HANDLER);
 	set_string_var(NOTIFY_LEVEL_VAR, DEFAULT_NOTIFY_LEVEL);
+	set_string_var(RATE_LIMIT_JOIN_VAR, DEFAULT_RATE_LIMIT_JOIN);
 	set_string_var(REALNAME_VAR, realname);
 	set_string_var(STAMP_FORMAT, DEFAULT_STAMP_FORMAT);
 	set_string_var(STATUS_FORMAT_VAR, DEFAULT_STATUS_FORMAT);

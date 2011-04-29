@@ -194,6 +194,7 @@ enum {
 	NO_ASK_NICKNAME_VAR,
 	NO_CTCP_FLOOD_VAR,
 	OLD_ENCRYPT_PROGRAM_VAR,
+	RATE_LIMIT_JOIN_VAR,
 	REALNAME_VAR,
 	SAME_WINDOW_ONLY_VAR,
 /**************************** PATCHED by Flier ******************************/

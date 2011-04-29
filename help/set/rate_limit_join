@@ -1,0 +1,15 @@
+!	 $Id$
+!
+! Copyright (c) 1990-2001  Michael Sandrof, Troy Rollo, Matthew Green,
+! and other ircII contributors.
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET RATE_LIMIT_JOIN <pattern> [pattern2 ...]
+  A space delimited list of server versions we should rate limit joins on.
+  Unsetting this variable will disable rate limited joins.
+
+Example patterns:
+  hybrid-7* ircd-ratbox-*         Rate limit any hybrid or ratbox server.
+  *                               Rate limit every server.

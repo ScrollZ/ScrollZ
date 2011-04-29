@@ -185,6 +185,7 @@
 #define DEFAULT_NOVICE 0
 #define DEFAULT_NO_ASK_NICKNAME 0
 #define DEFAULT_NO_CTCP_FLOOD 1
+#define DEFAULT_RATE_LIMIT_JOIN "ircd-ratbox-* hybrid-7* ircd-seven-*"
 #define DEFAULT_SAME_WINDOW_ONLY 1
 #define DEFAULT_SCROLL 1
 #define DEFAULT_SCROLL_LINES 1

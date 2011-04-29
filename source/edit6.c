@@ -3420,15 +3420,27 @@ char *stuff;
 }
 
 /* Should we rate limit the join */
-/* only on hybrid7 / ircd-ratbox for now */
 int RateLimitJoin(server_index)
 int server_index;
 {
     char *verstr = server_list[server_index].version_string;
+    char *buf = NULL;
+    char *p;
    
     if (!verstr) return 0;
-    if (wild_match("ircd-ratbox-*", verstr) || wild_match("hybrid-7*", verstr))
-        return 1;
+    if ((p = get_string_var(RATE_LIMIT_JOIN_VAR)) != NULL)
+    {
+        malloc_strcpy(&buf, p);
+        for (p = strtok(buf, " "); p != NULL; p = strtok(NULL, " "))
+        {
+            if (wild_match(p, verstr))
+            {
+                new_free(&buf);
+                return 1;
+            }
+        }
+        new_free(&buf);
+    }
     return 0;
 }
 
