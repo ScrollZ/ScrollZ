@@ -327,7 +327,7 @@ DCC_list *Client;
     double sent,oldsent;
 
     if (flags==DCC_FILEREAD || flags==DCC_FILEREGET)
-        sent=Client->bytes_read-Client->resendoffset+Client->bytes_read;
+        sent=Client->bytes_read-Client->resendoffset;
     else if (flags==DCC_FILEOFFER || flags==DCC_RESENDOFFER) {
         sent=Client->bytes_sent-Client->resendoffset;
         tmpstr="to";

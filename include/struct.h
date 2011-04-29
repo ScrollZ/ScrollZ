@@ -77,7 +77,7 @@ typedef	struct	DCC_struct
 	/*char	talkchars[3];*/
         time_t  CdccTime;
         int     server;
-        int     resendoffset;
+        off_t   resendoffset;
         float   minspeed;
 #if defined(NON_BLOCKING_CONNECTS)
         int     eof;
