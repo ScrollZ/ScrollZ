@@ -1848,6 +1848,36 @@ char *stuff;
 }
 
 #ifdef EXTRAS
+int idlenewer(user1, user2)
+NickList **user1;
+NickList **user2;
+{
+    if (user1 && user2) {
+        NickList *joiner1 = *user1;
+        NickList *joiner2 = *user2;
+
+        if (joiner1 && joiner2) {
+            return(joiner2->lastmsg - joiner1->lastmsg);
+        }
+    }
+    return 0;
+}
+
+int idleolder(user1, user2)
+NickList **user1;
+NickList **user2;
+{
+    if (user1 && user2) {
+        NickList *joiner1 = *user1;
+        NickList *joiner2 = *user2;
+
+        if (joiner1 && joiner2) {
+            return(joiner1->lastmsg - joiner2->lastmsg);
+        }
+    }
+    return 0;
+}
+
 /* Show idle time for users */
 void ShowIdle(command, args, subargs)
 char *command;
@@ -1857,6 +1887,7 @@ char *subargs;
 #ifdef WANTANSI
     int  len = 0;
 #endif
+    int  i;
     int  days;
     int  hours;
     int  mins;
@@ -1864,22 +1895,29 @@ char *subargs;
     int  origidle;
     int  showops = 0;
     int  shownonops = 0;
+    int  numusers = 0;
     int  chanusers = 0;
-    int  totalidle = 0;
+    int  sortnewer = 0;
+    int  sortolder = 0;
+    float totalidle = 0;
     char *filter = (char *) 0;
     char *channel = (char *) 0;
     char tmpbuf1[mybufsize / 4];
     char tmpbuf2[mybufsize / 4];
+    int  (*sortfunc) _((const void *, const void *)) = NULL;
     time_t timenow = time((time_t *) 0);
     NickList *joiner;
+    NickList **sortedusers = NULL;
     ChannelList *chan;
 
     channel = new_next_arg(args, &args);
-    if (channel && *channel == '-') {
+    while (channel && *channel == '-') {
         upper(channel);
         channel++;
         if (*channel && *channel == 'O') showops = 1;
         else if (*channel && *channel == 'N') shownonops = 1;
+        else if (*channel && !my_stricmp(channel, "SN")) sortnewer = 1;
+        else if (*channel && !my_stricmp(channel, "SO")) sortolder = 1;
         channel = new_next_arg(args, &args);
     }
     if (channel) {
@@ -1894,14 +1932,27 @@ char *subargs;
     if (!(chan = lookup_channel(channel, curr_scr_win->server, 0))) return;
     if (!(chan->IdleKick)) say("Idle kick is off for channel %s", chan->channel);
     if (!(filter = new_next_arg(args, &args))) filter = "*";
+    /* count number of users on the channel */
+    for (joiner = chan->nicks; joiner; joiner = joiner->next)
+        numusers++;
+    /* create array of all channel users */
+    sortedusers = (NickList **) new_malloc(numusers * sizeof(NickList *));
+    i = 0;
+    for (joiner = chan->nicks; joiner; joiner = joiner->next)
+        sortedusers[i++] = joiner;
+    /* sort the array */
+    if (sortnewer) sortfunc = idlenewer;
+    else if (sortolder) sortfunc = idleolder;
+    if (sortfunc) qsort(sortedusers, numusers, sizeof(NickList *), sortfunc);
     say("%-42s  Idle time","User");
-    for (joiner = chan->nicks; joiner; joiner = joiner->next) {
+    for (i = 0; i < numusers; i++) {
+        joiner = sortedusers[i];
+        if (showops && !(joiner->chanop)) continue;
+        if (shownonops && joiner->chanop) continue;
         snprintf(tmpbuf2, sizeof(tmpbuf2), "%s!%s", joiner->nick,
                 joiner->userhost ? joiner->userhost : empty_string);
         if (!wild_match(filter, tmpbuf2)) continue;
-        if (showops && !(joiner->chanop)) continue;
-        if (shownonops && joiner->chanop) continue;
-        origidle = timenow-joiner->lastmsg;
+        origidle = timenow - joiner->lastmsg;
         days = origidle / 86400;
         hours = (origidle - (days * 86400)) / 3600;
         mins = (origidle - (days * 86400) - (hours * 3600)) / 60;
@@ -1923,8 +1974,14 @@ char *subargs;
         chanusers++;
         totalidle += origidle;
     }
-    say("Average idle time in channel %s is %.2f seconds", chan->channel,
-        (float) totalidle / chanusers);
+    if (chanusers) totalidle /= chanusers;
+    days = totalidle / 86400;
+    hours = (totalidle - (days * 86400)) / 3600;
+    mins = (totalidle - (days * 86400) - (hours * 3600)) / 60;
+    secs = totalidle - (days * 86400) - (hours * 3600) - (mins * 60);
+    say("Average idle time in channel %s is %dd %dh %dm %ds", chan->channel,
+        days, hours, mins, secs);
+    new_free(&sortedusers);
 }
 #endif
 

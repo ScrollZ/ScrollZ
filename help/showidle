@@ -5,13 +5,14 @@
 ! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
 ! information.
 !
-Usage: SHOWIDLE [[-N|-O] channels [filter]]
+Usage: SHOWIDLE [[-N|-O] [-SN|SO] channels [filter]]
   Shows idle time for users on channel
 
   Shows idle time for specified channel. If no channel is given current
   channel is used. If filter is given, idle time for users matching filter
   is displayed. To display only channel operators specify -O. To display
-  non operators use -N.
+  non operators use -N. Output can be sorted, use -SN to display least
+  idle users first and use -SO to display most idle users first.
 
 See also:
   IDLEKICK
