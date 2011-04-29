@@ -744,55 +744,29 @@ char **ArgList;
 {
     if (!ignore_whois_crap) {
         char *nick;
+        char *ip;
 
         nick = ArgList[0];
-        if (nick) {
-            if (do_hook(current_numeric, "%s %s %s", from, nick, ArgList[1])) {
-                char *ip;
-                char *uh;
-#ifdef WANTANSI
-                char tmpbuf[mybufsize / 2];
-#endif /* WANTANSI */
-
-                uh = strstr(nick, "actually ");
-                if (uh) uh += 9; /* move to a character after the space */
-                if (!uh) uh = empty_string;
-                ip = index(nick, '['); /* look for IP */
-                if (ip) {
-                    ip--;
-                    *ip++='\0';
-                }
-                else ip = empty_string;
-                if (uh == empty_string && ip == empty_string)
-                    ip = ArgList[1];
-#ifdef WANTANSI
-                ColorUserHost(uh, CmdsColors[COLWHOIS].color2, tmpbuf, 0);
-#endif /* WANTANSI */
-
+        ip = ArgList[1];
+        if (nick && ip) {
+            if (do_hook(current_numeric, "%s %s %s", from, nick, ip)) {
 #ifdef WANTANSI
 #ifdef GENX
-                put_it("%s³ %sactually%s ³ %s%s%s%s%s",
-                       numeric_banner(), CmdsColors[COLWHOIS].color5,
-                       Colors[COLOFF], tmpbuf,
-                       uh == empty_string ? "" : " ",
+                put_it("%s³ %sactually%s ³ %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #elif defined(CELECOSM)
-                put_it("%s%sactually%s:   %s%s%s%s%s",
-                       numeric_banner(), CmdsColors[COLWHOIS].color5,
-                       Colors[COLOFF], tmpbuf,
-                       uh == empty_string ? "" : " ",
+                put_it("%s%sactually%s:   %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #else  /* CELECOSM */
-                put_it("%s%sActually%s  : %s%s%s%s%s",
-                       numeric_banner(), CmdsColors[COLWHOIS].color5,
-                       Colors[COLOFF], tmpbuf,
-                       uh == empty_string ? "" : " ",
+                put_it("%s%sActually%s  : %s%s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
                        CmdsColors[COLWHOIS].color5, ip, Colors[COLOFF]);
 #endif /* GENX */
 #else  /* WANTANSI */
-                put_it("%sActually:   %s%s%s",
-                      numeric_banner(), uh,
-                      uh == empty_string ? "" : " ", ip);
+                put_it("%sActually:   %s",
+                      numeric_banner(), ip);
 #endif /* WANTANSI */
             }
         }
