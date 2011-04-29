@@ -1311,6 +1311,8 @@ numbered_command(from, comm, ArgList)
 			break;
 		PasteArgs(ArgList, 0);
 		flag = do_hook(current_numeric, "%s %s", from, *ArgList);
+		if (!strncmp("LINKS", *ArgList, 5))
+			inSZLinks = 0;	/* XXX: LastLinks? else if (!strn...? */
 		if (!strncmp("ISON", *ArgList, 4) || !strncmp("USERHOST",
 		    *ArgList, 8))
 		{
