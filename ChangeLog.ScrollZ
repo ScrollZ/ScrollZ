@@ -20,7 +20,7 @@ ScrollZ v2.2, 14.5.2011
     ! handling of numeric 477 for networks with NickServ (reported
       by several users)
     ! crash when delay joining a channel (reported by flashback)
-    ! DCC speed reporting (fix by flashback)
+    ! DCC speed reporting
     ! WHOIS actually (fix by flashback)
     ! LINKS command would stop working when server throttling
       kicked in (fix by flashback)
