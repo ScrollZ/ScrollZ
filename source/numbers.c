@@ -1311,9 +1311,12 @@ numbered_command(from, comm, ArgList)
 			break;
 		PasteArgs(ArgList, 0);
 		flag = do_hook(current_numeric, "%s %s", from, *ArgList);
+/**************************** PATCHED by Flier ******************************/
+		/*if (!strncmp("ISON", *ArgList, 4) || !strncmp("USERHOST",*/
 		if (!strncmp("LINKS", *ArgList, 5))
-			inSZLinks = 0;	/* XXX: LastLinks? else if (!strn...? */
-		if (!strncmp("ISON", *ArgList, 4) || !strncmp("USERHOST",
+                    inSZLinks = 0;
+                else if (!strncmp("ISON", *ArgList, 4) || !strncmp("USERHOST",
+/****************************************************************************/
 		    *ArgList, 8))
 		{
 			set_server_2_6_2(parsing_server_index, 0);
