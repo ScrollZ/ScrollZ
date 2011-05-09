@@ -27,14 +27,15 @@ ScrollZ v2.2, 14.5.2011
     + SET RATELIMIT_JOIN - configurable server versions on which channel
       joins are rate limited (implemented by flashback)
     + client with UTF-8 support should be buildable on SGI IRIX
-    + tabkey improvements for OP, DOP, HOP, DH, VO and DV
-      (patch by flashback)
+    + tabkey improvements for OP, DOP, HOP, DH, VO and DV, read
+      HELP TABKEY for more information (patch by flashback)
     ! status bar corruption on 64-bit systems due to overlapping
       string copy
     ! number of DCC GET/SEND requests in status bar is now correctly
       set to zero when a signal USR1 is received
     + SHOWIDLE can now be sorted, see help for details
       (requested by Blaxthos)
+    ! FiSH on 64-bit systems
 
 ------------------------------------------------------------------------------
 
