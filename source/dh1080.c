@@ -97,7 +97,8 @@ void DH1080_gen(char *priv_key, char *pub_key)
            HisPubKey = the secret key */
 int DH1080_comp(char *MyPrivKey, char *HisPubKey)
 {
-    int i = 0, len;
+    int i = 0;
+    size_t len;
     unsigned char SHA256digest[35], base64_tmp[160];
     mpz_t b_myPrivkey, b_HisPubkey, b_prime1080, b_theKey;
 
