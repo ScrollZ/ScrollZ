@@ -3482,15 +3482,15 @@ int server_index;
 {
     char *verstr = server_list[server_index].version_string;
     char *buf = NULL;
-    char *p;
+    char *p, *str;
    
     if (!verstr) return 0;
     if ((p = get_string_var(RATE_LIMIT_JOIN_VAR)) != NULL)
     {
         malloc_strcpy(&buf, p);
-        for (p = strtok(buf, " "); p != NULL; p = strtok(NULL, " "))
-        {
-            if (wild_match(p, verstr))
+        p = buf;
+        while (str = new_next_arg(p, &p)) {
+            if (wild_match(str, verstr))
             {
                 new_free(&buf);
                 return 1;
