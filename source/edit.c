@@ -3326,7 +3326,7 @@ do_send_text(command, args, subargs)
 {
 	char	*tmp;
 /**************************** PATCHED by Flier ******************************/ 
-        char    tmpbuf[mybufsize];
+        char    *tmpbuf = NULL;
         ChannelList *tmpchan;
 /****************************************************************************/
 
@@ -3344,11 +3344,15 @@ do_send_text(command, args, subargs)
 /**************************** PATCHED by Flier ******************************/ 
         if (AutoNickCompl && tmp && args && *args &&
             (tmpchan=lookup_channel(tmp,curr_scr_win->server,0))) {
+            tmpbuf = (char *) new_malloc(strlen(args) + 256);
             AutoNickComplete(args,tmpbuf,tmpchan);
             args=tmpbuf;
         }
 /****************************************************************************/
 	send_text(tmp, args, NULL);
+/**************************** PATCHED by Flier ******************************/ 
+    new_free(&tmpbuf);
+/****************************************************************************/
 }
 
 /*

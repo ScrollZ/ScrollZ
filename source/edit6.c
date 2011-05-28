@@ -333,7 +333,7 @@ ChannelList *tmpchan;
     char *tmp=AutoReplyString;
     char *mynick;
     char *tmpstr=result;
-    char tmpbuf[mybufsize];
+    char *tmpbuf = (char *) new_malloc(strlen(line) + 256);
     NickList *nick=NULL;
     NickList *tmpnick;
 
@@ -367,10 +367,12 @@ ChannelList *tmpchan;
             if (tmp && *tmp) strmcat(tmpbuf,tmp,sizeof(tmpbuf));
             strmcat(tmpbuf,tmpstr,sizeof(tmpbuf));
             strcpy(result,tmpbuf);
+            new_free(&tmpbuf);
             return;
         }
     }
     strcpy(result,line);
+    new_free(&tmpbuf);
 }
 
 /* Removes nick from DCC list */
