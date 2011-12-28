@@ -1724,7 +1724,7 @@ do_ctcp(from, to, str)
                         }
 			new_free(&arg_copy);
 /**************************** PATCHED by Flier ******************************/
-                        if (!check_flooding(from,CTCP_FLOOD,args)) continue;
+                        if (!check_flooding(from,to,CTCP_FLOOD,args)) continue;
                         /* if it came via DCC CHAT only allow ACTION to be processed */
                         if (*from=='=' && strcmp(cmd,"ACTION")) continue;
 /****************************************************************************/

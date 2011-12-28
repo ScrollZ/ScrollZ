@@ -315,7 +315,10 @@ parse_notice(from, Args)
  						goto out;
 					}
 					level = set_lastlog_msg_level(LOG_NOTICE);
-					no_flooding = check_flooding(from, NOTICE_FLOOD, line);
+/**************************** PATCHED by Flier ******************************/
+					/*no_flooding = check_flooding(from, NOTICE_FLOOD, line);*/
+					no_flooding = check_flooding(from, to, NOTICE_FLOOD, line);
+/****************************************************************************/
 
  					if (sed == 0 || do_hook(ENCRYPTED_NOTICE_LIST, "%s %s %s", from, to, line))
 					{

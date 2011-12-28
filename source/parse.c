@@ -420,7 +420,10 @@ p_wall(from, ArgList)
 		else
 		{
 			level = set_lastlog_msg_level(LOG_WALL);
-			if (check_flooding(from, WALL_FLOOD, line) &&
+/**************************** PATCHED by Flier ******************************/
+			/*if (check_flooding(from, WALL_FLOOD, line) &&*/
+			if (check_flooding(from, NULL, WALL_FLOOD, line) &&
+/****************************************************************************/
 					do_hook(WALL_LIST, "%s %s", from, line))
 				put_it("%s#%s#%s %s", high, from, high, line);
 			if (beep_on_level & LOG_WALL)
@@ -477,7 +480,10 @@ p_wallops(from, ArgList)
 	{
 		if (get_int_var(USER_WALLOPS_VAR))
 		{
-			if ((flag != DONT_IGNORE) && (check_flooding(from, WALLOP_FLOOD, line)))
+/**************************** PATCHED by Flier ******************************/
+			/*if ((flag != DONT_IGNORE) && (check_flooding(from, WALLOP_FLOOD, line)))*/
+			if ((flag != DONT_IGNORE) && (check_flooding(from, NULL, WALLOP_FLOOD, line)))
+/****************************************************************************/
 			add_to_whois_queue(from, whois_new_wallops, "%s", line);
 		}
 /**************************** PATCHED by Flier ******************************/
@@ -794,7 +800,10 @@ p_privmsg(from, Args)
 		add_to_whois_queue(from, whois_ignore_msgs, "%s", ptr);
 	else
 	{
-		no_flood = check_flooding(from, flood_type, ptr);
+/**************************** PATCHED by Flier ******************************/
+		/*no_flood = check_flooding(from, flood_type, ptr);*/
+		no_flood = check_flooding(from, to, flood_type, ptr);
+/****************************************************************************/
  		if (sed == 0 || do_hook(ENCRYPTED_PRIVMSG_LIST,"%s %s %s",from, to, ptr))
 		{
 		switch (list_type)

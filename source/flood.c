@@ -24,7 +24,7 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 
-extern void HandleFlood _((char *, char *, char *));
+extern void HandleFlood _((char *, char *, char *, char *));
 /****************************************************************************/
 
 static	char	*ignore_types[NUMBER_OF_FLOODS] =
@@ -65,8 +65,14 @@ static  int flood_users = 0;
  * NOTE:  flood's are never freed.
  */
 int
-check_flooding(nick, type, line)
+/**************************** PATCHED by Flier ******************************/
+/*check_flooding(nick, type, line)*/
+check_flooding(nick, target, type, line)
+/****************************************************************************/
 	char	*nick;
+/**************************** PATCHED by Flier ******************************/
+	char	*target;
+/****************************************************************************/
 	int	type;
 	char	*line;
 {
@@ -148,7 +154,7 @@ check_flooding(nick, type, line)
 /**************************** PATCHED by Flier ******************************/
 					/*say("%s flooding detected from %s",
 						ignore_types[type], nick);*/
-                                   HandleFlood(nick, FromUserHost, ignore_types[type]);
+                                   HandleFlood(nick, FromUserHost, target, ignore_types[type]);
 /****************************************************************************/
 				tmp->flood = 1;
 			}
@@ -178,6 +184,6 @@ void CleanUpFlood(void) {
 
 void UpdateFloodUsers(void) {
     flood_users = get_int_var(FLOOD_USERS_VAR);
-    check_flooding(NULL, 0, NULL);
+    check_flooding(NULL, NULL, 0, NULL);
 }
 /****************************************************************************/

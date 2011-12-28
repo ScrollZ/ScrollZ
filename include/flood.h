@@ -7,7 +7,10 @@
 #ifndef __flood_h_
 #define __flood_h_
 
-	int	check_flooding _((char *, int, char *));
+/**************************** PATCHED by Flier ******************************/
+	/*int	check_flooding _((char *, int, char *));*/
+        int check_flooding _((char *, char *, int, char *));
+/****************************************************************************/
 
 #define MSG_FLOOD 0
 #define PUBLIC_FLOOD 1

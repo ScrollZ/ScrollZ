@@ -1592,14 +1592,16 @@ char **dccstuff;
 #endif
 
 /* Handles flooding */
-void HandleFlood(nick,userhost,ignoretype)
+void HandleFlood(nick,userhost,target,ignoretype)
 char *nick;
 char *userhost;
+char *target;
 char *ignoretype;
 {
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
     struct friends *tmpfriend;
+    int showtarget = target && my_stricmp(target, get_server_nickname(parsing_server_index));
 
     if (!userhost) return;
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",nick,userhost);
@@ -1607,12 +1609,13 @@ char *ignoretype;
     if (!tmpfriend || !((tmpfriend->privs)&FLNOFLOOD)) {
 #ifdef WANTANSI
         ColorUserHost(userhost,CmdsColors[COLWARNING].color3,tmpbuf2,1);
-        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s flooding%s detected from %s%s%s %s",
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s flooding%s detected from %s%s%s %s%s%s",
                 CmdsColors[COLWARNING].color1,ignoretype,Colors[COLOFF],
-                CmdsColors[COLWARNING].color2,nick,Colors[COLOFF],tmpbuf2);
+                CmdsColors[COLWARNING].color2,nick,Colors[COLOFF],tmpbuf2,
+		showtarget?" to ":"",showtarget?target:"");
 #else
-        snprintf(tmpbuf1,sizeof(tmpbuf1),"%c%s flooding%c detected from %s (%s)",
-                bold,ignoretype,bold,nick,userhost);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%c%s flooding%c detected from %s (%s)%s%s",
+                bold,ignoretype,bold,nick,userhost,showtarget?" to ":"",showtarget?target:"");
 #endif
         if (away_set || LogOn) AwaySave(tmpbuf1,SAVEFLOOD);
         if (FloodProt) {
