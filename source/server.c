@@ -1432,9 +1432,8 @@ login_to_server(server)
         if (server_list[server].enable_ssl && (server_list[server].flags & SSL_CONNECT)) {
             int err;
 #if defined(HAVE_SSL)
-            int cert_type_priority[3] = { GNUTLS_CRT_X509,
-                                          GNUTLS_CRT_OPENPGP, 0 };
             char *filepath;
+            const char *errpos;
 
             filepath = OpenCreateFile("ca.pem", 1);
 #endif
@@ -1445,8 +1444,11 @@ login_to_server(server)
                                                    filepath, GNUTLS_X509_FMT_PEM);
             gnutls_init(&server_list[server].session, GNUTLS_CLIENT);
             gnutls_set_default_priority(server_list[server].session);
-            gnutls_certificate_type_set_priority(server_list[server].session,
-                                                 cert_type_priority);
+            err = gnutls_priority_set_direct(server_list[server].session,
+                                             "NORMAL:COMPAT", &errpos);
+            if (err != GNUTLS_E_SUCCESS) {
+                say("Error setting priorities: %s", errpos ? errpos : "<null>");
+            }
             gnutls_credentials_set(server_list[server].session, GNUTLS_CRD_CERTIFICATE,
                                    server_list[server].xcred);
             gnutls_transport_set_ptr(server_list[server].session,
