@@ -17,7 +17,7 @@ typedef struct FilesStru
     struct FilesStru *next;               /* Pointer to next File */
     char   *path;                         /* Store the Path       */
     char   *file;                         /* Store Filename       */
-    int    size;                          /* Store size of file   */
+    float  size;                          /* Store size of file   */
 } Files;
 
 /* Your Linked List of Offer Packs */
@@ -26,7 +26,7 @@ typedef struct PacksStru
     struct PacksStru *next;               /* Pointer to next Pack */
     char   *description;                  /* Description of Pack */
     int    totalfiles;                    /* Total Files in Pack */
-    int    totalbytes;                    /* Total Bytes in Pack */
+    float  totalbytes;                    /* Total Bytes in Pack */
     int    gets;                          /* How many people have requested Pack */
     float  minspeed;                      /* Minimum DCC speed in kB/s */
     Files  *files;                        /* Pointer to List of Files in Pack */

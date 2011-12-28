@@ -1006,7 +1006,7 @@ ChannelList *chan;
                     snprintf(tmpbuf1,sizeof(tmpbuf1),"-INV %d PRIVMSG %s :#%-6s %s  [%d file%s/%.2f %cB",
                             delay,chan->channel,tmpbuf2,tmp->description,tmp->totalfiles,
                             tmp->totalfiles==1?"":"s",
-                            (float) (tmp->totalbytes)/(1024.0*mult),byteschar);
+                            tmp->totalbytes/(1024.0*mult),byteschar);
                     if (tmp->minspeed>0.0) {
                         snprintf(tmpbuf2,sizeof(tmpbuf2),"/min %.2f kB/s",tmp->minspeed);
                         strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
@@ -1534,7 +1534,7 @@ char *speed;
 char *desc;
 {
     int   totalfiles=0;
-    int   totalbytes=0;
+    float totalbytes=0;
     char  byteschar;
     char  tmpbuf1[mybufsize/4];
 #ifdef WANTANSI
@@ -1583,7 +1583,7 @@ char *desc;
         byteschar='k';
         mult=1.0;
     }
-    snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f %cB/%d file%s",(float) (totalbytes)/(1024.0*mult),byteschar,
+    snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f %cB/%d file%s",totalbytes/(1024.0*mult),byteschar,
             totalfiles,totalfiles==1?empty_string:"s");
 #ifdef WANTANSI
     if (new->minspeed>0.0)
@@ -1657,7 +1657,6 @@ char *blah;
 char *line;
 {
     int  count;
-    int  total;
     int  queue=0;
     int  queueret;
     int  queuesay=0;
@@ -1666,6 +1665,7 @@ char *line;
     char *nick=(char *) 0;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/8];
+    float total;
     float mult;
     Files *tmp;
     unsigned int display;
@@ -1706,7 +1706,7 @@ char *line;
                 byteschar='k';
                 mult=1.0;
             }
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",total/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
             if (queue) snprintf(tmpbuf1,sizeof(tmpbuf1),", %d file%s in queue",queue,
                                queue==1?"":"s");
@@ -1793,12 +1793,12 @@ char *blah;
 char *line;
 {
     int  count;
-    int  total;
     char byteschar;
     char *nick=(char *) 0;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/8];
     float mult;
+    float total;
     Files *tmp;
     unsigned int display;
 
@@ -1823,7 +1823,7 @@ char *line;
                 byteschar='k';
                 mult=1.0;
             }
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",total/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
             if (count) {
                 if (!CTCPCloaking)
@@ -1897,12 +1897,12 @@ char *blah;
 char *line;
 {
     int  count=0;
-    int  total=0;
     char byteschar;
     char *nick=(char *) 0;
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/8];
     float mult;
+    float total=0;
     Files *tmp;
     unsigned int display;
 
@@ -1925,7 +1925,7 @@ char *line;
                 byteschar='k';
                 mult=1.0;
             }
-            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",(float) (total)/(1024.0*mult),byteschar,
+            snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",total/(1024.0*mult),byteschar,
                     count,count==1?empty_string:"s");
             if (!CTCPCloaking) send_to_server("NOTICE %s :Resent : [%s]",nick,tmpbuf2);
 #ifdef WANTANSI
@@ -2244,7 +2244,7 @@ char *args;
                 }
                 snprintf(tmpbuf1,sizeof(tmpbuf1),"[%d file%s/%.2f %cB%s",
                         tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
-                        (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf2);
+                        tmp->totalbytes/(1024.0*mult),byteschar,tmpbuf2);
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%d/%d",packcount,tmp->gets);
                 say("#%-4s %s  %s",tmpbuf2,tmp->description,tmpbuf1);
                 packcount++;
@@ -2535,12 +2535,12 @@ char *args;
             }
             snprintf(tmpbuf2,sizeof(tmpbuf2),"[%d file%s/%.2f %cB%s",
                     tmp->totalfiles,tmp->totalfiles==1?empty_string:"s",
-                    (float) (tmp->totalbytes)/(1024.0*mult),byteschar,tmpbuf1);
+                    tmp->totalbytes/(1024.0*mult),byteschar,tmpbuf1);
             snprintf(tmpbuf3,sizeof(tmpbuf3),"%d/%dx",packcount,tmp->gets);
 
             snprintf(tmpbuf1,sizeof(tmpbuf1),"%.2f",tmp->minspeed);
 #if !defined(CELEHOOK) && !defined(LITE)
-            if (do_hook(CDCC_PLIST,"%d %d %d %s %d %s",packcount,
+            if (do_hook(CDCC_PLIST,"%d %d %f %s %d %s",packcount,
                         tmp->totalfiles,tmp->totalbytes,tmpbuf1,tmp->gets,
                         tmp->description))
 #endif
@@ -2614,7 +2614,6 @@ int  level;
 {
     int   packcount=1;
     int   totalfiles=0;
-    int   totalbytes=0;
     int   sent=0;
     int   queue=0;
     int   packsent;
@@ -2627,6 +2626,7 @@ int  level;
     char  tmpbuf2[mybufsize/4];
     char  tmpbuf3[mybufsize/4];
     float mult;
+    float totalbytes=0;
     Packs *tmp;
     Files *tmp1;
     unsigned int display;
@@ -2701,7 +2701,7 @@ int  level;
                     mult=1.0;
                 }
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%.2f %cB/%d file%s",
-                        (float) (totalbytes)/(1024.0*mult),byteschar,
+                        totalbytes/(1024.0*mult),byteschar,
                         totalfiles,totalfiles==1?empty_string:"s");
                 if (!queue) {
                     if (!CTCPCloaking) send_to_server("NOTICE %s :%sent packs %s : %s",from,
