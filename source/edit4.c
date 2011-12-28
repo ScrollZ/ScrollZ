@@ -1181,7 +1181,7 @@ char *completing;
 char *newcompl;
 int length;
 {
-    if (argc == 3 && IsCmdLine(argv[0], "set", 3))
+    if (argc == 1 && IsCmdLine(argv[0], "set", 3))
     {
         int i;
         char *p;
