@@ -1015,7 +1015,16 @@ int length;
          !my_strnicmp(argv[1], "se", 2)) ||
         (argc >= 2 && IsCmdLine(argv[0], "cdc", 3) &&
          !my_strnicmp(argv[1], "sen", 3) && !strchr(min_pos, ',')) ||
-        (argc >= 1 && IsCmdLine(argv[0], "loa", 3)))
+        (argc >= 1 && IsCmdLine(argv[0], "loa", 3)) ||
+	(argc == 2 && IsCmdLine(argv[0], "set", 3) &&
+         !my_stricmp(argv[1], "away_file") ||
+         !my_stricmp(argv[1], "decrypt_program") ||
+         !my_stricmp(argv[1], "encrypt_program") ||
+         !my_stricmp(argv[1], "history_file") ||
+         !my_stricmp(argv[1], "load_path") ||
+         !my_stricmp(argv[1], "logfile")) ||
+        (argc == 2 && IsCmdLine(argv[0], "win", 3) &&
+         !my_stricmp(argv[1], "logfile")))
     {
         int i;
         char *p;
