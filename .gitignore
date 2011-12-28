@@ -1,0 +1,10 @@
+Makefile
+config.cache
+config.log
+config.status
+include/defs.h
+ircbug
+scrollz.1
+source/*.o
+source/scrollz
+source/sig.inc
