@@ -1760,7 +1760,7 @@ char *subargs;
             }
             else say("No topic is set for %s", chan->channel);
             if (chan->topicwho)
-                say("%s by %s on %.19s", chan->topicstr ? "Set" : "Unset",
+                say("%s by %s on %.24s", chan->topicstr ? "Set" : "Unset",
                     chan->topicwho, ctime(&(chan->topicwhen)));
         }
         else NoWindowChannel();
