@@ -1020,9 +1020,11 @@ int length;
          !my_stricmp(argv[1], "away_file") ||
          !my_stricmp(argv[1], "decrypt_program") ||
          !my_stricmp(argv[1], "encrypt_program") ||
+         !my_stricmp(argv[1], "help_path") ||
          !my_stricmp(argv[1], "history_file") ||
          !my_stricmp(argv[1], "load_path") ||
-         !my_stricmp(argv[1], "logfile")) ||
+         !my_stricmp(argv[1], "logfile") ||
+         !my_stricmp(argv[1], "xterm_path")) ||
         (argc == 2 && IsCmdLine(argv[0], "win", 3) &&
          !my_stricmp(argv[1], "logfile")))
     {
