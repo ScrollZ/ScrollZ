@@ -8,6 +8,23 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v2.2.1, 30.12.2011
+
+    ! a crash when input buffer exceeded 1024 characters and AUTOCOMPL
+      was enabled (reported by Jugernaut)
+    + public flood now displays flooded channel (requested by Blaxthox,
+      patch by SteelyDan)
+    ! topic time display no longer cuts off year when using T command
+      (fix by SteelyDan)
+    ! CDCC size reporting (fix by SteelyDan)
+    + path tabkey completion for SET AWAY_FILE, DECRYPT_PROGRAM,
+      ENCRYPT_PROGRAM, HELP_PATH, HISTORY_FILE, LOAD_PATH, LOGFILE,
+      XTERM_PATH and for WINDOW LOGFILE (patch by SteelyDan)
+    ! tabkey completion for SETs (fix by SteelyDan)
+    ~ use non-obsolete GnuTLS APIs (fixes Debian bug #624050)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.2, 14.5.2011
 
     + SET USERNAME to set username sent to IRC server (requested by jm_)
