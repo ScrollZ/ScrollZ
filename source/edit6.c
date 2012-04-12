@@ -330,10 +330,11 @@ ChannelList *tmpchan;
 {
     int  len;
     int  count=0;
+    int  linelen = strlen(line) + 256;
     char *tmp=AutoReplyString;
     char *mynick;
     char *tmpstr=result;
-    char *tmpbuf = (char *) new_malloc(strlen(line) + 256);
+    char *tmpbuf = (char *) new_malloc(linelen);
     NickList *nick=NULL;
     NickList *tmpnick;
 
@@ -361,11 +362,11 @@ ChannelList *tmpchan;
            was only one match found */
         if (count==1 || (AutoNickCompl==2 && count)) tmpnick=NULL;
         if (!tmpnick && nick) {
-            if (count==1 || AutoNickCompl==2) strmcpy(tmpbuf,nick->nick,sizeof(tmpbuf));
-            else if (AutoNickCompl==1) strmcpy(tmpbuf,result,sizeof(tmpbuf));
+            if (count==1 || AutoNickCompl==2) strmcpy(tmpbuf,nick->nick,linelen);
+            else if (AutoNickCompl==1) strmcpy(tmpbuf,result,linelen);
             if (*tmpstr==' ' && tmp && *(tmp+1)==' ') tmpstr++;
-            if (tmp && *tmp) strmcat(tmpbuf,tmp,sizeof(tmpbuf));
-            strmcat(tmpbuf,tmpstr,sizeof(tmpbuf));
+            if (tmp && *tmp) strmcat(tmpbuf,tmp,linelen);
+            strmcat(tmpbuf,tmpstr,linelen);
             strcpy(result,tmpbuf);
             new_free(&tmpbuf);
             return;
