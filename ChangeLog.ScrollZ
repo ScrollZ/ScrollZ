@@ -8,6 +8,13 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v2.2.2, 15.4.2012
+
+    ! auto completion bug introduced by a rather stupid fix in v2.2.1
+      (reported by bon)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.2.1, 30.12.2011
 
     ! a crash when input buffer exceeded 1024 characters and AUTOCOMPL
