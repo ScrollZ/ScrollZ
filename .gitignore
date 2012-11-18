@@ -8,3 +8,8 @@ scrollz.1
 source/*.o
 source/scrollz
 source/sig.inc
+source/TAGS
+source/cscope.out
+source/depend.mk
+source/tags
+source/wterm.c
