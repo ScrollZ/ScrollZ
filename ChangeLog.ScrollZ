@@ -8,6 +8,13 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ
+
+    ! dependencies in Makefile, fixes build on Debian sid
+      (reported by juha)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.2.2, 15.4.2012
 
     ! auto completion bug introduced by a rather stupid fix in v2.2.1
