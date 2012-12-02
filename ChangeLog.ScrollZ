@@ -10,6 +10,8 @@ Meaning of flags:
 
 ScrollZ
 
+    ! +password in ENCRMSG is not treated as a FiSH key if FiSH is
+      not available (reported by -jff-)
     ! slashes (on Unix) and backslashes (on Windows) in channel names
       are converted to underscores in per channel logging
     + SET DEFAULT_PROTOCOL to specify default IP protocol for

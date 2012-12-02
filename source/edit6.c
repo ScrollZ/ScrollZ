@@ -2393,10 +2393,12 @@ char *key;
     }
     tmp = (struct encrstr *) list_lookup((List **) &encrlist, user, !USE_WILDCARDS, !REMOVE_FROM_LIST);
     if (tmp) {
+#ifdef HAVE_GMP
         if (*key == '+') {
             tmp->type = 2;
             key++;
         }
+#endif
         malloc_strcpy(&(tmp->key), key);
     }
     else {
@@ -2405,10 +2407,12 @@ char *key;
         tmp->user = (char *) 0;
         tmp->key = (char *) 0;
         tmp->type = 0;
+#ifdef HAVE_GMP
         if (*key == '+') {
             tmp->type = 2;
             key++;
         }
+#endif
         malloc_strcpy(&(tmp->user), user);
         malloc_strcpy(&(tmp->key), key);
         add_to_list((List **) &encrlist, (List *) tmp);
