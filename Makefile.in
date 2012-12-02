@@ -68,7 +68,7 @@ IRCSHARE = ${sharedir}/scrollz
 IRCDOC = ${IRCSHARE}/doc
 
 CC = @CC@
-DEFS = @DEFS@
+DEFS = @DEFS@ @CPPFLAGS@
 LIBS = @LIBS@
 
 # Set this to -g if you want to be able to debug the client, otherwise
