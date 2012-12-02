@@ -1800,6 +1800,11 @@ split_up_line(str)
 			else
 				malloc_strcpy(&temp, &(lbuf[start]));
 			malloc_strcpy(&output[line++], temp);
+/**************************** PATCHED by Flier ******************************/
+                        /* do not overflow the buffer */
+                        if (line >= MAXIMUM_SPLITS)
+                            break;
+/****************************************************************************/
 			lbuf[word_break] = c;
 			lbuf[word_break+1] = c1;
 			start = word_break;

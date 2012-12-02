@@ -10,6 +10,7 @@ Meaning of flags:
 
 ScrollZ
 
+    ! crash when displaying very large aliases (reported by -jff-)
     ! +password in ENCRMSG is not treated as a FiSH key if FiSH is
       not available (reported by -jff-)
     ! slashes (on Unix) and backslashes (on Windows) in channel names
