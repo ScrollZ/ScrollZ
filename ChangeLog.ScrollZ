@@ -10,8 +10,10 @@ Meaning of flags:
 
 ScrollZ
 
-    ! parallel make install, patch by Nathan Phillip Brink
-    ! respect CPP flags in Makefile, patch by Nathan Phillip Brink
+    + SET DEFAULT_PROTOCOL to specify default IP protocol for
+      server connections (patch by SteelyDan)
+    ! parallel make install (patch by Nathan Phillip Brink)
+    ! respect CPP flags in Makefile (patch by Nathan Phillip Brink)
     ! dependencies in Makefile, fixes build on Debian sid
       (reported by juha)
 

@@ -165,6 +165,9 @@ IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "DEBUG",			INT_TYPE_VAR,	0, NULL, NULL, 0, 0 },
 	{ "DECRYPT_PROGRAM",		STR_TYPE_VAR,	0, NULL, NULL, 0, VF_NODAEMON },
+/**************************** PATCHED by Flier ******************************/
+        { "DEFAULT_PROTOCOL",		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+/****************************************************************************/
 	{ "DISPLAY",			BOOL_TYPE_VAR,	DEFAULT_DISPLAY, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
 	{ "DISPLAY_ANSI",		BOOL_TYPE_VAR,	DEFAULT_DISPLAY_ANSI, NULL, RedrawAll, 0, 0 },

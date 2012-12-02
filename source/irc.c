@@ -1011,6 +1011,12 @@ parse_args(argv, argc)
 					connect_at_startup = 0;
 					break;
 /**************************** PATCHED by Flier ******************************/
+                                case '4':
+                                        set_string_var(DEFAULT_PROTOCOL_VAR, "4");
+                                        break;
+                                case '6':
+					set_string_var(DEFAULT_PROTOCOL_VAR, "6");
+					break;
                                 /* what the hell is this */
 				/*case '-':
 					if (argv[ac])

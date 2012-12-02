@@ -1,0 +1,10 @@
+!
+! Copyright (c) 1994-2012 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET DEFAULT_PROTOCOL <protocol>
+  Set default IP protocol for new connections to servers.
+  Values 4, v4, ipv4 or inet specify IPv4 protocol. Values 6, v6,
+  ipv6 or inet6 specify IPv6 protocol. Default is unspecified.

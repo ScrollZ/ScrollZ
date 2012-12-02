@@ -52,6 +52,7 @@
 #include "output.h"
 #include "ircterm.h"
 #include "newio.h"
+#include "vars.h"
 
 /**************************** PATCHED by Flier ******************************/
 int DCCLowPort;
@@ -597,6 +598,9 @@ connect_by_number(service,host,nonblocking,dccget)
 	char	strhost[1025], strservice[32];
 	struct	sockaddr_storage server;
 	struct	addrinfo hints, *res, *res0;
+/**************************** PATCHED by Flier ******************************/
+        char	*p;
+/****************************************************************************/
 
 	strncpy(strhost, host, sizeof(strhost) - 1);
 	strhost[sizeof(strhost) - 1] = 0;
@@ -673,7 +677,18 @@ connect_by_number(service,host,nonblocking,dccget)
 	}
 	else
 	{
-		hints.ai_family = AF_UNSPEC;
+/**************************** PATCHED by Flier ******************************/
+		/*hints.ai_family = AF_UNSPEC;*/
+            p = get_string_var(DEFAULT_PROTOCOL_VAR);
+            if (p && (!strcmp(p, "4") || !my_stricmp(p, "v4") || !my_stricmp(p, "ipv4") || !my_stricmp(p, "inet")))
+                hints.ai_family = AF_INET;
+            else {
+                if (p && (!strcmp(p, "6") || !my_stricmp(p, "v6") || !my_stricmp(p, "ipv6") || !my_stricmp(p, "inet6")))
+                    hints.ai_family = AF_INET6;
+                else
+                    hints.ai_family = AF_UNSPEC;
+            }
+/****************************************************************************/
 		err = getaddrinfo(strhost, strservice, &hints, &res0);
 	}
 	if (err != 0)
