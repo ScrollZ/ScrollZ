@@ -3267,11 +3267,20 @@ ChannelList *chan;
     char *filename = NULL;
     char *filepath = NULL;
     char *channame = NULL;
+    char *p;
 
     if (!chan) return;
     if (ChanLogPrefix) malloc_strcpy(&filename, ChanLogPrefix);
     malloc_strcpy(&channame, chan->channel);
     lower(channame);
+    /* To get a legal filename, convert any slash in a channel name to a backslash */
+    for (p = channame; *p; p++) {
+#ifdef SZ32
+        if (*p == '\\') *p = '_';
+#else
+        if (*p == '/') *p = '_';
+#endif
+    }
     malloc_strcat(&filename, channame);
     new_free(&channame);
     if (ChanLogPostfix) malloc_strcat(&filename, ChanLogPostfix);

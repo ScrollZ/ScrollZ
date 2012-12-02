@@ -10,6 +10,8 @@ Meaning of flags:
 
 ScrollZ
 
+    ! slashes (on Unix) and backslashes (on Windows) in channel names
+      are converted to underscores in per channel logging
     + SET DEFAULT_PROTOCOL to specify default IP protocol for
       server connections (patch by SteelyDan)
     ! parallel make install (patch by Nathan Phillip Brink)

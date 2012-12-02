@@ -9,7 +9,8 @@ Usage: CHANLOG on channels|off
   Toggles per channel logging on/off
 
   Channel name is converted to lowercase because IRC inherently
-  is case insensitive.
+  is case insensitive. Slashes (on Unix) and backslashes (on Windows)
+  in channel names are converted to underscores.
 
 See also:
   CHANLOGDIR
