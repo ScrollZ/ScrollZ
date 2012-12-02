@@ -3255,8 +3255,8 @@ char *subargs;
         else PrintSetting("Channel logging prefix", "OFF", empty_string, empty_string);
     }
     else if (!strcmp(command, "CHANLOGPOST")) {
-        if (ChanLogPostfix) PrintSetting("Channel logging postix", ChanLogPostfix, empty_string, empty_string);
-        else PrintSetting("Channel logging postix", "OFF", empty_string, empty_string);
+        if (ChanLogPostfix) PrintSetting("Channel logging postfix", ChanLogPostfix, empty_string, empty_string);
+        else PrintSetting("Channel logging postfix", "OFF", empty_string, empty_string);
     }
 }
 
