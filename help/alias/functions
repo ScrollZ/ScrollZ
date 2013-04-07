@@ -145,7 +145,7 @@ ScrollZ Functions
   REGEXPREP(PATTERN STRING) Performs search & replace using POSIX.2 regular
                         expressions supporting up to 10 back references in $# style,
                         example:
-                        REGEXP("/a (.*) c (.*)/$$1 $$2/" a b c d) would return
+                        REGEXPREP("/a (.*) c (.*)/$$1 $$2/" a b c d) would return
                         b d
   RENAME(OLD NEW)       Renames file OLD to NEW.
   RIGHT(COUNT STRING)   Returns the COUNT rightmost bytes from the STRING.

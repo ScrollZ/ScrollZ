@@ -21,6 +21,7 @@ ScrollZ
     ! respect CPP flags in Makefile (patch by Nathan Phillip Brink)
     ! dependencies in Makefile, fixes build on Debian sid
       (reported by juha)
+    ! example for REGEXPREP (thanks SteelyDan)
 
 ------------------------------------------------------------------------------
 
