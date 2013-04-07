@@ -22,6 +22,7 @@ ScrollZ
     ! dependencies in Makefile, fixes build on Debian sid
       (reported by juha)
     ! example for REGEXPREP (thanks SteelyDan)
+    ! MODE #channel I/e/b for IPv6 addresses (reported by Jugernaut)
 
 ------------------------------------------------------------------------------
 

@@ -1693,6 +1693,13 @@ numbered_command(from, comm, ArgList)
                                 CdccTimeWarning();
                         }
                         break;
+		case 346:
+		case 348:
+		case 367:
+                        PasteArgs(ArgList, 0);
+                        if (do_hook(current_numeric, "%s %s", from, *ArgList))
+                            put_it("%s", ArgList[0]);
+			break;
 /****************************************************************************/
 
 		case 351:		/* #define RPL_VERSION          351 */
