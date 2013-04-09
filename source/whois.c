@@ -772,6 +772,56 @@ char **ArgList;
         }
     }
 }
+
+void whois_connecting(from, ArgList)
+char *from;
+char **ArgList;
+{
+    if (!ignore_whois_crap) {
+        char *str;
+        char *host = NULL;
+        char *ip = NULL;
+        char tmpbuf[mybufsize];
+
+        str = ArgList[1];
+        strmcpy(tmpbuf, str, sizeof(tmpbuf));
+        if ((str = strstr(tmpbuf, " connecting from "))) {
+            str++;
+            str = index(str, ' ');
+            if (str) {
+                str++;
+                host = index(str, ' ');
+                if (host) {
+                    host++;
+                    ip = index(host, ' ');
+                    if (ip) *ip++ = '\0';
+                }
+            }
+        }
+        if (host && ip) {
+            if (do_hook(current_numeric, "%s %s %s", from, host, ip)) {
+#ifdef WANTANSI
+#ifdef GENX
+                put_it("%s³%sconnecting%s³ %s%s %s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+                       CmdsColors[COLWHOIS].color2, host, ip, Colors[COLOFF]);
+#elif defined(CELECOSM)
+                put_it("%s%sconnecting%s:   %s%s %s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+                       CmdsColors[COLWHOIS].color2, host, ip, Colors[COLOFF]);
+#else  /* CELECOSM */
+                put_it("%s%sConnecting%s: %s%s %s%s",
+                       numeric_banner(), CmdsColors[COLWHOIS].color5, Colors[COLOFF],
+                       CmdsColors[COLWHOIS].color2, host, ip, Colors[COLOFF]);
+#endif /* GENX */
+#else  /* WANTANSI */
+                put_it("%sConnecting:   %s %s",
+                      numeric_banner(), host, ip);
+#endif /* WANTANSI */
+            }
+        }
+    }
+}
 /****************************************************************************/
 
 void

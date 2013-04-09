@@ -1228,6 +1228,9 @@ numbered_command(from, comm, ArgList)
 	case 338:
                 whois_actually(from, ArgList);
                 break;
+	case 378: /* freenode */
+                whois_connecting(from, ArgList);
+                break;
 /****************************************************************************/
 
 	case 321:		/* #define RPL_LISTSTART        321 */

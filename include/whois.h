@@ -56,6 +56,7 @@
         void	whois_identified _((char *, char **));
         void	whois_actually _((char *, char **));
         void    whois_secure _((char *, char **));
+        void	whois_connecting _((char *, char **));
 /****************************************************************************/
 	void	whois_lastcom _((char *, char **));
 	void	whois_nickname _((WhoisStuff *, char *, char *));
