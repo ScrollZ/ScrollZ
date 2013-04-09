@@ -670,6 +670,7 @@ connect_by_number(service,host,nonblocking,dccget)
 	/* If strhost is empty then probably DCC connection was requested.
 	 * In this case we must use AF_INET */
 	errno = 0;
+        hints.ai_flags = AI_ADDRCONFIG;
 	if (strlen(strhost) == 0)
 	{
 		hints.ai_family = AF_INET;
@@ -870,7 +871,7 @@ bind_local_addr(localhost, localport, fd, family)
 	memset(&hintsx, 0, sizeof(hintsx));
 	hintsx.ai_family = family;
 	hintsx.ai_socktype = SOCK_STREAM;
-	hintsx.ai_flags = AI_PASSIVE;
+	hintsx.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;
 	err = getaddrinfo(localhost, localport, &hintsx, &res0x);
 
 	if (err != 0)

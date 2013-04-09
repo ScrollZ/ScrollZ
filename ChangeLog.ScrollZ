@@ -23,6 +23,8 @@ ScrollZ
       (reported by juha)
     ! example for REGEXPREP (thanks SteelyDan)
     ! MODE #channel I/e/b for IPv6 addresses (reported by Jugernaut)
+    ~ set AI_ADDRCONFIG flag for IP lookups when IPv6 support is
+      enabled (suggested by SteelyDan)
 
 ------------------------------------------------------------------------------
 
