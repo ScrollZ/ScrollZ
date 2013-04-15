@@ -28,6 +28,8 @@ ScrollZ
     ! update target directory for manual page to modern /usr/share/man
       (reported by dan408)
     + parsing of numeric 378 for freenode (requested by SteelyDan)
+    ! configure now exists if it can't find a working libtermcap
+      / libncurses
 
 ------------------------------------------------------------------------------
 

@@ -3614,7 +3614,7 @@ if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   LIBS="-lxtermcap $olibs"
 else
   echo "$ac_t""no" 1>&6
-echo "configure: warning: i can not find tgetent.  you might need to help me" 1>&2
+{ echo "configure: error: Can not find curses or termcap library. Installing package libncurses5-dev or ncurses-devel usually fixes this problem." 1>&2; exit 1; }
 fi
 
 fi

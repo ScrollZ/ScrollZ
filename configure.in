@@ -441,7 +441,7 @@ else
         AC_CHECK_LIB(curses, tgetent, LIBS="-lcurses $olibs",
           AC_CHECK_LIB(ncurses, tgetent, LIBS="-lncurses $olibs",
             AC_CHECK_LIB(xtermcap, tgetent, LIBS="-lxtermcap $olibs",
-              AC_MSG_WARN(i can not find tgetent.  you might need to help me)))))))
+              AC_MSG_ERROR(Can not find curses or termcap library. Installing package libncurses5-dev or ncurses-devel usually fixes this problem.)))))))
   AC_MSG_CHECKING(for tputs in curses.h)
   AC_EGREP_CPP([tputs( |	|\()],[#include <curses.h>
 ], AC_DEFINE(INCLUDE_CURSES_H) AC_MSG_RESULT(yes), blahhack=1; AC_MSG_RESULT(no))
