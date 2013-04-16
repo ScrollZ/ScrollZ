@@ -22,7 +22,7 @@ OBJECTS = alias.o blowfish.o cdcc.o celerity.o crypt.o ctcp.o dcc.o debug.o\
 	mail.o menu.o names.o newio.o notice.o notify.o numbers.o operv.o\
 	output.o parse.o queue.o reg.o scandir.o screen.o server.o stack.o\
 	status.o term.o translat.o vars.o whois.o whowas.o window.o\
-	dh1080.o fish.o sha-256.o @EXTRA_OBJECTS@
+	dh1080.o fish.o sha-256.o trace.o @EXTRA_OBJECTS@
 
 SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
 	edit.c edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c\
@@ -31,7 +31,7 @@ SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
 	mail.c menu.c names.c newio.c notice.c notify.c numbers.c operv.c\
 	output.c parse.c queue.c reg.c scandir.c screen.c server.c stack.c\
 	status.c term.c translat.c vars.c whois.c whowas.c window.c\
-	dh1080.c fish.c sha-256.c @EXTRA_SOURCES@
+	dh1080.c fish.c sha-256.c trace.c @EXTRA_SOURCES@
 
 IRCIO_OBJECTS = ircio.o newio.o ircsig.o
 

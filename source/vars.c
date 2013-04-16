@@ -108,6 +108,7 @@ static  void    SetUsername _((char *));
 
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
+extern  void    SetTrace _((char *));
 
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
@@ -345,6 +346,7 @@ IrcVariable irc_variable[] =
 	{ "TAB",			BOOL_TYPE_VAR,	DEFAULT_TAB, NULL, NULL, 0, 0 },
 	{ "TAB_MAX",			INT_TYPE_VAR,	DEFAULT_TAB_MAX, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
+        { "TRACE",			STR_TYPE_VAR, 	0, NULL, SetTrace, 0, 0 },
         { "TRUNCATE_PUBLIC_CHANNEL",	BOOL_TYPE_VAR, 	DEFAULT_TRUNCATE_PUBLIC_CHANNEL, NULL, NULL, 0, 0 },
 /****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
