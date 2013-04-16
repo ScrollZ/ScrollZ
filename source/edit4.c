@@ -2374,27 +2374,29 @@ char *command;
 char *args;
 char *subargs;
 {
-    int  found=0;
+    int  found = 0;
     char *tmpnick;
     NickList *joiner;
     ChannelList *chan;
 
-    if ((tmpnick=new_next_arg(args,&args))) {
-        for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next) {
-            for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-                if (wild_match(tmpnick,joiner->nick)) {
+    if ((tmpnick = new_next_arg(args, &args))) {
+        for (chan = server_list[curr_scr_win->server].chan_list; chan; chan = chan->next) {
+            for (joiner = chan->nicks; joiner; joiner = joiner->next) {
+                if (wild_match(tmpnick, joiner->nick)) {
                     if (!found) {
-                        say("Nick      Channel             +o    -o    +b    -b   kicks  nicks   pub");
-                        found=1;
+                        say("Nick      Channel             +o    -o    +h    -h    +b    -b  kick  nick  pub");
+                        found = 1;
                     }
-                    say("%-9.9s %-17.17s %4d  %4d  %4d  %4d   %5d  %5d  %4d",
-                        joiner->nick,chan->channel,joiner->pluso,joiner->minuso,
-                        joiner->plusb,joiner->minusb,joiner->kick,
-                        joiner->nickc,joiner->publics);
+                    say("%-9.9s %-17.17s %4d  %4d  %4d  %4d  %4d  %4d  %4d  %4d %4d",
+                        joiner->nick, chan->channel,
+                        joiner->pluso, joiner->minuso,
+                        joiner->plush, joiner->minush,
+                        joiner->plusb, joiner->minusb,
+                        joiner->kick, joiner->nickc, joiner->publics);
                 }
             }
         }
-        if (!found) say("No nicks matched %s",tmpnick);
+        if (!found) say("No nicks matched %s", tmpnick);
     }
     else PrintUsage("NWHOIS filter");
 }

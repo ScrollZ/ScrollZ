@@ -586,6 +586,8 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
                     new->minuso = tmp ? tmp->minuso : 0;
                     new->plusb = tmp ? tmp->plusb : 0;
                     new->minusb = tmp ? tmp->minusb : 0;
+                    new->plush = tmp ? tmp->plush : 0;
+                    new->minush = tmp ? tmp->minush : 0;
                     new->kick = tmp ? tmp->kick : 0;
                     new->nickc = tmp ? tmp->nickc : 0;
                     new->publics = tmp ? tmp->publics : 0;
