@@ -63,11 +63,14 @@ int	connect_to_unix _((int, char *));
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "trace.h"
 
 extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
 extern void ChannelLogReportAll _((char *, ChannelList *));
 extern char *OpenCreateFile _((char *, int));
+
+void TraceServerInfo();
 
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 int SSLconnect = 0;
@@ -176,6 +179,9 @@ close_server(server_index, message)
                     timeminutes = (timediff / 60) % 60;
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
+                    Trace(SZ_TRACE_CONNECT, "Connection to server %s:%d closed",
+                          get_server_name(i), server_list[i].port);
+                    TraceServerInfo();
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
@@ -1246,6 +1252,8 @@ connect_to_server(server_name, port, nick, c_server)
 			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
+                Trace(SZ_TRACE_CONNECT, "Connecting to %s:%d", server_name, port);
+                TraceServerInfo();
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
                     struct nicks *tmp;
@@ -2751,3 +2759,47 @@ find_server_group_name(number)
 			return g->name;
 	return empty_string;
 }
+
+/**************************** PATCHED by Flier ******************************/
+void TraceServerInfo() {
+    int i;
+    ChannelList *chan;
+
+    for (i = 0; i < number_of_servers; i++) {
+        Trace(SZ_TRACE_SERVER, "Server %d) %s:%d", i,
+              EMPTY_STR(get_server_name(i)), server_list[i].port);
+        Trace(SZ_TRACE_SERVER, "  nick: %s, away: %s, operator: %d",
+              EMPTY_STR(server_list[i].nickname), EMPTY_STR(server_list[i].away),
+              server_list[i].operator);
+        Trace(SZ_TRACE_SERVER, "  version: %d, flags: %d",
+              server_list[i].version, server_list[i].flags);
+        Trace(SZ_TRACE_SERVER, "  umodeflags: %d, umodeflags2: %d",
+              server_list[i].umodeflags, server_list[i].umodeflags2);
+        Trace(SZ_TRACE_SERVER, "  connect time: %.24s",
+              ctime(&server_list[i].ConnectTime));
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+        Trace(SZ_TRACE_SERVER, "  enable ssl: %d",
+              ctime(server_list[i].enable_ssl));
+#endif
+        Trace(SZ_TRACE_SERVER, "  channels:");
+        for (chan = server_list[i].chan_list; chan; chan++) {
+            Trace(SZ_TRACE_SERVER, "    channel %s, server %d, mode %lu(%s)",
+                  EMPTY_STR(chan->channel), chan->server, chan->mode,
+                  EMPTY_STR(chan->s_mode));
+            Trace(SZ_TRACE_SERVER, "    limit %d, key %s, connected %d",
+                  chan->limit, EMPTY_STR(chan->key), chan->connected);
+            Trace(SZ_TRACE_SERVER, "    status %d, banlist %d, wholist %d",
+                  chan->status, chan->gotbans, chan->gotwho);
+            Trace(SZ_TRACE_SERVER, "    window %d(%s)",
+                  chan->window->refnum, EMPTY_STR(chan->window->name));
+            Trace(SZ_TRACE_SERVER, "    created at %s",
+                  ctime(&chan->creationtime));
+        }
+        Trace(SZ_TRACE_SERVER, "  pending channels:");
+        for (chan = server_list[i].ChanPendingList; chan; chan++) {
+            Trace(SZ_TRACE_SERVER, "    channel %s, key %s, mode %s",
+                  EMPTY_STR(chan->channel), chan->key, EMPTY_STR(chan->s_mode));
+        }
+    }
+}
+/****************************************************************************/
