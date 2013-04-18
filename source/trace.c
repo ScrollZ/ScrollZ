@@ -7,6 +7,7 @@
 #include "irc.h"
 #include "vars.h"
 #include "ircaux.h"
+#include "server.h"
 #include "trace.h"
 
 extern char *OpenCreateFile(char *, int);
@@ -169,4 +170,92 @@ char *arg10;
 
     fprintf(fp, "\n");
     fclose(fp);
+}
+
+void TraceServerInfo(void) {
+    int i;
+
+    for (i = 0; i < number_of_servers; i++) {
+        Trace(SZ_TRACE_SERVER, "server %d) %s:%d", i,
+              EMPTY_STR(get_server_name(i)), server_list[i].port);
+        Trace(SZ_TRACE_SERVER, "  nick: %s, away: %s, operator: %d",
+              EMPTY_STR(server_list[i].nickname), EMPTY_STR(server_list[i].away),
+              server_list[i].operator);
+        Trace(SZ_TRACE_SERVER, "  version: %d, flags: %d",
+              server_list[i].version, server_list[i].flags);
+        Trace(SZ_TRACE_SERVER, "  umodeflags: %d, umodeflags2: %d",
+              server_list[i].umodeflags, server_list[i].umodeflags2);
+        Trace(SZ_TRACE_SERVER, "  connect time: %.24s",
+              ctime(&server_list[i].ConnectTime));
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+        Trace(SZ_TRACE_SERVER, "  enable ssl: %d",
+              ctime(server_list[i].enable_ssl));
+#endif
+        Trace(SZ_TRACE_SERVER, "  channels:");
+        TraceChannelInfo(4, server_list[i].chan_list);
+        Trace(SZ_TRACE_SERVER, "  pending channels:");
+        TraceChannelInfo(4, server_list[i].ChanPendingList);
+    }
+}
+
+void TraceChannelInfo(indent, channels)
+int indent;
+ChannelList *channels;
+{
+    int i;
+    char tmpbuf[mybufsize/8];
+    ChannelList *chan;
+
+    *tmpbuf = '\0';
+    for (i = 0; i < indent; i++)
+        strmcat(tmpbuf, " ", sizeof(tmpbuf));
+
+    for (chan = channels; chan; chan = chan->next) {
+        Trace(SZ_TRACE_SERVER, "%schannel %s, server %d, mode %lu (%s)",
+                tmpbuf, EMPTY_STR(chan->channel), chan->server, chan->mode,
+                EMPTY_STR(chan->s_mode));
+        Trace(SZ_TRACE_SERVER, "%s  limit %d, key %s, connected %d",
+                tmpbuf, chan->limit, EMPTY_STR(chan->key), chan->connected);
+        Trace(SZ_TRACE_SERVER, "%s  status %d, banlist %d, wholist %d",
+                tmpbuf, chan->status, chan->gotbans, chan->gotwho);
+        Trace(SZ_TRACE_SERVER, "%s  window %d (%s)",
+                tmpbuf,
+                chan->window ? chan->window->refnum : -1,
+                chan->window ? EMPTY_STR(chan->window->name) : empty_string);
+        Trace(SZ_TRACE_SERVER, "%s  created at %s",
+                tmpbuf, ctime(&chan->creationtime));
+        Trace(SZ_TRACE_SERVER, "%s  nicklist:", tmpbuf);
+        TraceNickListInfo(indent + 4, chan->nicks);
+    }
+}
+
+void TraceNickListInfo(indent, nicks)
+int indent;
+NickList *nicks;
+{
+    int i;
+    char tmpbuf[mybufsize/8];
+    NickList *nick;
+
+    *tmpbuf = '\0';
+    for (i = 0; i < indent; i++)
+        strmcat(tmpbuf, " ", sizeof(tmpbuf));
+
+    for (nick = nicks; nick; nick = nick->next) {
+        Trace(SZ_TRACE_SERVER, "%snick %s (%s)",
+                tmpbuf, EMPTY_STR(nick->nick), nick->userhost);
+        Trace(SZ_TRACE_SERVER, "%s  op: %d, voice: %d, halfop: %d",
+                tmpbuf, nick->chanop, nick->hasvoice, nick->halfop);
+        Trace(SZ_TRACE_SERVER, "%s  frlist: %d %d/%s (%s)",
+                tmpbuf,
+                nick->frlist ? nick->frlist->number : -1,
+                nick->frlist ? nick->frlist->privs : -1,
+                nick->frlist ? nick->frlist->userhost : empty_string,
+                nick->frlist ? nick->frlist->channels : empty_string);
+        Trace(SZ_TRACE_SERVER, "%s  shitlist: %d/%s (%s)",
+                tmpbuf,
+                nick->shitlist ? nick->shitlist->shit : -1,
+                nick->shitlist ? nick->shitlist->userhost : empty_string,
+                nick->shitlist ? nick->shitlist->channels : empty_string);
+    }
 }
