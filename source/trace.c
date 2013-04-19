@@ -172,7 +172,9 @@ char *arg10;
     fclose(fp);
 }
 
-void TraceServerInfo(void) {
+void TraceServerInfo(fullinfo)
+int fullinfo;
+{
     int i;
 
     for (i = 0; i < number_of_servers; i++) {
@@ -191,10 +193,12 @@ void TraceServerInfo(void) {
         Trace(SZ_TRACE_SERVER, "  enable ssl: %d",
               ctime(server_list[i].enable_ssl));
 #endif
-        Trace(SZ_TRACE_SERVER, "  channels:");
-        TraceChannelInfo(4, server_list[i].chan_list);
-        Trace(SZ_TRACE_SERVER, "  pending channels:");
-        TraceChannelInfo(4, server_list[i].ChanPendingList);
+        if (fullinfo) {
+          Trace(SZ_TRACE_SERVER, "  channels:");
+          TraceChannelInfo(4, server_list[i].chan_list);
+          Trace(SZ_TRACE_SERVER, "  pending channels:");
+          TraceChannelInfo(4, server_list[i].ChanPendingList);
+        }
     }
 }
 
