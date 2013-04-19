@@ -141,22 +141,24 @@ char *arg10;
 #endif
     time_t timenow = time(NULL);
     char timestr[mybufsize/16];
-    char *tracefile = OpenCreateFile("ScrollZ.trace", 1);
-    char *areaname = FindArea(area);
+    char *tracefile;
+    char *areaname;
     FILE *fp;
 
     if (!(TraceMask & area))
         return;
 
+    tracefile = OpenCreateFile("ScrollZ.trace", 1);
     if (!tracefile)
         return;
 
-    strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", localtime(&timenow));
+    areaname = FindArea(area);
 
     fp = fopen(tracefile, "a");
     if (!fp)
         return;
 
+    strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", localtime(&timenow));
     fprintf(fp, "%s [%s]: ", timestr, areaname);
 
 #ifdef HAVE_STDARG_H
