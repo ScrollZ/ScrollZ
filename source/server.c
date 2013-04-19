@@ -177,7 +177,7 @@ close_server(server_index, message)
                     timeminutes = (timediff / 60) % 60;
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
-                    Trace(SZ_TRACE_CONNECT, "Connection to server %s:%d closed",
+                    Trace(SZ_TRACE_CONNECT, "connection to server %s:%d closed",
                           get_server_name(i), server_list[i].port);
                     TraceServerInfo(1);
                     server_list[i].ConnectTime = 0;
@@ -1266,7 +1266,7 @@ connect_to_server(server_name, port, nick, c_server)
 			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
-                Trace(SZ_TRACE_CONNECT, "Connecting to %s:%d", server_name, port);
+                Trace(SZ_TRACE_CONNECT, "connecting to %s:%d", server_name, port);
                 TraceServerInfo(1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
@@ -2529,6 +2529,9 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
+/**************************** Patched by Flier ******************************/
+        Trace(SZ_TRACE_IO, "send to server %d: %s", server, lbuf);
+/****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 

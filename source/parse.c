@@ -62,6 +62,7 @@
 #include "list.h"
 #include "status.h"
 #include "myvars.h"
+#include "trace.h"
 
 extern void OnWho _((char *, char *, char *, char *, char *));
 extern void PrintMessage _((char *, char *, char *, int, int));
@@ -1930,6 +1931,10 @@ irc2_parse_server(line)
 	if (*end == '\r')
 		*end-- = '\0';
 
+/**************************** Patched by Flier ******************************/
+    Trace(SZ_TRACE_IO, "receive from server %d: %s",
+          parsing_server_index, line);
+/****************************************************************************/
 	if (*line == ':')
 	{
 		if (!do_hook(RAW_IRC_LIST, "%s", line + 1))
