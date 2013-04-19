@@ -51,6 +51,7 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 #include "whowas.h"
+#include "trace.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -2138,6 +2139,9 @@ reconnect_all_channels(server)
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnecting all channels for server %d", server);
+    TraceChannelInfo(2, server_list[server].chan_list);
+
         /*for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)*/
         for (tmp = server_list[server].chan_list; tmp; tmp = next)
 /****************************************************************************/
@@ -2179,6 +2183,10 @@ reconnect_all_channels(server)
                 }
 /****************************************************************************/
 	}
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnect done");
+    TraceChannelInfo(2, server_list[server].chan_list);
+/****************************************************************************/
 }
 
 char	*
