@@ -174,32 +174,39 @@ char *arg10;
     fclose(fp);
 }
 
-void TraceServerInfo(fullinfo)
+void TraceServerInfo(indent, fullinfo)
+int indent;
 int fullinfo;
 {
     int i;
+    char tmpbuf[mybufsize/8];
+
+    *tmpbuf = '\0';
+    for (i = 0; i < indent; i++)
+        strmcat(tmpbuf, " ", sizeof(tmpbuf));
 
     for (i = 0; i < number_of_servers; i++) {
-        Trace(SZ_TRACE_SERVER, "server %d) %s:%d", i,
+        Trace(SZ_TRACE_SERVER, "%sserver %d) %s:%d", tmpbuf, i,
               EMPTY_STR(get_server_name(i)), server_list[i].port);
-        Trace(SZ_TRACE_SERVER, "  nick: %s, away: %s, operator: %d",
+        Trace(SZ_TRACE_SERVER, "%s  nick: %s, away: %s, operator: %d",
+              tmpbuf,
               EMPTY_STR(server_list[i].nickname), EMPTY_STR(server_list[i].away),
               server_list[i].operator);
-        Trace(SZ_TRACE_SERVER, "  version: %d, flags: %d",
-              server_list[i].version, server_list[i].flags);
-        Trace(SZ_TRACE_SERVER, "  umodeflags: %d, umodeflags2: %d",
-              server_list[i].umodeflags, server_list[i].umodeflags2);
-        Trace(SZ_TRACE_SERVER, "  connect time: %.24s",
-              ctime(&server_list[i].ConnectTime));
+        Trace(SZ_TRACE_SERVER, "%s  version: %d, flags: %d",
+              tmpbuf, server_list[i].version, server_list[i].flags);
+        Trace(SZ_TRACE_SERVER, "%s  umodeflags: %d, umodeflags2: %d",
+              tmpbuf, server_list[i].umodeflags, server_list[i].umodeflags2);
+        Trace(SZ_TRACE_SERVER, "%s  connect time: %.24s",
+              tmpbuf, ctime(&server_list[i].ConnectTime));
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
-        Trace(SZ_TRACE_SERVER, "  enable ssl: %d",
-              ctime(server_list[i].enable_ssl));
+        Trace(SZ_TRACE_SERVER, "%s  enable ssl: %d",
+              tmpbuf, ctime(server_list[i].enable_ssl));
 #endif
         if (fullinfo) {
-          Trace(SZ_TRACE_SERVER, "  channels:");
-          TraceChannelInfo(4, server_list[i].chan_list);
-          Trace(SZ_TRACE_SERVER, "  pending channels:");
-          TraceChannelInfo(4, server_list[i].ChanPendingList);
+          Trace(SZ_TRACE_SERVER, "%s  channels:", tmpbuf);
+          TraceChannelInfo(indent + 4, server_list[i].chan_list);
+          Trace(SZ_TRACE_SERVER, "%s  pending channels:", tmpbuf);
+          TraceChannelInfo(indent + 4, server_list[i].ChanPendingList);
         }
     }
 }

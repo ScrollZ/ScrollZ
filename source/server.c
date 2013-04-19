@@ -179,7 +179,7 @@ close_server(server_index, message)
                         get_server_name(i), timedays, timehours, timeminutes);
                     Trace(SZ_TRACE_CONNECT, "connection to server %s:%d closed",
                           get_server_name(i), server_list[i].port);
-                    TraceServerInfo(1);
+                    TraceServerInfo(2, 1);
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
@@ -556,7 +556,7 @@ add_to_server_list(server, port, password, nick, overwrite)
 
 /**************************** PATCHED by Flier ******************************/
     Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
-    TraceServerInfo(0);
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
@@ -672,7 +672,7 @@ add_to_server_list(server, port, password, nick, overwrite)
 	}
 /**************************** PATCHED by Flier ******************************/
     Trace(SZ_TRACE_SERVER, "server added at %d", from_server);
-    TraceServerInfo(0);
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 }
 
@@ -721,7 +721,7 @@ remove_from_server_list(i)
 /**************************** PATCHED by Flier ******************************/
     Trace(SZ_TRACE_SERVER, "removing server %d) %s:%d",
           i, get_server_name(i), server_list[i].port);
-    TraceServerInfo(0);
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 
 	close_server(i, (u_char *) 0);
@@ -817,7 +817,7 @@ remove_from_server_list(i)
             server_list = NULL;
         }
     Trace(SZ_TRACE_SERVER, "removed server");
-    TraceServerInfo(0);
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 }
 
@@ -1267,7 +1267,7 @@ connect_to_server(server_name, port, nick, c_server)
 
 /**************************** PATCHED by Flier ******************************/
                 Trace(SZ_TRACE_CONNECT, "connecting to %s:%d", server_name, port);
-                TraceServerInfo(1);
+                TraceServerInfo(2, 1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
                     struct nicks *tmp;

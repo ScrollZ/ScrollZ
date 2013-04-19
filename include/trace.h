@@ -22,7 +22,7 @@ typedef struct {
     char *area;
 } TraceArea;
 
-void TraceServerInfo _((int fullinfo));
+void TraceServerInfo _((int indent, int fullinfo));
 void TraceChannelInfo _((int indent, ChannelList *channels));
 void TraceNickListInfo _((int indent, NickList *nicks));
 
