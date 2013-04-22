@@ -67,14 +67,14 @@ char *level;
                 if (strncmp(cmd, "ALL", len) == 0) mask = SZ_TRACE_ALL;
                 else if (strncmp(cmd, "NONE", len) == 0) mask = 0;
                 else {
-                    if (*str == '-') {
-                        str++;
+                    if (*level == '-') {
+                        level++;
                         s = cmd + 1;
                         neg = 1;
                         len--;
                     }
-                    else if (*str == '+') {
-                        str++;
+                    else if (*level == '+') {
+                        level++;
                         s = cmd + 1;
                         neg = 0;
                         len--;
@@ -91,7 +91,7 @@ char *level;
                         }
                     }
                     if (!TraceAreas[i].area)
-                        say("Unknown trace area: %s", str);
+                        say("Unknown trace area: %s", level);
                 }
                 new_free(&cmd);
             }
