@@ -83,6 +83,7 @@ check_flooding(nick, target, type, line)
 	diff;
 	Flooding *tmp;
 /**************************** PATCHED by Flier ******************************/
+        int     old_users = users;
         float   rate, after, current = 0.0;
 /****************************************************************************/
 
@@ -90,6 +91,13 @@ check_flooding(nick, target, type, line)
 	{
 		if ((users = get_int_var(FLOOD_USERS_VAR)) == 0)
 			return(1);
+/**************************** PATCHED by Flier ******************************/
+                /* fix memory leak */
+                if (flood) {
+                    for (i = 0; i < old_users; i++)
+                        new_free(&flood[i].nick);
+                }
+/****************************************************************************/
 		if (flood)
 			flood = (Flooding *) new_realloc((char *) flood, sizeof(Flooding) * users);
 		else
@@ -177,7 +185,8 @@ void CleanUpFlood(void) {
     int i;
 
     if (flood) {
-        for (i = 0; i < flood_users; i++) new_free(&(flood[i].nick));
+        for (i = 0; i < flood_users; i++)
+            new_free(&(flood[i].nick));
     }
     new_free(&flood);
 }

@@ -646,6 +646,7 @@ irc_exit(quit)
 		new_stty("sane");
 #endif /* ESIX */
 /**************************** PATCHED by Flier ******************************/
+                term_close();
 #ifdef SZNCURSES
                 endwin();
 #endif /* SZNCURSES */

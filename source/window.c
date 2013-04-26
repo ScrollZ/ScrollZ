@@ -470,7 +470,7 @@ free_display(window)
 
 	if (window == (Window *) 0)
 		window = curr_scr_win;
-	for (tmp = window->top_of_display, i = 0; i < window->display_size - window->double_status; i++, tmp = next)
+	for (tmp = window->top_of_display, i = 0; i < window->display_size; i++, tmp = next)
 	{
 		next = tmp->next;
 		new_free(&(tmp->line));
@@ -1619,6 +1619,22 @@ delete_window(window)
 
 /**************************** PATCHED by Flier ******************************/
 /*
+ * free_bound_channels: This deletes the list of bound channels
+ * for given window.
+ */
+void free_bound_channels(window)
+Window *window;
+{
+    struct channels *chan, *next;
+
+    for (chan = window->bound_chans; chan; chan = next) {
+        next = chan->next;
+        new_free(&chan->channel);
+        new_free(&chan);
+    }
+}
+
+/*
  * cleanup_window: This deletes the given window.  It frees all data and
  * structures associated with the window.
  */
@@ -1637,6 +1653,7 @@ Window *window;
     free_hold(window);
     free_lastlog(window);
     free_nicks(window);
+    free_bound_channels(window);
     new_free(&window);
 }
 /****************************************************************************/

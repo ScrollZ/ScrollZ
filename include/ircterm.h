@@ -163,6 +163,9 @@ char *tgetstr(char *, char **);
 	RETSIGTYPE	term_cont _((void));
  	void	term_set_fp _((FILE *));
 	void	term_init _((void));
+/**************************** PATCHED by Flier ******************************/
+        void    term_close _((void));
+/****************************************************************************/
 	int	term_resize _((void));
  	void	term_pause _((u_int, char *));
         int     tputs_s _((char *, size_t));

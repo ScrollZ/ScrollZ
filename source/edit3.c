@@ -1571,6 +1571,7 @@ void ScrollZLoad()
                 return;
             }
         }
+        if (usfile) fclose(usfile);
     }
     say("Loading ScrollZ.save file...");
     filepath=OpenCreateFile("ScrollZ.save",0);

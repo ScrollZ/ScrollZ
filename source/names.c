@@ -563,6 +563,7 @@ ChannelList *add_to_channel(channel, nick, server, oper, halfop, voice, userhost
                 if (userhost &&
                     (whowas = check_whowas_buffer(nick, userhost, channel, 1))) {
                     new = whowas->nicklist;
+                    new_free(&whowas->channel);
                     new_free(&whowas);
                     snprintf(tmpbuf, sizeof(tmpbuf), "%s!%s", nick, userhost);
                     if (!(new->frlist &&
@@ -1649,7 +1650,13 @@ free_channel(channel)
         for (nick=(*channel)->nicks;nick;) {
             tmpnick=nick;
             nick=nick->next;
-            add_to_whowas_buffer(tmpnick,(*channel)->channel);
+            if (tmpnick && tmpnick->userhost)
+                add_to_whowas_buffer(tmpnick,(*channel)->channel);
+            else {
+                /* in case of /JOIN -NOWHO #channel */
+                new_free(&tmpnick->nick);
+                new_free(&tmpnick);
+            }
         }
         (*channel)->nicks=(NickList *) 0;
         if (!(add_to_whowas_chan_buffer((*channel)))) {

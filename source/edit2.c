@@ -3562,6 +3562,7 @@ char *stat;
                 new_free(&(tmp->nick));
                 new_free(&(tmp->userhost));
                 new_free(&tmp);
+                new_free(&whowas->channel);
                 new_free(&whowas);
                 add_nick_to_hash(chan,last);
             }

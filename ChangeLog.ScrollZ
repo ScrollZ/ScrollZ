@@ -32,6 +32,7 @@ ScrollZ
       / libncurses
     + half-op counters are now displayed in NWHOIS
     ! various small fixes
+    ! memory / fd leaks reported by valgrind (thanks SteelyDan)
 
 ------------------------------------------------------------------------------
 

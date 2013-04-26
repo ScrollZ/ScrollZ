@@ -2177,6 +2177,10 @@ void CleanUp() {
 	if (server_list[i].whois_stuff.server) new_free(&server_list[i].whois_stuff.server);
 	if (server_list[i].whois_stuff.server_stuff) new_free(&server_list[i].whois_stuff.server_stuff);
 	if (server_list[i].ctcp_send_size) new_free(&server_list[i].ctcp_send_size);
+	if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
+	if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
+	if (server_list[i].LastMessageSent) new_free(&(server_list[i].LastMessageSent));
+	if (server_list[i].LastNoticeSent) new_free(&(server_list[i].LastNoticeSent));
 	if (server_list[i].LastJoin) new_free(&(server_list[i].LastJoin));
         for (tmpnick=server_list[i].arlist;tmpnick;) {
             tmpnickfree=tmpnick;
@@ -2201,6 +2205,15 @@ void CleanUp() {
             new_free(&(tmpchfree->topicstr));
             new_free(&(tmpchfree->topicwho));
             new_free(&(tmpchfree->channel));
+            new_free(&tmpchfree);
+        }
+        for (tmpch = server_list[i].ChanPendingList; tmpch;) {
+            tmpchfree = tmpch;
+            tmpch = tmpch->next;
+            new_free(&(tmpchfree->channel));
+            new_free(&(tmpchfree->key));
+            new_free(&(tmpchfree->s_mode));
+            new_free(&(tmpchfree->topicstr));
             new_free(&tmpchfree);
         }
 	from_server=i;

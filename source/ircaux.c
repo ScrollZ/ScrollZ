@@ -597,7 +597,7 @@ connect_by_number(service,host,nonblocking,dccget)
 #else
 	char	strhost[1025], strservice[32];
 	struct	sockaddr_storage server;
-	struct	addrinfo hints, *res, *res0;
+	struct	addrinfo hints, *res, *res0 = NULL;
 /**************************** PATCHED by Flier ******************************/
         char	*p;
 /****************************************************************************/
@@ -716,8 +716,10 @@ connect_by_number(service,host,nonblocking,dccget)
 	if (service <= 0 && service != -2)
 	{
 #ifdef INET6
-		if (bind_local_addr(NULL, "0", s, res->ai_family) < 0)
-			return -2;
+		if (bind_local_addr(NULL, "0", s, res->ai_family) < 0) {
+                    freeaddrinfo(res0);
+                    return -2;
+                }
 		freeaddrinfo(res0);
 		if (listen(s, 1) == -1)
 		{
@@ -846,6 +848,10 @@ connect_by_number(service,host,nonblocking,dccget)
 		new_close(s);
 		return -4;
 	}
+#endif
+#ifdef INET6
+        if (res0)
+            freeaddrinfo(res0);
 #endif
 	return s;
 }

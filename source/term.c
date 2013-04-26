@@ -164,7 +164,10 @@ static int	term_ND_cursor_right _((void));
 /****************************************************************************/
 #endif /* STTY_ONLY */
 
-static	int	tty_des;		/* descriptor for the tty */
+/**************************** PATCHED by Flier ******************************/
+/*static	int	tty_des;	*/	/* descriptor for the tty */
+static int tty_des = -1; /* descriptor for the tty */
+/****************************************************************************/
 
 #ifdef USE_SGTTY
 static struct tchars	oldtchars,
@@ -688,6 +691,12 @@ term_init()
 /****************************************************************************/
 }
 
+/**************************** PATCHED by Flier ******************************/
+void term_close() {
+    if (tty_des != -1)
+        close(tty_des);
+}
+/****************************************************************************/
 
 #ifndef STTY_ONLY
 /*
