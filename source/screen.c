@@ -2777,6 +2777,9 @@ display_lastlog_lines(start, end, window)
 	Display	*Disp;
 	char	*Line;
 	int	i;
+/**************************** PATCHED by Flier ******************************/
+        int     has_next = 0;
+/****************************************************************************/
 
 	(void)next_line_back(window);
 
@@ -2784,8 +2787,12 @@ display_lastlog_lines(start, end, window)
 		(void)next_line_back(NULL);
 
  	/* WTF is this? -krys */
-	for (i = 0, Disp = window->top_of_display; i < window->display_size;
-			Disp = Disp->next, i++)
+/**************************** PATCHED by Flier ******************************/
+	/*for (i = 0, Disp = window->top_of_display; i < window->display_size;
+			Disp = Disp->next, i++)*/
+        for (i = 0, Disp = window->top_of_display; i < window->display_size &&
+             has_next; Disp = Disp->next, i++)
+/****************************************************************************/
 		if (Disp->linetype)
 			(void)next_line_back(NULL);
 

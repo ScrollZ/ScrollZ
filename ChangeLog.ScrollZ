@@ -33,6 +33,8 @@ ScrollZ
     + half-op counters are now displayed in NWHOIS
     ! various small fixes
     ! memory / fd leaks reported by valgrind (thanks SteelyDan)
+    ! do not lose one page of scrollback buffer after CLEAR
+      (reported by -jff-)
 
 ------------------------------------------------------------------------------
 
