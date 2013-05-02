@@ -2530,7 +2530,7 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
 /**************************** Patched by Flier ******************************/
-        Trace(SZ_TRACE_IO, "send to server %d: %s", server, lbuf);
+                Trace(SZ_TRACE_IO, "--> %d: %s", server, lbuf);
 /****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);

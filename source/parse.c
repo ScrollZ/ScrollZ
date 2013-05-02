@@ -1932,8 +1932,7 @@ irc2_parse_server(line)
 		*end-- = '\0';
 
 /**************************** Patched by Flier ******************************/
-    Trace(SZ_TRACE_IO, "receive from server %d: %s",
-          parsing_server_index, line);
+        Trace(SZ_TRACE_IO, "<-- %d: %s", parsing_server_index, line);
 /****************************************************************************/
 	if (*line == ':')
 	{

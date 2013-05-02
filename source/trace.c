@@ -143,6 +143,7 @@ char *arg10;
     char timestr[mybufsize/16];
     char *tracefile;
     char *areaname;
+    char *srvname;
     FILE *fp;
 
     if (!(TraceMask & area))
@@ -158,8 +159,9 @@ char *arg10;
     if (!fp)
         return;
 
+    srvname = get_server_name(parsing_server_index);
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", localtime(&timenow));
-    fprintf(fp, "%s [%s]: ", timestr, areaname);
+    fprintf(fp, "%s [%s] %s: ", timestr, areaname, srvname);
 
 #ifdef HAVE_STDARG_H
     va_start(args, format);
