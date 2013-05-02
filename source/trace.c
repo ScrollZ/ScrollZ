@@ -160,6 +160,7 @@ char *arg10;
         return;
 
     if (parsing_server_index != -1) srvname = get_server_name(parsing_server_index);
+    else if (from_server != -1) srvname = get_server_name(from_server);
     else srvname = "N/A";
     strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", localtime(&timenow));
     fprintf(fp, "%s [%s] %s: ", timestr, areaname, srvname);
