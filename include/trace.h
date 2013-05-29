@@ -14,6 +14,7 @@
 #define SZ_TRACE_CHANNEL   1<<4
 #define SZ_TRACE_IO        1<<5
 #define SZ_TRACE_WHOWAS    1<<6
+#define SZ_TRACE_NICK      1<<7
 
 #define SZ_TRACE_ALL       0xffffffff
 

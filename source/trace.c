@@ -22,6 +22,7 @@ static TraceArea TraceAreas[]= {
     { SZ_TRACE_CHANNEL , "CHANNEL" },
     { SZ_TRACE_IO      , "IO"      },
     { SZ_TRACE_WHOWAS  , "WHOWAS"  },
+    { SZ_TRACE_NICK    , "NICK"    },
     { 0                , NULL      }
 };
 

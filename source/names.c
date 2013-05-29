@@ -1857,6 +1857,8 @@ rename_nick(old_nick, new_nick, server)
 			{
 /**************************** PATCHED by Flier ******************************/
                                 remove_nick_from_hash(chan,tmp);
+                                Trace(SZ_TRACE_NICK, "nick rename %s -> %s in %s",
+                                      old_nick, new_nick, chan->channel);
 /****************************************************************************/
 				new_free(&tmp->nick);
 				malloc_strcpy(&tmp->nick, new_nick);

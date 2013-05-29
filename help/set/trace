@@ -17,6 +17,7 @@ Usage: SET TRACE [ALL|NONE|[-]<level> [-]<level> ...]
     CHANNEL         Channel information
     IO              What is sent to / received from the server
     WHOWAS          Whowas cache
+    NICK            Nick changes
   You can combine these on a command line to save the events
   that you want.  Also, by putting a - before any level, you
   remove that one from the list.  For example, if you
