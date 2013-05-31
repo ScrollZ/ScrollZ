@@ -814,7 +814,7 @@ parse_server_info(name, port, password, nick)
 	char	**name,
 		**port,
 		**password,
-		**nick,
+		**nick;
 {
 	char *ptr, *ename, *savename = (char *) 0;
 
