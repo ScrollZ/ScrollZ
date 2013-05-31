@@ -203,7 +203,7 @@ extern	SGroup	*server_group_list;
 	void	set_server_operator _((int, int));
 	void	server_is_connected _((int, int));
 	int	parse_server_index _((char *));
-	void	parse_server_info _((char **, char **, char **, char **, char **));
+	void	parse_server_info _((char **, char **, char **, char **));
 	void	set_server_bits _((fd_set *, fd_set *));
 	void	set_server_itsname _((int, char *));
 	void	set_server_version _((int, int));
