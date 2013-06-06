@@ -1621,7 +1621,7 @@ display_server_list()
                         }
                         if (server_list[i].group)
                             snprintf(tmpbuf2, sizeof(tmpbuf2), "[%s] ", server_list[i].group);
-			else *tmpbuf2 = '\0';
+                        else *tmpbuf2 = '\0';
 /****************************************************************************/
 			if (!server_list[i].nickname)
 			{
