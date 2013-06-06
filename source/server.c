@@ -1660,7 +1660,6 @@ display_server_list()
 						server_list[i].port,
 						tmpbuf2,
 						server_list[i].nickname);
-						
 				else
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (%s)", i,*/
