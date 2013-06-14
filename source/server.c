@@ -1881,10 +1881,11 @@ servercmd(command, args, subargs)
 					server++;
 				/* Reconstitute whole server info so
 				  window_get_connected can parse it -Sol */
-				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s",
+				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s:%s",
 					server, port_num,
 					password ? password : empty_string,
-					nick ? nick : empty_string);
+					nick ? nick : empty_string,
+					group ? group : empty_string);
 				window_get_connected(curr_scr_win, servinfo, -1, (char *) 0);
 			}
 			else
