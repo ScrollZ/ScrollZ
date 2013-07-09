@@ -2722,7 +2722,7 @@ char *buffer;
     }
     while (count) {
         sprintf(buffer," %s",thing);
-        snprintf(thing,sizeof(thing),buffer);
+        strmcpy(thing,buffer,sizeof(thing));
         count--;
     }
     sprintf(buffer,"%s%s%-9s%s",thing,colnick,joiner->nick,Colors[COLOFF]);
