@@ -2005,7 +2005,10 @@ add_to_screen(incoming)
 	{
 		puts(incoming);
 		fflush(stdout);
-		return;
+/**************************** PATCHED by Flier ******************************/
+		/*return;*/
+        return NULL;
+/****************************************************************************/
 	}
 	/* Handles output redirection first */
 	if (!in_redirect && current_screen->redirect_name &&

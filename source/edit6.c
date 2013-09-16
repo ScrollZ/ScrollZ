@@ -580,7 +580,7 @@ void PrintMap() {
         if (!tmpmap->distance || prevdist!=tmpmap->distance)
             snprintf(tmpbuf2,sizeof(tmpbuf2),"[%s%d%s]",
                     CmdsColors[COLLINKS].color3,tmpmap->distance,Colors[COLOFF]);
-        else snprintf(tmpbuf2,sizeof(tmpbuf2),empty_string);
+        else *tmpbuf2 = '\0';
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%%s%%%ds%%s%s%s%s %s",tmpmap->distance*4,
                 CmdsColors[COLLINKS].color1,tmpmap->server,Colors[COLOFF],tmpbuf2);
         say(tmpbuf1,CmdsColors[COLLINKS].color4,
