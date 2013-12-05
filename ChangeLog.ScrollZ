@@ -33,6 +33,9 @@ ScrollZ
     + half-op counters are now displayed in NWHOIS
     ! various small fixes
     ! memory / fd leaks reported by valgrind (thanks SteelyDan)
+    - ICB support (patch by SteelyDan)
+    + IRC servers can now be grouped (patch by SteelyDan)
+    + TRACE facility, read HELP TRACE for more information
 
 ------------------------------------------------------------------------------
 

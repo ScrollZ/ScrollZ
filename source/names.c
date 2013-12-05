@@ -51,6 +51,7 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 #include "whowas.h"
+#include "trace.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -1863,6 +1864,8 @@ rename_nick(old_nick, new_nick, server)
 			{
 /**************************** PATCHED by Flier ******************************/
                                 remove_nick_from_hash(chan,tmp);
+                                Trace(SZ_TRACE_NICK, "nick rename %s -> %s in %s",
+                                      old_nick, new_nick, chan->channel);
 /****************************************************************************/
 				new_free(&tmp->nick);
 				malloc_strcpy(&tmp->nick, new_nick);
@@ -2145,6 +2148,9 @@ reconnect_all_channels(server)
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnecting all channels for server %d", server);
+    TraceChannelInfo(2, server_list[server].chan_list);
+
         /*for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)*/
         for (tmp = server_list[server].chan_list; tmp; tmp = next)
 /****************************************************************************/
@@ -2186,6 +2192,10 @@ reconnect_all_channels(server)
                 }
 /****************************************************************************/
 	}
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnect done");
+    TraceChannelInfo(2, server_list[server].chan_list);
+/****************************************************************************/
 }
 
 char	*

@@ -63,6 +63,7 @@ int	connect_to_unix _((int, char *));
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "trace.h"
 
 extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
@@ -176,6 +177,9 @@ close_server(server_index, message)
                     timeminutes = (timediff / 60) % 60;
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
+                    Trace(SZ_TRACE_CONNECT, "connection to server %s:%d closed",
+                          get_server_name(i), server_list[i].port);
+                    TraceServerInfo(2, 1);
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
@@ -551,6 +555,10 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 {
 	int	i;
 
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
+    TraceServerInfo(2, 0);
+/****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
 		from_server = number_of_servers++;
@@ -669,6 +677,10 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 		if ((int) strlen(server) > (int) strlen(server_list[from_server].name))
 			malloc_strcpy(&(server_list[from_server].name), server);
 	}
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_SERVER, "server added at %d", from_server);
+    TraceServerInfo(2, 0);
+/****************************************************************************/
 }
 
 extern  void
@@ -712,6 +724,12 @@ remove_from_server_list(i)
 	from_server = i;
 	clean_whois_queue();
 	from_server = old_server;
+
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_SERVER, "removing server %d) %s:%d",
+          i, get_server_name(i), server_list[i].port);
+    TraceServerInfo(2, 0);
+/****************************************************************************/
 
 	close_server(i, (u_char *) 0);
 
@@ -807,6 +825,8 @@ remove_from_server_list(i)
             new_free(&server_list);
             server_list = NULL;
         }
+    Trace(SZ_TRACE_SERVER, "removed server");
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 }
 
@@ -1238,6 +1258,8 @@ connect_to_server(server_name, port, nick, group, c_server)
 			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
+                Trace(SZ_TRACE_CONNECT, "connecting to %s:%d", server_name, port);
+                TraceServerInfo(2, 1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
                     struct nicks *tmp;
@@ -2517,6 +2539,9 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
+/**************************** Patched by Flier ******************************/
+                Trace(SZ_TRACE_IO, "--> %d: %s", server, lbuf);
+/****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 

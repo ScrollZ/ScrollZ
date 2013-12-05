@@ -279,6 +279,7 @@ enum {
 	TAB_VAR,
 	TAB_MAX_VAR,
 /**************************** PATCHED by Flier ******************************/
+	TRACE_VAR,
 	TRUNCATE_PUBLIC_CHANNEL_VAR,
 /****************************************************************************/
 	UNDERLINE_VIDEO_VAR,
