@@ -35,7 +35,7 @@ ScrollZ
     ! memory / fd leaks reported by valgrind (thanks SteelyDan)
     - ICB support (patch by SteelyDan)
     + IRC servers can now be grouped (patch by SteelyDan)
-    + TRACE facility, read HELP TRACE for more information
+    + TRACE facility, read HELP SET TRACE for more information
 
 ------------------------------------------------------------------------------
 
