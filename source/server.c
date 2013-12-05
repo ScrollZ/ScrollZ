@@ -807,23 +807,18 @@ remove_from_server_list(i)
  * portion and password to the password portion.  This chews up the original
  * string, so * upon return, name will only point the the name.  If portnum
  * or password are missing or empty,  their respective returned value will
- * point to null.  if extra is non NULL, it is set to anything after the
- * final : after the nickname..
- *
- * Note:  this will set connect_next_as_irc/connect_next_as_icb if it sees
- * the IRC/ or ICB/ at the start of the "name".
+ * point to null.
  */
 void
-parse_server_info(name, port, password, nick, extra)
+parse_server_info(name, port, password, nick)
 	char	**name,
 		**port,
 		**password,
-		**nick,
-		**extra;
+		**nick;
 {
 	char *ptr, *ename, *savename = (char *) 0;
 
-	*port = *password = *nick = *extra = NULL;
+	*port = *password = *nick = NULL;
 	/* check for [i:p:v:6]:port style */
 	if (**name == '[')
 	{
@@ -857,18 +852,7 @@ parse_server_info(name, port, password, nick, extra)
 						if (!strlen(ptr))
 							*nick = NULL;
 						else
-						{
 							*nick = ptr;
-							if (extra && (ptr = (char *) index(ptr, ':'))
-									!= NULL)
-							{
-								*(ptr++) = '\0';
-								if (!strlen(ptr))
-									*extra = NULL;
-								else
-									*extra = ptr;
-							}
-						}
 					}
 				}
 			}
@@ -895,19 +879,6 @@ parse_server_info(name, port, password, nick, extra)
  *
  * Note also that this routine mucks around with the server string passed to it,
  * so make sure this is ok .
- *
- * A new format for ICB and more support is:
- *
- *	type/<type-specifc-format>
- *
- * eg:
- *	IRC/server:port:pass:nick:#foo:#bar:&baz
- * means connect to server on port port with pass and nick, and then to join
- * channels #foo, #bar and &baz.  this is not implemented beyond the nick...
- *
- * or
- *	ICB/server:port:pass:nick:group:mode
- * which is all the things needed at connection startup.  this is done.
  */
 void
 build_server_list(servers)
@@ -915,7 +886,6 @@ build_server_list(servers)
 {
 	char	*host,
 		*rest,
-		*extra,
 		*password = (char *) 0,
 		*port = (char *) 0,
 		*nick = (char *) 0;
@@ -929,7 +899,7 @@ build_server_list(servers)
 			*rest++ = '\0';
 		while ((host = next_arg(servers, &servers)) != NULL)
 		{
-			parse_server_info(&host, &port, &password, &nick, &extra);
+			parse_server_info(&host, &port, &password, &nick);
 			if (port && *port)
 			{
 				port_num = atoi(port);
@@ -939,10 +909,6 @@ build_server_list(servers)
 			else
 				port_num = irc_port;
 			add_to_server_list(host, port_num, password, nick, 0);
-			if (extra)
-			{
-				/* nothing yet */
-			}
 		}
 		servers = rest;
 	}
@@ -1766,7 +1732,6 @@ servercmd(command, args, subargs)
 {
 	char	*server,
 		*port,
-		*extra,
 		*password = (char *) 0,
 		*nick = (char *) 0;
 	int	port_num,
@@ -1840,7 +1805,7 @@ servercmd(command, args, subargs)
 
 		if (index(server, ':') != NULL)
 		{
-			parse_server_info(&server, &port, &password, &nick, &extra);
+			parse_server_info(&server, &port, &password, &nick);
 			if (!strlen(server))
 			{
 				say("Server name required");
@@ -1865,8 +1830,6 @@ servercmd(command, args, subargs)
 			}
 			else
 				port_num = -1;
-
-			extra = (char *) 0;
 		}
 
 		if (nick && *nick)

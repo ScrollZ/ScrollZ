@@ -1998,9 +1998,6 @@ bind_channel(channel, window)
 		if (sg == fsg)
 		{
 			switch (get_server_version(window->server)) {
-			case ServerICB:
-				icb_put_group(channel);
-				break;
 			/* XXX make this use a key? */
 			/* XXX by factoring out the "JOIN/CHANNEL" code to a module */
 			case Server2_5:
@@ -3511,8 +3508,7 @@ window_get_connected(window, arg, narg, args)
 		new_server_flags = WIN_TRANSFER;
 	char	*port,
 		*password = NULL,
-		*nick = NULL,
-		*extra = NULL;
+		*nick = NULL;
 
 	if (arg)
 	{
@@ -3526,7 +3522,7 @@ window_get_connected(window, arg, narg, args)
 			new_server_flags |= WIN_FORCE;
 			arg++;
 		}
-		parse_server_info(&arg, &port, &password, &nick, &extra);
+		parse_server_info(&arg, &port, &password, &nick);
 		if (port)
 		{
 			port_num = atoi(port);
@@ -3535,10 +3531,6 @@ window_get_connected(window, arg, narg, args)
 		}
 		else
 			port_num = -1;
-		if (extra)
-		{
-			/* nothing yet */ ;
-		}
 		/* relies on parse_server_info putting a null in */
 		/* This comes first for "/serv +1" -Sol */
 		if ((i = parse_server_index(arg)) != -1)
