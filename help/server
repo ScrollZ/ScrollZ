@@ -7,7 +7,7 @@
 ! information.
 !
 Usage: SERVER <name of server>|<number in server_list> [<port>]]
-       SERVER <name of server>[:<port>[:<password>[:<nickname>]]]
+       SERVER <name of server>[:<port>[:<password>[:<nickname>[:<group>]]]]
        SERVER -SSL <args as above>
        SERVER [+|-]
        SERVER -DELETE <number in server_list>
@@ -56,17 +56,17 @@ Usage: SERVER <name of server>|<number in server_list> [<port>]]
   servers in the server list, you can specify them on the command
   line as such:
     irc <nickname> server1 server2 server3
-  Each host may have it's own port number, password and nickname
-  specified on the command line as well:
-    irc <nickname> server1:6667 server2:7000:blah server3::foo
+  Each host may have its own port number, password, nickname and
+  group specified on the command line, as well:
+    irc <nickname> server1:6667 server2:7000:blah server3::foo::testnet
   In this case, server1 will use port 6667, server2 will use port
   7000 with password blah, and server3 will use the default port
-  number with password foo.  The -p switch on the command line
-  allows you to specify the default port number.  Also, if no
-  password is specified and one is needed to connect, you will be
-  prompted to enter a password before you can connect.  You can
-  also specify the default server list in the IRCSERVER
-  environment variable using the same format as above.
+  number, with password foo, and be put into group testnet.  The
+  -p switch on the command line allows you to specify the default
+  port number.  Also, if no password is specified and one is needed
+  to connect, you will be prompted to enter a password before you can
+  connect.  You can also specify the default server list in the
+  IRCSERVER environment variable using the same format as above.
 
 Available flags:
   -SSL <normal arguments>

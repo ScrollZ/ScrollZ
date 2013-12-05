@@ -3159,7 +3159,7 @@ char *subargs;
         }
     }
     old_server=from_server;
-    add_to_server_list(server,port,(char *) 0,(char *) 0,0);
+    add_to_server_list(server,port,(char *) 0,(char *) 0,(char *) 0,0);
     from_server=old_server;
     say("%s %d added to your server list",server,port);
 }
@@ -3213,23 +3213,29 @@ char *args;
 char *subargs;
 {
     int  i;
+    char tmpbuf[mybufsize/8];
 
     say("List of servers on your server list");
     for (i = 0; i < number_of_servers; i++) {
-        if (i != from_server) say("%c%-2d %s  %d",
+        if (server_list[i].group)
+            snprintf(tmpbuf, sizeof(tmpbuf), "  [%s]", server_list[i].group);
+        else *tmpbuf = '\0';
+        if (i != from_server) say("%c%-2d %s  %d%s",
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                   server_list[i].enable_ssl ? '!' : ' ',
 #else
                                   ' ',
 #endif
-                                  i, server_list[i].name, server_list[i].port);
-        else say("%c%-2d %c%s%c  %d",
+                                  i, server_list[i].name, server_list[i].port,
+                                  tmpbuf);
+        else say("%c%-2d %c%s%c  %d%s",
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                 server_list[i].enable_ssl ? '!' : ' ',
 #else
                                   ' ',
 #endif
-                i, bold, server_list[i].name, bold, server_list[i].port);
+                i, bold, server_list[i].name, bold, server_list[i].port,
+                tmpbuf);
     }
 }
 #endif /* LITE */

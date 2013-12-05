@@ -2165,6 +2165,7 @@ void CleanUp() {
 	if (server_list[i].name) new_free(&server_list[i].name);
 	if (server_list[i].itsname) new_free(&server_list[i].itsname);
 	if (server_list[i].password) new_free(&server_list[i].password);
+	if (server_list[i].group) new_free(&server_list[i].group);
 	if (server_list[i].away) new_free(&server_list[i].away);
 	if (server_list[i].version_string) new_free(&server_list[i].version_string);
 	if (server_list[i].nickname) new_free(&server_list[i].nickname);

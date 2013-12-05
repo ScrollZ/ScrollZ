@@ -3403,11 +3403,19 @@ windowcmd(command, args, subargs)
 		if (window->server == -1)
 			say("\tServer: <None>");
 		else
+		{
+                    char tmpbuf[mybufsize/8];
+                    char *group;
+
 /**************************** PATCHED by Flier ******************************/
  			/*say("\tServer: %s", get_server_name(window->server));*/
-                    say("\tServer: %s:%d", get_server_name(window->server),
-                        get_server_port(window->server));
+                    group = get_server_group(window->server);
+                    if (group) snprintf(tmpbuf, sizeof(tmpbuf), " [%s]", group);
+                    else *tmpbuf = '\0';
+                    say("\tServer: %s:%d%s", get_server_name(window->server),
+                        get_server_port(window->server), tmpbuf);
 /****************************************************************************/
+		}
 		say("\tCurrent channel: %s", window->current_channel ?  window->current_channel : "<None>");
 		say("\tQuery User: %s", (window->query_nick ?  window->query_nick : "<None>"));
 		say("\tPrompt: %s", window->prompt ?  window->prompt : "<None>");
@@ -3508,7 +3516,8 @@ window_get_connected(window, arg, narg, args)
 		new_server_flags = WIN_TRANSFER;
 	char	*port,
 		*password = NULL,
-		*nick = NULL;
+		*nick = NULL,
+		*group = NULL;
 
 	if (arg)
 	{
@@ -3522,7 +3531,7 @@ window_get_connected(window, arg, narg, args)
 			new_server_flags |= WIN_FORCE;
 			arg++;
 		}
-		parse_server_info(&arg, &port, &password, &nick);
+		parse_server_info(&arg, &port, &password, &nick, &group);
 		if (port)
 		{
 			port_num = atoi(port);
@@ -3586,7 +3595,7 @@ window_get_connected(window, arg, narg, args)
 		port_num = server_list[i].port;
 	}
 
-	if (!connect_to_server(arg, port_num, nick, (new_server_flags & WIN_ALL) ? window->server : -1))
+	if (!connect_to_server(arg, port_num, nick, group, (new_server_flags & WIN_ALL) ? window->server : -1))
 	{
 		window_set_server((int)window->refnum, from_server, new_server_flags);
 		update_all_status();
