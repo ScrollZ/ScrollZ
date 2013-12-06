@@ -15,6 +15,7 @@
 #define SZ_TRACE_IO        1<<5
 #define SZ_TRACE_WHOWAS    1<<6
 #define SZ_TRACE_NICK      1<<7
+#define SZ_TRACE_WINDOW    1<<8
 
 #define SZ_TRACE_ALL       0xffffffff
 
@@ -26,5 +27,6 @@ typedef struct {
 void TraceServerInfo _((int indent, int fullinfo));
 void TraceChannelInfo _((int indent, ChannelList *channels));
 void TraceNickListInfo _((int indent, NickList *nicks));
+void TraceWindowInfo _((int indent, Window *window));
 
 #endif

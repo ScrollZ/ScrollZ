@@ -183,6 +183,11 @@ close_server(server_index, message)
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
+                else {
+                    Trace(SZ_TRACE_CONNECT, "server %s:%d closed",
+                          get_server_name(i), server_list[i].port);
+                    TraceServerInfo(2, 1);
+                }
 /****************************************************************************/
 		if (-1 != server_list[i].write)
 		{
@@ -556,11 +561,12 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 	int	i;
 
 /**************************** PATCHED by Flier ******************************/
-    Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
-    TraceServerInfo(2, 0);
+        Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
+        TraceServerInfo(2, 0);
 /****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
+                Trace(SZ_TRACE_SERVER, "server not found");
 		from_server = number_of_servers++;
 		if (server_list)
 			server_list = (Server *) new_realloc((char *) server_list, number_of_servers * sizeof(Server));
@@ -659,6 +665,7 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 	}
 	else
 	{
+                Trace(SZ_TRACE_SERVER, "server found at %d", from_server);
 		if (overwrite)
 		{
 			server_list[from_server].port = port;
@@ -679,7 +686,7 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 	}
 /**************************** PATCHED by Flier ******************************/
     Trace(SZ_TRACE_SERVER, "server added at %d", from_server);
-    TraceServerInfo(2, 0);
+    TraceServerInfo(2, 1);
 /****************************************************************************/
 }
 
@@ -1227,8 +1234,10 @@ connect_to_server(server_name, port, nick, group, c_server)
          * 3) /s new_server while 2) is still in progress
          * Now client is confused about servers. */
         for (i = 0; i < number_of_servers; i++) {
-            if ((server_list[i].flags) & CLEAR_PENDING)
+            if ((server_list[i].flags) & CLEAR_PENDING) {
+                Trace(SZ_TRACE_CONNECT, "clear channels on server %d", i);
                 clear_channel_list(i);
+            }
             if ((server_list[i].flags) & CLOSE_PENDING) {
 		server_list[i].close_serv = -1;
 		server_list[i].flags &= ~(CLOSE_PENDING | CLEAR_PENDING);

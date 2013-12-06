@@ -57,6 +57,7 @@
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "trace.h"
 
 #ifdef SZ32
 #include <windows.h>
@@ -339,6 +340,8 @@ add_window_to_server_group(window, group)
 		}
 	window->server_group = i;
 	say("Window's server group is now %s", group);
+        Trace(SZ_TRACE_WINDOW, "window %d set server group %s", window->refnum, group);
+        TraceWindowInfo(2, window);
 	update_window_status(window, 1);
 }
 
@@ -2023,6 +2026,8 @@ bind_channel(channel, window)
         if (window->name) strmcpy(tmpbuf, window->name, sizeof(tmpbuf) - 1);
         else snprintf(tmpbuf, sizeof(tmpbuf), "%d", window->refnum);
         say("Channel %s bound to window %s", channel, tmpbuf);
+        Trace(SZ_TRACE_WINDOW, "bind channel %s", channel);
+        TraceWindowInfo(2, window);
 /****************************************************************************/
 }
 
@@ -2045,6 +2050,8 @@ unbind_channel(channel, window)
             new_free(&(chan->channel));
             new_free(&chan);
         }
+        Trace(SZ_TRACE_WINDOW, "unbind channel %s", channel);
+        TraceWindowInfo(2, window);
 /****************************************************************************/
 }
 
@@ -2253,6 +2260,8 @@ set_channel_by_refnum(refnum, channel)
 	malloc_strcpy(&tmp->current_channel, channel);
 	tmp->update |= UPDATE_STATUS;
 	set_channel_window(tmp, channel, tmp->server);
+        Trace(SZ_TRACE_WINDOW, "set channel %s", channel);
+        TraceWindowInfo(2, tmp);
 	return (channel);
 }
 
@@ -2875,8 +2884,13 @@ windowcmd(command, args, subargs)
                 upper(cmd);
 		if (strncmp("NEW", cmd, len) == 0)
 		{
-			if ((tmp = new_window()) != NULL)
+                        Trace(SZ_TRACE_WINDOW, "adding new window");
+                        TraceWindowInfo(2, NULL);
+			if ((tmp = new_window()) != NULL) {
 				window = tmp;
+                                Trace(SZ_TRACE_WINDOW, "window added");
+                                TraceWindowInfo(2, NULL);
+                        }
 		}
 #ifdef WINDOW_CREATE
 		else if (strncmp("CREATE", cmd, len) == 0)
@@ -2910,8 +2924,13 @@ windowcmd(command, args, subargs)
 				goto out;
 			}
 		}
-		else if (strncmp("KILL", cmd, len) == 0)
+		else if (strncmp("KILL", cmd, len) == 0) {
+                        Trace(SZ_TRACE_WINDOW, "deleting window");
+                        TraceWindowInfo(2, NULL);
 			delete_window(window);
+                        Trace(SZ_TRACE_WINDOW, "window deleted");
+                        TraceWindowInfo(2, NULL);
+                }
 		else if (strncmp("SHRINK", cmd, len) == 0)
 			grow_window(window, -get_number("SHRINK", &args));
 		else if (strncmp("GROW", cmd, len) == 0)
@@ -3109,8 +3128,9 @@ windowcmd(command, args, subargs)
 			list_windows();
 		else if (strncmp("SERVER", cmd, len) == 0)
 		{
-			if ((arg = next_arg(args, &args)) != NULL)
+			if ((arg = next_arg(args, &args)) != NULL) {
 				window_get_connected(window, arg, -1, args);
+            }
 			else
 				say("SERVER: You must specify a server");
 		}
@@ -3185,6 +3205,8 @@ windowcmd(command, args, subargs)
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0,);*/
                                                 if (from_server >= 0)
                                                     add_channel(arg, from_server, CHAN_JOINING, NULL, key, 0);
+                                                Trace(SZ_TRACE_WINDOW, "joining channel %s", arg);
+                                                TraceWindowInfo(2, window);
 /****************************************************************************/
  						from_server = server;
  					}
@@ -3328,6 +3350,8 @@ windowcmd(command, args, subargs)
 			window->server_group = 0;
 			say("Window no longer has a server group");
 			update_window_status(window, 1);
+                        Trace(SZ_TRACE_WINDOW, "window %d unset server group", window->refnum);
+                        TraceWindowInfo(2, window);
 		}
 		else if (strncmp("DOUBLE", cmd, len) == 0)
 		{
@@ -3602,6 +3626,8 @@ window_get_connected(window, arg, narg, args)
 	}
 	window_check_servers();
 /**************************** PATCHED by Flier ******************************/
+        Trace(SZ_TRACE_WINDOW, "connecting to server");
+        TraceWindowInfo(2, window);
         if (curr_scr_win->server >= 0)
             is_current_channel(NULL, curr_scr_win->server, 0);
 /****************************************************************************/

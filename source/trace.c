@@ -23,6 +23,7 @@ static TraceArea TraceAreas[]= {
     { SZ_TRACE_IO      , "IO"      },
     { SZ_TRACE_WHOWAS  , "WHOWAS"  },
     { SZ_TRACE_NICK    , "NICK"    },
+    { SZ_TRACE_WINDOW  , "WINDOW"    },
     { 0                , NULL      }
 };
 
@@ -229,19 +230,19 @@ ChannelList *channels;
         strmcat(tmpbuf, " ", sizeof(tmpbuf));
 
     for (chan = channels; chan; chan = chan->next) {
-        Trace(SZ_TRACE_SERVER, "%schannel %s, server %d, mode %lu (%s)",
-                tmpbuf, EMPTY_STR(chan->channel), chan->server, chan->mode,
-                EMPTY_STR(chan->s_mode));
+        Trace(SZ_TRACE_SERVER, "%schannel %s (%p), server %d, mode %lu (%s)",
+              tmpbuf, EMPTY_STR(chan->channel), chan->channel,
+              chan->server, chan->mode, EMPTY_STR(chan->s_mode));
         Trace(SZ_TRACE_SERVER, "%s  limit %d, key %s, connected %d",
-                tmpbuf, chan->limit, EMPTY_STR(chan->key), chan->connected);
+              tmpbuf, chan->limit, EMPTY_STR(chan->key), chan->connected);
         Trace(SZ_TRACE_SERVER, "%s  status %d, banlist %d, wholist %d",
-                tmpbuf, chan->status, chan->gotbans, chan->gotwho);
-        Trace(SZ_TRACE_SERVER, "%s  window %d (%s)",
-                tmpbuf,
-                chan->window ? chan->window->refnum : -1,
-                chan->window ? EMPTY_STR(chan->window->name) : empty_string);
+              tmpbuf, chan->status, chan->gotbans, chan->gotwho);
+        Trace(SZ_TRACE_SERVER, "%s  window %d (%s) (%p)",
+              tmpbuf,
+              chan->window ? chan->window->refnum : -1,
+              chan->window ? EMPTY_STR(chan->window->name) : empty_string, chan->window);
         Trace(SZ_TRACE_SERVER, "%s  created at %s",
-                tmpbuf, ctime(&chan->creationtime));
+              tmpbuf, ctime(&chan->creationtime));
         Trace(SZ_TRACE_SERVER, "%s  nicklist:", tmpbuf);
         TraceNickListInfo(indent + 4, chan->nicks);
     }
@@ -261,19 +262,70 @@ NickList *nicks;
 
     for (nick = nicks; nick; nick = nick->next) {
         Trace(SZ_TRACE_SERVER, "%snick %s (%s)",
-                tmpbuf, EMPTY_STR(nick->nick), nick->userhost);
+              tmpbuf, EMPTY_STR(nick->nick), nick->userhost);
         Trace(SZ_TRACE_SERVER, "%s  op: %d, voice: %d, halfop: %d",
-                tmpbuf, nick->chanop, nick->hasvoice, nick->halfop);
+              tmpbuf, nick->chanop, nick->hasvoice, nick->halfop);
         Trace(SZ_TRACE_SERVER, "%s  frlist: %d %d/%s (%s)",
-                tmpbuf,
-                nick->frlist ? nick->frlist->number : -1,
-                nick->frlist ? nick->frlist->privs : -1,
-                nick->frlist ? nick->frlist->userhost : empty_string,
-                nick->frlist ? nick->frlist->channels : empty_string);
+              tmpbuf,
+              nick->frlist ? nick->frlist->number : -1,
+              nick->frlist ? nick->frlist->privs : -1,
+              nick->frlist ? nick->frlist->userhost : empty_string,
+              nick->frlist ? nick->frlist->channels : empty_string);
         Trace(SZ_TRACE_SERVER, "%s  shitlist: %d/%s (%s)",
-                tmpbuf,
-                nick->shitlist ? nick->shitlist->shit : -1,
-                nick->shitlist ? nick->shitlist->userhost : empty_string,
-                nick->shitlist ? nick->shitlist->channels : empty_string);
+              tmpbuf,
+              nick->shitlist ? nick->shitlist->shit : -1,
+              nick->shitlist ? nick->shitlist->userhost : empty_string,
+              nick->shitlist ? nick->shitlist->channels : empty_string);
     }
+}
+
+void TraceWindowInfo(indent, window)
+int indent;
+Window *window;
+{
+    int i, flag = 1;
+    Window *tmp;
+    char tmpbuf[mybufsize/2];
+    struct channels *bound_chan;
+
+    *tmpbuf = '\0';
+    for (i = 0; i < indent; i++)
+        strmcat(tmpbuf, " ", sizeof(tmpbuf));
+
+    do {
+        if (window) tmp = window;
+        else tmp = traverse_all_windows(&flag);
+
+        if (!tmp)
+            break;
+
+        Trace(SZ_TRACE_WINDOW, "%swindow %d (%s) (%p)",
+              tmpbuf, tmp->refnum, EMPTY_STR(tmp->name), tmp);
+        Trace(SZ_TRACE_WINDOW, "%s  server: %d, top: %d, bottom: %d, line_cnt: %d",
+              tmpbuf, tmp->server, tmp->top, tmp->bottom, tmp->line_cnt);
+        Trace(SZ_TRACE_WINDOW, "%s  scroll: %d, display_size: %d, visible: %d",
+              tmpbuf, tmp->scroll, tmp->display_size, tmp->visible);
+        Trace(SZ_TRACE_WINDOW, "%s  update: %d, miscflags: %d, double_status: %d",
+              tmpbuf, tmp->update, tmp->miscflags, tmp->double_status);
+        Trace(SZ_TRACE_WINDOW, "%s  prompt: %s", tmpbuf, EMPTY_STR(tmp->prompt));
+        Trace(SZ_TRACE_WINDOW, "%s  current_channel: %s",
+              tmpbuf, EMPTY_STR(tmp->current_channel));
+        for (bound_chan = tmp->bound_chans; bound_chan; bound_chan = bound_chan->next) {
+            if (bound_chan == tmp->bound_chans)
+                Trace(SZ_TRACE_WINDOW, "%s  bound channels:", tmpbuf);
+            Trace(SZ_TRACE_WINDOW, "%s    %s", tmpbuf, bound_chan->channel);
+        }
+        Trace(SZ_TRACE_WINDOW, "%s  query_nick: %s, window_level: %d, hold_mode: %d",
+              tmpbuf, EMPTY_STR(tmp->query_nick), tmp->window_level, tmp->hold_mode);
+        Trace(SZ_TRACE_WINDOW, "%s  lastlog_level: %d, lastlog_size: %d",
+              tmpbuf, tmp->lastlog_level, tmp->lastlog_size);
+        Trace(SZ_TRACE_WINDOW, "%s  notify_level: %d",
+              tmpbuf, tmp->notify_level);
+        Trace(SZ_TRACE_WINDOW, "%s  logfile: %s, log: %d",
+              tmpbuf, EMPTY_STR(tmp->logfile), tmp->log);
+        Trace(SZ_TRACE_WINDOW, "%s  server_group: %d, sticky: %d",
+              tmpbuf, tmp->server_group, tmp->sticky);
+
+        if (tmp == window) tmp = NULL;
+    } while (tmp);
 }
