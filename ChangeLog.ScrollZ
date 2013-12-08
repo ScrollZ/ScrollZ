@@ -35,6 +35,7 @@ ScrollZ
     ! memory / fd leaks reported by valgrind (thanks SteelyDan)
     ! do not lose one page of scrollback buffer after CLEAR
       (reported by -jff-)
+    ! compilation on FreeBSD 10 (reported by FBSD maintainer)
 
 ------------------------------------------------------------------------------
 

@@ -261,9 +261,15 @@ case "`uname -s`" in
 esac
 
 if test "x$enable_utf8" = "xyes" ; then
-if test -n "$freebsd"; then
-    LIBS="$LIBS -liconv"
-fi
+  if test -n "$freebsd"; then
+     case "`uname -r`" in
+       10.*)
+         ;;
+       *)
+         LIBS="$LIBS -liconv"
+         ;;
+     esac
+  fi
 fi
 
 AC_CHECK_HEADERS(sys/un.h sys/select.h sys/fcntl.h sys/ioctl.h sys/file.h sys/time.h sys/wait.h sys/twg_config.h sys/ptem.h sys/uio.h)dnl sys/ ones
