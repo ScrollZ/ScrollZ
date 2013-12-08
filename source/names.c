@@ -51,6 +51,7 @@
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
 #include "whowas.h"
+#include "trace.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -265,8 +266,6 @@ add_channel(channel, server, connected, copy, key, nowho)
             }
             new = whowaschan->channellist;
             new->next = (ChannelList *) 0;
-            if ((new->window = is_bound(channel, server)) == (Window *) 0)
-                new->window = curr_scr_win;
             do_add = 1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
             new_free(&whowaschan);
@@ -284,8 +283,6 @@ add_channel(channel, server, connected, copy, key, nowho)
 		malloc_strcpy(&new->channel, channel);
 		new->mode = 0;
 		new->limit = 0;
-		if ((new->window = is_bound(channel, server)) == (Window *) 0)
-			new->window = curr_scr_win;
 		do_add = 1;
 		add_to_list((List **) &server_list[server].chan_list, (List *) new);
 /**************************** PATCHED by Flier ******************************/
@@ -358,6 +355,13 @@ add_channel(channel, server, connected, copy, key, nowho)
                     new->topicwho = NULL;
                     for (i = 0; i < HASHTABLESIZE; i++) new->nickshash[i] = (struct hashstr *) 0;
                 }
+                if ((new->window = is_bound(channel, server)) == (Window *) 0)
+                    new->window = curr_scr_win;
+                Trace(SZ_TRACE_WINDOW, "channel %s bound to window %d (%s) (%p)",
+                      channel,
+                      new->window ? new->window->refnum : -1,
+                      new->window ? EMPTY_STR(new->window->name) : "",
+                      new->window);
 /****************************************************************************/
 		clear_channel(new);
 	}
@@ -392,6 +396,8 @@ add_channel(channel, server, connected, copy, key, nowho)
 					set_channel_by_refnum(tmp->refnum, channel);
 					new->window = tmp;
 					update_all_status();
+                                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel);
+                                        TraceWindowInfo(2, tmp);
 					return;
 				}
 				else if (!possible)
@@ -403,10 +409,14 @@ add_channel(channel, server, connected, copy, key, nowho)
 			set_channel_by_refnum(possible->refnum, channel);
 			new->window = possible;
 			update_all_status();
+                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel);
+                        TraceWindowInfo(2, possible);
 			return;
 		}
 		set_channel_by_refnum(0, channel);
 		new->window = curr_scr_win;
+                Trace(SZ_TRACE_WINDOW, "adding channel %s to current window", channel);
+                TraceWindowInfo(2, curr_scr_win);
 	}
 	update_all_windows();
 }
@@ -1863,6 +1873,8 @@ rename_nick(old_nick, new_nick, server)
 			{
 /**************************** PATCHED by Flier ******************************/
                                 remove_nick_from_hash(chan,tmp);
+                                Trace(SZ_TRACE_NICK, "nick rename %s -> %s in %s",
+                                      old_nick, new_nick, chan->channel);
 /****************************************************************************/
 				new_free(&tmp->nick);
 				malloc_strcpy(&tmp->nick, new_nick);
@@ -2145,6 +2157,9 @@ reconnect_all_channels(server)
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnecting all channels for server %d", server);
+    TraceChannelInfo(2, server_list[server].chan_list);
+
         /*for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)*/
         for (tmp = server_list[server].chan_list; tmp; tmp = next)
 /****************************************************************************/
@@ -2186,6 +2201,10 @@ reconnect_all_channels(server)
                 }
 /****************************************************************************/
 	}
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_CHANNEL, "reconnect done");
+    TraceChannelInfo(2, server_list[server].chan_list);
+/****************************************************************************/
 }
 
 char	*

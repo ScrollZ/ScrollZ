@@ -67,6 +67,7 @@ typedef	struct
 	char	*password;		/* password for that server */
 	int	port;			/* port number on that server */
 	char	*nickname;		/* nickname for this server */
+	char	*group;			/* what group the server is in */
 	char	*away;			/* away message for this server */
 	int	operator;		/* true if operator */
 	int	version;		/* the version of the server -
@@ -141,9 +142,9 @@ typedef	unsigned	short	ServerType;
 
 	int	find_server_group _((char *, int));
 	char *	find_server_group_name _((int));
-	void	add_to_server_list _((char *, int, char *, char *, int));
+	void	add_to_server_list _((char *, int, char *, char *, char *, int));
 	void	build_server_list _((char *));
-	int	connect_to_server _((char *, int, char *, int));
+	int	connect_to_server _((char *, int, char *, char *, int));
 /**************************** PATCHED by Flier ******************************/
 	/*void	get_connected _((int));*/
 	void	get_connected _((int, int));
@@ -212,6 +213,7 @@ extern	SGroup	*server_group_list;
         int     is_server_valid _((int));
 /****************************************************************************/
 	int	get_server_port _((int));
+	char	*get_server_group _((int));
 	char	*set_server_password _((int, char *));
 	void	set_server_nickname _((int, char *));
 	void	set_server_2_6_2 _((int, int));

@@ -33,6 +33,7 @@
 
 #include "whowas.h"
 #include "myvars.h"
+#include "trace.h"
 
 #define whowas_userlist_max 150
 #define whowas_reg_max 300
@@ -57,6 +58,8 @@ int  unlink;
     WhowasList *tmp;
     WhowasList *last=(WhowasList *) 0;
 
+    Trace(SZ_TRACE_WHOWAS, "searching for %s!%s in %s (unlink = %d)",
+          nick, userhost, channel, unlink);
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!my_stricmp(tmp->nicklist->userhost,userhost) &&
             !my_stricmp(tmp->channel,channel)) {
@@ -65,6 +68,8 @@ int  unlink;
                 else whowas_userlist_list=tmp->next;
                 whowas_userlist_count--;
             }
+            Trace(SZ_TRACE_WHOWAS, "entry found in whowas userlist list %d",
+                  whowas_userlist_count);
             return(tmp);
         }
         last=tmp;
@@ -78,10 +83,13 @@ int  unlink;
                 else whowas_reg_list=tmp->next;
                 whowas_reg_count--;
             }
+            Trace(SZ_TRACE_WHOWAS, "entry found in whowas reg list %d",
+                  whowas_reg_count);
             return(tmp);
         }
         last=tmp;
     }
+    Trace(SZ_TRACE_WHOWAS, "entry not found");
     return((WhowasList *) 0);
 }
 
@@ -93,6 +101,8 @@ char *channel;
     WhowasList **slot;
 
     if (!nicklist || !(nicklist->userhost)) return;
+    Trace(SZ_TRACE_WHOWAS, "add %s!%s from %s",
+          nicklist->nick, nicklist->userhost, channel);
     if (nicklist->frlist) {
         if (whowas_userlist_count>=whowas_userlist_max) {
             whowas_userlist_count-=
@@ -111,6 +121,8 @@ char *channel;
         new->next=*slot;
         *slot=new;
         whowas_userlist_count++;
+        Trace(SZ_TRACE_WHOWAS, "added to whowas userlist list %d",
+              whowas_userlist_count);
     }
     else {
         if (whowas_reg_count>=whowas_reg_max) {
@@ -130,6 +142,8 @@ char *channel;
         new->next=*slot;
         *slot=new;
         whowas_reg_count++;
+        Trace(SZ_TRACE_WHOWAS, "added to whowas reg list %d",
+              whowas_reg_count);
     }
 }
 
@@ -143,10 +157,14 @@ int count;
     int total=0;
 
     /* if no ..count.. then remove ..time.. links */
+    Trace(SZ_TRACE_WHOWAS, "remove %d oldest entri(es) from whowas %s list",
+          count, *list == whowas_userlist_list ? "userlist" : "reg");
     if (!count) {
         t=time(NULL);
         while (*list && ((*list)->time+timet)<=t) {
             tmp=*list;
+            Trace(SZ_TRACE_WHOWAS, "remove %s!%s from %s",
+                  tmp->nicklist->nick, tmp->nicklist->userhost, tmp->channel);
             new_free(&(tmp->nicklist->nick));
             new_free(&(tmp->nicklist->userhost));
             new_free(&(tmp->nicklist));
@@ -159,6 +177,8 @@ int count;
     else {
         while (*list && count) {
             tmp=*list;
+            Trace(SZ_TRACE_WHOWAS, "remove %s!%s from %s",
+                  tmp->nicklist->nick, tmp->nicklist->userhost, tmp->channel);
             new_free(&(tmp->nicklist->nick));
             new_free(&(tmp->nicklist->userhost));
             new_free(&(tmp->nicklist));
@@ -169,6 +189,7 @@ int count;
             count--;
         }
     }
+    Trace(SZ_TRACE_WHOWAS, "removed %d entri(es)", total);
     return(total);
 }
 
@@ -184,18 +205,30 @@ struct friends *added;
     WhowasList *tmp;
     char user[mybufsize/2];
 
+    Trace(SZ_TRACE_WHOWAS, "sync whowas with new userlist entry %s for %s",
+          added->userhost, added->channels);
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
             snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
-            if (wild_match(added->userhost,user)) tmp->nicklist->frlist=added;
+            if (wild_match(added->userhost,user)) {
+                tmp->nicklist->frlist=added;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s updated in whowas userlist list",
+                      user);
+            }
         }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
             snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
-            if (wild_match(added->userhost,user)) tmp->nicklist->frlist=added;
+            if (wild_match(added->userhost,user)) {
+                tmp->nicklist->frlist=added;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s updated in whowas reg list",
+                      user);
+            }
         }
     }
 }
@@ -206,17 +239,27 @@ struct friends *entry;
 {
     WhowasList *tmp;
 
+    Trace(SZ_TRACE_WHOWAS, "sync whowas with removed userlist entry %s for %s",
+          entry->userhost, entry->channels);
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist || !(tmp->nicklist->frlist)) continue;
         if (!my_stricmp(tmp->nicklist->frlist->userhost,entry->userhost) &&
-            !my_stricmp(tmp->nicklist->frlist->channels,entry->channels))
+            !my_stricmp(tmp->nicklist->frlist->channels,entry->channels)) {
                 tmp->nicklist->frlist=(struct friends *) 0;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s!%s updated in whowas userlist list",
+                      tmp->nicklist->nick, tmp->nicklist->userhost);
+        }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist || !(tmp->nicklist->frlist)) continue;
         if (!my_stricmp(tmp->nicklist->frlist->userhost,entry->userhost) &&
-            !my_stricmp(tmp->nicklist->frlist->channels,entry->channels))
+            !my_stricmp(tmp->nicklist->frlist->channels,entry->channels)) {
                 tmp->nicklist->frlist=(struct friends *) 0;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s!%s updated in whowas reg list",
+                      tmp->nicklist->nick, tmp->nicklist->userhost);
+        }
     }
 }
 
@@ -227,18 +270,30 @@ struct autobankicks *added;
     WhowasList *tmp;
     char user[BIG_BUFFER_SIZE+1];
 
+    Trace(SZ_TRACE_WHOWAS, "sync whowas with new shitlist entry %s for %s",
+          added->userhost, added->channels);
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
             snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
-            if (wild_match(added->userhost,user)) tmp->nicklist->shitlist=added;
+            if (wild_match(added->userhost,user)) {
+                tmp->nicklist->shitlist=added;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s updated in whowas userlist list",
+                      user);
+            }
         }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist) continue;
         if (CheckChannel(tmp->channel,added->channels)) {
             snprintf(user,sizeof(user),"%s!%s",tmp->nicklist->nick,tmp->nicklist->userhost);
-            if (wild_match(added->userhost,user)) tmp->nicklist->shitlist=added;
+            if (wild_match(added->userhost,user)) {
+                tmp->nicklist->shitlist=added;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s updated in whowas reg list",
+                      user);
+            }
         }
     }
 }
@@ -249,17 +304,27 @@ struct autobankicks *entry;
 {
     WhowasList *tmp;
 
+    Trace(SZ_TRACE_WHOWAS, "sync whowas with removed shitlist entry %s for %s",
+          entry->userhost, entry->channels);
     for (tmp=whowas_userlist_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist || !(tmp->nicklist->shitlist)) continue;
         if (!my_stricmp(tmp->nicklist->shitlist->userhost,entry->userhost) &&
-            !my_stricmp(tmp->nicklist->shitlist->channels,entry->channels))
+            !my_stricmp(tmp->nicklist->shitlist->channels,entry->channels)) {
                 tmp->nicklist->shitlist=(struct autobankicks *) 0;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s!%s updated in whowas userlist list",
+                      tmp->nicklist->nick, tmp->nicklist->userhost);
+            }
     }
     for (tmp=whowas_reg_list;tmp;tmp=tmp->next) {
         if (!tmp->nicklist || !(tmp->nicklist->shitlist)) continue;
         if (!my_stricmp(tmp->nicklist->shitlist->userhost,entry->userhost) &&
-            !my_stricmp(tmp->nicklist->shitlist->channels,entry->channels))
+            !my_stricmp(tmp->nicklist->shitlist->channels,entry->channels)) {
                 tmp->nicklist->shitlist=(struct autobankicks *) 0;
+                Trace(SZ_TRACE_WHOWAS,
+                      "entry for %s!%s updated in whowas reg list",
+                      tmp->nicklist->nick, tmp->nicklist->userhost);
+            }
     }
 }
 
@@ -273,6 +338,8 @@ int unlink;
     WhowasChanList *tmp;
     WhowasChanList *last=(WhowasChanList *) 0;
 
+    Trace(SZ_TRACE_WHOWAS, "searching for channel %s (unlink=%d)",
+          channel, unlink);
     for (tmp=whowas_chan_list;tmp;tmp=tmp->next) {
         if (!my_stricmp(tmp->channellist->channel,channel)) {
             if (unlink) {
@@ -280,10 +347,13 @@ int unlink;
                 else whowas_chan_list=tmp->next;
                 whowas_chan_count--;
             }
+            Trace(SZ_TRACE_WHOWAS, "entry found %d",
+                  whowas_chan_count);
             return(tmp);
         }
         last=tmp;
     }
+    Trace(SZ_TRACE_WHOWAS, "entry not found");
     return((WhowasChanList *) 0);
 }
 
@@ -293,6 +363,7 @@ ChannelList *channel;
     WhowasChanList *new;
     WhowasChanList **slot;
 
+    Trace(SZ_TRACE_WHOWAS, "add channel %s", channel->channel);
     if (check_whowas_chan_buffer(channel->channel,0)) return(0);
     if (whowas_chan_count>=whowas_chan_max) {
         whowas_chan_count-=
@@ -308,6 +379,7 @@ ChannelList *channel;
     new->next=*slot;
     *slot=new;
     whowas_chan_count++;
+    Trace(SZ_TRACE_WHOWAS, "added %d", whowas_chan_count);
     return(1);
 }
 
@@ -321,10 +393,12 @@ int count;
     int total=0;
 
     /* if no ..count.. then remove ..time.. links */
+    Trace(SZ_TRACE_WHOWAS, "remove %d oldest channel entri(es)", count);
     if (!count) {
         t = time(NULL);
         while (*list && ((*list)->time+timet)<=t) {
             tmp=*list;
+            Trace(SZ_TRACE_WHOWAS, "remove %s", tmp->channellist->channel);
             new_free(&(tmp->channellist->channel));
             new_free(&(tmp->channellist->s_mode));
             new_free(&(tmp->channellist->key));
@@ -345,6 +419,7 @@ int count;
     else {
         while (*list && count) {
             tmp=*list;
+            Trace(SZ_TRACE_WHOWAS, "remove %s", tmp->channellist->channel);
             new_free(&(tmp->channellist->channel));
             new_free(&(tmp->channellist->s_mode));
             new_free(&(tmp->channellist->key));
@@ -363,6 +438,7 @@ int count;
             count--;
         }
     }
+    Trace(SZ_TRACE_WHOWAS, "removed %d entri(es)", total);
     return(total);
 }
 
@@ -372,6 +448,7 @@ void clean_whowas_chan_list() {
 
 /* Clean up memory used by whowas lists */
 void CleanUpWhowas() {
+    Trace(SZ_TRACE_WHOWAS, "clean up whowas");
     remove_oldest_whowas(&whowas_userlist_list,0,whowas_userlist_max);
     remove_oldest_whowas(&whowas_reg_list,0,whowas_reg_max);
     remove_oldest_chan_whowas(&whowas_chan_list,0,whowas_chan_max);

@@ -28,11 +28,16 @@ ScrollZ
     ! update target directory for manual page to modern /usr/share/man
       (reported by dan408)
     + parsing of numeric 378 for freenode (requested by SteelyDan)
-    ! configure now exists if it can't find a working libtermcap
+    ! configure now exits if it can't find a working libtermcap
       / libncurses
     + half-op counters are now displayed in NWHOIS
     ! various small fixes
     ! memory / fd leaks reported by valgrind (thanks SteelyDan)
+    - ICB support (patch by SteelyDan)
+    + IRC servers can now be grouped (patch by SteelyDan)
+    + TRACE facility, read HELP SET TRACE for more information
+    ! annoying bug where bound channels would sometimes get
+      relocated to a random window on reconnect
     ! do not lose one page of scrollback buffer after CLEAR
       (reported by -jff-)
     ! compilation on FreeBSD 10 (reported by FBSD maintainer)

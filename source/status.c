@@ -1353,8 +1353,7 @@ status_server(window)
 			{
 				name = get_server_name(window->server);
 				rest = (char *) index(name, '.');
-				if (rest != NULL && my_strnicmp(name, "irc", 3) != 0 &&
-				    my_strnicmp(name, "icb", 3) != 0)
+				if (rest != NULL && my_strnicmp(name, "irc", 3) != 0)
 				{
 					if (is_number(name))
 						snprintf(lbuf, sizeof lbuf, server_format, name);

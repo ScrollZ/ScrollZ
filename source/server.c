@@ -63,6 +63,7 @@ int	connect_to_unix _((int, char *));
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "trace.h"
 
 extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
@@ -76,8 +77,8 @@ int SSLconnect = 0;
 
 static	void	add_to_server_buffer _((int, char *));
 static	void	login_to_server _((int));
-static	int	connect_to_server_direct _((char *, int, char *));
-static	int	connect_to_server_process _((char *, int, char *));
+static	int	connect_to_server_direct _((char *, int, char *, char *));
+static	int	connect_to_server_process _((char *, int, char *, char *));
 static	void	irc2_login_to_server _((int));
 
 /*
@@ -176,8 +177,16 @@ close_server(server_index, message)
                     timeminutes = (timediff / 60) % 60;
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
+                    Trace(SZ_TRACE_CONNECT, "connection to server %s:%d closed",
+                          get_server_name(i), server_list[i].port);
+                    TraceServerInfo(2, 1);
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
+                }
+                else {
+                    Trace(SZ_TRACE_CONNECT, "server %s:%d closed",
+                          get_server_name(i), server_list[i].port);
+                    TraceServerInfo(2, 1);
                 }
 /****************************************************************************/
 		if (-1 != server_list[i].write)
@@ -446,7 +455,7 @@ a_hack:
 				{
 /**************************** Patched by Flier ******************************/
 					/*if (connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1)) {*/
-				        if (get_int_var(AUTO_RECONNECT_VAR) && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, -1)) {
+				        if (get_int_var(AUTO_RECONNECT_VAR) && connect_to_server(server_list[i].name, server_list[i].port, server_list[i].nickname, server_list[i].group, -1)) {
 /****************************************************************************/
 						say("Connection to server %s lost.", server_list[i].name);
 						clean_whois_queue();
@@ -541,17 +550,23 @@ parse_server_index(str)
  * either case, the server is made the current server.
  */
 void
-add_to_server_list(server, port, password, nick, overwrite)
+add_to_server_list(server, port, password, nick, group, overwrite)
 	char	*server;
 	int	port;
 	char	*password;
 	char	*nick;
+	char	*group;
 	int	overwrite;
 {
 	int	i;
 
+/**************************** PATCHED by Flier ******************************/
+        Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
+        TraceServerInfo(2, 0);
+/****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
+                Trace(SZ_TRACE_SERVER, "server not found");
 		from_server = number_of_servers++;
 		if (server_list)
 			server_list = (Server *) new_realloc((char *) server_list, number_of_servers * sizeof(Server));
@@ -605,6 +620,7 @@ add_to_server_list(server, port, password, nick, overwrite)
                 server_list[from_server].compl_channel = NULL;
 /****************************************************************************/
 		server_list[from_server].nickname = (char *) 0;
+		server_list[from_server].group = (char *) 0;
 		server_list[from_server].connected = 0;
 		server_list[from_server].eof = 0;
 		server_list[from_server].motd = 1;
@@ -616,6 +632,9 @@ add_to_server_list(server, port, password, nick, overwrite)
 		if (nick && *nick)
 			malloc_strcpy(&(server_list[from_server].nickname),
 				nick);
+		if (group && *group)
+			malloc_strcpy(&(server_list[from_server].group),
+				group);
 		server_list[from_server].port = port;
 		server_list[from_server].WQ_head = (WhoisQueue *) 0;
 		server_list[from_server].WQ_tail = (WhoisQueue *) 0;
@@ -646,6 +665,7 @@ add_to_server_list(server, port, password, nick, overwrite)
 	}
 	else
 	{
+                Trace(SZ_TRACE_SERVER, "server found at %d", from_server);
 		if (overwrite)
 		{
 			server_list[from_server].port = port;
@@ -658,10 +678,16 @@ add_to_server_list(server, port, password, nick, overwrite)
 			}
 			if (nick && *nick)
 				malloc_strcpy(&(server_list[from_server].nickname), nick);
+			if (group && *group)
+				malloc_strcpy(&(server_list[from_server].group), group);
 		}
 		if ((int) strlen(server) > (int) strlen(server_list[from_server].name))
 			malloc_strcpy(&(server_list[from_server].name), server);
 	}
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_SERVER, "server added at %d", from_server);
+    TraceServerInfo(2, 1);
+/****************************************************************************/
 }
 
 extern  void
@@ -706,6 +732,12 @@ remove_from_server_list(i)
 	clean_whois_queue();
 	from_server = old_server;
 
+/**************************** PATCHED by Flier ******************************/
+    Trace(SZ_TRACE_SERVER, "removing server %d) %s:%d",
+          i, get_server_name(i), server_list[i].port);
+    TraceServerInfo(2, 0);
+/****************************************************************************/
+
 	close_server(i, (u_char *) 0);
 
 	if (server_list[i].name)
@@ -714,6 +746,8 @@ remove_from_server_list(i)
 		new_free(&server_list[i].itsname);
 	if (server_list[i].password)
 		new_free(&server_list[i].password);
+	if (server_list[i].group)
+		new_free(&server_list[i].group);
 	if (server_list[i].away)
 		new_free(&server_list[i].away);
 	if (server_list[i].version_string)
@@ -798,6 +832,8 @@ remove_from_server_list(i)
             new_free(&server_list);
             server_list = NULL;
         }
+    Trace(SZ_TRACE_SERVER, "removed server");
+    TraceServerInfo(2, 0);
 /****************************************************************************/
 }
 
@@ -807,23 +843,19 @@ remove_from_server_list(i)
  * portion and password to the password portion.  This chews up the original
  * string, so * upon return, name will only point the the name.  If portnum
  * or password are missing or empty,  their respective returned value will
- * point to null.  if extra is non NULL, it is set to anything after the
- * final : after the nickname..
- *
- * Note:  this will set connect_next_as_irc/connect_next_as_icb if it sees
- * the IRC/ or ICB/ at the start of the "name".
+ * point to null.
  */
 void
-parse_server_info(name, port, password, nick, extra)
+parse_server_info(name, port, password, nick, group)
 	char	**name,
 		**port,
 		**password,
 		**nick,
-		**extra;
+		**group;
 {
 	char *ptr, *ename, *savename = (char *) 0;
 
-	*port = *password = *nick = *extra = NULL;
+	*port = *password = *nick = *group = NULL;
 	/* check for [i:p:v:6]:port style */
 	if (**name == '[')
 	{
@@ -859,16 +891,17 @@ parse_server_info(name, port, password, nick, extra)
 						else
 						{
 							*nick = ptr;
-							if (extra && (ptr = (char *) index(ptr, ':'))
-									!= NULL)
+							if ((ptr = (char *) index(ptr,
+									':')) != NULL)
 							{
 								*(ptr++) = '\0';
 								if (!strlen(ptr))
-									*extra = NULL;
+									*group = NULL;
 								else
-									*extra = ptr;
+									*group = ptr;
 							}
 						}
+							
 					}
 				}
 			}
@@ -889,25 +922,12 @@ parse_server_info(name, port, password, nick, extra)
  *
  * servername:port
  *
- * servername:port:password
+ * servername:port:password:nickname:group
  *
  * servername::password
  *
  * Note also that this routine mucks around with the server string passed to it,
  * so make sure this is ok .
- *
- * A new format for ICB and more support is:
- *
- *	type/<type-specifc-format>
- *
- * eg:
- *	IRC/server:port:pass:nick:#foo:#bar:&baz
- * means connect to server on port port with pass and nick, and then to join
- * channels #foo, #bar and &baz.  this is not implemented beyond the nick...
- *
- * or
- *	ICB/server:port:pass:nick:group:mode
- * which is all the things needed at connection startup.  this is done.
  */
 void
 build_server_list(servers)
@@ -915,10 +935,10 @@ build_server_list(servers)
 {
 	char	*host,
 		*rest,
-		*extra,
 		*password = (char *) 0,
 		*port = (char *) 0,
-		*nick = (char *) 0;
+		*nick = (char *) 0,
+		*group = (char *) 0;
 	int	port_num;
 
 	if (servers == (char *) 0)
@@ -929,7 +949,7 @@ build_server_list(servers)
 			*rest++ = '\0';
 		while ((host = next_arg(servers, &servers)) != NULL)
 		{
-			parse_server_info(&host, &port, &password, &nick, &extra);
+			parse_server_info(&host, &port, &password, &nick, &group);
 			if (port && *port)
 			{
 				port_num = atoi(port);
@@ -938,11 +958,7 @@ build_server_list(servers)
 			}
 			else
 				port_num = irc_port;
-			add_to_server_list(host, port_num, password, nick, 0);
-			if (extra)
-			{
-				/* nothing yet */
-			}
+			add_to_server_list(host, port_num, password, nick, group, 0);
 		}
 		servers = rest;
 	}
@@ -959,10 +975,11 @@ build_server_list(servers)
  * This version of connect_to_server() connects directly to a server
  */
 static	int
-connect_to_server_direct(server_name, port, nick)
+connect_to_server_direct(server_name, port, nick, group)
 	char	*server_name;
 	int	port;
 	char	*nick;
+	char	*group;
 {
 	int	new_des;
 #ifdef INET6
@@ -1029,7 +1046,7 @@ connect_to_server_direct(server_name, port, nick)
 #endif
 	}
 	update_all_status();
-	add_to_server_list(server_name, port, (char *) 0, nick, 1);
+	add_to_server_list(server_name, port, (char *) 0, nick, group, 1);
 	if (port)
 	{
 		server_list[from_server].read = new_des;
@@ -1072,10 +1089,11 @@ connect_to_server_direct(server_name, port, nick)
  * server
  */
 static	int
-connect_to_server_process(server_name, port, nick)
+connect_to_server_process(server_name, port, nick, group)
 	char	*server_name;
 	int	port;
 	char	*nick;
+	char	*group;
 {
 	int	write_des[2],
 		read_des[2],
@@ -1093,7 +1111,7 @@ connect_to_server_process(server_name, port, nick)
 	if (!name)
 		name = path;
 	if (*path == '\0')
-		return (connect_to_server_direct(server_name, port, nick));
+		return (connect_to_server_direct(server_name, port, nick, group));
 	using_server_process = 1;
 	oper_command = 0;
 	write_des[0] = -1;
@@ -1106,7 +1124,7 @@ connect_to_server_process(server_name, port, nick)
 			new_close(write_des[1]);
 		}
 		say("Couldn't start new process: %s", strerror(errno));
-		return (connect_to_server_direct(server_name, port, nick));
+		return (connect_to_server_direct(server_name, port, nick, group));
 	}
 	switch (pid = fork())
 	{
@@ -1138,7 +1156,7 @@ connect_to_server_process(server_name, port, nick)
 	if ((c == 0) || ((c = atoi(buffer)) != 0))
 	{
 		if (c == -5)
-			return (connect_to_server_direct(server_name, port, nick));
+			return (connect_to_server_direct(server_name, port, nick, group));
 		else
 		{
 			char *ptr;
@@ -1165,7 +1183,7 @@ connect_to_server_process(server_name, port, nick)
 		}
 	}
 	update_all_status();
-	add_to_server_list(server_name, port, (char *) 0, nick, 1);
+	add_to_server_list(server_name, port, (char *) 0, nick, group, 1);
 	server_list[from_server].read = read_des[0];
 	server_list[from_server].write = write_des[1];
 	server_list[from_server].pid = pid;
@@ -1185,10 +1203,11 @@ connect_to_server_process(server_name, port, nick)
  * successful (and not closed immediately by the server).
  */
 int
-connect_to_server(server_name, port, nick, c_server)
+connect_to_server(server_name, port, nick, group, c_server)
 	char	*server_name;
 	int	port;
 	char	*nick;
+	char	*group;
 	int	c_server;
 {
 	int	server_index;
@@ -1215,8 +1234,10 @@ connect_to_server(server_name, port, nick, c_server)
          * 3) /s new_server while 2) is still in progress
          * Now client is confused about servers. */
         for (i = 0; i < number_of_servers; i++) {
-            if ((server_list[i].flags) & CLEAR_PENDING)
+            if ((server_list[i].flags) & CLEAR_PENDING) {
+                Trace(SZ_TRACE_CONNECT, "clear channels on server %d", i);
                 clear_channel_list(i);
+            }
             if ((server_list[i].flags) & CLOSE_PENDING) {
 		server_list[i].close_serv = -1;
 		server_list[i].flags &= ~(CLOSE_PENDING | CLEAR_PENDING);
@@ -1246,6 +1267,8 @@ connect_to_server(server_name, port, nick, c_server)
 			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
+                Trace(SZ_TRACE_CONNECT, "connecting to %s:%d", server_name, port);
+                TraceServerInfo(2, 1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
                     struct nicks *tmp;
@@ -1290,9 +1313,9 @@ connect_to_server(server_name, port, nick, c_server)
                 }
 /****************************************************************************/
 		if (using_server_process)
-			server_index = connect_to_server_process(server_name, port, nick);
+			server_index = connect_to_server_process(server_name, port, nick, group);
 		else
-			server_index = connect_to_server_direct(server_name, port, nick);
+			server_index = connect_to_server_direct(server_name, port, nick, group);
 		if (server_index)
 		{
 			attempting_to_connect = 0;
@@ -1514,7 +1537,7 @@ get_connected(server, oldconn)
 		else if (server < 0)
 			server = number_of_servers - 1;
 		s = server;
-		if (connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, primary_server))
+		if (connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, server_list[server].group, primary_server))
 		{
 			while (server_list[server].read == -1)
 			{
@@ -1529,7 +1552,7 @@ get_connected(server, oldconn)
 				}
 				from_server = server;
 				already_connected = is_server_connected(server);
-				ret = connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, primary_server);
+				ret = connect_to_server(server_list[server].name, server_list[server].port, server_list[server].nickname, server_list[server].group, primary_server);
 			}
 			if (!ret)
 				from_server = server;
@@ -1556,8 +1579,9 @@ get_connected(server, oldconn)
 
 #ifdef SERVERS_FILE
 /*
- * read_server_file: reads hostname:portnum:password server information from
- * a file and adds this stuff to the server list.  See build_server_list()/
+ * read_server_file: reads hostname:portnum:password:nickname:group server
+ * information from a file and adds this stuff to the server list.  See
+ * build_server_list()
  */
 int
 read_server_file()
@@ -1592,6 +1616,7 @@ display_server_list()
         time_t  timediff;
         char    tmpbuf[mybufsize / 4];
 /****************************************************************************/
+        char    tmpbuf2[mybufsize / 8];
 
 	if (server_list)
 	{
@@ -1618,19 +1643,22 @@ display_server_list()
                             timedays = timediff / 86400;
                             timehours = (timediff / 3600) % 24;
                             timeminutes = (timediff / 60) % 60;
-                            snprintf(tmpbuf,sizeof(tmpbuf)," | connected %dd %02dh %02dm",
+                            snprintf(tmpbuf,sizeof(tmpbuf),"| connected %dd %02dh %02dm",
                                     timedays, timehours, timeminutes);
                         }
                         else {
                             timediff = 0;
                             *tmpbuf = '\0';
                         }
+                        if (server_list[i].group)
+                            snprintf(tmpbuf2, sizeof(tmpbuf2), "[%s] ", server_list[i].group);
+                        else *tmpbuf2 = '\0';
 /****************************************************************************/
 			if (!server_list[i].nickname)
 			{
 /**************************** Patched by Flier ******************************/
 				/*say("\t%d) %s %d%s", i,*/
-				say("\t%c%d) %s %d%s%s",
+				say("\t%c%d) %s %d %s%s",
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                         server_list[i].enable_ssl ? '!' : ' ',
 #else
@@ -1640,10 +1668,10 @@ display_server_list()
 /****************************************************************************/
 					server_list[i].name,
 					server_list[i].port,
+					tmpbuf2,
 /**************************** Patched by Flier ******************************/
 					/*server_list[i].read == -1 ? " (not connected)" : "");*/
-					server_list[i].read == -1 ? " (not connected)" : "",
-                                        server_list[i].read == -1 ? "" : tmpbuf);
+					server_list[i].read == -1 ? "(not connected)" : tmpbuf);
 /****************************************************************************/
 			}
 			else
@@ -1651,7 +1679,7 @@ display_server_list()
 				if (server_list[i].read == -1)
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (was %s)", i,*/
-					say("\t%c%d) %s %d (was %s)",
+					say("\t%c%d) %s %d %s(was %s)",
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                                 server_list[i].enable_ssl ? '!' : ' ',
 #else
@@ -1661,11 +1689,12 @@ display_server_list()
 /****************************************************************************/
 						server_list[i].name,
 						server_list[i].port,
+						tmpbuf2,
 						server_list[i].nickname);
 				else
 /**************************** Patched by Flier ******************************/
 					/*say("\t%d) %s %d (%s)", i,*/
-					say("\t%c%d) %s %d (%s)%s",
+					say("\t%c%d) %s %d %s(%s) %s",
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                                                 server_list[i].enable_ssl ? '!' : ' ',
 #else
@@ -1677,6 +1706,7 @@ display_server_list()
 						server_list[i].port,
 /**************************** Patched by Flier ******************************/
 						/*server_list[i].nickname);*/
+						tmpbuf2,
 						server_list[i].nickname, tmpbuf);
 /****************************************************************************/
 			}
@@ -1766,9 +1796,9 @@ servercmd(command, args, subargs)
 {
 	char	*server,
 		*port,
-		*extra,
 		*password = (char *) 0,
-		*nick = (char *) 0;
+		*nick = (char *) 0,
+		*group = (char *) 0;
 	int	port_num,
 		i,
 		new_server_flags;
@@ -1840,7 +1870,7 @@ servercmd(command, args, subargs)
 
 		if (index(server, ':') != NULL)
 		{
-			parse_server_info(&server, &port, &password, &nick, &extra);
+			parse_server_info(&server, &port, &password, &nick, &group);
 			if (!strlen(server))
 			{
 				say("Server name required");
@@ -1865,8 +1895,6 @@ servercmd(command, args, subargs)
 			}
 			else
 				port_num = -1;
-
-			extra = (char *) 0;
 		}
 
 		if (nick && *nick)
@@ -1884,10 +1912,11 @@ servercmd(command, args, subargs)
 					server++;
 				/* Reconstitute whole server info so
 				  window_get_connected can parse it -Sol */
-				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s",
+				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s:%s",
 					server, port_num,
 					password ? password : empty_string,
-					nick ? nick : empty_string);
+					nick ? nick : empty_string,
+					group ? group : empty_string);
 				window_get_connected(curr_scr_win, servinfo, -1, (char *) 0);
 			}
 			else
@@ -1944,7 +1973,7 @@ servercmd(command, args, subargs)
 		}
 		else
 			new_server_flags = WIN_TRANSFER;
-		if (connect_to_server(server, port_num, nick, primary_server) != -1)
+		if (connect_to_server(server, port_num, nick, group, primary_server) != -1)
 		{
 			if (primary_server > -1 && from_server != primary_server &&
 			    !server_list[from_server].away && server_list[primary_server].away)
@@ -2112,7 +2141,7 @@ char flag;
 /****************************************************************************/
 
 /*
- * get_server_password: get the passwor for this server.
+ * get_server_password: get the password for this server.
  */
 char *
 get_server_password(server_index)
@@ -2121,6 +2150,18 @@ get_server_password(server_index)
 	if (server_index == -1)
 		server_index = primary_server;
 	return (server_list[server_index].password);
+}
+
+/*
+ * get_server_group: get the group for this server.
+ */
+char *
+get_server_group(server_index)
+	int	server_index;
+{
+	if (server_index == -1)
+		server_index = primary_server;
+	return (server_list[server_index].group);
 }
 
 /*
@@ -2507,6 +2548,9 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  		len = strlen(lbuf);
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
+/**************************** Patched by Flier ******************************/
+                Trace(SZ_TRACE_IO, "--> %d: %s", server, lbuf);
+/****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
 

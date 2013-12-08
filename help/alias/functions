@@ -162,8 +162,8 @@ ScrollZ Functions
                         Examples: $sar(/doe/beavis/john doe)
                                   $sar(r/doe/beavis/foo)
   SCREENS()             Returns a list of the current screen.
-  SERVERTYPE()          Returns IRC2.X or ICB depending if you are connected
-                        to an IRC or ICB server.
+  SERVERTYPE()          Returns server version ("IRC2.X", where X is a number,
+                        or "IRC Unknown" if unrecognized)
   SRAND(SEED)           Seeds the random number generator and returns nothing.
                         The seed may be a long integer, although only the low
                         integer is used.

@@ -1,0 +1,29 @@
+!
+! Copyright (c) 2013 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET TRACE [ALL|NONE|[-]<level> [-]<level> ...]
+  The setting of this variable determines which events are
+  stored in the trace file.  If ALL is specified, all
+  events are saved in the trace file. If NONE is specified,
+  no events are saved in the trace file. 
+  The <level> specification can be one of the following: 
+    SERVER          Server information
+    CONNECT         Server connections
+    JOIN            Channel joins
+    PART            Channel parts
+    CHANNEL         Channel information
+    IO              What is sent to / received from the server
+    WHOWAS          Whowas cache
+    NICK            Nick changes
+    WINDOW          Window information
+  You can combine these on a command line to save the events
+  that you want.  Also, by putting a - before any level, you
+  remove that one from the list.  For example, if you
+  wish to save everything except JOINs and PARTs, you
+  could do:
+    SET TRACE ALL -JOIN -PART
+  which is the same as doing:
+    SET TRACE SERVER CONNECT CHANNEL IO WHOWAS WINDOW

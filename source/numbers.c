@@ -499,7 +499,8 @@ password_sendline(data, line)
 	new_server = atoi(data);
 	set_server_password(new_server, line);
 	connect_to_server(get_server_name(new_server),
-		get_server_port(new_server), get_server_nickname(new_server), -1);
+		get_server_port(new_server), get_server_nickname(new_server),
+		get_server_group(new_server), -1);
 }
 
 /*
