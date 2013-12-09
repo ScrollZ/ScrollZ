@@ -41,6 +41,9 @@ ScrollZ
     ! do not lose one page of scrollback buffer after CLEAR
       (reported by -jff-)
     ! compilation on FreeBSD 10 (reported by FBSD maintainer)
+    ! IPv6 address formatting (reported by SteelyDan)
+    ! SHOWUSER formatting of long user@host strings (reported
+      by SteelyDan)
 
 ------------------------------------------------------------------------------
 

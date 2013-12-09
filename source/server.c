@@ -69,6 +69,7 @@ extern void HandleClosedConn _((int, char *));
 extern int  CheckServer _((int));
 extern void ChannelLogReportAll _((char *, ChannelList *));
 extern char *OpenCreateFile _((char *, int));
+extern char *FormatServerName _((char *));
 
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 int SSLconnect = 0;
@@ -561,7 +562,7 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 	int	i;
 
 /**************************** PATCHED by Flier ******************************/
-        Trace(SZ_TRACE_SERVER, "adding server %s:%d", server, port);
+        Trace(SZ_TRACE_SERVER, "adding server %s:%d", FormatServerName(server), port);
         TraceServerInfo(2, 0);
 /****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
@@ -1267,7 +1268,8 @@ connect_to_server(server_name, port, nick, group, c_server)
 			load_ircquick();
 
 /**************************** PATCHED by Flier ******************************/
-                Trace(SZ_TRACE_CONNECT, "connecting to %s:%d", server_name, port);
+                Trace(SZ_TRACE_CONNECT, "connecting to %s:%d",
+                      FormatServerName(server_name), port);
                 TraceServerInfo(2, 1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
@@ -1338,7 +1340,7 @@ connect_to_server(server_name, port, nick, group, c_server)
 #endif
 /**************************** PATCHED by Flier ******************************/
                         say("Server %s:%d will be closed when we connect",
-                            server_list[c_server].name,
+                            get_server_name(c_server),
                             server_list[c_server].port);
 /****************************************************************************/
 			server_list[from_server].close_serv = c_server;
@@ -1913,7 +1915,7 @@ servercmd(command, args, subargs)
 				/* Reconstitute whole server info so
 				  window_get_connected can parse it -Sol */
 				snprintf(servinfo, sizeof servinfo, "%s:%d:%s:%s:%s",
-					server, port_num,
+					FormatServerName(server), port_num,
 					password ? password : empty_string,
 					nick ? nick : empty_string,
 					group ? group : empty_string);
@@ -2202,7 +2204,7 @@ get_server_name(server_index)
 {
 	if (server_index == -1)
 		server_index = primary_server;
-	return (server_list[server_index].name);
+	return(FormatServerName(server_list[server_index].name));
 }
 
 /* set_server_itsname: returns the server's idea of its name */

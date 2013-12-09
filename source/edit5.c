@@ -2752,152 +2752,158 @@ char *subargs;
 #else
     int  count;
 #endif
-    int  listfl=SLSTALL;
-    char *channels=NULL;
-    char *tmpstr=NULL;
-    char tmpbuf1[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
+    int  listfl = SLSTALL;
+    char *channels = NULL;
+    char *tmpstr = NULL;
+    char tmpbuf1[mybufsize / 4];
+    char tmpbuf2[mybufsize / 4];
     NickList *joiner;
     ChannelList *chan;
-    struct nicks *filtlist=NULL,*tmpfilt;
+    struct nicks *filtlist = NULL, *tmpfilt;
 
-    while ((tmpstr=new_next_arg(args,&args))) {
-        if (*tmpstr=='-') {
+    while ((tmpstr = new_next_arg(args, &args))) {
+        if (*tmpstr == '-') {
             tmpstr++;
             if (!(*tmpstr)) continue;
             upper(tmpstr);
-            if (*tmpstr=='O') {
-                listfl&=(~SLSTALL);
-                listfl|=SLSTOP;
+            if (*tmpstr == 'O') {
+                listfl &= (~SLSTALL);
+                listfl |= SLSTOP;
             }
-	    if (*tmpstr=='H') {
-		listfl&=(~SLSTALL);
-		listfl|=SLSTHLFO;
+	    if (*tmpstr == 'H') {
+		listfl &= (~SLSTALL);
+		listfl |= SLSTHLFO;
 	    }
-            if (*tmpstr=='F') {
-                listfl&=(~SLSTALL);
-                listfl|=SLSTFRND;
+            if (*tmpstr == 'F') {
+                listfl &= (~SLSTALL);
+                listfl |= SLSTFRND;
             }
-            if (*tmpstr=='S') {
-                listfl&=(~SLSTALL);
-                listfl|=SLSTSHIT;
+            if (*tmpstr == 'S') {
+                listfl &= (~SLSTALL);
+                listfl |= SLSTSHIT;
             }
-            if (*tmpstr=='V') {
-                listfl&=(~SLSTALL);
-                listfl|=SLSTVOIC;
+            if (*tmpstr == 'V') {
+                listfl &= (~SLSTALL);
+                listfl |= SLSTVOIC;
             }
-            if (*tmpstr=='N') {
+            if (*tmpstr == 'N') {
                 tmpstr++;
                 if (!(*tmpstr)) continue;
-                if (*tmpstr=='O') {
-                    listfl&=(~SLSTALL);
-                    listfl|=SLSTNOP;
+                if (*tmpstr == 'O') {
+                    listfl &= (~SLSTALL);
+                    listfl |= SLSTNOP;
                 }
-		if (*tmpstr=='H') {
-		    listfl&=(~SLSTALL);
-		    listfl|=SLSTNHLFO;
+		if (*tmpstr == 'H') {
+		    listfl &= (~SLSTALL);
+		    listfl |= SLSTNHLFO;
 		}
-                if (*tmpstr=='F') {
-                    listfl&=(~SLSTALL);
-                    listfl|=SLSTNFRND;
+                if (*tmpstr == 'F') {
+                    listfl &= (~SLSTALL);
+                    listfl |= SLSTNFRND;
                 }
-                if (*tmpstr=='S') {
-                    listfl&=(~SLSTALL);
-                    listfl|=SLSTNSHIT;
+                if (*tmpstr == 'S') {
+                    listfl &= (~SLSTALL);
+                    listfl |= SLSTNSHIT;
                 }
-                if (*tmpstr=='V') {
-                    listfl&=(~SLSTALL);
-                    listfl|=SLSTNVOIC;
+                if (*tmpstr == 'V') {
+                    listfl &= (~SLSTALL);
+                    listfl |= SLSTNVOIC;
                 }
             }
         }
-        else if (*tmpstr=='#') channels=tmpstr;
+        else if (*tmpstr == '#') channels=tmpstr;
         else {
-            if ((tmpfilt=(struct nicks *) new_malloc(sizeof(struct nicks)))) {
-                tmpfilt->nick=(char *) 0;
-                tmpfilt->next=filtlist;
-                malloc_strcpy(&(tmpfilt->nick),tmpstr);
-                filtlist=tmpfilt;
+            if ((tmpfilt = (struct nicks *) new_malloc(sizeof(struct nicks)))) {
+                tmpfilt->nick = (char *) 0;
+                tmpfilt->next = filtlist;
+                malloc_strcpy(&(tmpfilt->nick), tmpstr);
+                filtlist = tmpfilt;
             }
             else say("Malloc failed");
         }
     }
     if (!filtlist) {
-        if ((filtlist=(struct nicks *) new_malloc(sizeof(struct nicks)))) {
-            filtlist->nick=(char *) 0;
-            filtlist->next=(struct nicks *) 0;
-            malloc_strcpy(&(filtlist->nick),"*");
+        if ((filtlist = (struct nicks *) new_malloc(sizeof(struct nicks)))) {
+            filtlist->nick = (char *) 0;
+            filtlist->next = (struct nicks *) 0;
+            malloc_strcpy(&(filtlist->nick), "*");
         }
         else say("Malloc failed");
     }
-    if (!channels) channels=get_channel_by_refnum(0);
+    if (!channels) channels = get_channel_by_refnum(0);
     say("%-3s %-15s %-10s %-34s Friend","UL","Channel"," Nick","Userhost");
-    for (chan=server_list[curr_scr_win->server].chan_list;chan;chan=chan->next)
-        if (chan->channel && CheckChannel(chan->channel,channels)) {
-            for (joiner=chan->nicks;joiner;joiner=joiner->next) {
-                if (joiner->userhost) snprintf(tmpbuf1,sizeof(tmpbuf1),"%s!%s",joiner->nick,joiner->userhost);
-                else strmcpy(tmpbuf1,joiner->nick,sizeof(tmpbuf1));
+    for (chan = server_list[curr_scr_win->server].chan_list; chan; chan = chan->next) {
+        if (chan->channel && CheckChannel(chan->channel, channels)) {
+            for (joiner = chan->nicks; joiner; joiner = joiner->next) {
+                if (joiner->userhost) snprintf(tmpbuf1, sizeof(tmpbuf1), "%s!%s",
+                                               joiner->nick, joiner->userhost);
+                else strmcpy(tmpbuf1, joiner->nick, sizeof(tmpbuf1));
                 /* Check for u@h match */
-                for (tmpfilt=filtlist;tmpfilt;tmpfilt=tmpfilt->next)
-                    if (wild_match(tmpfilt->nick,tmpbuf1)) break;
+                for (tmpfilt = filtlist; tmpfilt; tmpfilt = tmpfilt->next)
+                    if (wild_match(tmpfilt->nick, tmpbuf1)) break;
                 if (!tmpfilt) continue;
                 /* Check if flags match */
-                if (((listfl&SLSTOP) && joiner->chanop) ||
-                    ((listfl&SLSTNOP) && !(joiner->chanop)) ||
-		    ((listfl&SLSTHLFO) && joiner->halfop) ||
-		    ((listfl&SLSTNHLFO) && !(joiner->halfop)) ||
-                    ((listfl&SLSTFRND) && joiner->frlist && joiner->frlist->privs) ||
-                    ((listfl&SLSTNFRND) && (!(joiner->frlist) || !(joiner->frlist->privs))) ||
-                    ((listfl&SLSTVOIC) && joiner->hasvoice) ||
-                    ((listfl&SLSTNVOIC) && !(joiner->hasvoice) && !(joiner->chanop)) ||
-                    ((listfl&SLSTSHIT) && joiner->shitlist && joiner->shitlist->shit) ||
-                    ((listfl&SLSTNSHIT) && (!(joiner->shitlist) || !(joiner->shitlist->shit))) ||
-                    ((listfl&SLSTALL))) {
+                if (((listfl & SLSTOP) && joiner->chanop) ||
+                    ((listfl & SLSTNOP) && !(joiner->chanop)) ||
+		    ((listfl & SLSTHLFO) && joiner->halfop) ||
+		    ((listfl & SLSTNHLFO) && !(joiner->halfop)) ||
+                    ((listfl & SLSTFRND) && joiner->frlist && joiner->frlist->privs) ||
+                    ((listfl & SLSTNFRND) && (!(joiner->frlist) || !(joiner->frlist->privs))) ||
+                    ((listfl & SLSTVOIC) && joiner->hasvoice) ||
+                    ((listfl & SLSTNVOIC) && !(joiner->hasvoice) && !(joiner->chanop)) ||
+                    ((listfl & SLSTSHIT) && joiner->shitlist && joiner->shitlist->shit) ||
+                    ((listfl & SLSTNSHIT) && (!(joiner->shitlist) || !(joiner->shitlist->shit))) ||
+                    ((listfl & SLSTALL))) {
 #ifdef WANTANSI
-                    ColorizeJoiner(joiner,tmpbuf1);
+                    ColorizeJoiner(joiner, tmpbuf1);
                     if (joiner->userhost) {
-                        ColorUserHost(joiner->userhost,CmdsColors[COLWHO].color2,tmpbuf2,0);
-                        len=strlen(joiner->userhost);
+                        ColorUserHost(joiner->userhost, CmdsColors[COLWHO].color2, tmpbuf2, 0);
+                        len = strlen(joiner->userhost);
                     }
                     else {
-                        len=0;
-                        *tmpbuf2='\0';
+                        len = 0;
+                        *tmpbuf2 = '\0';
                     }
-                    for (;len<35;len++) strmcat(tmpbuf2," ",sizeof(tmpbuf2));
-                    strmcat(tmpbuf2,CmdsColors[COLCSCAN].color2,sizeof(tmpbuf2));
-                    BuildPrivs(joiner->frlist,tmpbuf2);
-                    strmcat(tmpbuf2,Colors[COLOFF],sizeof(tmpbuf2));
+                    if (len < 35) {
+                        for (; len < 35; len++) strmcat(tmpbuf2, " ", sizeof(tmpbuf2));
+                    }
+                    /* ensure we have at least one space before flags */
+                    else strcat(tmpbuf2, " ");
+                    strmcat(tmpbuf2, CmdsColors[COLCSCAN].color2, sizeof(tmpbuf2));
+                    BuildPrivs(joiner->frlist, tmpbuf2);
+                    strmcat(tmpbuf2,Colors[COLOFF], sizeof(tmpbuf2));
                     say("%-3d %s%-14s%s %s %s",
-                        joiner->frlist?joiner->frlist->number:0,
-                        CmdsColors[COLWHO].color3,chan->channel,Colors[COLOFF],
-                        tmpbuf1,tmpbuf2);
+                        joiner->frlist ? joiner->frlist->number : 0,
+                        CmdsColors[COLWHO].color3, chan->channel, Colors[COLOFF],
+                        tmpbuf1, tmpbuf2);
 #else
-                    count=0;
-                    strmcpy(tmpbuf2,"  ",sizeof(tmpbuf2));
+                    count = 0;
+                    strmcpy(tmpbuf2, "  ", sizeof(tmpbuf2));
                     if (joiner->hasvoice) {
-                        tmpbuf2[1]='+';
+                        tmpbuf2[1] = '+';
                         count++;
                     }
                     if (joiner->chanop || joiner->halfop) {
                         if (count) {
-                            tmpbuf2[0]='+';
-                            count=0;
+                            tmpbuf2[0] = '+';
+                            count = 0;
                         }
-			tmpbuf2[1-count]=joiner->chanop?'@':'%';
+			tmpbuf2[1 - count] = joiner->chanop ? '@' : '%';
                     }
-                    snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%-9s",tmpbuf2,joiner->nick);
-                    *tmpbuf2='\0';
-                    BuildPrivs(joiner->frlist,tmpbuf2);
+                    snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%-9s", tmpbuf2, joiner->nick);
+                    *tmpbuf2 = '\0';
+                    BuildPrivs(joiner->frlist, tmpbuf2);
                     say("%-3d %-14s %s %-34s %s",
-                        joiner->frlist?joiner->frlist->number:0,chan->channel,
-                        tmpbuf1,joiner->userhost,tmpbuf2);
+                        joiner->frlist ? joiner->frlist->number : 0, chan->channel,
+                        tmpbuf1, joiner->userhost, tmpbuf2);
 #endif
                 }
             }
         }
-    for (;filtlist;) {
-        tmpfilt=filtlist;
-        filtlist=filtlist->next;
+    }
+    for (; filtlist ;) {
+        tmpfilt = filtlist;
+        filtlist = filtlist->next;
         new_free(&(tmpfilt->nick));
         new_free(&tmpfilt);
     }

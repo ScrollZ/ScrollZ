@@ -75,6 +75,7 @@
  PushLine            Push-line input functionality - push line on stack
  PopLine             Push-line input functionality - pop line from stack
  PushEmptyStack      Push-line input functionality - empty stack
+ FormatServerName    Format server name
 ******************************************************************************/
 
 /*
@@ -3662,3 +3663,22 @@ char *ptr;
 
     saved_lines = NULL;
 }
+
+/* Format server name - enclose IPv6 address in []s */
+char *FormatServerName(server)
+char *server;
+{
+#ifdef INET6
+    char srvname[mybufsize / 4];
+    struct in6_addr ipv6_addr;
+
+    if (inet_pton(AF_INET6, server, &ipv6_addr) == 1) {
+        sprintf(srvname, "[%s]", server);
+        return(srvname);
+    }
+    else return(server);
+#else
+    return(server);
+#endif
+}
+
