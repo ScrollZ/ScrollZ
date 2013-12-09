@@ -497,8 +497,23 @@ find_in_server_list(server, port, nick)
 {
 	int	i, maybe = -1;
 	size_t	len;
+#ifdef INET6
+        char    *savename = NULL;
+#endif
 
 	len = strlen(server);
+#ifdef INET6
+        if (server && (*server == '[')) {
+            char *ename;
+
+            if ((ename = index(server, ']'))) {
+                server++;
+                *ename = '\0';
+                savename = ename;
+                len = len - 2; /* we dropped [] */
+            }
+        }
+#endif
 	for (i = 0; i < number_of_servers; i++)
 	{
 		if (port && server_list[i].port &&
@@ -521,6 +536,9 @@ find_in_server_list(server, port, nick)
 		maybe = i;
 		break;
 	}
+#ifdef INET6
+        if (savename) *savename = ']';
+#endif
 	return (maybe);
 }
 
@@ -1215,6 +1233,7 @@ connect_to_server(server_name, port, nick, group, c_server)
 #ifdef INET6
 	struct	sockaddr_storage	sa;
 	int salen = sizeof( struct sockaddr_storage );
+        char    srvname[mybufsize / 4];
 #else
 	struct sockaddr_in	sa;
 	int salen = sizeof( struct sockaddr_in );
@@ -1226,6 +1245,18 @@ connect_to_server(server_name, port, nick, group, c_server)
 /****************************************************************************/
  	save_message_from();
 	message_from((char *) 0, LOG_CURRENT);
+#ifdef INET6
+        if (server_name && (*server_name == '[')) {
+            char *ename;
+
+            if ((ename = index(server_name, ']'))) {
+                server_name++;
+                *ename = '\0';
+                strmcpy(srvname, server_name, sizeof(srvname));
+                server_name = srvname; /* server name without [] */
+            }
+        }
+#endif
 	server_index = find_in_server_list(server_name, port, nick);
 /**************************** PATCHED by Flier ******************************/
         /* Fix for ircII bug where client believes it is connected to

@@ -3669,8 +3669,8 @@ char *FormatServerName(server)
 char *server;
 {
 #ifdef INET6
-    char srvname[mybufsize / 4];
     struct in6_addr ipv6_addr;
+    static char srvname[mybufsize / 4];
 
     if (inet_pton(AF_INET6, server, &ipv6_addr) == 1) {
         sprintf(srvname, "[%s]", server);

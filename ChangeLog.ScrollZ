@@ -44,6 +44,7 @@ ScrollZ
     ! IPv6 address formatting (reported by SteelyDan)
     ! SHOWUSER formatting of long user@host strings (reported
       by SteelyDan)
+    ! reconnect when server is specified as IPv6 address
 
 ------------------------------------------------------------------------------
 
