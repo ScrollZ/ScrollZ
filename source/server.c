@@ -1873,11 +1873,16 @@ servercmd(command, args, subargs)
 							return;
 						}
 					}
-					if (server_list[i].connected)
+					if (server_list[i].connected ||
+                                            (server_list[i].flags & CLOSE_PENDING))
 					{
 						say("Can not delete server that is already open");
 						return;
 					}
+                                        if (server_list[i].read >= 0) {
+                                            say("Can not delete server while connection is in progress");
+                                            return;
+                                        }
 					remove_from_server_list(i);
 					return;
 				}
