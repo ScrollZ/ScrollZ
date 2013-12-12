@@ -102,7 +102,7 @@ ScrollZ Functions
                         depending on what ignore action will be applied to
                         this NICK and TYPE of ignorance.  TYPE must be one
                         of MSGS, PUBLIC, WALLS, WALLOPS, INVITES, NOTICES,
-                        NOTES, CTCP or CRAP.
+                        NOTES, CTCP, CRAP, PART, JOIN, NICK or QUIT.
   INDEX(CHARLIST STRING) Returns the index to the first character in STRING
                         which appears in CHARLIST. If the first char in
                         CHARLIST is a '^' returns the index to first char in

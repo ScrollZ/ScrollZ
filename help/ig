@@ -12,7 +12,7 @@ Usage: IG [-T time] nick [type]
   Ignore will take place for IGTIME seconds unless -T is given.
   In that case, ignore will last time seconds.
   Other types are : MSGS,NOTICES,PUBLIC,INVITES,WALLOPS,
-                    NOTES,CTCP,CRAP,ALL,NONE.
+                    NOTES,CTCP,CRAP,ALL,NONE,NICK,QUIT.
 
 See also:
   NOIG

@@ -51,7 +51,7 @@ extern int matchmcommand _((char *, int));
 
 /**************************** Patched by Flier ******************************/
 /*#define NUMBER_OF_IGNORE_LEVELS 9*/
-#define NUMBER_OF_IGNORE_LEVELS 11
+#define NUMBER_OF_IGNORE_LEVELS 13
 /****************************************************************************/
 
 #define IGNORE_REMOVE 1
@@ -63,7 +63,7 @@ char	highlight_char = '\0';
 static	int	ignore_usernames_sums[NUMBER_OF_IGNORE_LEVELS] =
 /**************************** Patched by Flier ******************************/
 	/*{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };*/
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
@@ -280,6 +280,10 @@ ignore_nickname(nick, type, flag, timedignore)
 					strmcat(buffer, " PART", sizeof(buffer));
 				if (type & IGNORE_JOIN)
 					strmcat(buffer, " JOIN", sizeof(buffer));
+				if (type & IGNORE_NICK)
+					strmcat(buffer, " NICK", sizeof(buffer));
+				if (type & IGNORE_QUIT)
+					strmcat(buffer, " QUIT", sizeof(buffer));
                                 if (timedignore) say("%s from %s for %s seconds", buffer, new->nick, timedignore);
                                 else say("%s from %s", buffer, new->nick);
 /****************************************************************************/
@@ -556,6 +560,28 @@ ignore_list(nick)
                                 else if (tmp->dont & IGNORE_JOIN)
                                     strmcat(buffer, " DONT-JOIN",
                                             BIG_BUFFER_SIZE);
+                                if (tmp->type & IGNORE_NICK)
+                                    strmcat(buffer, " NICK", BIG_BUFFER_SIZE);
+                                else if (tmp->high & IGNORE_NICK)
+                                {
+                                    snprintf(s, sizeof s, " %cNICK%c",
+                                            highlight_char, highlight_char);
+                                    strmcat(buffer, s, BIG_BUFFER_SIZE);
+                                }
+                                else if (tmp->dont & IGNORE_NICK)
+                                    strmcat(buffer, " DONT-NICK",
+                                            BIG_BUFFER_SIZE);
+                                if (tmp->type & IGNORE_QUIT)
+                                    strmcat(buffer, " QUIT", BIG_BUFFER_SIZE);
+                                else if (tmp->high & IGNORE_QUIT)
+                                {
+                                    snprintf(s, sizeof s, " %cQUIT%c",
+                                            highlight_char, highlight_char);
+                                    strmcat(buffer, s, BIG_BUFFER_SIZE);
+                                }
+                                else if (tmp->dont & IGNORE_QUIT)
+                                    strmcat(buffer, " DONT-QUIT",
+                                            BIG_BUFFER_SIZE);
 /****************************************************************************/
 			}
 /**************************** PATCHED by Flier ******************************/
@@ -644,7 +670,7 @@ ignore(command, args, subargs)
 				/*say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
 NOTICES NOTES CTCPS CRAP NONE");*/
                                 say("\tALL MSGS PUBLIC WALLS WALLOPS INVITES \
-NOTICES NOTES CTCPS CRAP PART JOIN NONE");
+NOTICES NOTES CTCPS CRAP PART JOIN NICK QUIT NONE");
 /****************************************************************************/
 			}
 		}
@@ -781,6 +807,10 @@ get_ignore_type(type)
                 rv = IGNORE_PART;
         else if (my_strnicmp(type, "JOIN", len) == 0)
                 rv = IGNORE_JOIN;
+        else if (my_strnicmp(type, "NICK", len) == 0)
+                rv = IGNORE_NICK;
+        else if (my_strnicmp(type, "QUIT", len) == 0)
+                rv = IGNORE_QUIT;
 /****************************************************************************/
 	else if (my_strnicmp(type, "NONE", len) == 0)
 		rv = -1;
@@ -828,6 +858,8 @@ FILE *fp;
             if (tmp->type & IGNORE_CRAP) strmcat(tmpbuf, ",CRAP", mybufsize / 2);
             if (tmp->type & IGNORE_PART) strmcat(tmpbuf, ",PART", mybufsize / 2);
             if (tmp->type & IGNORE_JOIN) strmcat(tmpbuf, ",JOIN", mybufsize / 2);
+            if (tmp->type & IGNORE_NICK) strmcat(tmpbuf, ",NICK", mybufsize / 2);
+            if (tmp->type & IGNORE_QUIT) strmcat(tmpbuf, ",QUIT", mybufsize / 2);
         }
         tmpstr = tmpbuf;
         if (*tmpstr == ',') tmpstr++;

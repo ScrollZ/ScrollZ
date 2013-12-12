@@ -46,6 +46,8 @@ ScrollZ
       by SteelyDan)
     ! reconnect when server is specified as IPv6 address
     ! active servers can no longer be deleted (reported by SteelyDan)
+    + new ignore types NICK for nick changes and QUIT for sign off
+      messages (I forgot nickname of the person that requested this)
 
 ------------------------------------------------------------------------------
 

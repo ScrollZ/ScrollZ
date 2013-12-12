@@ -993,7 +993,8 @@ p_quit(from, ArgList)
 
 	if (!from)
 		return;
-	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
+	/*flag = double_ignore(from, FromUserHost, IGNORE_CRAP);*/
+	flag = double_ignore(from, FromUserHost, IGNORE_QUIT);
  	save_message_from();
 	if (flag != IGNORED)
 	{
@@ -1511,22 +1512,23 @@ p_nick(from, ArgList)
 
 	if (!from)
 		return;
-	flag = double_ignore(from, FromUserHost, IGNORE_CRAP);
+	/*flag = double_ignore(from, FromUserHost, IGNORE_CRAP);*/
+	flag = double_ignore(from, FromUserHost, IGNORE_NICK);
 	line = ArgList[0];
 /**************************** Patched by Flier ******************************/
 	/*if (my_stricmp(from, get_server_nickname(parsing_server_index)) == 0) {*/
-    Trace(SZ_TRACE_NICK, "nick change %s -> %s", from, line);
-    Trace(SZ_TRACE_NICK, "SentNick %d   OldNick %s  my nick %s", SentNick,
-          OldNick ? OldNick : empty_string,
-          get_server_nickname(parsing_server_index));
+        Trace(SZ_TRACE_NICK, "nick change %s -> %s", from, line);
+        Trace(SZ_TRACE_NICK, "SentNick %d   OldNick %s  my nick %s", SentNick,
+              OldNick ? OldNick : empty_string,
+              get_server_nickname(parsing_server_index));
 	if ((SentNick && !my_stricmp(from, OldNick)) ||
             !my_stricmp(from, get_server_nickname(parsing_server_index))) {
 /****************************************************************************/
 		if (parsing_server_index == primary_server)
  			malloc_strcpy(&nickname, line);
 /**************************** Patched by Flier ******************************/
-        Trace(SZ_TRACE_NICK, "nick set server nickname for server %d to %s",
-              parsing_server_index, line);
+                Trace(SZ_TRACE_NICK, "nick set server nickname for server %d to %s",
+                      parsing_server_index, line);
 /****************************************************************************/
 		set_server_nickname(parsing_server_index, line);
 		its_me = 1;

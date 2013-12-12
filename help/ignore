@@ -23,6 +23,8 @@ Usage: IGNORE [<nick>] [-|+|^][<message type>]
     CTCP            All CTCPs received
     PART            All channel PARTs
     JOIN            All channel JOINs
+    NICK            All NICK changes
+    QUIT            All QUIT (sign off) messages
     CRAP            Anything else
     ALL             All of the above message types
     NONE            No message types
