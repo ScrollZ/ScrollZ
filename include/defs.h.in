@@ -427,4 +427,7 @@
 /* Define this if you want client to remember /OPER password and
    send it on reconnect */
 #undef BLAXTHOS
+
+/* Define this if you want to enable TRACE facility */
+#undef SZTRACE
 /****************************************************************************/

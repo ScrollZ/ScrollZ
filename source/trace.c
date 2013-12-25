@@ -10,6 +10,7 @@
 #include "server.h"
 #include "trace.h"
 
+#ifdef SZTRACE
 extern char *OpenCreateFile(char *, int);
 
 static int TraceMask = 0;
@@ -46,11 +47,13 @@ long mask;
     }
     return(buf);
 }
+#endif
 
 /* Set trace mask */
 void SetTrace(level)
 char *level;
 {
+#ifdef SZTRACE
     int i, neg, len;
     long mask = 0;
     char *s;
@@ -103,8 +106,12 @@ char *level;
     }
     TraceMask = mask;
     set_string_var(TRACE_VAR, BitsToTraceLevel(TraceMask));
+#else
+    say("Trace facility was not enabled at compile time");
+#endif
 }
 
+#ifdef SZTRACE
 char *FindArea(area)
 long area;
 {
@@ -117,6 +124,7 @@ long area;
     }
     return("UNKNOWN");
 }
+#endif
 
 #ifdef HAVE_STDARG_H
 void Trace(long area, char *format, ...)
@@ -136,6 +144,7 @@ char *arg9,
 char *arg10;
 #endif
 {
+#ifdef SZTRACE
 #ifdef HAVE_STDARG_H
     va_list args;
 #else
@@ -178,12 +187,14 @@ char *arg10;
 
     fprintf(fp, "\n");
     fclose(fp);
+#endif
 }
 
 void TraceServerInfo(indent, fullinfo)
 int indent;
 int fullinfo;
 {
+#ifdef SZTRACE
     int i;
     char tmpbuf[mybufsize/8];
 
@@ -215,12 +226,14 @@ int fullinfo;
           TraceChannelInfo(indent + 4, server_list[i].ChanPendingList);
         }
     }
+#endif
 }
 
 void TraceChannelInfo(indent, channels)
 int indent;
 ChannelList *channels;
 {
+#ifdef SZTRACE
     int i;
     char tmpbuf[mybufsize/8];
     ChannelList *chan;
@@ -246,12 +259,14 @@ ChannelList *channels;
         Trace(SZ_TRACE_SERVER, "%s  nicklist:", tmpbuf);
         TraceNickListInfo(indent + 4, chan->nicks);
     }
+#endif
 }
 
 void TraceNickListInfo(indent, nicks)
 int indent;
 NickList *nicks;
 {
+#ifdef SZTRACE
     int i;
     char tmpbuf[mybufsize/8];
     NickList *nick;
@@ -277,12 +292,14 @@ NickList *nicks;
               nick->shitlist ? nick->shitlist->userhost : empty_string,
               nick->shitlist ? nick->shitlist->channels : empty_string);
     }
+#endif
 }
 
 void TraceWindowInfo(indent, window)
 int indent;
 Window *window;
 {
+#ifdef SZTRACE
     int i, flag = 1;
     Window *tmp;
     char tmpbuf[mybufsize/2];
@@ -328,4 +345,5 @@ Window *window;
 
         if (tmp == window) tmp = NULL;
     } while (tmp);
+#endif
 }

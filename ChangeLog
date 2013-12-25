@@ -36,6 +36,8 @@ ScrollZ
     - ICB support (patch by SteelyDan)
     + IRC servers can now be grouped (patch by SteelyDan)
     + TRACE facility, read HELP SET TRACE for more information
+      (this is optional and has to be enabled in defs.h and is
+       meant to help me track down bugs faster)
     ! annoying bug where bound channels would sometimes get
       relocated to a random window on reconnect
     ! do not lose one page of scrollback buffer after CLEAR
