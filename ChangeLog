@@ -8,7 +8,7 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ
+ScrollZ v2.2.3, 29.12.2013
 
     ! crash when displaying very large aliases (reported by -jff-)
     ! +password in ENCRMSG is not treated as a FiSH key if FiSH is

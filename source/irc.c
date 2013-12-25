@@ -34,9 +34,9 @@
  * $Id: irc.c,v 1.138 2009-12-21 15:08:26 f Exp $
  */
 
-#define IRCII_VERSION	"20120415"	/* YYYYMMDD */
+#define IRCII_VERSION	"20131229"	/* YYYYMMDD */
 /**************************** PATCHED by Flier ******************************/
-#define SCROLLZ_VERSION "2.2.2"
+#define SCROLLZ_VERSION "2.2.3"
 /****************************************************************************/
 
 #include "irc.h"
@@ -265,7 +265,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (15.4.2012)+Cdcc v" CDCC_VERSION;
+char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (29.12.2013)+Cdcc v" CDCC_VERSION;
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
@@ -612,6 +612,14 @@ char VersionInfo[] = {
     'i',
     'S',
     'H',
+#endif
+#ifdef SZTRACE
+    ' ',
+    'T',
+    'R',
+    'A',
+    'C',
+    'E',
 #endif
     '\0'};
 /*****************************/
