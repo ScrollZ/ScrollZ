@@ -8,6 +8,13 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ
+
+    ! UTF-8 support should now work on OpenBSD out of the box
+      (patch by Tomasz Konojacki)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.2.3, 29.12.2013
 
     ! crash when displaying very large aliases (reported by -jff-)

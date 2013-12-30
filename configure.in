@@ -246,6 +246,20 @@ case "`uname -s`" in
     AC_MSG_RESULT(no)
 esac
 
+dnl check for OpenBSD, so we can find iconv.h in /usr/local/include
+AC_MSG_CHECKING(for OpenBSD)
+case "`uname -s`" in
+  OpenBSD*)
+    AC_MSG_RESULT(yes)
+    CFLAGS="$CFLAGS -I/usr/local/include"
+    CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+    LIBS="$LIBS -L/usr/local/lib"
+    openbsd=1
+    ;;
+  *)
+    AC_MSG_RESULT(no)
+esac
+
 dnl check for IRIX, so we can find iconv.h in /usr/nekoware/include
 AC_MSG_CHECKING(for IRIX)
 case "`uname -s`" in
@@ -269,6 +283,9 @@ if test "x$enable_utf8" = "xyes" ; then
          LIBS="$LIBS -liconv"
          ;;
      esac
+  fi
+  if test -n "$openbsd"; then
+     LIBS="$LIBS -liconv"
   fi
 fi
 
@@ -309,6 +326,10 @@ AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF),)
 
 if test "x$enable_utf8" = "xyes" ; then
 AC_CHECK_FUNC(iconv_open, AC_DEFINE([HAVE_ICONV_OPEN]),)
+fi
+
+if test -n "$openbsd" ; then
+AC_CHECK_FUNC(libiconv_open, AC_DEFINE([HAVE_ICONV_OPEN]),)
 fi
 
 AC_HEADER_STDC
