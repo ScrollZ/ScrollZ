@@ -2791,10 +2791,10 @@ display_lastlog_lines(start, end, window)
 
  	/* WTF is this? -krys */
 /**************************** PATCHED by Flier ******************************/
-	/*for (i = 0, Disp = window->top_of_display; i < window->display_size;
-			Disp = Disp->next, i++)*/
-        for (i = 0, Disp = window->top_of_display; i < window->display_size &&
-             has_next; Disp = Disp->next, i++)
+	for (i = 0, Disp = window->top_of_display; i < window->display_size;
+			Disp = Disp->next, i++)
+        /*for (i = 0, Disp = window->top_of_display; i < window->display_size &&
+             has_next; Disp = Disp->next, i++)*/
 /****************************************************************************/
 		if (Disp->linetype)
 			(void)next_line_back(NULL);
