@@ -51,7 +51,8 @@ prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
 sharedir = @prefix@/share
-mandir = @prefix@/share/man/man1
+datarootdir = @datarootdir@
+mandir = @mandir@
 
 DESTDIR =
 

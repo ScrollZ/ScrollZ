@@ -1,3 +1,8 @@
+
+AC_PREREQ(2.59)
+AC_INIT(source/irc.c)
+AC_CONFIG_HEADER(include/defs.h)
+
 dnl configure.in for ScrollZ
 dnl
 dnl Copyright (c) 1993-2002 Matthew R. Green.
@@ -32,10 +37,6 @@ dnl thanks to the screen 3.3 configure.in for giving me examples to
 dnl work from and steal ;)
 dnl
 dnl @(#)$Id: configure.in,v 1.56 2009-12-21 14:56:02 f Exp $
-
-AC_REVISION($Revision: 1.56 $)dnl
-AC_INIT(${srcdir}/source/irc.c)
-AC_CONFIG_HEADER(include/defs.h)
 
 # So many systems seem to need this that it is better do it here automatically.
 if test "x$prefix" != xNONE; then
@@ -79,6 +80,8 @@ srcdir=`(cd $srcdir; pwd)`
 AC_SUBST(srcdir)
 objdir=`pwd`
 AC_SUBST(objdir)
+
+ifdef([AC_PROG_EGREP],[AC_PROG_EGREP],[])
 
 dnl
 dnl check for NeXT.. and -bsd switch
@@ -217,7 +220,14 @@ AC_EGREP_CPP(yes,
 [#ifdef _SEQUENT_
   yes
 #endif
-], LIBS="$LIBS -lseq" seqptx=1 AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+], LIBS="$LIBS -lseq" seqptx=1)
+
+if test -n "$seqptx"; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
+
 
 AC_MSG_CHECKING(whether to enable UTF-8 (iconv) support)
 AC_ARG_ENABLE(utf8,
@@ -546,13 +556,13 @@ echo using system v signals, you lose.
 if test x$bsdwait = x1
 then
   AC_MSG_CHECKING(for wait3 declaration)
-  AC_EGREP_CPP([wait3( |	|\()],[#include <sys/types.h> dnl )
+  AC_EGREP_CPP([wait3( |	|\()],[#include <sys/types.h>)
 #include <signal.h>
 #include <sys/wait.h>
 ], AC_DEFINE(WAIT3_DECLARED) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 else
   AC_MSG_CHECKING(for waitpid declaration)
-  AC_EGREP_CPP([waitpid( |	|\()],[#include <sys/types.h> dnl )
+  AC_EGREP_CPP([waitpid( |	|\()],[#include <sys/types.h>)
 #include <signal.h>
 #include <sys/wait.h>
 ], AC_DEFINE(WAITPID_DECLARED) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
@@ -1070,7 +1080,7 @@ if test "x$ipv6" = "xyes"; then
                 case $i in
                 inria)
                         dnl http://www.kame.net/
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include <netinet/in.h>
 #ifdef IPV6_INRIA_VERSION
 yes
@@ -1080,7 +1090,7 @@ yes
                         ;;
                 kame)
                         dnl http://www.kame.net/
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include <netinet/in.h>
 #ifdef __KAME__
 yes
@@ -1093,7 +1103,7 @@ yes
                         ;;
                 linux-glibc)
                         dnl http://www.v6.linux.or.jp/
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include <features.h>
 #if defined(__GLIBC__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 1
 yes
@@ -1113,7 +1123,7 @@ yes
                         fi
                         ;;
                 toshiba)
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include <sys/param.h>
 #ifdef _TOSHIBA_INET6
 yes
@@ -1124,7 +1134,7 @@ yes
 				AC_DEFINE(INET6)])
                         ;;
                 v6d)
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include </usr/local/v6/include/sys/v6config.h>
 #ifdef __V6D__
 yes
@@ -1135,7 +1145,7 @@ yes
                                 CFLAGS="-I/usr/local/v6/include $CFLAGS"])
                         ;;
                 zeta)
-                        AC_EGREP_CPP(yes, [dnl
+                        AC_EGREP_CPP(yes, [
 #include <sys/param.h>
 #ifdef _ZETA_MINAMI_INET6
 yes
