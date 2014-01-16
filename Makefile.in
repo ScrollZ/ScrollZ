@@ -181,7 +181,7 @@ installirc: scrollz installdirs
 	@cp doc/ScrollZ.doc $(DESTDIR)/$(IRCDOC)
 
 installman: installdirs scrollz.1
-	$(INSTALL) scrollz.1 $(DESTDIR)/$(mandir)
+	$(INSTALL_DATA) scrollz.1 $(DESTDIR)/$(mandir)
 
 installserv: installio
 installio: ircio installdirs

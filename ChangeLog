@@ -13,6 +13,8 @@ ScrollZ
     ! UTF-8 support should now work on OpenBSD out of the box
       (patch by Tomasz Konojacki)
     ! configure --mandir (reported by NetBSD maintainer)
+    ! file mode bits for installed manual page (reported by
+      NetBSD maintainer)
 
 ------------------------------------------------------------------------------
 
