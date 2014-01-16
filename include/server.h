@@ -120,8 +120,8 @@ typedef	struct
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         int        enable_ssl;
 #if defined(HAVE_SSL)
-        gnutls_session session;
-        gnutls_certificate_credentials xcred;
+        gnutls_session_t session;
+        gnutls_certificate_credentials_t xcred;
 #elif defined(HAVE_OPENSSL)
         SSL        *ssl_fd;
         SSL_CTX    *ctx;

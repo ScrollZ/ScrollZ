@@ -15,6 +15,7 @@ ScrollZ
     ! configure --mandir (reported by NetBSD maintainer)
     ! file mode bits for installed manual page (reported by
       NetBSD maintainer)
+    ! usage of deprecate GnuTLS types (reported by NetBSD maintainer)
 
 ------------------------------------------------------------------------------
 

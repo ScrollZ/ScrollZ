@@ -49,7 +49,7 @@
         int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
 #if defined(HAVE_SSL)
-        int     SSL_dgets _((char *, int, int, char *, gnutls_session *));
+        int     SSL_dgets _((char *, int, int, char *, gnutls_session_t *));
 #elif defined(HAVE_OPENSSL)
         int     SSL_dgets _((char *, int, int, char *, SSL *));
 #endif
