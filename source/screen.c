@@ -613,7 +613,7 @@ display_text(ustr, length)
 				else
 				{
 					retval = iconv(converter,
-					               &str, &length,
+					               (iconv_const char **) &str, &length,
 					               &outptr, &outsize);
 				}
 			

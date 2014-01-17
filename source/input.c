@@ -857,8 +857,8 @@ re_encode:
         else
 /****************************************************************************/
 	retval = iconv(mbdata.conv_in,
-		       &iptr, &isize,
-		       (char **)&optr, &osize);
+		       (iconv_const char **) &iptr, &isize,
+		       &optr, &osize);
 	
 	if (retval == (size_t)-1)
 	{
@@ -999,7 +999,7 @@ get_input()
 /**************************** PATCHED by Flier ******************************/
 	if (irc_encoding) conv = iconv_open(irc_encoding, "UTF-8");
         if (conv == (iconv_t) (-1)) {
-            strmcpy(dest, source, sizeof(converted_buffer));
+            strmcpy(dest, (char *) source, sizeof(converted_buffer));
             return(converted_buffer);
         }
 /****************************************************************************/
@@ -1010,7 +1010,7 @@ get_input()
 		size_t retval;
 
 		retval = iconv(conv,
-		                &source, &left,
+		               (iconv_const char **) &source, &left,
 		                &dest, &space);
 		if (retval == (size_t)-1)
 		{
