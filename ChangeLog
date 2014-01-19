@@ -16,8 +16,8 @@ ScrollZ
     ! file mode bits for installed manual page (reported by
       NetBSD maintainer)
     ! usage of deprecate GnuTLS types (reported by NetBSD maintainer)
-    ! compiler warnings related to iconv usage on platforms that
-      require const parameters (reported by NetBSD maintainer)
+    ! iconv() compiler warnings on platforms that require const
+      parameter (reported by NetBSD maintainer)
 
 ------------------------------------------------------------------------------
 
