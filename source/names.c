@@ -290,6 +290,7 @@ add_channel(channel, server, connected, copy, key, nowho)
                 new->modelock = (char *) 0;
                 new->topiclock = (char *) 0;
                 new->chanlogfpath = (char *) 0;
+                new->window = NULL;
                 resetchan = 1;
 /****************************************************************************/
 	}
@@ -355,8 +356,10 @@ add_channel(channel, server, connected, copy, key, nowho)
                     new->topicwho = NULL;
                     for (i = 0; i < HASHTABLESIZE; i++) new->nickshash[i] = (struct hashstr *) 0;
                 }
-                if ((new->window = is_bound(channel, server)) == (Window *) 0)
-                    new->window = curr_scr_win;
+                if (new->window == NULL) {
+                    if ((new->window = is_bound(channel, server)) == (Window *) 0)
+                        new->window = curr_scr_win;
+                }
                 Trace(SZ_TRACE_WINDOW, "channel %s bound to window %d (%s) (%p)",
                       channel,
                       new->window ? new->window->refnum : -1,
