@@ -20,6 +20,7 @@ ScrollZ
       parameter (reported by NetBSD maintainer)
     ! silly bug where channels that were not bound are displayed
       in current window
+    ! some numerics were not timestamped reported by StTimothy)
 
 ------------------------------------------------------------------------------
 

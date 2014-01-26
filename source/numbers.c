@@ -1702,7 +1702,7 @@ numbered_command(from, comm, ArgList)
 		case 367:
                         PasteArgs(ArgList, 0);
                         if (do_hook(current_numeric, "%s %s", from, *ArgList))
-                            put_it("%s", ArgList[0]);
+                            put_it("%s%s", numeric_banner(), ArgList[0]);
 			break;
 /****************************************************************************/
 
