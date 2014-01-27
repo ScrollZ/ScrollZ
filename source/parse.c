@@ -1004,6 +1004,8 @@ p_quit(from, ArgList)
 		{
 			message_from(chan, LOG_CRAP);
 /**************************** PATCHED by Flier ******************************/
+                        if ((flag = double_ignore(from, chan, IGNORE_QUIT)) == IGNORED)
+                            goto done;
 			/*if (do_hook(CHANNEL_SIGNOFF_LIST, "%s %s %s", chan, from, Reason))
 				one_prints = 1;*/
                         HandleSplit(Reason,from,chan,&netsplit);
@@ -1114,6 +1116,7 @@ p_quit(from, ArgList)
 /***************************************************************************/
 		}
 	}
+done:
 	message_from((char *) 0, LOG_CURRENT);
 	remove_from_channel((char *) 0, from, parsing_server_index);
 	notify_mark(from, 0, 0);
