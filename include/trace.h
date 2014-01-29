@@ -16,6 +16,7 @@
 #define SZ_TRACE_WHOWAS    1<<6
 #define SZ_TRACE_NICK      1<<7
 #define SZ_TRACE_WINDOW    1<<8
+#define SZ_TRACE_LASTLOG   1<<9
 
 #define SZ_TRACE_ALL       0xffffffff
 

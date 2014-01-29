@@ -24,9 +24,20 @@ static TraceArea TraceAreas[]= {
     { SZ_TRACE_IO      , "IO"      },
     { SZ_TRACE_WHOWAS  , "WHOWAS"  },
     { SZ_TRACE_NICK    , "NICK"    },
-    { SZ_TRACE_WINDOW  , "WINDOW"    },
+    { SZ_TRACE_WINDOW  , "WINDOW"  },
+    { SZ_TRACE_LASTLOG , "LASTLOG" },
     { 0                , NULL      }
 };
+
+long GetTraceLevel(void)
+{
+    return(TraceMask);
+}
+
+void SetTraceLevel(long mask)
+{
+    TraceMask = mask;
+}
 
 char *BitsToTraceLevel(mask)
 long mask;
@@ -217,7 +228,7 @@ int fullinfo;
               tmpbuf, ctime(&server_list[i].ConnectTime));
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         Trace(SZ_TRACE_SERVER, "%s  enable ssl: %d",
-              tmpbuf, ctime(server_list[i].enable_ssl));
+              tmpbuf, server_list[i].enable_ssl);
 #endif
         if (fullinfo) {
           Trace(SZ_TRACE_SERVER, "%s  channels:", tmpbuf);

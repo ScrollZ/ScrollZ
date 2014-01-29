@@ -22,7 +22,8 @@ ScrollZ
       in current window
     ! some numerics were not timestamped reported by Tim)
     ! mIRC colours brown and orange were mixed (reported by Tim's gf kut)
-    ~ IGNORE QUIT now works per channel (hi Jugernaut)
+    ~ IGNORE QUIT now works per channel (hi Jugernaut!)
+    ! hopefully scrolling through lastlog is now fixed for good
 
 ------------------------------------------------------------------------------
 

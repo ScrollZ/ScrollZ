@@ -66,6 +66,7 @@
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "trace.h"
 
 #ifdef WANTANSI
 extern  int  CountAnsi _((char *, int));
@@ -2723,6 +2724,7 @@ next_line_back(window)
                    that (fixes translation when scrolling backwards) */
 		len = strlen(LogLine->msg);
 		my_str = new_malloc(len + 1);
+                Trace(SZ_TRACE_LASTLOG, "next_line_back %p %s", LogLine, LogLine->msg);
 		bcopy(LogLine->msg, my_str, len);
 		my_str[len] = '\0';
 		TheirLines = split_up_line(my_str);
@@ -2750,21 +2752,37 @@ lastlog_lines(window)
 {
 	Display	*Disp;
 	int num_lines = 0, i;
+        int has_next = 0;
+
+        if (window->top_of_display->next && window->top_of_display->next->line)
+            has_next = 1;
+#ifdef SZTRACE
+        long sztrace = GetTraceLevel();
+
+        /* do not log to trace when counting lastlog lines */
+        SetTraceLevel(0);
+#endif
 
 	(void)next_line_back(window);
 
 	for (i = window->new_scrolled_lines; i--; num_lines++)
 		(void)next_line_back(NULL);
 
-	for (i = 0, Disp = window->top_of_display; i < window->display_size;
-			Disp = Disp->next, i++)
-		if (Disp->linetype)
-			(void)next_line_back(NULL);
+        if (has_next) {
+            for (i = 0, Disp = window->top_of_display; i < window->display_size; Disp = Disp->next, i++)
+                if (Disp->linetype)
+                    (void)next_line_back(NULL);
+        }
 
 	while (next_line_back(NULL))
 		num_lines++;
 
 	Debug((3, "  num_lines ends up as %d", num_lines));
+
+#ifdef SZTRACE
+        SetTraceLevel(sztrace);
+#endif
+
 	return (num_lines);
 }
 
@@ -2782,25 +2800,37 @@ display_lastlog_lines(start, end, window)
 	int	i;
 /**************************** PATCHED by Flier ******************************/
         int     has_next = 0;
+
+        if (window->top_of_display->next && window->top_of_display->next->line)
+            has_next = 1;
+        Trace(SZ_TRACE_LASTLOG, "display lastlog window %d (size %d, scrolled %d): start %d  end %d  has_next %d",
+              window->refnum, window->lastlog_size, window->new_scrolled_lines, start,
+              end, has_next);
 /****************************************************************************/
 
 	(void)next_line_back(window);
 
-	for (i = window->new_scrolled_lines; i--;)
-		(void)next_line_back(NULL);
+	for (i = window->new_scrolled_lines; i--;) {
+		Line = next_line_back(NULL);
+                if (Line) Trace(SZ_TRACE_LASTLOG, "lastlog1 skip %d) %s", i, Line);
+        }
 
  	/* WTF is this? -krys */
 /**************************** PATCHED by Flier ******************************/
-	for (i = 0, Disp = window->top_of_display; i < window->display_size;
-			Disp = Disp->next, i++)
-        /*for (i = 0, Disp = window->top_of_display; i < window->display_size &&
-             has_next; Disp = Disp->next, i++)*/
+	/*for (i = 0, Disp = window->top_of_display; i < window->display_size;
+			Disp = Disp->next, i++)*/
+        for (i = 0, Disp = window->top_of_display; i < window->display_size && has_next;
+             Disp = Disp->next, i++)
 /****************************************************************************/
-		if (Disp->linetype)
-			(void)next_line_back(NULL);
+		if (Disp->linetype) {
+			Line = next_line_back(NULL);
+                        if (Line) Trace(SZ_TRACE_LASTLOG, "lastlog2 skip %d) %s", i, Line);
+                }
 
-	for (i = 0; i < start; i++)
-		(void)next_line_back(NULL);
+	for (i = 0; i < start; i++) {
+		Line = next_line_back(NULL);
+                if (Line) Trace(SZ_TRACE_LASTLOG, "lastlog3 skip %d) %s", i, Line);
+        }
 
 	for (; i < end; i++)
 	{
@@ -2809,6 +2839,7 @@ display_lastlog_lines(start, end, window)
 		term_move_cursor(0, window->top + window->menu.lines +
 			window->scrolled_lines - i - 1);
 		rite(window, Line, 0, 0, 1, 0);
+                Trace(SZ_TRACE_LASTLOG, "lastlog4 display %d) %s", i, Line);
 	}
 }
 
@@ -2824,6 +2855,7 @@ scrollback_backwards_lines(ScrollDist)
 	int totallines;
 
 	Debug((3, "scrollback_backwards_lines(%d)", ScrollDist));
+        Trace(SZ_TRACE_LASTLOG, "scrollback_backwards_lines %d", ScrollDist);
 	window = curr_scr_win;
 	if (!window->scrolled_lines && !window->scroll)
 	{
@@ -2832,10 +2864,13 @@ scrollback_backwards_lines(ScrollDist)
 	}
 	totallines = lastlog_lines(window);
 	Debug((3, "totallines = %d, scrolled_lines = %d", totallines, window->scrolled_lines));
+        Trace(SZ_TRACE_LASTLOG, "totallines = %d, scrolled_lines = %d", totallines,
+              window->scrolled_lines);
 	if (ScrollDist + window->scrolled_lines > totallines)
 	{
 		ScrollDist = totallines - window->scrolled_lines;
 		Debug((3, "  adjusting ScrollDist to %d", ScrollDist));
+                Trace(SZ_TRACE_LASTLOG, "adjusting ScrollDist to %d", ScrollDist);
 	}
 	if (ScrollDist == 0)
 	{
@@ -2848,6 +2883,10 @@ scrollback_backwards_lines(ScrollDist)
 	    window->top + window->menu.lines,
 	    window->top + window->menu.lines + window->display_size - 1,
 	    -ScrollDist));
+        Trace(SZ_TRACE_LASTLOG, "going to term_scroll(%d, %d, %d)",
+                window->top + window->menu.lines,
+                window->top + window->menu.lines + window->display_size - 1,
+                -ScrollDist);
 	term_scroll(window->top + window->menu.lines,
 	    window->top + window->menu.lines + window->display_size - 1,
 	    -ScrollDist);
@@ -2856,11 +2895,19 @@ scrollback_backwards_lines(ScrollDist)
 	    window->scrolled_lines,
 	    window->new_scrolled_lines,
 	    window->display_size));
+        Trace(SZ_TRACE_LASTLOG, "scrolled_lines %d, new_scrolled_lines %d, display_size %d",
+              window->scrolled_lines,
+              window->new_scrolled_lines,
+              window->display_size);
 
 	Debug((3, "going to display_lastlog_lines(%d, %d, %s)",
 	    window->scrolled_lines - ScrollDist,
 	    window->scrolled_lines,
 	    window->name));
+        Trace(SZ_TRACE_LASTLOG, "going to display_lastlog_lines(%d, %d, %d)",
+              window->scrolled_lines - ScrollDist,
+              window->scrolled_lines,
+              window->refnum);
 	display_lastlog_lines(window->scrolled_lines - ScrollDist,
 	    window->scrolled_lines,
 	    window);
@@ -2877,6 +2924,7 @@ scrollback_forwards_lines(ScrollDist)
 	Window	*window;
 
 	Debug((3, "scrollback_forward_lines(%d)", ScrollDist));
+        Trace(SZ_TRACE_LASTLOG, "scrollback_forward_lines %d", ScrollDist);
 	window = curr_scr_win;
 	if (!window->scrolled_lines)
 	{
@@ -2887,11 +2935,16 @@ scrollback_forwards_lines(ScrollDist)
 		ScrollDist = window->scrolled_lines;
 
 	Debug((3, "scrolled_lines = %d", window->scrolled_lines));
+        Trace(SZ_TRACE_LASTLOG, "scrolled_lines %d", window->scrolled_lines);
 	window->scrolled_lines -= ScrollDist;
 	Debug((3, "going to term_scroll(%d, %d, %d)",
 	    window->top + window->menu.lines,
 	    window->top + window->menu.lines + window->display_size - 1,
 	    ScrollDist));
+        Trace(SZ_TRACE_LASTLOG, "going to term_scroll(%d, %d, %d)",
+              window->top + window->menu.lines,
+              window->top + window->menu.lines + window->display_size - 1,
+              ScrollDist);
 	term_scroll(window->top + window->menu.lines,
 	    window->top + window->menu.lines + window->display_size - 1,
 	    ScrollDist);
@@ -2900,6 +2953,10 @@ scrollback_forwards_lines(ScrollDist)
 	    window->scrolled_lines,
 	    window->new_scrolled_lines,
 	    window->display_size));
+        Trace(SZ_TRACE_LASTLOG, "scrolled_lines %d, new_scrolled_lines %d, display_size %d",
+              window->scrolled_lines,
+              window->new_scrolled_lines,
+              window->display_size);
 
 	if (window->scrolled_lines < window->display_size)
 		redraw_window(window,
@@ -2909,6 +2966,10 @@ scrollback_forwards_lines(ScrollDist)
 	    window->scrolled_lines - window->display_size,
 	    window->scrolled_lines - window->display_size + ScrollDist,
 	    window->name));
+        Trace(SZ_TRACE_LASTLOG, "going to display_lastlog_lines(%d, %d, %d)",
+              window->scrolled_lines - window->display_size,
+              window->scrolled_lines - window->display_size + ScrollDist,
+              window->refnum);
 	display_lastlog_lines(window->scrolled_lines - window->display_size,
 	    window->scrolled_lines - window->display_size + ScrollDist,
 	    window);

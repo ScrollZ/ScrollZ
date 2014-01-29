@@ -44,6 +44,8 @@
 #include "output.h"
 
 /**************************** PATCHED by Flier ******************************/
+#include "trace.h"
+
 extern void StripAnsi _((char *, char *, int));
 /****************************************************************************/
 
@@ -648,6 +650,8 @@ add_to_lastlog(window, line)
 			new->level = msg_level;
 			new->msg = (char *) 0;
 			malloc_strcpy(&(new->msg), line);
+                        Trace(SZ_TRACE_LASTLOG, "add lastlog to window %d: %p %s",
+                              window->refnum, new, line);
 
 			if (window->lastlog_head)
 				window->lastlog_head->prev = new;
@@ -658,6 +662,9 @@ add_to_lastlog(window, line)
 
 			if (window->lastlog_size++ == get_int_var(LASTLOG_VAR))
 				remove_from_lastlog(window);
+                        Trace(SZ_TRACE_LASTLOG, "lastlog size %d, head %p, tail %p",
+                              window->lastlog_size, window->lastlog_head,
+                              window->lastlog_tail);
 		}
 	}
 }
