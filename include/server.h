@@ -113,6 +113,7 @@ typedef	struct
         struct  nicks *nicklist,        /* tabkey list */
                       *nickcur;
 	ChannelList *ChanPendingList;   /* list of channels pending for join */
+        int     compl_count;            /* how many channels have we traversed */
         void    *compl_last;            /* pointer to last completion string */
         void    *compl_next;            /* where to start next completion */
         ChannelList *compl_channel;     /* last channel completion */

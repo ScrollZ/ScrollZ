@@ -1274,8 +1274,7 @@ char *newcompl;
 int length;
 {
     int i;
-    static int our_count;     /* how many we've checked */
-    static int channel_count;
+    int channel_count = 0;
     char *p;
     ChannelList *channel_p = NULL;
     NickList *nick_p;
@@ -1286,15 +1285,16 @@ int length;
              &server_list[curr_scr_win->server].compl_next,
              completing, newcompl, length);
 
+    channel_p = server_list[curr_scr_win->server].chan_list;
+    while (channel_p) {
+        channel_count++;
+        channel_p = channel_p->next;
+    }
+
 nick_begin:
     if (!server_list[curr_scr_win->server].compl_last) {
         p = get_channel_by_refnum(0);
-        channel_count = our_count = 0;
-        channel_p = server_list[curr_scr_win->server].chan_list;
-        while (channel_p) {
-            channel_count++;
-            channel_p = channel_p->next;
-        }
+        server_list[curr_scr_win->server].compl_count = 0;
         if (p) channel_p = lookup_channel(p, from_server, 0);
         else channel_p = server_list[curr_scr_win->server].chan_list;
         if (!channel_p) return(0); /* not on any channels */
@@ -1306,7 +1306,7 @@ nick_begin:
     }
 
 next_channel:
-    while (channel_p && (our_count < channel_count)) {
+    while (channel_p && (server_list[curr_scr_win->server].compl_count < channel_count)) {
         if (server_list[curr_scr_win->server].compl_next)
             nick_p = server_list[curr_scr_win->server].compl_next;
         else
@@ -1316,11 +1316,11 @@ next_channel:
             if (!my_strnicmp(nick_p->nick, completing, strlen(completing))) {
                 if (IsCmdLine(argv[0], "op", 2)) {
                     if (!nick_p->chanop)
-			break;
+                        break;
                 }
                 else if (IsCmdLine(argv[0], "dop", 3)) {
                     if (nick_p->chanop)
-			break;
+                        break;
                 }
                 else if (IsCmdLine(argv[0], "vo", 2)) {
                     if (!nick_p->hasvoice)
@@ -1353,16 +1353,17 @@ next_channel:
                 channel_p = channel_p->next;
                 server_list[curr_scr_win->server].compl_channel = channel_p;
                 server_list[curr_scr_win->server].compl_next = NULL;
+                server_list[curr_scr_win->server].compl_count++;
             }
             return(1);
         }
         channel_p = channel_p->next;
         server_list[curr_scr_win->server].compl_next = NULL;
-        our_count++;
+        server_list[curr_scr_win->server].compl_count++;
     }
-    /* if we started at chan_list our_count will equal
+    /* if we started at chan_list compl_count will equal
        channel_count, skipping this */
-    if (our_count < channel_count) {
+    if (server_list[curr_scr_win->server].compl_count < channel_count) {
         channel_p = server_list[curr_scr_win->server].chan_list;
         goto next_channel;
     }
