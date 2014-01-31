@@ -24,6 +24,8 @@ ScrollZ
     ! mIRC colours brown and orange were mixed (reported by Tim's gf kut)
     ~ IGNORE QUIT now works per channel (hi Jugernaut!)
     ! hopefully scrolling through lastlog is now fixed for good
+    ! nick tab completion should now traverse all channels in
+      search for matching nicks (reported by Tim)
 
 ------------------------------------------------------------------------------
 
