@@ -52,5 +52,6 @@ extern WhowasChanList *check_whowas_chan_buffer _((char *, int));
 extern int add_to_whowas_chan_buffer _((ChannelList *));
 extern int remove_oldest_chan_whowas _((WhowasChanList **, time_t, int));
 extern void clean_whowas_chan_list _((void));
+extern void swap_whowas_chan_win_ptr _((Window *, Window *));
 
 #endif /* _whowas_h_ */

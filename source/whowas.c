@@ -363,7 +363,7 @@ ChannelList *channel;
     WhowasChanList *new;
     WhowasChanList **slot;
 
-    Trace(SZ_TRACE_WHOWAS, "add channel %s", channel->channel);
+    Trace(SZ_TRACE_WHOWAS, "add channel %s window %p", channel->channel, channel->window);
     if (check_whowas_chan_buffer(channel->channel,0)) return(0);
     if (whowas_chan_count>=whowas_chan_max) {
         whowas_chan_count-=
@@ -452,6 +452,23 @@ void CleanUpWhowas() {
     remove_oldest_whowas(&whowas_userlist_list,0,whowas_userlist_max);
     remove_oldest_whowas(&whowas_reg_list,0,whowas_reg_max);
     remove_oldest_chan_whowas(&whowas_chan_list,0,whowas_chan_max);
+}
+
+void swap_whowas_chan_win_ptr(Window *v_window, Window *window) {
+    WhowasChanList *tmp;
+
+    for (tmp = whowas_chan_list; tmp; tmp = tmp->next) {
+        if (tmp->channellist->window == v_window) {
+            tmp->channellist->window = window;
+            Trace(SZ_TRACE_WHOWAS, "swap window pointer for channel %s: %p -> %p",
+                  tmp->channellist->channel, v_window, window);
+        }
+        else if (tmp->channellist->window == window) {
+            tmp->channellist->window = v_window;
+            Trace(SZ_TRACE_WHOWAS, "swap window pointer for channel %s: %p -> %p",
+                  tmp->channellist->channel, window, v_window);
+        }
+    }
 }
 
 /*

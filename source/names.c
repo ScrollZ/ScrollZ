@@ -242,6 +242,7 @@ add_channel(channel, server, connected, copy, key, nowho)
 	int	do_add = 0;
 /**************************** PATCHED by Flier ******************************/
         int     resetchan = 0;
+        Window  *tmpwin;
         WhowasChanList *whowaschan;
 /****************************************************************************/
 
@@ -263,12 +264,21 @@ add_channel(channel, server, connected, copy, key, nowho)
                 new_free(&(new->topiclock));
                 ClearBans(new);
                 new_free(&new);
+                Trace(SZ_TRACE_CHANNEL, "unlink channel %s from server %d", channel, server);
             }
             new = whowaschan->channellist;
             new->next = (ChannelList *) 0;
             do_add = 1;
             add_to_list((List **) &server_list[server].chan_list, (List *) new);
             new_free(&whowaschan);
+            if (!IsValidWindow(server, new->window)) {
+                new->window = NULL;
+                Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", channel);
+            }
+            Trace(SZ_TRACE_CHANNEL, "channel %s found in whowas cache, window %d (%s) %p", channel,
+                  new->window ? new->window->refnum : -1,
+                  new->window ? EMPTY_STR(new->window->name) : "",
+                  new->window);
         }
         else
 /****************************************************************************/
@@ -292,12 +302,28 @@ add_channel(channel, server, connected, copy, key, nowho)
                 new->chanlogfpath = (char *) 0;
                 new->window = NULL;
                 resetchan = 1;
+                Trace(SZ_TRACE_CHANNEL, "add channel %s to server %d", channel, server);
 /****************************************************************************/
 	}
         else
         {
 /**************************** Patched by Flier ******************************/
                 if (!(new->nicks)) resetchan = 1;
+                if (!IsValidWindow(server, new->window)) {
+                    new->window = NULL;
+                    Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", channel);
+                }
+                Trace(SZ_TRACE_CHANNEL, "channel %s found on server %d, window %d (%s) %p", channel,
+                      server, new->window ? new->window->refnum : -1,
+                      new->window ? EMPTY_STR(new->window->name) : "",
+                      new->window);
+                if ((tmpwin = is_bound(channel, server))) {
+                    Trace(SZ_TRACE_CHANNEL, "bound to window %d (%s) %p",
+                          tmpwin ? tmpwin->refnum : -1,
+                          tmpwin ? EMPTY_STR(tmpwin->name) : "",
+                          tmpwin);
+                    new->window = tmpwin;
+                }
 /****************************************************************************/
 		if (new->connected != CHAN_LIMBO && new->connected != CHAN_JOINING)
 			yell("--- add_channel: add_channel found channel not CHAN_LIMBO/JOINING: %s", new->channel);
@@ -357,10 +383,19 @@ add_channel(channel, server, connected, copy, key, nowho)
                     for (i = 0; i < HASHTABLESIZE; i++) new->nickshash[i] = (struct hashstr *) 0;
                 }
                 if (new->window == NULL) {
-                    if ((new->window = is_bound(channel, server)) == (Window *) 0)
+                    if ((tmpwin = is_bound(channel, server))) {
+                        Trace(SZ_TRACE_CHANNEL, "bound to window %d (%s) %p",
+                              tmpwin ? tmpwin->refnum : -1,
+                              tmpwin ? EMPTY_STR(tmpwin->name) : "",
+                              tmpwin);
+                        new->window = tmpwin;
+                    }
+                    else {
+                        Trace(SZ_TRACE_CHANNEL, "linked to current window");
                         new->window = curr_scr_win;
+                    }
                 }
-                Trace(SZ_TRACE_WINDOW, "channel %s bound to window %d (%s) (%p)",
+                Trace(SZ_TRACE_WINDOW, "channel %s linked to window %d (%s) (%p)",
                       channel,
                       new->window ? new->window->refnum : -1,
                       new->window ? EMPTY_STR(new->window->name) : "",

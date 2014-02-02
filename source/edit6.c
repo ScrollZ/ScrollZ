@@ -76,6 +76,7 @@
  PopLine             Push-line input functionality - pop line from stack
  PushEmptyStack      Push-line input functionality - empty stack
  FormatServerName    Format server name
+ IsValidWindow       Verify if given window pointer is still valid
 ******************************************************************************/
 
 /*
@@ -3682,3 +3683,16 @@ char *server;
 #endif
 }
 
+/* Verify if given window pointer is still valid */
+int IsValidWindow(server, window)
+int server;
+Window *window;
+{
+    int flag = 1;
+    Window *tmp;
+
+    while ((tmp = traverse_all_windows(&flag)))
+        if ((tmp == window) && (tmp->server == server))
+            return(1);
+    return(0);
+}

@@ -562,27 +562,62 @@ add_to_invisible_list(window)
  */
 static	void
 swap_channels_win_ptr(v_window, window)
-	Window	*v_window,
-		*window;
+Window	*v_window,
+        *window;
 {
-	ChannelList	*chan;
+    int i;
+    ChannelList	*chan;
 
-	if (v_window->server != -1)
-	{
-		for (chan = server_list[v_window->server].chan_list;
-		     chan; chan = chan->next)
-			if (chan->window == v_window)
-				chan->window = window;
-			else if (chan->window == window)
-				chan->window = v_window;
- 	}
-	if (window->server == v_window->server)
-		return;
-	if (window->server != -1)
-		for (chan = server_list[window->server].chan_list;
-		     chan; chan = chan->next)
-			if (chan->window == window)
-				chan->window = v_window;
+    if (v_window->server != -1)
+    {
+        for (chan = server_list[v_window->server].chan_list; chan; chan = chan->next)
+            if (chan->window == v_window) {
+                Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
+                      chan->channel, chan->window, window);
+                chan->window = window;
+            }
+            else if (chan->window == window) {
+                Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
+                      chan->channel, chan->window, v_window);
+                chan->window = v_window;
+            }
+    }
+    /* added by flier
+     * The code did not cover scenario: have three windows, window 1 with
+     * channel #chan1, window 2 with channel #chan2 and window 3 with
+     * channel #chan3. Windows 1 and 2 are connected to server 1 and
+     * window 3 is connected to server 2. Make window 2 visible window and
+     * disconnect from server. Make window 3 visible window, make window
+     * 1 visible window. Reconnect to server 1. Channels #chan1 and #chan2
+     * are rejoined in window 1.
+     * The solution is to swap window pointers in channels on all servers. */
+    for (i = 0; i < number_of_servers; i++) {
+        if ((i == window->server) || (i == v_window->server))
+            continue;
+
+        for (chan = server_list[i].chan_list; chan; chan = chan->next)
+            if (chan->window == v_window) {
+                Trace(SZ_TRACE_CHANNEL, "channel %s, server %d, swap window %p -> %p",
+                      chan->channel, i, chan->window, window);
+                chan->window = window;
+            }
+            else if (chan->window == window) {
+                Trace(SZ_TRACE_CHANNEL, "channel %s, server %d, swap window %p -> %p",
+                      chan->channel, i, chan->window, v_window);
+                chan->window = v_window;
+            }
+    }
+
+    if (window->server == v_window->server)
+        return;
+    if (window->server != -1)
+        for (chan = server_list[window->server].chan_list; chan; chan = chan->next)
+            if (chan->window == window) {
+                Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
+                      chan->channel, chan->window, v_window);
+                chan->window = v_window;
+            }
+
 }
 
 /*
@@ -613,6 +648,10 @@ swap_window(v_window, window)
         /* fix terminal resize bug with hidden windows */
         if (window->display_size != v_window->display_size)
             window->display_size = v_window->display_size;
+        Trace(SZ_TRACE_WINDOW, "swapping window %d (%s) %p with window %d (%s) %p",
+              v_window->refnum, EMPTY_STR(v_window->name), v_window,
+              window->refnum, EMPTY_STR(window->name), window);
+        swap_whowas_chan_win_ptr(v_window, window);
 /****************************************************************************/
 
 	swap_channels_win_ptr(v_window, window);
