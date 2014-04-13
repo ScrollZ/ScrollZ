@@ -28,6 +28,8 @@ ScrollZ
       search for matching nicks (reported by Tim)
     ! more cases where channels go to wrong window, yay for
       ircii handling of hidden windows
+    ! silly bug which prevented client from ignoring repeated
+      CTCP requests (reported by dcb314)
 
 ------------------------------------------------------------------------------
 

@@ -336,7 +336,7 @@ static int dropit(int allowtwo) {
     ctcpcount++;
     if (server_list[parsing_server_index].ctcp_last_reply_time+3>time((time_t *) 0)) {
         if (!allowtwo) return(1);
-        if (!ctcpcount>2) return(1);
+        if (ctcpcount>2) return(1);
     }
     if (ctcpcount>2) ctcpcount=1;
     return(0);
