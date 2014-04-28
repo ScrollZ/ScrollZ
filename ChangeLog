@@ -30,6 +30,7 @@ ScrollZ
       ircii handling of hidden windows
     ! silly bug which prevented client from ignoring repeated
       CTCP requests (reported by dcb314)
+    ! crash in VERSION reply on irc.koreaboo.com (reported by wiz)
 
 ------------------------------------------------------------------------------
 
