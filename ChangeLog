@@ -31,6 +31,7 @@ ScrollZ
     ! silly bug which prevented client from ignoring repeated
       CTCP requests (reported by dcb314)
     ! crash in VERSION reply on irc.koreaboo.com (reported by wiz)
+    ! do not display away status when not connected to a server
 
 ------------------------------------------------------------------------------
 

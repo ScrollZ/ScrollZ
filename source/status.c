@@ -1787,7 +1787,7 @@ status_away(window)
 			malloc_strcpy(&ptr, text);
 		else
 			malloc_strcpy(&ptr, empty_string);*/
-                if (server_list[window->server].away && away_format) {
+                if ((window->server != -1) && server_list[window->server].away && away_format) {
                     snprintf(buf, sizeof(buf), "%d", AwayMsgNum);
                     snprintf(locbuf, sizeof(locbuf), away_format, buf);
                     malloc_strcpy(&ptr, locbuf);
