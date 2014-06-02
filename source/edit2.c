@@ -4098,7 +4098,6 @@ char *subargs;
     int  i;
     int  type = 1; /* default to Linux */
     int  count;
-    int  tryall = 0;
     char *hname;
     char *tmpstr;
     char *chosenname = NULL;
@@ -4113,10 +4112,12 @@ char *subargs;
 #ifdef __linux__
     int tmpsock;
     int oldumask;
-    char *curdev;
-    char *devtok;
-    char devname[mybufsize / 16 + 1];
-    struct ifreq ifr;
+    char *ipbuf;
+    size_t skip;
+    struct ifconf ifc;
+    struct ifreq *ifr, *nextif, ifreq;
+    struct sockaddr_in saddr;
+#define MAXIPNUM 2048
 #endif /* __linux__ */
     /* servers in struct splitstr holds hostname */
     struct splitstr *tmplist = NULL, *listnew;
@@ -4133,11 +4134,6 @@ char *subargs;
     }
     else PrintUsage("NEWHOST <Virtual Host>");
 #else  /* JIMMIE */
-    /* if user passed -a they want to probe 1024 interfaces */
-    if (newhname && !my_strnicmp(newhname, "-A", 2)) {
-        tryall = 1;
-        newhname = NULL;
-    }
     /* figure out OS
        1 = Linux
        2 = BSD 
@@ -4153,34 +4149,6 @@ char *subargs;
     /* for linux we use ioctl() to obtain configured ips */
 #ifdef __linux__
     /* obtain device name */
-    *devname = '\0';
-    if ((fp = fopen("/proc/net/dev", "r"))) {
-        /* skip two lines of header */
-        fgets(putbuf, sizeof(putbuf), fp);
-        fgets(putbuf, sizeof(putbuf), fp);
-        while (fgets(putbuf, sizeof(putbuf), fp)) {
-            tmpstr = putbuf;
-            while (*tmpstr && isspace(*tmpstr)) tmpstr++;
-            strmcpy(tmpbuf, tmpstr, sizeof(tmpbuf));
-            tmpstr = tmpbuf;
-            while (*tmpstr && *tmpstr != ':') tmpstr++;
-            *tmpstr = '\0';
-            if (strcmp(tmpbuf, "lo") && strncmp(tmpbuf, "dummy", 5)) {
-                if (strlen(tmpbuf) > 0) {
-                    tmpstr--;
-                    *tmpstr = '\0';
-                    if (*devname) strmcat(devname, ",", sizeof(devname));
-                    strmcat(devname, tmpbuf, sizeof(devname));
-                }
-                break;
-            }
-        }
-        fclose(fp);
-    }
-    if (!(*devname)) {
-        say("No suitable devices found, aborting");
-        return;
-    }
     oldumask = umask(0177);
     if ((fp = fopen(filename, "w")) == NULL) {
         say("Error, can't open temporary file for writing, aborting");
@@ -4196,47 +4164,46 @@ char *subargs;
         umask(oldumask);
         return;
     }
-    /* probe eth0 through eth3 */
-    devtok = devname;
-    while ((curdev = strtok(devtok, ","))) {
-        devtok = NULL;
-        for (i = 0; i < 4; i++) {
-            int isvalid;
-            int numinvalid = 0;
-
-            snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s%d", devname, i);
-            /* obtain destination address */
-            ioctl(tmpsock, SIOCGIFDSTADDR, &ifr);
-            isvalid = ioctl(tmpsock, SIOCGIFADDR, &ifr);
-            if (i == 0 && isvalid < 0) {
-                say("Error during ioctl for device %s, aborting", ifr.ifr_name);
-                fclose(fp);
-                unlink(filename);
-                close(tmpsock);
-                umask(oldumask);
-                return;
-            }
-            if (isvalid == 0) 
-                fprintf(fp, "inet %s\n",
-                        inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
-            for (count = 0; count < 1023; count++) {
-                snprintf(ifr.ifr_name, sizeof(ifr.ifr_name),
-                         "%s%d:%d", devname, i, count);
-                /* obtain destination address */
-                ioctl(tmpsock, SIOCGIFDSTADDR, &ifr);
-                if ((isvalid = ioctl(tmpsock, SIOCGIFADDR, &ifr)) < 0) numinvalid++;
-                else numinvalid = 0;
-                if (isvalid == 0)
-                    fprintf(fp, "inet %s\n",
-                            inet_ntoa(((struct sockaddr_in *) &(ifr.ifr_dstaddr))->sin_addr));
-                /* abort when we detect 10 failed ioctl()s in sequence */
-                if (!tryall && numinvalid > 9) break;
+    if ((ipbuf = (char *) new_malloc(MAXIPNUM * sizeof(ifr))) == NULL) {
+        say("Error allocating memory, aborting");
+        fclose(fp);
+        unlink(filename);
+        umask(oldumask);
+        close(tmpsock);
+        return;
+    }
+    ifc.ifc_len = MAXIPNUM * sizeof(ifr);
+    ifc.ifc_buf = ipbuf;
+    if (ioctl(tmpsock,  SIOCGIFCONF, &ifc) < 0) {
+        say("Error querying allocated IP addresses, aborting");
+        fclose(fp);
+        unlink(filename);
+        umask(oldumask);
+        close(tmpsock);
+        new_free(&ipbuf);
+        return;
+    }
+    i = ifc.ifc_len;
+    for (ifr = (struct ifreq *) ipbuf; i > 0; ifr = nextif, i -= skip) {
+        skip = sizeof(struct ifreq);
+        nextif = (struct ifreq *) ((char *) ifr + skip);
+        ifreq = *ifr;
+        if (ioctl(tmpsock, SIOCGIFADDR, &ifreq) >= 0) {
+            if (ifreq.ifr_addr.sa_family == AF_INET) {
+                memcpy(&saddr, &ifreq.ifr_addr, sizeof(struct sockaddr_in));
+                ifreq = *ifr;
+                if (ioctl(tmpsock, SIOCGIFFLAGS, &ifreq) >= 0) {
+                    if (!(ifreq.ifr_flags & IFF_LOOPBACK)) {
+                        fprintf(fp, "inet %s\n", inet_ntoa(saddr.sin_addr));
+                    }
+                }
             }
         }
     }
     close(tmpsock);
     fclose(fp);
     umask(oldumask);
+    new_free(&ipbuf);
 #else  /* __linux__ */
     /* run /sbin/ifconfig */
     switch (type) {
@@ -4280,10 +4247,9 @@ char *subargs;
     }
     fclose(fp);
     if (tmplist) {
-        countall = 0;
         *putbuf = '\0';
         /* let's print all available hostnames */
-        for (listnew = tmplist,i = 1; listnew; i++, countall++) {
+        for (listnew = tmplist,i = 1; listnew; i++) {
             tmplist = listnew;
             listnew = listnew->next;
             snprintf(tmpbuf, sizeof(tmpbuf), "%2d) %-33s", i, tmplist->servers);
@@ -4306,7 +4272,6 @@ char *subargs;
         if (!newhname) {
             if (count) say("%s", putbuf);
             say("Use /NEWHOST #number to select hostname");
-            if (countall == 1) say("Use /NEWHOST -A to query more interfaces");
         }
     }
     else say("No valid hostnames found");
