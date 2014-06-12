@@ -915,25 +915,6 @@ version(from, ArgList)
 	char	*from,
 		**ArgList;
 {
-#if 0
-    :hyung.koreaboo.com 351 fltest :InspIRCd-2.0 hyung.koreaboo.com :
-    (gdb) p ArgList[0]
-    $1 = 0x813f65f "InspIRCd-2.0 hyung.koreaboo.com :"
-    (gdb) p ArgList[1]
-    $2 = 0x0
-
-    :hitchcock.freenode.net 351 fltest ircd-seven-1.1.3(20111112-b71671d1e846,charybdis-3.4-dev). hitchcock.freenode.net :eHIKMpSZ6 TS6ow 17Wj
-    Breakpoint 1, version (from=0x813e4a9 "hobana.freenode.net", ArgList=0xbfffc070) at numbers.c:918
-    918             if (ArgList[2])
-    (gdb) p ArgList[0]
-    $1 = 0x813e4c8 "ircd-seven-1.1.3(20111112-b71671d1e846,charybdis-3.4-dev)."
-    (gdb) p ArgList[1]
-    $2 = 0x813e503 "hobana.freenode.net"
-    (gdb) p ArgList[2]
-    $3 = 0x813e517 "eHIKMpSZ6 TS6ow 6JT"
-    (gdb) p ArgList[3]
-    $4 = 0x0
-#endif
 	if (ArgList[2])
 	{
 		PasteArgs(ArgList, 2);
