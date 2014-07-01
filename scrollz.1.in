@@ -185,14 +185,12 @@ available in ircII.
 .SH AUTHORS
 This manual page was written by Mike Markley <mike@markley.org>,
 for the Debian GNU/Linux system (but may be used by others).
-Updated for ScrollZ by Flier <flier@scrollz.org> (the
+Updated for ScrollZ by Flier <flier@scrollz.info> (the
 ScrollZ maintainer).
 .PP
 .B ScrollZ
-home page: http://www.scrollz.org/
+home page: http://www.scrollz.info/
 .PP
-.B ScrollZ
-FTP site: ftp://ftp.scrollz.org/
 .SH BUG REPORTS
 If you find a bug in 
 .B ScrollZ

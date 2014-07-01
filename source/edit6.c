@@ -1692,8 +1692,7 @@ char *subargs;
                 get_server_name(from_server), timediff / 86400, (timediff / 3600) % 24, (timediff / 60) % 60);
     }
     say("Support channel: #ScrollZ on Efnet");
-    say("Home page: http://www.scrollz.org/");
-    say("FTP: ftp://ftp.scrollz.org/");
+    say("Home page: http://www.scrollz.info/");
 }
 
 /* Handles reply number 329 from server */

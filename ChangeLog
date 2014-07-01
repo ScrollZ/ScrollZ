@@ -10,6 +10,8 @@ Meaning of flags:
 
 ScrollZ
 
+NOTE: Homepage has been changed to http://www.scrollz.info/
+
     ! UTF-8 support should now work on OpenBSD out of the box
       (patch by Tomasz Konojacki)
     ! configure --mandir (reported by NetBSD maintainer)

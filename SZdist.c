@@ -20,7 +20,7 @@
  * Note that this should reduce compile time too since it only recompiles
  * files that are affected by selected options. If you need more info or you
  * have comments on this code, send e-mail to:
- * flier@scrollz.org
+ * flier@scrollz.info
  * 
  * $Id: SZdist.c,v 1.43 2006-11-01 11:46:16 f Exp $
  */
