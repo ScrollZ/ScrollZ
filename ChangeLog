@@ -36,6 +36,9 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
     ! do not display away status when not connected to a server
     ! NEWHOST on Linux systems, it now uses proper APIs to collect
       assigned IP addresses (hi Jugernaut)
+    ~ updated TLD table for $COUNTRY() - some TLDs were dropped
+      (such as .CS or .YU), if you really miss them let me know and I
+      can readd them
 
 ------------------------------------------------------------------------------
 
