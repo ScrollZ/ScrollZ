@@ -1415,24 +1415,27 @@ fi
 
 AC_MSG_CHECKING(whether to enable FiSH support)
 AC_ARG_ENABLE(fish,
-[  --enable-fish           Enable FiSH encryption support],
-[ case "$enableval" in
-  yes) olibs="$LIBS"
-       LIBS="$LIBS -lgmp"
-       AC_TRY_LINK([
-#include <sys/types.h>
-#include <gmp.h>
-],   [ int rc;
-       mpz_t val;
-       mpz_init(val);
-       return 0; ],
-     [ AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_GMP)
-     fish=yes ],
-     [ LIBS="$olibs"
-       fish=no ])
-     ;;
-  esac ])
+[  --disable-fish          Disable FiSH encryption support])
+
+if test "x$enable_fish" != "xno"; then
+    olibs="$LIBS"
+    LIBS="$LIBS -lgmp"
+    AC_TRY_LINK([
+    #include <sys/types.h>
+    #include <gmp.h>
+    ],
+    [ int rc;
+      mpz_t val;
+      mpz_init(val);
+      return 0; ],
+    [ AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_GMP)
+    fish=yes ]
+else
+    [ LIBS="$olibs"
+    fish=no ])
+fi
+
 if test "x$fish" = "xno" -o "x$fish" = "x" ; then
     AC_MSG_RESULT(no)
     fish=no

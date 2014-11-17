@@ -1318,7 +1318,7 @@ Optional Features:
   --disable-utf8          Disable UTF-8 (iconv) support
   --enable-ipv6           Enable ipv6 (with ipv4) support
   --enable-regexp         Enable POSIX.2 regexp support
-  --enable-fish           Enable FiSH encryption support
+  --disable-fish          Disable FiSH encryption support
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -7014,22 +7014,26 @@ fi
 $as_echo_n "checking whether to enable FiSH support... " >&6; }
 # Check whether --enable-fish was given.
 if test "${enable_fish+set}" = set; then :
-  enableval=$enable_fish;  case "$enableval" in
-  yes) olibs="$LIBS"
-       LIBS="$LIBS -lgmp"
-       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  enableval=$enable_fish;
+fi
+
+
+if test "x$enable_fish" != "xno"; then
+    olibs="$LIBS"
+    LIBS="$LIBS -lgmp"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <sys/types.h>
-#include <gmp.h>
+    #include <sys/types.h>
+    #include <gmp.h>
 
 int
 main ()
 {
  int rc;
-       mpz_t val;
-       mpz_init(val);
-       return 0;
+      mpz_t val;
+      mpz_init(val);
+      return 0;
   ;
   return 0;
 }
@@ -7037,17 +7041,15 @@ _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-     $as_echo "#define HAVE_GMP 1" >>confdefs.h
+    $as_echo "#define HAVE_GMP 1" >>confdefs.h
 
-     fish=yes
+    fish=yes
 else
-   LIBS="$olibs"
-       fish=no
+     LIBS="$olibs"
+    fish=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-     ;;
-  esac
 fi
 
 if test "x$fish" = "xno" -o "x$fish" = "x" ; then

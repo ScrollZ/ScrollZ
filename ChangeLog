@@ -50,6 +50,8 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
       (patch by jm_)
     + SET INPUT_PROMPT_SHIFT_NEW, when set to ON it will show
       some context when shifting input prompt (patch by jm_)
+    ! FiSH encryption is now enabled by default, if you wish to
+      disable it you can do so via configure option
 
 ------------------------------------------------------------------------------
 
