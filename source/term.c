@@ -239,10 +239,16 @@ char	*CM,
 	*BL,
 	*TI,
 	*TE;
-/**************************** PATCHED by Flier ******************************/
 #endif /* ! SZNCURSES */
 /****************************************************************************/
 int	SG;
+/**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
+int     NUMCOLORS;
+char    *SETAF,
+        *SETAB;
+#endif /* WANTANSI */
+/****************************************************************************/
 
 /*
  * term_reset_flag: set to true whenever the terminal is reset, thus letting
@@ -597,6 +603,13 @@ term_init()
 	}
 	if ((BL = tgetstr("bl", &ptr)) == (char *) 0)
 		BL = "\007";
+/**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
+        NUMCOLORS  = tgetnum("Co");
+        SETAF = tgetstr("AF", &ptr);
+        SETAB = tgetstr("AB", &ptr);
+#endif /* WANTANSI */
+/****************************************************************************/
 #endif /* STTY_ONLY */
 
 	if (getenv("IRC_DEBUG")|| (tty_des = open("/dev/tty", O_RDWR, 0)) == -1)

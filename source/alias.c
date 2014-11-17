@@ -4191,54 +4191,43 @@ u_char *words;
 u_char *function_color(words)
 u_char *words;
 {
-    u_char *result=(char *) 0;
+    u_char *result = NULL;
 #ifdef WANTANSI
-    int  colnum=0;
-    int  eventnum=0;
-    char *tmp=(char *) 0;
-    char *tmpstr=(char *) 0;
-    char locbuf[2*mybufsize];
+    int  colnum = 0;
+    int  eventnum = 0;
+    char *tmp = NULL;
+    char *tmpstr = NULL;
+    char locbuf[2 * mybufsize];
     
     if (words && *words) {
-        tmp=next_arg((char *) words,(char **) &words);
+        tmp = next_arg((char *) words, (char **) &words);
         if (tmp && words && *words) {
-            eventnum=atoi(tmp);
-            colnum=atoi(words);
+            eventnum = atoi(tmp);
+            colnum = atoi(words);
         }
-        if (eventnum>=1 && eventnum<=NUMCMDCOLORS && colnum>=1 && colnum<=6) {
+        if (eventnum >= 1 && eventnum <= NUMCMDCOLORS && colnum >= 1 && colnum <= 6) {
             eventnum--;
-            malloc_strcpy((char **) &result,Colors[COLOFF]);
+            malloc_strcpy((char **) &result, Colors[COLOFF]);
             switch (colnum) {
-                case 1 : malloc_strcat((char **) &result,CmdsColors[eventnum].color1);
+                case 1 : malloc_strcat((char **) &result, CmdsColors[eventnum].color1);
                 break;
-                case 2 : malloc_strcat((char **) &result,CmdsColors[eventnum].color2);
+                case 2 : malloc_strcat((char **) &result, CmdsColors[eventnum].color2);
                 break;
-                case 3 : malloc_strcat((char **) &result,CmdsColors[eventnum].color3);
+                case 3 : malloc_strcat((char **) &result, CmdsColors[eventnum].color3);
                 break;
-                case 4 : malloc_strcat((char **) &result,CmdsColors[eventnum].color4);
+                case 4 : malloc_strcat((char **) &result, CmdsColors[eventnum].color4);
                 break;
-                case 5 : malloc_strcat((char **) &result,CmdsColors[eventnum].color5);
+                case 5 : malloc_strcat((char **) &result, CmdsColors[eventnum].color5);
                 break;
-                case 6 : malloc_strcat((char **) &result,CmdsColors[eventnum].color6);
+                case 6 : malloc_strcat((char **) &result, CmdsColors[eventnum].color6);
                 break;
             }
         }
         else {
-            malloc_strcpy((char **) &result,Colors[COLOFF]);
-            strmcpy(locbuf,tmp,sizeof(locbuf));
-            tmp=locbuf;
-            for (;*tmp;tmp++)
-                if (*tmp==',') {
-                    *tmp++='\0';
-                    if (!tmpstr) tmpstr=locbuf;
-                    if ((colnum=ColorNumber(tmpstr))!=-1) 
-                        malloc_strcat((char **) &result,Colors[colnum]);
-                    tmpstr=tmp;
-                }
-            if (!tmpstr) tmpstr=locbuf;
-            if (tmpstr)
-                if ((colnum=ColorNumber(tmpstr))!=-1)
-                    malloc_strcat((char **) &result,Colors[colnum]);
+            malloc_strcpy((char **) &result, Colors[COLOFF]);
+            upper(tmp);
+            *locbuf = '\0';
+            if (BuildColor(tmp, locbuf, 0)) malloc_strcat((char **) &result, locbuf);
         }
     }
     else malloc_strcpy((char **) &result,empty_string);

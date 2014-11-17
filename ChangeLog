@@ -39,6 +39,15 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
     ~ updated TLD table for $COUNTRY() - some TLDs were dropped
       (such as .CS or .YU), if you really miss them let me know and I
       can readd them
+    + support for 256 colors if the terminal supports it - you can
+      use FGx and BGx syntax in ScrollZ.save, for example, juha would
+      enable EGO and use FG154,BG213 for PUBLIC color6 (patch by jm_)
+    + SZsetup can be used to configure for 256 colors - use keys
+      'FfBb' to increase/decrease foreground/background, which works
+      only when string FG or BG is found in color definiton and 'Ee'
+      to insert the color string directly, but there is no real
+      editing available so backspace or cursors might not work
+      (patch by jm_)
 
 ------------------------------------------------------------------------------
 

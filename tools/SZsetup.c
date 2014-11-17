@@ -32,7 +32,9 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <term.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "SZsetup.h"
 
@@ -79,7 +81,8 @@ struct setstr SettingNames[NUMCMDCOLORS]={
     { "DccChat",  disp_dccchat },
     { "Cscan",    disp_cscan },
     { "Nick",     disp_nick },
-    { "Me",       disp_me }
+    { "Me",       disp_me },
+    { "Misc",     disp_misc }
 };
 struct colorstr CmdsColors[NUMCMDCOLORS];
 struct termios old_tc; /* to store terminal settings on entry */
@@ -95,6 +98,12 @@ int lastsetting=1;     /* last setting cursor was on */
 int lastscrcolor=0;    /* last ScrollZ color cursor was on 1-6 */
 int where=0;           /* 0=setting  1=color */
 int message=0;         /* whether there was a message displayed */
+
+/* term related stuff */
+int   COLORS;
+char *SETAF;
+char *SETAB;
+char termbuf[1024];
 
 int main(argc,argv)
 int argc;
@@ -133,29 +142,118 @@ char **argv;
         fclose(fp);
     }
     init_sz_colors();
-    if (filename) read_file();
     set_term();
+    if (filename) read_file();
     draw_screen();
     do_it();
     move(24,0);
     attrset(COLWHITE);
-    printf("[?25h\n");
+    printf("\033[?25h\n");   /* disable cursor */
     reset_term();
     return 0;
 }
 
 void set_term() {
+    char buf[1024];
+    char *ptr=termbuf;
+    char *term;
+
     tcgetattr(0,&old_tc);
     new_tc=old_tc;
     new_tc.c_lflag&=~(ECHO|ICANON); /* raw output */
     new_tc.c_cc[VMIN]=0;            /* don't wait for keypresses */
     new_tc.c_cc[VTIME]=1;
     tcsetattr(0,TCSANOW,&new_tc);
+
+    if (!(term=getenv("TERM"))) {
+        fprintf(stderr,"SZsetup: No TERM variable set!\n");
+        exit(1);
+    }
+    if (tgetent(buf,term)<1) {
+        fprintf(stderr,"SZsetup: No termcap entry for %s.\n",term);
+        exit(1);
+    }
+
+    COLORS=tgetnum("Co");
+    SETAF=tgetstr("AF",&ptr);
+    SETAB=tgetstr("AB",&ptr);
 }
 
 void reset_term() {
     tcsetattr(0, TCSANOW, &old_tc);
 }			
+
+/* is_number: returns true if the given string is a number, false otherwise */
+int is_number(str)
+register char   *str;
+{
+    while (*str == ' ')
+        str++;
+    if (*str == '-')
+        str++;
+    if (*str) {
+        for (; *str; str++)
+        {
+            if (!isdigit((*str)))
+                return(0);
+        }
+        return(1);
+    }
+    else
+        return(0);
+}
+
+int build_color_new(color,dest)
+char *color;
+char *dest;
+{
+    int  colnum;
+    char *tmpstr = color;
+    char *tmpstr1;
+    char *nextcol = color;
+    char c;
+    char tmpbuf[mybufsize/4];
+
+    while (*nextcol && !isspace(*nextcol)) nextcol++;
+    c=*nextcol;
+    *nextcol='\0';
+    while (*tmpstr) {
+        tmpstr1=tmpbuf;
+        while (*tmpstr && *tmpstr!=',') *tmpstr1++=*tmpstr++;
+        *tmpstr1='\0';
+
+        if ((!strncmp(tmpbuf,"FG",2) || !strncmp(tmpbuf,"BG",2)) &&
+             is_number(tmpbuf+2)) {
+            char *tcap;
+
+            if (!*SETAF || !*SETAB) {
+                fprintf(stderr,"Warning: terminal lacks support for 'AF' or 'AB' capability (try infocmp -1), can't use this color\n");
+                *nextcol=c;
+                return(0);
+            }
+
+            colnum=atoi(tmpbuf+2);
+            if (colnum>=COLORS) {
+                fprintf(stderr,"Warning: color %d is outside the range terminal supports for colors: 0 - %d (try infocmp -1), can't use this color\n", colnum, COLORS - 1);
+                *nextcol=c;
+                return(0);
+            }
+
+            if (*tmpbuf=='F') tcap=SETAF;
+            else tcap=SETAB;
+
+            strcat(dest,tparm(tcap,colnum));
+        }
+        else {
+            *nextcol=c;
+            return(0);
+        }
+
+        if (*tmpstr==',') tmpstr++;
+    }
+    *nextcol=c;
+    return(1);
+}
 
 int set_color(color,string)
 char *color;
@@ -168,6 +266,10 @@ char *string;
     strcpy(string,"");
     tmpstr=color;
     while (*tmpstr && isspace(*tmpstr)) tmpstr++;
+
+    if (build_color_new(tmpstr,string))
+        return(1);
+
     while (*tmpstr && !isspace(*tmpstr)) {
         tmpstr1=tmpbuf;
         while (*tmpstr && !(*tmpstr==',' || isspace(*tmpstr))) {
@@ -196,10 +298,52 @@ char *string;
         else if (!strcasecmp(tmpbuf,"PURPLEBG")) strcat(string,Colors[COLPURPLEBG]);
         else if (!strcasecmp(tmpbuf,"CYANBG")) strcat(string,Colors[COLCYANBG]);
         else if (!strcasecmp(tmpbuf,"WHITEBG")) strcat(string,Colors[COLWHITEBG]);
-        else return(0);
+        else
+            return(0);
         if (*tmpstr==',') tmpstr++;
     }
     return(1);
+}
+
+/* copy only the first color string to dest */
+void set_colstr(setnum,colnum,colstr)
+int setnum;
+int colnum;
+char *colstr;
+{
+    char tmpbuf[256];
+    char *dest;
+    char *c;
+
+    switch (colnum) {
+        case 1:dest=CmdsColors[setnum].color1;
+               break;
+        case 2:dest=CmdsColors[setnum].color2;
+               break;
+        case 3:dest=CmdsColors[setnum].color3;
+               break;
+        case 4:dest=CmdsColors[setnum].color4;
+               break;
+        case 5:dest=CmdsColors[setnum].color5;
+               break;
+        case 6:dest=CmdsColors[setnum].color6;
+               break;
+    }
+    strcpy(tmpbuf,colstr);
+    c=tmpbuf;
+    while (*c && !isspace(*c)) c++;
+    *c='\0';
+    strcpy(dest,tmpbuf);
+}
+
+/* return terminal sequence for color string */
+char *term_seq(color)
+char *color;
+{
+    static char buf[256];
+
+    if (!set_color(color,buf)) *buf='\0';
+    return(buf);
 }
 
 void read_file() {
@@ -236,22 +380,7 @@ void read_file() {
             if (number==-1) continue;
             for (i=1;number<NUMCMDCOLORS && *tmpstr && i<7;i++) {
                 while (*tmpstr && isspace(*tmpstr)) tmpstr++;
-                if (set_color(tmpstr,tmpbuf2)) {
-                    switch (i) {
-                        case 1:strcpy(CmdsColors[number].color1,tmpbuf2);
-                               break;
-                        case 2:strcpy(CmdsColors[number].color2,tmpbuf2);
-                               break;
-                        case 3:strcpy(CmdsColors[number].color3,tmpbuf2);
-                               break;
-                        case 4:strcpy(CmdsColors[number].color4,tmpbuf2);
-                               break;
-                        case 5:strcpy(CmdsColors[number].color5,tmpbuf2);
-                               break;
-                        case 6:strcpy(CmdsColors[number].color6,tmpbuf2);
-                               break;
-                    }
-                }
+                set_colstr(number,i,tmpstr);
                 while (*tmpstr && !isspace(*tmpstr)) tmpstr++;
             }
         }
@@ -279,56 +408,11 @@ void get_colors(number,buffer)
 int  number;
 char *buffer;
 {
-    int i;
-
     strcpy(buffer,"");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color1,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    strcat(buffer,"  ");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color2,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    strcat(buffer,"  ");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color3,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    strcat(buffer,"  ");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color4,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    strcat(buffer,"  ");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color5,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    strcat(buffer,"  ");
-    for (i=0;i<NUMCOLORS;i++) {
-        if (strstr(CmdsColors[number].color6,Colors[i])) {
-            strcat(buffer,get_color_name(i));
-            strcat(buffer,",");
-        }
-    }
-    if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
+    sprintf(buffer,"%s %s %s %s %s %s", CmdsColors[number].color1,
+            CmdsColors[number].color2,CmdsColors[number].color3,
+            CmdsColors[number].color4,CmdsColors[number].color5,
+            CmdsColors[number].color6);
 }
 
 void save_colors(fp)
@@ -422,7 +506,7 @@ void colorset(color)
 char *color;
 {
     printf("%s",Colors[COLOFF]);
-    printf("%s",color);
+    printf("%s",term_seq(color));
 }
 
 void attrset(color)
@@ -461,9 +545,11 @@ void draw_screen() {
     attrset(COLWHITE);
     /* Colors */
     for (i=1;i<NUMCOLORS;i++) {
-        attrset(i);
+        printf(Colors[COLOFF]);
+        printf(Colors[i]);
+        if (i>COLREDBG) printf(Colors[COLBLACK]);
         move(YCOLORS+i,XCOLORS);
-        printf("%s",ColorNames[i]);
+        printf("%-10s",ColorNames[i]);
     }
     display_settings();
     /* Description of keys */
@@ -477,31 +563,41 @@ void draw_screen() {
     attradd(COLBOLD);
     printf("Q");
     attrset(COLWHITE);
-    printf(" Quit   ");
+    printf(" Quit  ");
     attrset(COLYELLOW);
     attradd(COLBOLD);
     printf("S");
     attrset(COLWHITE);
-    printf(" Save   ");
+    printf(" Save  ");
     attrset(COLYELLOW);
     attradd(COLBOLD);
     printf("Cursors");
     attrset(COLWHITE);
-    printf(" Move   ");
+    printf(" Move  ");
     attrset(COLYELLOW);
     attradd(COLBOLD);
     printf("Space");
     attrset(COLWHITE);
-    printf(" Select   ");
+    printf(" Select  ");
     attrset(COLYELLOW);
     attradd(COLBOLD);
     printf("1-6");
     attrset(COLWHITE);
-    printf(" Color");
+    printf(" Color  ");
+    attrset(COLYELLOW);
+    attradd(COLBOLD);
+    printf("E");
+    attrset(COLWHITE);
+    printf(" Enter text");
     attrset(COLYELLOW);
     attradd(COLBOLD);
     move(YSCRCOLORS+7,XSCRCOLORS);
     printf("Example :");
+    attrset(COLWHITE);
+    move(YSCRCOLORS,XSCRCOLORS+18);
+    printf("Ff : FG color +/-");
+    move(YSCRCOLORS+1,XSCRCOLORS+18);
+    printf("Bb : BG color +/-");
     attrset(COLCYAN);
     attradd(COLBOLD);
     move(YSCRCOLORS+scrcolor,XSCRCOLORS+9);
@@ -520,11 +616,11 @@ int  curcolor;
     strcpy(tmpbuf,"");
     for (i=COLOFF;i<NUMCOLORS;i++) {
         if (i>=lowcolor && i<=highcolor) {
-            if (i!=curcolor && strstr(colbuf,Colors[i])) strcat(tmpbuf,Colors[i]);
+            if (i!=curcolor && strstr(colbuf,ColorNames[i])) strcat(tmpbuf,ColorNames[i]);
         }
-        else if (strstr(colbuf,Colors[i])) strcat(tmpbuf,Colors[i]);
+        else if (strstr(colbuf,ColorNames[i])) strcat(tmpbuf,ColorNames[i]);
     }
-    if (!strstr(colbuf,Colors[curcolor])) strcat(tmpbuf,Colors[curcolor]);
+    if (!strstr(colbuf,ColorNames[curcolor])) strcat(tmpbuf,ColorNames[curcolor]);
     strcpy(colbuf,tmpbuf);
 }
 
@@ -536,14 +632,192 @@ int  curcolor;
 {
     int  i;
     char tmpbuf[mybufsize];
+    char namebuf[mybufsize];
+    char *c1;
+    char *c2;
 
     strcpy(tmpbuf,"");
+    strcpy(namebuf,get_color_name(curcolor));
     for (i=COLOFF;i<NUMCOLORS;i++) {
-        if ((i<lowcolor || i>highcolor) && strstr(colbuf,Colors[i]))
-            strcat(tmpbuf,Colors[i]);
+        c1=get_color_name(i);
+        /* only match when c1 ends in ',' or '\0' - needed so that */
+        /* BLUE doesn't match BLUEBG for example */
+        if ((i<lowcolor || i>highcolor) && (c2=strstr(colbuf,c1)) && (*(c2+strlen(c1))==',' || !*(c2+strlen(c1)))) {
+            if (*tmpbuf) strcat(tmpbuf,",");
+            strcat(tmpbuf,get_color_name(i));
+        }
     }
-    strcat(tmpbuf,Colors[curcolor]);
+    if (*tmpbuf) strcat(tmpbuf,",");
+    strcat(tmpbuf,namebuf);
     strcpy(colbuf,tmpbuf);
+}
+
+void inc_dec_color(key)
+char key;
+{
+    char colstr[256];
+    char newstr[256];
+    char *findstr="FG";
+    char *c;
+    char *dest;
+
+    switch (scrcolor) {
+        case 0:
+            dest=CmdsColors[setting+startset].color1;
+            break;
+        case 1:
+            dest=CmdsColors[setting+startset].color2;
+            break;
+        case 2:
+            dest=CmdsColors[setting+startset].color3;
+            break;
+        case 3:
+            dest=CmdsColors[setting+startset].color4;
+            break;
+        case 4:
+            dest=CmdsColors[setting+startset].color5;
+            break;
+        case 5:
+            dest=CmdsColors[setting+startset].color6;
+            break;
+    }
+
+    strcpy(colstr,dest);
+
+    if (tolower(key)=='b')
+        findstr="BG";
+
+    if ((c=strstr(colstr,findstr))) {
+        char *z;
+        char o=0;
+        int  colnum;
+
+        /* skip over FG/BG */
+        z=c=c+2;
+        /* skip over color number */
+        while (*z && *z!=',') z++;
+        if (*z) {
+            o=*z;
+            *z='\0';
+        }
+
+        if (!is_number(c)) return;
+        colnum=atoi(c);
+
+        /* we reached end of string above */
+        *c='\0';
+
+        if (key=='b' || key=='f') {
+            colnum--;
+            if (colnum<0) colnum=0;
+        }
+        else {
+            colnum++;
+            if (colnum>COLORS-1) colnum=COLORS-1;
+        }
+
+        /* now reconstruct color string */
+        memset(newstr,0,sizeof(newstr));
+        /* the part up to the match and new number */
+        sprintf(newstr,"%s%d",colstr,colnum);
+        if (o) sprintf(newstr+strlen(newstr),"%c",o);
+        /* the part after the "o" */
+        sprintf(newstr+strlen(newstr),"%s",o?z+1:"");
+        strcpy(dest,newstr);
+        print_colors();
+    }
+}
+
+void edit_color()
+{
+    int  i;
+    char *dest;
+    char tmpbuf1[mybufsize];
+    char tmpbuf2[mybufsize];
+    char *c;
+    struct termios tc1;
+    struct termios tc2;
+
+    switch (scrcolor) {
+        case 0:
+            dest=CmdsColors[setting+startset].color1;
+            break;
+        case 1:
+            dest=CmdsColors[setting+startset].color2;
+            break;
+        case 2:
+            dest=CmdsColors[setting+startset].color3;
+            break;
+        case 3:
+            dest=CmdsColors[setting+startset].color4;
+            break;
+        case 4:
+            dest=CmdsColors[setting+startset].color5;
+            break;
+        case 5:
+            dest=CmdsColors[setting+startset].color6;
+            break;
+    }
+
+    /* clear example area so that prompt is visible */
+    attrset(COLWHITE);
+    for (i=7;i<16;i++) {
+        move(YSCRCOLORS+i,XSCRCOLORS);
+        printf("                                                     ");
+    }
+
+    /* enable echo and disable raw mode for terminal */
+    tcgetattr(0,&tc1);
+    tc2=tc1;
+    tc2.c_lflag=ECHO|ECHOE|ICANON;
+    tcsetattr(0,TCSANOW,&tc2);
+
+    printf("\033[?25h\n");   /* enable cursor */
+
+    move(YSCRCOLORS+10,XSCRCOLORS);
+    attrset(COLGREEN);
+    attradd(COLBOLD);
+    printf("Color string: ");
+    attrset(COLWHITE);
+
+    fgets(tmpbuf1,64,stdin);
+    while (tmpbuf1[strlen(tmpbuf1)-1]=='\n' || tmpbuf1[strlen(tmpbuf1)-1]=='\r')
+        tmpbuf1[strlen(tmpbuf1)-1]='\0';
+    for (c=tmpbuf1;*c;c++) *c=toupper(*c);
+
+    /* restore terminal */
+    tcsetattr(0,TCSANOW,&tc1);
+ 
+    printf("\033[?25l\n");   /* disable cursor */
+
+    if (!build_color_new(tmpbuf1,tmpbuf2)) {
+        move(YSCRCOLORS+11,XSCRCOLORS);
+        attrset(COLREDBG);
+        attradd(COLWHITE);
+        attradd(COLBOLD);
+        printf("Wrong input:");
+        attrset(COLWHITE);
+        printf(" %s",tmpbuf1);
+        fflush(stdout);
+        sleep(5);
+    }
+    else {
+        strcpy(dest,tmpbuf1);
+    }
+
+    /* restore example area */
+    attrset(COLYELLOW);
+    attradd(COLBOLD);
+    move(YSCRCOLORS+7,XSCRCOLORS);
+    printf("Example :");
+
+    /* redraw screen */
+    move(YSCRCOLORS+10,XSCRCOLORS);
+    printf("                                                     ");
+    move(YSCRCOLORS+11,XSCRCOLORS);
+    printf("                                                     ");
+    SettingNames[setting+startset].func();
+    print_colors();
 }
 
 void do_it() {
@@ -581,6 +855,7 @@ void do_it() {
                 attrset(COLWHITE);
                 printf(" ");
                 attrset(lastcolor);
+                if (lastcolor>COLREDBG) attradd(COLBLACK);
                 printf("%-10s",ColorNames[lastcolor]);
                 attrset(COLWHITE);
                 printf(" ");
@@ -592,8 +867,12 @@ void do_it() {
                 }
                 else {
                     attrset(COLCYANBG);
-                    attradd(COLWHITE);
-                    attradd(COLBOLD);
+                    if (color>COLREDBG)
+                        attradd(COLBLACK);
+                    else {
+                        attradd(COLWHITE);
+                        attradd(COLBOLD);
+                    }
                 }
                 printf(" ");
                 printf("%-10s",ColorNames[color]);
@@ -631,17 +910,17 @@ void do_it() {
             }
             if (key=='c' || key=='C') {
                 switch (scrcolor) {
-                    case 0:strcpy(CmdsColors[setting+startset].color1,Colors[COLWHITE]);
+                    case 0:strcpy(CmdsColors[setting+startset].color1,"WHITE");
                            break;
-                    case 1:strcpy(CmdsColors[setting+startset].color2,Colors[COLWHITE]);
+                    case 1:strcpy(CmdsColors[setting+startset].color2,"WHITE");
                            break;
-                    case 2:strcpy(CmdsColors[setting+startset].color3,Colors[COLWHITE]);
+                    case 2:strcpy(CmdsColors[setting+startset].color3,"WHITE");
                            break;
-                    case 3:strcpy(CmdsColors[setting+startset].color4,Colors[COLWHITE]);
+                    case 3:strcpy(CmdsColors[setting+startset].color4,"WHITE");
                            break;
-                    case 4:strcpy(CmdsColors[setting+startset].color5,Colors[COLWHITE]);
+                    case 4:strcpy(CmdsColors[setting+startset].color5,"WHITE");
                            break;
-                    case 5:strcpy(CmdsColors[setting+startset].color6,Colors[COLWHITE]);
+                    case 5:strcpy(CmdsColors[setting+startset].color6,"WHITE");
                            break;
                 }
                 disp=3;
@@ -707,6 +986,10 @@ void do_it() {
                 }
                 disp=3;
             }
+            if (key=='f' || key=='F' || key=='b' || key=='B')
+                inc_dec_color(key);
+            if (key=='e' || key=='E')
+                edit_color();
             if (key=='\033') {
                 key=getchar();
                 if (key=='[') {
@@ -783,17 +1066,17 @@ void print_colors() {
         move(YSCRCOLORS+i,XSCRCOLORS);
         attrset(COLWHITE);
         switch (i) {
-            case 0: printf("%s",CmdsColors[setting+startset].color1);
+            case 0: printf("%s",term_seq(CmdsColors[setting+startset].color1));
                     break;
-            case 1: printf("%s",CmdsColors[setting+startset].color2);
+            case 1: printf("%s",term_seq(CmdsColors[setting+startset].color2));
                     break;
-            case 2: printf("%s",CmdsColors[setting+startset].color3);
+            case 2: printf("%s",term_seq(CmdsColors[setting+startset].color3));
                     break;
-            case 3: printf("%s",CmdsColors[setting+startset].color4);
+            case 3: printf("%s",term_seq(CmdsColors[setting+startset].color4));
                     break;
-            case 4: printf("%s",CmdsColors[setting+startset].color5);
+            case 4: printf("%s",term_seq(CmdsColors[setting+startset].color5));
                     break;
-            case 5: printf("%s",CmdsColors[setting+startset].color6);
+            case 5: printf("%s",term_seq(CmdsColors[setting+startset].color6));
                     break;
         }
         printf("Color%d",i+1);
@@ -804,363 +1087,309 @@ void init_sz_colors() {
     int i;
 
     for (i=0;i<NUMCMDCOLORS;i++) {
-        strcpy(CmdsColors[i].color1,Colors[COLWHITE]);
-        strcpy(CmdsColors[i].color2,Colors[COLWHITE]);
-        strcpy(CmdsColors[i].color3,Colors[COLWHITE]);
-        strcpy(CmdsColors[i].color4,Colors[COLWHITE]);
-        strcpy(CmdsColors[i].color5,Colors[COLWHITE]);
-        strcpy(CmdsColors[i].color6,Colors[COLWHITE]);
+        strcpy(CmdsColors[i].color1,"WHITE");
+        strcpy(CmdsColors[i].color2,"WHITE");
+        strcpy(CmdsColors[i].color3,"WHITE");
+        strcpy(CmdsColors[i].color4,"WHITE");
+        strcpy(CmdsColors[i].color5,"WHITE");
+        strcpy(CmdsColors[i].color6,"WHITE");
     }
     /* Warnings - floods, errors in C-Toolz.save, mass commands, */
     /*            protection violations */
     /* Warning itself */
-    strcpy(CmdsColors[COLWARNING].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWARNING].color1,Colors[COLRED]);
+    strcpy(CmdsColors[COLWARNING].color1,"BOLD,RED");
     /* Nick */
-    strcpy(CmdsColors[COLWARNING].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWARNING].color2,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLWARNING].color2,"BOLD,WHITE");
     /* Userhost */
-    strcpy(CmdsColors[COLWARNING].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWARNING].color3,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLWARNING].color3,"BOLD,YELLOW");
     /* Channel */
-    strcpy(CmdsColors[COLWARNING].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWARNING].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLWARNING].color4,"BOLD,CYAN");
 
     /* Joins */
     /* Nick */
-    strcpy(CmdsColors[COLJOIN].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLJOIN].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLJOIN].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLJOIN].color2,"PURPLE");
     /* Channel */
-    strcpy(CmdsColors[COLJOIN].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLJOIN].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLJOIN].color3,"BOLD,CYAN");
     /* Synched */
-    strcpy(CmdsColors[COLJOIN].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLJOIN].color4,"WHITE");
     /* Friends */
-    strcpy(CmdsColors[COLJOIN].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLJOIN].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLJOIN].color5,"BOLD,CYAN");
     /* Shitted */
-    strcpy(CmdsColors[COLJOIN].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLJOIN].color6,Colors[COLRED]);
+    strcpy(CmdsColors[COLJOIN].color6,"BOLD,RED");
 
     /* MSGs */
     /* Nick */
-    strcpy(CmdsColors[COLMSG].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMSG].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLMSG].color1,"BOLD,CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLMSG].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLMSG].color2,"PURPLE");
     /* Message */
-    strcpy(CmdsColors[COLMSG].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLMSG].color3,"WHITE");
     /* Time */
-    strcpy(CmdsColors[COLMSG].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMSG].color4,Colors[COLBLACK]);
+    strcpy(CmdsColors[COLMSG].color4,"BOLD,BLACK");
     /* [] */
-    strcpy(CmdsColors[COLMSG].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMSG].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLMSG].color5,"BOLD,CYAN");
     /* Nick you sent message to */
-    strcpy(CmdsColors[COLMSG].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLMSG].color6,"CYAN");
 
     /* Notices */
     /* Nick */
-    strcpy(CmdsColors[COLNOTICE].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTICE].color1,Colors[COLGREEN]);
+    strcpy(CmdsColors[COLNOTICE].color1,"BOLD,GREEN");
     /* Nick you send notice to */
-    strcpy(CmdsColors[COLNOTICE].color2,Colors[COLGREEN]);
+    strcpy(CmdsColors[COLNOTICE].color2,"GREEN");
     /* Message */
-    strcpy(CmdsColors[COLNOTICE].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNOTICE].color3,"WHITE");
     /* <> */
-    strcpy(CmdsColors[COLNOTICE].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTICE].color4,Colors[COLGREEN]);
+    strcpy(CmdsColors[COLNOTICE].color4,"BOLD,GREEN");
     /* - in received notice */
-    strcpy(CmdsColors[COLNOTICE].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTICE].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNOTICE].color5,"BOLD,WHITE");
 
     /* Netsplits, netjoins */
     /* Message */
-    strcpy(CmdsColors[COLNETSPLIT].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNETSPLIT].color1,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNETSPLIT].color1,"BOLD,WHITE");
     /* Time */
-    strcpy(CmdsColors[COLNETSPLIT].color2,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNETSPLIT].color2,"WHITE");
     /* Servers */
-    strcpy(CmdsColors[COLNETSPLIT].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNETSPLIT].color3,"WHITE");
     /* Channel */
-    strcpy(CmdsColors[COLNETSPLIT].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNETSPLIT].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNETSPLIT].color4,"BOLD,CYAN");
     /* Nicks */
-    strcpy(CmdsColors[COLNETSPLIT].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNETSPLIT].color5,"CYAN");
     /* <- */
-    strcpy(CmdsColors[COLNETSPLIT].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNETSPLIT].color6,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLNETSPLIT].color6,"BOLD,YELLOW");
 
     /* Invites */
     /* Nick */
-    strcpy(CmdsColors[COLINVITE].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLINVITE].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLINVITE].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLINVITE].color2,"PURPLE");
     /* Channel */
-    strcpy(CmdsColors[COLINVITE].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLINVITE].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLINVITE].color3,"BOLD,CYAN");
     /* fake word */
-    strcpy(CmdsColors[COLINVITE].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLINVITE].color4,Colors[COLRED]);
+    strcpy(CmdsColors[COLINVITE].color4,"BOLD,RED");
 
     /* Mode changes */
     /* Nick */
-    strcpy(CmdsColors[COLMODE].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLMODE].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLMODE].color2,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLMODE].color2,"WHITE");
     /* Channel */
-    strcpy(CmdsColors[COLMODE].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMODE].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLMODE].color3,"BOLD,CYAN");
     /* Mode */
-    strcpy(CmdsColors[COLMODE].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLMODE].color4,"WHITE");
     /* Message */
-    strcpy(CmdsColors[COLMODE].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMODE].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLMODE].color5,"BOLD,WHITE");
     /* Fake word */
-    strcpy(CmdsColors[COLMODE].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLMODE].color6,Colors[COLRED]);
+    strcpy(CmdsColors[COLMODE].color6,"BOLD,RED");
 
     /* Settings */
     /* Header */
-    strcpy(CmdsColors[COLSETTING].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLSETTING].color1,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLSETTING].color1,"BOLD,WHITE");
     /* Setting - ON,OFF,5,#te,... */
-    strcpy(CmdsColors[COLSETTING].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLSETTING].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLSETTING].color2,"BOLD,PURPLE");
     /* Comment for shit list */
-    strcpy(CmdsColors[COLSETTING].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLSETTING].color3,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLSETTING].color3,"BOLD,YELLOW");
     /* Userhost */
-    strcpy(CmdsColors[COLSETTING].color4,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLSETTING].color4,"PURPLE");
     /* Channels */
-    strcpy(CmdsColors[COLSETTING].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLSETTING].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLSETTING].color5,"BOLD,CYAN");
 
     /* Leaves */
     /* Nick */
-    strcpy(CmdsColors[COLLEAVE].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLLEAVE].color1,"CYAN");
     /* Channel */
-    strcpy(CmdsColors[COLLEAVE].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLEAVE].color2,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLLEAVE].color2,"BOLD,CYAN");
     /* Reason */
-    strcpy(CmdsColors[COLLEAVE].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLLEAVE].color3,"WHITE");
     /* Friends */
-    strcpy(CmdsColors[COLLEAVE].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLEAVE].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLLEAVE].color4,"BOLD,CYAN");
     /* Shitted */
-    strcpy(CmdsColors[COLLEAVE].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLEAVE].color5,Colors[COLRED]);
+    strcpy(CmdsColors[COLLEAVE].color5,"BOLD,RED");
     /* Reason (for 2.9 servers) */
-    strcpy(CmdsColors[COLLEAVE].color6,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLLEAVE].color6,"WHITE");
 
     /* Notify */
     /* Nick */
-    strcpy(CmdsColors[COLNOTIFY].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNOTIFY].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLNOTIFY].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLNOTIFY].color2,"PURPLE");
     /* Time */
-    strcpy(CmdsColors[COLNOTIFY].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTIFY].color3,Colors[COLBLACK]);
+    strcpy(CmdsColors[COLNOTIFY].color3,"BOLD,BLACK");
     /* Message */
-    strcpy(CmdsColors[COLNOTIFY].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTIFY].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNOTIFY].color4,"BOLD,WHITE");
     /* Signon-ed nicks */
-    strcpy(CmdsColors[COLNOTIFY].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTIFY].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNOTIFY].color5,"BOLD,CYAN");
     /* Signon-ed friends */
-    strcpy(CmdsColors[COLNOTIFY].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNOTIFY].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNOTIFY].color6,"BOLD,CYAN");
 
     /* CTCPs */
     /* Nick */
-    strcpy(CmdsColors[COLCTCP].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCTCP].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLCTCP].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLCTCP].color2,"PURPLE");
     /* Channel */
-    strcpy(CmdsColors[COLCTCP].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCTCP].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCTCP].color3,"BOLD,CYAN");
     /* Command */
-    strcpy(CmdsColors[COLCTCP].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCTCP].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCTCP].color4,"BOLD,CYAN");
 
     /* Kicks */
     /* Nick */
-    strcpy(CmdsColors[COLKICK].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLKICK].color1,"CYAN");
     /* Who */
-    strcpy(CmdsColors[COLKICK].color2,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLKICK].color2,"CYAN");
     /* Channel */
-    strcpy(CmdsColors[COLKICK].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLKICK].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLKICK].color3,"BOLD,CYAN");
     /* Comment */
-    strcpy(CmdsColors[COLKICK].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLKICK].color4,"WHITE");
     /* Kick */
-    strcpy(CmdsColors[COLKICK].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLKICK].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLKICK].color5,"BOLD,WHITE");
     /* Friends */
-    strcpy(CmdsColors[COLKICK].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLKICK].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLKICK].color6,"BOLD,CYAN");
 
     /* DCCs */
     /* Nick */
-    strcpy(CmdsColors[COLDCC].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLDCC].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLDCC].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLDCC].color2,"PURPLE");
     /* Command */
-    strcpy(CmdsColors[COLDCC].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCC].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLDCC].color3,"BOLD,WHITE");
     /* What */
-    strcpy(CmdsColors[COLDCC].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLDCC].color4,"CYAN");
     /* Dcc */
-    strcpy(CmdsColors[COLDCC].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCC].color5,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLDCC].color5,"BOLD,YELLOW");
     /* Warning */
-    strcpy(CmdsColors[COLDCC].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCC].color6,Colors[COLRED]);
+    strcpy(CmdsColors[COLDCC].color6,"BOLD,RED");
 
     /* WHO */
     /* Nick */
-    strcpy(CmdsColors[COLWHO].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLWHO].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLWHO].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLWHO].color2,"PURPLE");
     /* Channel */
-    strcpy(CmdsColors[COLWHO].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWHO].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLWHO].color3,"BOLD,CYAN");
     /* Mode */
-    strcpy(CmdsColors[COLWHO].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLWHO].color4,"WHITE");
     /* Name */
-    strcpy(CmdsColors[COLWHO].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWHO].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLWHO].color5,"BOLD,WHITE");
 
     /* WHOIS */
     /* Nick */
-    strcpy(CmdsColors[COLWHOIS].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLWHOIS].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLWHOIS].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLWHOIS].color2,"PURPLE");
     /* Channels */
-    strcpy(CmdsColors[COLWHOIS].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWHOIS].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLWHOIS].color3,"BOLD,CYAN");
     /* Server */
-    strcpy(CmdsColors[COLWHOIS].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLWHOIS].color4,"WHITE");
     /* Channels,Server,SignOn,Idle,IrcOp */
-    strcpy(CmdsColors[COLWHOIS].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWHOIS].color5,Colors[COLBLUE]);
+    strcpy(CmdsColors[COLWHOIS].color5,"BOLD,BLUE");
     /* Channels in friend */
-    strcpy(CmdsColors[COLWHOIS].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLWHOIS].color6,Colors[COLRED]);
+    strcpy(CmdsColors[COLWHOIS].color6,"BOLD,RED");
 
     /* Public MSGs */
     /* Nick */
-    strcpy(CmdsColors[COLPUBLIC].color1,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLPUBLIC].color1,"WHITE");
     /* < and > */
-    strcpy(CmdsColors[COLPUBLIC].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLPUBLIC].color2,Colors[COLBLUE]);
+    strcpy(CmdsColors[COLPUBLIC].color2,"BOLD,BLUE");
     /* Channel */
-    strcpy(CmdsColors[COLPUBLIC].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLPUBLIC].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLPUBLIC].color3,"BOLD,CYAN");
     /* Auto reply */
-    strcpy(CmdsColors[COLPUBLIC].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLPUBLIC].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLPUBLIC].color4,"BOLD,CYAN");
     /* Line */
-    strcpy(CmdsColors[COLPUBLIC].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLPUBLIC].color5,"WHITE");
     /* Your nick if Ego is on */
-    strcpy(CmdsColors[COLPUBLIC].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLPUBLIC].color6,"CYAN");
 
     /* Cdcc */
     /* Nick */
-    strcpy(CmdsColors[COLCDCC].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCDCC].color1,"CYAN");
     /* Userhost */
-    strcpy(CmdsColors[COLCDCC].color2,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLCDCC].color2,"PURPLE");
     /* What */
-    strcpy(CmdsColors[COLCDCC].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCDCC].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLCDCC].color3,"BOLD,WHITE");
     /* Line */
-    strcpy(CmdsColors[COLCDCC].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCDCC].color4,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLCDCC].color4,"BOLD,YELLOW");
     /* Files/bytes */
-    strcpy(CmdsColors[COLCDCC].color5,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCDCC].color5,"CYAN");
     /* Channel */
-    strcpy(CmdsColors[COLCDCC].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCDCC].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCDCC].color6,"BOLD,CYAN");
 
     /* Links */
     /* Server */
-    strcpy(CmdsColors[COLLINKS].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLLINKS].color1,"CYAN");
     /* Uplink */
-    strcpy(CmdsColors[COLLINKS].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLINKS].color2,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLLINKS].color2,"BOLD,CYAN");
     /* Distance */
-    strcpy(CmdsColors[COLLINKS].color3,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLINKS].color3,Colors[COLYELLOW]);
+    strcpy(CmdsColors[COLLINKS].color3,"BOLD,YELLOW");
     /* > */
-    strcpy(CmdsColors[COLLINKS].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLLINKS].color4,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLLINKS].color4,"BOLD,WHITE");
     /* Border */
-    strcpy(CmdsColors[COLLINKS].color5,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLLINKS].color5,"PURPLE");
 
     /* DCC CHAT */
     /* Nick */
-    strcpy(CmdsColors[COLDCCCHAT].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCCCHAT].color1,Colors[COLRED]);
+    strcpy(CmdsColors[COLDCCCHAT].color1,"BOLD,RED");
     /* = */
-    strcpy(CmdsColors[COLDCCCHAT].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCCCHAT].color2,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLDCCCHAT].color2,"BOLD,WHITE");
     /* Line */
-    strcpy(CmdsColors[COLDCCCHAT].color3,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLDCCCHAT].color3,"WHITE");
     /* [ */
-    strcpy(CmdsColors[COLDCCCHAT].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLDCCCHAT].color4,Colors[COLRED]);
+    strcpy(CmdsColors[COLDCCCHAT].color4,"BOLD,RED");
     /* Nick you sent chat message to */
-    strcpy(CmdsColors[COLDCCCHAT].color5,Colors[COLRED]);
+    strcpy(CmdsColors[COLDCCCHAT].color5,"RED");
     
     /* CSCAN */
     /* Channel */
-    strcpy(CmdsColors[COLCSCAN].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCSCAN].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCSCAN].color1,"BOLD,CYAN");
     /* Friends */
-    strcpy(CmdsColors[COLCSCAN].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCSCAN].color2,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCSCAN].color2,"BOLD,CYAN");
     /* Ops */
-    strcpy(CmdsColors[COLCSCAN].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLCSCAN].color3,"CYAN");
     /* Voiced */
-    strcpy(CmdsColors[COLCSCAN].color4,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLCSCAN].color4,"PURPLE");
     /* Normal */
-    strcpy(CmdsColors[COLCSCAN].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLCSCAN].color5,"WHITE");
     /* Shitted */
-    strcpy(CmdsColors[COLCSCAN].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLCSCAN].color6,Colors[COLRED]);
+    strcpy(CmdsColors[COLCSCAN].color6,"BOLD,RED");
 
     /* Nick change */
     /* Old nick */
-    strcpy(CmdsColors[COLNICK].color1,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNICK].color1,"CYAN");
     /* known */
-    strcpy(CmdsColors[COLNICK].color2,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLNICK].color2,"WHITE");
     /* New nick */
-    strcpy(CmdsColors[COLNICK].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLNICK].color3,"CYAN");
     /* @ in Cscan */
-    strcpy(CmdsColors[COLNICK].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNICK].color4,Colors[COLGREEN]);
+    strcpy(CmdsColors[COLNICK].color4,"BOLD,GREEN");
     /* + in Cscan */
-    strcpy(CmdsColors[COLNICK].color5,Colors[COLBOLD]);
-    strcat(CmdsColors[COLNICK].color5,Colors[COLPURPLE]);
+    strcpy(CmdsColors[COLNICK].color5,"BOLD,PURPLE");
 
     /* /ME */
     /* * or ì */
-    strcpy(CmdsColors[COLME].color1,Colors[COLBOLD]);
-    strcat(CmdsColors[COLME].color1,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLME].color1,"BOLD,WHITE");
     /* Your nick */
-    strcpy(CmdsColors[COLME].color2,Colors[COLBOLD]);
-    strcat(CmdsColors[COLME].color2,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLME].color2,"BOLD,CYAN");
     /* Nick */
-    strcpy(CmdsColors[COLME].color3,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLME].color3,"CYAN");
     /* Target */
-    strcpy(CmdsColors[COLME].color4,Colors[COLBOLD]);
-    strcat(CmdsColors[COLME].color4,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLME].color4,"BOLD,CYAN");
     /* Line */
-    strcpy(CmdsColors[COLME].color5,Colors[COLWHITE]);
+    strcpy(CmdsColors[COLME].color5,"WHITE");
     /* Auto Reply */
-    strcpy(CmdsColors[COLME].color6,Colors[COLBOLD]);
-    strcat(CmdsColors[COLME].color6,Colors[COLCYAN]);
+    strcpy(CmdsColors[COLME].color6,"BOLD,CYAN");
+
+    /* Misc Colors */
+    /* Color of @ in user@host */
+    strcpy(CmdsColors[COLMISC].color1,"BOLD,WHITE");
+    /* Color of ()s arround user@host */
+    strcpy(CmdsColors[COLMISC].color2,"BOLD,WHITE");
+    /* Colors of (msg) etc in CELECOSM */
+    strcat(CmdsColors[COLMISC].color3,"BLUE");
+    /* Color of <>s for friends in publics */
+    strcpy(CmdsColors[COLMISC].color4,"BOLD,CYAN");
+    /* Color of <>s for you in publics */
+    strcpy(CmdsColors[COLMISC].color5,"BOLD,BLUE");
 }
 
 void disp_warning() {
@@ -1182,23 +1411,41 @@ void disp_warning() {
     printf("line 7");
 }
 
+void print_userhost(color,user,host,parens)
+char *color;
+char *user;
+char *host;
+int  parens;
+{
+    char buf1[256];
+    char buf2[256];
+    char buf3[256];
+
+    strcpy(buf1,term_seq(CmdsColors[COLMISC].color2));
+    strcpy(buf2,term_seq(color));
+    strcpy(buf3,term_seq(CmdsColors[COLMISC].color1));
+
+    if (parens) {
+        printf("%s(%s%s%s%s%s@%s%s%s%s%s)%s",
+                buf1,Colors[COLOFF],
+                buf2,user,Colors[COLOFF],
+                buf3,Colors[COLOFF],
+                buf2,host,Colors[COLOFF],
+                buf1,Colors[COLOFF]);
+    }
+    else {
+        printf("%s%s%s%s@%s%s%s%s",
+                buf2,user,Colors[COLOFF],
+                buf3,Colors[COLOFF],
+                buf2,host,Colors[COLOFF]);
+    }
+}
+
 void disp_join() {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" has joined channel ");
     colorset(COLOR3);
@@ -1262,16 +1509,7 @@ void disp_msg() {
     printf("Toilets rule");
     attrset(COLWHITE);
     printf("  ");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" [");
     colorset(COLOR4);
@@ -1417,40 +1655,20 @@ void disp_netsplit() {
 void disp_invite() {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
-    printf("Bat");
+    printf("Bat ");
     attrset(COLBOLD);
     attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("bat");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("leet.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    print_userhost(COLOR2,"bat","leet.com",1);
     attrset(COLWHITE);
     printf(" invites you to channel ");
     colorset(COLOR3);
     printf("#te");
     colorset(COLOR1);
     move(YSCRCOLORS+9,XSCRCOLORS);
-    printf("Bat");
+    printf("Bat ");
     attrset(COLBOLD);
     attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("bat");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("leet.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    print_userhost(COLOR2,"bat","leet.com",1);
     attrset(COLWHITE);
     printf(" invites you to channel ");
     colorset(COLOR3);
@@ -1716,20 +1934,8 @@ void disp_notify() {
     attrset(COLWHITE);
     printf(" detected: ");
     colorset(COLOR1);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" [");
     colorset(COLOR3);
@@ -1744,20 +1950,8 @@ void disp_notify() {
     attrset(COLWHITE);
     printf(" detected: ");
     colorset(COLOR1);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" [");
     colorset(COLOR3);
@@ -1774,34 +1968,14 @@ void disp_notify() {
     attradd(COLWHITE);
     printf(") ");
     colorset(COLOR5);
-    printf("Beavis");
-    attrset(COLWHITE);
-    printf("      [");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLWHITE);
-    printf("]");
+    printf("Beavis      ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     move(YSCRCOLORS+11,XSCRCOLORS);
     attrset(COLWHITE);
     printf("          ");
     colorset(COLOR5);
-    printf("Butt-head");
-    attrset(COLWHITE);
-    printf("   [");
-    colorset(COLOR2);
-    printf("Butt-head");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("bites.com");
-    attrset(COLWHITE);
-    printf("]");
+    printf("Butt-head   ");
+    print_userhost(COLOR2,"Butt-head","bites.com",1);
     move(YSCRCOLORS+12,XSCRCOLORS);
     attrset(COLBOLD);
     attradd(COLWHITE);
@@ -1841,20 +2015,8 @@ void disp_ctcp() {
     attrset(COLWHITE);
     printf(" from ");
     colorset(COLOR1);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" to ");
     colorset(COLOR3);
@@ -1905,20 +2067,8 @@ void disp_dcc() {
     attrset(COLWHITE);
     printf(") request from ");
     colorset(COLOR1);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     move(YSCRCOLORS+9,XSCRCOLORS+4);
     colorset(COLOR6);
     printf("rejected");
@@ -1943,20 +2093,8 @@ void disp_dcc() {
     printf(" from");
     move(YSCRCOLORS+11,XSCRCOLORS+4);
     colorset(COLOR1);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(" (");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    printf("Beavis ");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     colorset(COLOR6);
     move(YSCRCOLORS+12,XSCRCOLORS);
     printf("Warning");
@@ -1965,8 +2103,8 @@ void disp_dcc() {
 }
 
 void disp_who() {
-    colorset(COLOR3);
     move(YSCRCOLORS+8,XSCRCOLORS);
+    colorset(COLOR3);
     printf("#butt");
     attrset(COLWHITE);
     printf(" ");
@@ -1978,13 +2116,7 @@ void disp_who() {
     printf("H@");
     attrset(COLWHITE);
     printf("  ");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
+    print_userhost(COLOR2,"Beavis","rocks.com",0);
     attrset(COLWHITE);
     printf(" (");
     colorset(COLOR5);
@@ -2004,13 +2136,7 @@ void disp_who() {
     printf("H*@");
     attrset(COLWHITE);
     printf(" ");
-    colorset(COLOR2);
-    printf("Butt-head");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("bites.com");
+    print_userhost(COLOR2,"Butt-head","bites.com",0);
     attrset(COLWHITE);
     printf(" (");
     colorset(COLOR5);
@@ -2026,13 +2152,9 @@ void disp_whois() {
     attrset(COLBOLD);
     attradd(COLWHITE);
     printf("   : ");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
+    attradd(COLOFF);
+    /* it doesn't really call ColorUserHost but effect is the same */
+    print_userhost(COLOR2,"Beavis","rocks.com",0);
     attrset(COLWHITE);
     printf(" (No pain no gain)");
     colorset(COLOR5);
@@ -2189,19 +2311,7 @@ void disp_cdcc() {
     colorset(COLOR1);
     printf("Beavis");
     move(YSCRCOLORS+11,XSCRCOLORS+5);
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("(");
-    colorset(COLOR2);
-    printf("Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    colorset(COLOR2);
-    printf("rocks.com");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf(")");
+    print_userhost(COLOR2,"Beavis","rocks.com",1);
     attrset(COLWHITE);
     printf(" to ");
     colorset(COLOR6);
@@ -2405,59 +2515,16 @@ void disp_cscan() {
     printf(" ");
     colorset(COLOR5);
     printf("Stewart");
-    attrset(COLWHITE);
     move(YSCRCOLORS+9,XSCRCOLORS);
-    printf("Found @");
-    colorset(COLOR2);
-    printf("Butt-head");
-    attrset(COLWHITE);
-    printf(" Butt-head");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    attrset(COLWHITE);
-    printf("leet.com with access ICOAUP");
-    attrset(COLWHITE);
-    move(YSCRCOLORS+10,XSCRCOLORS);
-    printf("Found @");
-    colorset(COLOR3);
-    printf("Beavis");
-    attrset(COLWHITE);
-    printf(" Beavis");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    attrset(COLWHITE);
-    printf("rocks.com with no access");
-    attrset(COLWHITE);
-    move(YSCRCOLORS+11,XSCRCOLORS);
-    printf("Found +");
-    colorset(COLOR4);
-    printf("Tod");
-    attrset(COLWHITE);
-    printf(" Tod");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    attrset(COLWHITE);
-    printf("rocks.com with no access");
-    attrset(COLWHITE);
-    move(YSCRCOLORS+12,XSCRCOLORS);
-    printf("Found ");
-    colorset(COLOR5);
-    printf("Stewart");
-    attrset(COLWHITE);
-    printf(" Stewart");
-    attrset(COLBOLD);
-    attradd(COLWHITE);
-    printf("@");
-    attrset(COLWHITE);
-    printf("sucks.com with no access");
-    move(YSCRCOLORS+13,XSCRCOLORS);
     colorset(COLOR6);
-    printf("color6");
+    printf("<");
     attrset(COLWHITE);
-    printf(" is for shitted people");
+    printf("Stewart");
+    colorset(COLOR6);
+    printf(">");
+    attrset(COLWHITE);
+    printf(" ");
+    printf("This is for people from shit list");
 }
 
 void disp_nick() {
@@ -2516,4 +2583,45 @@ void disp_me() {
     printf(" ");
     colorset(COLOR5);
     printf("has lots of chicks");
+}
+
+void disp_misc() {
+    char mybuf[mybufsize];
+
+    /* print_userhost() and functions it calls modify the buffer so */
+    /* we can't use static buffer here */
+    strcpy(mybuf,"WHITE");
+    move(YSCRCOLORS+8,XSCRCOLORS);
+    attradd(COLWHITE);
+    printf("*");
+    printf("Beavis");
+    printf("* ");
+    printf("Toilets rule");
+    printf("  ");
+    print_userhost(mybuf,"Beavis","rocks.com",1);
+    attrset(COLWHITE);
+    printf(" [");
+    printf("12:04");
+    printf("]");
+    printf(")");
+    move(YSCRCOLORS+9,XSCRCOLORS);
+    colorset(COLOR4);
+    printf("<");
+    attrset(COLWHITE);
+    printf("Butt-head");
+    colorset(COLOR4);
+    printf(">");
+    attrset(COLWHITE);
+    printf(" ");
+    printf("This is for people from friend list");
+    move(YSCRCOLORS+10,XSCRCOLORS);
+    colorset(COLOR5);
+    printf("<");
+    attrset(COLWHITE);
+    printf("Beavis");
+    colorset(COLOR5);
+    printf(">");
+    attrset(COLWHITE);
+    printf(" ");
+    printf("This is for your publics if EGO is on");
 }

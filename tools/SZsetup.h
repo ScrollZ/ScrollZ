@@ -50,6 +50,7 @@
 #define COLCSCAN     19
 #define COLNICK      20
 #define COLME        21
+#define COLMISC      22
 
 #define COLOR1 CmdsColors[setting+startset].color1
 #define COLOR2 CmdsColors[setting+startset].color2
@@ -122,3 +123,4 @@ void disp_dccchat();
 void disp_cscan();
 void disp_nick();
 void disp_me();
+void disp_misc();

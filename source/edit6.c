@@ -2284,11 +2284,17 @@ void CleanUp() {
 #ifdef WANTANSI
     for (i=0;i<NUMCMDCOLORS;i++) {
         new_free(&(CmdsColors[i].color1));
+        new_free(&(CmdsColors[i].color1_str));
         new_free(&(CmdsColors[i].color2));
+        new_free(&(CmdsColors[i].color2_str));
         new_free(&(CmdsColors[i].color3));
+        new_free(&(CmdsColors[i].color3_str));
         new_free(&(CmdsColors[i].color4));
+        new_free(&(CmdsColors[i].color4_str));
         new_free(&(CmdsColors[i].color5));
+        new_free(&(CmdsColors[i].color5_str));
         new_free(&(CmdsColors[i].color6));
+        new_free(&(CmdsColors[i].color6_str));
     }
 #endif
 #ifdef HAVE_SSL

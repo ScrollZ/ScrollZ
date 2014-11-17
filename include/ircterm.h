@@ -87,6 +87,13 @@ extern	char	*CM,
 #endif /* SZNCURSES */
 /****************************************************************************/
 extern	int	SG;
+/**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
+char            *SETAF,
+                *SETAB;
+int             NUMCOLORS;
+#endif /* WANTANSI */
+/****************************************************************************/
 
 #ifdef NCURSES_VERSION
 # define TPUTSRETVAL int

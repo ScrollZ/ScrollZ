@@ -163,11 +163,17 @@ struct channels {
 #ifdef WANTANSI
 struct colorstr {
     char *color1;
+    char *color1_str;
     char *color2;
+    char *color2_str;
     char *color3;
+    char *color3_str;
     char *color4;
+    char *color4_str;
     char *color5;
+    char *color5_str;
     char *color6;
+    char *color6_str;
 };
 #endif
 

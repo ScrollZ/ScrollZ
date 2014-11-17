@@ -70,6 +70,8 @@
  WhoKill             Kills users matching filter with WHO
  DoKill              Does the actual killing
  HandleEndOfKill     Reports statistics
+ BuildColorNew       Returns terminal sequence to set given color
+ InitColor           Builds color strings for default theme
 ******************************************************************************/
 
 /*
@@ -108,6 +110,7 @@
 #include "whowas.h"
 
 #include <sys/stat.h> /* for umask() */
+#include <term.h>     /* for tparm() */
 
 void PlayBack2 _((char *, char *));
 void AddNick2AutoReply _((char *));
@@ -576,78 +579,30 @@ int number;
 }
 
 /* Decodes colors and returns string for save */
-void GetColors(number,buffer)
+void GetColors(number, buffer)
 int  number;
 char *buffer;
 {
     int i;
 
-    *buffer='\0';
-    if (CmdsColors[number].color1) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color1,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    *buffer = '\0';
+    if (CmdsColors[number].color1_str) strcat(buffer, CmdsColors[number].color1_str);
+    else strcat(buffer, "WHITE");
     strcat(buffer,"  ");
-    if (CmdsColors[number].color2) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color2,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    if (CmdsColors[number].color2_str) strcat(buffer, CmdsColors[number].color2_str);
+    else strcat(buffer, "WHITE");
     strcat(buffer,"  ");
-    if (CmdsColors[number].color3) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color3,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    if (CmdsColors[number].color3_str) strcat(buffer, CmdsColors[number].color3_str);
+    else strcat(buffer, "WHITE");
     strcat(buffer,"  ");
-    if (CmdsColors[number].color4) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color4,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    if (CmdsColors[number].color4_str) strcat(buffer, CmdsColors[number].color4_str);
+    else strcat(buffer, "WHITE");
     strcat(buffer,"  ");
-    if (CmdsColors[number].color5) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color5,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    if (CmdsColors[number].color5_str) strcat(buffer, CmdsColors[number].color5_str);
+    else strcat(buffer, "WHITE");
     strcat(buffer,"  ");
-    if (CmdsColors[number].color6) {
-        for (i=0;i<SZNUMCOLORS;i++) {
-            if (strstr(CmdsColors[number].color6,Colors[i])) {
-                strcat(buffer,ColorName(i));
-                strcat(buffer,",");
-            }
-        }
-        if (buffer[strlen(buffer)-1]==',') buffer[strlen(buffer)-1]='\0';
-    }
-    else strcat(buffer,"WHITE");
+    if (CmdsColors[number].color6_str) strcat(buffer, CmdsColors[number].color6_str);
+    else strcat(buffer, "WHITE");
 }
 
 /* Saves color settings to ScrollZ.save */
@@ -775,7 +730,6 @@ char *colname;
 
     if (colname && *colname) {
         strmcpy(tmpbuf, colname, sizeof(tmpbuf));
-        upper(tmpbuf);
         for (i = 0; i < SZNUMCOLORS; i++) if (!strcmp(tmpbuf, colornames[i])) break;
         return(i < SZNUMCOLORS ? i : -1);
     }
@@ -783,71 +737,86 @@ char *colname;
 }
 
 /* Parses color string and puts color codes in target string */
-int BuildColor(color,string)
+int BuildColor(color, string, lineno)
 char *color;
 char *string;
+int  lineno;
 {
     int  colindex;
     char *tmpstr;
     char *tmpstr1;
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
 
-    strcpy(string,empty_string);
-    tmpstr=color;
+    strcpy(string, empty_string);
+    tmpstr = color;
     while (*tmpstr) {
-        tmpstr1=tmpbuf;
-        while (*tmpstr && *tmpstr!=',') *tmpstr1++=*tmpstr++;
-        *tmpstr1='\0';
-        if ((colindex=ColorNumber(tmpbuf))!=-1) strcat(string,Colors[colindex]);
-        else return(0);
-        if (*tmpstr==',') tmpstr++;
+        tmpstr1 = tmpbuf;
+        while (*tmpstr && *tmpstr != ',') *tmpstr1++ = *tmpstr++;
+        *tmpstr1 = '\0';
+        if ((colindex = ColorNumber(tmpbuf)) != -1) strcat(string, Colors[colindex]);
+        else if (!BuildColorNew(tmpbuf, string, lineno)) return(0);
+        if (*tmpstr == ',') tmpstr++;
     }
     return(1);
 }
 
 /* Sets colors loaded from ScrollZ.save */
-void SetColors(number,string,error,lineno)
+void SetColors(number, string, error, lineno)
 int  number;
 char **string;
 int  *error;
 int  lineno;
 {
     int  i;
-    char tmpbuf1[mybufsize/4];
-    char tmpbuf2[mybufsize/4];
+    char tmpbuf1[mybufsize / 4];
+    char tmpbuf2[mybufsize / 4];
 
-    for (i=1;i<7;i++) {
-        NextArg(*string,string,tmpbuf1);
+    for (i = 1; i < 7; i++) {
+        NextArg(*string, string, tmpbuf1);
         if (tmpbuf1[0]) {
-            if (BuildColor(tmpbuf1,tmpbuf2)) {
+            upper(tmpbuf1);
+            *tmpbuf2 = '\0';
+            if (BuildColor(tmpbuf1, tmpbuf2, lineno)) {
                 switch (i) {
-                    case 1:malloc_strcpy(&(CmdsColors[number].color1),tmpbuf2);
-                           break;
-                    case 2:malloc_strcpy(&(CmdsColors[number].color2),tmpbuf2);
-                           break;
-                    case 3:malloc_strcpy(&(CmdsColors[number].color3),tmpbuf2);
-                           break;
-                    case 4:malloc_strcpy(&(CmdsColors[number].color4),tmpbuf2);
-                           break;
-                    case 5:malloc_strcpy(&(CmdsColors[number].color5),tmpbuf2);
-                           break;
-                    case 6:malloc_strcpy(&(CmdsColors[number].color6),tmpbuf2);
-                           break;
+                    case 1:
+                        malloc_strcpy(&(CmdsColors[number].color1), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color1_str), tmpbuf1);
+                        break;
+                    case 2:
+                        malloc_strcpy(&(CmdsColors[number].color2), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color2_str), tmpbuf1);
+                        break;
+                    case 3:
+                        malloc_strcpy(&(CmdsColors[number].color3), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color3_str), tmpbuf1);
+                        break;
+                    case 4:
+                        malloc_strcpy(&(CmdsColors[number].color4), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color4_str), tmpbuf1);
+                        break;
+                    case 5:
+                        malloc_strcpy(&(CmdsColors[number].color5), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color5_str), tmpbuf1);
+                        break;
+                    case 6:
+                        malloc_strcpy(&(CmdsColors[number].color6), tmpbuf2);
+                        malloc_strcpy(&(CmdsColors[number].color6_str), tmpbuf1);
+                        break;
                 }
             }
             else {
-                if (lineno) PrintError("wrong color",empty_string,lineno);
-                *error=1;
+                if (lineno) PrintError("wrong color", empty_string, lineno);
+                *error = 1;
                 return;
             }
         }
         else {
-            if (lineno) PrintError("there should be 6 colors",empty_string,lineno);
-            *error=1;
+            if (lineno) PrintError("there should be 6 colors", empty_string, lineno);
+            *error = 1;
             return;
         }
     }
-    if (number==COLSBAR1 || number==COLSBAR2) build_status((char *) 0);
+    if (number == COLSBAR1 || number == COLSBAR2) build_status(NULL);
 }
 #endif
 
@@ -3572,592 +3541,592 @@ void InitKeysColors() {
 #ifdef WANTANSI
     int i;
 #endif
-    char tmpbuf[mybufsize/4];
+    char tmpbuf[mybufsize / 4];
 
-    strcpy(tmpbuf,"^F parse_command wholeft");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F1 parse_command help keys");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F2 parse_command join -invite");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W? parse_command help net");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wh parse_command window hide");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wn parse_command window next");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wp parse_command window previous");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wk parse_command window kill");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wl parse_command window list");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wc parse_command clear");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W1 parse_command window goto 1");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W2 parse_command window goto 2");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W3 parse_command window goto 3");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W4 parse_command window goto 4");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^W5 parse_command window goto 5");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-1 parse_command ^window swap 1");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-2 parse_command ^window swap 2");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-3 parse_command ^window swap 3");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-4 parse_command ^window swap 4");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-5 parse_command ^window swap 5");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-6 parse_command ^window swap 6");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-7 parse_command ^window swap 7");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-8 parse_command ^window swap 8");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-9 parse_command ^window swap 9");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wg parse_command window grow 1");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^Wr parse_command window shrink 1");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-i insert_tabkey_prev");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"meta1-q push_line");
-    bindcmd(NULL,tmpbuf,NULL);
+    strcpy(tmpbuf, "^F parse_command wholeft");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F1 parse_command help keys");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F2 parse_command join -invite");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W? parse_command help net");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wh parse_command window hide");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wn parse_command window next");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wp parse_command window previous");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wk parse_command window kill");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wl parse_command window list");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wc parse_command clear");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W1 parse_command window goto 1");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W2 parse_command window goto 2");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W3 parse_command window goto 3");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W4 parse_command window goto 4");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^W5 parse_command window goto 5");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-1 parse_command ^window swap 1");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-2 parse_command ^window swap 2");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-3 parse_command ^window swap 3");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-4 parse_command ^window swap 4");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-5 parse_command ^window swap 5");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-6 parse_command ^window swap 6");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-7 parse_command ^window swap 7");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-8 parse_command ^window swap 8");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-9 parse_command ^window swap 9");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wg parse_command window grow 1");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^Wr parse_command window shrink 1");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-i insert_tabkey_prev");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "meta1-q push_line");
+    bindcmd(NULL, tmpbuf, NULL);
 
 #ifdef CELE /* Celerity Binds */
-    strcpy(tmpbuf,"^K erase_to_end_of_line");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^O parse_command dirlm");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"^D delete_character");
-    bindcmd(NULL,tmpbuf,NULL);
-/*    strcpy(tmpbuf,"^J enter_digraph");
-    bindcmd(NULL,tmpbuf,NULL);*/
-    strcpy(tmpbuf,"^T switch_channels");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F2 parse_command cscan");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F3 parse_command clear");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F4 parse_command cdcc");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F5 parse_command digraph");
-    bindcmd(NULL,tmpbuf,NULL);
-    strcpy(tmpbuf,"F6 parse_command quickstat");
-    bindcmd(NULL,tmpbuf,NULL);
+    strcpy(tmpbuf, "^K erase_to_end_of_line");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^O parse_command dirlm");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "^D delete_character");
+    bindcmd(NULL, tmpbuf, NULL);
+/*    strcpy(tmpbuf, "^J enter_digraph");
+    bindcmd(NULL, tmpbuf, NULL);*/
+    strcpy(tmpbuf, "^T switch_channels");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F2 parse_command cscan");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F3 parse_command clear");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F4 parse_command cdcc");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F5 parse_command digraph");
+    bindcmd(NULL, tmpbuf, NULL);
+    strcpy(tmpbuf, "F6 parse_command quickstat");
+    bindcmd(NULL, tmpbuf, NULL);
 #endif /* CELE */
 
 #ifdef WANTANSI
-    for (i=0;i<NUMCMDCOLORS;i++) {
-        CmdsColors[i].color1=NULL;
-        CmdsColors[i].color2=NULL;
-        CmdsColors[i].color3=NULL;
-        CmdsColors[i].color4=NULL;
-        CmdsColors[i].color5=NULL;
-        CmdsColors[i].color6=NULL;
-        malloc_strcpy(&CmdsColors[i].color1,Colors[COLWHITE]);
-        malloc_strcpy(&CmdsColors[i].color2,Colors[COLWHITE]);
-        malloc_strcpy(&CmdsColors[i].color3,Colors[COLWHITE]);
-        malloc_strcpy(&CmdsColors[i].color4,Colors[COLWHITE]);
-        malloc_strcpy(&CmdsColors[i].color5,Colors[COLWHITE]);
-        malloc_strcpy(&CmdsColors[i].color6,Colors[COLWHITE]);
+    for (i = 0; i < NUMCMDCOLORS; i++) {
+        CmdsColors[i].color1 = CmdsColors[i].color1_str = NULL;
+        CmdsColors[i].color2 = CmdsColors[i].color2_str = NULL;
+        CmdsColors[i].color3 = CmdsColors[i].color3_str = NULL;
+        CmdsColors[i].color4 = CmdsColors[i].color4_str = NULL;
+        CmdsColors[i].color5 = CmdsColors[i].color5_str = NULL;
+        CmdsColors[i].color6 = CmdsColors[i].color6_str = NULL;
+        malloc_strcpy(&CmdsColors[i].color1_str, ColorName(COLWHITE));
+        malloc_strcpy(&CmdsColors[i].color2_str, ColorName(COLWHITE));
+        malloc_strcpy(&CmdsColors[i].color3_str, ColorName(COLWHITE));
+        malloc_strcpy(&CmdsColors[i].color4_str, ColorName(COLWHITE));
+        malloc_strcpy(&CmdsColors[i].color5_str, ColorName(COLWHITE));
+        malloc_strcpy(&CmdsColors[i].color6_str, ColorName(COLWHITE));
     }
     /* Warnings - floods, errors in C-Toolz.save, mass commands, */
     /*            protection violations */
     /* Warning itself */
-    malloc_strcpy(&CmdsColors[COLWARNING].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWARNING].color1,Colors[COLFLASH]);
-    malloc_strcat(&CmdsColors[COLWARNING].color1,Colors[COLRED]);
+    InitColor(&CmdsColors[COLWARNING].color1_str, &CmdsColors[COLWARNING].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWARNING].color1_str, &CmdsColors[COLWARNING].color1, COLFLASH, 1);
+    InitColor(&CmdsColors[COLWARNING].color1_str, &CmdsColors[COLWARNING].color1, COLRED, 1);
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLWARNING].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWARNING].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLWARNING].color2_str, &CmdsColors[COLWARNING].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWARNING].color2_str, &CmdsColors[COLWARNING].color2, COLWHITE, 1);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLWARNING].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWARNING].color3,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLWARNING].color3_str, &CmdsColors[COLWARNING].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWARNING].color3_str, &CmdsColors[COLWARNING].color3, COLYELLOW, 1);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLWARNING].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWARNING].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLWARNING].color4_str, &CmdsColors[COLWARNING].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWARNING].color4_str, &CmdsColors[COLWARNING].color4, COLCYAN, 1);
 
     /* Joins */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLJOIN].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLJOIN].color1_str, &CmdsColors[COLJOIN].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLJOIN].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLJOIN].color2_str, &CmdsColors[COLJOIN].color2, COLPURPLE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLJOIN].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLJOIN].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLJOIN].color3_str, &CmdsColors[COLJOIN].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLJOIN].color3_str, &CmdsColors[COLJOIN].color3, COLCYAN, 1);
     /* Synched */
-    malloc_strcpy(&CmdsColors[COLJOIN].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLJOIN].color4_str, &CmdsColors[COLJOIN].color4, COLWHITE, 0);
     /* Friends */
-    malloc_strcpy(&CmdsColors[COLJOIN].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLJOIN].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLJOIN].color5_str, &CmdsColors[COLJOIN].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLJOIN].color5_str, &CmdsColors[COLJOIN].color5, COLCYAN, 1);
     /* Shitted */
-    malloc_strcpy(&CmdsColors[COLJOIN].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLJOIN].color6,Colors[COLRED]);
+    InitColor(&CmdsColors[COLJOIN].color6_str, &CmdsColors[COLJOIN].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLJOIN].color6_str, &CmdsColors[COLJOIN].color6, COLRED, 1);
 
     /* MSGs */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLMSG].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMSG].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMSG].color1_str, &CmdsColors[COLMSG].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMSG].color1_str, &CmdsColors[COLMSG].color1, COLCYAN, 1);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLMSG].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLMSG].color2_str, &CmdsColors[COLMSG].color2, COLPURPLE, 0);
     /* Message */
-    malloc_strcpy(&CmdsColors[COLMSG].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMSG].color3_str, &CmdsColors[COLMSG].color3, COLWHITE, 0);
     /* Time */
-    malloc_strcpy(&CmdsColors[COLMSG].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMSG].color4,Colors[COLBLACK]);
+    InitColor(&CmdsColors[COLMSG].color4_str, &CmdsColors[COLMSG].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMSG].color4_str, &CmdsColors[COLMSG].color4, COLBLACK, 1);
     /* [] */
-    malloc_strcpy(&CmdsColors[COLMSG].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMSG].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMSG].color5_str, &CmdsColors[COLMSG].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMSG].color5_str, &CmdsColors[COLMSG].color5, COLCYAN, 1);
     /* Nick you sent message to */
-    malloc_strcpy(&CmdsColors[COLMSG].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMSG].color6_str, &CmdsColors[COLMSG].color6, COLCYAN, 0);
 
     /* Notices */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTICE].color1,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLNOTICE].color1_str, &CmdsColors[COLNOTICE].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTICE].color1_str, &CmdsColors[COLNOTICE].color1, COLGREEN, 1);
     /* Nick you send notice to */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color2,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLNOTICE].color2_str, &CmdsColors[COLNOTICE].color2, COLGREEN, 0);
     /* Message */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNOTICE].color3_str, &CmdsColors[COLNOTICE].color3, COLWHITE, 0);
     /* <> */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTICE].color4,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLNOTICE].color4_str, &CmdsColors[COLNOTICE].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTICE].color4_str, &CmdsColors[COLNOTICE].color4, COLGREEN, 1);
     /* - in received notice */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTICE].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNOTICE].color5_str, &CmdsColors[COLNOTICE].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTICE].color5_str, &CmdsColors[COLNOTICE].color5, COLWHITE, 1);
     /* Userhost in Celerity */
-    malloc_strcpy(&CmdsColors[COLNOTICE].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNOTICE].color6_str, &CmdsColors[COLNOTICE].color6, COLCYAN, 0);
 
     /* Netsplits, netjoins */
     /* Message */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNETSPLIT].color1,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNETSPLIT].color1_str, &CmdsColors[COLNETSPLIT].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNETSPLIT].color1_str, &CmdsColors[COLNETSPLIT].color1, COLWHITE, 1);
     /* Time */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNETSPLIT].color2_str, &CmdsColors[COLNETSPLIT].color2, COLWHITE, 0);
     /* Servers */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNETSPLIT].color3_str, &CmdsColors[COLNETSPLIT].color3, COLWHITE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNETSPLIT].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNETSPLIT].color4_str, &CmdsColors[COLNETSPLIT].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNETSPLIT].color4_str, &CmdsColors[COLNETSPLIT].color4, COLCYAN, 1);
     /* Nicks */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNETSPLIT].color5_str, &CmdsColors[COLNETSPLIT].color5, COLCYAN, 0);
     /* <- */
-    malloc_strcpy(&CmdsColors[COLNETSPLIT].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNETSPLIT].color6,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLNETSPLIT].color6_str, &CmdsColors[COLNETSPLIT].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNETSPLIT].color6_str, &CmdsColors[COLNETSPLIT].color6, COLYELLOW, 1);
 
     /* Invites */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLINVITE].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLINVITE].color1_str, &CmdsColors[COLINVITE].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLINVITE].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLINVITE].color2_str, &CmdsColors[COLINVITE].color2, COLPURPLE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLINVITE].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLINVITE].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLINVITE].color3_str, &CmdsColors[COLINVITE].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLINVITE].color3_str, &CmdsColors[COLINVITE].color3, COLCYAN, 1);
     /* fake word */
-    malloc_strcpy(&CmdsColors[COLINVITE].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLINVITE].color4,Colors[COLRED]);
+    InitColor(&CmdsColors[COLINVITE].color4_str, &CmdsColors[COLINVITE].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLINVITE].color4_str, &CmdsColors[COLINVITE].color4, COLRED, 1);
 
     /* Mode changes */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLMODE].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMODE].color1_str, &CmdsColors[COLMODE].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLMODE].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMODE].color2_str, &CmdsColors[COLMODE].color2, COLWHITE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLMODE].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMODE].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMODE].color3_str, &CmdsColors[COLMODE].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMODE].color3_str, &CmdsColors[COLMODE].color3, COLCYAN, 1);
     /* Mode */
-    malloc_strcpy(&CmdsColors[COLMODE].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMODE].color4_str, &CmdsColors[COLMODE].color4, COLWHITE, 0);
     /* Message */
-    malloc_strcpy(&CmdsColors[COLMODE].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMODE].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMODE].color5_str, &CmdsColors[COLMODE].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMODE].color5_str, &CmdsColors[COLMODE].color5, COLWHITE, 1);
     /* Fake word */
-    malloc_strcpy(&CmdsColors[COLMODE].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMODE].color6,Colors[COLRED]);
+    InitColor(&CmdsColors[COLMODE].color6_str, &CmdsColors[COLMODE].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMODE].color6_str, &CmdsColors[COLMODE].color6, COLRED, 1);
 
     /* Settings */
     /* Header */
-    malloc_strcpy(&CmdsColors[COLSETTING].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSETTING].color1,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLSETTING].color1_str, &CmdsColors[COLSETTING].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSETTING].color1_str, &CmdsColors[COLSETTING].color1, COLWHITE, 1);
     /* Setting - ON,OFF,5,#te,... */
-    malloc_strcpy(&CmdsColors[COLSETTING].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSETTING].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLSETTING].color2_str, &CmdsColors[COLSETTING].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSETTING].color2_str, &CmdsColors[COLSETTING].color2, COLPURPLE, 1);
     /* Comment for shit list */
-    malloc_strcpy(&CmdsColors[COLSETTING].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSETTING].color3,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLSETTING].color3_str, &CmdsColors[COLSETTING].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSETTING].color3_str, &CmdsColors[COLSETTING].color3, COLYELLOW, 1);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLSETTING].color4,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLSETTING].color4_str, &CmdsColors[COLSETTING].color4, COLPURPLE, 0);
     /* Channels */
-    malloc_strcpy(&CmdsColors[COLSETTING].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSETTING].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLSETTING].color5_str, &CmdsColors[COLSETTING].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSETTING].color5_str, &CmdsColors[COLSETTING].color5, COLCYAN, 1);
 
     /* Leaves */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLLEAVE].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLLEAVE].color1_str, &CmdsColors[COLLEAVE].color1, COLCYAN, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLLEAVE].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLEAVE].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLLEAVE].color2_str, &CmdsColors[COLLEAVE].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLEAVE].color2_str, &CmdsColors[COLLEAVE].color2, COLCYAN, 1);
     /* Reason */
-    malloc_strcpy(&CmdsColors[COLLEAVE].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLLEAVE].color3_str, &CmdsColors[COLLEAVE].color3, COLWHITE, 0);
     /* Friends */
-    malloc_strcpy(&CmdsColors[COLLEAVE].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLEAVE].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLLEAVE].color4_str, &CmdsColors[COLLEAVE].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLEAVE].color4_str, &CmdsColors[COLLEAVE].color4, COLCYAN, 1);
     /* Shitted */
-    malloc_strcpy(&CmdsColors[COLLEAVE].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLEAVE].color5,Colors[COLRED]);
+    InitColor(&CmdsColors[COLLEAVE].color5_str, &CmdsColors[COLLEAVE].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLEAVE].color5_str, &CmdsColors[COLLEAVE].color5, COLRED, 1);
 
     /* Notify */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNOTIFY].color1_str, &CmdsColors[COLNOTIFY].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLNOTIFY].color2_str, &CmdsColors[COLNOTIFY].color2, COLPURPLE, 0);
     /* Time */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTIFY].color3,Colors[COLBLACK]);
+    InitColor(&CmdsColors[COLNOTIFY].color3_str, &CmdsColors[COLNOTIFY].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTIFY].color3_str, &CmdsColors[COLNOTIFY].color3, COLBLACK, 1);
     /* Message */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTIFY].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNOTIFY].color4_str, &CmdsColors[COLNOTIFY].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTIFY].color4_str, &CmdsColors[COLNOTIFY].color4, COLWHITE, 1);
     /* Signon-ed nicks */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNOTIFY].color5_str, &CmdsColors[COLNOTIFY].color5, COLCYAN, 0);
     /* Signon-ed friends */
-    malloc_strcpy(&CmdsColors[COLNOTIFY].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNOTIFY].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNOTIFY].color6_str, &CmdsColors[COLNOTIFY].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNOTIFY].color6_str, &CmdsColors[COLNOTIFY].color6, COLCYAN, 1);
 
     /* CTCPs */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLCTCP].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCTCP].color1_str, &CmdsColors[COLCTCP].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLCTCP].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLCTCP].color2_str, &CmdsColors[COLCTCP].color2, COLPURPLE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLCTCP].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCTCP].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCTCP].color3_str, &CmdsColors[COLCTCP].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCTCP].color3_str, &CmdsColors[COLCTCP].color3, COLCYAN, 1);
     /* Command */
-    malloc_strcpy(&CmdsColors[COLCTCP].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCTCP].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCTCP].color4_str, &CmdsColors[COLCTCP].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCTCP].color4_str, &CmdsColors[COLCTCP].color4, COLCYAN, 1);
 
     /* Kicks */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLKICK].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLKICK].color1_str, &CmdsColors[COLKICK].color1, COLCYAN, 0);
     /* Who */
-    malloc_strcpy(&CmdsColors[COLKICK].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLKICK].color2_str, &CmdsColors[COLKICK].color2, COLCYAN, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLKICK].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLKICK].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLKICK].color3_str, &CmdsColors[COLKICK].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLKICK].color3_str, &CmdsColors[COLKICK].color3, COLCYAN, 1);
     /* Comment */
-    malloc_strcpy(&CmdsColors[COLKICK].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLKICK].color4_str, &CmdsColors[COLKICK].color4, COLWHITE, 0);
     /* Kick */
-    malloc_strcpy(&CmdsColors[COLKICK].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLKICK].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLKICK].color5_str, &CmdsColors[COLKICK].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLKICK].color5_str, &CmdsColors[COLKICK].color5, COLWHITE, 1);
     /* Friends */
-    malloc_strcpy(&CmdsColors[COLKICK].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLKICK].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLKICK].color6_str, &CmdsColors[COLKICK].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLKICK].color6_str, &CmdsColors[COLKICK].color6, COLCYAN, 1);
 
     /* DCCs */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLDCC].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLDCC].color1_str, &CmdsColors[COLDCC].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLDCC].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLDCC].color2_str, &CmdsColors[COLDCC].color2, COLPURPLE, 0);
     /* Command */
-    malloc_strcpy(&CmdsColors[COLDCC].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCC].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLDCC].color3_str, &CmdsColors[COLDCC].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCC].color3_str, &CmdsColors[COLDCC].color3, COLWHITE, 1);
     /* What */
-    malloc_strcpy(&CmdsColors[COLDCC].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLDCC].color4_str, &CmdsColors[COLDCC].color4, COLCYAN, 0);
     /* Dcc */
-    malloc_strcpy(&CmdsColors[COLDCC].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCC].color5,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLDCC].color5_str, &CmdsColors[COLDCC].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCC].color5_str, &CmdsColors[COLDCC].color5, COLYELLOW, 1);
     /* Warning */
-    malloc_strcpy(&CmdsColors[COLDCC].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCC].color6,Colors[COLRED]);
+    InitColor(&CmdsColors[COLDCC].color6_str, &CmdsColors[COLDCC].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCC].color6_str, &CmdsColors[COLDCC].color6, COLRED, 1);
 
     /* WHO */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLWHO].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLWHO].color1_str, &CmdsColors[COLWHO].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLWHO].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLWHO].color2_str, &CmdsColors[COLWHO].color2, COLPURPLE, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLWHO].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWHO].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLWHO].color3_str, &CmdsColors[COLWHO].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWHO].color3_str, &CmdsColors[COLWHO].color3, COLCYAN, 1);
     /* Mode */
-    malloc_strcpy(&CmdsColors[COLWHO].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLWHO].color4_str, &CmdsColors[COLWHO].color4, COLWHITE, 0);
     /* Name */
-    malloc_strcpy(&CmdsColors[COLWHO].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWHO].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLWHO].color5_str, &CmdsColors[COLWHO].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWHO].color5_str, &CmdsColors[COLWHO].color5, COLWHITE, 1);
 
     /* WHOIS */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLWHOIS].color1_str, &CmdsColors[COLWHOIS].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLWHOIS].color2_str, &CmdsColors[COLWHOIS].color2, COLPURPLE, 0);
     /* Channels */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWHOIS].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLWHOIS].color3_str, &CmdsColors[COLWHOIS].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWHOIS].color3_str, &CmdsColors[COLWHOIS].color3, COLCYAN, 1);
     /* Server */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLWHOIS].color4_str, &CmdsColors[COLWHOIS].color4, COLWHITE, 0);
     /* Channels,Server,SignOn,Idle,IrcOp */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWHOIS].color5,Colors[COLBLUE]);
+    InitColor(&CmdsColors[COLWHOIS].color5_str, &CmdsColors[COLWHOIS].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWHOIS].color5_str, &CmdsColors[COLWHOIS].color5, COLBLUE, 1);
     /* Channels in friend */
-    malloc_strcpy(&CmdsColors[COLWHOIS].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLWHOIS].color6,Colors[COLRED]);
+    InitColor(&CmdsColors[COLWHOIS].color6_str, &CmdsColors[COLWHOIS].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLWHOIS].color6_str, &CmdsColors[COLWHOIS].color6, COLRED, 1);
 
     /* Public MSGs */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color1,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLPUBLIC].color1_str, &CmdsColors[COLPUBLIC].color1, COLWHITE, 0);
     /* < and > */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color2,Colors[COLBOLD]);
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLPUBLIC].color2_str, &CmdsColors[COLPUBLIC].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLPUBLIC].color2_str, &CmdsColors[COLPUBLIC].color2, COLCYAN, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLPUBLIC].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLPUBLIC].color3_str, &CmdsColors[COLPUBLIC].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLPUBLIC].color3_str, &CmdsColors[COLPUBLIC].color3, COLCYAN, 1);
     /* Auto reply */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLPUBLIC].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLPUBLIC].color4_str, &CmdsColors[COLPUBLIC].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLPUBLIC].color4_str, &CmdsColors[COLPUBLIC].color4, COLCYAN, 1);
     /* Line */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLPUBLIC].color5_str, &CmdsColors[COLPUBLIC].color5, COLWHITE, 0);
     /* Your nick if Ego is on */
-    malloc_strcpy(&CmdsColors[COLPUBLIC].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLPUBLIC].color6_str, &CmdsColors[COLPUBLIC].color6, COLCYAN, 0);
 
     /* Cdcc */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLCDCC].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCDCC].color1_str, &CmdsColors[COLCDCC].color1, COLCYAN, 0);
     /* Userhost */
-    malloc_strcpy(&CmdsColors[COLCDCC].color2,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLCDCC].color2_str, &CmdsColors[COLCDCC].color2, COLPURPLE, 0);
     /* What */
-    malloc_strcpy(&CmdsColors[COLCDCC].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCDCC].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLCDCC].color3_str, &CmdsColors[COLCDCC].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCDCC].color3_str, &CmdsColors[COLCDCC].color3, COLWHITE, 1);
     /* Line */
-    malloc_strcpy(&CmdsColors[COLCDCC].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCDCC].color4,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLCDCC].color4_str, &CmdsColors[COLCDCC].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCDCC].color4_str, &CmdsColors[COLCDCC].color4, COLYELLOW, 1);
     /* Files/bytes */
-    malloc_strcpy(&CmdsColors[COLCDCC].color5,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCDCC].color5_str, &CmdsColors[COLCDCC].color5, COLCYAN, 0);
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLCDCC].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCDCC].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCDCC].color6_str, &CmdsColors[COLCDCC].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCDCC].color6_str, &CmdsColors[COLCDCC].color6, COLCYAN, 1);
 
     /* Links */
     /* Server */
-    malloc_strcpy(&CmdsColors[COLLINKS].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLLINKS].color1_str, &CmdsColors[COLLINKS].color1, COLCYAN, 0);
     /* Uplink */
-    malloc_strcpy(&CmdsColors[COLLINKS].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLINKS].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLLINKS].color2_str, &CmdsColors[COLLINKS].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLINKS].color2_str, &CmdsColors[COLLINKS].color2, COLCYAN, 1);
     /* Distance */
-    malloc_strcpy(&CmdsColors[COLLINKS].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLINKS].color3,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLLINKS].color3_str, &CmdsColors[COLLINKS].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLINKS].color3_str, &CmdsColors[COLLINKS].color3, COLYELLOW, 1);
     /* > */
-    malloc_strcpy(&CmdsColors[COLLINKS].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLLINKS].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLLINKS].color4_str, &CmdsColors[COLLINKS].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLLINKS].color4_str, &CmdsColors[COLLINKS].color4, COLWHITE, 1);
     /* Border */
-    malloc_strcpy(&CmdsColors[COLLINKS].color5,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLLINKS].color5_str, &CmdsColors[COLLINKS].color5, COLPURPLE, 0);
 
     /* DCC CHAT */
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLDCCCHAT].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCCCHAT].color1,Colors[COLRED]);
+    InitColor(&CmdsColors[COLDCCCHAT].color1_str, &CmdsColors[COLDCCCHAT].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCCCHAT].color1_str, &CmdsColors[COLDCCCHAT].color1, COLRED, 1);
     /* = */
-    malloc_strcpy(&CmdsColors[COLDCCCHAT].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCCCHAT].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLDCCCHAT].color2_str, &CmdsColors[COLDCCCHAT].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCCCHAT].color2_str, &CmdsColors[COLDCCCHAT].color2, COLWHITE, 1);
     /* Line */
-    malloc_strcpy(&CmdsColors[COLDCCCHAT].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLDCCCHAT].color3_str, &CmdsColors[COLDCCCHAT].color3, COLWHITE, 0);
     /* [ */
-    malloc_strcpy(&CmdsColors[COLDCCCHAT].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLDCCCHAT].color4,Colors[COLRED]);
+    InitColor(&CmdsColors[COLDCCCHAT].color4_str, &CmdsColors[COLDCCCHAT].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLDCCCHAT].color4_str, &CmdsColors[COLDCCCHAT].color4, COLRED, 1);
     /* Nick you sent chat message to */
-    malloc_strcpy(&CmdsColors[COLDCCCHAT].color5,Colors[COLRED]);
+    InitColor(&CmdsColors[COLDCCCHAT].color5_str, &CmdsColors[COLDCCCHAT].color5, COLRED, 0);
 
     /* CSCAN */
     /* Channel */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCSCAN].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCSCAN].color1_str, &CmdsColors[COLCSCAN].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCSCAN].color1_str, &CmdsColors[COLCSCAN].color1, COLCYAN, 1);
     /* Friends */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCSCAN].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCSCAN].color2_str, &CmdsColors[COLCSCAN].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCSCAN].color2_str, &CmdsColors[COLCSCAN].color2, COLCYAN, 1);
     /* Ops */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLCSCAN].color3_str, &CmdsColors[COLCSCAN].color3, COLCYAN, 0);
     /* Voiced */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color4,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLCSCAN].color4_str, &CmdsColors[COLCSCAN].color4, COLPURPLE, 0);
     /* Normal */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLCSCAN].color5_str, &CmdsColors[COLCSCAN].color5, COLWHITE, 0);
     /* Shitted */
-    malloc_strcpy(&CmdsColors[COLCSCAN].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLCSCAN].color6,Colors[COLRED]);
+    InitColor(&CmdsColors[COLCSCAN].color6_str, &CmdsColors[COLCSCAN].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLCSCAN].color6_str, &CmdsColors[COLCSCAN].color6, COLRED, 1);
 
     /* Nick change */
     /* Old nick */
-    malloc_strcpy(&CmdsColors[COLNICK].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNICK].color1_str, &CmdsColors[COLNICK].color1, COLCYAN, 0);
     /* known */
-    malloc_strcpy(&CmdsColors[COLNICK].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLNICK].color2_str, &CmdsColors[COLNICK].color2, COLWHITE, 0);
     /* New nick */
-    malloc_strcpy(&CmdsColors[COLNICK].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLNICK].color3_str, &CmdsColors[COLNICK].color3, COLCYAN, 0);
     /* @ in Cscan */
-    malloc_strcpy(&CmdsColors[COLNICK].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNICK].color4,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLNICK].color4_str, &CmdsColors[COLNICK].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNICK].color4_str, &CmdsColors[COLNICK].color4, COLGREEN, 1);
     /* + in Cscan */
-    malloc_strcpy(&CmdsColors[COLNICK].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLNICK].color5,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLNICK].color5_str, &CmdsColors[COLNICK].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLNICK].color5_str, &CmdsColors[COLNICK].color5, COLPURPLE, 1);
 
     /* /ME */
     /* * or ì */
-    malloc_strcpy(&CmdsColors[COLME].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLME].color1,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLME].color1_str, &CmdsColors[COLME].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLME].color1_str, &CmdsColors[COLME].color1, COLWHITE, 1);
     /* Your nick */
-    malloc_strcpy(&CmdsColors[COLME].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLME].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLME].color2_str, &CmdsColors[COLME].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLME].color2_str, &CmdsColors[COLME].color2, COLCYAN, 1);
     /* Nick */
-    malloc_strcpy(&CmdsColors[COLME].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLME].color3_str, &CmdsColors[COLME].color3, COLCYAN, 0);
     /* Target */
-    malloc_strcpy(&CmdsColors[COLME].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLME].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLME].color4_str, &CmdsColors[COLME].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLME].color4_str, &CmdsColors[COLME].color4, COLCYAN, 1);
     /* Line */
-    malloc_strcpy(&CmdsColors[COLME].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLME].color5_str, &CmdsColors[COLME].color5, COLWHITE, 0);
     /* Auto reply */
-    malloc_strcpy(&CmdsColors[COLME].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLME].color6,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLME].color6_str, &CmdsColors[COLME].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLME].color6_str, &CmdsColors[COLME].color6, COLCYAN, 1);
 
     /* Misc Colors */
     /* Color of @ in user@host */
-    malloc_strcpy(&CmdsColors[COLMISC].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMISC].color1,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMISC].color1_str, &CmdsColors[COLMISC].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMISC].color1_str, &CmdsColors[COLMISC].color1, COLWHITE, 1);
     /* Color of ()s arround user@host */
-    malloc_strcpy(&CmdsColors[COLMISC].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMISC].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLMISC].color2_str, &CmdsColors[COLMISC].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMISC].color2_str, &CmdsColors[COLMISC].color2, COLWHITE, 1);
     /* Colors of (msg) etc in CELECOSM */
 #ifdef CELECOSM
-    malloc_strcat(&CmdsColors[COLMISC].color3,Colors[COLBLUE]);
+    InitColor(&CmdsColors[COLMISC].color3_str, &CmdsColors[COLMISC].color3, COLBLUE, 1);
 #endif
     /* Color of <>s for friends in publics */
-    malloc_strcpy(&CmdsColors[COLMISC].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMISC].color4,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLMISC].color4_str, &CmdsColors[COLMISC].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMISC].color4_str, &CmdsColors[COLMISC].color4, COLCYAN, 1);
     /* Color of <>s for you in publics */
-    malloc_strcpy(&CmdsColors[COLMISC].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLMISC].color5,Colors[COLBLUE]);
+    InitColor(&CmdsColors[COLMISC].color5_str, &CmdsColors[COLMISC].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLMISC].color5_str, &CmdsColors[COLMISC].color5, COLBLUE, 1);
 
     /* Color1 of the statusbar */
 #ifndef CELE
     /* BAR */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color1_str, &CmdsColors[COLSBAR1].color1, COLBLUEBG, 0);
     /* Window refnum, ircop (*), away and server in OV */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color2,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLSBAR1].color2_str, &CmdsColors[COLSBAR1].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color2_str, &CmdsColors[COLSBAR1].color2, COLGREEN, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color2,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color2_str, &CmdsColors[COLSBAR1].color2, COLBLUEBG, 1);
 #endif
     /* ChanOp (@) and via server */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLPURPLE, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLBLUEBG, 1);
 #endif
     /* Usermode and query */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLRED, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLBLUEBG, 1);
 #endif
     /* Channel and lastjoin */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLYELLOW, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLBLUEBG, 1);
 #endif
     /* Turn all attributes (bold) off */
 #ifndef SZ32
-    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLNOBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLWHITE, 1);
 #else
-    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLWHITE, 0);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLBLUEBG, 1);
 #endif
 #else  /* CELE */
     /* BAR */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color1,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color1_str, &CmdsColors[COLSBAR1].color1, COLBLUEBG, 0);
     /* Secondary Bar */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color2,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color2_str, &CmdsColors[COLSBAR1].color2, COLBLUEBG, 0);
     /* Level 1 stuff (nick) */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLCYAN, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color3,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color3_str, &CmdsColors[COLSBAR1].color3, COLBLUEBG, 1);
 #endif
     /* Level 2 stuff (modes, names) */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLRED]);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLRED, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color4,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color4_str, &CmdsColors[COLSBAR1].color4, COLBLUEBG, 1);
 #endif
     /* Level 3 stuff (info) */
 #ifndef SZ32
-    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLNOBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLNOBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLGREEN, 1);
 #else
-    malloc_strcpy(&CmdsColors[COLSBAR1].color5,Colors[COLGREEN]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color5,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLGREEN, 0);
+    InitColor(&CmdsColors[COLSBAR1].color5_str, &CmdsColors[COLSBAR1].color5, COLBLUEBG, 1);
 #endif
     /* level 4 stuff (brackets) */
-    malloc_strcpy(&CmdsColors[COLSBAR1].color6,Colors[COLNOBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLNOBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLWHITE, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR1].color6,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR1].color6_str, &CmdsColors[COLSBAR1].color6, COLBLUEBG, 1);
 #endif
 #endif /* CELE */
 
     /* Color2 of the statusbar */
     /* Nickname and time */
-    malloc_strcpy(&CmdsColors[COLSBAR2].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR2].color1,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLSBAR2].color1_str, &CmdsColors[COLSBAR2].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR2].color1_str, &CmdsColors[COLSBAR2].color1, COLCYAN, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR2].color1,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR2].color1_str, &CmdsColors[COLSBAR2].color1, COLBLUEBG, 1);
 #endif
     /* Various stuff (uptime, lag, status flags) */
-    malloc_strcpy(&CmdsColors[COLSBAR2].color2,Colors[COLCYAN]);
+    InitColor(&CmdsColors[COLSBAR2].color2_str, &CmdsColors[COLSBAR2].color2, COLCYAN, 0);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR2].color2,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR2].color2_str, &CmdsColors[COLSBAR2].color2, COLBLUEBG, 1);
 #endif
     /* Hold */
-    malloc_strcpy(&CmdsColors[COLSBAR2].color3,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR2].color3,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLSBAR2].color3_str, &CmdsColors[COLSBAR2].color3, COLBOLD, 0);
+    InitColor(&CmdsColors[COLSBAR2].color3_str, &CmdsColors[COLSBAR2].color3, COLWHITE, 1);
 #ifdef SZ32
-    malloc_strcat(&CmdsColors[COLSBAR2].color3,Colors[COLBLUEBG]);
+    InitColor(&CmdsColors[COLSBAR2].color3_str, &CmdsColors[COLSBAR2].color3, COLBLUEBG, 1);
 #endif
     /* Window activity */
-    malloc_strcpy(&CmdsColors[COLSBAR2].color4,Colors[COLYELLOW]);
-    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLSBAR2].color4,Colors[COLREDBG]);
+    InitColor(&CmdsColors[COLSBAR2].color4_str, &CmdsColors[COLSBAR2].color4, COLYELLOW, 0);
+    InitColor(&CmdsColors[COLSBAR2].color4_str, &CmdsColors[COLSBAR2].color4, COLBOLD, 1);
+    InitColor(&CmdsColors[COLSBAR2].color4_str, &CmdsColors[COLSBAR2].color4, COLREDBG, 1);
 
 #ifdef CELECOSM
     /* Celerity Colors - Used in cosmetics */
     /* Color of (msg) */
-    malloc_strcpy(&CmdsColors[COLCELE].color1,Colors[COLRED]);
+    InitColor(&CmdsColors[COLCELE].color1_str, &CmdsColors[COLCELE].color1, COLRED, 0);
     /* Color of (notice) */
-    malloc_strcpy(&CmdsColors[COLCELE].color2,Colors[COLRED]);
+    InitColor(&CmdsColors[COLCELE].color2_str, &CmdsColors[COLCELE].color2, COLRED, 0);
     /* Color of Mail Notice */
-    malloc_strcpy(&CmdsColors[COLCELE].color3,Colors[COLPURPLE]);
+    InitColor(&CmdsColors[COLCELE].color3_str, &CmdsColors[COLCELE].color3, COLPURPLE, 0);
 #endif
 
 #ifdef OPERVISION
     /* OperVision */
     /* Nick / Single Server */
-    malloc_strcpy(&CmdsColors[COLOV].color1,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLOV].color1,Colors[COLBLUE]);
+    InitColor(&CmdsColors[COLOV].color1_str, &CmdsColors[COLOV].color1, COLBOLD, 0);
+    InitColor(&CmdsColors[COLOV].color1_str, &CmdsColors[COLOV].color1, COLBLUE, 1);
     /* Main Server */
-    malloc_strcpy(&CmdsColors[COLOV].color2,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLOV].color2,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLOV].color2_str, &CmdsColors[COLOV].color2, COLBOLD, 0);
+    InitColor(&CmdsColors[COLOV].color2_str, &CmdsColors[COLOV].color2, COLWHITE, 1);
     /* Server */
-    malloc_strcpy(&CmdsColors[COLOV].color3,Colors[COLGREEN]);
+    InitColor(&CmdsColors[COLOV].color3_str, &CmdsColors[COLOV].color3, COLGREEN, 0);
     /* Command */
-    malloc_strcpy(&CmdsColors[COLOV].color4,Colors[COLBOLD]);
-    malloc_strcpy(&CmdsColors[COLOV].color4,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLOV].color4_str, &CmdsColors[COLOV].color4, COLBOLD, 0);
+    InitColor(&CmdsColors[COLOV].color4_str, &CmdsColors[COLOV].color4, COLWHITE, 0);
     /* Secondary Info */
-    malloc_strcpy(&CmdsColors[COLOV].color5,Colors[COLWHITE]);
+    InitColor(&CmdsColors[COLOV].color5_str, &CmdsColors[COLOV].color5, COLWHITE, 0);
     /* OV String */
-    malloc_strcpy(&CmdsColors[COLOV].color6,Colors[COLBOLD]);
-    malloc_strcat(&CmdsColors[COLOV].color6,Colors[COLYELLOW]);
+    InitColor(&CmdsColors[COLOV].color6_str, &CmdsColors[COLOV].color6, COLBOLD, 0);
+    InitColor(&CmdsColors[COLOV].color6_str, &CmdsColors[COLOV].color6, COLYELLOW, 1);
 #endif
 #endif
 }
@@ -4254,3 +4223,68 @@ void HandleEndOfKill() {
     new_free(&wkillreason);
 }
 #endif /* OPER */
+
+#ifdef WANTANSI
+/* Returns terminal sequence to set given color */
+int BuildColorNew(color, dest, lineno)
+char *color;
+char *dest;
+int  lineno;
+{
+    int  colnum;
+    char *tmpstr = color;
+    char *tmpstr1;
+    char tmpbuf[mybufsize / 4];
+
+    while (*tmpstr) {
+        tmpstr1 = tmpbuf;
+        while (*tmpstr && *tmpstr != ',') *tmpstr1++ = *tmpstr++;
+        *tmpstr1 = '\0';
+
+        if ((!strncmp(tmpbuf, "FG", 2) || !strncmp(tmpbuf, "BG", 2)) &&
+             is_number(tmpbuf + 2)) {
+            char *tcap;
+
+            if (!SETAF || !SETAB) {
+                put_it("Warning: terminal lacks support for 'setaf' or 'setab' capability (try infocmp -1), can't use this color (line %d in ScrollZ.save)", NUMCOLORS - 1, lineno);
+                return(0);
+            }
+
+            colnum = atoi(tmpbuf + 2);
+            if (colnum >= NUMCOLORS) {
+                put_it("Warning: color %d is outside the range terminal supports for colors: 0 - %d (try infocmp -1), can't use this color (line %d in ScrollZ.save)", colnum, NUMCOLORS - 1, lineno);
+                return(0);
+            }
+
+            if (*tmpbuf=='F') tcap = SETAF;
+            else tcap = SETAB;
+
+            strcat(dest, tparm(tcap, colnum));
+        }
+        else return(0);
+
+        if (*tmpstr == ',') tmpstr++;
+    }
+    return(1);
+}
+
+/* Builds color strings for default theme */
+int InitColor(colorstr, colorseq, colornum, append)
+char **colorstr;
+char **colorseq;
+int colornum;
+int append;
+{
+    char *colorname = ColorName(colornum);
+
+    if (append) {
+        malloc_strcat(colorstr, ",");
+        malloc_strcat(colorstr, colorname);
+        malloc_strcat(colorseq, Colors[colornum]);
+    }
+    else {
+        malloc_strcpy(colorstr, colorname);
+        malloc_strcpy(colorseq, Colors[colornum]);
+    }
+}
+#endif /* WANTANSI */
