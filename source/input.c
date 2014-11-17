@@ -74,6 +74,9 @@ static struct mb_data mbdata;
 static int mbdata_ok = 0;
 
 /**************************** PATCHED by Flier ******************************/
+static int sz_width = 10; /* how far from right border to shift */
+static int sz_prev_len = 0; /* how many prev. characters to show on shift */
+
 static void ResetNickCompletion() {
     tabnickcompl = NULL;
 }
@@ -376,8 +379,19 @@ input_check_resized(void)
 	inputdata->old_co   = current_screen->co;
 	
 	inputdata->zone     = current_screen->co;
-	if (inputdata->zone > WIDTH)
-		inputdata->zone -= WIDTH;
+/**************************** PATCHED by Flier ******************************/
+        if (get_int_var(INPUT_PROMPT_SHIFT_NEW_VAR)) {
+            /* 10% of context seems useful */
+            sz_prev_len = current_screen->inputdata.old_co / 10 + 1;
+            sz_width = 2;
+        }
+        else {
+            sz_prev_len = 0;
+            sz_width = WIDTH;
+        }
+	if (inputdata->zone > sz_width)
+		inputdata->zone -= sz_width;
+/****************************************************************************/
 	return 1;
 }
 
@@ -473,6 +487,24 @@ update_input(update)
 
 		window = column - (column % inputdata->zone);
 		
+/**************************** PATCHED by Flier ******************************/
+                /* window defines how much of the left side of input prompt */
+                /* is not visible */
+                if (column >= inputdata->zone)
+                {
+                    if (column >= 2 * inputdata->zone - sz_prev_len)
+                    {
+                        int len = inputdata->zone - sz_prev_len;
+
+                        window = (column - sz_prev_len) / len * len;
+                    }
+                    else
+                    {
+                        window -= sz_prev_len;
+                    }
+                }
+/****************************************************************************/
+
 		/* Recalculate left_ptr */
 		for (column = ptr = 0; column < window; )
 		{
@@ -1318,3 +1350,16 @@ function_curpos(input)
 	malloc_strcpy(&new, pos);
 	return new;
 }
+
+/**************************** PATCHED by Flier ******************************/
+/* set parameters for input prompt shifting */
+void
+set_input_prompt_shift_new(val)
+int val;
+{
+    ScreenInputData* inputdata = &current_screen->inputdata;
+
+    inputdata->old_co = 0;   /* to force recalculation */
+    input_check_resized();
+}
+/****************************************************************************/

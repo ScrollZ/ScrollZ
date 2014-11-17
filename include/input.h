@@ -66,6 +66,9 @@
  	void	input_transpose_characters _((u_int, char *));
  	void	input_yank_cut_buffer _((u_int, char *));
  	u_char	*function_curpos _((u_char *));
+/**************************** PATCHED by Flier ******************************/
+	void	set_input_prompt_shift_new _((int));
+/****************************************************************************/
 
 extern	int	str_start;
 extern	int	input_line;

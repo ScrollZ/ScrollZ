@@ -1,0 +1,9 @@
+! Copyright (c) 2014 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+Usage: SET INPUT_PROMPT_SHIFT_NEW [ON|OFF|TOGGLE]
+  When ON, client will shift input prompt closer to the
+  right border and also show 10% of screen width previous
+  input characters as context. When OFF, old behaviour is
+  used.

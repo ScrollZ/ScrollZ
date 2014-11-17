@@ -48,6 +48,8 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
       to insert the color string directly, but there is no real
       editing available so backspace or cursors might not work
       (patch by jm_)
+    + SET INPUT_PROMPT_SHIFT_NEW, when set to ON it will show
+      some context when shifting input prompt (patch by jm_)
 
 ------------------------------------------------------------------------------
 

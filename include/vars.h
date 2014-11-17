@@ -157,6 +157,9 @@ enum {
 	INPUT_ALIASES_VAR,
 	INPUT_ENCODING_VAR,
 	INPUT_PROMPT_VAR,
+/**************************** Patched by Flier ******************************/
+	INPUT_PROMPT_SHIFT_NEW_VAR,
+/****************************************************************************/
 	INPUT_PROTECTION_VAR,
 	INSERT_MODE_VAR,
 	INVERSE_VIDEO_VAR,

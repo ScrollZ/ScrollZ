@@ -214,6 +214,9 @@ IrcVariable irc_variable[] =
 	{ "INPUT_ALIASES",		BOOL_TYPE_VAR,	DEFAULT_INPUT_ALIASES, NULL, NULL, 0, 0 },
 	{ "INPUT_ENCODING",		STR_TYPE_VAR,	0, NULL, set_input_encoding, 0, 0 },
 	{ "INPUT_PROMPT",		STR_TYPE_VAR,	0, NULL, set_input_prompt, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "INPUT_PROMPT_SHIFT_NEW",	BOOL_TYPE_VAR,	DEFAULT_INPUT_PROMPT_SHIFT_NEW, 0, set_input_prompt_shift_new, 0, 0 },
+/****************************************************************************/
 	{ "INPUT_PROTECTION",		BOOL_TYPE_VAR,	DEFAULT_INPUT_PROTECTION, NULL, input_warning, 0, 0 },
 	{ "INSERT_MODE",		BOOL_TYPE_VAR,	DEFAULT_INSERT_MODE, NULL, update_all_status, 0, 0 },
 	{ "INVERSE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_INVERSE_VIDEO, NULL, NULL, 0, 0 },
