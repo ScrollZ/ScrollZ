@@ -1501,7 +1501,7 @@ login_to_server(server)
             gnutls_init(&server_list[server].session, GNUTLS_CLIENT);
             gnutls_set_default_priority(server_list[server].session);
             err = gnutls_priority_set_direct(server_list[server].session,
-                                             "NORMAL:COMPAT", &errpos);
+                                             "NORMAL:%COMPAT", &errpos);
             if (err != GNUTLS_E_SUCCESS) {
                 say("Error setting priorities: %s", errpos ? errpos : "<null>");
             }
