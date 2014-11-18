@@ -102,7 +102,8 @@ static  void    SetDCCHost _((char *));
 static  void    SetDCCPorts _((char *));
 static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
-void    SetStampFormat _((char *));
+void            SetStampFormat _((char *));
+static  void    SetSSLPriority _((char *));
 static  void    SetStatusLines _((int));
 static  void    SetUsername _((char *));
 
@@ -287,6 +288,7 @@ IrcVariable irc_variable[] =
 	{ "SHOW_STATUS_ALL",		BOOL_TYPE_VAR,	DEFAULT_SHOW_STATUS_ALL, NULL, update_all_status, 0, 0 },
 	{ "SHOW_WHO_HOPCOUNT", 		BOOL_TYPE_VAR,	DEFAULT_SHOW_WHO_HOPCOUNT, NULL, NULL, 0, 0 },
 /**************************** Patched by Flier ******************************/
+        { "SSL_PRIORITY_STRING",        STR_TYPE_VAR,   0, NULL, SetSSLPriority, 0, 0 },
 	{ "STAMP_FORMAT",		STR_TYPE_VAR,	0, NULL, SetStampFormat, 0, 0 },
 /****************************************************************************/
 	{ "STATUS_AWAY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
@@ -1126,5 +1128,33 @@ char *new_username;
 {
     if (new_username) strmcpy(username, new_username, NAME_LEN);
     else strmcpy(username, empty_string, NAME_LEN);
+}
+
+void SetSSLPriority(priority)
+char *priority;
+{
+#if defined(HAVE_SSL)
+#if defined(HAVE_SSL)
+    const char *errpos;
+    char tmpbuf[mybufsize / 4];
+    char tmpbuf2[mybufsize / 4];
+    gnutls_session_t session;
+
+    gnutls_init(&session, GNUTLS_CLIENT);
+    if (gnutls_priority_set_direct(session, priority, &errpos) != GNUTLS_E_SUCCESS) {
+        strcpy(tmpbuf, "Invalid priority string");
+        if (errpos) {
+            sprintf(tmpbuf2, " at position %d", errpos - priority);
+            strcat(tmpbuf, tmpbuf2);
+        }
+        say("%s", tmpbuf);
+        set_string_var(SSL_PRIORITY_STRING_VAR, NULL);
+    }
+    else set_string_var(SSL_PRIORITY_STRING_VAR, priority);
+    gnutls_deinit(session);
+#endif
+#else
+    say("SSL_PRIORITY_STRING has no effect - this version was compiled without GnuTLS support");
+#endif
 }
 /****************************************************************************/

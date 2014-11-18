@@ -1,0 +1,8 @@
+! Copyright (c) 2014 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET SSL_PRIORITY_STRING <string>
+  Set GnuTLS priority string. This allows one to enable or disable
+  individual protocols / ciphers when initiating a SSL connection.

@@ -52,6 +52,9 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
       some context when shifting input prompt (patch by jm_)
     ! FiSH encryption is now enabled by default, if you wish to
       disable it you can do so via configure option
+    + SET SSL_PRIORITY_STRING when building with GnuTLS support,
+      this can be used to enable or disable individual SSL
+      protocols / ciphers
 
 ------------------------------------------------------------------------------
 
