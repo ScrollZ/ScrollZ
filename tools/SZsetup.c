@@ -724,6 +724,13 @@ char key;
         /* the part after the "o" */
         sprintf(newstr+strlen(newstr),"%s",o?z+1:"");
         strcpy(dest,newstr);
+
+        /* redraw screen */
+        move(YSCRCOLORS+10,XSCRCOLORS);
+        printf("                                                     ");
+        move(YSCRCOLORS+11,XSCRCOLORS);
+        printf("                                                     ");
+        SettingNames[setting+startset].func();
         print_colors();
     }
 }
