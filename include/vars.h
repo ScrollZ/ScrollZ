@@ -225,8 +225,12 @@ enum {
 	SHOW_NUMERICS_VAR,
 	SHOW_STATUS_ALL_VAR,
 	SHOW_WHO_HOPCOUNT_VAR,
+/**************************** PATCHED by Flier ******************************/
+	SSL_CA_FILE_VAR,
 	SSL_PRIORITY_STRING_VAR,
+	SSL_VERIFY_CERTIFICATE_VAR,
 	STAMP_FORMAT,
+/****************************************************************************/
 	STATUS_AWAY_VAR,
 	STATUS_CHANNEL_VAR,
 /**************************** PATCHED by Flier ******************************/

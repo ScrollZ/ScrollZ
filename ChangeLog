@@ -55,6 +55,11 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
     + SET SSL_PRIORITY_STRING when building with GnuTLS support,
       this can be used to enable or disable individual SSL
       protocols / ciphers
+    ! when connecting via SSL client will verify if server's
+      certificate is valid (reported by Boyuan He)
+    + SET SSL_CA_PATH to set path to CA certificate file
+    + SET SSL_VERIFY_CERTIFICATE to enable or disable certificate
+      verification (default is ON)
 
 ------------------------------------------------------------------------------
 

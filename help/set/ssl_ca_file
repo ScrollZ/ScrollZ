@@ -1,0 +1,12 @@
+! Copyright (c) 2014 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET SSL_CA_FILE <path to CA file>
+  Set CA certificate file to use when verifying certificates.
+  Usually this should be set to what system uses, for example
+  /etc/ssl/certs/ca-certificates.crt.
+
+See also:
+  SET SSL_VERIFY_CERTIFICATE

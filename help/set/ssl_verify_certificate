@@ -1,0 +1,13 @@
+! Copyright (c) 2014 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+Usage: SET SSL_VERIFY_CERTIFICATE [ON|OFF|TOGGLE]
+  If ON, client will verify whether server's certificate is valid
+  when connecting via SSL. If OFF, no certificate verification is
+  performed but warnings will still be printed if certificate is
+  not valid. You might want to disable certificate verification when
+  connecting to a server which is using a self signed certificate.
+
+See also:
+  SET SSL_CA_FILE

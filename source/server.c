@@ -244,7 +244,6 @@ close_server(server_index, message)
                         SSL_shutdown(server_list[i].ssl_fd);
                         server_list[i].ssl_fd = NULL;
                         server_list[i].ctx = NULL;
-                        server_list[i].meth = NULL;
                     }
 #endif
                 }
@@ -612,7 +611,6 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 #elif defined(HAVE_OPENSSL)
                 server_list[from_server].ssl_fd = NULL;
                 server_list[from_server].ctx = NULL;
-                server_list[from_server].meth = NULL;
 #endif
                 /* this is true only when adding server(s) from a command line */
                 if (*server == '!') {
@@ -794,7 +792,6 @@ remove_from_server_list(i)
 /**************************** PATCHED by Flier ******************************/
 #if defined(HAVE_OPENSSL)
         SSL_CTX_free(server_list[i].ctx);
-        new_free(&server_list[i].meth);
 #endif
         if (server_list[i].LastMessage) new_free(&(server_list[i].LastMessage));
         if (server_list[i].LastNotice) new_free(&(server_list[i].LastNotice));
@@ -1439,6 +1436,114 @@ connect_to_server(server_name, port, nick, group, c_server)
 	return 0;
 }
 
+/* Verify certificate validity with GnuTLS, return non-zero if not valid */
+#if defined(HAVE_SSL)
+#define SZCERTCHK(status, flag, string) \
+        if (status & flag) { \
+            say("Certificate for %s is not valid: %s", servername, string); \
+        }
+int CheckCertValidityGnuTLS(servername, certstatus, session)
+char *servername;
+int certstatus;
+gnutls_session_t session;
+{
+    SZCERTCHK(certstatus, GNUTLS_CERT_INVALID, "certificate is not trusted")
+    SZCERTCHK(certstatus, GNUTLS_CERT_REVOKED, "certificate has been revoked")
+    SZCERTCHK(certstatus, GNUTLS_CERT_SIGNER_NOT_FOUND, "certificate's issuer is not known")
+    SZCERTCHK(certstatus, GNUTLS_CERT_SIGNER_NOT_CA, "certificate is not signed by a CA certificate")
+    SZCERTCHK(certstatus, GNUTLS_CERT_INSECURE_ALGORITHM, "certificate uses insecure algorithm")
+    SZCERTCHK(certstatus, GNUTLS_CERT_NOT_ACTIVATED, "certificate is not yet active")
+    SZCERTCHK(certstatus, GNUTLS_CERT_EXPIRED, "certificate has expired")
+
+    if (gnutls_certificate_type_get(session) == GNUTLS_CRT_X509) {
+        int err;
+        gnutls_x509_crt_t cert;
+        const gnutls_datum_t *certlist;
+        unsigned int numcerts;
+
+        if ((err = gnutls_x509_crt_init(&cert)) < 0) {
+            say("Error initializing certificate: %s", gnutls_strerror(err));
+            goto done;
+        }
+        if ((certlist = gnutls_certificate_get_peers(session, &numcerts)) == NULL) {
+            say("Certificate not found");
+            gnutls_x509_crt_deinit(cert);
+            goto done;
+        }
+        if ((err = gnutls_x509_crt_import(cert, certlist, GNUTLS_X509_FMT_DER)) < 0) {
+            say("Error parsing certificate: %s", gnutls_strerror(err));
+            gnutls_x509_crt_deinit(cert);
+            goto done;
+        }
+        if (!gnutls_x509_crt_check_hostname(cert, servername)) {
+            char tmpbuf[mybufsize];
+            char cn[mybufsize];
+            size_t cnsize = sizeof(cn);
+            char *cnstr = "";
+
+            if (gnutls_x509_crt_get_issuer_dn(cert, cn, &cnsize) == 0) {
+                /* extract common name for printing */
+                cnstr = strstr(cn, "CN=");
+                if (cnstr) { cnstr++; cnstr++; cnstr++; }
+            }
+            if (*cnstr)
+                snprintf(tmpbuf, sizeof(tmpbuf), "common name %s does not match", cnstr);
+            else
+                strncpy(tmpbuf, "common name does not match", sizeof(tmpbuf));
+
+            err = 1;
+            SZCERTCHK(err, err, tmpbuf);
+            gnutls_x509_crt_deinit(cert);
+            return(1);
+        }
+    }
+
+done:
+    if (certstatus != 0)
+        return(1);
+
+    return(0);
+}
+#endif
+
+/* Verify certificate validity with OpenSSL, return non-zero if not valid */
+#if defined(HAVE_OPENSSL)
+#define SZCERTCHK(status, flag, string) \
+        if (status == flag) { \
+            say("Certificate for %s is not valid: %s", servername, string); \
+        }
+int CheckCertValidityOpenSSL(servername, certstatus, cert)
+char *servername;
+int certstatus;
+X509 *cert;
+{
+    SZCERTCHK(certstatus, X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY, "certificate's issuer is not known")
+    SZCERTCHK(certstatus, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN, "self signed certificate encountered")
+    SZCERTCHK(certstatus, X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT, "self signed certificate encountered")
+    SZCERTCHK(certstatus, X509_V_ERR_CERT_NOT_YET_VALID, "certificate is not yet active")
+    SZCERTCHK(certstatus, X509_V_ERR_CERT_HAS_EXPIRED, "certificate has expired")
+
+    if (cert) {
+        char cn[mybufsize];
+        X509_NAME *xname = X509_get_subject_name(cert);
+
+        X509_NAME_get_text_by_NID(xname, NID_commonName, cn, sizeof(cn));
+        if (!wild_match(cn, servername)) {
+            char tmpbuf[mybufsize];
+
+            snprintf(tmpbuf, sizeof(tmpbuf), "common name %s does not match", cn);
+            SZCERTCHK(1, 1, tmpbuf);
+            return(1);
+        }
+    }
+
+    if (certstatus != X509_V_OK)
+        return(1);
+
+    return(0);
+}
+#endif
+
 static	void
 login_to_server(server)
 	int server;
@@ -1487,17 +1592,26 @@ login_to_server(server)
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
         if (server_list[server].enable_ssl && (server_list[server].flags & SSL_CONNECT)) {
             int err;
+            int certstatus;
+            char *cafile;
 #if defined(HAVE_SSL)
-            char *filepath;
             char *priority;
-
-            filepath = OpenCreateFile("ca.pem", 1);
 #endif
+#if defined(HAVE_OPENSSL)
+            X509 *cert;
+#endif
+
             say("SSL connect in progress ...");
 #if defined(HAVE_SSL)
             gnutls_certificate_allocate_credentials(&server_list[server].xcred);
-            gnutls_certificate_set_x509_trust_file(server_list[server].xcred,
-                                                   filepath, GNUTLS_X509_FMT_PEM);
+
+            cafile = get_string_var(SSL_CA_FILE_VAR);
+            if (cafile && *cafile) {
+                gnutls_certificate_set_x509_trust_file(server_list[server].xcred,
+                                                       cafile,
+                                                       GNUTLS_X509_FMT_PEM);
+            }
+
             gnutls_init(&server_list[server].session, GNUTLS_CLIENT);
             gnutls_set_default_priority(server_list[server].session);
 
@@ -1514,18 +1628,53 @@ login_to_server(server)
                                    server_list[server].xcred);
             gnutls_transport_set_ptr(server_list[server].session,
                                      (gnutls_transport_ptr_t) server_list[server].read);
-            err = gnutls_handshake(server_list[server].session);
+            gnutls_handshake(server_list[server].session);
+
+            err = gnutls_certificate_verify_peers2(server_list[server].session,
+                                                   &certstatus);
+            if (err == GNUTLS_E_SUCCESS) {
+                if (CheckCertValidityGnuTLS(server_list[server].name,
+                                           certstatus,
+                                           server_list[server].session)) {
+                    if (get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) {
+                        close_server(server, empty_string);
+                        return;
+                    }
+                }
+            }
 #elif defined(HAVE_OPENSSL)
             SSLeay_add_ssl_algorithms();
-            server_list[server].meth = SSLv3_client_method();
             SSL_load_error_strings();
-            server_list[server].ctx = SSL_CTX_new(server_list[server].meth);
+            server_list[server].ctx = SSL_CTX_new(SSLv23_client_method());
             CHK_NULL(server_list[server].ctx);
             server_list[server].ssl_fd = SSL_new(server_list[server].ctx);
             CHK_NULL(server_list[server].ssl_fd);
+
+            SSL_CTX_set_verify(server_list[server].ctx, SSL_VERIFY_NONE, NULL);
+            SSL_CTX_set_default_verify_paths(server_list[server].ctx);
+            cafile = get_string_var(SSL_CA_FILE_VAR);
+            if (cafile && *cafile) {
+                SSL_CTX_load_verify_locations(server_list[server].ctx,
+                                              cafile,
+                                              NULL);
+            }
+
             SSL_set_fd(server_list[server].ssl_fd, server_list[server].read);
             err = SSL_connect(server_list[server].ssl_fd);
             CHK_SSL(err);
+
+            cert = SSL_get_peer_certificate(server_list[server].ssl_fd);
+            if (cert) {
+                certstatus = SSL_get_verify_result(server_list[server].ssl_fd);
+                if (CheckCertValidityOpenSSL(server_list[server].name,
+                                             certstatus,
+                                             cert)) {
+                    if (get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) {
+                        close_server(server, empty_string);
+                        return;
+                    }
+                }
+            }
 #endif
 
             server_list[server].flags &= ~SSL_CONNECT;

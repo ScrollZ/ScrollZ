@@ -104,6 +104,7 @@ static	void	Cnotifystring _((char *));
 static  void    SetAwayFile _((char *));
 void            SetStampFormat _((char *));
 static  void    SetSSLPriority _((char *));
+static  void    SetSSLCAFile _((char *));
 static  void    SetStatusLines _((int));
 static  void    SetUsername _((char *));
 
@@ -288,7 +289,9 @@ IrcVariable irc_variable[] =
 	{ "SHOW_STATUS_ALL",		BOOL_TYPE_VAR,	DEFAULT_SHOW_STATUS_ALL, NULL, update_all_status, 0, 0 },
 	{ "SHOW_WHO_HOPCOUNT", 		BOOL_TYPE_VAR,	DEFAULT_SHOW_WHO_HOPCOUNT, NULL, NULL, 0, 0 },
 /**************************** Patched by Flier ******************************/
+        { "SSL_CA_FILE",                STR_TYPE_VAR,   0, NULL, SetSSLCAFile, 0, 0 },
         { "SSL_PRIORITY_STRING",        STR_TYPE_VAR,   0, NULL, SetSSLPriority, 0, 0 },
+        { "SSL_VERIFY_CERTIFICATE",     BOOL_TYPE_VAR,  DEFAULT_SSL_VERIFY_CERTIFICATE, NULL, NULL, 0, 0 },
 	{ "STAMP_FORMAT",		STR_TYPE_VAR,	0, NULL, SetStampFormat, 0, 0 },
 /****************************************************************************/
 	{ "STATUS_AWAY",		STR_TYPE_VAR,	0, NULL, build_status, 0, 0 },
@@ -1134,7 +1137,6 @@ void SetSSLPriority(priority)
 char *priority;
 {
 #if defined(HAVE_SSL)
-#if defined(HAVE_SSL)
     const char *errpos;
     char tmpbuf[mybufsize / 4];
     char tmpbuf2[mybufsize / 4];
@@ -1152,9 +1154,27 @@ char *priority;
     }
     else set_string_var(SSL_PRIORITY_STRING_VAR, priority);
     gnutls_deinit(session);
-#endif
 #else
     say("SSL_PRIORITY_STRING has no effect - this version was compiled without GnuTLS support");
+#endif
+}
+
+void SetSSLCAFile(filepath)
+char *filepath;
+{
+#if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
+    FILE *fpx;
+
+    if (filepath) {
+        if ((fpx = fopen(filepath, "ro"))) {
+            fclose(fpx);
+            set_string_var(SSL_CA_FILE_VAR, filepath);
+            return;
+        }
+    }
+    set_string_var(SSL_CA_FILE_VAR, NULL);
+#else
+    say("SSL_CA_FILE has no effect - this version was compiled without GnuTLS support");
 #endif
 }
 /****************************************************************************/

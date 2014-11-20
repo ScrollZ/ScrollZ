@@ -126,7 +126,6 @@ typedef	struct
 #elif defined(HAVE_OPENSSL)
         SSL        *ssl_fd;
         SSL_CTX    *ctx;
-        SSL_METHOD *meth;
 #endif
 #endif
 /****************************************************************************/
