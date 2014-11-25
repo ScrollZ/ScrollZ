@@ -415,6 +415,34 @@ char *buffer;
             CmdsColors[number].color6);
 }
 
+char *get_cur_colstr()
+{
+    char *dest;
+
+    switch (scrcolor) {
+        case 0:
+            dest=CmdsColors[setting+startset].color1;
+            break;
+        case 1:
+            dest=CmdsColors[setting+startset].color2;
+            break;
+        case 2:
+            dest=CmdsColors[setting+startset].color3;
+            break;
+        case 3:
+            dest=CmdsColors[setting+startset].color4;
+            break;
+        case 4:
+            dest=CmdsColors[setting+startset].color5;
+            break;
+        case 5:
+            dest=CmdsColors[setting+startset].color6;
+            break;
+    }
+
+    return(dest);
+}
+
 void save_colors(fp)
 FILE *fp;
 {
@@ -533,6 +561,14 @@ void display_settings() {
     }
 }
 
+void display_col_str() {
+    attrset(COLWHITE);
+    move(YSCRCOLORS+3,XSCRCOLORS+18);
+    printf("                         ");
+    move(YSCRCOLORS+3,XSCRCOLORS+18);
+    printf("%s",get_cur_colstr());
+}
+
 void draw_screen() {
     int i;
 
@@ -602,6 +638,7 @@ void draw_screen() {
     attradd(COLBOLD);
     move(YSCRCOLORS+scrcolor,XSCRCOLORS+9);
     printf("<--");
+    display_col_str();
 }
 
 void fix_attr(colbuf,lowcolor,highcolor,curcolor)
@@ -661,26 +698,7 @@ char key;
     char *c;
     char *dest;
 
-    switch (scrcolor) {
-        case 0:
-            dest=CmdsColors[setting+startset].color1;
-            break;
-        case 1:
-            dest=CmdsColors[setting+startset].color2;
-            break;
-        case 2:
-            dest=CmdsColors[setting+startset].color3;
-            break;
-        case 3:
-            dest=CmdsColors[setting+startset].color4;
-            break;
-        case 4:
-            dest=CmdsColors[setting+startset].color5;
-            break;
-        case 5:
-            dest=CmdsColors[setting+startset].color6;
-            break;
-    }
+    dest=get_cur_colstr();
 
     strcpy(colstr,dest);
 
@@ -745,26 +763,7 @@ void edit_color()
     struct termios tc1;
     struct termios tc2;
 
-    switch (scrcolor) {
-        case 0:
-            dest=CmdsColors[setting+startset].color1;
-            break;
-        case 1:
-            dest=CmdsColors[setting+startset].color2;
-            break;
-        case 2:
-            dest=CmdsColors[setting+startset].color3;
-            break;
-        case 3:
-            dest=CmdsColors[setting+startset].color4;
-            break;
-        case 4:
-            dest=CmdsColors[setting+startset].color5;
-            break;
-        case 5:
-            dest=CmdsColors[setting+startset].color6;
-            break;
-    }
+    dest=get_cur_colstr();
 
     /* clear example area so that prompt is visible */
     attrset(COLWHITE);
@@ -916,20 +915,7 @@ void do_it() {
                 message=0;
             }
             if (key=='c' || key=='C') {
-                switch (scrcolor) {
-                    case 0:strcpy(CmdsColors[setting+startset].color1,"WHITE");
-                           break;
-                    case 1:strcpy(CmdsColors[setting+startset].color2,"WHITE");
-                           break;
-                    case 2:strcpy(CmdsColors[setting+startset].color3,"WHITE");
-                           break;
-                    case 3:strcpy(CmdsColors[setting+startset].color4,"WHITE");
-                           break;
-                    case 4:strcpy(CmdsColors[setting+startset].color5,"WHITE");
-                           break;
-                    case 5:strcpy(CmdsColors[setting+startset].color6,"WHITE");
-                           break;
-                }
+                strcpy(get_cur_colstr(),"WHITE");
                 disp=3;
             }
             if (key=='q' || key=='Q') break;
@@ -960,37 +946,11 @@ void do_it() {
             }
             move(2,40);
             if (key==' ' || key=='\n') {
-                switch (scrcolor) {
-                    case 0:strcpy(colbuf,CmdsColors[setting+startset].color1);
-                           break;
-                    case 1:strcpy(colbuf,CmdsColors[setting+startset].color2);
-                           break;
-                    case 2:strcpy(colbuf,CmdsColors[setting+startset].color3);
-                           break;
-                    case 3:strcpy(colbuf,CmdsColors[setting+startset].color4);
-                           break;
-                    case 4:strcpy(colbuf,CmdsColors[setting+startset].color5);
-                           break;
-                    case 5:strcpy(colbuf,CmdsColors[setting+startset].color6);
-                           break;
-                }
+                strcpy(colbuf,get_cur_colstr());
                 if (color>=1 && color<=4) fix_attr(colbuf,1,4,color);
                 if (color>=5 && color<=12) fix_color(colbuf,5,12,color);
                 if (color>12) fix_color(colbuf,13,20,color);
-                switch (scrcolor) {
-                    case 0:strcpy(CmdsColors[setting+startset].color1,colbuf);
-                           break;
-                    case 1:strcpy(CmdsColors[setting+startset].color2,colbuf);
-                           break;
-                    case 2:strcpy(CmdsColors[setting+startset].color3,colbuf);
-                           break;
-                    case 3:strcpy(CmdsColors[setting+startset].color4,colbuf);
-                           break;
-                    case 4:strcpy(CmdsColors[setting+startset].color5,colbuf);
-                           break;
-                    case 5:strcpy(CmdsColors[setting+startset].color6,colbuf);
-                           break;
-                }
+                strcpy(get_cur_colstr(),colbuf);
                 disp=3;
             }
             if (key=='f' || key=='F' || key=='b' || key=='B')
@@ -1057,6 +1017,7 @@ void do_it() {
                     }
                 }
             }
+            display_col_str();
         }
     }
 }

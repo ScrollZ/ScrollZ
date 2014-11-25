@@ -60,6 +60,7 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
     + SET SSL_CA_PATH to set path to CA certificate file
     + SET SSL_VERIFY_CERTIFICATE to enable or disable certificate
       verification (default is ON)
+    + SZsetup now shows colour string for current entry
 
 ------------------------------------------------------------------------------
 
