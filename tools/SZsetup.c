@@ -447,78 +447,15 @@ void save_colors(fp)
 FILE *fp;
 {
     int  i;
+    char *s;
     char tmpbuf[mybufsize];
+    char tmpbuf2[mybufsize];
 
     for (i=0;i<NUMCMDCOLORS;i++) {
         get_colors(i,tmpbuf);
-        switch (i) {
-            case COLWARNING:
-                fprintf(fp,"COLOR  WARNING   %s\n",tmpbuf);
-                break;
-            case COLJOIN:
-                fprintf(fp,"COLOR  JOIN      %s\n",tmpbuf);
-                break;
-            case COLMSG:
-                fprintf(fp,"COLOR  MSG       %s\n",tmpbuf);
-                break;
-            case COLNOTICE:
-                fprintf(fp,"COLOR  NOTICE    %s\n",tmpbuf);
-                break;
-            case COLNETSPLIT:
-                fprintf(fp,"COLOR  NETSPLIT  %s\n",tmpbuf);
-                break;
-            case COLINVITE:
-                fprintf(fp,"COLOR  INVITE    %s\n",tmpbuf);
-                break;
-            case COLMODE:
-                fprintf(fp,"COLOR  MODE      %s\n",tmpbuf);
-                break;
-            case COLSETTING:
-                fprintf(fp,"COLOR  SETTING   %s\n",tmpbuf);
-                break;
-            case COLLEAVE:
-                fprintf(fp,"COLOR  LEAVE     %s\n",tmpbuf);
-                break;
-            case COLNOTIFY:
-                fprintf(fp,"COLOR  NOTIFY    %s\n",tmpbuf);
-                break;
-            case COLCTCP:
-                fprintf(fp,"COLOR  CTCP      %s\n",tmpbuf);
-                break;
-            case COLKICK:
-                fprintf(fp,"COLOR  KICK      %s\n",tmpbuf);
-                break;
-            case COLDCC:
-                fprintf(fp,"COLOR  DCC       %s\n",tmpbuf);
-                break;
-            case COLWHO:
-                fprintf(fp,"COLOR  WHO       %s\n",tmpbuf);
-                break;
-            case COLWHOIS:
-                fprintf(fp,"COLOR  WHOIS     %s\n",tmpbuf);
-                break;
-            case COLPUBLIC:
-                fprintf(fp,"COLOR  PUBLIC    %s\n",tmpbuf);
-                break;
-            case COLCDCC:
-                fprintf(fp,"COLOR  CDCC      %s\n",tmpbuf);
-                break;
-            case COLLINKS:
-                fprintf(fp,"COLOR  LINKS     %s\n",tmpbuf);
-                break;
-            case COLDCCCHAT:
-                fprintf(fp,"COLOR  DCCCHAT   %s\n",tmpbuf);
-                break;
-            case COLCSCAN:
-                fprintf(fp,"COLOR  CSCAN     %s\n",tmpbuf);
-                break;
-            case COLNICK:
-                fprintf(fp,"COLOR  NICK      %s\n",tmpbuf);
-                break;
-            case COLME:
-                fprintf(fp,"COLOR  ME        %s\n",tmpbuf);
-                break;
-        }
+        strcpy(tmpbuf2,SettingNames[i].name);
+        for (s=tmpbuf2;*s;s++) *s=toupper(*s);
+        fprintf(fp,"COLOR  %-10s %s\n",tmpbuf2,tmpbuf);
     }
     
 }
