@@ -681,6 +681,7 @@ char key;
         strcpy(dest,newstr);
 
         /* redraw screen */
+        attrset(COLWHITE);
         move(YSCRCOLORS+10,XSCRCOLORS);
         printf("                                                     ");
         move(YSCRCOLORS+11,XSCRCOLORS);
@@ -2497,7 +2498,7 @@ void disp_misc() {
     /* we can't use static buffer here */
     strcpy(mybuf,"WHITE");
     move(YSCRCOLORS+8,XSCRCOLORS);
-    attradd(COLWHITE);
+    attrset(COLWHITE);
     printf("*");
     printf("Beavis");
     printf("* ");
