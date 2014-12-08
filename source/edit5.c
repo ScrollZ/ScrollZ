@@ -121,7 +121,7 @@ void PrintLinksHead _((void));
 void URLSave _((char *, char *, char *)); /* /URL coded by Zakath */
 void URLSave2 _((char *, char *));
 void URLSave3 _((char *, char *));
-int  GrabURL _((char *, char *, char *, char *));
+int  GrabURL _((char *, char *, size_t, char *, char *, char *));
 void MasterPassword _((char *, char *));
 void MasterPasswordOld _((char *, char *));
 
@@ -1574,7 +1574,8 @@ int  iscrypted;
 
         snprintf(tmpbuf5,sizeof(tmpbuf5),"%s %s",nick,channel);
         filepath=OpenCreateFile("ScrollZ.notepad",1);
-        numurl=GrabURL(line,tmpbuf4,filepath,tmpbuf5);
+        numurl=GrabURL(line,tmpbuf4,sizeof(tmpbuf4),filepath,tmpbuf5,
+                       CmdsColors[COLPUBLIC].color5);
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
@@ -3382,11 +3383,13 @@ void AcceptLastChat() {
 }
 
 /* This bolds out URLs and copies them to buffer */
-int GrabURL(line, buffer, filepath, source)
+int GrabURL(line, buffer, bufsize, filepath, source, colour)
 char *line;
 char *buffer;
+size_t bufsize;
 char *filepath;
 char *source;
+char *colour;
 {
     int  urlnum = 0;
     int  saveit;
@@ -3427,8 +3430,9 @@ char *source;
                     tmpurl->next = NULL;
                     saveit = 0;
                 }
-                snprintf(tmpbuf2, sizeof(tmpbuf2), "%c%s%c", bold, tmpstr1, bold);
-                strmcat(tmpstr2, tmpbuf2, sizeof(tmpbuf2));
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s%s%s",
+                         CmdsColors[COLMISC].color6, tmpstr1, colour);
+                strmcat(tmpstr2, tmpbuf2, bufsize - 1);
                 tmpstr2 += strlen(tmpbuf2);
                 /* Add URL to list */
                 if (saveit) {

@@ -2530,4 +2530,11 @@ void disp_misc() {
     attrset(COLWHITE);
     printf(" ");
     printf("This is for your publics if EGO is on");
+    move(YSCRCOLORS+11,XSCRCOLORS);
+    attrset(COLWHITE);
+    printf("<Beavis> color6 is for URLs, e.g. ");
+    colorset(COLOR6);
+    printf("http://url.com");
+    attrset(COLWHITE);
+    printf(" <--");
 }
