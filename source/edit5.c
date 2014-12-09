@@ -1575,7 +1575,12 @@ int  iscrypted;
         snprintf(tmpbuf5,sizeof(tmpbuf5),"%s %s",nick,channel);
         filepath=OpenCreateFile("ScrollZ.notepad",1);
         numurl=GrabURL(line,tmpbuf4,sizeof(tmpbuf4),filepath,tmpbuf5,
-                       CmdsColors[COLPUBLIC].color5);
+#ifdef WANTANSI
+                       CmdsColors[COLPUBLIC].color5
+#else
+                       NULL
+#endif
+                       );
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
@@ -3430,8 +3435,13 @@ char *colour;
                     tmpurl->next = NULL;
                     saveit = 0;
                 }
+#ifdef WANTANSI
                 snprintf(tmpbuf2, sizeof(tmpbuf2), "%s%s%s",
                          CmdsColors[COLMISC].color6, tmpstr1, colour);
+#else
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%c%s%c",
+                         bold, tmpstr1, bold);
+#endif
                 strmcat(tmpstr2, tmpbuf2, bufsize - 1);
                 tmpstr2 += strlen(tmpbuf2);
                 /* Add URL to list */

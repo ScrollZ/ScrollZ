@@ -3191,7 +3191,7 @@ char *filename;
              CmdsColors[COLDCC].color1, user, Colors[COLOFF], tmpbuf2);
 #else
     snprintf(tmpbuf3, sizeof(tmpbuf3), "DCC REJECT (%s) request received from %s (%s)",
-             type, description, (long) Client->filesize, user, FromUserHost);
+             filename, user, FromUserHost);
 #endif
     say("%s", tmpbuf3);
     dcc_erase(Client);

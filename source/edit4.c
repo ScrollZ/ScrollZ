@@ -223,7 +223,12 @@ int  iscrypted;
     if (URLCatch) {
         filepath = OpenCreateFile("ScrollZ.notepad", 1);
         numurl = GrabURL(msg,tmpbuf4,sizeof(tmpbuf4),filepath,nick,
-                         CmdsColors[COLMSG].color3);
+#ifdef WANTANSI
+                         CmdsColors[COLMSG].color3
+#else
+                         NULL
+#endif
+                         );
         message = tmpbuf4;
     }
     else message = msg;
