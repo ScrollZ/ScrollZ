@@ -606,6 +606,13 @@ char VersionInfo[] = {
     '-',
     '8',
 #endif
+#ifdef INET6
+    ' ',
+    'I',
+    'P',
+    'v',
+    '6',
+#endif
 #ifdef HAVE_GMP
     ' ',
     'F',
