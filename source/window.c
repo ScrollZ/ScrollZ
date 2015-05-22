@@ -568,9 +568,8 @@ Window	*v_window,
     int i;
     ChannelList	*chan;
 
-    if (v_window->server != -1)
-    {
-        for (chan = server_list[v_window->server].chan_list; chan; chan = chan->next)
+    if ((v_window->server != -1) && server_list && (v_window->server < number_of_servers)) {
+        for (chan = server_list[v_window->server].chan_list; chan; chan = chan->next) {
             if (chan->window == v_window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
                       chan->channel, chan->window, window);
@@ -581,6 +580,7 @@ Window	*v_window,
                       chan->channel, chan->window, v_window);
                 chan->window = v_window;
             }
+        }
     }
     /* added by flier
      * The code did not cover scenario: have three windows, window 1 with
@@ -595,7 +595,7 @@ Window	*v_window,
         if ((i == window->server) || (i == v_window->server))
             continue;
 
-        for (chan = server_list[i].chan_list; chan; chan = chan->next)
+        for (chan = server_list[i].chan_list; chan; chan = chan->next) {
             if (chan->window == v_window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s, server %d, swap window %p -> %p",
                       chan->channel, i, chan->window, window);
@@ -606,18 +606,20 @@ Window	*v_window,
                       chan->channel, i, chan->window, v_window);
                 chan->window = v_window;
             }
+        }
     }
 
     if (window->server == v_window->server)
         return;
-    if (window->server != -1)
-        for (chan = server_list[window->server].chan_list; chan; chan = chan->next)
+    if ((window->server != -1) && server_list && (window->server < number_of_servers)) {
+        for (chan = server_list[window->server].chan_list; chan; chan = chan->next) {
             if (chan->window == window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
                       chan->channel, chan->window, v_window);
                 chan->window = v_window;
             }
-
+        }
+    }
 }
 
 /*
