@@ -62,6 +62,7 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
       verification (default is ON)
     + SZsetup now shows colour string for current entry
     + COLMISC color6 is used for URLs
+    ! crash in SETAWAY when current window is not connected to a server
 
 ------------------------------------------------------------------------------
 

@@ -3395,26 +3395,28 @@ char *subargs;
     else snprintf(tmpbuf2, sizeof(tmpbuf2), "-ALL %s", tmpbuf1);
     away("AWAY", tmpbuf2, NULL);
 #endif /* CELE */
-    oldserver = from_server;
-    for (tmpchan = server_list[curr_scr_win->server].chan_list; tmpchan;
-         tmpchan = tmpchan->next) {
-        from_server = tmpchan->server;
-        if (showit && tmpchan->ShowAway && tmpchan->channel) {
+    if (current_screen && curr_scr_win && is_server_valid(curr_scr_win->server)) {
+        oldserver = from_server;
+        for (tmpchan = server_list[curr_scr_win->server].chan_list; tmpchan;
+             tmpchan = tmpchan->next) {
+            from_server = tmpchan->server;
+            if (showit && tmpchan->ShowAway && tmpchan->channel) {
 #ifdef CELE
-            if (modify)
-                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s %s", tmpchan->channel, tmpbuf1, CelerityL);
-            else snprintf(tmpbuf2, sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
+                if (modify)
+                    snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s %s", tmpchan->channel, tmpbuf1, CelerityL);
+                else snprintf(tmpbuf2, sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
 #else
-            if (modify)
-                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s [SZ%con%c]",
-                        tmpchan->channel, tmpbuf1, bold, bold);
-            else snprintf(tmpbuf2,sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
+                if (modify)
+                    snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s [SZ%con%c]",
+                            tmpchan->channel, tmpbuf1, bold, bold);
+                else snprintf(tmpbuf2,sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
 #endif /* CELE */
-            describe(NULL, tmpbuf2, NULL);
+                describe(NULL, tmpbuf2, NULL);
+            }
+            from_server = oldserver;
         }
         from_server = oldserver;
     }
-    from_server = oldserver;
     filename = get_string_var(AWAY_FILE_VAR);
     if (!(filepath = OpenCreateFile(filename, 1)) ||
         (awayfile = fopen(filepath, "a")) == NULL)
