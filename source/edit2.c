@@ -3352,76 +3352,76 @@ int modify;
 #endif /* CELE */
 
 /* Marks you as being away */
-void SetAway(command,args,subargs)
+void SetAway(command, args, subargs)
 char *command;
 char *args;
 char *subargs;
 {
-    int  modify=1;
-    int  showit=1;
+    int  modify = 1;
+    int  showit = 1;
     int  oldserver;
-    int  oldumask=umask(0177);
+    int  oldumask = umask(0177);
     char *tmpstr;
-    char *awaystr=(char *) 0;
+    char *awaystr = NULL;
     char *filepath;
     char *filename;
-    char tmpbuf1[mybufsize/4+1];
-    char tmpbuf2[mybufsize/2];
+    char tmpbuf1[mybufsize / 4 + 1];
+    char tmpbuf2[mybufsize / 2];
     FILE *awayfile;
 #ifndef CELE
-    time_t timenow=time((time_t *) 0);
+    time_t timenow=time(NULL);
 #endif /* !CELE */
     ChannelList *tmpchan;
 
     if (args && *args) {
-        while (*args=='-') {
-            tmpstr=new_next_arg(args,&args);
-            if (!my_stricmp(tmpstr,"-C")) modify=0;
-            if (!my_stricmp(tmpstr,"-H")) showit=0;
+        while (*args == '-') {
+            tmpstr = new_next_arg(args, &args);
+            if (!my_stricmp(tmpstr, "-C")) modify = 0;
+            if (!my_stricmp(tmpstr, "-H")) showit = 0;
         }
-        awaystr=args;
+        awaystr = args;
     }
-    if (!(awaystr && *awaystr)) awaystr=DefaultSetAway;
-    strmcpy(tmpbuf1,awaystr,mybufsize/4);
+    if (!(awaystr && *awaystr)) awaystr = DefaultSetAway;
+    strmcpy(tmpbuf1, awaystr, sizeof(tmpbuf1));
 #ifdef CELE
-    malloc_strcpy(&celeawaystr,awaystr);
-    CeleAwayTime=time((time_t *) 0);
-    SentAway=0;
+    malloc_strcpy(&celeawaystr, awaystr);
+    CeleAwayTime = time(NULL);
+    SentAway = 0;
     CeleAway(modify);
 #else
     if (modify)
-        snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s [SZ%con%c]  Away since %.16s",tmpbuf1,bold,bold,
-                ctime(&timenow));
-    else snprintf(tmpbuf2,sizeof(tmpbuf2),"-ALL %s",tmpbuf1);
-    away("AWAY",tmpbuf2,NULL);
+        snprintf(tmpbuf2, sizeof(tmpbuf2), "-ALL %s [SZ%con%c]  Away since %.16s", tmpbuf1,
+                 bold, bold, ctime(&timenow));
+    else snprintf(tmpbuf2, sizeof(tmpbuf2), "-ALL %s", tmpbuf1);
+    away("AWAY", tmpbuf2, NULL);
 #endif /* CELE */
-    oldserver=from_server;
-    for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;
-         tmpchan=tmpchan->next) {
-        from_server=tmpchan->server;
+    oldserver = from_server;
+    for (tmpchan = server_list[curr_scr_win->server].chan_list; tmpchan;
+         tmpchan = tmpchan->next) {
+        from_server = tmpchan->server;
         if (showit && tmpchan->ShowAway && tmpchan->channel) {
 #ifdef CELE
             if (modify)
-                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s is away. %s %s",tmpchan->channel,tmpbuf1,CelerityL);
-            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s",tmpchan->channel,tmpbuf1);
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s %s", tmpchan->channel, tmpbuf1, CelerityL);
+            else snprintf(tmpbuf2, sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
 #else
             if (modify)
-                snprintf(tmpbuf2,sizeof(tmpbuf2),"%s is away. %s [SZ%con%c]",
-                        tmpchan->channel,tmpbuf1,bold,bold);
-            else snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s",tmpchan->channel,tmpbuf1);
+                snprintf(tmpbuf2, sizeof(tmpbuf2), "%s is away. %s [SZ%con%c]",
+                        tmpchan->channel, tmpbuf1, bold, bold);
+            else snprintf(tmpbuf2,sizeof(tmpbuf2), "%s %s", tmpchan->channel, tmpbuf1);
 #endif /* CELE */
-            describe(NULL,tmpbuf2,NULL);
+            describe(NULL, tmpbuf2, NULL);
         }
-        from_server=oldserver;
+        from_server = oldserver;
     }
-    from_server=oldserver;
-    filename=get_string_var(AWAY_FILE_VAR);
-    if (!(filepath=OpenCreateFile(filename,1)) ||
-        (awayfile=fopen(filepath,"a"))==NULL)
-        say("Can't open file %s",filename);
+    from_server = oldserver;
+    filename = get_string_var(AWAY_FILE_VAR);
+    if (!(filepath = OpenCreateFile(filename, 1)) ||
+        (awayfile = fopen(filepath, "a")) == NULL)
+        say("Can't open file %s", filename);
     else {
         fclose(awayfile);
-        AwaySave("SetAway",SAVEAWAY);
+        AwaySave("SetAway", SAVEAWAY);
         update_all_status();
     }
     umask(oldumask);
