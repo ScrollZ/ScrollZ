@@ -3248,7 +3248,7 @@ char *subargs;
                     tmpurl->source?tmpurl->source:empty_string);
             }
             say("A total of %d URL%s stored in memory.",count,count==1?"":"s");
- 	    add_wait_prompt("Type the # of the URL to save, any other key to abort -> ",URLSave2,args,WAIT_PROMPT_KEY);
+ 	    add_wait_prompt("Type the # of the URL to save, any other key to abort -> ",URLSave2,args,WAIT_PROMPT_LINE);
  	}
     }
 }
@@ -3258,24 +3258,25 @@ void URLSave2(stuff,line)
 char *stuff;
 char *line;
 {
-    int count=1;
-    int found=0;
-    int urlnum=0;
+    int found = 0;
+    long count = 1;
+    long urlnum;
+    char *endptr;
     struct urlstr *tmpurl;
 
-    if (line && *line && isdigit(*line)) {
-        urlnum=*line-'0'+1;
-        for (tmpurl=urllist;tmpurl;tmpurl=tmpurl->next,count++)
-            if (count==urlnum) {
-                malloc_strcpy(&urlbuf,tmpurl->urls);
+    urlnum = strtol(line, &endptr, 10);
+    if (line && *line && (endptr != NULL)) {
+        for (tmpurl = urllist; tmpurl; tmpurl = tmpurl->next, count++)
+            if (count == urlnum) {
+                malloc_strcpy(&urlbuf, tmpurl->urls);
                 if (tmpurl->source) {
-                    malloc_strcat(&urlbuf," ");
-                    malloc_strcat(&urlbuf,tmpurl->source);
+                    malloc_strcat(&urlbuf, " ");
+                    malloc_strcat(&urlbuf, tmpurl->source);
                 }
-                found=1;
+                found = 1;
                 break;
             }
-        if (found) add_wait_prompt("Description of URL: ",URLSave3,stuff,WAIT_PROMPT_LINE);
+        if (found) add_wait_prompt("Description of URL: ", URLSave3, stuff, WAIT_PROMPT_LINE);
         else say("Could not find the URL with that number");
     }
 }
@@ -3454,7 +3455,7 @@ char *colour;
                     malloc_strcpy(&(urlnew->urls), tmpstr1);
                     if (source) malloc_strcpy(&(urlnew->source), source);
                     URLnum++;
-                    if (URLnum > 10) {
+                    if (URLnum > get_int_var(URL_BUFFER_SIZE_VAR)) {
                         urllist = tmpurl->next;
                         new_free(&(tmpurl->urls));
                         new_free(&(tmpurl->source));

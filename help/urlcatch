@@ -16,3 +16,4 @@ Usage: URLCATCH on|auto|quiet|off
 See also:
   URL
   NOTEPAD
+  SET URL_BUFFER_SIZE

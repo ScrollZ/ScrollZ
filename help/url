@@ -14,3 +14,4 @@ Usage: URL [-CLEAR] [http://...]
 
 See also:
   URLCATCH
+  SET URL_BUFFER_SIZE

@@ -107,6 +107,7 @@ static  void    SetSSLPriority _((char *));
 static  void    SetSSLCAFile _((char *));
 static  void    SetStatusLines _((int));
 static  void    SetUsername _((char *));
+static  void    SetURLBufferSize _((int));
 
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
@@ -115,6 +116,7 @@ extern  void    SetTrace _((char *));
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
 extern	char	*CelerityNtfy;
+extern  int     URLnum;
 /****************************************************************************/
 
 /*
@@ -359,6 +361,7 @@ IrcVariable irc_variable[] =
 /****************************************************************************/
 	{ "UNDERLINE_VIDEO",		BOOL_TYPE_VAR,	DEFAULT_UNDERLINE_VIDEO, NULL, NULL, 0, 0 },
 /**************************** PATCHED by Flier ******************************/
+        { "URL_BUFFER_SIZE_VAR",		INT_TYPE_VAR,	30, NULL, SetURLBufferSize, 0, 0 },
         { "USERNAME",		STR_TYPE_VAR,	0, NULL, SetUsername, 0, 0 },
 /****************************************************************************/
 	{ "USER_INFORMATION", 		STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
@@ -1176,5 +1179,23 @@ char *filepath;
 #else
     say("SSL_CA_FILE has no effect - this version was compiled without GnuTLS support");
 #endif
+}
+
+static void SetURLBufferSize(value)
+int value;
+{
+    struct urlstr *tmpurl;
+
+    if (value < 1) value = 1;
+
+    /* delete as many URLs as needed to fit the new buffer size */
+    while (URLnum > get_int_var(URL_BUFFER_SIZE_VAR)) {
+        tmpurl = urllist;
+        urllist = tmpurl->next;
+        new_free(&(tmpurl->urls));
+        new_free(&(tmpurl->source));
+        new_free(&tmpurl);
+        URLnum--;
+    }
 }
 /****************************************************************************/

@@ -63,6 +63,7 @@ NOTE: Homepage has been changed to http://www.scrollz.info/
     + SZsetup now shows colour string for current entry
     + COLMISC color6 is used for URLs
     ! crash in SETAWAY when current window is not connected to a server
+    + SET URL_BUFFER_SIZE to set URL buffer size (default is 30 URLs)
 
 ------------------------------------------------------------------------------
 

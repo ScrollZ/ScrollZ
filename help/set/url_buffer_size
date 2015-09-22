@@ -1,0 +1,14 @@
+!
+! Copyright (c) 1994-2015 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET URL_BUFFER_SIZE <URL buffer size>
+  URL_BUFFER_SIZE sets the maximum number of URLs you can have in
+  the URL buffer. Oldest entries will be removed from the buffer
+  when it is full.
+
+See also:
+  URL
+  URLCATCH
