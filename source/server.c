@@ -1440,12 +1440,16 @@ connect_to_server(server_name, port, nick, group, c_server)
 #if defined(HAVE_SSL)
 #define SZCERTCHK(status, flag, string) \
         if (status & flag) { \
-            say("Certificate for %s is not valid: %s", servername, string); \
+            if (!get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) \
+                say("Certificate for %s is not valid: %s", servername, string); \
+            if (errorstr && *errorstr) malloc_strcat(errorstr, ", "); \
+            malloc_strcat(errorstr, string); \
         }
-int CheckCertValidityGnuTLS(servername, certstatus, session)
+int CheckCertValidityGnuTLS(servername, certstatus, session, errorstr)
 char *servername;
 int certstatus;
 gnutls_session_t session;
+char **errorstr;
 {
     SZCERTCHK(certstatus, GNUTLS_CERT_INVALID, "certificate is not trusted")
     SZCERTCHK(certstatus, GNUTLS_CERT_REVOKED, "certificate has been revoked")
@@ -1510,12 +1514,16 @@ done:
 #if defined(HAVE_OPENSSL)
 #define SZCERTCHK(status, flag, string) \
         if (status == flag) { \
-            say("Certificate for %s is not valid: %s", servername, string); \
+            if (!get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) \
+                say("Certificate for %s is not valid: %s", servername, string); \
+            if (errorstr && *errorstr) malloc_strcat(errorstr, ", "); \
+            malloc_strcat(errorstr, string); \
         }
-int CheckCertValidityOpenSSL(servername, certstatus, cert)
+int CheckCertValidityOpenSSL(servername, certstatus, cert, errorstr)
 char *servername;
 int certstatus;
 X509 *cert;
+char **errorstr;
 {
     SZCERTCHK(certstatus, X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY, "certificate's issuer is not known")
     SZCERTCHK(certstatus, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN, "self signed certificate encountered")
@@ -1551,6 +1559,7 @@ login_to_server(server)
 #ifdef NON_BLOCKING_CONNECTS
 	int	old_serv = server_list[server].close_serv;
 #endif
+    char *errorstr = NULL;
 
 /**************************** PATCHED by Flier ******************************/
 	server_list[server].SZWI = 0;
@@ -1635,12 +1644,18 @@ login_to_server(server)
             if (err == GNUTLS_E_SUCCESS) {
                 if (CheckCertValidityGnuTLS(server_list[server].name,
                                            certstatus,
-                                           server_list[server].session)) {
+                                           server_list[server].session,
+                                           &errorstr)) {
                     if (get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) {
                         close_server(server, empty_string);
+                        say("Connection closed from %s: %s",
+                            server_list[server].name,
+                            errorstr ? errorstr : "N/A");
+                        new_free(&errorstr);
                         return;
                     }
                 }
+                new_free(&errorstr);
             }
 #elif defined(HAVE_OPENSSL)
             SSLeay_add_ssl_algorithms();
@@ -1668,12 +1683,18 @@ login_to_server(server)
                 certstatus = SSL_get_verify_result(server_list[server].ssl_fd);
                 if (CheckCertValidityOpenSSL(server_list[server].name,
                                              certstatus,
-                                             cert)) {
+                                             cert,
+                                             &errorstr)) {
                     if (get_int_var(SSL_VERIFY_CERTIFICATE_VAR)) {
                         close_server(server, empty_string);
+                        say("Connection closed from %s: %s",
+                            server_list[server].name,
+                            errorstr ? errorstr : "N/A");
+                        new_free(&errorstr);
                         return;
                     }
                 }
+                new_free(&errorstr);
             }
 #endif
 
