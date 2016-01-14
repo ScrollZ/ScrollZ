@@ -49,9 +49,9 @@
         int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
 #if defined(HAVE_SSL)
-        int     SSL_dgets _((char *, int, int, char *, gnutls_session_t *));
+        int     SSL_dgets _((char *, int, int, gnutls_session_t *));
 #elif defined(HAVE_OPENSSL)
-        int     SSL_dgets _((char *, int, int, char *, SSL *));
+        int     SSL_dgets _((char *, int, int, SSL *));
 #endif
 /****************************************************************************/
 	int	new_select _((fd_set *, fd_set *, struct timeval *));

@@ -343,159 +343,133 @@ dgets(str, len, des, specials)
 /**************************** Patched by Flier ******************************/
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
 #if defined(HAVE_SSL)
-int SSL_dgets(str, len, des, specials, session)
+int SSL_dgets(str, len, des, session)
 char	*str;
 int	len;
 int	des;
-char	*specials;
 gnutls_session_t *session;
 #elif defined(HAVE_OPENSSL)
-int SSL_dgets(str, len, des, specials, ssl_fd)
+int SSL_dgets(str, len, des, ssl_fd)
 char	*str;
 int	len;
 int	des;
-char	*specials;
 SSL     *ssl_fd;
 #endif
 {
-	char	*ptr, ch;
- 	size_t	cnt = 0;
- 	int	c;
-	fd_set	rd;
-	int	WantNewLine = 0;
-	int	BufferEmpty;
-	int	i,
-		j;
+    char *ptr, ch;
+    size_t cnt = 0;
+    int	c;
+    fd_set rd;
+    int	WantNewLine = 0;
+    int	BufferEmpty;
+    int	i, j;
+    int doselect;
 
 #if defined(HAVE_SSL)
-        if (!session || !(*session)) return(0);
-        if (gnutls_transport_get_ptr(*session) == NULL) return(0);
+    if (!session || !(*session)) return(0);
+    if (gnutls_transport_get_ptr(*session) == NULL) return(0);
 #elif defined(HAVE_OPENSSL)
-        if (!ssl_fd) return(0);
+    if (!ssl_fd) return(0);
 #endif
-	init_io();
-	if (io_rec[des] == (MyIO *) 0)
-	{
-		io_rec[des] = (MyIO *) new_malloc(sizeof(MyIO));
-		io_rec[des]->read_pos = 0;
-		io_rec[des]->write_pos = 0;
-		io_rec[des]->misc_flags = 0;
+    init_io();
+    if (io_rec[des] == (MyIO *) 0) {
+        io_rec[des] = (MyIO *) new_malloc(sizeof(MyIO));
+        io_rec[des]->read_pos = 0;
+        io_rec[des]->write_pos = 0;
+        io_rec[des]->misc_flags = 0;
 #ifdef ESIX
-		io_rec[des]->flags = 0;
+        io_rec[des]->flags = 0;
 #endif /* ESIX */	
-	}
-	if (len < 0)
-	{
-		WantNewLine = 1;
-		len = (-len);
-		io_rec[des]->misc_flags |= WAIT_NL;
-	}
-	while (1)
-	{
-		if ((BufferEmpty = (io_rec[des]->read_pos ==
-				io_rec[des]->write_pos)) || WantNewLine)
-		{
-			if(BufferEmpty)
-			{
-				io_rec[des]->read_pos = 0;
-				io_rec[des]->write_pos = 0;
-			}
-			FD_ZERO(&rd);
-			FD_SET(des, &rd);
-			switch (select(des + 1, &rd, 0, 0, timer))
-			{
-			case 0:
-				str[cnt] = (char) 0;
-				dgets_errno = 0;
-				return (-1);
-			default:
+    }
+    if (len < 0) {
+        WantNewLine = 1;
+        len = (-len);
+        io_rec[des]->misc_flags |= WAIT_NL;
+    }
+    while (1) {
+        if ((BufferEmpty = (io_rec[des]->read_pos == io_rec[des]->write_pos)) || WantNewLine) {
+            if(BufferEmpty) {
+                io_rec[des]->read_pos = 0;
+                io_rec[des]->write_pos = 0;
+            }
 #if defined(HAVE_SSL)
-				c = gnutls_record_recv(*session,
-                                                       io_rec[des]->buffer + io_rec[des]->write_pos,
-				                       IO_BUFFER_SIZE - io_rec[des]->write_pos);
+            doselect = 1;
+            if (gnutls_record_check_pending(*session)) {
+                c = gnutls_record_recv(*session,
+                                       io_rec[des]->buffer + io_rec[des]->write_pos,
+                                       IO_BUFFER_SIZE - io_rec[des]->write_pos);
+                doselect = 0;
+            }
 #elif defined(HAVE_OPENSSL)
-                                c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
-                                             IO_BUFFER_SIZE-io_rec[des]->write_pos);
+            doselect = 1;
+            if (SSL_pending(ssl_fd)) {
+                c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
+                             IO_BUFFER_SIZE-io_rec[des]->write_pos);
+                doselect = 0;
+            }
 #endif
-				if (c <= 0)
-				{
-					if (c == 0)
-						dgets_errno = -1;
-					else
-						dgets_errno = errno;
-					return 0;
-				}
-				if (WantNewLine && specials)
-				{
-					ptr = io_rec[des]->buffer;
-					for (i = io_rec[des]->write_pos; i < io_rec[des]->write_pos + c; i++)
-					{
-						if ((ch = ptr[i]) == specials[0])
-						{
-							if (i > 0)
-							{
-								bcopy(ptr + i - 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
-								i -= 2;
-								c -= 2;
-							}
-							else
-							{
-								bcopy(ptr, ptr + 1, io_rec[des]->write_pos + c - 1);
-								i--;
-								c--;
-							}
-						}
-						else if (ch == specials[2])
-						{
-							for (j = i - 1; j >= 0 && isspace(ptr[j]); j--)
-								;
-							for (; j >= 0 && !isspace(ptr[j]); j--)
-								;
-							bcopy(ptr + j + 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
-							c -= i - j;
-							i = j;
-						}
-						else if (ch == specials[1])
-						{
-							for (j = i - 1; j >= 0 && ptr[j] != '\n'; j--)
-								;
-							bcopy(ptr + j + 1, ptr + i + 1, io_rec[des]->write_pos + c - i - 1);
-							c -= i - j;
-							i = j;
-						}
-					}
-				}
-				io_rec[des]->write_pos += c;
-				break;
-			}
-		}
-		ptr = io_rec[des]->buffer;
-		if (WantNewLine)
-		{
-			for (cnt = io_rec[des]->write_pos; cnt > 0;cnt--, ptr++)
-			{
-				if (*ptr == '\n' || cnt == len-1)
-				{
-					*ptr = '\0';
-					(void) strcpy(str, io_rec[des]->buffer);
-					io_rec[des]->write_pos = cnt-1;
-					bcopy(io_rec[des]->buffer, ptr, cnt);
-					dgets_errno = 0;
-					return 1;
-				}
-			}
-			return -2;
-		}
-		while (io_rec[des]->read_pos < io_rec[des]->write_pos)
-		{
-			if (((str[cnt++] = ptr[(io_rec[des]->read_pos)++]) == '\n') || (cnt == len))
-			{
-				dgets_errno = 0;
-				str[cnt] = (char) 0;
-				return (cnt);
-			}
-		}
-	}
+            if (!doselect) {
+                if (c <= 0) {
+                    if (c == 0) dgets_errno = -1;
+                    else dgets_errno = errno;
+                    return 0;
+                }
+                io_rec[des]->write_pos += c;
+            }
+            if (doselect)
+            {
+                FD_ZERO(&rd);
+                FD_SET(des, &rd);
+                switch (select(des + 1, &rd, 0, 0, timer))
+                {
+                    case 0:
+                        str[cnt] = (char) 0;
+                        dgets_errno = 0;
+                        return (-1);
+                    default:
+#if defined(HAVE_SSL)
+                        c = gnutls_record_recv(*session,
+                                io_rec[des]->buffer + io_rec[des]->write_pos,
+                                IO_BUFFER_SIZE - io_rec[des]->write_pos);
+#elif defined(HAVE_OPENSSL)
+                        c = SSL_read(ssl_fd, io_rec[des]->buffer + io_rec[des]->write_pos,
+                                IO_BUFFER_SIZE-io_rec[des]->write_pos);
+#endif
+                        if (c <= 0)
+                        {
+                            if (c == 0)
+                                dgets_errno = -1;
+                            else
+                                dgets_errno = errno;
+                            return 0;
+                        }
+                        io_rec[des]->write_pos += c;
+                        break;
+                }
+            }
+        }
+        ptr = io_rec[des]->buffer;
+        if (WantNewLine) {
+            for (cnt = io_rec[des]->write_pos; cnt > 0;cnt--, ptr++) {
+                if (*ptr == '\n' || cnt == len-1) {
+                    *ptr = '\0';
+                    (void) strcpy(str, io_rec[des]->buffer);
+                    io_rec[des]->write_pos = cnt-1;
+                    bcopy(io_rec[des]->buffer, ptr, cnt);
+                    dgets_errno = 0;
+                    return 1;
+                }
+            }
+            return -2;
+        }
+        while (io_rec[des]->read_pos < io_rec[des]->write_pos) {
+            if (((str[cnt++] = ptr[(io_rec[des]->read_pos)++]) == '\n') || (cnt == len)) {
+                dgets_errno = 0;
+                str[cnt] = (char) 0;
+                return (cnt);
+            }
+        }
+    }
 }
 #endif
 /****************************************************************************/

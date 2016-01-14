@@ -339,7 +339,7 @@ do_server(rd, wd)
 /**************************** PATCHED by Flier ******************************/
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
                         if (server_list[from_server].enable_ssl)
-                            junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des, (char *) 0,
+                            junk = SSL_dgets(bufptr, BIG_BUFFER_SIZE, des,
 #if defined(HAVE_SSL)
                                              &server_list[from_server].session);
 #elif defined(HAVE_OPENSSL)
