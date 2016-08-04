@@ -2266,7 +2266,7 @@ int
 get_server_whois(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return (server_list[server_index].whois);
 }
@@ -2284,7 +2284,7 @@ int
 get_server_2_6_2(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return (get_server_flag(server_index, SERVER_2_6_2));
 }
@@ -2295,7 +2295,7 @@ set_server_flag(server_index, flag, value)
 	int	flag;
 	int	value;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	if (value)
 		server_list[server_index].flags |= flag;
@@ -2308,7 +2308,7 @@ get_server_flag(server_index, value)
 	int	server_index;
 	int	value;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return server_list[server_index].flags & value;
 }
@@ -2323,7 +2323,7 @@ int add;
     int *flags;
     char c = '`';
 
-    if (server_index == -1) server_index = primary_server;
+    if (server_index == -1 || !is_server_ok(server_index)) server_index = primary_server;
     if (isupper(flag) || (flag == '@')) {
         c = '?';
         flags = &server_list[server_index].umodeflags2;
@@ -2342,7 +2342,7 @@ char flag;
     int flags;
     char c = '`';
 
-    if (server_index == -1) server_index = primary_server;
+    if (server_index == -1 || !is_server_ok(server_index)) server_index = primary_server;
     if (isupper(flag) || (flag == '@')) {
         c = '?';
         flags = server_list[server_index].umodeflags2;
@@ -2360,7 +2360,7 @@ char *
 get_server_password(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return (server_list[server_index].password);
 }
@@ -2372,7 +2372,7 @@ char *
 get_server_group(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return (server_list[server_index].group);
 }
@@ -2387,7 +2387,7 @@ set_server_version(server_index, version)
 	int	server_index;
 	int	version;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	server_list[server_index].version = version;
 }
@@ -2400,7 +2400,7 @@ int
 get_server_version(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	if (server_index == -1)
 		return DEFAULT_SERVER_VER;
@@ -2413,7 +2413,7 @@ char	*
 get_server_name(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return(FormatServerName(server_list[server_index].name));
 }
@@ -2423,7 +2423,7 @@ char	*
 get_server_itsname(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	if (server_list[server_index].itsname)
 		return server_list[server_index].itsname;
@@ -2438,7 +2438,7 @@ set_server_itsname(server_index, name)
 	int	server_index;
 	char	*name;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	malloc_strcpy(&server_list[server_index].itsname, name);
 }
@@ -2451,7 +2451,7 @@ int
 is_server_open(server_index)
 	int	server_index;
 {
-	if (server_index < 0)
+	if (!is_server_ok(server_index))
 		return (0);
 	return (server_list[server_index].read != -1);
 }
@@ -2489,7 +2489,7 @@ is_server_connected(server_index)
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index < 0)
 		return (0);*/
-        if (!is_server_ok(server_index)) return(0);
+    if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
 	return (server_list[server_index].connected && (server_list[server_index].flags & LOGGED_IN));
 }
@@ -2499,10 +2499,10 @@ int
 get_server_port(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
-		server_index = primary_server;
+    if (server_index == -1 || !is_server_ok(server_index))
+        server_index = primary_server;
 /**************************** PATCHED by Flier ******************************/
-        if (!is_server_ok(server_index)) return(0);
+    if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
 	return (server_list[server_index].port);
 }
@@ -2516,8 +2516,8 @@ get_server_nickname(server_index)
 	int	server_index;
 {
 /**************************** PATCHED by Flier ******************************/
-        if (!is_server_ok(server_index))
-            return(nickname);
+    if (!is_server_ok(server_index))
+        return(nickname);
 /****************************************************************************/
 	if ((server_index != -1) && server_list[server_index].nickname)
 		return (server_list[server_index].nickname);
@@ -2532,17 +2532,17 @@ WhoisQueue *
 get_server_qhead(server_index)
 	int	server_index;
 {
-	if (server_index != -1)
+    if (server_index != -1)
 /**************************** PATCHED by Flier ******************************/
-        {
-                if (!is_server_ok(server_index)) return(0);
+    {
+        if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
-		return server_list[server_index].WQ_head;
+        return server_list[server_index].WQ_head;
 /**************************** PATCHED by Flier ******************************/
-        }
+    }
 /****************************************************************************/
-	else
-		return WQ_head;
+    else
+        return WQ_head;
 }
 
 /* get_server_whois_stuff */
@@ -2550,7 +2550,7 @@ WhoisStuff *
 get_server_whois_stuff(server_index)
 	int	server_index;
 {
-	if (server_index == -1)
+	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return &server_list[server_index].whois_stuff;
 }
@@ -2560,17 +2560,17 @@ WhoisQueue *
 get_server_qtail(server_index)
 	int	server_index;
 {
-	if (server_index !=-1)
+    if (server_index != -1)
 /**************************** PATCHED by Flier ******************************/
-        {
-                if (!is_server_ok(server_index)) return(0);
+    {
+        if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
-		return server_list[server_index].WQ_tail;
+        return server_list[server_index].WQ_tail;
 /**************************** PATCHED by Flier ******************************/
-        }
+    }
 /****************************************************************************/
-	else
-		return WQ_tail;
+    else
+        return WQ_tail;
 }
 
 
@@ -2581,17 +2581,17 @@ set_server_qhead(server_index, value)
 	int	server_index;
 	WhoisQueue *value;
 {
-	if (server_index != -1)
+    if (server_index != -1)
 /**************************** PATCHED by Flier ******************************/
-        {
-                if (!is_server_ok(server_index)) return;
+    {
+        if (!is_server_ok(server_index)) return;
 /****************************************************************************/
-		server_list[server_index].WQ_head = value;
+        server_list[server_index].WQ_head = value;
 /**************************** PATCHED by Flier ******************************/
-        }
+    }
 /****************************************************************************/
-	else
-		WQ_head = value;
+    else
+        WQ_head = value;
 }
 
 /* set_server_qtail - set the tail of the whois queue */
@@ -2600,17 +2600,17 @@ set_server_qtail(server_index, value)
 	int	server_index;
 	WhoisQueue *value;
 {
-	if (server_index !=-1)
+    if (server_index != -1)
 /**************************** PATCHED by Flier ******************************/
-        {
-                if (!is_server_ok(server_index)) return;
+    {
+        if (!is_server_ok(server_index)) return;
 /****************************************************************************/
-		server_list[server_index].WQ_tail = value;
+        server_list[server_index].WQ_tail = value;
 /**************************** PATCHED by Flier ******************************/
-        }
+    }
 /****************************************************************************/
-	else
-		WQ_tail = value;
+    else
+        WQ_tail = value;
 }
 
 
@@ -2624,7 +2624,7 @@ get_server_operator(server_index)
 	int	server_index;
 {
 /**************************** PATCHED by Flier ******************************/
-        if (!is_server_ok(server_index)) return(0);
+    if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
 	return (server_list[server_index].operator);
 }
@@ -2639,7 +2639,7 @@ set_server_operator(server_index, flag)
 	int	flag;
 {
 /**************************** PATCHED by Flier ******************************/
-        if (!is_server_ok(server_index)) return;
+    if (!is_server_ok(server_index)) return;
 /****************************************************************************/
 	server_list[server_index].operator = flag;
 }
@@ -2654,19 +2654,19 @@ set_server_nickname(server_index, nick)
 	int	server_index;
 	char	*nick;
 {
-	if (server_index != -1)
-	{
+    if (server_index != -1)
+    {
 /**************************** PATCHED by Flier ******************************/
-            if (is_server_ok(server_index)) {
+        if (is_server_ok(server_index)) {
 /****************************************************************************/
-		malloc_strcpy(&(server_list[server_index].nickname), nick);
-		if (server_index == primary_server)
- 			malloc_strcpy(&nickname, nick);
+            malloc_strcpy(&(server_list[server_index].nickname), nick);
+            if (server_index == primary_server)
+                malloc_strcpy(&nickname, nick);
 /**************************** PATCHED by Flier ******************************/
-            }
+        }
 /****************************************************************************/
-	}
-	update_all_status();
+    }
+    update_all_status();
 }
 
 void
@@ -2676,9 +2676,9 @@ set_server_motd(server_index, flag)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
-        if (!is_server_ok(server_index)) return;
+    if (!is_server_ok(server_index)) return;
 /****************************************************************************/
-		server_list[server_index].motd = flag;
+    server_list[server_index].motd = flag;
 }
 
 int
@@ -2687,9 +2687,9 @@ get_server_motd(server_index)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
-        if (!is_server_ok(server_index)) return(0);
+    if (!is_server_ok(server_index)) return(0);
 /****************************************************************************/
-		return(server_list[server_index].motd);
+    return(server_list[server_index].motd);
 	return (0);
 }
 
@@ -2699,11 +2699,11 @@ server_is_connected(server_index, value)
 		value;
 {
 /**************************** PATCHED by Flier ******************************/
-        if (!is_server_ok(server_index)) return;
+    if (!is_server_ok(server_index)) return;
 /****************************************************************************/
-	server_list[server_index].connected = value;
-	if (value)
-		server_list[server_index].eof = 0;
+    server_list[server_index].connected = value;
+    if (value)
+        server_list[server_index].eof = 0;
 }
 
 extern int in_redirect;

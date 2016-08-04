@@ -1347,7 +1347,7 @@ status_server(window)
 
 	if (connected_to_server != 1)
 	{
-		if (window->server != -1)
+		if (is_server_ok(window->server))
 		{
 			if (server_format)
 			{
