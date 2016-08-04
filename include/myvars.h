@@ -92,6 +92,12 @@
 #define SAVEAWAY    1048576
 #define SAVEALL     2097151
 
+#define SZAPPNAME "ScrollZ"
+
+#define NOTIFYMSG               1
+#define NOTIFYNOTICE            2
+#define NOTIFYALL         2097151
+
 extern struct friends *frlist;
 extern struct autobankicks *abklist;
 extern struct words *wordlist;
@@ -290,6 +296,7 @@ extern int    AwayEncrypt;
 extern int    BanTime;
 extern int    StatusLines;
 extern int    ShowChan;
+extern int    NotificationLevel;
 /****** Coded by Zakath ******/
 extern char   *SPingServers;
 extern int    CdccPackNum;

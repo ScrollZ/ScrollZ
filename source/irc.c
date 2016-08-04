@@ -228,6 +228,7 @@ extern void Logo _((char *, char *, char *));
 extern void CheckTimeMinute _((void));
 extern void CheckCdccTimers _((void));
 extern void InitVars _((void));
+extern void InitOther _((void));
 extern void Reset _((char *, char *, char *));
 extern void SwitchNick _((void));
 extern void CleanUp _((void));
@@ -472,6 +473,7 @@ int   AwayEncrypt;
 int   BanTime;
 int   StatusLines = DEFAULT_STATUS_LINES - 1;
 int   ShowChan;
+int   NotificationLevel = 0;
 #ifdef ACID
 int   ForceJoin;
 #endif
@@ -1840,6 +1842,7 @@ main(argc, argv, envp)
 
 /**************************** Patched by Flier ******************************/
         InitVars();
+        InitOther();
 /****************************************************************************/
 	init_variables();
 /**************************** Patched by Flier ******************************/

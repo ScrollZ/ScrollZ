@@ -430,4 +430,7 @@
 
 /* Define this if you want to enable TRACE facility */
 #undef SZTRACE
+
+/* Define this if you have libnotify */
+#undef HAVE_LIBNOTIFY
 /****************************************************************************/

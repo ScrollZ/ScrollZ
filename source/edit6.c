@@ -77,6 +77,9 @@
  PushEmptyStack      Push-line input functionality - empty stack
  FormatServerName    Format server name
  IsValidWindow       Verify if given window pointer is still valid
+ SetNotificationLevel Parse notification level string
+ SendNotification    Send notification using libnotify
+ CleanUpOther        Clean up stuff that does not belong elsewhere
 ******************************************************************************/
 
 /*
@@ -115,6 +118,10 @@
 #include "whowas.h"
 
 #include <sys/stat.h> /* for umask() */
+
+#ifdef HAVE_LIBNOTIFY
+#include <libnotify/notify.h>
+#endif
 
 #define SZMAXCRYPTSIZE 304
 
@@ -157,6 +164,7 @@ extern void CleanUpWhowas _((void));
 extern void CleanUpWindows _((void));
 extern void CleanUpFlood _((void));
 extern void CleanUpVars _((void));
+extern void CleanUpOther _((void));
 extern void Dump _((char *, char *, char *));
 extern int  EncryptString _((char *, char *, char *, int, int, int));
 extern int  DecryptString _((char *, char *, char *, int, int));
@@ -2157,6 +2165,7 @@ void CleanUp() {
     CleanUpWindows();
     CleanUpVars();
     CleanUpScrollZVars();
+    CleanUpOther();
     inSZNotify=1;
     strcpy(tmpbuf,"-");
     notify(NULL,tmpbuf,NULL);
@@ -3700,4 +3709,87 @@ Window *window;
         if ((tmp == window) && (tmp->server == server))
             return(1);
     return(0);
+}
+
+/* Parse notification level string */
+void SetNotificationLevel(command, args, subargs)
+char *command;
+char *args;
+char *subargs;
+{
+#ifdef HAVE_LIBNOTIFY
+    char *tmpstr;
+
+    if (args && *args) {
+        int newlevel = 0;
+
+        while ((tmpstr = new_next_arg(args, &args)) != NULL) {
+            int minus = 0;
+            int curval = 0;
+
+            if (*tmpstr == '-') {
+                minus = 1;
+                tmpstr++;
+            }
+            if (!my_stricmp(tmpstr, "MSG")) curval = NOTIFYMSG;
+            else if (!my_stricmp(tmpstr, "NOTICE")) curval = NOTIFYNOTICE;
+            else if (!my_stricmp(tmpstr, "ALL")) curval = NOTIFYALL;
+            else if (!my_stricmp(tmpstr, "NONE")) curval = 0;
+            else say("Unknown notification level \"%s\", ignored", tmpstr);
+            if (curval) {
+                if (minus) newlevel &= (~curval);
+                else newlevel |= curval;
+            }
+        }
+        NotificationLevel = newlevel;
+    }
+#else
+    say("Notification support was not enabled at compile time");
+#endif
+}
+
+/* Initialize stuff that does not belong in other sections */
+void InitOther(void) {
+#ifdef HAVE_LIBNOTIFY
+    notify_init(SZAPPNAME);
+#endif
+}
+
+/* Send notification using libnotify */
+void SendNotification(type, str)
+int type;
+char *str;
+{
+#ifdef HAVE_LIBNOTIFY
+    NotifyNotification *n;
+    GError *gerror;
+    char *summary = empty_string;
+
+    if (NotificationLevel & type) {
+        switch (type) {
+            case NOTIFYMSG:
+                summary = "New IRC Message";
+                break;
+                ;;
+            case NOTIFYNOTICE:
+                summary = "New IRC Notice";
+                break;
+                ;;
+        }
+        n = notify_notification_new(summary, str, NULL);
+        if (!notify_notification_show(n, NULL)) {
+            say("Notification error: %s", gerror->message);
+            g_clear_error(&gerror);
+        }
+        g_object_unref(G_OBJECT(n));        
+    }
+#else
+#endif
+}
+
+/* Clean up stuff that does not belong elsewhere */
+void CleanUpOther(void) {
+#ifdef HAVE_LIBNOTIFY
+    notify_uninit();
+#endif
 }

@@ -698,6 +698,7 @@ with_ssl
 with_openssl
 enable_regexp
 enable_fish
+enable_notify
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1319,6 +1320,7 @@ Optional Features:
   --enable-ipv6           Enable ipv6 (with ipv4) support
   --enable-regexp         Enable POSIX.2 regexp support
   --disable-fish          Disable FiSH encryption support
+  --enable-notify         Enable notification support
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -7057,6 +7059,71 @@ if test "x$fish" = "xno" -o "x$fish" = "x" ; then
 $as_echo "no" >&6; }
     fish=no
 fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable notification support" >&5
+$as_echo_n "checking whether to enable notification support... " >&6; }
+# Check whether --enable-notify was given.
+if test "${enable_notify+set}" = set; then :
+  enableval=$enable_notify;  case "$enableval" in
+  yes)
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+     olibs="$LIBS"
+     ocflags="$CFLAGS"
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libnotify" >&5
+$as_echo_n "checking for libnotify... " >&6; }
+     pkg-config --exists libnotify >/dev/null 2>&1
+     if test $? -ne 0;
+     then
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+         notify=no
+     else
+         CFLAGS="$ocflags `pkg-config --cflags libnotify`"
+         LIBS="$olibs `pkg-config --libs libnotify`"
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <libnotify/notify.h>
+
+int
+main ()
+{
+ notify_notification_new("name", "test", NULL);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+         $as_echo "#define HAVE_LIBNOTIFY 1" >>confdefs.h
+
+         notify=yes
+else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+         LIBS="$olibs"
+         CFLAGS="$ocflags"
+         notify=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     fi
+     ;;
+  *)
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+     notify=no
+     ;;
+  esac
+else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  notify=no
+
+fi
+
 
 if test -n "$hpux"
 then

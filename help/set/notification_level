@@ -1,0 +1,19 @@
+!
+! Copyright (c) 1994-2016 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET NOTIFICATION_LEVEL [ALL|NONE|[-]<level> [-]<level> ...]
+  The setting of this variable determines which types of
+  events send desktop notifications. If ALL is specified,
+  all supported event types will send desktop notifications.
+  If NONE is specified, no desktop notifications will be
+  sent.
+
+  The <level> specification can be one of the following: 
+    MSG            Private messages
+    NOTICE         NOTICEs
+
+  Example: when set to MSG, a desktop notification will be
+  sent when a new private messages arrives.

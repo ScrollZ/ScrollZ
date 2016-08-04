@@ -291,6 +291,7 @@ int  iscrypted;
        AwayMsgNum++;
        update_all_status();
     }
+    SendNotification(NOTIFYMSG, tmpbuf1);
     AddNick2List(nick, from_server);
     if (URLCatch && URLCatch < 3 && numurl)
         say("Added %d URL%s to NotePad (%c%s%c)",numurl, numurl == 1 ? "" : "s",
@@ -1587,6 +1588,7 @@ int *iscrypted;
     malloc_strcpy(&(server_list[from_server].LastNotice), tmpbuf);
     if (!print && (away_set || LogOn))
         AwaySave(server_list[from_server].LastNotice, SAVENOTICE);
+    SendNotification(NOTIFYNOTICE, tmpbuf);
     if (savemessage) restore_message_from();
     return(!hooked);
 }

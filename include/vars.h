@@ -189,6 +189,9 @@ enum {
 	MINIMUM_SERVERS_VAR,
 	MINIMUM_USERS_VAR,
 	NETSPLIT_TIME_VAR,
+/**************************** PATCHED by Flier ******************************/
+    NOTIFICATION_LEVEL_VAR,
+/****************************************************************************/
 	NOTIFY_HANDLER_VAR,
 	NOTIFY_LEVEL_VAR,
 	NOTIFY_ON_TERMINATION_VAR,

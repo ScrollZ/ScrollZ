@@ -112,6 +112,7 @@ static  void    SetURLBufferSize _((int));
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
 extern  void    SetTrace _((char *));
+extern  void    SetNotificationLevel _((char *));
 
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
@@ -254,6 +255,9 @@ IrcVariable irc_variable[] =
 	{ "MINIMUM_SERVERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_SERVERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "MINIMUM_USERS",		INT_TYPE_VAR,	DEFAULT_MINIMUM_USERS, NULL, NULL, 0, VF_NODAEMON },
 	{ "NETSPLIT_TIME",		INT_TYPE_VAR,	DEFAULT_NETSPLIT_TIME, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "NOTIFICATION_LEVEL",		STR_TYPE_VAR,	0, NULL, SetNotificationLevel, 0, 0 },
+/****************************************************************************/
 	{ "NOTIFY_HANDLER",		STR_TYPE_VAR, 	0, 0, set_notify_handler, 0, 0 },
 	{ "NOTIFY_LEVEL",		STR_TYPE_VAR,	0, NULL, set_notify_level, 0, 0 },
 	{ "NOTIFY_ON_TERMINATION",	BOOL_TYPE_VAR,	DEFAULT_NOTIFY_ON_TERMINATION, NULL, NULL, 0, VF_NODAEMON },
@@ -401,6 +405,9 @@ init_variables()
 	set_string_var(HIGHLIGHT_CHAR_VAR, DEFAULT_HIGHLIGHT_CHAR);
 	set_string_var(HISTORY_FILE_VAR, DEFAULT_HISTORY_FILE);
 	set_string_var(LASTLOG_LEVEL_VAR, DEFAULT_LASTLOG_LEVEL);
+/**************************** PATCHED by Flier ******************************/
+        set_string_var(NOTIFICATION_LEVEL_VAR, DEFAULT_NOTIFICATION_LEVEL);
+/****************************************************************************/
 	set_string_var(NOTIFY_HANDLER_VAR, DEFAULT_NOTIFY_HANDLER);
 	set_string_var(NOTIFY_LEVEL_VAR, DEFAULT_NOTIFY_LEVEL);
 	set_string_var(RATE_LIMIT_JOIN_VAR, DEFAULT_RATE_LIMIT_JOIN);
