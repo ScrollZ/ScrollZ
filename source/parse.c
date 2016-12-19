@@ -326,7 +326,7 @@ p_topic(from, ArgList)
             snprintf(tmpbuf3, sizeof(tmpbuf3), "%s topic %s", from, ArgList[0]);
             filepath = OpenCreateFile("ScrollZ.notepad", 1);
             numurl = GrabURL(ArgList[1], tmpbuf2, sizeof(tmpbuf2), filepath,
-                             tmpbuf3, empty_string);
+                             tmpbuf3, empty_string, 0);
         }
         if ((double_ignore(ArgList[0], NULL, IGNORE_CRAP)) == IGNORED) return;
         if ((double_ignore(FromUserHost, ArgList[0], IGNORE_CRAP)) == IGNORED) return;

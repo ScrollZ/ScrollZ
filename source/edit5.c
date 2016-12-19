@@ -121,7 +121,7 @@ void PrintLinksHead _((void));
 void URLSave _((char *, char *, char *)); /* /URL coded by Zakath */
 void URLSave2 _((char *, char *));
 void URLSave3 _((char *, char *));
-int  GrabURL _((char *, char *, size_t, char *, char *, char *));
+int  GrabURL _((char *, char *, size_t, char *, char *, char *, int));
 void MasterPassword _((char *, char *));
 void MasterPasswordOld _((char *, char *));
 
@@ -1576,10 +1576,11 @@ int  iscrypted;
         filepath=OpenCreateFile("ScrollZ.notepad",1);
         numurl=GrabURL(line,tmpbuf4,sizeof(tmpbuf4),filepath,tmpbuf5,
 #ifdef WANTANSI
-                       CmdsColors[COLPUBLIC].color5
+                       CmdsColors[COLPUBLIC].color5,
 #else
-                       NULL
+                       NULL,
 #endif
+                       iscrypted
                        );
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
@@ -3389,13 +3390,14 @@ void AcceptLastChat() {
 }
 
 /* This bolds out URLs and copies them to buffer */
-int GrabURL(line, buffer, bufsize, filepath, source, colour)
+int GrabURL(line, buffer, bufsize, filepath, source, colour, iscrypted)
 char *line;
 char *buffer;
 size_t bufsize;
 char *filepath;
 char *source;
 char *colour;
+int iscrypted;
 {
     int  urlnum = 0;
     int  saveit;
@@ -3418,6 +3420,12 @@ char *colour;
             for (tmpstr3 = tmpstr1; *tmpstr3 && !isspace(*tmpstr3); tmpstr3++);
             store = *tmpstr3;
             *tmpstr3 = '\0';
+            if (iscrypted) {
+                char tmp[mybufsize];
+
+                StripAnsi(tmpstr1, tmp, 3);
+                strcpy(tmpstr1, tmp);
+            }
             if ((!my_strnicmp(tmpstr1, "http://", 7) || !my_strnicmp(tmpstr1, "ftp://", 6) ||
                  !my_strnicmp(tmpstr1, "https://", 8) ||
                  !my_strnicmp(tmpstr1, "www.", 4) || !my_strnicmp(tmpstr1, "ftp.", 4))) {

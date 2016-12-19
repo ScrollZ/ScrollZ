@@ -130,7 +130,7 @@ extern char *OpenCreateFile _((char *, int));
 extern void PrintSynch _((ChannelList *));
 extern void StripAnsi _((char *, char *, int));
 extern int  matchmcommand _((char *, int));
-extern int  GrabURL _((char *, char *, size_t, char *, char *, char *));
+extern int  GrabURL _((char *, char *, size_t, char *, char *, char *, int));
 extern void Ignore _((char *, char *, char *));
 extern void CheckPermBans _((ChannelList *));
 #ifdef EXTRAS
@@ -224,10 +224,11 @@ int  iscrypted;
         filepath = OpenCreateFile("ScrollZ.notepad", 1);
         numurl = GrabURL(msg,tmpbuf4,sizeof(tmpbuf4),filepath,nick,
 #ifdef WANTANSI
-                         CmdsColors[COLMSG].color3
+                         CmdsColors[COLMSG].color3,
 #else
-                         NULL
+                         NULL,
 #endif
+                         iscrypted
                          );
         message = tmpbuf4;
     }
