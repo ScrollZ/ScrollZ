@@ -451,10 +451,7 @@ int type;
         padlen = MAX_MSG_LEN - len;
         while ((padlen > 0) && (i < sizeof(msg) - 1)) {
             /* copy one character from src */
-            if (*x) {
-                msg[i++] = *x;
-                x++;
-            }
+            if (*x) msg[i++] = *x++;
             if (i < sizeof(msg) - 1) {
                 /* append a random pad character, if we have space for only
                    one character it has to be ALL_OFF */
@@ -464,6 +461,11 @@ int type;
                 if (padchars[j].len == 2) msg[i++] = padchars[j].ch;
                 padlen -= padchars[j].len;
             }
+        }
+        /* copy the rest of src */
+        while (i < sizeof(msg) - 1) {
+            if (*x) msg[i] = *x++;
+            i++;
         }
         len = strlen(msg);
     }
