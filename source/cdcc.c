@@ -112,14 +112,14 @@ static void verbosemcommand _((char *));
 void queuemcommand _((char *));
 static void GetDir _((char *));
 static void CleanList _((void));
-static void AddFileToList _((char *, char *, int));
+static void AddFileToList _((char *, char *, float));
 static int  AddFiles2List _((char *));
 static void AddToOfferList _((char *, char *));
 static void ShowPacks _((char *));
 static void DeleteSend _((void));
 static int  AddToQueue _((Files *, char *, int));
 static int  SeedFiles _((char *, int));
-static int  GetSize _((char *, char *));
+static float GetSize _((char *, char *));
 static int  compar _((struct dirent **, struct dirent **));
 static int  selectent _((struct dirent *));
 
@@ -2080,6 +2080,7 @@ int  error;
 #endif
         if (wild_match(rest,string)) {
             char tmpbuf3[mybufsize/2+1];
+            float fsize;
 
             strmcpy(tmpbuf3,tmpbuf1,mybufsize/2);
             strmcat(tmpbuf3,"/",mybufsize/2);
@@ -2092,8 +2093,8 @@ int  error;
                         tmpbuf2,tmpbuf2);
                 continue;
             }
-            if ((size=GetSize(tmpbuf1,string))!=-1) {
-                AddFileToList(tmpbuf1,string,size);
+            if ((fsize=GetSize(tmpbuf1,string))!=-1) {
+                AddFileToList(tmpbuf1,string,fsize);
                 count++;
             }
         }
@@ -2107,7 +2108,7 @@ int  error;
 static void AddFileToList(path,file,size)
 char *path;
 char *file;
-int  size;
+float size;
 {
     Files *new;
     Files *tmp;
@@ -2307,7 +2308,7 @@ struct dirent *entry;
 * GetSize: takes path, and filename, cats them together, and returns   *
 *          filesize of file, if dir, returns -1                        *
 ************************************************************************/
-static int GetSize(path,file)
+static float GetSize(path,file)
 char *path;
 char *file;
 {

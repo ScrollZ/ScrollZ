@@ -13,6 +13,8 @@ ScrollZ
     ! desktop notification via libnotify for messages and notices
       (enable it by passing --enable-notify to configure, also
        read HELP SET NOTIFICATION_LEVEL)
+    ! files over 2GB were reported with negative size
+      (patch by jm_)
 
 ScrollZ v2.3, 11.2.2016
 
