@@ -3411,6 +3411,8 @@ int iscrypted;
     time_t now;
     struct urlstr *urlnew, *tmpurl, *prevurl = NULL;
 
+    if (line == NULL)
+        return;
     strmcpy(tmpbuf1, line, sizeof(tmpbuf1));
     *tmpstr2 = '\0';
     while (*tmpstr1) {
