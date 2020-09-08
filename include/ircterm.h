@@ -89,9 +89,9 @@ extern	char	*CM,
 extern	int	SG;
 /**************************** PATCHED by Flier ******************************/
 #ifdef WANTANSI
-char            *SETAF,
+extern char     *SETAF,
                 *SETAB;
-int             NUMCOLORS;
+extern int      NUMCOLORS;
 #endif /* WANTANSI */
 /****************************************************************************/
 
