@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: alias.c,v 1.51 2008-12-09 15:58:11 f Exp $
+ * $Id: alias.c,v 1.52 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -2958,7 +2958,7 @@ u_char	*
 function_strip(input)
 	u_char	*input;
 {
-	char	tmpbuf[128], *result;
+	char	tmpbuf[128], *result = '\0';
 	u_char	*retval = (u_char *) 0;
 	char	*chars;
 	char	*cp, *dp;

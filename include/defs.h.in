@@ -109,15 +109,6 @@
 /* define this if you need getcwd() */
 #undef NEED_GETCWD 
 
-/* define this if you have hpux version 7 */
-#undef HPUX7
-
-/* define this if you have hpux version 8 */
-#undef HPUX8
-
-/* define this if you have an unknown hpux version (pre ver 7) */
-#undef HPUXUNKNOWN
-
 /* define this if an unsigned long is 32 bits */
 #undef UNSIGNED_LONG32
 

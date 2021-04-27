@@ -8,9 +8,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,20 +36,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.c,v 1.18 2008-03-30 15:31:22 f Exp $
+ * $Id: newio.c,v 1.19 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
 #include "ircaux.h"
 #include "newio.h"
-
-#ifdef ISC22
-# include <sys/bsdtypes.h>
-#endif /* ISC22 */
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* ESIX */
 
 #include "irc_std.h"
 
@@ -93,9 +85,6 @@ typedef	struct	myio_struct
 	unsigned int	read_pos,
 			write_pos;
 	unsigned	misc_flags;
-#if defined(ESIX)
-	unsigned	flags;
-#endif /* ESIX */
 }           MyIO;
 
 #define IO_SOCKET 1
@@ -108,51 +97,6 @@ static	struct	timeval	*timer;
 	int	dgets_errno = 0;
 
 static	void	init_io _((void));
-
-#ifdef ESIX
-/* Esix must know if it is a socket or not. */
-void
-mark_socket(int des)
-{
-
-	if (first)
-	{
-		int	c;
-		for (c = 0; c < FD_SETSIZE; c++)
-			io_rec[c] = (MyIO *) 0;
-		first = 0;
-	}
-	if (io_rec[des] == (MyIO *) 0)
-	{
-		io_rec[des] = (MyIO *) new_malloc(sizeof(MyIO));
-		io_rec[des]->read_pos = 0;
-		io_rec[des]->write_pos = 0;
-		io_rec[des]->flags = 0;
-	}
-	io_rec[des]->flags |= IO_SOCKET;
-}
-
-void
-unmark_socket(int des)
-{
-
-	if (first)
-	{
-		int	c;
-		for (c = 0; c < FD_SETSIZE; c++)
-			io_rec[c] = (MyIO *) 0;
-		first = 0;
-	}
-	if (io_rec[des] == (MyIO *) 0)
-	{
-		io_rec[des] = (MyIO *) new_malloc(sizeof(MyIO));
-		io_rec[des]->read_pos = 0;
-		io_rec[des]->write_pos = 0;
-		io_rec[des]->flags = 0;
-	}
-	io_rec[des]->flags &= ~IO_SOCKET;
-}
-#endif /* ESIX */
 
 /*
  * dgets_timeout: does what you'd expect.  Sets a timeout in seconds for
@@ -219,9 +163,6 @@ dgets(str, len, des, specials)
 		io_rec[des]->read_pos = 0;
 		io_rec[des]->write_pos = 0;
 		io_rec[des]->misc_flags = 0;
-#ifdef ESIX
-		io_rec[des]->flags = 0;
-#endif /* ESIX */	
 	}
 	if (len < 0)
 	{
@@ -248,14 +189,6 @@ dgets(str, len, des, specials)
 				dgets_errno = 0;
 				return (-1);
 			default:
-#ifdef ESIX
-				if (io_rec[des]->flags & IO_SOCKET)
-					c = recv(des, io_rec[des]->buffer +
-					  io_rec[des]->write_pos,
-					  IO_BUFFER_SIZE-io_rec[des]->write_pos,
-					  0);
-				else
-#endif /* ESIX */
 					c = read(des, io_rec[des]->buffer +
 					 io_rec[des]->write_pos,
 					 IO_BUFFER_SIZE-io_rec[des]->write_pos);
@@ -377,9 +310,6 @@ SSL     *ssl_fd;
         io_rec[des]->read_pos = 0;
         io_rec[des]->write_pos = 0;
         io_rec[des]->misc_flags = 0;
-#ifdef ESIX
-        io_rec[des]->flags = 0;
-#endif /* ESIX */	
     }
     if (len < 0) {
         WantNewLine = 1;
@@ -540,10 +470,6 @@ new_close(des)
 {
 	if (des < 0)
 		return;
-#ifdef ESIX
-	if (io_rec[des]->flags & IO_SOCKET)
-		t_close(des);
-#endif /* ESIX */
 	new_free(&(io_rec[des])); /* gkm */
 	close(des);
 }
@@ -553,9 +479,6 @@ extern	void
 set_socket_options(s)
 	int	s;
 {
-#if defined(ESIX)
-	mark_socket(s);
-#else
 #ifndef NO_STRUCT_LINGER
 	struct linger	lin;
 #endif
@@ -571,5 +494,4 @@ set_socket_options(s)
 	lin.l_onoff = lin.l_linger = 0;
 	(void) setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &lin, optlen);
 #endif /* NO_STRUCT_LINGER */
-#endif /* ESIX */
 }

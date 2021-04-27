@@ -7,9 +7,9 @@
  * Many, many cleanups, modifications, and some new broken code
  * added by Scott Reynolds (scottr@edsi.org), June 1995.
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,21 +35,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: term.c,v 1.15 2006-04-30 14:15:43 f Exp $
+ * $Id: term.c,v 1.16 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
-
-#ifdef ESIX
-# include <lan/net_types.h>
-# include <lan/net_ioctl.h>
-# include <sgtty.h>
-# include <termio.h>
-#endif /* ESIX */
-
-#ifdef DGUX
-# define _SYSV3_BAUD_RATE_FLAVOR
-#endif /* DGUX */
 
 #ifdef SVR3
 # include <sys/stat.h>
@@ -86,9 +75,6 @@
 # endif /* HPUX */
 # include <termios.h>
 #else
-# ifdef ISC
-#  include <sys/sioctl.h>
-# endif /* ISC */
 # ifdef HAVE_SGTTY_H
 #   include <sgtty.h>
 #   define USE_SGTTY
@@ -104,11 +90,6 @@
 
 #include "ircterm.h"
 #include "translat.h"
-
-#ifdef ISC22
-# undef TIOCSETC
-# undef TIOCGETC
-#endif /* ISC22 */
 
 #if !defined(sun) && !defined(_IBMR2)
 # ifdef HAVE_SYS_TTOLD_H
@@ -357,7 +338,7 @@ term_reset()
 	ioctl(tty_des, TCSETA, &oldb);
 # endif /* USE_SGTTY */
 
-# if (defined(mips) && !defined(ultrix)) || defined(ISC22)
+# if (defined(mips) && !defined(ultrix))
 	new_stty("cooked");
 # endif /* mips */
 
@@ -404,9 +385,6 @@ term_cont()
 	ioctl(tty_des, TCSETA, &newb);
 #  endif /* USE_SGTTY */
 
-#  if defined(ISC22)
-	new_stty("opost");
-#  endif /* ISC22 */
 #  if defined(mips) && !defined(ultrix) /*ultrix/mips silliness*/
 	new_stty("raw -echo");
 #  endif /* mips */
@@ -428,7 +406,7 @@ term_pause(key, ptr)
  	u_int	key;
 	char *	ptr;
 {
-#if !defined(SIGSTOP) || !defined(SIGTSTP) || defined(_RT) || defined(ESIX)
+#if !defined(SIGSTOP) || !defined(SIGTSTP) || defined(_RT)
 	say("The STOP_IRC function does not work on this system type.");
 #else
 	term_reset();

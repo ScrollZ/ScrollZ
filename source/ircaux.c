@@ -3,9 +3,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990, 1991 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990, 1991 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircaux.c,v 1.19 2006-10-31 12:31:27 f Exp $
+ * $Id: ircaux.c,v 1.191 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
 
-#if defined(ESIX) || defined(MIPS_SYSV)
+#ifdef MIPS_SYSV
 # define _TERMIOS_INCLUDED
 # define _INCLUDE_TERMIO
 # include <sys/termio.h>
@@ -806,10 +806,6 @@ connect_by_number(service,host,nonblocking,dccget)
 #ifdef INET6
 		freeaddrinfo(res0);
 #endif
-#ifdef ESIX
-		t_close(s);
-		unmark_socket(s);
-#endif /* ESIX */
 		new_close(s);
 		return -4;
 	}
@@ -826,10 +822,6 @@ connect_by_number(service,host,nonblocking,dccget)
 #ifdef INET6
 			continue;
 #endif
-#ifdef ESIX
-			t_close(s);
-			unmark_socket(s);
-#endif /* ESIX */
 			new_close(s);
 			return -4;
 		}
@@ -841,10 +833,6 @@ connect_by_number(service,host,nonblocking,dccget)
 #ifdef INET6
 	} /* for () */
 	if (err < 0) {
-#ifdef ESIX
-		t_close(s);
-		unmark_socket(s);
-#endif /* ESIX */
 		new_close(s);
 		return -4;
 	}
@@ -1483,7 +1471,7 @@ void
 new_stty(option)
 	char	*option;
 {
-#if defined(ESIX) || defined(MIPS_SYSV)
+#ifdef MIPS_SYSV
 	struct	termio ttyset;
 
 	ioctl(0, TCGETA, &ttyset);

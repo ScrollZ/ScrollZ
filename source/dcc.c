@@ -3,10 +3,10 @@
  *
  * Written By Troy Rollo <troy@cbme.unsw.oz.au> 
  * mIRC resume code by EPIC
- * Copyright (c) 1995, 2003 EPIC Software Labs
+ * Copyright (C) 1995, 2003 EPIC Software Labs
  *
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: dcc.c,v 1.50 2008-05-13 14:58:48 f Exp $
+ * $Id: dcc.c,v 1.51 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* ESIX */
-
-#if defined(ISC30) && defined(_POSIX_SOURCE)
-# undef _POSIX_SOURCE
 #include <sys/stat.h>
-# define _POSIX_SOURCE
-#else
-# include <sys/stat.h>
-#endif /* ICS30 || _POSIX_SOURCE */
 
 #ifdef HAVE_WRITEV
 #include <sys/uio.h>
@@ -2156,9 +2145,6 @@ process_incoming_chat(Client)
 		sra = sizeof(struct sockaddr_in);
 		Client->write = accept(Client->read, (struct sockaddr *)
 			&remaddr, &sra);
-#if defined(ESIX)
-		mark_socket(Client->write);
-#endif
 		new_close(Client->read);
 		Client->read = Client->write;
 		Client->flags &= ~DCC_WAIT;
@@ -2279,9 +2265,6 @@ process_incoming_listen(Client)
 		Name = hp->h_name;
 	else
 		Name = inet_ntoa(remaddr.sin_addr);
-#if defined(ESIX)
-	mark_socket(new_socket);
-#endif
 	snprintf(FdName, sizeof FdName, "%d", new_socket);
         NewClient = dcc_searchlist(Name, FdName, DCC_RAW, 1, (char *) 0);
 	NewClient->starttime = time((time_t *) 0);
@@ -2380,9 +2363,6 @@ process_incoming_talk(Client)
 		sra = sizeof(struct sockaddr_in);
 		Client->write = accept(Client->read, (struct sockaddr *)
 			&remaddr, &sra);
-#ifdef ESIX
-		mark_socket(Client->write);
-#endif
 		new_close(Client->read);
 		Client->read = Client->write;
 		Client->flags &= ~DCC_WAIT;
@@ -2466,9 +2446,6 @@ DCC_list *Client;
 		sra = sizeof(struct sockaddr_in);
 		Client->write = accept(Client->read,
 				(struct sockaddr *) &remaddr, &sra);
-#if defined(ESIX)
-		mark_socket(Client->write);
-#endif
 /**************************** Patched by Flier ******************************/
                 if ((Client->flags&DCC_TYPES)==DCC_RESENDOFFER) {
                     recv(Client->write, packet, sizeof(struct transfer_struct), 0);
@@ -2897,6 +2874,7 @@ dcc_time(the_time)
 			btime->tm_year + 1900))
 		return buf;
 	else
+		new_free(buf);
 		return empty_string;
 }
 

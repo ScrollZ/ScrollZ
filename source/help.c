@@ -3,9 +3,9 @@
  *
  * Written by Michael Sandrof, Troy Rollo and Matthew R. Green.
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: help.c,v 1.15 2006-10-31 12:31:27 f Exp $
+ * $Id: help.c,v 1.16 2021-04-26 20:48:16 t Exp $
  */
 
 /*
@@ -61,13 +61,6 @@
 #include "output.h"
 #include "help.h"
 #include "scandir.h"
-
-#if defined(ISC22)
-extern char *strrchr();
-# define rindex strrchr
-# include <sys/dirent.h>
-# define direct dirent
-#endif /* ISC22 */
 
 /* Forward declarations */
 

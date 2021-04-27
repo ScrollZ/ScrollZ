@@ -4,9 +4,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: edit.c,v 1.122 2009-12-21 14:40:29 f Exp $
+ * $Id: edit.c,v 1.123 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
 
 #include <sys/stat.h>
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* ESIX */
 
 #include "parse.h"
 #include "ircterm.h"
@@ -4574,32 +4570,6 @@ send_action(target, text)
 	send_ctcp(ctcp_type[CTCP_PRIVMSG], target, "ACTION", "%s", text);
 }
 
-#ifdef LYNX_STUFF
-static	char	*
-prepare_action(string)
-	char	*string;
-{
-	short	last;
-	char	*message;
-
-	last = strlen(string) - 1;
-	while(string[last] == ' ')
-		if (--last < 0) return NULL;
-
-	if ((string[last] > 'a' && string[last] < 'z') ||
-			(string[last] > 'A' && string[last] < 'Z'))
-	{
-		message = new_malloc(last + 2);
-		strmcpy (message, string, last+1);
-		message[last + 1] = '.';
-		message[last + 2] = '\0';
-		return message;
-	}
-	else
-		return NULL;
-}
-#endif
-
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
 void
@@ -4628,16 +4598,8 @@ describe(command, args, subargs)
 	if (target && args && *args)
 	{
  		int	old, from_level;
-#ifdef LYNX_STUFF
-		char	*result;
-#endif /* LYNX_STUFF */
 		char	*message;
 
-#ifdef LYNX_STUFF
-		if (result = prepare_action(args))
-			message = result;
-		else
-#endif /* LYNX_STUFF */
 			message = args;
 
 		old = set_lastlog_msg_level(LOG_ACTION);
@@ -4685,10 +4647,6 @@ describe(command, args, subargs)
 		set_lastlog_msg_level(old);
  		restore_message_from();
 
-#ifdef LYNX_STUFF
-		if (result)
-			new_free(&result);
-#endif
 	}
 	else
 		say("Usage: /DESCRIBE <target> <action description>");
@@ -4725,9 +4683,6 @@ me(command, args, subargs)
 		if ((target = get_target_by_refnum(0)) != NULL)
 		{
 			int	old;
-#ifdef LYNX_STUFF
-			char	*result;
-#endif /* LYNX_STUFF */
 			char	*message;
 
 			/* handle "/ foo" */
@@ -4737,11 +4692,6 @@ me(command, args, subargs)
 				say("No target, neither channel nor query");
 				return;
 			}
-#ifdef LYNX_STUFF
-			if (result = prepare_action(args))
-				message = result;
-			else
-#endif /* LYNX_STUFF */
 				message = args;
 
 			old = set_lastlog_msg_level(LOG_ACTION);
@@ -4775,10 +4725,6 @@ me(command, args, subargs)
 			set_lastlog_msg_level(old);
  			restore_message_from();
 
-#ifdef LYNX_STUFF
-			if (result)
-				new_free(&result);
-#endif
 		}
 		else
 			say("No target, neither channel nor query");

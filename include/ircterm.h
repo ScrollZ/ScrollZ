@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ircterm.h,v 1.9 2006-10-31 12:31:27 f Exp $
+ * $Id: ircterm.h,v 1.10 2021-04-26 20:48:16 t Exp $
  */
 
 #ifndef __ircterm_h_
@@ -198,7 +198,7 @@ extern int	(*term_cursor_right) _((void));
 extern int	(*term_cursor_left) _((void));
 extern int	(*term_clear_to_eol) _((void));
 
-#if defined(ISC22) || defined(MUNIX)
+#ifdef MUNIX
 /* Structure for terminal special characters */
 struct	tchars
 {
@@ -219,7 +219,7 @@ struct ltchars
 	char	t_werasc;	/* word erase			*/
 	char	t_lnextc;	/* literal next character	*/
 };
-#endif /* ISC22 || MUNIX */
+#endif /* MUNIX */
 
 #if defined(_HPUX_SOURCE)
 

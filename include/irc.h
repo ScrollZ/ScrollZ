@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.h,v 1.23 2009-12-21 15:08:26 f Exp $
+ * $Id: irc.h,v 1.24 2021-04-26 20:48:16 t Exp $
  */
 
 #ifndef __irc_h
@@ -206,19 +206,12 @@
 #if defined(__hpux) || defined(hpux) || defined(_HPUX_SOURCE)
 # undef HPUX
 # define HPUX
-# ifndef HPUX7
-#  define killpg(pgrp,sig) kill(-pgrp,sig)
-# endif
+# define killpg(pgrp,sig) kill(-pgrp,sig)
 #endif
 
 #if defined(__sgi)
 # define USE_TERMIO
 #endif /* __sgi */
-
-#ifdef DGUX
-# define USE_TERMIO
-# define inet_addr(x) inet_network(x)	/* dgux lossage */
-#endif /* DGUX */
 
 /*
  * Lame Linux doesn't define X_OK in a non-broken header file, so

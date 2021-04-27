@@ -3,9 +3,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: server.c,v 1.69 2009-12-21 15:24:07 f Exp $
+ * $Id: server.c,v 1.691 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* ESIX */
 
 #ifdef HAVE_SYS_UN_H
 # include <sys/un.h>

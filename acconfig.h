@@ -1,5 +1,5 @@
 /*
- * $Id: acconfig.h,v 1.14 2008-03-08 15:22:13 f Exp $
+ * $Id: acconfig.h,v 1.15 2021-04-26 20:48:16 t Exp $
  */
 
 /* define if allow sys/time.h with time.h */
@@ -112,15 +112,6 @@
 
 /* define this if you need getcwd() */
 #undef NEED_GETCWD 
-
-/* define this if you have hpux version 7 */
-#undef HPUX7
-
-/* define this if you have hpux version 8 */
-#undef HPUX8
-
-/* define this if you have an unknown hpux version (pre ver 7) */
-#undef HPUXUNKNOWN
 
 /* define this if an unsigned long is 32 bits */
 #undef UNSIGNED_LONG32

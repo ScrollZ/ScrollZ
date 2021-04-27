@@ -1,7 +1,7 @@
 /*
  * Most of this comes from FiSH sources, adapted for ScrollZ by flier
  *
- * $Id: fish.c,v 1.2 2009-12-21 14:14:17 f Exp $
+ * $Id: fish.c,v 1.21 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -237,7 +237,11 @@ int encrypt_string(char *key, char *str, char *dest, int len) {
     s = (char *) malloc(len + 9);
     strncpy(s, str, len);
     s[len]=0;
-    if ((!key) || (!key[0])) return 0;
+    if ((!key) || (!key[0]))
+	{
+		free(s);
+		return 0;
+	}
     p = s;
     while (*p) p++;
     for (i = 0; i < 8; i++) *p++ = 0;

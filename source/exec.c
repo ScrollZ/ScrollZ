@@ -3,9 +3,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: exec.c,v 1.14 2006-04-30 14:15:43 f Exp $
+ * $Id: exec.c,v 1.15 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -45,15 +45,6 @@
 #  include <sys/wait.h>
 # endif
 #endif /* M_UNIX */
-
-#ifdef ISC
-#include <sys/bsdtypes.h>
-#include <wait.h>
-#endif /* ISC */
-
-#ifdef XD88
-# define ISC
-#endif /* XD88 */
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -776,11 +767,11 @@ kill_process(kill_index, sig)
 #    ifdef HAVE_GETSID
 		pgid = getsid(process_list[kill_index]->pid);
 #    else
-#     if defined(ISC) || defined(MUNIX) || defined(BROKEN_GETPGRP)
+#     if defined(MUNIX) || defined(BROKEN_GETPGRP)
 		pgid = process_list[kill_index]->pid;
 #     else
 		pgid = getpgrp(process_list[kill_index]->pid);
-#     endif /* ISC || MUNIX || BROKEN_GETPGRP */
+#     endif /* MUNIX || BROKEN_GETPGRP */
 #    endif /* HAVE_GETSID */
 #   endif /* mips */
 #  endif /* HPUX */

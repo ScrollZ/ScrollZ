@@ -3,9 +3,9 @@
  *
  * Written By Michael Sandrof
  * 
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: irc.c,v 1.138 2021-04-26 20:00:58 t Exp $
+ * $Id: irc.c,v 1.139 2021-04-26 20:48:16 t Exp $
  */
 
 #define IRCII_VERSION	"20160211"	/* YYYYMMDD */
@@ -43,14 +43,6 @@
 
 #include <sys/stat.h>
 #include <pwd.h>
-
-#ifdef ISC22
-# include <sys/bsdtypes.h>
-#endif /* ISC22 */
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* ESIX */
 
 /**************************** PATCHED by Flier ******************************
 #ifdef DO_USER2
@@ -657,11 +649,6 @@ irc_exit(quit)
 		if (term_clear_to_eol())
 			term_space_erase(0);
 		term_reset();
-#ifdef ESIX
-		endwin();		/* Added for curses */
-		system("tput reset");
-		new_stty("sane");
-#endif /* ESIX */
 /**************************** PATCHED by Flier ******************************/
                 term_close();
 #ifdef SZNCURSES
@@ -959,7 +946,7 @@ parse_args(argv, argc)
 					malloc_strcpy(&buf, get_arg(arg, argv[ac], &ac));
 					if ((hp = gethostbyname(buf)) != NULL)
 						bcopy(hp->h_addr, (char *) &forced_ip_addr, sizeof(forced_ip_addr));
-					free(buf);
+					new_free(buf);
 					break;
 				}
 				case 'h':
@@ -1764,25 +1751,12 @@ main(argc, argv, envp)
 	SOCKSinit(argv[0]);
 #endif /* SOCKS */
 	channel = parse_args(argv, argc);
-#if defined(ESIX)
-	/* Curses code added for ESIX use */
-	if (!dumb)
-	{
-		initscr();
-		noecho();
-		cbreak();
-	}
-#endif /* ESIX */
 	if ((use_input == 0) && !no_fork)
 	{
 		if (fork())
 			_exit(0);
 	}
-#if defined(ESIX)
-	if (gethostname(hostname, NAME_LEN) == NULL)
-#else
 	if (gethostname(hostname, NAME_LEN))
-#endif /* ESIX */
 	{
 		fprintf(stderr, "irc: couldn't figure out the name of your machine!\n");
 		exit(1);
@@ -1798,11 +1772,11 @@ main(argc, argv, envp)
 		init_screen();
 /**************************** PATCHED by Flier ******************************/
 /* Patch for OS/2 EMX */
-/*#if !defined(MUNIX) && !defined(_RT) && !defined(ESIX)*/
-#if !defined(MUNIX) && !defined(_RT) && !defined(ESIX) && !defined(__EMX__)
+/*#if !defined(MUNIX) && !defined(_RT) */
+#if !defined(MUNIX) && !defined(_RT) && !defined(__EMX__)
 /****************************************************************************/
 		(void) MY_SIGNAL(SIGCONT, (sigfunc *) term_cont, 0);
-#endif /* !defined(MUNIX) && !defined(_RT) && !defined(ESIX) */
+#endif /* !defined(MUNIX) && !defined(_RT) */
 #if !defined(_RT) && defined(SIGWINCH)
 		(void) MY_SIGNAL(SIGWINCH, (sigfunc *) sig_refresh_screen, 0);
 #endif /* _RT */

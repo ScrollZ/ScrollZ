@@ -1,5 +1,5 @@
 /*
- * $Id: scandir.c,v 1.5 2002-12-22 17:36:26 f Exp $
+ * $Id: scandir.c,v 1.51 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -7,10 +7,10 @@
 
 #ifndef HAVE_SCANDIR
 
-#if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE)) || defined(HPUX7)
+#if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE))
 
 /*
- * Copyright (c) 1983 Regents of the University of California. All rights
+ * Copyright (C) 1983 Regents of the University of California. All rights
  * reserved. 
  *
  * Redistribution and use in source and binary forms are permitted provided that
@@ -189,9 +189,7 @@ int (*select) (), (*dcomp) ();
 	    return (-1);
 	p->d_ino = d->d_ino;
 	p->d_reclen = d->d_reclen;
-# if ! defined(ISC22) && ! defined(ESIX)
 	p->d_namlen = d->d_namlen;
-# endif /* ! defined(ISC22) && ! defined(ESIX) */
 	for (cp1 = p->d_name, cp2 = d->d_name; *cp1++ = *cp2++;);
 	/*
 	 * Check to make sure the array has space left and realloc the

@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: scandir.h,v 1.4 2002-12-22 17:36:26 f Exp $
+ * $Id: scandir.h,v 1.5 2021-04-26 20:48:16 t Exp $
  */
 
 #ifndef __scandir_h__
@@ -60,18 +60,14 @@
 #include <sys/file.h>
 #include <newio.h>
 
-#if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE)) || defined(HPUX7)
-# if defined(XD88) || defined(__SVR4) || defined(POSIX) || defined(__linux__) \
-  || defined(SVR3) || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
-  || defined(__QNX__)
+#if (!defined(ultrix) && !defined(__386BSD__) && !defined(_HPUX_SOURCE))
+# if defined(__SVR4) || defined(POSIX) || defined(__linux__) || defined(SVR3) \
+  || defined(__osf__) || defined(M_UNIX) || defined(_SEQUENT_) \
+    || defined(__QNX__)
 
 # include <stdio.h>
 # include <dirent.h>
-# ifdef XD88
-#  include <sys/unistd.h>
-# else
-#  include <unistd.h>
-# endif /* XD88 */
+# include <unistd.h>
 
 /* Initial guess at directory size. */
 # define INITIAL_SIZE	30
@@ -90,28 +86,11 @@ int alphasort _((struct dirent **, struct dirent **));
 #endif
 #endif /* __linux__ || __sgi */
 
-#else /* XD88 || __SVR4 || POSIX || __linux__ || SVR3 || __osf__ || ... */
+#else /* __SVR4 || POSIX || __linux__ || SVR3 || __osf__ || ... */
 
 # include <sys/stat.h>
 # include "irc.h"
-# if defined(ISC22) || defined(ESIX) || defined(HPUX7)
-#  ifdef ESIX
-#   include <dirent.h>
-#  else
-#   include <sys/dirent.h>
-#  endif /* ESIX */
-#  undef DIRSIZ
-#  if defined(ISC22) || defined(ESIX)
-#   define DIRSIZ(dp) \
-	(( sizeof( struct dirent) + (strlen(dp->d_name)+1) ))
-#  else
-#   define DIRSIZ(dp) \
-	((sizeof (struct dirent) - (MAXNAMLEN+1)) + (((dp)->d_namlen+1+3)&~ 3))
-#  endif /* defined(ISC22) || defined(ESIX) */
-#  define direct dirent
-# else
-#  include <sys/dir.h>
-# endif /* defined(ISC22) || defined(ESIX) */
+# include <sys/dir.h>
 
 #ifdef NeXT
 int scandir _((const char *, struct direct ***, int (*)(), int (*)()));
@@ -121,7 +100,7 @@ int scandir _((char *, struct direct ***, int (*)(), int (*)()));
 int alphasort _((struct direct **, struct direct **)); 
 #endif
 #endif /* NeXT */
-#endif /* (!ultrix && !__386BSD__ && !_HPUX_SOURCE) || HPUX7 */
+#endif /* (!ultrix && !__386BSD__ && !_HPUX_SOURCE) */
 #endif	/* ultrix || __386BSD__ || BSD */
 
 #endif /* !HAVE_SCANDIR */

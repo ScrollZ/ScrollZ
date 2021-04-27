@@ -3,9 +3,9 @@
  *
  * Written By Michael Sandrof
  *
- * Copyright (c) 1990 Michael Sandrof.
- * Copyright (c) 1991, 1992 Troy Rollo.
- * Copyright (c) 1992-2003 Matthew R. Green.
+ * Copyright (C) 1990 Michael Sandrof.
+ * Copyright (C) 1991, 1992 Troy Rollo.
+ * Copyright (C) 1992-2003 Matthew R. Green.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: mail.c,v 1.11 2003-01-08 20:00:54 f Exp $
+ * $Id: mail.c,v 1.111 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -66,10 +66,6 @@
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #endif /* HAVE_FCNTL_H */
-
-#ifdef ESIX
-# include <lan/net_types.h>
-#endif /* !ESIX */
 
 #ifdef HAVE_SYS_FCNTL_H
 # include <sys/fcntl.h>

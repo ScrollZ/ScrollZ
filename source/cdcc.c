@@ -6,11 +6,11 @@
  *
  * Heavily modified by Flier
  *
- * Copyright(c) 1995
+ * Copyright (C) 1995
  *
  * See the COPYRIGHT file, or do a HELP IRCII COPYRIGHT
  *
- * $Id: cdcc.c,v 1.56 2009-12-21 14:44:07 f Exp $
+ * $Id: cdcc.c,v 1.57 2021-04-26 20:48:16 t Exp $
  */
 
 #include "irc.h"
@@ -2074,10 +2074,6 @@ int  error;
     for (i=0;i<CdccEntries;i++) {
         strmcpy(tmpbuf2,CdccFileNames[i]->d_name,sizeof(tmpbuf2));
         string=tmpbuf2;
-#ifdef lame_dgux
-        string=string-2;
-        if (string[0]=='.') continue;
-#endif
         if (wild_match(rest,string)) {
             char tmpbuf3[mybufsize/2+1];
             float fsize;

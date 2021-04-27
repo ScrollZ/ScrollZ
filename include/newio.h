@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: newio.h,v 1.6 2007-03-30 15:27:36 f Exp $
+ * $Id: newio.h,v 1.7 2021-04-26 20:48:16 t Exp $
  */
 
 #ifndef __newio_h_
@@ -41,10 +41,6 @@
 #endif
 /****************************************************************************/
 
-#ifdef ESIX
-	void	mark_socket _((int));
-	void	unmark_socket _((int));
-#endif
 	time_t	dgets_timeout _((int));
         int	dgets _((char *, int, int, char *));
 /**************************** PATCHED by Flier ******************************/
