@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: ctcp.c,v 1.56 2009-12-21 14:39:21 f Exp $
+ * $Id: ctcp.c,v 1.56 2021-04-26 19:57:28 t Exp $
  */
 
 #include "irc.h"
@@ -1629,14 +1629,29 @@ do_utc(ctcp, from, to, args)
 		*to,
 		*args;
 {
-	time_t	tm;
+	time_t	tm = time(NULL),
+		curtime = time(NULL);
 	char	*date = NULL;
 
 	if (!args || !*args)
 		return NULL;
 	tm = atol(args);
-	malloc_strcpy(&date, ctime(&tm));
-	date[strlen(date)-1] = '\0';
+	curtime = ctime(&tm);
+
+	if (curtime)
+	{
+		u_char *s = index(curtime, '\n');
+		if (s)
+		{
+			*s = '\0';
+		}
+		malloc_strcpy(&date, UP(curtime));
+	}
+	else
+	{
+		/* if we can't find a time, just return the number */
+		malloc_strcpy(&date, args);
+	}
 	return date;
 }
 
