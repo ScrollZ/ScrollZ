@@ -1630,7 +1630,7 @@ do_utc(ctcp, from, to, args)
 		*args;
 {
 	time_t	tm = time(NULL),
-		curtime = time(NULL);
+		curtime;
 	char	*date = NULL;
 
 	if (!args || !*args)
