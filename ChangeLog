@@ -8,13 +8,15 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ
+ScrollZ v2.3.1, 6.5.2021
     ! some more crashes when last server is disconnected
     ! desktop notification via libnotify for messages and notices
       (enable it by passing --enable-notify to configure, also
        read HELP SET NOTIFICATION_LEVEL)
     ! files over 2GB were reported with negative size
       (patch by jm_)
+    ! CVE-2021-29376 crash
+    ! compilation using newer compilers (patch by Kevin Easton)
 
 ScrollZ v2.3, 11.2.2016
 
