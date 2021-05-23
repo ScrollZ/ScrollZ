@@ -2897,6 +2897,7 @@ dcc_time(the_time)
 			btime->tm_year + 1900))
 		return buf;
 	else
+		new_free(&buf);
 		return empty_string;
 }
 
