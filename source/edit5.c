@@ -3412,7 +3412,7 @@ int iscrypted;
     struct urlstr *urlnew, *tmpurl, *prevurl = NULL;
 
     if (line == NULL)
-        return;
+        return 0;
     strmcpy(tmpbuf1, line, sizeof(tmpbuf1));
     *tmpstr2 = '\0';
     while (*tmpstr1) {
