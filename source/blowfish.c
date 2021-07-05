@@ -129,8 +129,8 @@ static unsigned int SBOX[NUMSBOX][256] = {
 };
 
 #ifdef HAVE_GMP
-extern FishDecrypt _((char *, char *, char *, int));
-extern FishEncrypt _((char *, char *, char *, int, int));
+extern int FishDecrypt _((char *, char *, char *, int));
+extern int FishEncrypt _((char *, char *, char *, int, int));
 #endif
 
 static unsigned int F(x)

@@ -237,7 +237,10 @@ int encrypt_string(char *key, char *str, char *dest, int len) {
     s = (char *) malloc(len + 9);
     strncpy(s, str, len);
     s[len]=0;
-    if ((!key) || (!key[0])) return 0;
+    if ((!key) || (!key[0])) {
+		new_free(&s);
+		return 0;
+	}
     p = s;
     while (*p) p++;
     for (i = 0; i < 8; i++) *p++ = 0;

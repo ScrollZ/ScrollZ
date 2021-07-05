@@ -3,6 +3,7 @@ config.cache
 config.log
 config.status
 include/defs.h
+include/defs.h.old
 ircbug
 scrollz.1
 source/*.o
