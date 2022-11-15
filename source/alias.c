@@ -96,7 +96,7 @@ extern int  is_voiced _((char *, char *));
 extern char VersionInfo[];
 extern char *ScrollZver1;
 /****************************************************************************/
-
+extern int BuildColor (char *color, char *string, int lineno);
 extern	int	parse_number _((char **));
 static	char	*next_unit _((char *, char *, int *, int));
 /**************************** PATCHED by Flier ******************************/
@@ -608,11 +608,8 @@ insert_alias(list, nalias)
  * so, the old alias is replaced with the new one.  If the alias is not
  * already in use, it is added. 
  */
-void	
-add_alias(type, name, stuff)
-	int	type;
-	char	*name,
-		*stuff;
+void 
+add_alias (int type, char *name, char *stuff)
 {
 	Alias	*tmp;
 	char	*ptr;
@@ -656,10 +653,8 @@ add_alias(type, name, stuff)
 }
 
 /* alias_arg: a special version of next_arg for aliases */
-static	char	*
-alias_arg(str, pos)
-	char	**str;
-	u_int	*pos;
+static char *
+alias_arg (char **str, u_int *pos)
 {
 	char	*ptr;
 
@@ -685,9 +680,8 @@ alias_arg(str, pos)
 }
 
 /* word_count: returns the number of words in the given string */
-extern	int	
-word_count(str)
-	char	*str;
+extern int 
+word_count (char *str)
 {
 	int	cnt = 0;
 	char	*ptr;
@@ -728,9 +722,8 @@ built_in_alias(c)
  * its and environment variable and returns it if so.  If not, it returns
  * null.  It mallocs the returned string 
  */
-static	char	*
-find_inline(str)
-	char	*str;
+static char *
+find_inline (char *str)
 {
 	Alias	*nalias;
 	char	*ret = NULL;
@@ -756,12 +749,8 @@ find_inline(str)
 	return (ret);
 }
 
-char	*
-call_function(name, f_args, args, args_flag)
-	char	*name,
-		*f_args,
-		*args;
-	int	*args_flag;
+char *
+call_function (char *name, char *f_args, char *args, int *args_flag)
 {
 	u_char	*tmp;
 	u_char	*result = (u_char *) 0;
@@ -810,9 +799,8 @@ call_function(name, f_args, args, args_flag)
 
 
 /* Given a pointer to an operator, find the last operator in the string */
-static	char	*
-lastop(ptr)
-	char	*ptr;
+static char *
+lastop (char *ptr)
 {
 	while (ptr[1] && index("!=<>&^|#+/-*", ptr[1]))
 		ptr++;
@@ -829,12 +817,8 @@ lastop(ptr)
 #define	NU_TERT 6
 #define	NU_BITW 8
 
-static	char	*
-next_unit(str, args, arg_flag, stage)
-	char	*str,
-		*args;
-	int	*arg_flag,
-		stage;
+static char *
+next_unit (char *str, char *args, int *arg_flag, int stage)
 {
 	char	*ptr,
 		*ptr2,
@@ -1450,11 +1434,8 @@ next_unit(str, args, arg_flag, stage)
  * about this at some future date. The ^ function and some fixes by
  * troy@cbme.unsw.EDU.AU (Troy Rollo) 
  */
-char	*
-parse_inline(str, args, args_flag)
-	char	*str;
-	char	*args;
-	int	*args_flag;
+char *
+parse_inline (char *str, char *args, int *args_flag)
 {
 	return next_unit(str, args, args_flag, NU_EXPR);
 }
@@ -1478,10 +1459,7 @@ parse_inline(str, args, args_flag)
 #define	LAST_ARG 8000
 
 static char *
-arg_number(lower_lim, upper_lim, str)
-int	lower_lim,
-	upper_lim;
-char	*str;
+arg_number (int lower_lim, int upper_lim, char *str)
 {
 	char	*ptr,
 		*arg,
@@ -1564,9 +1542,8 @@ char	*str;
  *
  * "hoohar"     returns -1  and str as "hoohar" 
  */
-extern	int	
-parse_number(str)
-	char	**str;
+extern int 
+parse_number (char **str)
 {
 	int	ret;
 	char	*ptr;
@@ -1583,8 +1560,8 @@ parse_number(str)
 	return (ret);
 }
 
-static void	
-do_alias_string()
+static void 
+do_alias_string (void)
 {
 	malloc_strcpy(&alias_string, get_input());
 	irc_io_loop = 0;
@@ -1637,11 +1614,8 @@ expander_addition(buff, add, length, quote_em)
 }
 
 /* MatchingBracket returns the next unescaped bracket of the given type */
-char	*
-MatchingBracket(string, left, right)
-	char	*string;
-	int	left;
-	int	right;
+char *
+MatchingBracket (char *string, int left, int right)
 {
 	int	bracket_count = 1;
 
@@ -1677,18 +1651,11 @@ MatchingBracket(string, left, right)
  in the alias.  Otherwise it is left unchanged.
  */
 /*ARGSUSED*/
-static	char	*
-alias_special_char(name, lbuf, ptr, args, quote_em, args_flag)
-	char	*name;
 #ifndef USE_OLD_ALIAS_ALLOC
-	char	**lbuf;
+static	char	*alias_special_char (char *name, char **lbuf, char *ptr, char *args, char *quote_em, int *args_flag)
 #else /* USE_OLD_ALIAS_ALLOC */
- 	char	*lbuf;
+static	char	*alias_special_char (char *name, char *lbuf, char *ptr, char *args, char *quote_em, int *args_flag)
 #endif /* USE_OLD_ALIAS_ALLOC */
-	char	*ptr;
-	char	*args;
-	char	*quote_em;
-	int	*args_flag;
 {
 	char	*tmp,
 		c;
@@ -1870,13 +1837,8 @@ alias_special_char(name, lbuf, ptr, args, quote_em, args_flag)
  *	Backslash escapes are unescaped.
  */
 
-char	*
-expand_alias(name, string, args, args_flag, more_text)
-	char	*name,
-		*string,
-		*args;
-	int	*args_flag;
-	char	**more_text;
+char *
+expand_alias (char *name, char *string, char *args, int *args_flag, char **more_text)
 {
 #ifndef USE_OLD_ALIAS_ALLOC
 	char	*lbuf = (char *) 0,
@@ -2056,12 +2018,8 @@ expand_alias(name, string, args, args_flag, more_text)
  * mallocs the space for the full_name, but returns the actual value of the
  * alias if found! 
  */
-char	*
-get_alias(type, name, cnt, full_name)
-	int	type;
-	char	*name,
-		**full_name;
-	int	*cnt;
+char *
+get_alias (int type, char *name, int *cnt, char **full_name)
 {
 	Alias	*tmp;
 
@@ -2087,11 +2045,8 @@ get_alias(type, name, cnt, full_name)
  * This is used for command completion etc.  Note that the returned array is
  * malloced in this routine.  Returns null if no matches are found 
  */
-char	**
-match_alias(name, cnt, type)
-	char	*name;
-	int	*cnt;
-	int	type;
+char **
+match_alias (char *name, int *cnt, int type)
 {
 	Alias	*tmp;
 	char	**matches = (char **) 0;
@@ -2147,10 +2102,8 @@ match_alias(name, cnt, type)
 }
 
 /* delete_alias: The alias name is removed from the alias list. */
-void
-delete_alias(type, name)
-	int	type;
-	char	*name;
+void 
+delete_alias (int type, char *name)
 {
 	Alias	*tmp;
 
@@ -2174,10 +2127,8 @@ delete_alias(type, name)
  * list_aliases: Lists all aliases matching 'name'.  If name is null, all
  * aliases are listed 
  */
-void
-list_aliases(type, name)
-	int	type;
-	char	*name;
+void 
+list_aliases (int type, char *name)
 {
 	Alias	*tmp;
  	size_t	len;
@@ -2229,10 +2180,8 @@ list_aliases(type, name)
  * aliases, and not reusing an alias that has previously been marked.  I'll
  * explain later 
  */
-int
-mark_alias(name, flag)
-	char	*name;
-	int	flag;
+int 
+mark_alias (char *name, int flag)
 {
 	int	old_mark;
 	Alias	*tmp;
@@ -2292,11 +2241,8 @@ mark_alias(name, flag)
  * already expanded alias (both of these parameters are returned by
  * get_alias()) 
  */
-void
-execute_alias(alias_name, ealias, args)
-	char	*alias_name,
-		*ealias,
-		*args;
+void 
+execute_alias (char *alias_name, char *ealias, char *args)
 {
 	if (mark_alias(alias_name, 1))
 		say("Maximum recursion count exceeded in: %s", alias_name);
@@ -2539,11 +2485,8 @@ static u_char *alias_Celerity_version() {
  * alias: the /ALIAS command.  Calls the correct alias function depending on
  * the args 
  */
-void	
-alias(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+alias (char *command, char *args, char *subargs)
 {
 	char	*name,
 		*rest;
@@ -5119,8 +5062,8 @@ u_char *input;
 
 
 /* Removes all aliases */
-void DumpAliases(type)
-int type;
+void 
+DumpAliases (int type)
 {
     Alias *tmp;
     Alias *tmpdel;
@@ -5136,8 +5079,8 @@ int type;
 }
 
 /* Really removes structure */
-void DumpAssign(name)
-char *name;
+void 
+DumpAssign (char *name)
 {
     int found=0;
     int namelen;
@@ -5164,10 +5107,8 @@ char *name;
 
 /* Clears assigned structure */
 #ifndef LITE
-void Purge(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Purge (char *command, char *args, char *subargs)
 {
     char *name;
 

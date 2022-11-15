@@ -52,6 +52,7 @@
 #include "myvars.h"
 #include "whowas.h"
 #include "trace.h"
+#include "struct.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -76,6 +77,8 @@ extern void UpdateChanLogFName _((ChannelList *));
 extern void ChannelLogReport _((char *, ChannelList *));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  RateLimitJoin _((int));
+extern void Trace(long area, char *format, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6, char *arg7, char *arg8, char *arg9, char *arg10);
+extern int IsValidWindow(int server, Window *window);
 
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -196,9 +199,8 @@ lookup_channel(channel, server, do_unlink)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void rename_channel(old_channel, new_channel)
-char *old_channel;
-char *new_channel;
+void 
+rename_channel (char *old_channel, char *new_channel)
 {
     ChannelList	*chan;
 
@@ -264,7 +266,7 @@ add_channel(channel, server, connected, copy, key, nowho)
                 new_free(&(new->topiclock));
                 ClearBans(new);
                 new_free(&new);
-                Trace(SZ_TRACE_CHANNEL, "unlink channel %s from server %d", channel, server);
+                Trace(SZ_TRACE_CHANNEL, "unlink channel %s from server %d", (char *)channel, (char *)server, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             }
             new = whowaschan->channellist;
             new->next = (ChannelList *) 0;
@@ -273,12 +275,12 @@ add_channel(channel, server, connected, copy, key, nowho)
             new_free(&whowaschan);
             if (!IsValidWindow(server, new->window)) {
                 new->window = NULL;
-                Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", channel);
+                Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", (char *)channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             }
             Trace(SZ_TRACE_CHANNEL, "channel %s found in whowas cache, window %d (%s) %p", channel,
-                  new->window ? new->window->refnum : -1,
-                  new->window ? EMPTY_STR(new->window->name) : "",
-                  new->window);
+                  (char *)(new->window ? new->window->refnum : -1),
+                  (char *)(new->window ? EMPTY_STR(new->window->name) : ""),
+                  (char *)new->window, NULL, NULL, NULL, NULL, NULL, NULL);
         }
         else
 /****************************************************************************/
@@ -302,7 +304,7 @@ add_channel(channel, server, connected, copy, key, nowho)
                 new->chanlogfpath = (char *) 0;
                 new->window = NULL;
                 resetchan = 1;
-                Trace(SZ_TRACE_CHANNEL, "add channel %s to server %d", channel, server);
+                Trace(SZ_TRACE_CHANNEL, "add channel %s to server %d", (char *)channel, (char *)server, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /****************************************************************************/
 	}
         else
@@ -311,17 +313,17 @@ add_channel(channel, server, connected, copy, key, nowho)
                 if (!(new->nicks)) resetchan = 1;
                 if (!IsValidWindow(server, new->window)) {
                     new->window = NULL;
-                    Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", channel);
+                    Trace(SZ_TRACE_CHANNEL, "invalid window for channel %s, resetting", (char *)channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 }
-                Trace(SZ_TRACE_CHANNEL, "channel %s found on server %d, window %d (%s) %p", channel,
-                      server, new->window ? new->window->refnum : -1,
-                      new->window ? EMPTY_STR(new->window->name) : "",
-                      new->window);
+                Trace(SZ_TRACE_CHANNEL, "channel %s found on server %d, window %d (%s) %p", (char *)channel,
+                      (char *)server, (char *)(new->window ? new->window->refnum : -1),
+                      (char *)(new->window ? EMPTY_STR(new->window->name) : ""),
+                      (char *)new->window, NULL, NULL, NULL, NULL, NULL);
                 if ((tmpwin = is_bound(channel, server))) {
                     Trace(SZ_TRACE_CHANNEL, "bound to window %d (%s) %p",
-                          tmpwin ? tmpwin->refnum : -1,
-                          tmpwin ? EMPTY_STR(tmpwin->name) : "",
-                          tmpwin);
+                          (char *)(tmpwin ? tmpwin->refnum : -1),
+                          (char *)(tmpwin ? EMPTY_STR(tmpwin->name) : ""),
+                          (char *)tmpwin, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                     new->window = tmpwin;
                 }
 /****************************************************************************/
@@ -385,21 +387,21 @@ add_channel(channel, server, connected, copy, key, nowho)
                 if (new->window == NULL) {
                     if ((tmpwin = is_bound(channel, server))) {
                         Trace(SZ_TRACE_CHANNEL, "bound to window %d (%s) %p",
-                              tmpwin ? tmpwin->refnum : -1,
-                              tmpwin ? EMPTY_STR(tmpwin->name) : "",
-                              tmpwin);
+                              (char *)(tmpwin ? tmpwin->refnum : -1),
+                              (char *)(tmpwin ? EMPTY_STR(tmpwin->name) : ""),
+                              (char *)tmpwin, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         new->window = tmpwin;
                     }
                     else {
-                        Trace(SZ_TRACE_CHANNEL, "linked to current window");
+                        Trace(SZ_TRACE_CHANNEL, "linked to current window", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         new->window = curr_scr_win;
                     }
                 }
                 Trace(SZ_TRACE_WINDOW, "channel %s linked to window %d (%s) (%p)",
                       channel,
-                      new->window ? new->window->refnum : -1,
-                      new->window ? EMPTY_STR(new->window->name) : "",
-                      new->window);
+                      (char *)(new->window ? new->window->refnum : -1),
+                      (char *)(new->window ? EMPTY_STR(new->window->name) : ""),
+                      (char *)new->window, NULL, NULL, NULL, NULL, NULL, NULL);
 /****************************************************************************/
 		clear_channel(new);
 	}
@@ -434,7 +436,7 @@ add_channel(channel, server, connected, copy, key, nowho)
 					set_channel_by_refnum(tmp->refnum, channel);
 					new->window = tmp;
 					update_all_status();
-                                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel);
+                                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                                         TraceWindowInfo(2, tmp);
 					return;
 				}
@@ -447,13 +449,13 @@ add_channel(channel, server, connected, copy, key, nowho)
 			set_channel_by_refnum(possible->refnum, channel);
 			new->window = possible;
 			update_all_status();
-                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel);
+                        Trace(SZ_TRACE_WINDOW, "adding channel %s", channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         TraceWindowInfo(2, possible);
 			return;
 		}
 		set_channel_by_refnum(0, channel);
 		new->window = curr_scr_win;
-                Trace(SZ_TRACE_WINDOW, "adding channel %s to current window", channel);
+                Trace(SZ_TRACE_WINDOW, "adding channel %s to current window", channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 TraceWindowInfo(2, curr_scr_win);
 	}
 	update_all_windows();
@@ -1608,10 +1610,8 @@ char    *servmodes;
 /*
  * get_channel_mode: returns the current mode string for the given channel
  */
-char	*
-get_channel_mode(channel, server)
-	char	*channel;
-	int	server;
+char *
+get_channel_mode (char *channel, int server)
 {
 	ChannelList *tmp;
 
@@ -1661,11 +1661,8 @@ ChannelList *tmpchan;
  * is_channel_mode: returns the logical AND of the given mode with the
  * channels mode.  Useful for testing a channels mode 
  */
-int
-is_channel_mode(channel, mode, server_index)
-	char	*channel;
-	int	mode;
-	int	server_index;
+int 
+is_channel_mode (char *channel, int mode, int server_index)
 {
 	ChannelList *tmp;
 
@@ -1723,10 +1720,8 @@ free_channel(channel)
  * server_list[server].chan_list to be the current_channel, or 0 if the
  * list is empty. 
  */
-void
-remove_channel(channel, server)
-	char	*channel;
-	int	server;
+void 
+remove_channel (char *channel, int server)
 {
 	ChannelList *tmp;
 
@@ -1777,10 +1772,8 @@ remove_channel(channel, server)
 /*
  * purge given channel from memory, for use on numeric 405
  */
-void
-PurgeChannel(channel,server)
-char *channel;
-int  server;
+void 
+PurgeChannel (char *channel, int server)
 {
     ChannelList *tmp;
 
@@ -1822,11 +1815,8 @@ NickList *tmp;
  * the nickname is not on the channel or the channel doesn't exist, nothing
  * happens. 
  */
-void
-remove_from_channel(channel, nick, server)
-	char	*channel;
-	char	*nick;
-	int	server;
+void 
+remove_from_channel (char *channel, char *nick, int server)
 {
 	ChannelList *chan;
 	NickList *tmp;
@@ -1883,11 +1873,8 @@ remove_from_channel(channel, nick, server)
  * rename_nick: in response to a changed nickname, this looks up the given
  * nickname on all you channels and changes it the new_nick 
  */
-void
-rename_nick(old_nick, new_nick, server)
-	char	*old_nick,
-		*new_nick;
-	int	server;
+void 
+rename_nick (char *old_nick, char *new_nick, int server)
 {
 	ChannelList *chan;
 	NickList *tmp;
@@ -1912,7 +1899,7 @@ rename_nick(old_nick, new_nick, server)
 /**************************** PATCHED by Flier ******************************/
                                 remove_nick_from_hash(chan,tmp);
                                 Trace(SZ_TRACE_NICK, "nick rename %s -> %s in %s",
-                                      old_nick, new_nick, chan->channel);
+                                      old_nick, new_nick, chan->channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /****************************************************************************/
 				new_free(&tmp->nick);
 				malloc_strcpy(&tmp->nick, new_nick);
@@ -1937,11 +1924,8 @@ rename_nick(old_nick, new_nick, server)
  * false otherwise.  Also returns false if the given channel is not on the
  * channel list. 
  */
-int
-is_on_channel(channel, server, nick)
-	char	*channel;
-	int	server;
-	char	*nick;
+int 
+is_on_channel (char *channel, int server, char *nick)
 {
 	ChannelList *chan;
 
@@ -1957,10 +1941,8 @@ is_on_channel(channel, server, nick)
 	return 0;
 }
 
-int
-is_chanop(channel, nick)
-	char	*channel;
-	char	*nick;
+int 
+is_chanop (char *channel, char *nick)
 {
 	ChannelList *chan;
 	NickList *Nick;
@@ -1978,11 +1960,8 @@ is_chanop(channel, nick)
 	return 0;
 }
 
-int
-has_voice(channel, nick, server)
-	char	*channel;
-	char	*nick;
-	int	server;
+int 
+has_voice (char *channel, char *nick, int server)
 {
 	ChannelList *chan;
 	NickList *Nick;
@@ -2034,8 +2013,8 @@ show_channel(chan)
 }
 
 /* list_channels: displays your current channel and your channel list */
-void
-list_channels()
+void 
+list_channels (void)
 {
 	ChannelList *tmp;
 	int	server,
@@ -2086,10 +2065,8 @@ list_channels()
 		say("You are not on any channels");
 }
 
-void
-switch_channels(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+switch_channels (u_int key, char *ptr)
 {
 	ChannelList *	tmp;
 	char *	s;
@@ -2135,10 +2112,8 @@ switch_channels(key, ptr)
 	}
 }
 
-void
-change_server_channels(old, new)
-	int	old,
-		new;
+void 
+change_server_channels (int old, int new)
 {
 	ChannelList *tmp;
 
@@ -2154,9 +2129,8 @@ change_server_channels(old, new)
 		server_list[new].chan_list = (ChannelList *) 0;
 }
 
-void
-clear_channel_list(server)
-	int	server;
+void 
+clear_channel_list (int server)
 {
 	ChannelList *tmp,
 		*next;
@@ -2184,9 +2158,8 @@ clear_channel_list(server)
  * clear each channel nickname list and re-JOINs each channel in the 
  * channel_list ..  
  */
-void
-reconnect_all_channels(server)
-	int	server;
+void 
+reconnect_all_channels (int server)
 {
 	ChannelList *tmp = (ChannelList *) 0;
 	char	*mode, *chan;
@@ -2195,7 +2168,7 @@ reconnect_all_channels(server)
 /****************************************************************************/
 
 /**************************** PATCHED by Flier ******************************/
-    Trace(SZ_TRACE_CHANNEL, "reconnecting all channels for server %d", server);
+    Trace(SZ_TRACE_CHANNEL, "reconnecting all channels for server %d", (char*)server, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     TraceChannelInfo(2, server_list[server].chan_list);
 
         /*for (tmp = server_list[server].chan_list; tmp; tmp = tmp->next)*/
@@ -2240,15 +2213,13 @@ reconnect_all_channels(server)
 /****************************************************************************/
 	}
 /**************************** PATCHED by Flier ******************************/
-    Trace(SZ_TRACE_CHANNEL, "reconnect done");
+    Trace(SZ_TRACE_CHANNEL, "reconnect done", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     TraceChannelInfo(2, server_list[server].chan_list);
 /****************************************************************************/
 }
 
-char	*
-what_channel(nick, server)
-	char	*nick;
-	int	server;
+char *
+what_channel (char *nick, int server)
 {
 	ChannelList *tmp;
 
@@ -2265,11 +2236,8 @@ what_channel(nick, server)
 	return (char *) 0;
 }
 
-char	*
-walk_channels(nick, init, server)
-	int	init;
-	char	*nick;
-	int	server;
+char *
+walk_channels (char *nick, int init, int server)
 {
 	static	ChannelList *tmp = (ChannelList *) 0;
 
@@ -2286,10 +2254,8 @@ walk_channels(nick, init, server)
 	return (char *) 0;
 }
 
-int
-get_channel_oper(channel, server)
-	char	*channel;
-	int	server;
+int 
+get_channel_oper (char *channel, int server)
 {
 	ChannelList *chan;
 
@@ -2340,9 +2306,8 @@ create_channel_list(window)
 	return value;
 }
 
-extern void
-channel_server_delete(server)
-	int     server;
+extern void 
+channel_server_delete (int server)
 {
 	ChannelList     *tmp;
 	int	i;
@@ -2353,10 +2318,8 @@ channel_server_delete(server)
 				tmp->server--;
 }
 
-extern	int
-chan_is_connected(channel, server)
-	char *	channel;
-	int	server;
+extern int 
+chan_is_connected (char *channel, int server)
 {
 	ChannelList *	cp = lookup_channel(channel, server, CHAN_NOUNLINK);
 
@@ -2366,9 +2329,8 @@ chan_is_connected(channel, server)
 	return (cp->connected == CHAN_JOINED);
 }
 
-void
-mark_not_connected(server)
-	int	server;
+void 
+mark_not_connected (int server)
 {
 	ChannelList	*tmp;
 

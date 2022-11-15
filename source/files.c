@@ -38,7 +38,8 @@ typedef struct FILE___ File;
 
 static File *FtopEntry=(File *) 0;
 
-File *NewFile()
+File *
+NewFile (void)
 {
     File *tmp=FtopEntry;
     File *tmpfile=(File *) new_malloc(sizeof(File));
@@ -52,8 +53,8 @@ File *NewFile()
     return(tmpfile);
 }
 
-void RemoveFile(file)
-File *file;
+void 
+RemoveFile (File *file)
 {
     File *tmp=FtopEntry;
 
@@ -66,8 +67,8 @@ File *file;
     new_free((char **)&file);
 }
 
-int OpenFileRead(filename)
-char *filename;
+int 
+OpenFileRead (char *filename)
 {
     char *expand=NULL;
     FILE *file;
@@ -84,9 +85,8 @@ char *filename;
     else return(-1);
 }
 
-int OpenFileWrite(filename,type)
-char *filename;
-char *type;
+int 
+OpenFileWrite (char *filename, char *type)
 {
     char *expand=NULL;
     FILE *file;
@@ -104,8 +104,8 @@ char *type;
     else return(-1);
 }
 
-File *LookupFile(fd)
-int fd;
+File *
+LookupFile (int fd)
 {
     File *ptr=FtopEntry;
 
@@ -116,9 +116,8 @@ int fd;
     return((File *) 0);
 }
 
-int FileWrite(fd,stuff)
-int  fd;
-char *stuff;
+int 
+FileWrite (int fd, char *stuff)
 {
     int  result;
     File *ptr=LookupFile(fd);
@@ -131,8 +130,8 @@ char *stuff;
     }
 }
 
-char *FileRead(fd)
-int fd;
+char *
+FileRead (int fd)
 {
     File *ptr=LookupFile(fd);
     char *tmpstr=(char *) 0;
@@ -151,8 +150,8 @@ int fd;
     return(tmpstr);
 }
 
-int FileEof(fd)
-int fd;
+int 
+FileEof (int fd)
 {
     File *ptr=LookupFile(fd);
 
@@ -160,8 +159,8 @@ int fd;
     else return(feof(ptr->file));
 }
 
-int FileClose(fd)
-int fd;
+int 
+FileClose (int fd)
 {
     File *ptr=LookupFile (fd);
 

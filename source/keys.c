@@ -73,10 +73,8 @@ static	void	bind_it _((char *, char *, u_int, int));
  * number of functions that match the name, and sets where index points
  * to to be the index of the (first) function found.
  */
-static int
-lookup_function(name, func_index)
-	char	*name;
-	int	*func_index;
+static int 
+lookup_function (char *name, int *func_index)
 {
  	size_t	len;
  	int	cnt,
@@ -478,11 +476,8 @@ bind_it(function, string, key, m)
 
 /* parsekeycmd: does the PARSEKEY command.  */
 #ifndef LITE
-void
-parsekeycmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+parsekeycmd (char *command, char *args, char *subargs)
 {
 	int	i;
 	char	*arg;
@@ -512,11 +507,8 @@ parsekeycmd(command, args, subargs)
  * key is shown 
  */
 /*ARGSUSED*/
-void
-bindcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+bindcmd (char *command, char *args, char *subargs)
 {
 	u_char	*key;
 	char	*function;
@@ -659,11 +651,8 @@ bindcmd(command, args, subargs)
  * functions
  */
 #ifndef LITE
-void
-rbindcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+rbindcmd (char *command, char *args, char *subargs)
 {
 	int	f;
 	char	*arg;
@@ -752,11 +741,8 @@ change_send_line(func)
  */
 /*ARGSUSED*/
 #ifndef LITE
-void
-typecmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+typecmd (char *command, char *args, char *subargs)
 {
 	int	c;
 	char	key;
@@ -3636,10 +3622,8 @@ write_binding(c, m, fp, do_all)
  * save_bindings: this writes all the keys bindings for IRCII to the given
  * FILE pointer using the write_binding function 
  */
-void
-save_bindings(fp, do_all)
-	FILE	*fp;
-	int	do_all;
+void 
+save_bindings (FILE *fp, int do_all)
 {
 	int	i;
 	int	charsize = charset_size();

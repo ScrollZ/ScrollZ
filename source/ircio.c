@@ -103,9 +103,8 @@ new_malloc(size)
  * new_free:  Why do this?  Why not?  Saves me a bit of trouble here and
  * there 
  */
-void
-new_free(ptr)
-	char	**ptr;
+void 
+new_free (char **ptr)
 {
 	if (*ptr)
 	{
@@ -131,10 +130,8 @@ new_free(ptr)
  *
  * -4 connect call failed 
  */
-static	int
-connect_by_number(service, host)
-	int	service;
-	char	*host;
+static int 
+connect_by_number (int service, char *host)
 {
 	int	s;
 	char	buf[100];
@@ -184,10 +181,8 @@ connect_by_number(service, host)
  * Future enhancements: No-blocking io.  It will either discard or dynamically
  * buffer anything that would block. 
  */
-int
-main(argc, argv)
-	int	argc;
-	char	**argv;
+int 
+main (int argc, char **argv)
 {
 	int	des;
 	fd_set	rd;

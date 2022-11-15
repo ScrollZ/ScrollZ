@@ -180,10 +180,8 @@ extern	int	load_depth;
 	{ "WINDOW_SWAP",	(Hook *) 0,	2,	0,	0 }
 };
 
-static char	*
-fill_it_out(str, params)
-	char	*str;
-	int	params;
+static char *
+fill_it_out (char *str, int params)
 {
  	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*arg,
@@ -231,12 +229,8 @@ struct	CmpInfoStruc
 
 int   cmpinfodone = 0;
 
-static void
-setup_struct(ServReq, SkipSer, SerNum, flags)
-	int	ServReq;
-	int	SkipSer;
-	int	SerNum;
-	int	flags;
+static void 
+setup_struct (int ServReq, int SkipSer, int SerNum, int flags)
 {
 	cmp_info.ServerRequired = ServReq;
 	cmp_info.SkipSerialNum = SkipSer;
@@ -269,15 +263,8 @@ Add_Remove_Check_List(_Item, _Item2)
 	return Add_Remove_Check(_Item, _Item->name);
 }
 
-static	void
-add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
-	int	numeric;
-	char	*nick,
-		*stuff;
-	int	noisy,
-		not;
-	int	server,
-		sernum;
+static void 
+add_numeric_hook (int numeric, char *nick, char *stuff, int noisy, int not, int server, int sernum)
 {
 	NumericList *entry;
 	Hook	*new;
@@ -320,15 +307,8 @@ add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
  * entry to the list as specified by the rest of the parameters.  The new
  * entry is added in alphabetical order (by nick). 
  */
-static	void
-add_hook(which, nick, stuff, noisy, not, server, sernum)
-	int	which;
-	char	*nick,
-		*stuff;
-	int	noisy,
-		not;
-	int	server,
-		sernum;
+static void 
+add_hook (int which, char *nick, char *stuff, int noisy, int not, int server, int sernum)
 {
 	Hook	*new;
 
@@ -391,9 +371,8 @@ show_hook(list, name)
  * If numeric is non-zero, then that particular list is displayed.  The total
  * number of entries displayed is returned 
  */
-static	int
-show_numeric_list(numeric)
-	int	numeric;
+static int 
+show_numeric_list (int numeric)
 {
 	NumericList *tmp;
 	Hook	*list;
@@ -426,9 +405,8 @@ show_numeric_list(numeric)
  * the hook_functions array.  This function returns the number of entries in
  * the list displayed 
  */
-static	int
-show_list(which)
-	int	which;
+static int 
+show_list (int which)
 {
 	Hook	*list;
 	int	cnt = 0;

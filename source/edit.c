@@ -99,6 +99,8 @@ static	char	*do_channel _((char *, int, int));
 /****************************************************************************/
 static	void	send_action _((char *, char *));
 
+extern void PopLine(void);
+
 TimerList *PendingTimers = (TimerList *) 0;
 
 /* used with input_move_cursor */
@@ -322,7 +324,7 @@ extern  void  RemoveNotify _((char *, char *, char *));
 extern  void  ListNotify _((char *, char *, char *));
 extern  void  MyQuit _((char *));
 extern  void  AddNick2List _((char *, int));
-extern  void  HandleTabNext _((void));
+extern  void  HandleTabNext _((u_int u, char * c));
 extern  void  AddServer _((char *, char *, char *));
 extern  void  RemoveServer _((char *, char *, char *));
 extern  void  ListServers _((char *, char *, char *));
@@ -600,7 +602,7 @@ IrcCommand irc_command[] =
   { "EGO", 		"EGO", 		OnOffCommand, 		0 },
   { "ENCRMSG",		NULL, 		EncryptMsg, 		0 },
 #ifndef LITE
-	{ "ENCRYPT",	NULL,		encrypt_cmd,		0 },
+	{ "ENCRYPT",	NULL,		(void (*)(char *, char *, char *))encrypt_cmd,		0 },
 #endif
   { "ETDELIM",		NULL, 		TopicDelimiter, 	0 },
   { "ETOPIC",		NULL, 		ExtendTopic, 		0 },
@@ -1085,11 +1087,8 @@ find_command(com, cnt)
 }
 
 /*ARGSUSED*/
-static	void
-ctcp(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+ctcp (char *command, char *args, char *subargs)
 {
 	char	*to,
 		*tag;
@@ -1119,11 +1118,8 @@ ctcp(command, args, subargs)
 }
 
 /*ARGSUSED*/
-static	void
-hook(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+hook (char *command, char *args, char *subargs)
 {
 	if (*args)
 		do_hook(HOOK_LIST, "%s", args);
@@ -1132,11 +1128,8 @@ hook(command, args, subargs)
 }
 
 /*ARGSUSED*/
-static	void
-dcc(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+dcc (char *command, char *args, char *subargs)
 {
 	if (*args)
 		process_dcc(args);
@@ -1148,20 +1141,14 @@ dcc(command, args, subargs)
 }
 
 /*ARGSUSED*/
-static	void
-deop(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+deop (char *command, char *args, char *subargs)
 {
 	send_to_server("MODE %s -o", get_server_nickname(from_server));
 }
 
-static	void
-funny_stuff(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+funny_stuff (char *command, char *args, char *subargs)
 {
 	char	*arg,
 		*cmd = (char *) 0,
@@ -1242,12 +1229,8 @@ funny_stuff(command, args, subargs)
 /*ARGSUSED*/
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-waitcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+waitcmd (char *command, char *args, char *subargs)
 {
 	int	wait_index;
 	char	*flag;
@@ -1314,9 +1297,8 @@ waitcmd(command, args, subargs)
 	waiting--;
 }
 
-int
-check_wait_command(nick)
-	char 	*nick;
+int 
+check_wait_command (char *nick)
 {
 	if (waiting && !strcmp(nick, lame_wait_nick))
 	{
@@ -1337,11 +1319,8 @@ check_wait_command(nick)
 }
 
 /*ARGSUSED*/
-static	void
-redirect(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+redirect (char *command, char *args, char *subargs)
 {
 	char	*to;
 
@@ -1388,11 +1367,8 @@ redirect(command, args, subargs)
 }
 
 /*ARGSUSED*/
-static	void
-sleepcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+sleepcmd (char *command, char *args, char *subargs)
 {
 	char	*arg;
 
@@ -1407,11 +1383,8 @@ sleepcmd(command, args, subargs)
  * processes the flags first, then displays the text on
  * the screen
  */
-static void
-my_echo(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+my_echo (char *command, char *args, char *subargs)
 {
 	unsigned int	display;
 	int	lastlog_level = 0;
@@ -1469,10 +1442,8 @@ my_echo(command, args, subargs)
 
 /*
  */
-static	void
-oper_password_received(data, line)
-	char	*data;
-	char	*line;
+static void 
+oper_password_received (char *data, char *line)
 {
 	send_to_server("OPER %s %s", data, line);
 /**************************** PATCHED by Flier ******************************/
@@ -1483,11 +1454,8 @@ oper_password_received(data, line)
 
 /* oper: the OPER command.  */
 /*ARGSUSED*/
-static	void
-oper(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+oper (char *command, char *args, char *subargs)
 {
 	char	*password;
 	char	*nick;
@@ -1532,11 +1500,8 @@ oper(command, args, subargs)
 /* Full scale abort.  Does a "save" into the filename in line, and
         then does a coredump */
 #ifndef LITE
-static  void   
-abortcmd(command, args, subargs)
-	char    *command,
-		*args,
-		*subargs;
+static void 
+abortcmd (char *command, char *args, char *subargs)
 {
         char    *filename = next_arg(args, &args);
 
@@ -1553,10 +1518,8 @@ abortcmd(command, args, subargs)
 #endif /* LITE */
         
 /* This generates a file of your ircII setup */
-static	void
-really_save(file, line)
-	char	*file;
-	char	*line;
+static void 
+really_save (char *file, char *line)
 {
 /**************************** PATCHED by Flier ******************************/
         int     oldumask;
@@ -1594,11 +1557,8 @@ really_save(file, line)
 
 /* save_settings: saves the current state of IRCII to a file */
 /*ARGSUSED*/
-static	void
-save_settings(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+save_settings (char *command, char *args, char *subargs)
 {
 	char	buffer[BIG_BUFFER_SIZE+1];
 	char	*arg, *temp;
@@ -1681,13 +1641,8 @@ save_settings(command, args, subargs)
  * do_channel : checks whether the channel has already been joined and
  * returns the channel's name if not
  */
-static	char *
-/**************************** Patched by Flier ******************************/
-/*do_channel(chan, force)*/
-do_channel(chan, force, nowho)
-	char	*chan;
-	int force;
-	int nowho;
+static char *
+do_channel (char *chan, int force, int nowho)
 /****************************************************************************/
 {
 	ChannelList	*channel;
@@ -1744,8 +1699,8 @@ do_channel(chan, force, nowho)
 
 /**************************** PATCHED by Flier ******************************/
 /* fix_channel: add # in front of channel if necessary */
-static char *fix_channel(channel)
-char *channel;
+static char *
+fix_channel (char *channel)
 {
     static char chanbuf[mybufsize / 2 + 2];
 
@@ -1764,12 +1719,8 @@ char *channel;
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-e_channel(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+e_channel (char *command, char *args, char *subargs)
 {
 	char	*chan;
  	size_t	len;
@@ -1900,11 +1851,8 @@ out:
 
 /* comment: does the /COMMENT command, useful in .ircrc */
 /*ARGSUSED*/
-static	void
-commentcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+commentcmd (char *command, char *args, char *subargs)
 {
 	/* nothing to do... */
 }
@@ -1916,12 +1864,8 @@ commentcmd(command, args, subargs)
 /*ARGSUSED*/
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-e_nick(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+e_nick (char *command, char *args, char *subargs)
 {
 	char	*nick;
 
@@ -1967,11 +1911,8 @@ e_nick(command, args, subargs)
 }
 
 /* version: does the /VERSION command with some IRCII version stuff */
-static	void
-version(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+version (char *command, char *args, char *subargs)
 {
 	char	*host;
 
@@ -1992,11 +1933,8 @@ version(command, args, subargs)
  * I updated most of the text -phone, feb 1993.
  */
 #ifndef LITE
-static	void
-info(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+info (char *command, char *args, char *subargs)
 {
 	if (!args || !*args)
 	{
@@ -2046,11 +1984,8 @@ ison_now(notused,notused2,nicklist)
 /****************************************************************************/
 }
 
-static	void
-ison(command, args, subargs)
-	char	*command;
-	char	*args,
-		*subargs;
+static void 
+ison (char *command, char *args, char *subargs)
 {
 	if (!args[strspn(args, " ")])
 		args = get_server_nickname(from_server);
@@ -2064,12 +1999,8 @@ ison(command, args, subargs)
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-userhost(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+userhost (char *command, char *args, char *subargs)
 {
 	int	n = 0,
 		total = 0,
@@ -2141,11 +2072,8 @@ userhost(command, args, subargs)
  * whois: the WHOIS and WHOWAS commands.  This translates the 
  * to the whois handlers in whois.c 
  */
-static	void
-whois(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+whois (char *command, char *args, char *subargs)
 {
 /*************************** PATCHED by Flier ****************************/
 	/*if (args && *args)
@@ -2171,11 +2099,8 @@ whois(command, args, subargs)
  * whoo_stuff accordingly.  Who_mask and who_stuff are used in whoreply() in
  * parse.c 
  */
-static	void
-who(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+who (char *command, char *args, char *subargs)
 {
 	char	*arg,
 		*channel = NULL;
@@ -2365,11 +2290,8 @@ who(command, args, subargs)
  * it out.
  */
 /*ARGSUSED*/
-void
-query(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+query (char *command, char *args, char *subargs)
 {
 	char	*nick,
 		*rest;
@@ -2434,12 +2356,8 @@ out:
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-away(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+away (char *command, char *args, char *subargs)
 {
  	size_t	len;
 	char	*arg = NULL;
@@ -2523,11 +2441,8 @@ away(command, args, subargs)
 
 /* e_quit: The /QUIT, /EXIT, etc command */
 /*ARGSUSED*/
-void
-e_quit(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+e_quit (char *command, char *args, char *subargs)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*int	max;
@@ -2553,11 +2468,8 @@ e_quit(command, args, subargs)
 
 /* flush: flushes all pending stuff coming from the server */
 /*ARGSUSED*/
-static	void
-flush(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+flush (char *command, char *args, char *subargs)
 {
 	if (get_int_var(HOLD_MODE_VAR))
 	{
@@ -2572,11 +2484,8 @@ flush(command, args, subargs)
 
 /* e_wall: used for WALL and WALLOPS */
 #ifndef LITE
-static	void
-e_wall(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+e_wall (char *command, char *args, char *subargs)
 {
  	save_message_from();
 	if (strcmp(command, "WALL") == 0)
@@ -2600,10 +2509,8 @@ e_wall(command, args, subargs)
 }
 #endif
 
-void
-redirect_msg(dest, msg)
-	char *dest;
-	char *msg;
+void 
+redirect_msg (char *dest, char *msg)
 {
 	char	buffer[BIG_BUFFER_SIZE];
 
@@ -2622,11 +2529,8 @@ redirect_msg(dest, msg)
  * e_privmsg: The MSG command, displaying a message on the screen indicating
  * the message was sent.  Also, this works for the NOTICE command. 
  */
-static	void
-e_privmsg(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+e_privmsg (char *command, char *args, char *subargs)
 {
 	char	*nick;
 /**************************** PATCHED by Flier ******************************/
@@ -2690,11 +2594,8 @@ e_privmsg(command, args, subargs)
  * is simply send directly to the server 
  */
 /*ARGSUSED*/
-static	void
-quote(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+quote (char *command, char *args, char *subargs)
 {
 	if (!in_on_who)
 		send_to_server("%s", args);
@@ -2702,11 +2603,8 @@ quote(command, args, subargs)
 
 /* clear: the CLEAR command.  Figure it out */
 /*ARGSUSED*/
-static	void
-my_clear(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+my_clear (char *command, char *args, char *subargs)
 {
 	char	*arg;
 	int	all = 0,
@@ -2739,11 +2637,8 @@ my_clear(command, args, subargs)
  * send_comm: the generic command function.  Uses the full command name found
  * in 'command', combines it with the 'args', and sends it to the server 
  */
-static	void
-send_comm(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_comm (char *command, char *args, char *subargs)
 {
 /**************************** PATCHED by Flier ******************************/
         if (command && *command) {
@@ -2780,11 +2675,8 @@ send_comm(command, args, subargs)
 }
 
 
-static	void
-send_topic(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_topic (char *command, char *args, char *subargs)
 {
 	u_char	*arg;
 	u_char	*arg2;
@@ -2816,11 +2708,8 @@ send_topic(command, args, subargs)
 }
 
 #ifndef LITE
-static void
-send_squery(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_squery (char *command, char *args, char *subargs)
 {
 	put_it("*** Sent to service %s: %s", command, args);
 	send_2comm(command, args, subargs);
@@ -2832,11 +2721,8 @@ send_squery(command, args, subargs)
  * one comment. Used for KILL and SQUIT.
  */
 
-static	void
-send_2comm(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_2comm (char *command, char *args, char *subargs)
 {
  	char	*comment;
 
@@ -2854,11 +2740,8 @@ send_2comm(command, args, subargs)
  * and 0-n args. Used for MODE.
  */
   
-static	void
-send_channel_nargs(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_channel_nargs (char *command, char *args, char *subargs)
 {
 	char	*arg1 = 0,
 	        *s = get_channel_by_refnum(0);
@@ -2886,11 +2769,8 @@ send_channel_nargs(command, args, subargs)
  * one arg and one comment. Used for KICK
  */
 
-static	void
-send_channel_2args(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_channel_2args (char *command, char *args, char *subargs)
 {
 	char	*arg1 = 0,
 		*comment = 0,
@@ -2923,11 +2803,8 @@ send_channel_2args(command, args, subargs)
  * send_channel_1arg: Sends a command to the server with one channel
  * and one comment. Used for PART (LEAVE)
  */
-static	void
-send_channel_1arg(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+send_channel_1arg (char *command, char *args, char *subargs)
 {
 	char	*comment,
 		*s = get_channel_by_refnum(0);
@@ -2963,11 +2840,8 @@ send_channel_1arg(command, args, subargs)
  * command.  Currently, only NOTICEs and PRIVMSGS work. 
  * fixed to not be anal about "/msg foo,bar foobar" -phone
  */
-void
-send_text(org_nick, line, command)
-	char	*org_nick;
-	char	*line;
-	char	*command;
+void 
+send_text (char *org_nick, char *line, char *command)
 {
 #ifndef LITE
  	crypt_key	*key;
@@ -3318,11 +3192,8 @@ out:
  	restore_message_from();
 }
 
-static void
-do_send_text(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+do_send_text (char *command, char *args, char *subargs)
 {
 	char	*tmp;
 /**************************** PATCHED by Flier ******************************/ 
@@ -3359,10 +3230,8 @@ do_send_text(command, args, subargs)
  * command_completion: builds lists of commands and aliases that match the
  * given command and displays them for the user's lookseeing 
  */
-void
-command_completion(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+command_completion (u_int key, char *ptr)
 {
 	int	do_aliases;
 	int	cmd_cnt,
@@ -3513,14 +3382,8 @@ command_completion(key, ptr)
  *
  * Other than these two conventions the line is left basically untouched.
  */
-void
-parse_line(name, org_line, args, hist_flag, append_flag, eat_space)
-	char	*name,
-		*org_line,
-		*args;
-	int	hist_flag,
-		append_flag,
-		eat_space;
+void 
+parse_line (char *name, char *org_line, char *args, int hist_flag, int append_flag, int eat_space)
 {
 	char	*line = NULL,
 		*free_line, *stuff, *start, *lbuf, *s, *t;
@@ -3596,11 +3459,8 @@ parse_line(name, org_line, args, hist_flag, append_flag, eat_space)
  * characters or anything (beyond those specific for a given command being
  * executed). 
  */
-void
-parse_command(line, hist_flag, sub_args)
-	char	*line;
-	int	hist_flag;
-	char	*sub_args;
+void 
+parse_command (char *line, int hist_flag, char *sub_args)
 {
 	static	unsigned int	 level = 0;
 	unsigned int	display,
@@ -3784,11 +3644,8 @@ parse_command(line, hist_flag, sub_args)
  * though it were typed in (passes each line to parse_command). 
  */
 /*ARGSUSED*/
-void
-load(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+load (char *command, char *args, char *subargs)
 {
 	FILE	*fp;
 	char	*filename,
@@ -4095,9 +3952,8 @@ load(command, args, subargs)
  * get_history: gets the next history entry, either the PREV entry or the
  * NEXT entry, and sets it to the current input string 
  */
-static void	
-get_history(which)
-	int	which;
+static void 
+get_history (int which)
 {
 	char	*ptr;
 
@@ -4110,54 +3966,42 @@ get_history(which)
 }
 
 /* BIND function: */
-void
-forward_character(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+forward_character (u_int key, char *ptr)
 {
 	input_move_cursor(RIGHT);
 }
 
-void
-backward_character(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+backward_character (u_int key, char *ptr)
 {
 	input_move_cursor(LEFT);
 }
 
-void
-backward_history(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+backward_history (u_int key, char *ptr)
 {
 	get_history(PREV);
 }
 
-void
-forward_history(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+forward_history (u_int key, char *ptr)
 {
 	get_history(NEXT);
 }
 
-void
-toggle_insert_mode(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+toggle_insert_mode (u_int key, char *ptr)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*set_var_value(INSERT_MODE_VAR, "TOGGLE");*/
-    HandleTabNext();
+    HandleTabNext(0,0);
 /****************************************************************************/
 }
 
 /*ARGSUSED*/
-void
-send_line(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+send_line (u_int key, char *ptr)
 {
 	int	server;
 	WaitPrompt	*OldPrompt;
@@ -4205,11 +4049,8 @@ send_line(key, ptr)
 
 /* The SENDLINE command.. */
 #ifndef LITE
-static	void
-sendlinecmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+sendlinecmd (char *command, char *args, char *subargs)
 {
 	int	server;
 	int	display;
@@ -4229,92 +4070,72 @@ sendlinecmd(command, args, subargs)
 
 /*ARGSUSED*/
 #ifndef LITE
-void
-meta8_char(key, ptr)
-	u_int	key;
-	char *	ptr;
+void 
+meta8_char (u_int key, char *ptr)
 {
 	current_screen->meta8_hit = 1;
 }
 
 /*ARGSUSED*/
-void
-meta7_char(key, ptr)
-	u_int	key;
-	char *	ptr;
+void 
+meta7_char (u_int key, char *ptr)
 {
 	current_screen->meta7_hit = 1;
 }
 
 /*ARGSUSED*/
-void
-meta6_char(key, ptr)
-	u_int	key;
-	char *	ptr;
+void 
+meta6_char (u_int key, char *ptr)
 {
 	current_screen->meta6_hit = 1;
 }
 #endif /* LITE */
 
 /*ARGSUSED*/
-void
-meta5_char(key, ptr)
-	u_int	key;
-	char *	ptr;
+void 
+meta5_char (u_int key, char *ptr)
 {
 	current_screen->meta5_hit = 1;
 }
 
 /*ARGSUSED*/
-void
-meta4_char(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+meta4_char (u_int key, char *ptr)
 {
 	current_screen->meta4_hit = 1 - current_screen->meta4_hit;
 }
 
 /*ARGSUSED*/
-void
-meta3_char(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+meta3_char (u_int key, char *ptr)
 {
 	current_screen->meta3_hit = 1;
 }
 
 /*ARGSUSED*/
-void
-meta2_char(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+meta2_char (u_int key, char *ptr)
 {
 	current_screen->meta2_hit = 1;
 }
 
 /*ARGSUSED*/
-void
-meta1_char(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+meta1_char (u_int key, char *ptr)
 {
 	current_screen->meta1_hit = 1;
 }
 
-void
-quote_char(key, ptr)
- 	u_int	key;
-	char *	ptr;
+void 
+quote_char (u_int key, char *ptr)
 {
 	current_screen->quote_hit = 1;
 }
 
 /* type_text: the BIND function TYPE_TEXT */
 /*ARGSUSED*/
-void
-type_text(key, ptr)
- 	u_int	key;
-	char	*ptr;
+void 
+type_text (u_int key, char *ptr)
 {
 	for (; *ptr; ptr++)
  		input_add_character((u_int)*ptr, (char *) 0);
@@ -4325,20 +4146,16 @@ type_text(key, ptr)
  * starts it if it is held 
  */
 /*ARGSUSED*/
-void
-irc_clear_screen(key, ptr)
- 	u_int	key;
-	char	*ptr;
+void 
+irc_clear_screen (u_int key, char *ptr)
 {
 	hold_mode((Window *) 0, OFF, 1);
 	my_clear(NULL, empty_string, empty_string);
 }
 
 /* parse_text: the bindable function that executes its string */
-void
-parse_text(key, ptr)
- 	u_int	key;
-	char	*ptr;
+void 
+parse_text (u_int key, char *ptr)
 {
 	parse_line(NULL, ptr, empty_string, 0, 0, 0);
 }
@@ -4347,9 +4164,8 @@ parse_text(key, ptr)
  * edit_char: handles each character for an input stream.  Not too difficult
  * to work out.
  */
-void
-edit_char(ikey)
- 	u_int ikey;
+void 
+edit_char (u_int ikey)
 {
  	void	(*func) _((u_int, char *));
 	char	*str;
@@ -4491,11 +4307,8 @@ edit_char(ikey)
 
 /*ARGSUSED*/
 #ifndef LITE
-static	void
-catter(command, args, subargs)
-	char *command;
-	char *args;
-	char *subargs;
+static void 
+catter (char *command, char *args, char *subargs)
 {
 	char *target = next_arg(args, &args);
 
@@ -4523,11 +4336,8 @@ catter(command, args, subargs)
 #endif
 
 /*ARGSUSED*/
-static	void
-cd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+cd (char *command, char *args, char *subargs)
 {
 	char	lbuf[BIG_BUFFER_SIZE+1];
 	char	*arg,
@@ -4555,9 +4365,8 @@ cd(command, args, subargs)
 	say("Current directory: %s", lbuf);
 }
 
-static	void
-send_action(target, text)
-	char	*target, *text;
+static void 
+send_action (char *target, char *text)
 {
 /**************************** Patched by Flier ******************************/
         if (ChanLog && is_channel(target)) {
@@ -4575,9 +4384,8 @@ send_action(target, text)
 }
 
 #ifdef LYNX_STUFF
-static	char	*
-prepare_action(string)
-	char	*string;
+static char *
+prepare_action (char *string)
 {
 	short	last;
 	char	*message;
@@ -4602,12 +4410,8 @@ prepare_action(string)
 
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-describe(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+describe (char *command, char *args, char *subargs)
 {
 	char	*target;
 /**************************** PATCHED by Flier ******************************/
@@ -4701,12 +4505,8 @@ describe(command, args, subargs)
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-me(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+me (char *command, char *args, char *subargs)
 {
 /**************************** PATCHED by Flier ******************************/
         char *thing;
@@ -4788,11 +4588,8 @@ me(command, args, subargs)
 }
 
 #ifndef LITE
-static	void
-mload(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+mload (char *command, char *args, char *subargs)
 {
 	char	*file;
 
@@ -4800,11 +4597,8 @@ mload(command, args, subargs)
 		load_menu(file);
 }
 
-static	void
-mlist(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+mlist (char *command, char *args, char *subargs)
 {
 	char	*menu;
 
@@ -4813,11 +4607,8 @@ mlist(command, args, subargs)
 }
 #endif /* LITE */
 
-static	void
-evalcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+evalcmd (char *command, char *args, char *subargs)
 {
 	parse_line(NULL, args, subargs ? subargs : empty_string, 0, 0, 0);
 }
@@ -4828,8 +4619,8 @@ evalcmd(command, args, subargs)
  * current_exec_timer, so that we can't remove the timer while its
  * still executing.
  */
-extern	void
-execute_timer()
+extern void 
+execute_timer (void)
 {
 	struct timeval current;
 	TimerList *next;
@@ -4873,12 +4664,8 @@ execute_timer()
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-timercmd(command, args, subargs)
-	char	*command;
-	char	*args,
-	*subargs;
+void 
+timercmd (char *command, char *args, char *subargs)
 {
 	char	*waittime, *flag;
 	struct	timeval timertime;
@@ -5031,9 +4818,8 @@ timercmd(command, args, subargs)
  * show_timer:  Display a list of all the TIMER commands that are
  * pending to be executed.
  */
-static	void
-show_timer(command)
-	char	*command;
+static void 
+show_timer (char *command)
 {
 	u_char  lbuf[BIG_BUFFER_SIZE];
 	TimerList *tmp;
@@ -5072,9 +4858,8 @@ show_timer(command)
  * create_timer_ref:  returns the lowest unused reference number for
  * a timer
  */
-static	int
-create_timer_ref(want)
-	int	want;
+static int 
+create_timer_ref (int want)
 {
 	TimerList	*tmp;
 	int	ref = 0;
@@ -5108,7 +4893,8 @@ create_timer_ref(want)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up all memory used by timers */
-void CleanUpTimer() {
+void 
+CleanUpTimer (void) {
     TimerList *tmptimer;
 
     while (PendingTimers) {
@@ -5129,11 +4915,8 @@ void CleanUpTimer() {
  */
 
 #ifndef LITE
-static	void
-inputcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+inputcmd (char *command, char *args, char *subargs)
 {
 	char	*prompt;
 
@@ -5167,20 +4950,15 @@ inputcmd(command, args, subargs)
  * get an input prompt ..
  */
 
-void
-eval_inputlist(args, line)
-	char	*args,
-		*line;
+void 
+eval_inputlist (char *args, char *line)
 {
 	parse_line(NULL, args, line ? line : empty_string, 0, 0, 0);
 }
 
 /* pingcmd: ctcp ping, duh - phone, jan 1993. */
-static	void
-pingcmd(command, args, subargs)
-	char    *command,
-		*args,
-		*subargs;
+static void 
+pingcmd (char *command, char *args, char *subargs)
 {
 	char	buffer[BIG_BUFFER_SIZE+1];
 
@@ -5203,11 +4981,8 @@ pingcmd(command, args, subargs)
 }
 
 #ifndef LITE
-static	void
-xtypecmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+xtypecmd (char *command, char *args, char *subargs)
 {
 	char	*arg;
  	size_t	len;
@@ -5238,11 +5013,8 @@ xtypecmd(command, args, subargs)
 	return;
 }
 
-static	void
-beepcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+static void 
+beepcmd (char *command, char *args, char *subargs)
 {
 	term_beep();
 }

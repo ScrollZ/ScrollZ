@@ -124,6 +124,8 @@ void URLSave3 _((char *, char *));
 int  GrabURL _((char *, char *, size_t, char *, char *, char *, int));
 void MasterPassword _((char *, char *));
 void MasterPasswordOld _((char *, char *));
+int InitColor (char **colorstr, char **colorseq, int colornum, int append);
+int BuildColorNew (char *color, char *dest, int lineno);
 
 extern int  CheckChannel _((char *, char *));
 extern void AwaySave _((char *, int));
@@ -194,9 +196,8 @@ static int listcount=0;
 #endif
 
 /* Returns pointer to friends list with matching entry */
-struct friends *FindMatch(userhost,channel)
-char *userhost;
-char *channel;
+struct friends *
+FindMatch (char *userhost, char *channel)
 {
     struct friends *tmpfriend;
 
@@ -209,15 +210,15 @@ char *channel;
 }
 
 /* Handles nick collision */
-void HandleNickCollision()
+void 
+HandleNickCollision (void)
 {
     if (away_set || LogOn) AwaySave("Nick collision",SAVECOLL);
 }
 
 /* Handles reply number 333 from server */
-void TimeReply(from,ArgList)
-char *from;
-char **ArgList;
+void 
+TimeReply (char *from, char **ArgList)
 {
     char *channel;
     ChannelList *chan;
@@ -247,10 +248,8 @@ char **ArgList;
 void TagNickNew();
 
 /* Tags nick for nick watcher */
-void TagNick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+TagNick (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     void (*func)();
@@ -293,10 +292,8 @@ char *text;
 }
 
 /* This will dig out users new nickname */
-void WhereIs(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+WhereIs (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     int  found=0;
@@ -323,10 +320,8 @@ char *subargs;
 void WhereListPage();
 
 /* This will list all users on nick watcher list */
-void WhereList(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+WhereList (char *command, char *args, char *subargs)
 {
     listcount=0;
     tmpnickwatch=nickwatchlist;
@@ -338,8 +333,8 @@ char *subargs;
 void WhereListKey();
 
 /* Lists one page of nick watch list */
-void WhereListPage(line)
-char *line;
+void 
+WhereListPage (char *line)
 {
     int  count=3;
 
@@ -354,9 +349,8 @@ char *line;
 }
 
 /* This waits for key press */
-void WhereListKey(stuff,line)
-char *stuff;
-char *line;
+void 
+WhereListKey (char *stuff, char *line)
 {
     if (line && (*line=='q' || *line=='Q' || *line=='E')) {
         if (*line=='E') say("Total of %d people on nick watch list",listcount);
@@ -367,10 +361,8 @@ char *line;
 #endif
 
 /* Unflashes your terminal */
-void UnFlash(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+UnFlash (char *command, char *args, char *subargs)
 {
     fwrite("\033c",2,1,stdout);
     refresh_screen(0,(char *) 0);
@@ -378,8 +370,8 @@ char *subargs;
 
 #ifdef WANTANSI
 /* Checks if character is printable */
-int vt100Decode(chr)
-register char chr;
+int 
+vt100Decode (int chr)
 {
     static enum {
         Normal, Escape, SCS, CSI, DCS, DCSData, DCSEscape, DCS2, DCS3, DCS4
@@ -468,8 +460,8 @@ register char chr;
 }
 
 /* Checks if ansi string only sets colors/attributes */
-void FixColorAnsi(str)
-char *str;
+void 
+FixColorAnsi (char *str)
 {
     int  val = 0;
     int  what = 0;
@@ -527,9 +519,8 @@ char *str;
 }
 
 /* Counts ansi chars in string */
-int CountAnsi(str,len)
-char *str;
-int len;
+int 
+CountAnsi (char *str, int len)
 {
     register int  count=0;
     register int  x=0;
@@ -549,8 +540,8 @@ int len;
 }
 
 /* Returns the name of the color */
-char *ColorName(number)
-int number;
+char *
+ColorName (int number)
 {
     switch (number) {
         case COLBOLD      :return("BOLD");
@@ -579,9 +570,8 @@ int number;
 }
 
 /* Decodes colors and returns string for save */
-void GetColors(number, buffer)
-int  number;
-char *buffer;
+void 
+GetColors (int number, char *buffer)
 {
     int i;
 
@@ -716,8 +706,8 @@ FILE *usfile;
 }
 
 /* Returns corresponding index into Colors for given color name */
-int ColorNumber(colname)
-char *colname;
+int 
+ColorNumber (char *colname)
 {
     int  i;
     char tmpbuf[mybufsize / 4];
@@ -737,10 +727,8 @@ char *colname;
 }
 
 /* Parses color string and puts color codes in target string */
-int BuildColor(color, string, lineno)
-char *color;
-char *string;
-int  lineno;
+int 
+BuildColor (char *color, char *string, int lineno)
 {
     int  colindex;
     char *tmpstr;
@@ -761,11 +749,8 @@ int  lineno;
 }
 
 /* Sets colors loaded from ScrollZ.save */
-void SetColors(number, string, error, lineno)
-int  number;
-char **string;
-int  *error;
-int  lineno;
+void 
+SetColors (int number, char **string, int *error, int lineno)
 {
     int  i;
     char tmpbuf1[mybufsize / 4];
@@ -821,11 +806,8 @@ int  lineno;
 #endif
 
 /* Prints settings */
-void PrintSetting(string1,setting1,string2,setting2)
-char *string1;
-char *setting1;
-char *string2;
-char *setting2;
+void 
+PrintSetting (char *string1, char *setting1, char *string2, char *setting2)
 {
     int doorignick=0;
     char quietstr[mybufsize/8];
@@ -847,11 +829,8 @@ char *setting2;
 }
 
 /* append given characters to string */
-void append_esc(c1, c2, c3, dst)
-char c1;
-char c2;
-char c3;
-unsigned char **dst;
+void 
+append_esc (int c1, int c2, int c3, unsigned char **dst)
 {
     **dst = 0x1B;
     (*dst)++;
@@ -872,10 +851,8 @@ unsigned char **dst;
                      or characters >=128 (national characters)
                3 ... same as 2, but also strip BOLD, REVERSE and UNDERLINE
                4 ... same as 1 but convert non-printable characters to reverse */
-void StripAnsi(line, destline, printonly)
-char *line;
-char *destline;
-int  printonly;
+void 
+StripAnsi (char *line, char *destline, int printonly)
 {
     int what = 0;
     int isattr;
@@ -952,11 +929,8 @@ int  printonly;
 }
 
 /* Prints netsplit stuff */
-void SplitPrint(reason,nick,channel,netsplit)
-char *reason;
-char *nick;
-char *channel;
-int  netsplit;
+void 
+SplitPrint (char *reason, char *nick, char *channel, int netsplit)
 {
     char *tmpstr;
     char *server;
@@ -998,13 +972,8 @@ int  netsplit;
 }
 
 /* Prints mode stuff */
-void ModePrint(line,channel,nick,userhost,nethacks,servmode)
-char *line;
-char *channel;
-char *nick;
-char *userhost;
-char *nethacks;
-char *servmode;
+void 
+ModePrint (char *line, char *channel, char *nick, char *userhost, char *nethacks, char *servmode)
 {
     int  isitserver;
 #ifdef WANTANSI
@@ -1089,14 +1058,8 @@ char *servmode;
 }
 
 /* Prints kick stuff */
-void KickPrint(who,word,from,channel,comment,rejoin,frkick)
-char *who;
-char *word;
-char *from;
-char *channel;
-char *comment;
-int  rejoin;
-int  frkick;
+void 
+KickPrint (char *who, char *word, char *from, char *channel, char *comment, int rejoin, int frkick)
 {
 #ifdef WANTANSI
     char *colnick;
@@ -1142,10 +1105,8 @@ int  frkick;
 }
 
 /* Sets master password for ENCRMSG and log file encryption */
-void Password(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Password (char *command, char *args, char *subargs)
 {
     char *oldpwd;
     char *newpwd;
@@ -1284,14 +1245,8 @@ int  show_server;
 }
 
 /* Prints whois user reply */
-void PrintWhoIsUser(banner,word,nick,user,host,name,channel)
-char *banner;
-char *word;
-char *nick;
-char *user;
-char *host;
-char *name;
-char *channel;
+void 
+PrintWhoIsUser (char *banner, char *word, char *nick, char *user, char *host, char *name, char *channel)
 {
     char tmpbuf1[mybufsize/2];
     char *country;
@@ -1391,9 +1346,8 @@ char *channel;
 }
 
 /* Prints whois channels reply */
-void PrintWhoIsChannels(banner, channels)
-char *banner;
-char *channels;
+void 
+PrintWhoIsChannels (char *banner, char *channels)
 {
     char tmpbuf1[2 * mybufsize];
     char tmpbuf2[2 * mybufsize];
@@ -1420,10 +1374,8 @@ char *channels;
 }
 
 /* Prints whois servers reply */
-void PrintWhoIsServer(banner,server,line)
-char *banner;
-char *server;
-char *line;
+void 
+PrintWhoIsServer (char *banner, char *server, char *line)
 {
 #ifdef WANTANSI
 #ifdef GENX
@@ -1460,8 +1412,8 @@ char *line;
 }
 
 /* Returns true if line matches auto reply buffer */
-int AutoReplyMatch(line)
-char *line;
+int 
+AutoReplyMatch (char *line)
 {
     int foundar = 0;
     int invmatch;
@@ -1492,13 +1444,8 @@ char *line;
 }
 
 /* Prints public message */
-void PrintPublic(nick,col,channel,line,print,iscrypted)
-char *nick;
-char *col;
-char *channel;
-char *line;
-int  print;
-int  iscrypted;
+void 
+PrintPublic (char *nick, char *col, char *channel, char *line, int print, int iscrypted)
 {
     int  foundar=0;
     int  isfriend=0;
@@ -1738,9 +1685,8 @@ int  iscrypted;
 }
 
 /* Returns path to filename */
-char *OpenCreateFile(filename, create)
-char *filename;
-int  create;
+char *
+OpenCreateFile (char *filename, int create)
 {
     char *path;
     char *filepath;
@@ -1763,10 +1709,8 @@ int  create;
 }
 
 /* Prints links info */
-void PrintLinks(server,uplink,distance)
-char *server;
-char *uplink;
-char *distance;
+void 
+PrintLinks (char *server, char *uplink, char *distance)
 {
     int  dist;
 #ifdef WANTANSI
@@ -1822,9 +1766,8 @@ char *distance;
 }
 
 /* This checks given password against master password */
-void EncryptMasterPlayBack(stuff, line)
-char *stuff;
-char *line;
+void 
+EncryptMasterPlayBack (char *stuff, char *line)
 {
     int pwlen;
     char *mastpass;
@@ -1842,10 +1785,8 @@ char *line;
 }
 
 /* Shows stored messages from ScrollZ.away w/o setting you back */
-void PlayBack(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+PlayBack (char *command, char *args, char *subargs)
 {
     char *pattern;
     char *filepath;
@@ -1888,9 +1829,8 @@ char *subargs;
 }
 
 /* Shows one page from ScrollZ.away file */
-void PlayBack2(stuff,line)
-char *stuff;
-char *line;
+void 
+PlayBack2 (char *stuff, char *line)
 {
     int  count = 2;
     int  readline = 1;
@@ -1938,10 +1878,8 @@ char *line;
 }
 
 /* Defines what to save to ScrollZ.away */
-void AwaySaveToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AwaySaveToggle (char *command, char *args, char *subargs)
 {
     int  newtype=AwaySaveSet;
     int  curval;
@@ -2019,10 +1957,8 @@ char *subargs;
 
 /* Does /STATS k with filter */
 #ifdef OPER
-void StatsKFilter(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+StatsKFilter (char *command, char *args, char *subargs)
 {
     int doall=1;
     char *tmpstr;
@@ -2046,9 +1982,8 @@ char *subargs;
 }
 
 /* Parses STATS k reply from server */
-void HandleStatsK(kline,rest)
-char *kline;
-char *rest;
+void 
+HandleStatsK (char *kline, char *rest)
 {
     char *blah;
     char *tmpstr;
@@ -2129,10 +2064,8 @@ char *rest;
 #endif /* OPER */
 
 /* Sets mode for your current channel */
-void CurrentChanMode(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+CurrentChanMode (char *command, char *args, char *subargs)
 {
     char *channel=(char *) 0;
     ChannelList *chan;
@@ -2155,10 +2088,8 @@ void NslookupNew();
 
 /* Looks up DNS entry */
 #ifndef LITE
-void Nslookup(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Nslookup (char *command, char *args, char *subargs)
 {
     char *tmpstr;
     void (*func)();
@@ -2199,8 +2130,8 @@ char *text;
 }
 
 /* This really does nslookup */
-void DoNslookup(host)
-char *host;
+void 
+DoNslookup (char *host)
 {
     int    isip=1;
     char   *tmpstr;
@@ -2222,7 +2153,8 @@ char *host;
 #endif /* LITE */
 
 /* Inserts nickname of the person that triggered auto reply */
-void InsertAutoReply() {
+void 
+InsertAutoReply (u_int u, char* c) {
     int curserv=from_server;
     char *tmpstr;
 
@@ -2246,10 +2178,8 @@ void InsertAutoReply() {
 }
 
 /* Dumps variables, aliases, ons or all of them */
-void Dump(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Dump (char *command, char *args, char *subargs)
 {
     if (args && *args) {
         if (!my_stricmp(args,"ALIAS")) DumpAliases(COMMAND_ALIAS);
@@ -2265,8 +2195,8 @@ char *subargs;
 }
 
 /* Adds nick that triggered auto reply to list */
-void AddNick2AutoReply(nick)
-char *nick;
+void 
+AddNick2AutoReply (char *nick)
 {
     int found=0;
     int numentr=0;
@@ -2315,10 +2245,8 @@ char *nick;
 }
 
 /* Deletes ScrollZ.away file */
-void RemoveLog(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveLog (char *command, char *args, char *subargs)
 {
     int  done;
     char *filepath;
@@ -2337,8 +2265,8 @@ out:
 }
 
 /* Automatically changes nick */
-void AutoChangeNick(nick)
-char *nick;
+void 
+AutoChangeNick (char *nick)
 {
     int nicklen;
     char *tmpstr;
@@ -2451,10 +2379,8 @@ int  iscrypted;
 }
 
 /* Prints my chat messages */
-void PrintMyChatMsg(nick,line,iscrypted)
-char *nick;
-char *line;
-int  iscrypted;
+void 
+PrintMyChatMsg (char *nick, char *line, int iscrypted)
 {
     char *thing;
 #ifdef WANTANSI
@@ -2488,10 +2414,8 @@ int  iscrypted;
 
 #ifdef EXTRAS
 /* Outputs line to all channels */
-void MSay(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MSay (char *command, char *args, char *subargs)
 {
     int  server;
     char *channels=(char *) 0;
@@ -2513,10 +2437,8 @@ char *subargs;
 #endif
 
 /* Creates ban according to ban type */
-void CreateBan(nick, userhost, banstr)
-char *nick;
-char *userhost;
-char *banstr;
+void 
+CreateBan (char *nick, char *userhost, char *banstr)
 {
     int  found = 0;
     int  rate1;
@@ -2579,10 +2501,8 @@ char *banstr;
 
 #ifdef MGS_
 /* Quits IRC with error level 152 */
-void Terminate(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Terminate (char *command, char *args, char *subargs)
 {
     char *tmpstr=NULL;
 
@@ -2648,10 +2568,8 @@ ChannelList *chan;
 }
 
 /* Redirects last message/notice you have sent to current or specified channel */
-void DirLSM(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+DirLSM (char *command, char *args, char *subargs)
 {
     int  message=!my_stricmp(command,"DIRLSM");
     char *target;
@@ -2718,10 +2636,8 @@ char *buffer;
 #define SLSTNHLFO	1024
 
 /* Like internal WHO */
-void ShowUser(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ShowUser (char *command, char *args, char *subargs)
 {
 #ifdef WANTANSI
     int  len;
@@ -2887,10 +2803,8 @@ char *subargs;
 
 #ifdef WANTANSI
 /* Sets color interactively */
-void SetColor(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+SetColor (char *command, char *args, char *subargs)
 {
     int  error=0;
     int  colsetting=0;
@@ -3078,10 +2992,8 @@ int servernum;
 */
 
 /* Toggles notify mode brief/verbose */
-void NotifyModeToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NotifyModeToggle (char *command, char *args, char *subargs)
 {
     char *tmpstr=(char *) 0;
 
@@ -3099,10 +3011,8 @@ char *subargs;
 }
 
 /* Pings yourself */
-void PingMe(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+PingMe (char *command, char *args, char *subargs)
 {
     struct timeval timenow;
 
@@ -3113,10 +3023,8 @@ char *subargs;
 
 /* Notepad - in case you don't have pen & paper handy... */
 #ifndef LITE
-void NotePad(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NotePad (char *command, char *args, char *subargs)
 {
     int  oldumask=umask(0177);
     char *filepath;
@@ -3139,10 +3047,8 @@ char *subargs;
 #endif
 
 /* Toggles URL catcher on/off */
-void URLCatchToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+URLCatchToggle (char *command, char *args, char *subargs)
 {
     char *tmpstr=(char *) 0;
 
@@ -3165,7 +3071,8 @@ char *subargs;
 
 /* Prints head of /LINKS */
 #ifdef WANTANSI
-void PrintLinksHead() {
+void 
+PrintLinksHead (void) {
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
 
@@ -3217,10 +3124,8 @@ void PrintLinksHead() {
 #endif
 
 /* URL command coded by Zakath */
-void URLSave(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+URLSave (char *command, char *args, char *subargs)
 {
     int count=0;
     struct urlstr *tmpurl;
@@ -3255,9 +3160,8 @@ char *subargs;
 }
 
 /* Prompts for URL description */
-void URLSave2(stuff,line)
-char *stuff;
-char *line;
+void 
+URLSave2 (char *stuff, char *line)
 {
     int found = 0;
     long count = 1;
@@ -3283,9 +3187,8 @@ char *line;
 }
 
 /* Final part, actually does saving */
-void URLSave3(blah,args)
-char *blah;
-char *args;
+void 
+URLSave3 (char *blah, char *args)
 {
     int  oldumask=umask(0177);
     char *filepath;
@@ -3311,9 +3214,8 @@ char *args;
 
 #ifdef WANTANSI
 /* Counts ansi chars in string */
-int CountAnsiInput(str,len)
-char *str;
-int len;
+int 
+CountAnsiInput (char *str, int len)
 {
     register int  count=0;
     register int  x=0;
@@ -3360,7 +3262,8 @@ List *elmt2;
 #endif
 
 /* BanKicks the last joined person */
-void LastJoinerKick() {
+void 
+LastJoinerKick (u_int u, char* c) {
     char *channel;
     char *lastjoin;
     char tmpbuf[mybufsize/4+1];
@@ -3384,7 +3287,8 @@ void LastJoinerKick() {
 }
 
 /* Accepts chat from last user that has requested it */
-void AcceptLastChat() {
+void 
+AcceptLastChat (u_int one, char* c) {
     if (LastChat) dcc_chat(LastChat);
     else say("No chat request so far");
 }
@@ -3562,7 +3466,8 @@ ChannelList *chan;
 }
 
 /* Initializes keys and default color scheme */
-void InitKeysColors() {
+void 
+InitKeysColors (void) {
 #ifdef WANTANSI
     int i;
 #endif
@@ -4158,10 +4063,8 @@ void InitKeysColors() {
 
 /* Kicks nick from multiple channel */
 #ifndef LITE
-void MultiKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MultiKick (char *command, char *args, char *subargs)
 {
     char *nick=(char *) 0;
     char *channels=(char *) 0;
@@ -4197,10 +4100,8 @@ char *subargs;
 
 /* Kills users matching filter with WHO */
 #ifdef OPER
-void WhoKill(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+WhoKill (char *command, char *args, char *subargs)
 {
     char *filter=(char *) 0;
     char *pattern=(char *) 0;
@@ -4224,10 +4125,8 @@ char *subargs;
 }
 
 /* Does the actual killing */
-void DoKill(nick,user,host)
-char *nick;
-char *user;
-char *host;
+void 
+DoKill (char *nick, char *user, char *host)
 {
     char tmpbuf[mybufsize/4];
 
@@ -4241,7 +4140,8 @@ char *host;
 }
 
 /* Reports statistics for filter kill */
-void HandleEndOfKill() {
+void 
+HandleEndOfKill (void) {
     say("Total of %d users were killed",WhoKillNum);
     inSZFKill=0;
     new_free(&wkillpattern);
@@ -4251,10 +4151,8 @@ void HandleEndOfKill() {
 
 #ifdef WANTANSI
 /* Returns terminal sequence to set given color */
-int BuildColorNew(color, dest, lineno)
-char *color;
-char *dest;
-int  lineno;
+int 
+BuildColorNew (char *color, char *dest, int lineno)
 {
     int  colnum;
     char *tmpstr = color;
@@ -4294,11 +4192,8 @@ int  lineno;
 }
 
 /* Builds color strings for default theme */
-int InitColor(colorstr, colorseq, colornum, append)
-char **colorstr;
-char **colorseq;
-int colornum;
-int append;
+int 
+InitColor (char **colorstr, char **colorseq, int colornum, int append)
 {
     char *colorname = ColorName(colornum);
 

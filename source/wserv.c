@@ -67,10 +67,8 @@ RETSIGTYPE	got_sigwinch _((int));
 /*
  * ./wserv /path/to/socket /path/to/control
  */
-int
-main(argc, argv)
-	int	argc;
-	char	**argv;
+int 
+main (int argc, char **argv)
 {
 	char	lbuf[1024];
 	struct	sockaddr_un *addr = (struct sockaddr_un *) lbuf, esock;
@@ -215,8 +213,8 @@ got_sigwinch(sig)
 
 #else
 
-void
-main()
+void 
+main (void)
 {
  	return 0;
 }

@@ -105,9 +105,8 @@ char *SETAF;
 char *SETAB;
 char termbuf[1024];
 
-int main(argc,argv)
-int argc;
-char **argv;
+int 
+main (int argc, char **argv)
 {
     int i;
     FILE *fp;
@@ -153,7 +152,8 @@ char **argv;
     return 0;
 }
 
-void set_term() {
+void 
+set_term (void) {
     char buf[1024];
     char *ptr=termbuf;
     char *term;
@@ -179,13 +179,14 @@ void set_term() {
     SETAB=tgetstr("AB",&ptr);
 }
 
-void reset_term() {
+void 
+reset_term (void) {
     tcsetattr(0, TCSANOW, &old_tc);
 }			
 
 /* is_number: returns true if the given string is a number, false otherwise */
-int is_number(str)
-register char   *str;
+int 
+is_number (register char *str)
 {
     while (*str == ' ')
         str++;
@@ -203,9 +204,8 @@ register char   *str;
         return(0);
 }
 
-int build_color_new(color,dest)
-char *color;
-char *dest;
+int 
+build_color_new (char *color, char *dest)
 {
     int  colnum;
     char *tmpstr = color;
@@ -255,9 +255,8 @@ char *dest;
     return(1);
 }
 
-int set_color(color,string)
-char *color;
-char *string;
+int 
+set_color (char *color, char *string)
 {
     char *tmpstr;
     char *tmpstr1;
@@ -306,10 +305,8 @@ char *string;
 }
 
 /* copy only the first color string to dest */
-void set_colstr(setnum,colnum,colstr)
-int setnum;
-int colnum;
-char *colstr;
+void 
+set_colstr (int setnum, int colnum, char *colstr)
 {
     char tmpbuf[256];
     char *dest;
@@ -337,8 +334,8 @@ char *colstr;
 }
 
 /* return terminal sequence for color string */
-char *term_seq(color)
-char *color;
+char *
+term_seq (char *color)
 {
     static char buf[256];
 
@@ -346,7 +343,8 @@ char *color;
     return(buf);
 }
 
-void read_file() {
+void 
+read_file (void) {
     FILE *fp;
     char tmpbuf[mybufsize];
     char tmpbuf2[mybufsize];
@@ -388,8 +386,8 @@ void read_file() {
     fclose(fp);
 }
 
-char *get_color_name(number)
-int number;
+char *
+get_color_name (int number)
 {
     static char tmpbuf[mybufsize];
     char *tmpstr;
@@ -404,9 +402,8 @@ int number;
     return(tmpbuf);
 }
 
-void get_colors(number,buffer)
-int  number;
-char *buffer;
+void 
+get_colors (int number, char *buffer)
 {
     strcpy(buffer,"");
     sprintf(buffer,"%s %s %s %s %s %s", CmdsColors[number].color1,
@@ -415,7 +412,8 @@ char *buffer;
             CmdsColors[number].color6);
 }
 
-char *get_cur_colstr()
+char *
+get_cur_colstr (void)
 {
     char *dest;
 
@@ -443,8 +441,8 @@ char *get_cur_colstr()
     return(dest);
 }
 
-void save_colors(fp)
-FILE *fp;
+void 
+save_colors (FILE *fp)
 {
     int  i;
     char *s;
@@ -460,34 +458,34 @@ FILE *fp;
     
 }
 
-void move(x,y)
-int x;
-int y;
+void 
+move (int x, int y)
 {
     printf("[%d;%dH",x+1,y+1);
 }
 
-void colorset(color)
-char *color;
+void 
+colorset (char *color)
 {
     printf("%s",Colors[COLOFF]);
     printf("%s",term_seq(color));
 }
 
-void attrset(color)
-int color;
+void 
+attrset (int color)
 {
     if (color!=COLOFF) printf("%s",Colors[COLOFF]);
     printf("%s",Colors[color]);
 }
 
-void attradd(color)
-int color;
+void 
+attradd (int color)
 {
     printf("%s",Colors[color]);
 }
 
-void display_settings() {
+void 
+display_settings (void) {
     int i;
 
     /* Settings */
@@ -498,7 +496,8 @@ void display_settings() {
     }
 }
 
-void display_col_str() {
+void 
+display_col_str (void) {
     attrset(COLWHITE);
     move(YSCRCOLORS+3,XSCRCOLORS+18);
     printf("                         ");
@@ -506,7 +505,8 @@ void display_col_str() {
     printf("%s",get_cur_colstr());
 }
 
-void draw_screen() {
+void 
+draw_screen (void) {
     int i;
 
     printf("[2J[?25l");
@@ -578,11 +578,8 @@ void draw_screen() {
     display_col_str();
 }
 
-void fix_attr(colbuf,lowcolor,highcolor,curcolor)
-char *colbuf;
-int  lowcolor;
-int  highcolor;
-int  curcolor;
+void 
+fix_attr (char *colbuf, int lowcolor, int highcolor, int curcolor)
 {
     int  i;
     char tmpbuf[mybufsize];
@@ -598,11 +595,8 @@ int  curcolor;
     strcpy(colbuf,tmpbuf);
 }
 
-void fix_color(colbuf,lowcolor,highcolor,curcolor)
-char *colbuf;
-int  lowcolor;
-int  highcolor;
-int  curcolor;
+void 
+fix_color (char *colbuf, int lowcolor, int highcolor, int curcolor)
 {
     int  i;
     char tmpbuf[mybufsize];
@@ -626,8 +620,8 @@ int  curcolor;
     strcpy(colbuf,tmpbuf);
 }
 
-void inc_dec_color(key)
-char key;
+void 
+inc_dec_color (int key)
 {
     char colstr[256];
     char newstr[256];
@@ -691,7 +685,8 @@ char key;
     }
 }
 
-void edit_color()
+void 
+edit_color (void)
 {
     int  i;
     char *dest;
@@ -764,7 +759,8 @@ void edit_color()
     print_colors();
 }
 
-void do_it() {
+void 
+do_it (void) {
     int  i;
     int  disp=3;
     char key;
@@ -960,7 +956,8 @@ void do_it() {
     }
 }
 
-void print_colors() {
+void 
+print_colors (void) {
     int i;
 
     attrset(COLWHITE);
@@ -989,7 +986,8 @@ void print_colors() {
     }
 }
 
-void init_sz_colors() {
+void 
+init_sz_colors (void) {
     int i;
 
     for (i=0;i<NUMCMDCOLORS;i++) {
@@ -1298,7 +1296,8 @@ void init_sz_colors() {
     strcpy(CmdsColors[COLMISC].color5,"BOLD,BLUE");
 }
 
-void disp_warning() {
+void 
+disp_warning (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Error");
@@ -1317,11 +1316,8 @@ void disp_warning() {
     printf("line 7");
 }
 
-void print_userhost(color,user,host,parens)
-char *color;
-char *user;
-char *host;
-int  parens;
+void 
+print_userhost (char *color, char *user, char *host, int parens)
 {
     char buf1[256];
     char buf2[256];
@@ -1347,7 +1343,8 @@ int  parens;
     }
 }
 
-void disp_join() {
+void 
+disp_join (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Beavis ");
@@ -1384,7 +1381,8 @@ void disp_join() {
     printf(" is for shitted users");
 }
 
-void disp_msg() {
+void 
+disp_msg (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     colorset(COLOR5);
     printf("[");
@@ -1427,7 +1425,8 @@ void disp_msg() {
     printf(")");
 }
 
-void disp_notice() {
+void 
+disp_notice (void) {
     colorset(COLOR4);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("<");
@@ -1458,7 +1457,8 @@ void disp_notice() {
     printf("I am the great Cornholio");
 }
 
-void disp_netsplit() {
+void 
+disp_netsplit (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Netsplit detected");
@@ -1558,7 +1558,8 @@ void disp_netsplit() {
     printf("Butt-head");
 }
 
-void disp_invite() {
+void 
+disp_invite (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Bat ");
@@ -1585,7 +1586,8 @@ void disp_invite() {
     printf("fake");
 }
 
-void disp_mode() {
+void 
+disp_mode (void) {
     colorset(COLOR5);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Mode change");
@@ -1641,7 +1643,8 @@ void disp_mode() {
     printf("irc.cool");
 }
 
-void disp_setting() {
+void 
+disp_setting (void) {
     attrset(COLWHITE);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Found ");
@@ -1758,7 +1761,8 @@ void disp_setting() {
     printf("#butt*");
 }
 
-void disp_help() {
+void 
+disp_help (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     attrset(COLWHITE);
     printf("Help for command ");
@@ -1789,7 +1793,8 @@ void disp_help() {
     printf("URLCATCH");
 }
 
-void disp_leave() {
+void 
+disp_leave (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Beavis");
@@ -1831,7 +1836,8 @@ void disp_leave() {
     printf(" is for shitted people");
 }
 
-void disp_notify() {
+void 
+disp_notify (void) {
     attrset(COLWHITE);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Sign");
@@ -1905,7 +1911,8 @@ void disp_notify() {
     printf(" is for normal users");
 }
 
-void disp_ctcp() {
+void 
+disp_ctcp (void) {
     colorset(COLOR4);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("CTCP PING");
@@ -1929,7 +1936,8 @@ void disp_ctcp() {
     printf("#butt");
 }
 
-void disp_kick() {
+void 
+disp_kick (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("You");
@@ -1958,7 +1966,8 @@ void disp_kick() {
     printf(" is for friends");
 }
 
-void disp_dcc() {
+void 
+disp_dcc (void) {
     colorset(COLOR5);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("DCC");
@@ -2008,7 +2017,8 @@ void disp_dcc() {
     printf(" fake DCC handshake detected");
 }
 
-void disp_who() {
+void 
+disp_who (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     colorset(COLOR3);
     printf("#butt");
@@ -2051,7 +2061,8 @@ void disp_who() {
     printf(")");
 }
 
-void disp_whois() {
+void 
+disp_whois (void) {
     colorset(COLOR1);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Beavis");
@@ -2134,7 +2145,8 @@ void disp_whois() {
     printf("163s (2 minutes)");
 }
 
-void disp_public() {
+void 
+disp_public (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     colorset(COLOR2);
     printf("<");
@@ -2174,7 +2186,8 @@ void disp_public() {
     printf("Let's burn something");
 }
 
-void disp_cdcc() {
+void 
+disp_cdcc (void) {
     colorset(COLOR4);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Cdcc");
@@ -2239,7 +2252,8 @@ void disp_cdcc() {
     printf("5");
 }
 
-void disp_links() {
+void 
+disp_links (void) {
     colorset(COLOR5);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf(".");
@@ -2370,7 +2384,8 @@ void disp_links() {
     printf("`----' `--------------' `----'   `--------------'");
 }
 
-void disp_dccchat() {
+void 
+disp_dccchat (void) {
     colorset(COLOR4);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("[");
@@ -2399,7 +2414,8 @@ void disp_dccchat() {
     printf("No pain no gain");
 }
 
-void disp_cscan() {
+void 
+disp_cscan (void) {
     attrset(COLWHITE);
     move(YSCRCOLORS+8,XSCRCOLORS);
     printf("Users on ");
@@ -2433,7 +2449,8 @@ void disp_cscan() {
     printf("This is for people from shit list");
 }
 
-void disp_nick() {
+void 
+disp_nick (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     colorset(COLOR1);
     printf("Butt-head");
@@ -2458,7 +2475,8 @@ void disp_nick() {
     printf("Beavis");
 }
 
-void disp_me() {
+void 
+disp_me (void) {
     move(YSCRCOLORS+8,XSCRCOLORS);
     colorset(COLOR1);
     printf("*");
@@ -2491,7 +2509,8 @@ void disp_me() {
     printf("has lots of chicks");
 }
 
-void disp_misc() {
+void 
+disp_misc (void) {
     char mybuf[mybufsize];
 
     /* print_userhost() and functions it calls modify the buffer so */

@@ -47,6 +47,7 @@
 #include "trace.h"
 
 extern void StripAnsi _((char *, char *, int));
+extern void Trace(long area, char *format, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6, char *arg7, char *arg8, char *arg9, char *arg10);
 /****************************************************************************/
 
 static	void	remove_from_lastlog _((Window *));
@@ -80,9 +81,8 @@ static	char	*levels[] =
  * bits_to_lastlog_level: converts the bitmap of lastlog levels into a nice
  * string format.
  */
-char	*
-bits_to_lastlog_level(level)
-	int	level;
+char *
+bits_to_lastlog_level (int level)
 {
 	static	u_char	lbuf[128]; /* this *should* be enough for this */
 	int	i,
@@ -107,9 +107,8 @@ bits_to_lastlog_level(level)
  	return (lbuf);
 }
 
-int
-parse_lastlog_level(str)
-	char	*str;
+int 
+parse_lastlog_level (char *str)
 {
 	char	*ptr,
 		*rest,
@@ -188,9 +187,8 @@ parse_lastlog_level(str)
  * parses the settings and sets the lastlog_level variable appropriately.  It
  * also rewrites the LASTLOG_LEVEL variable to make it look nice 
  */
-void
-set_lastlog_level(str)
-	char	*str;
+void 
+set_lastlog_level (char *str)
 {
 	lastlog_level = parse_lastlog_level(str);
 	set_string_var(LASTLOG_LEVEL_VAR, bits_to_lastlog_level(lastlog_level));
@@ -224,9 +222,8 @@ remove_from_lastlog(window)
  * has gotten larger than it was before, all previous lastlog entry remain.
  * If it get smaller, some are deleted from the end. 
  */
-void
-set_lastlog_size(size)
-	int	size;
+void 
+set_lastlog_size (int size)
 {
 	int	i,
 		diff;
@@ -249,11 +246,8 @@ set_lastlog_size(size)
  * by StElb <stlb@cs.tu-berlin.de>
  */
 /*ARGSUSED*/
-void
-lastlog(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+lastlog (char *command, char *args, char *subargs)
 {
 	int	cnt,
 		from = 0,
@@ -613,9 +607,8 @@ out:
 }
 
 /* set_lastlog_msg_level: sets the message level for recording in the lastlog */
-int
-set_lastlog_msg_level(level)
-	int	level;
+int 
+set_lastlog_msg_level (int level)
 {
 	int	old;
 
@@ -651,7 +644,7 @@ add_to_lastlog(window, line)
 			new->msg = (char *) 0;
 			malloc_strcpy(&(new->msg), line);
                         Trace(SZ_TRACE_LASTLOG, "add lastlog to window %d: %p %s",
-                              window->refnum, new, line);
+                              (char *)window->refnum, (char *)new, (char *)line, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 			if (window->lastlog_head)
 				window->lastlog_head->prev = new;
@@ -663,8 +656,8 @@ add_to_lastlog(window, line)
 			if (window->lastlog_size++ == get_int_var(LASTLOG_VAR))
 				remove_from_lastlog(window);
                         Trace(SZ_TRACE_LASTLOG, "lastlog size %d, head %p, tail %p",
-                              window->lastlog_size, window->lastlog_head,
-                              window->lastlog_tail);
+                              (char *)window->lastlog_size, (char *)window->lastlog_head,
+                              (char *)window->lastlog_tail, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 		}
 	}
 }
@@ -676,21 +669,20 @@ islogged(window)
 	return (window->lastlog_level & msg_level) ? 1 : 0;
 }
 
-int
-real_notify_level()
+int 
+real_notify_level (void)
 {
 	return (notify_level);
 }
 
-int
-real_lastlog_level()
+int 
+real_lastlog_level (void)
 {
 	return (lastlog_level);
 }
 
-void
-set_notify_level(str)
-	char	*str;
+void 
+set_notify_level (char *str)
 {
 	notify_level = parse_lastlog_level(str);
 	set_string_var(NOTIFY_LEVEL_VAR, bits_to_lastlog_level(notify_level));

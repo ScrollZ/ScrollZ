@@ -80,10 +80,8 @@ static	void	parse_server_notice _((char *, char *, char *));
  * and send that info to parse_note() 
  */
 #ifndef LITE
-static	void
-parse_note(server, line)
-	char	*server;
-	char	*line;
+static void 
+parse_note (char *server, char *line)
 {
 	char	*date,
 		*nick,
@@ -125,11 +123,8 @@ parse_note(server, line)
 }
 #endif
 
-static	void
-parse_server_notice(from, to, line)
-	char	*from,
- 		*to,
-		*line;
+static void 
+parse_server_notice (char *from, char *to, char *line)
 {
 	char	server[81],
 		version[21];
@@ -244,9 +239,7 @@ parse_server_notice(from, to, line)
 }
 
 void 
-parse_notice(from, Args)
-	char 	*from;
-	char 	**Args;
+parse_notice (char *from, char **Args)
 {
 	int	level,
 		type;
@@ -392,8 +385,8 @@ out:
 /*
  * load the initial .ircrc
  */
-void
-load_ircrc()
+void 
+load_ircrc (void)
 {
 	static	int done = 0;
 
@@ -415,8 +408,8 @@ load_ircrc()
 /*
  * load the initial .ircquick
  */
-void
-load_ircquick()
+void 
+load_ircquick (void)
 {
 	static	int done = 0;
 
@@ -439,9 +432,8 @@ load_ircquick()
  * beyond.  I guess its handled rather badly at the moment....
  * added by phone, late 1992.
  */
-void
-got_initial_version(line)
-	char	*line;
+void 
+got_initial_version (char *line)
 {
  	char	server[256],
 		version[256];
@@ -560,8 +552,8 @@ got_initial_version(line)
 		get_server_port(parsing_server_index));
 }
 
-void
-maybe_load_ircrc()
+void 
+maybe_load_ircrc (void)
 {
 	if (never_connected)
 	{

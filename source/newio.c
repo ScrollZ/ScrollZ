@@ -175,8 +175,8 @@ dgets_timeout(sec)
 	return old_timeout;
 }
 
-static	void
-init_io()
+static void 
+init_io (void)
 {
 	static	int	first = 1;
 
@@ -196,12 +196,8 @@ init_io()
  * pointers.  Returns the number of character read in.  Returns 0 on EOF and
  * -1 on a timeout (see dgets_timeout()) 
  */
-int
-dgets(str, len, des, specials)
-	char	*str;
-	int	len;
-	int	des;
-	char	*specials;
+int 
+dgets (char *str, int len, int des, char *specials)
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -534,9 +530,8 @@ new_select(rd, wd, time_out)
 }
 
 /* new_close: works just like close */
-void
-new_close(des)
-	int	des;
+void 
+new_close (int des)
 {
 	if (des < 0)
 		return;
@@ -549,9 +544,8 @@ new_close(des)
 }
 
 /* set's socket options */
-extern	void
-set_socket_options(s)
-	int	s;
+extern void 
+set_socket_options (int s)
 {
 #if defined(ESIX)
 	mark_socket(s);

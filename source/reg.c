@@ -165,19 +165,16 @@ _wild_match(mask, string)
 }
 
 #if 0
-int
-match(pattern, string)
-	char	*pattern, *string;
+int 
+match (char *pattern, char *string)
 {
 /* -1 on false >= 0 on true */
   return ((_wild_match(pattern, string)>=0)?1:0);
 }
 #endif
 
-int
-wild_match(pattern, str)
-	char	*pattern,
-		*str;
+int 
+wild_match (char *pattern, char *str)
 {
 	/* assuming a -1 return of false */
 	return _wild_match((u_char *) pattern, (u_char *) str) + 1;

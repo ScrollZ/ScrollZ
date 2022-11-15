@@ -26,6 +26,7 @@
 #define ZeroMemory(x,y) memset(&x, 0, y);
 
 extern char *OpenCreateFile(char *, int);
+extern void initb64(void);
 
 static const char prime1080[135] = 
 {

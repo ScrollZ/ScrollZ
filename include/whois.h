@@ -44,7 +44,8 @@
 #endif /* HAVE_STDARG_H */
 	void	add_ison_to_whois _((char *, void (*) (WhoisStuff *, char *, char *)));
 /**************************** PATCHED by Flier ******************************/
-        void	add_userhost_to_whois _((char *, void (*) (WhoisStuff *, char *, char *)));
+        /* void	add_userhost_to_whois _((char *, void (*) (WhoisStuff *, char *, char *))); */
+void add_userhost_to_whois (char *nick, void (*func)(void));
 /****************************************************************************/
         void	whois_name _((char *, char **));
 	void	whowas_name _((char *, char **));

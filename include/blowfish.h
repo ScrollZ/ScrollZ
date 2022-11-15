@@ -12,7 +12,7 @@ static void BlowfishEncipher _((unsigned int *, unsigned int *));
 static void BlowfishDecipher _((unsigned int *, unsigned int *));
 static void BlowfishInit _((char *, int, int));
 int EncryptString _((char *, char *, char *, int, int, int));
-int  Base64Decode _((char));
+int  Base64Decode _((int));
 int DecryptString _((char *, char *, char *, int, int));
 
 #endif /* _blowfish_h_ */

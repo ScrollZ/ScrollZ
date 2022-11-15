@@ -112,8 +112,7 @@ static  void    SetURLBufferSize _((int));
 extern  void    RedrawAll _((void));
 extern  void    UpdateFloodUsers _((void));
 extern  void    SetTrace _((char *));
-extern  void    SetNotificationLevel _((char *));
-
+extern  void    SetNotificationLevel (char *command, char *args, char *subargs);
 extern  int     DCCLowPort;
 extern  int     DCCHighPort;
 extern	char	*CelerityNtfy;
@@ -382,8 +381,8 @@ IrcVariable irc_variable[] =
  * init_variables: initializes the string variables that can't really be
  * initialized properly above 
  */
-void
-init_variables()
+void 
+init_variables (void)
 {
 /**************************** PATCHED by Flier ******************************/
         int old_disp;
@@ -518,10 +517,8 @@ check_variable_order(void)
  * set to that number, and it returns the first match.  Index will contain
  * the index into the array of the first found entry 
  */
-static	int
-find_variable(org_name, cnt)
-	char	*org_name;
-	int	*cnt;
+static int 
+find_variable (char *org_name, int *cnt)
 {
 	IrcVariable *v,
 		    *first;
@@ -571,10 +568,8 @@ find_variable(org_name, cnt)
  * do_boolean: just a handy thing.  Returns 1 if the str is not ON, OFF, or
  * TOGGLE 
  */
-int
-do_boolean(str, value)
-	char	*str;
-	int	*value;
+int 
+do_boolean (char *str, int *value)
 {
 	upper(str);
 	if (strcmp(str, var_settings[ON]) == 0)
@@ -599,10 +594,8 @@ do_boolean(str, value)
  * of manors.  It displays the results of the set and executes the function
  * defined in the var structure 
  */
-void
-set_var_value(var_index, value)
-	int	var_index;
-	char	*value;
+void 
+set_var_value (int var_index, char *value)
 {
 	char	*rest;
 	IrcVariable *var;
@@ -760,11 +753,8 @@ set_var_value(var_index, value)
  * partial, but non-ambbiguous, and setting depends on the variable being set 
  */
 /*ARGSUSED*/
-void
-set_variable(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+set_variable (char *command, char *args, char *subargs)
 {
 	char	*var;
 	int     cnt,
@@ -804,9 +794,8 @@ set_variable(command, args, subargs)
  * get_string_var: returns the value of the string variable given as an index
  * into the variable table.  Does no checking of variable types, etc 
  */
-char	*
-get_string_var(var)
-	int	var;
+char *
+get_string_var (int var)
 {
 	return (irc_variable[var].string);
 }
@@ -815,9 +804,8 @@ get_string_var(var)
  * get_int_var: returns the value of the integer string given as an index
  * into the variable table.  Does no checking of variable types, etc 
  */
-int
-get_int_var(var)
-	int	var;
+int 
+get_int_var (int var)
 {
 	return (irc_variable[var].integer);
 }
@@ -827,10 +815,8 @@ get_int_var(var)
  * variable table to the given string.  If string is null, the current value
  * of the string variable is freed and set to null 
  */
-void
-set_string_var(var, string)
-	int	var;
-	char	*string;
+void 
+set_string_var (int var, char *string)
 {
 	if (string)
 		malloc_strcpy(&(irc_variable[var].string), string);
@@ -842,10 +828,8 @@ set_string_var(var, string)
  * set_int_var: sets the integer value of the variable given as an index into
  * the variable table to the given value 
  */
-void
-set_int_var(var, value)
-	int	var;
-	unsigned int	value;
+void 
+set_int_var (int var, unsigned int value)
 {
 #ifndef LITE
 	if (var == NOVICE_VAR && !load_depth && !value)
@@ -905,9 +889,8 @@ save_variables(fp, do_all)
 	}
 }
 
-char	*
-make_string_var(var_name)
-	char	*var_name;
+char *
+make_string_var (char *var_name)
 {
 	int	cnt,
 		var_index;
@@ -945,9 +928,8 @@ out:
 }
 
 /* exec_warning: a warning message displayed whenever EXEC_PROTECTION is turned off.  */
-static	void
-exec_warning(value)
-	int	value;
+static void 
+exec_warning (int value)
 {
 #ifndef LITE
 	if (value == OFF)
@@ -958,9 +940,8 @@ exec_warning(value)
 #endif
 }
 
-static	void
-input_warning(value)
-	int	value;
+static void 
+input_warning (int value)
 {
 #ifndef LITE
 	if (value == OFF)
@@ -972,24 +953,22 @@ input_warning(value)
 }
 
 /* returns the size of the character set */
-int
-charset_size()
+int 
+charset_size (void)
 {
 	return get_int_var(EIGHT_BIT_CHARACTERS_VAR) ? 256 : 128;
 }
 
-static	void
-eight_bit_characters(value)
-	int	value;
+static void 
+eight_bit_characters (int value)
 {
 	if (value == ON && !term_eight_bit())
 		say("Warning!  Your terminal says it does not support eight bit characters");
 	set_term_eight_bit(value);
 }
 
-static	void
-set_realname(value)
-	char	*value;
+static void 
+set_realname (char *value)
 {
 
         if (value)
@@ -999,38 +978,38 @@ set_realname(value)
 }
 
 /**************************** PATCHED by Flier ******************************/
-static void SetScrollZstr(value)
-char *value;
+static void 
+SetScrollZstr (char *value)
 {
     if (value && *value) malloc_strcpy(&ScrollZstr,value);
     else malloc_strcpy(&ScrollZstr,empty_string);
 }
 
-static void SetMaxModes(value)
-int value;
+static void 
+SetMaxModes (int value)
 {
     if (value>6) value=6;
     if (value<1) value=1;
     set_int_var(MAX_MODES_VAR,value);
 }
 
-static void SetMaxWallopNicks(value)
-int value;
+static void 
+SetMaxWallopNicks (int value)
 {
     if (value>70) value=70;
     if (value<1) value=1;
     set_int_var(MAX_WALLOP_NICKS_VAR,value);
 }
 
-static void SetDCCBlockSize(value)
-int value;
+static void 
+SetDCCBlockSize (int value)
 {
     if (value>BIG_BUFFER_SIZE || value<16 || (value%2)) value=1024;
     set_int_var(DCC_BLOCK_SIZE_VAR,value);
 }
 
-static void SetDCCHost(value)
-char *value;
+static void 
+SetDCCHost (char *value)
 {
     if (value && *value) {
         struct in_addr inp;
@@ -1045,8 +1024,8 @@ char *value;
     }
 }
 
-static void SetDCCPorts(value)
-char *value;
+static void 
+SetDCCPorts (char *value)
 {
     char *tmpstr;
     char tmpbuf[mybufsize/4+1];
@@ -1069,22 +1048,23 @@ char *value;
     }
 }
 
-void CleanUpVars() {
+void 
+CleanUpVars (void) {
     int i;
 
     for (i=0;irc_variable[i].name;i++)
         if (irc_variable[i].type==STR_TYPE_VAR) new_free(&(irc_variable[i].string));
 }
 
-static void Cnotifystring(value)
-char *value;
+static void 
+Cnotifystring (char *value)
 {
     if (value && *value) malloc_strcpy(&CelerityNtfy,value);
     else malloc_strcpy(&CelerityNtfy,empty_string);
 }
 
-static void SetAwayFile(file)
-char *file;
+static void 
+SetAwayFile (char *file)
 {
     char *ptr;
 
@@ -1100,8 +1080,8 @@ char *file;
     else set_string_var(AWAY_FILE_VAR,DEFAULT_AWAY_FILE);
 }
 
-void SetStampFormat(tsformat)
-char *tsformat;
+void 
+SetStampFormat (char *tsformat)
 {
     int flag = 0;
     char *format = get_string_var(STAMP_FORMAT);
@@ -1127,8 +1107,8 @@ char *tsformat;
 #endif /* HAVE_STRFTIME */
 }
 
-static void SetStatusLines(value)
-int value;
+static void 
+SetStatusLines (int value)
 {
     if (value > 3) value = 3;
     if (value < 1) value = 1;
@@ -1136,15 +1116,15 @@ int value;
     StatusLines = value - 1;
 }
 
-static void SetUsername(new_username)
-char *new_username;
+static void 
+SetUsername (char *new_username)
 {
     if (new_username) strmcpy(username, new_username, NAME_LEN);
     else strmcpy(username, empty_string, NAME_LEN);
 }
 
-void SetSSLPriority(priority)
-char *priority;
+void 
+SetSSLPriority (char *priority)
 {
 #if defined(HAVE_SSL)
     const char *errpos;
@@ -1169,8 +1149,8 @@ char *priority;
 #endif
 }
 
-void SetSSLCAFile(filepath)
-char *filepath;
+void 
+SetSSLCAFile (char *filepath)
 {
 #if defined(HAVE_SSL) || defined(HAVE_OPENSSL)
     FILE *fpx;
@@ -1188,8 +1168,8 @@ char *filepath;
 #endif
 }
 
-static void SetURLBufferSize(value)
-int value;
+static void 
+SetURLBufferSize (int value)
 {
     struct urlstr *tmpurl;
 

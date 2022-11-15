@@ -137,11 +137,8 @@ get_digraph(ic1)
  * This routine is *NOT* finished yet.
  */
 
-void
-digraph(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+digraph (char *command, char *args, char *subargs)
 {
 	char	*arg;
 	char	c1,
@@ -286,9 +283,8 @@ digraph(command, args, subargs)
 	}
 }
 
-static	char
-my_getarg(args)
-	char	**args;
+static char 
+my_getarg (char **args)
 {
 	char *arg;
 

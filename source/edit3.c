@@ -99,12 +99,11 @@ extern void dcc_close _((char *));
 
 extern char *ScrollZver1;
 extern char *CelerityNtfy;
+extern int  DecryptString _((char *, char *, char *, int, int));
 
 /* Removes key for channel */
-void ClearKey(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ClearKey (char *command, char *args, char *subargs)
 {
     char *curmode;
     char *tmpmode;
@@ -141,10 +140,8 @@ char *subargs;
 }
 
 /* Prints out ScrollZ logo :) */
-void Logo(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Logo (char *command, char *args, char *subargs)
 {
     put_it("");
     put_it("");
@@ -175,9 +172,8 @@ char *subargs;
 }
 
 /* Saves message into ScrollZ.save file */
-void AwaySave(message,type)
-char *message;
-int  type;
+void 
+AwaySave (char *message, int type)
 {
     int  oldumask;
     char *filepath;
@@ -259,8 +255,8 @@ char *userhost;
 #endif
 
 /* Returns user@domain useful for list */
-void UserDomainList(userhost)
-char *userhost;
+void 
+UserDomainList (char *userhost)
 {
     int  isip=2;
     int  count=0;
@@ -297,10 +293,8 @@ char *userhost;
 }
 
 /* Toggles nethack protection on/off */
-void NHProtToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NHProtToggle (char *command, char *args, char *subargs)
 {
     int  i;
     int  oldnh;
@@ -402,10 +396,8 @@ char *subargs;
 }
 
 /* Prints out some channel statistics */
-void ChanStat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ChanStat (char *command, char *args, char *subargs)
 {
     int  bancount=0;
     int  users=0;
@@ -467,10 +459,8 @@ char *subargs;
 
 /* Does the ls command */
 #ifndef LITE
-void Ls(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Ls (char *command, char *args, char *subargs)
 {
     char tmpbuf[mybufsize/2+1];
 
@@ -481,10 +471,8 @@ char *subargs;
 #endif
 
 /* Does /DCC CHAT nick */
-void Chat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Chat (char *command, char *args, char *subargs)
 {
     if (args && *args) dcc_chat(new_next_arg(args,&args));
     else if (LastChat) dcc_chat(LastChat);
@@ -492,10 +480,8 @@ char *subargs;
 }
 
 /* Does /DCC CLOSE CHAT nick */
-void NoChat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NoChat (char *command, char *args, char *subargs)
 {
     char *who;
     char tmpbuf[mybufsize/4];
@@ -512,10 +498,8 @@ char *subargs;
 
 /* Launches finger on nick */
 #ifndef LITE
-void Finger(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Finger (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     char *tmpstr;
@@ -571,8 +555,8 @@ char *tmpnick;
 #endif /* LITE */
 
 /* Checks for fake netsplit */
-int Check4Fake(splitserver)
-char *splitserver;
+int 
+Check4Fake (char *splitserver)
 {
     char *tmpstr;
     int  length;
@@ -603,10 +587,8 @@ char *splitserver;
 }
 
 /* Sets your user mode */
-void UserMode(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+UserMode (char *command, char *args, char *subargs)
 {
     char *line=new_next_arg(args,&args);
     char *opt=new_next_arg(args,&args);
@@ -617,10 +599,8 @@ char *subargs;
 }
 
 /* Sets auto join on invite toggle */
-void AutoJoinOnInvToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AutoJoinOnInvToggle (char *command, char *args, char *subargs)
 {
     char *tmpstr=(char *) 0;
     char *tmpchan=(char *) 0;
@@ -652,10 +632,8 @@ char *subargs;
 
 /* Prints all ScrollZ related settings */
 #ifndef LITE
-void Settings(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Settings (char *command, char *args, char *subargs)
 {
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
@@ -1109,10 +1087,8 @@ char *subargs;
 #endif
 
 /* Sets flood protection toggle */
-void FloodProtToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+FloodProtToggle (char *command, char *args, char *subargs)
 {
     char *tmparg;
     char *tmpmsgs;
@@ -1148,9 +1124,8 @@ char *subargs;
 }
 
 /* Checks if channel is on your friend's channels list */
-int CheckChannel(channels,chanlist)
-char *channels;
-char *chanlist;
+int 
+CheckChannel (char *channels, char *chanlist)
 {
     int found=0;
     int minus=0;
@@ -1197,9 +1172,8 @@ char *chanlist;
 }
 
 /* Same as above except that channels is used for matching and chanlist is not */
-int CheckChannel2(channels,chanlist)
-char *channels;
-char *chanlist;
+int 
+CheckChannel2 (char *channels, char *chanlist)
 {
     int found=0;
     int minus=0;
@@ -1247,10 +1221,8 @@ char *chanlist;
 
 #ifdef EXTRA_STUFF
 /* Codes an array */
-void CodeIt(file,tmp,length)
-int file;
-char *tmp;
-int length;
+void 
+CodeIt (int file, char *tmp, int length)
 {
     int count=0,code=0,what;
     char *tmpstr,c;
@@ -1271,8 +1243,8 @@ int length;
 }
 
 /* Fixes filename */
-void FixName(newname)
-char *newname;
+void 
+FixName (char *newname)
 {
     char c;
     char tmpbuf[mybufsize/4];
@@ -1293,10 +1265,8 @@ char *newname;
 #endif
 
 /* Like /NET in PhoEniX.irc */
-void Net(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Net (char *command, char *args, char *subargs)
 {
     int  servid;
     static int firsttime=1;
@@ -1347,10 +1317,8 @@ char *buffer;
 }
 
 /* Scans string and returns one argument */
-void NextArg(arg,pointer,retstr)
-char *arg;
-char **pointer;
-char *retstr;
+void 
+NextArg (char *arg, char **pointer, char *retstr)
 {
     char *newstr;
 
@@ -1366,10 +1334,8 @@ char *retstr;
 }
 
 /* Prints error in ScrollZ.save */
-void PrintError(string1,string2,lineno)
-char *string1;
-char *string2;
-int  lineno;
+void 
+PrintError (char *string1, char *string2, int lineno)
 {
 #ifdef WANTANSI
     say("%sError%s in ScrollZ.save: %s%s%s %s, %sline %d%s",
@@ -1382,12 +1348,8 @@ int  lineno;
 }
 
 /* Sets on/off values from ScrollZ.save */
-void OnOffSet(pointer,variable,loaderror,lineno,command)
-char **pointer;
-int  *variable;
-int  *loaderror;
-int  lineno;
-char *command;
+void 
+OnOffSet (char **pointer, int *variable, int *loaderror, int lineno, char *command)
 {
     char tmpbuf[mybufsize/4];
 
@@ -1414,12 +1376,8 @@ char *command;
 }
 
 /* Sets number values from ScrollZ.save */
-void NumberSet(pointer,variable,loaderror,lineno,command)
-char **pointer;
-int  *variable;
-int  *loaderror;
-int  lineno;
-char *command;
+void 
+NumberSet (char **pointer, int *variable, int *loaderror, int lineno, char *command)
 {
     int number=0;
     char tmpbuf[mybufsize/4];
@@ -1435,13 +1393,8 @@ char *command;
 }
 
 /* Sets dir values from ScrollZ.save */
-void DirSet(pointer,variable,loaderror,lineno,message,command)
-char **pointer;
-char **variable;
-int  *loaderror;
-int  lineno;
-char *message;
-char *command;
+void 
+DirSet (char **pointer, char **variable, int *loaderror, int lineno, char *message, char *command)
 {
     char tmpbuf[mybufsize/4];
 
@@ -1456,12 +1409,8 @@ char *command;
 }
 
 /* Sets string values from ScrollZ.save */
-void StringSet(pointer,variable,loaderror,lineno,command)
-char *pointer;
-char **variable;
-int  *loaderror;
-int  lineno;
-char *command;
+void 
+StringSet (char *pointer, char **variable, int *loaderror, int lineno, char *command)
 {
     char tmpbuf[mybufsize/4];
 
@@ -1475,14 +1424,8 @@ char *command;
 }
 
 /* Sets on channels/off values from ScrollZ.save */
-void ChannelsSet(pointer,variable,strvar,loaderror,lineno,command,message)
-char **pointer;
-int  *variable;
-char **strvar;
-int  *loaderror;
-int  lineno;
-char *command;
-char *message;
+void 
+ChannelsSet (char **pointer, int *variable, char **strvar, int *loaderror, int lineno, char *command, char *message)
 {
     char tmpbuf[mybufsize/4];
 
@@ -1525,7 +1468,8 @@ char *message;
 }
 
 /* Loads ScrollZ.save file */
-void ScrollZLoad()
+void 
+ScrollZLoad (void)
 {
     int  lineno;
     int  number;
@@ -2297,17 +2241,16 @@ void ScrollZLoad()
 }
 
 /* Lets you change your AutoReply Buffer - by Zakath */
-void ReplyWord(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ReplyWord (char *command, char *args, char *subargs)
 {
     if (args && *args) malloc_strcpy(&AutoReplyBuffer,new_next_arg(args,&args));
     PrintSetting("AutoReply Buffer",AutoReplyBuffer,empty_string,empty_string);
 }
 
 /* Clean friends list, shit list and word-kick list */
-void CleanUpLists() {
+void 
+CleanUpLists (void) {
     struct words *tmpword;
     struct friends *tmpfriend;
     struct autobankicks *tmpabk;
@@ -2341,10 +2284,8 @@ void CleanUpLists() {
 }
 
 /* Resets your friends and auto (ban) kicks list and reloads ScrollZ.save */
-void Reset(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Reset (char *command, char *args, char *subargs)
 {
     int i;
     char tmpbuf[mybufsize/4];
@@ -2434,7 +2375,8 @@ char *subargs;
 }
 
 /* Initializes ScrollZ related variables */
-void InitVars() {
+void 
+InitVars (void) {
     int  i;
     char *tmpstr1;
     char *tmpstr2;
@@ -2630,10 +2572,8 @@ void InitVars() {
 }
 
 #ifdef EXTRAS
-void LastMessageKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+LastMessageKick (char *command, char *args, char *subargs)
 {
     char *channel;
     char *tmpnick;
@@ -2668,10 +2608,8 @@ char *subargs;
     }
 }
 
-void RandomLamerKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RandomLamerKick (char *command, char *args, char *subargs)
 {
     char *channel;
     char *comment;

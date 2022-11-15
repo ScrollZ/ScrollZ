@@ -117,8 +117,8 @@ static unsigned int SBOX[NUMSBOX][256] = {
     }
 };
 
-unsigned int F(x)
-unsigned int x;
+unsigned int 
+F (unsigned int x)
 {
     unsigned int a, b, c, d, y;
 
@@ -135,9 +135,8 @@ unsigned int x;
     return(y);
 }
 
-void BlowfishDecipher(xl, xr)
-unsigned int *xl;
-unsigned int *xr;
+void 
+BlowfishDecipher (unsigned int *xl, unsigned int *xr)
 {
     int i;
     unsigned int Xl, Xr, temp;
@@ -160,9 +159,8 @@ unsigned int *xr;
     *xr = Xr;
 }
 
-void BlowfishEncipher(xl, xr)
-unsigned int *xl;
-unsigned int *xr;
+void 
+BlowfishEncipher (unsigned int *xl, unsigned int *xr)
 {
     int i;
     unsigned int Xl, Xr, temp;
@@ -185,9 +183,8 @@ unsigned int *xr;
     *xr = Xr;
 }
 
-void BlowfishInit(key, keybytes)
-char *key;
-int keybytes;
+void 
+BlowfishInit (char *key, int keybytes)
 {
     int i, j, k;
     unsigned int data, datal, datar;
@@ -220,8 +217,8 @@ int keybytes;
     }
 }
 
-int Base64Decode(c)
-char c;
+int 
+Base64Decode (int c)
 {
     int i;
 
@@ -229,10 +226,8 @@ char c;
     return(0);
 }
 
-void DecryptString(dest, src, key)
-char *dest;
-char *src;
-char *key;
+void 
+DecryptString (char *dest, char *src, char *key)
 {
     int i;
     unsigned int l, r;
@@ -253,10 +248,8 @@ char *key;
     *d = 0;
 }
 
-void EncryptString(dest, src, key)
-char *dest;
-char *src;
-char *key;
+void 
+EncryptString (char *dest, char *src, char *key)
 {
     int i;
     unsigned int l, r;
@@ -291,9 +284,8 @@ char *key;
     *d = 0;
 }
 
-int main(argc, argv)
-int argc;
-char **argv;
+int 
+main (int argc, char **argv)
 {
     char tmpbuf[2048];
     char decbuf[2048];

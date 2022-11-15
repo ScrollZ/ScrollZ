@@ -73,11 +73,8 @@ static	void	display_all_queues _((Queue *));
 static	void	print_queue _((Queue *));
 static	int	num_entries _((Queue *));
 
-extern	void 
-queuecmd(cmd, args, subargs)
-	char	*cmd,
-		*args,
-		*subargs;
+extern void 
+queuecmd (char *cmd, char *args, char *subargs)
 {
 	Queue	*tmp;
 	char	*arg = (char *) 0,
@@ -193,10 +190,8 @@ queuecmd(cmd, args, subargs)
  * returns the queue BEFORE the queue we are looking for
  * returns the last queue if no match
  */
-static	Queue	*
-lookup_queue(queue, what)
-	Queue	*queue;
-	char	*what;
+static Queue *
+lookup_queue (Queue *queue, char *what)
 {
 	Queue	*tmp = queue;
 
@@ -216,9 +211,8 @@ lookup_queue(queue, what)
 }
 
 /* returns the last CmdList in a queue, useful for appending commands */
-static	CmdList	*
-walk_commands(queue)
-	Queue 	*queue;
+static CmdList *
+walk_commands (Queue *queue)
 {
 	CmdList	*ctmp;
 	
@@ -237,10 +231,8 @@ walk_commands(queue)
 
 /*----------------------------------------------------------------*/
 /* Make a new queue, link it in, and return it. */
-static	Queue	*
-make_new_queue(afterqueue, name)
-	Queue	*afterqueue;
-	char	*name;
+static Queue *
+make_new_queue (Queue *afterqueue, char *name)
 {
 	Queue	*tmp;
 
@@ -258,11 +250,8 @@ make_new_queue(afterqueue, name)
 	
 /* add a command to a queue, at the end of the list */
 /* expands the whole thing once and stores it */
-static	int
-add_commands_to_queue(queue, what, subargs)
-	Queue	*queue;
-	char	*what;
-	char	*subargs;
+static int 
+add_commands_to_queue (Queue *queue, char *what, char *subargs)
 {
 	CmdList *ctmp = walk_commands(queue);
 	char	*list = (char *) 0,
@@ -289,10 +278,8 @@ add_commands_to_queue(queue, what, subargs)
 
 
 /* remove the Xth command from the queue */
-static	int
-delete_commands_from_queue(queue, which)
-	Queue	*queue;
-	int	which;
+static int 
+delete_commands_from_queue (Queue *queue, int which)
 {
 	CmdList *ctmp = queue->first;
 	CmdList *blah;
@@ -323,9 +310,8 @@ delete_commands_from_queue(queue, which)
 
 /*-------------------------------------------------------------------*/
 /* flush a queue, deallocate the memory, and return the next in line */
-static	Queue	*
-remove_a_queue(queue)
-	Queue	*queue;
+static Queue *
+remove_a_queue (Queue *queue)
 {
 	Queue *tmp;
 
@@ -336,9 +322,8 @@ remove_a_queue(queue)
 }
 
 /* walk through a queue, deallocating the entries */
-static	void
-flush_queue(queue)
-	Queue	*queue;
+static void 
+flush_queue (Queue *queue)
 {
 	CmdList	*tmp,
 		*tmp2;
@@ -359,10 +344,8 @@ flush_queue(queue)
 /*------------------------------------------------------------------------*/
 /* run the queue, and if noflush, then return the queue, else return the
    next queue */
-static	Queue	*
-do_queue(queue, noflush)
-	Queue	*queue;
-	int	noflush;
+static Queue *
+do_queue (Queue *queue, int noflush)
 {
 	CmdList	*tmp;
 	
@@ -384,9 +367,8 @@ do_queue(queue, noflush)
 
 /* ---------------------------------------------------------------------- */
 /* output the contents of all the queues to the screen */
-static	void
-display_all_queues(queue)
-	Queue	*queue;
+static void 
+display_all_queues (Queue *queue)
 {
 	Queue *tmp;
 
@@ -406,9 +388,8 @@ display_all_queues(queue)
 }
 
 /* output the contents of a queue to the screen */
-static	void
-print_queue(queue)
-	Queue	*queue;
+static void 
+print_queue (Queue *queue)
 {
 	CmdList *tmp;
 	int 	x = 0;
@@ -424,9 +405,8 @@ print_queue(queue)
 }
 
 /* return the number of entries in a queue */
-static	int
-num_entries(queue)
-	Queue	*queue;
+static int 
+num_entries (Queue *queue)
 {
 	int x = 1;
 	CmdList *tmp;

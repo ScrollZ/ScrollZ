@@ -43,10 +43,8 @@ static int Cqstat=0; /* Status of QuickStat: 1=on, 0=off */
 /******************** Beginning of code section ********************/
 
 /* Change the status bar [/set STATUSBAR] */
-void Cstatusbar(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Cstatusbar (char *command, char *args, char *subargs)
 {
     int n=0;
     u_int old_display;
@@ -87,10 +85,8 @@ char *subargs;
     else say("Error: Invalid status bar number (1 - %d)",Cstatusnum);
 }
 
-void Cquickstat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Cquickstat (char *command, char *args, char *subargs)
 {
     char tmpbuf[mybufsize/16];
 

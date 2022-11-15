@@ -60,6 +60,9 @@ int	connect_to_unix _((int, char *));
 #include "newio.h"
 #include "vars.h"
 #include "hook.h"
+#ifdef HAVE_SSL
+#include <gnutls/x509.h>
+#endif
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -81,6 +84,7 @@ static	void	login_to_server _((int));
 static	int	connect_to_server_direct _((char *, int, char *, char *));
 static	int	connect_to_server_process _((char *, int, char *, char *));
 static	void	irc2_login_to_server _((int));
+extern void Trace(long area, char *format, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6, char *arg7, char *arg8, char *arg9, char *arg10);
 
 /*
  * Don't want to start ircio by default...
@@ -120,10 +124,8 @@ extern	int	dgets_errno;
  * validity of the index.  It also first sends a "QUIT" to the server being
  * closed
  */
-void
-close_server(server_index, message)
-	int	server_index;
-	char	*message;
+void 
+close_server (int server_index, char *message)
 {
 	char	buffer[BIG_BUFFER_SIZE+1];
 	int	i,
@@ -179,14 +181,14 @@ close_server(server_index, message)
                     say("You were connected to server %s for %dd %02dh %02dm",
                         get_server_name(i), timedays, timehours, timeminutes);
                     Trace(SZ_TRACE_CONNECT, "connection to server %s:%d closed",
-                          get_server_name(i), server_list[i].port);
+                          (char *)get_server_name(i), (char *)server_list[i].port, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                     TraceServerInfo(2, 1);
                     server_list[i].ConnectTime = 0;
                     ChannelLogReportAll("ended", server_list[i].chan_list);
                 }
                 else {
                     Trace(SZ_TRACE_CONNECT, "server %s:%d closed",
-                          get_server_name(i), server_list[i].port);
+                          (char *)get_server_name(i), (char *)server_list[i].port, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                     TraceServerInfo(2, 1);
                 }
 /****************************************************************************/
@@ -257,9 +259,8 @@ close_server(server_index, message)
  * which servers in the server list have currently active read descriptors.
  */
 
-void
-set_server_bits(rd, wd)
-	fd_set *rd, *wd;
+void 
+set_server_bits (fd_set *rd, fd_set *wd)
 {
 	int	i;
 
@@ -284,9 +285,8 @@ set_server_bits(rd, wd)
  * 2) If the server wasn't a primary server, connect_to_server() is called to
  * try to keep that connection alive.
  */
-void
-do_server(rd, wd)
-	fd_set	*rd, *wd;
+void 
+do_server (fd_set *rd, fd_set *wd)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	int	des, j;
@@ -488,11 +488,8 @@ real_continue:
  * names in the server list, returning the index into the list if found, or
  * -1 if not found
  */
-extern	int
-find_in_server_list(server, port, nick)
-	char	*server;
-	int	port;
-	char	*nick;
+extern int 
+find_in_server_list (char *server, int port, char *nick)
 {
 	int	i, maybe = -1;
 	size_t	len;
@@ -545,9 +542,8 @@ find_in_server_list(server, port, nick)
  * parse_server_index:  given a string, this checks if it's a number, and if
  * so checks it validity as a server index.  Otherwise -1 is returned
  */
-int
-parse_server_index(str)
-	char	*str;
+int 
+parse_server_index (char *str)
 {
 	int	i;
 
@@ -567,24 +563,18 @@ parse_server_index(str)
  * passes.  If the server is not on the list, it is added to the end. In
  * either case, the server is made the current server.
  */
-void
-add_to_server_list(server, port, password, nick, group, overwrite)
-	char	*server;
-	int	port;
-	char	*password;
-	char	*nick;
-	char	*group;
-	int	overwrite;
+void 
+add_to_server_list (char *server, int port, char *password, char *nick, char *group, int overwrite)
 {
 	int	i;
 
 /**************************** PATCHED by Flier ******************************/
-        Trace(SZ_TRACE_SERVER, "adding server %s:%d", FormatServerName(server), port);
+        Trace(SZ_TRACE_SERVER, "adding server %s:%d", (char *)FormatServerName(server), (char *)port, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceServerInfo(2, 0);
 /****************************************************************************/
 	if ((from_server = find_in_server_list(server, port, nick)) == -1)
 	{
-                Trace(SZ_TRACE_SERVER, "server not found");
+                Trace(SZ_TRACE_SERVER, "server not found", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 		from_server = number_of_servers++;
 		if (server_list)
 			server_list = (Server *) new_realloc((char *) server_list, number_of_servers * sizeof(Server));
@@ -682,7 +672,7 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 	}
 	else
 	{
-                Trace(SZ_TRACE_SERVER, "server found at %d", from_server);
+                Trace(SZ_TRACE_SERVER, "server found at %d", (char *)from_server, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 		if (overwrite)
 		{
 			server_list[from_server].port = port;
@@ -702,14 +692,13 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 			malloc_strcpy(&(server_list[from_server].name), server);
 	}
 /**************************** PATCHED by Flier ******************************/
-    Trace(SZ_TRACE_SERVER, "server added at %d", from_server);
+    Trace(SZ_TRACE_SERVER, "server added at %d", (char *)from_server, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     TraceServerInfo(2, 1);
 /****************************************************************************/
 }
 
-extern  void
-ctcp_reply_backlog_change(s)
-	int	s;
+extern void 
+ctcp_reply_backlog_change (int s)
 {
 	int	i, j, delta;
 
@@ -733,9 +722,8 @@ ctcp_reply_backlog_change(s)
 	}
 }
 
-extern	void
-remove_from_server_list(i)
-	int	i;
+extern void 
+remove_from_server_list (int i)
 {
 	int	old_server = from_server,
 		flag = 1;
@@ -751,7 +739,7 @@ remove_from_server_list(i)
 
 /**************************** PATCHED by Flier ******************************/
     Trace(SZ_TRACE_SERVER, "removing server %d) %s:%d",
-          i, get_server_name(i), server_list[i].port);
+          (char *)i, (char *)get_server_name(i), (char *)server_list[i].port, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     TraceServerInfo(2, 0);
 /****************************************************************************/
 
@@ -848,7 +836,7 @@ remove_from_server_list(i)
             new_free(&server_list);
             server_list = NULL;
         }
-    Trace(SZ_TRACE_SERVER, "removed server");
+    Trace(SZ_TRACE_SERVER, "removed server", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     TraceServerInfo(2, 0);
 /****************************************************************************/
 }
@@ -861,13 +849,8 @@ remove_from_server_list(i)
  * or password are missing or empty,  their respective returned value will
  * point to null.
  */
-void
-parse_server_info(name, port, password, nick, group)
-	char	**name,
-		**port,
-		**password,
-		**nick,
-		**group;
+void 
+parse_server_info (char **name, char **port, char **password, char **nick, char **group)
 {
 	char *ptr, *ename, *savename = (char *) 0;
 
@@ -945,9 +928,8 @@ parse_server_info(name, port, password, nick, group)
  * Note also that this routine mucks around with the server string passed to it,
  * so make sure this is ok .
  */
-void
-build_server_list(servers)
-	char	*servers;
+void 
+build_server_list (char *servers)
 {
 	char	*host,
 		*rest,
@@ -990,12 +972,8 @@ build_server_list(servers)
  *
  * This version of connect_to_server() connects directly to a server
  */
-static	int
-connect_to_server_direct(server_name, port, nick, group)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
+static int 
+connect_to_server_direct (char *server_name, int port, char *nick, char *group)
 {
 	int	new_des;
 #ifdef INET6
@@ -1104,12 +1082,8 @@ connect_to_server_direct(server_name, port, nick, group)
  * This version of connect_to_server() uses the ircio process to talk to a
  * server
  */
-static	int
-connect_to_server_process(server_name, port, nick, group)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
+static int 
+connect_to_server_process (char *server_name, int port, char *nick, char *group)
 {
 	int	write_des[2],
 		read_des[2],
@@ -1218,13 +1192,8 @@ connect_to_server_process(server_name, port, nick, group)
  * checked in the notice.c routines to make sure that connection was truely
  * successful (and not closed immediately by the server).
  */
-int
-connect_to_server(server_name, port, nick, group, c_server)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
-	int	c_server;
+int 
+connect_to_server (char *server_name, int port, char *nick, char *group, int c_server)
 {
 	int	server_index;
 #ifdef INET6
@@ -1264,7 +1233,7 @@ connect_to_server(server_name, port, nick, group, c_server)
          * Now client is confused about servers. */
         for (i = 0; i < number_of_servers; i++) {
             if ((server_list[i].flags) & CLEAR_PENDING) {
-                Trace(SZ_TRACE_CONNECT, "clear channels on server %d", i);
+                Trace(SZ_TRACE_CONNECT, "clear channels on server %d", (char *)i, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 clear_channel_list(i);
             }
             if ((server_list[i].flags) & CLOSE_PENDING) {
@@ -1297,7 +1266,7 @@ connect_to_server(server_name, port, nick, group, c_server)
 
 /**************************** PATCHED by Flier ******************************/
                 Trace(SZ_TRACE_CONNECT, "connecting to %s:%d",
-                      FormatServerName(server_name), port);
+                      (char *)FormatServerName(server_name), (char *)port, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 TraceServerInfo(2, 1);
                 /* transfer auto-reply and tabkey lists */
                 if (CheckServer(c_server) && server_index >= 0) {
@@ -1552,9 +1521,8 @@ char **errorstr;
 }
 #endif
 
-static	void
-login_to_server(server)
-	int server;
+static void 
+login_to_server (int server)
 {
 #ifdef NON_BLOCKING_CONNECTS
 	int	old_serv = server_list[server].close_serv;
@@ -1705,9 +1673,8 @@ login_to_server(server)
 	irc2_login_to_server(server);
 }
 
-static	void
-irc2_login_to_server(server)
-	int	server;
+static void 
+irc2_login_to_server (int server)
 {
 
 	if (server_list[server].password)
@@ -1725,10 +1692,8 @@ irc2_login_to_server(server)
  * oldconn is set if this connection is really an old connection being
  * resurected (eg. connection to server failed).
  */
-void
-get_connected(server, oldconn)
-	int	server;
-	int	oldconn;
+void 
+get_connected (int server, int oldconn)
 {
 	int	s,
 		ret = -1;
@@ -1791,8 +1756,8 @@ get_connected(server, oldconn)
  * information from a file and adds this stuff to the server list.  See
  * build_server_list()
  */
-int
-read_server_file()
+int 
+read_server_file (void)
 {
 	FILE *fp;
 	char format[11];
@@ -1816,8 +1781,8 @@ read_server_file()
 #endif
 
 /* display_server_list: just guess what this does */
-void
-display_server_list()
+void 
+display_server_list (void)
 {
 	int	i;
 /**************************** Patched by Flier ******************************/
@@ -1942,10 +1907,8 @@ display_server_list()
 		say("The server list is empty");
 }
 
-void
-MarkAllAway(command, message)
-	char	*command;
-	char	*message;
+void 
+MarkAllAway (char *command, char *message)
 {
 	int	old_server;
 
@@ -1976,10 +1939,8 @@ MarkAllAway(command, message)
  * set_server_password: this sets the password for the server with the given
  * index.  If password is null, the password for the given server is returned
  */
-char	*
-set_server_password(server_index, password)
-	int	server_index;
-	char	*password;
+char *
+set_server_password (int server_index, char *password)
 {
 
 	if (server_list)
@@ -1996,11 +1957,8 @@ set_server_password(server_index, password)
  * server: the /SERVER command. Read the SERVER help page about
  */
 /*ARGSUSED*/
-void
-servercmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+servercmd (char *command, char *args, char *subargs)
 {
 	char	*server,
 		*port,
@@ -2202,8 +2160,8 @@ servercmd(command, args, subargs)
  * flush_server: eats all output from server, until there is at least a
  * second delay between bits of servers crap... useful to abort a /links.
  */
-void
-flush_server()
+void 
+flush_server (void)
 {
 	fd_set rd;
 	struct timeval time_out;
@@ -2253,18 +2211,15 @@ flush_server()
  * the whois value is non-zero, then the server sends End of WHOIS and things
  * can be done more effienciently
  */
-void
-set_server_whois(server_index, value)
-	int	server_index,
-		value;
+void 
+set_server_whois (int server_index, int value)
 {
 	server_list[server_index].whois = value;
 }
 
 /* get_server_whois: Returns the whois value for the given server index */
-int
-get_server_whois(server_index)
-	int	server_index;
+int 
+get_server_whois (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2272,28 +2227,22 @@ get_server_whois(server_index)
 }
 
 
-void
-set_server_2_6_2(server_index, value)
-	int	server_index,
-		value;
+void 
+set_server_2_6_2 (int server_index, int value)
 {
 	set_server_flag(server_index, SERVER_2_6_2, value);
 }
 
-int
-get_server_2_6_2(server_index)
-	int	server_index;
+int 
+get_server_2_6_2 (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
 	return (get_server_flag(server_index, SERVER_2_6_2));
 }
 
-void
-set_server_flag(server_index, flag, value)
-	int	server_index;
-	int	flag;
-	int	value;
+void 
+set_server_flag (int server_index, int flag, int value)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2303,10 +2252,8 @@ set_server_flag(server_index, flag, value)
 		server_list[server_index].flags &= ~flag;
 }
 
-int
-get_server_flag(server_index, value)
-	int	server_index;
-	int	value;
+int 
+get_server_flag (int server_index, int value)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2314,10 +2261,8 @@ get_server_flag(server_index, value)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void set_server_umode_flag(server_index, flag, add)
-int server_index;
-char flag;
-int add;
+void 
+set_server_umode_flag (int server_index, int flag, int add)
 {
     int flagvalue;
     int *flags;
@@ -2334,9 +2279,8 @@ int add;
     else *flags &= ~flagvalue;
 }
 
-int get_server_umode_flag(server_index, flag)
-int server_index;
-char flag;
+int 
+get_server_umode_flag (int server_index, int flag)
 {
     int flagvalue;
     int flags;
@@ -2357,8 +2301,7 @@ char flag;
  * get_server_password: get the password for this server.
  */
 char *
-get_server_password(server_index)
-	int	server_index;
+get_server_password (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2369,8 +2312,7 @@ get_server_password(server_index)
  * get_server_group: get the group for this server.
  */
 char *
-get_server_group(server_index)
-	int	server_index;
+get_server_group (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2382,10 +2324,8 @@ get_server_group(server_index)
  * zero version means pre 2.6, a one version means 2.6 aso. (look server.h
  * for typedef)
  */
-void
-set_server_version(server_index, version)
-	int	server_index;
-	int	version;
+void 
+set_server_version (int server_index, int version)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2396,9 +2336,8 @@ set_server_version(server_index, version)
  * get_server_version: returns the server version value for the given server
  * index
  */
-int
-get_server_version(server_index)
-	int	server_index;
+int 
+get_server_version (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2409,9 +2348,8 @@ get_server_version(server_index)
 }
 
 /* get_server_name: returns the name for the given server index */
-char	*
-get_server_name(server_index)
-	int	server_index;
+char *
+get_server_name (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2419,9 +2357,8 @@ get_server_name(server_index)
 }
 
 /* set_server_itsname: returns the server's idea of its name */
-char	*
-get_server_itsname(server_index)
-	int	server_index;
+char *
+get_server_itsname (int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2433,10 +2370,8 @@ get_server_itsname(server_index)
 		return "<None>";
 }
 
-void
-set_server_itsname(server_index, name)
-	int	server_index;
-	char	*name;
+void 
+set_server_itsname (int server_index, char *name)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2447,9 +2382,8 @@ set_server_itsname(server_index, name)
  * is_server_open: Returns true if the given server index represents a server
  * with a live connection, returns false otherwise
  */
-int
-is_server_open(server_index)
-	int	server_index;
+int 
+is_server_open (int server_index)
 {
 	if (!is_server_ok(server_index))
 		return (0);
@@ -2460,8 +2394,8 @@ is_server_open(server_index)
 /*
  * is_server_valid: Returns true if the given server index is valid
  */
-int is_server_valid(server_index)
-int server_index;
+int 
+is_server_valid (int server_index)
 {
     if (server_index < 0 || server_index >= number_of_servers)
         return(0);
@@ -2482,9 +2416,8 @@ int is_server_ok(int server_index) {
  * means that both the tcp connection is open and the user is properly
  * registered
  */
-int
-is_server_connected(server_index)
-	int	server_index;
+int 
+is_server_connected (int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index < 0)
@@ -2495,9 +2428,8 @@ is_server_connected(server_index)
 }
 
 /* get_server_port: Returns the connection port for the given server index */
-int
-get_server_port(server_index)
-	int	server_index;
+int 
+get_server_port (int server_index)
 {
     if (server_index == -1 || !is_server_ok(server_index))
         server_index = primary_server;
@@ -2511,9 +2443,8 @@ get_server_port(server_index)
  * get_server_nickname: returns the current nickname for the given server
  * index
  */
-char	*
-get_server_nickname(server_index)
-	int	server_index;
+char *
+get_server_nickname (int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index))
@@ -2619,9 +2550,8 @@ set_server_qtail(server_index, value)
  * get_server_operator: returns true if the user has op privs on the server,
  * false otherwise
  */
-int
-get_server_operator(server_index)
-	int	server_index;
+int 
+get_server_operator (int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return(0);
@@ -2633,10 +2563,8 @@ get_server_operator(server_index)
  * set_server_operator: If flag is non-zero, marks the user as having op
  * privs on the given server.
  */
-void
-set_server_operator(server_index, flag)
-	int	server_index;
-	int	flag;
+void 
+set_server_operator (int server_index, int flag)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return;
@@ -2649,10 +2577,8 @@ set_server_operator(server_index, flag)
  * This nickname is then used for all future connections to that server
  * (unless changed with NICK while connected to the server
  */
-void
-set_server_nickname(server_index, nick)
-	int	server_index;
-	char	*nick;
+void 
+set_server_nickname (int server_index, char *nick)
 {
     if (server_index != -1)
     {
@@ -2669,10 +2595,8 @@ set_server_nickname(server_index, nick)
     update_all_status();
 }
 
-void
-set_server_motd(server_index, flag)
-	int	server_index;
-	int	flag;
+void 
+set_server_motd (int server_index, int flag)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
@@ -2681,9 +2605,8 @@ set_server_motd(server_index, flag)
     server_list[server_index].motd = flag;
 }
 
-int
-get_server_motd(server_index)
-	int	server_index;
+int 
+get_server_motd (int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
@@ -2693,10 +2616,8 @@ get_server_motd(server_index)
 	return (0);
 }
 
-void
-server_is_connected(server_index, value)
-	int	server_index,
-		value;
+void 
+server_is_connected (int server_index, int value)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return;
@@ -2762,7 +2683,7 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
 		if (len > (IRCD_BUFFER_SIZE - 2))
  			lbuf[IRCD_BUFFER_SIZE - 2] = (char) 0;
 /**************************** Patched by Flier ******************************/
-                Trace(SZ_TRACE_IO, "--> %d: %s", server, lbuf);
+                Trace(SZ_TRACE_IO, "--> %d: %s", (char *)server, (char *)lbuf, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /****************************************************************************/
 		len++;
  		strmcat(lbuf, "\n", IRCD_BUFFER_SIZE);
@@ -2819,10 +2740,8 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  * Connect to a UNIX domain socket. Only works for servers.
  * submitted by Avalon for use with server 2.7.2 and beyond.
  */
-int
-connect_to_unix(port, path)
-	int	port;
-	char	*path;
+int 
+connect_to_unix (int port, char *path)
 {
 	struct	sockaddr_un un;
 	int	    sock;
@@ -2845,8 +2764,8 @@ connect_to_unix(port, path)
  * close_all_server: Used whn creating new screens to close all the open
  * server connections in the child process...
  */
-extern	void
-close_all_server()
+extern void 
+close_all_server (void)
 {
 	int	i;
 
@@ -2859,8 +2778,8 @@ close_all_server()
 	}
 }
 
-extern	char	*
-create_server_list()
+extern char *
+create_server_list (void)
 {
 	int	i;
 	char	*value = (char *) 0;
@@ -2882,10 +2801,8 @@ create_server_list()
 	return value;
 }
 
-static	void
-add_to_server_buffer(server, buf)
-	int	server;
-	char	*buf;
+static void 
+add_to_server_buffer (int server, char *buf)
 {
 	if (buf && *buf)
 	{
@@ -2896,11 +2813,8 @@ add_to_server_buffer(server, buf)
 	}
 }
 
-void
-disconnectcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+disconnectcmd (char *command, char *args, char *subargs)
 {
 	char	*server;
 	char	*message;
@@ -2974,10 +2888,8 @@ done:
 		say("You are not connected to a server. Use /SERVER to connect.");
 }
 
-int
-find_server_group(group, add)
-	char	*group;
-	int	add;
+int 
+find_server_group (char *group, int add)
 {
 	static	int	next = 1;
 	SGroup *g = (SGroup *) find_in_list((List **) &server_group_list, group, 0);
@@ -2997,9 +2909,8 @@ end:
 	return g->number;
 }
 
-char	*
-find_server_group_name(number)
-	int	number;
+char *
+find_server_group_name (int number)
 {
 	SGroup *g = server_group_list;
 

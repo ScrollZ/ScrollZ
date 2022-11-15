@@ -171,9 +171,8 @@ do_log(flag, logfile, fp)
 }
 
 /* logger: if flag is 0, logging is turned off, else it's turned on */
-void
-logger(flag)
-	int	flag;
+void 
+logger (int flag)
 {
 	char	*logfile;
 
@@ -196,9 +195,8 @@ logger(flag)
  * closes the last log file and reopens it with the new name.  This is called
  * automatically when you SET LOGFILE. 
  */
-void
-set_log_file(filename)
-	char	*filename;
+void 
+set_log_file (char *filename)
 {
 	char	*expanded;
 

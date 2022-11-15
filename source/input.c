@@ -77,7 +77,8 @@ static int mbdata_ok = 0;
 static int sz_width = 10; /* how far from right border to shift */
 static int sz_prev_len = 0; /* how many prev. characters to show on shift */
 
-static void ResetNickCompletion() {
+static void 
+ResetNickCompletion (void) {
     tabnickcompl = NULL;
 }
 /****************************************************************************/
@@ -412,9 +413,8 @@ input_check_resized(void)
  *
  * UPDATE_ALL - redraws the entire line 
  */
-void
-update_input(update)
-	int	update;
+void 
+update_input (int update)
 {
 	ScreenInputData* inputdata = &current_screen->inputdata;
 	iconv_t display_conv = NULL;
@@ -604,9 +604,8 @@ refresh_inputline(key, ptr)
 	update_input(UPDATE_ALL);
 }
 
-void
-change_input_prompt(direction)
-	int	direction;
+void 
+change_input_prompt (int direction)
 {
 	if (!current_screen->promptlist)
 	{
@@ -636,9 +635,8 @@ change_input_prompt(direction)
 
 /* input_move_cursor: moves the cursor left or right... got it? */
 /* zero=left, nonzero=right */
-void
-input_move_cursor(dir)
-	int	dir;
+void 
+input_move_cursor (int dir)
 {
 	char* buf  = current_screen->inputdata.buffer.buf;
 	unsigned pos = current_screen->inputdata.buffer.pos;
@@ -949,9 +947,8 @@ re_encode:
  * set_input: sets the input buffer to the given string, discarding whatever
  * was in the input buffer before 
  */
-void
-set_input(str)
-	char	*str;
+void 
+set_input (char *str)
 {
 	u_char converted_input[INPUT_BUFFER_SIZE];
 	struct mb_data mbdata1;
@@ -987,9 +984,8 @@ set_input(str)
 /****************************************************************************/
 }
 
-void
-set_input_raw(str)
-	char* str;
+void 
+set_input_raw (char *str)
 {
 	char* buf    = current_screen->inputdata.buffer.buf;
 	unsigned pos   = current_screen->inputdata.buffer.pos;
@@ -1015,8 +1011,8 @@ set_input_raw(str)
  * actually change the input buffer.  This is a bad way to change the input
  * buffer tho, cause no bounds checking won't be done 
  */
-char	*
-get_input()
+char *
+get_input (void)
 {
 	iconv_const char* source = (iconv_const char*)get_input_raw();
 	
@@ -1103,8 +1099,8 @@ get_input()
 	return converted_buffer;
 }
 
-char	*
-get_input_raw()
+char *
+get_input_raw (void)
 {
 	char* buf    = current_screen->inputdata.buffer.buf;
 	unsigned limit = current_screen->inputdata.buffer.minpos;
@@ -1222,8 +1218,8 @@ input_transpose_characters(key, ptr)
 }
 
 /* init_input: initialized the input buffer by clearing it out */
-void
-init_input()
+void 
+init_input (void)
 {
 	*current_screen->inputdata.buffer.buf = (char) 0;
 	current_screen->inputdata.buffer.pos = current_screen->inputdata.buffer.minpos;
@@ -1243,8 +1239,8 @@ input_yank_cut_buffer(key, ptr)
 }
 
 /* get_input_prompt: returns the current input_prompt */
-char	*
-get_input_prompt()
+char *
+get_input_prompt (void)
 { 
 	return (input_prompt); 
 }
@@ -1254,9 +1250,8 @@ get_input_prompt()
  * buffer.  This prompt cannot be backspaced over, etc.  It's a prompt.
  * Setting the prompt to null uses no prompt 
  */
-void
-set_input_prompt(prompt)
-	char	*prompt;
+void 
+set_input_prompt (char *prompt)
 {
 	if (!prompt)
 	{
@@ -1297,9 +1292,8 @@ set_input_prompt(prompt)
  * have the function.  If you want an input_pause, use add_wait_prompt()
  * with WAIT_PROMPT_KEY.
  */
-char
-input_pause(msg)
-	char	*msg;
+char 
+input_pause (char *msg)
 {
 	char	*ptr = (char *) 0;
 	char	c;
@@ -1353,9 +1347,8 @@ function_curpos(input)
 
 /**************************** PATCHED by Flier ******************************/
 /* set parameters for input prompt shifting */
-void
-set_input_prompt_shift_new(val)
-int val;
+void 
+set_input_prompt_shift_new (int val)
 {
     ScreenInputData* inputdata = &current_screen->inputdata;
 

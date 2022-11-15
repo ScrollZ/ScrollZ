@@ -342,14 +342,8 @@ static int dropit(int allowtwo) {
     return(0);
 }
 
-static int request(ctcp,mynick,nick,userhost,channel,privs,required)
-char *ctcp;
-char *mynick;
-char *nick;
-char *userhost;
-char *channel;
-int  privs;
-int  required;
+static int 
+request (char *ctcp, char *mynick, char *nick, char *userhost, char *channel, int privs, int required)
 {
     int access=privs&required;
 #ifdef WANTANSI
@@ -387,30 +381,28 @@ int  required;
     return(privs);
 }
 
-static void wrongpassword(nick)
-char *nick;
+static void 
+wrongpassword (char *nick)
 {
     strmcat(tmpaway,", wrong password",sizeof(tmpaway));
     send_to_server("NOTICE %s :Invalid password!  -ScrollZ-",nick);
     if (away_set || LogOn) AwaySave(tmpaway,SAVECTCP);
 }
 
-static void notchanop(nick,channel)
-char *nick;
-char *channel;
+static void 
+notchanop (char *nick, char *channel)
 {
     send_to_server("NOTICE %s :I'm not opped on channel %s -ScrollZ-",nick,channel);
 }
 
-static void disabled(nick)
-char *nick;
+static void 
+disabled (char *nick)
 {
     send_to_server("NOTICE %s :This function has been disabled  -ScrollZ-",nick);
 }
 
-static int checkpassword(tmpfriend, passwd)
-struct friends *tmpfriend;
-char *passwd;
+static int 
+checkpassword (struct friends *tmpfriend, char *passwd)
 {
     char passbuf[mybufsize / 8];
 
@@ -1636,11 +1628,11 @@ do_utc(ctcp, from, to, args)
 	if (!args || !*args)
 		return NULL;
 	tm = atol(args);
-	curtime = ctime(&tm);
+	curtime = (time_t)ctime(&tm);
 
 	if (curtime)
 	{
-		u_char *s = index(curtime, '\n');
+		u_char *s = index((const char *)curtime, '\n');
 		if (s)
 		{
 			*s = '\0';
@@ -1660,11 +1652,8 @@ do_utc(ctcp, from, to, args)
  * such messages are removed from the original str, so after do_ctcp()
  * returns, str will be changed
  */
-char	*
-do_ctcp(from, to, str)
-	char	*from,
-		*to,
-		*str;
+char *
+do_ctcp (char *from, char *to, char *str)
 {
 	int	i = 0,
 		ctcp_flag = 1;
@@ -1909,11 +1898,8 @@ clear_ctcp_reply_buffer:
 	return (ctcp_buffer);
 }
 
-char	*
-do_notice_ctcp(from, to, str)
-	char	*from,
-		*to,
-		*str;
+char *
+do_notice_ctcp (char *from, char *to, char *str)
 {
 	char	*cmd;
 
@@ -1944,12 +1930,8 @@ do_notice_ctcp(from, to, str)
 	return (ctcp_buffer);
 }
 
-static	void
-do_new_notice_ctcp(from, to, str, cmd)
-	char	*from,
-		*to,
-		**str,
-		*cmd;
+static void 
+do_new_notice_ctcp (char *from, char *to, char **str, char *cmd)
 {
 	char	*end,
 		*args,
@@ -2110,8 +2092,8 @@ do_new_notice_ctcp(from, to, str, cmd)
 }
 
 /* in_ctcp: simply returns the value of the ctcp flag */
-int
-in_ctcp()
+int 
+in_ctcp (void)
 {
 	return (in_ctcp_flag);
 }

@@ -104,10 +104,8 @@ static	int	use_help_window = 0;
 /* we are piglet */
 
 /* compar: used by scandir to alphabetize the help entries */
-static	int
-compar(e1, e2)
-	const struct dirent	**e1;
-	const struct dirent	**e2;
+static int 
+compar (const struct dirent **e1, const struct dirent **e2)
 {
 	return (my_stricmp((char *) (*e1)->d_name, (char *) (*e2)->d_name));
 }
@@ -116,9 +114,8 @@ compar(e1, e2)
  * selectent: used by scandir to decide which entries to include in the help
  * listing.  
  */
-static	int
-selectent(entry)
-	const struct dirent	*entry;
+static int 
+selectent (const struct dirent *entry)
 {
 	if (*(entry->d_name) == '.')
 		return (0);
@@ -232,10 +229,8 @@ show_help(window, name)
  * doing help prompts, prompt for the help..
  */
 
-static	void
-help_prompt(name, line)
-	char	*name,
-		*line;
+static void 
+help_prompt (char *name, char *line)
 {
 	if (finished_help_paging)
 	{
@@ -316,10 +311,8 @@ help_prompt(name, line)
  * then we call help_prompt to get the actually displaying of the file
  * on the road.
  */
-static	void
-help_topic(path, name)
-	char	*path;
-	char	*name;
+static void 
+help_topic (char *path, char *name)
 {
 	struct	stat	stat_buf;
 	char	filename[BIG_BUFFER_SIZE+1];
