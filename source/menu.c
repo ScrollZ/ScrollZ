@@ -124,9 +124,8 @@ install_menu(NewMenu, TotalMade)
 	say("Menu \"%s\" added", NewMenu->Name);
 }
 
-void
-load_menu(FileName)
-	char	*FileName;
+void 
+load_menu (char *FileName)
 {
 	FILE	*fp;
 	Menu	*NewMenu = NULL;
@@ -272,9 +271,8 @@ ShowMenuByWindow(window, flags)
 	return ThisMenu->TotalOptions;
 }
 
-int
-ShowMenu(Name)
-	char	*Name;
+int 
+ShowMenu (char *Name)
 {
 	Menu	*ThisMenu;
 	Window	*window;
@@ -293,9 +291,8 @@ ShowMenu(Name)
 	return ShowMenuByWindow(window, SMF_CALCONLY);
 }
 
-void
-set_menu(Value)
-	char	*Value;
+void 
+set_menu (char *Value)
 {
 	Window	*window;
 	WindowMenu *menu_info;
@@ -341,28 +338,24 @@ enter_menu(key, ptr)
 }
 
 
-void
-menu_previous(args)
-	char	*args;
+void 
+menu_previous (char *args)
 {
 }
 
-void
-menu_submenu(args)
-	char	*args;
+void 
+menu_submenu (char *args)
 {
 }
 
-void
-menu_exit(args)
-	char	*args;
+void 
+menu_exit (char *args)
 {
 	current_screen->inside_menu = -1;
 }
 
-void
-menu_channels(args)
-	char	*args;
+void 
+menu_channels (char *args)
 {
 }
 
@@ -440,9 +433,8 @@ menu_key(ikey)
 		ShowMenuByWindow(window, SMF_CURSONLY);
 }
 
-void
-menu_command(args)
-	char	*args;
+void 
+menu_command (char *args)
 {
 	parse_line((char *) 0, args, empty_string, 0, 0, 0);
 }

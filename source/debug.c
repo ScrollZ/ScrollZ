@@ -50,9 +50,8 @@
 
 int	debuglevel = 0;
 
-int
-setdlevel(level)
-	int	level;
+int 
+setdlevel (int level)
 {
 	int	oldlevel = debuglevel;
 
@@ -60,7 +59,8 @@ setdlevel(level)
 	return oldlevel;
 }
 
-int	getdlevel()
+int 
+getdlevel (void)
 {
 	return debuglevel;
 }

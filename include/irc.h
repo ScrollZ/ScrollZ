@@ -60,6 +60,7 @@
 #ifdef NeXT
 #   include <libc.h>
 #endif
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <ctype.h>
 #ifdef _Windows

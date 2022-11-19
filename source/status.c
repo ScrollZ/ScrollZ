@@ -216,8 +216,8 @@ alarmed()
 	do_status_alarmed = 1;
 }
 
-void
-real_status_alarmed()
+void 
+real_status_alarmed (void)
 {
 	char	time_str[16];
 
@@ -233,9 +233,8 @@ real_status_alarmed()
  * routine will be activated every 10 seconds or so.  If flag is 0, the timer
  * and signal stuff are reset 
  */
-static	void
-alarm_switch(flag)
-	int	flag;
+static void 
+alarm_switch (int flag)
 {
 	static	int	alarm_on = 0;
 
@@ -265,9 +264,8 @@ alarm_switch(flag)
  * 23 and MM is between 0 and 59.  This routine also looks for one special
  * case, "OFF", which sets the alarm string to null 
  */
-void
-set_alarm(str)
-	char	*str;
+void 
+set_alarm (char *str)
 {
 	char	hours[10],
 		minutes[10],
@@ -464,9 +462,8 @@ update_clock(buf, len, flag)
 }
 
 /*ARGSUSED*/
-void
-reset_clock(unused)
-	char	*unused;
+void 
+reset_clock (char *unused)
 {
 	update_clock(0, 0, RESET_TIME);
 	update_all_status();
@@ -475,10 +472,8 @@ reset_clock(unused)
 /**************************** PATCHED by Flier ******************************/
 /* Insert SBAR color into buffer - for status bar */
 #ifdef WANTANSI
-void InsertStatusColor(ccode,buffer,bufsize)
-char ccode;
-char *buffer;
-int  bufsize;
+void 
+InsertStatusColor (int ccode, char *buffer, int bufsize)
 {
     char *color=empty_string;
 
@@ -541,10 +536,8 @@ int  bufsize;
  * converted, all subsequence occurences are left unchanged.  This routine
  * mallocs the returned string. 
  */
-static	char	*
-convert_sub_format(format, c)
-	char	*format;
-	int	c;
+static char *
+convert_sub_format (char *format, int c)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	static	char	bletch[] = "%% ";
@@ -591,10 +584,8 @@ convert_sub_format(format, c)
 	return (ptr);
 }
 
-static	char	*
-convert_format(format, k)
-	char	*format;
-	int	k;
+static char *
+convert_format (char *format, int k)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr,
@@ -1049,9 +1040,8 @@ convert_format(format, k)
 	return (malloc_ptr);
 }
 
-void
-build_status(format)
-	char	*format;
+void 
+build_status (char *format)
 {
 	int	i, k;
 
@@ -1091,10 +1081,8 @@ build_status(format)
 
 /**************************** PATCHED by Flier ******************************/
 #ifdef CELE
-void
-Cquick_status(format,qstat)
-char *format;
-int qstat;
+void 
+Cquick_status (char *format, int qstat)
 {
     int	i,k;
 

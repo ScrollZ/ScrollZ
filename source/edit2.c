@@ -182,6 +182,9 @@ extern void describe _((char *, char *, char *));
 extern void swap_window _((Window *, Window *));
 extern void irc_goto_window _((int));
 
+extern int  DecryptMessage _((char *, char *));
+extern int  EncryptMessage _((char *, char *));
+
 static char *tmpbuflist=(char *) 0;
 static int  listcount;
 static int  countall;
@@ -197,10 +200,8 @@ static time_t CeleAwayTime=0;
 extern char *CelerityNtfy;
 
 /* Kicks all unopped people from current channel */
-void LameKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+LameKick (char *command, char *args, char *subargs)
 {
     int  all=0;
     int  count=0;
@@ -249,10 +250,8 @@ char *subargs;
 }
 
 /* Sends NOTICE to all ops of Current Channel!       */
-void ChanWallOp(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ChanWallOp (char *command, char *args, char *subargs)
 {
     int  server = 0;
     int  maxnicks = get_int_var(MAX_WALLOP_NICKS_VAR);
@@ -387,9 +386,8 @@ char *subargs;
     if (!opscount) say("There are no channel operators in %s", chan->channel);
 }
 
-void MegaMode(args,type)
-char *args;
-int type;
+void 
+MegaMode (char *args, int type)
 {
     char *argument;
     char *channel;
@@ -530,74 +528,58 @@ int type;
 }
 
 /* MegaDeops channel */
-void MegaDeop(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MegaDeop (char *command, char *args, char *subargs)
 {
     MegaMode(args,4);
 }
 
 /* MegaDehalfop channl */
-void MegaDehalfop(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MegaDehalfop (char *command, char *args, char *subargs)
 {
     MegaMode(args,2);
 }
 
 /* MegaReops channel */
-void MegaReop(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MegaReop (char *command, char *args, char *subargs)
 {
     MegaMode(args,6);
 }
 
 /* MassOp channel */
-void MassOp(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MassOp (char *command, char *args, char *subargs)
 {
     MegaMode(args,5);
 }
 
 /* MassHalfop channl */
-void MassHalfop(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MassHalfop (char *command, char *args, char *subargs)
 {
     MegaMode(args,3);
 }
 
 #ifdef EXTRAS
 /* MegaVoice channel */
-void MegaVoice(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MegaVoice (char *command, char *args, char *subargs)
 {
     MegaMode(args,1);
 }
 
 /* MegaDeVoice channel */
-void MegaDeVoice(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+MegaDeVoice (char *command, char *args, char *subargs)
 {
     MegaMode(args,0);
 }
 #endif
 
-void DoDops(chops, channel, type)
-char *chops;
-char *channel;
-int type;
+void 
+DoDops (char *chops, char *channel, int type)
 {
     int  send = 0;
     int  count = 0;
@@ -681,10 +663,8 @@ int type;
 }
 
 /* Newuser, stolen from Hendrix, and fixed up */
-void NewUser(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NewUser (char *command, char *args, char *subargs)
 {
     char *tmp;
 
@@ -700,10 +680,8 @@ char *subargs;
 }
 
 /* Reconnects you to server, storing all current info */
-void ReconnectServer(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ReconnectServer (char *command, char *args, char *subargs)
 {
     int port;
     int servernum = from_server;
@@ -721,8 +699,8 @@ char *subargs;
 }
 
 /* Reconnects you to server on kill */
-void ReconnectOnKill(servernum)
-int servernum;
+void 
+ReconnectOnKill (int servernum)
 {
     int flag=1;
     int change=0;
@@ -753,10 +731,8 @@ int servernum;
 }
 
 /* Kicks nick from the current channel */
-void Kick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Kick (char *command, char *args, char *subargs)
 {
     char *channel;
     char *tmpnick=(char *) 0;
@@ -793,10 +769,8 @@ char *subargs;
 }
 
 /* Changes default ban type */
-void BanType(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+BanType (char *command, char *args, char *subargs)
 {
     char *tmptype;
     char tmpbuf[mybufsize/4];
@@ -878,10 +852,8 @@ int  timer;
 }
 
 /* Bans nick on the current channel */
-void Ban(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Ban (char *command, char *args, char *subargs)
 {
     char *channel = (char *) 0;
     char *tmpnick;
@@ -940,10 +912,8 @@ char *text;
 
 /* Bans and kicks nick from the current channel */
 /* Also handles ignore and timed ban */
-void BanKick(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+BanKick (char *command, char *args, char *subargs)
 {
 #ifdef EXTRAS
     int unbantime = 6;
@@ -1079,10 +1049,8 @@ char *text;
 }
 
 /* Ops nick on the current channel */
-void Op(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Op (char *command, char *args, char *subargs)
 {
     char flag;
     int  count = 0;
@@ -1146,10 +1114,8 @@ char *subargs;
 }
 
 /* Invites nick to your current channel */
-void Invite(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Invite (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     char *tmpchannel=(char *) 0;
@@ -1184,10 +1150,8 @@ char *subargs;
 }
 
 /* Leaves current or specified channel */
-void Leave(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Leave (char *command, char *args, char *subargs)
 {
     char *p;
     char *comment = NULL;
@@ -1219,10 +1183,8 @@ char *subargs;
 }
 
 /* Does a -ntislmpak on your current channel */
-void ModeClear(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ModeClear (char *command, char *args, char *subargs)
 {
     char *channel=(char *) 0;
     char tmpbuf[mybufsize/2];
@@ -1246,10 +1208,8 @@ char *subargs;
 }
 
 /* Prints out all nicks on your current or specified channel */
-void ChannelScan(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ChannelScan (char *command, char *args, char *subargs)
 {
 #ifdef NEWCSCAN
     int  count = 0;
@@ -1523,10 +1483,8 @@ char *subargs;
 }
 
 /* Lists all the friends you have on your friends list */
-void ListFriends(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ListFriends (char *command, char *args, char *subargs)
 {
     DontHold=0;
     if (args && *args) malloc_strcpy(&tmpbuflist,args);
@@ -1539,8 +1497,8 @@ char *subargs;
 }
 
 /* Lists one page of friends list */
-void ListFriendsPage(line)
-char *line;
+void 
+ListFriendsPage (char *line)
 {
     int  count=3;
     int  filter;
@@ -1615,9 +1573,8 @@ char *line;
 }
 
 /* This waits for key press */
-void ListFriendsKey(stuff,line)
-char *stuff;
-char *line;
+void 
+ListFriendsKey (char *stuff, char *line)
 {
     if (line && (*line=='q' || *line=='Q' || *line=='E')) {
         if (*line=='E') say("%d out of %d entries matched your filter",listcount,
@@ -1631,10 +1588,8 @@ char *line;
 }
 
 /* Lists all the people you have on your auto (ban) kick list */
-void ListAutoBanKicks(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ListAutoBanKicks (char *command, char *args, char *subargs)
 {
     DontHold=0;
     if (args && *args) malloc_strcpy(&tmpbuflist,args);
@@ -1648,9 +1603,8 @@ char *subargs;
 
 
 /* Returns shit level as flags */
-void BuildShit(shitentry, buffer)
-struct autobankicks *shitentry;
-char *buffer;
+void 
+BuildShit (struct autobankicks *shitentry, char *buffer)
 {
     if (shitentry && shitentry->shit) {
         if ((shitentry->shit) & SLKICK) strcat(buffer, "K");
@@ -1663,8 +1617,8 @@ char *buffer;
 }
 
 /* This lists one page of auto (ban) kicks list */
-void ListABKsPage(line)
-char *line;
+void 
+ListABKsPage (char *line)
 {
     int  count=2;
 #ifdef WANTANSI
@@ -1718,9 +1672,8 @@ char *line;
 }
 
 /* This waits for key press */
-void ListABKsKey(stuff,line)
-char *stuff;
-char *line;
+void 
+ListABKsKey (char *stuff, char *line)
 {
     if (line && (*line=='q' || *line=='Q' || *line=='E')) {
         if (*line=='E') say("%d out of %d entries matched your filter",listcount,
@@ -1734,10 +1687,8 @@ char *line;
 }
 
 /* Shows or sets topic for current or specified channel */
-void Topic(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Topic (char *command, char *args, char *subargs)
 {
     int iscrypted;
     char *channel;
@@ -1795,10 +1746,8 @@ char *subargs;
 }
 
 /* Connects to default or specified server */
-void FServer(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+FServer (char *command, char *args, char *subargs)
 {
     if (args && *args) servercmd(NULL,args,NULL);
     else if (my_stricmp(DefaultServer,"NONE")) servercmd(NULL,DefaultServer,NULL);
@@ -1806,10 +1755,8 @@ char *subargs;
 }
 
 /* Leaves and joins current or specified channel */
-void Cycle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Cycle (char *command, char *args, char *subargs)
 {
     char *tmpchannel = NULL;
     char tmpbuf[mybufsize / 4];
@@ -1837,10 +1784,8 @@ char *subargs;
 }
 
 /* Saves friends into ScrollZ.save file */
-void ScrollZSave(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ScrollZSave (char *command, char *args, char *subargs)
 {
     int  ulistcount;
     int  slistcount;
@@ -2235,9 +2180,8 @@ char *subargs;
 }
 
 /* Returns friend's privilege (if it finds him/her on your friends list, else 0 */
-struct friends *CheckUsers(userhost,channels)
-char *userhost;
-char *channels;
+struct friends *
+CheckUsers (char *userhost, char *channels)
 {
     struct friends *tmpfriend;
 
@@ -2260,9 +2204,8 @@ char *channels;
 }
 
 /* Returns autobankicker's shit-level (if it finds him/her on your abks list, else 0 */
-struct autobankicks *CheckABKs(userhost,channel)
-char *userhost;
-char *channel;
+struct autobankicks *
+CheckABKs (char *userhost, char *channel)
 {
     struct autobankicks *tmpabk;
 
@@ -2312,10 +2255,8 @@ ChannelList *tmpchan;
 }
 
 /* Redirects last message/notice to current or specified channel */
-void DirLM(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+DirLM (char *command, char *args, char *subargs)
 {
     int  msg=1;
     char *tmparg;
@@ -2341,10 +2282,8 @@ char *subargs;
 }
 
 /* Adds friend to your friends list with specified privileges */
-void AddFriend(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AddFriend (char *command, char *args, char *subargs)
 {
     int quiet=0;
     char *tmpnick=(char *) 0;
@@ -2406,9 +2345,8 @@ char *text;
 }
 
 /* Returns the integer from specified privileges */
-int CheckPrivs(privs,buffer)
-char *privs;
-char *buffer;
+int 
+CheckPrivs (char *privs, char *buffer)
 {
     int  i=0;
     char *tmpprivs=(char *) 0;
@@ -2498,18 +2436,16 @@ char *buffer;
 }
 
 /* Returns Y/N */
-char *YNreply(what)
-int what;
+char *
+YNreply (int what)
 {
     if (what) return("Y");
     else return("N");
 }
 
 /* This really adds him/her to your friends list */
-void AddFriend2List(nick,userhost,buffer)
-char *nick;
-char *userhost;
-char *buffer;
+void 
+AddFriend2List (char *nick, char *userhost, char *buffer)
 {
     int  i=0;
     int  domsg=1;
@@ -2619,10 +2555,8 @@ char *buffer;
 }
 
 /* Adds someone on your auto-ban-kick list */
-void AddAutoBanKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AddAutoBanKick (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     char *tmpchan;
@@ -2690,9 +2624,8 @@ char *text;
 }
 
 /* Returns integer from specified shit level */
-int CheckShit(shit, buffer)
-char *shit;
-char *buffer;
+int 
+CheckShit (char *shit, char *buffer)
 {
     int i = 0;
     char *tmpshit = (char *) 0;
@@ -2736,10 +2669,8 @@ char *buffer;
 }
 
 /* This really adds user to shitlist */
-void AddBK2List(userhost,shit,reason)
-char *userhost;
-char *shit;
-char *reason;
+void 
+AddBK2List (char *userhost, char *shit, char *reason)
 {
     int i=0;
     char *tmpchan=(char *) 0;
@@ -2789,10 +2720,8 @@ char *reason;
 }
 
 /* Show bans on current or specified channel */
-void ShowBans(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ShowBans (char *command, char *args, char *subargs)
 {
     int  count=0;
     char *channel=(char *) 0;
@@ -2831,10 +2760,8 @@ char *subargs;
 }
 
 /* Removes friend from your friends list */
-void RemoveFriend(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveFriend (char *command, char *args, char *subargs)
 {
     char *tmpnick=(char *) 0;
     char tmpbuf[mybufsize/4];
@@ -2878,8 +2805,8 @@ char *tmpnick;
 }
 
 /* This really removes him/her from your friends list */
-void RemoveFriendFromList(userhost)
-char *userhost;
+void 
+RemoveFriendFromList (char *userhost)
 {
     int  found=0;
     int  filter;
@@ -2953,10 +2880,8 @@ char *userhost;
 }
 
 /* Removes user from your auto (ban) kick list */
-void RemoveAutoBanKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveAutoBanKick (char *command, char *args, char *subargs)
 {
     char *tmpnick=(char *) 0;
     char tmpbuf[mybufsize/4];
@@ -3000,8 +2925,8 @@ char *tmpnick;
 }
 
 /* This really removes him/her from your auto (ban) kick list */
-void RemoveAutoBanKickFromList(userhost)
-char *userhost;
+void 
+RemoveAutoBanKickFromList (char *userhost)
 {
     int found=0;
     int count=0;
@@ -3056,10 +2981,8 @@ char *userhost;
 }
 
 /* Does /CTCP nick VERSION */
-void Version(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Version (char *command, char *args, char *subargs)
 {
     char *target=NULL;
 
@@ -3072,10 +2995,8 @@ char *subargs;
 }
 
 /* Unbans nick */
-void Unban(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Unban (char *command, char *args, char *subargs)
 {
     void (*func)();
     char *tmpnick=(char *) 0;
@@ -3128,9 +3049,8 @@ char *channel;
 }
 
 /* Handles bans */
-void OnBans(args,exception)
-char **args;
-int exception;
+void 
+OnBans (char **args, int exception)
 {
     int  server;
     char *chan;
@@ -3168,10 +3088,8 @@ int exception;
 }
 
 /* Clears channel of bans */
-void CdBan(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+CdBan (char *command, char *args, char *subargs)
 {
     char *tmpchan = NULL;
     char *banbuf = NULL;
@@ -3204,10 +3122,8 @@ char *subargs;
 }
 
 /* Unignores user */
-void NoIgnore(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NoIgnore (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     char tmpbuf[mybufsize/4];
@@ -3221,10 +3137,8 @@ char *subargs;
 }
 
 /* Ignores user */
-void Ignore(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+Ignore (char *command, char *args, char *subargs)
 {
     int  igtime=0;
     char *tmpstr;
@@ -3301,8 +3215,8 @@ char *igtype;
 }
 
 /* Returns formatted time */
-static char *CeleTimeFormat(timediff)
-time_t timediff;
+static char *
+CeleTimeFormat (time_t timediff)
 {
     int timesec=0;
     int timemin=0;
@@ -3330,8 +3244,8 @@ time_t timediff;
 
 #ifdef CELE
 /* Sets away with Celerity idle timer, also updates timer */
-void CeleAway(modify)
-int modify;
+void 
+CeleAway (int modify)
 {
     char tmpbuf1[mybufsize/4+1];
     char tmpbuf2[mybufsize/2+1];
@@ -3352,10 +3266,8 @@ int modify;
 #endif /* CELE */
 
 /* Marks you as being away */
-void SetAway(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+SetAway (char *command, char *args, char *subargs)
 {
     int  modify = 1;
     int  showit = 1;
@@ -3430,19 +3342,16 @@ char *subargs;
 }
 
 /* Marks you as not being away */
-void SetBack(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+SetBack (char *command, char *args, char *subargs)
 {
     AwaySave("SetBack",SAVEAWAY);
     add_wait_prompt("Display message file (y/n/r) ? ",SetBack2,args,WAIT_PROMPT_KEY);
 }
 
 /* Handles prompt from SetBack */
-void SetBack2(stuff,line)
-char *stuff;
-char *line;
+void 
+SetBack2 (char *stuff, char *line)
 {
     char reply=' ';
 
@@ -3455,9 +3364,8 @@ char *line;
 }
 
 /* This asks user if he wants to delete ScrollZ.away file */
-void SetBackDelete(stuff,line)
-char *stuff;
-char *line;
+void 
+SetBackDelete (char *stuff, char *line)
 {
     int  done=1;
     int  showit=1;
@@ -3587,10 +3495,8 @@ List *toadd;
 }
 
 /* Adds word to your wordkick list */
-void AddWord(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AddWord (char *command, char *args, char *subargs)
 {
     int  add = 0;
     int  ban = 0;
@@ -3650,10 +3556,8 @@ char *subargs;
 }
 
 /* Removes word from your wordkick list */
-void RemoveWord(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveWord (char *command, char *args, char *subargs)
 {
     char *channels;
     char *tmpstr;
@@ -3686,10 +3590,8 @@ char *subargs;
 }
 
 /* Lists all the word on your wordkick list */
-void ListWords(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ListWords (char *command, char *args, char *subargs)
 {
     int count = 1;
     char tmpbuf[mybufsize / 2];
@@ -3707,9 +3609,8 @@ char *subargs;
 }
 
 /* Checks if there is a match with some of your words that are on wordkick list */
-struct words *CheckLine(channels,line)
-char *channels;
-char *line;
+struct words *
+CheckLine (char *channels, char *line)
 {
     char *curword;
     char *tmpline;
@@ -3733,9 +3634,8 @@ char *line;
 }
 
 /* Adds nick to list of people who have messaged you */
-void AddNick2List(nick,server)
-char *nick;
-int server;
+void 
+AddNick2List (char *nick, int server)
 {
     int count;
     int curserv=server;
@@ -3772,7 +3672,8 @@ int server;
 }
 
 /* Sets nickcur to the next element on linked list nicks (when TAB pressed) */
-void NickNext()
+void 
+NickNext (void)
 {
     int curserv=from_server;
 
@@ -3783,10 +3684,8 @@ void NickNext()
 }
 
 /* Adds splitter to list (with the appropriate server) */
-int AddSplitter(nick,channel,servers)
-char *nick;
-char *channel;
-char *servers;
+int 
+AddSplitter (char *nick, char *channel, char *servers)
 {
     int    print=0;
     struct list *tmplist;
@@ -3838,10 +3737,8 @@ char *servers;
 }
 
 /* Checks if net has joined and returns server name if so */
-void Check4Join(userhost,servername,channel)
-char *userhost;
-char *servername;
-char *channel;
+void 
+Check4Join (char *userhost, char *servername, char *channel)
 {
     struct wholeftstr *wholeft;
     struct wholeftstr *tmpwholeft;
@@ -3906,10 +3803,8 @@ char *channel;
 }
 
 /* Tells you all the nicks that went away with the split */
-void WhoLeft(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+WhoLeft (char *command, char *args, char *subargs)
 {
     int  i;
     int  len;
@@ -3983,10 +3878,8 @@ char *subargs;
 }
 
 /* Kicks all the people that match the filter, also bans if necessary */
-void FilterKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+FilterKick (char *command, char *args, char *subargs)
 {
     char *channel;
     char *filter;
@@ -4030,10 +3923,8 @@ char *subargs;
 
 #ifdef EXTRAS
 /* Bans all the people from your shitlist */
-void DoBans(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+DoBans (char *command, char *args, char *subargs)
 {
     int  count=0;
     int  max=get_int_var(MAX_MODES_VAR);
@@ -4077,23 +3968,22 @@ char *subargs;
 #endif
 
 /* This says you're not channel operator */
-void NotChanOp(channel)
-char *channel;
+void 
+NotChanOp (char *channel)
 {
     say("You are not channel operator on %s",channel);
 }
 
 /* This says no current channel for this window */
-void NoWindowChannel()
+void 
+NoWindowChannel (void)
 {
     say("No current channel for this window");
 }
 
 /* Newhost, patched in by Zakath. Got from diff w/ no credits... */
-void NewHost(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NewHost (char *command, char *args, char *subargs)
 {
     char *newhname = NULL;
 #ifdef JIMMIE

@@ -8,6 +8,8 @@
 #include "ircaux.h"
 #include "list.h"
 #include "vars.h"
+#include "parse.h"
+#include "output.h"
 
 #ifdef HAVE_GMP
 #include "fish.h"
@@ -29,11 +31,13 @@ unsigned char b64buf[256];
 extern char MyPrivKey[];
 extern char MyPubKey[];
 extern struct encrstr *encrlist;
+extern void PrintUsage _((char *));
 
 /* void initb64(); 
    Initializes the base64->base16 conversion tab. 
    Call this function once when your program starts.  */
-void initb64() {
+void 
+initb64 (void) {
     unsigned int i;
 
     for (i = 0; i < 256; i++) b64buf[i] = 0x00;
@@ -306,10 +310,8 @@ void memXOR(unsigned char *s1, const unsigned char *s2, int n) {
 }
 
 /* Initiate DH 1080 key exchange */
-void KeyExchange(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+KeyExchange (char *command, char *args, char *subargs)
 {
     char *target;
     char *pubkey = MyPubKey;
@@ -329,9 +331,8 @@ char *subargs;
 }
 
 /* Retrieve their key */
-void FishAddRemoteKey(nick, notice)
-char *nick;
-char *notice;
+void 
+FishAddRemoteKey (char *nick, char *notice)
 {
     char pubkey[mybufsize / 2];
     struct encrstr *tmp;
@@ -393,11 +394,8 @@ char *notice;
     }
 }
 
-int FishDecrypt(dest, src, key, bufsize)
-char *dest;
-char *src;
-char *key;
-int bufsize;
+int 
+FishDecrypt (char *dest, char *src, char *key, int bufsize)
 {
     int len;
 
@@ -417,12 +415,8 @@ int bufsize;
 
 /* type = 0 ... private msg
           1 ... public msg */
-int FishEncrypt(dest, src, key, bufsize, type)
-char *dest;
-char *src;
-char *key;
-int bufsize;
-int type;
+int 
+FishEncrypt (char *dest, char *src, char *key, int bufsize, int type)
 {
     int len = strlen(src);
     int i = 0, j, padlen;

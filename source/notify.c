@@ -71,8 +71,7 @@ NotifyList	*notify_list = (NotifyList *) 0;
 
 /* Rewritten, -lynx */
 char *
-get_notify_list(which)
-	int which;
+get_notify_list (int which)
 {
 	char	*list = (char *) 0;
 	NotifyList	*tmp;
@@ -94,9 +93,8 @@ get_notify_list(which)
 }
 
 /* Rewritten, -lynx */
-void
-show_notify_list(all)
-	int	all;
+void 
+show_notify_list (int all)
 {
 /**************************** Patched by Flier ******************************/
 	/*char	*list;
@@ -168,11 +166,8 @@ show_notify_list(all)
 
 /* notify: the NOTIFY command.  Does the whole ball-o-wax */
 /*ARGSUSED*/
-void
-notify(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+notify (char *command, char *args, char *subargs)
 {
 	char	*nick,
 		*list = (char *) 0,
@@ -330,8 +325,8 @@ notify(command, args, subargs)
  *
  * Thank you Michael... leaving me bugs to fix :) Well I fixed them!
  */
-void
-do_notify()
+void 
+do_notify (void)
 {
 	static	int	location = 0;
 	int	count,
@@ -380,11 +375,8 @@ do_notify()
  * ideally, a message_from((char *) 0, LOG_CURRENT) should be the what is the
  * current window level.
  */
-void
-notify_mark(nick, flag, doit)
-	char	*nick;
-	int	flag;
-	int	doit;
+void 
+notify_mark (char *nick, int flag, int doit)
 {
 	NotifyList	*tmp;
 	char	*s = get_string_var(NOTIFY_HANDLER_VAR);
@@ -489,9 +481,8 @@ save_notify(fp)
 /* I hate broken compilers -mrg */
 static	char	*vals[] = { "NOISY", "QUIET", "OLD", (char *) 0 };
 
-void
-set_notify_handler(value)
-	char	*value;
+void 
+set_notify_handler (char *value)
 {
  	size_t	len;
 	int	i;

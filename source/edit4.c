@@ -96,7 +96,7 @@
 void   ListBansPage _((char *));
 void   ListBansPrompt _((char *, char *));
 void   MyQuitPrompt _((char *, char *));
-void   AddDelayOp _((char *, char *, char));
+void   AddDelayOp _((char *, char *, int));
 void   AddDelayNotify _((char *));
 int    IsBanned _((char *, char *, int, ChannelList *));
 char   *PickSignOff _((void));
@@ -145,8 +145,8 @@ extern void PrintUsage _((char *));
 extern void ColorUserHost _((char *, char *, char *, int));
 extern int  AddLast _((List *, List *));
 extern NickList *find_in_hash _((ChannelList *, char *));
-extern void HandleDelayOp _((void));
-extern void HandleDelayNotify _((void));
+extern void HandleDelayOp _((char *));
+extern void HandleDelayNotify _((char *));
 extern void BanIt _((char *, char *, char *, int, ChannelList *, int));
 #ifdef WANTANSI
 extern void FixColorAnsi _((char *));
@@ -177,6 +177,11 @@ static struct bans *tmpbn;
 static struct bans *tmpbanlist;
 static int listcount;
 
+void SendNotification (int type, char *str);
+
+
+void *ComplLast;      /* Last completion string used */
+
 void *ComplLast;      /* Last completion string used */
 void *ComplNext;      /* Next completion element to use */
 
@@ -191,12 +196,8 @@ extern IrcCommand irc_command[];
 extern IrcVariable irc_variable[];
 
 /* Prints received message */
-void PrintMessage(nick, userhost, msg, print, iscrypted)
-char *nick;
-char *userhost;
-char *msg;
-int  print;
-int  iscrypted;
+void 
+PrintMessage (char *nick, char *userhost, char *msg, int print, int iscrypted)
 {
     int  numurl = 0;
     char *thing;
@@ -300,11 +301,8 @@ int  iscrypted;
 }
 
 /* Handles net splits */
-void HandleSplit(reason,nick,channel,netsplit)
-char *reason;
-char *nick;
-char *channel;
-int  *netsplit;
+void 
+HandleSplit (char *reason, char *nick, char *channel, int *netsplit)
 {
     *netsplit=0;
     if (!NHDisp) return;
@@ -512,10 +510,8 @@ ChannelList *chan;
 }
 
 /* Handles invite requests */
-void HandleInvite(nick,userhost,channel)
-char *nick;
-char *userhost;
-char *channel;
+void 
+HandleInvite (char *nick, char *userhost, char *channel)
 {
     int  isfake=0;
     int  printinv=1;
@@ -571,11 +567,8 @@ char *channel;
 }
 
 /* Handles operator kills */
-void HandleKills(server, nick, userhost, reason)
-int server;
-char *nick;
-char *userhost;
-char *reason;
+void 
+HandleKills (int server, char *nick, char *userhost, char *reason)
 {
     char tmpb[mybufsize / 2];
     time_t now = time(NULL);
@@ -587,11 +580,8 @@ char *reason;
 }
 
 /* Handles nick change */
-void HandleNickChange(oldnick, newnick, userhost, server)
-char *oldnick;
-char *newnick;
-char *userhost;
-int  server;
+void 
+HandleNickChange (char *oldnick, char *newnick, char *userhost, int server)
 {
     int  privs = 0;
     int  printed = 0;
@@ -696,9 +686,8 @@ int  server;
 }
 
 /* Adds comment to buffer */
-void AddComment(buffer,comment)
-char *buffer;
-char *comment;
+void 
+AddComment (char *buffer, char *comment)
 {
     char tmpbuf[mybufsize/2];
 
@@ -709,13 +698,8 @@ char *comment;
 }
 
 /* Handles my kicks */
-void HandleMyKick(mynick,nick,userhost,channel,comment,frkick)
-char *mynick;
-char *nick;
-char *userhost;
-char *channel;
-char *comment;
-int  *frkick;
+void 
+HandleMyKick (char *mynick, char *nick, char *userhost, char *channel, char *comment)
 {
     ChannelList *chan = NULL;
     char tmpbuf[mybufsize/2];
@@ -730,13 +714,8 @@ int  *frkick;
 }
 
 /* Handles kicks */
-void HandleKick(nick,who,userhost,channel,comment,frkick)
-char *nick;
-char *who;
-char *userhost;
-char *channel;
-char *comment;
-int  *frkick;
+void 
+HandleKick (char *nick, char *who, char *userhost, char *channel, char *comment, int *frkick)
 {
     int  privs=0;
     int  tmplevel=0;
@@ -846,7 +825,8 @@ int  *frkick;
 }
 
 /* Inserts nick from tabkey list */
-void InsertTabNick() {
+void 
+InsertTabNick (void) {
     int curserv=from_server;
     char *nickstr;
     char *cmdchars;
@@ -890,12 +870,8 @@ int IsCmdLine(char *str, char *cmd, int len)
 }
 
 /* Change the right pointers to NULL if needed */
-void FixCompl(last, next, completing, newcompl, length)
-void **last;
-void **next;
-char *completing;
-char *newcompl;
-int length;
+void 
+FixCompl (void **last, void **next, char *completing, char *newcompl, int length)
 {
 
     if (*last &&
@@ -913,12 +889,8 @@ int length;
 }
 
 /* Handle DCC chat completion */
-int HandletabNextDCCChat(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextDCCChat (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     if (IsCmdLine(argv[0], "m", 1) && *argv[1] == '=')
     {
@@ -960,12 +932,8 @@ chat_begin:
 }
 
 /* Handle DCC get completion */
-int HandletabNextDCCGet(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextDCCGet (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     if (argc == 3 && IsCmdLine(argv[0], "dc", 2) &&
         (!my_strnicmp(argv[1], "g", 1) || !my_strnicmp(argv[1], "ren", 3) ||
@@ -1009,12 +977,8 @@ get_begin:
 }
 
 /* Handle DCC send completion */
-int HandletabNextDCCSend(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextDCCSend (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     unsigned minpos = current_screen->inputdata.buffer.minpos;
     char *min_pos = &current_screen->inputdata.buffer.buf[minpos];
@@ -1133,12 +1097,8 @@ send_begin:
 }
 
 /* Handle commands completion */
-int HandletabNextCommand(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextCommand (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     unsigned minpos = current_screen->inputdata.buffer.minpos;
     char *min_pos = &current_screen->inputdata.buffer.buf[minpos];
@@ -1184,12 +1144,8 @@ command_begin:
 }
 
 /* Handle variables completion */
-int HandletabNextVariable(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextVariable (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     if (argc == 1 && IsCmdLine(argv[0], "set", 3))
     {
@@ -1227,12 +1183,8 @@ variable_begin:
 }
 
 /* Handle channel completion */
-int HandletabNextChannel(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextChannel (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     if (!CheckServer(curr_scr_win->server)) return(0);
 
@@ -1274,12 +1226,8 @@ channel_begin:
 }
 
 /* Handle nick completion */
-int HandletabNextNick(argc, argv, completing, newcompl, length)
-int argc;
-char argv[3][32];
-char *completing;
-char *newcompl;
-int length;
+int 
+HandletabNextNick (int argc, char argv[3][32], char *completing, char *newcompl, int length)
 {
     int i;
     int channel_count = 0;
@@ -1444,7 +1392,8 @@ void HandleTabNext(u_int key, char *ptr)
 }
 
 /* Handles alt-i (prev nick in nick list) */
-void HandleTabPrev() {
+void 
+HandleTabPrev (u_int u, char* c) {
     int curserv=from_server;
     struct nicks *tmpnick;
 
@@ -1464,9 +1413,8 @@ void HandleTabPrev() {
 }
 
 /* Handles end of bans reply */
-void EndOfBans(channel,server)
-char *channel;
-int  server;
+void 
+EndOfBans (char *channel, int server)
 {
     ChannelList *chan;
 
@@ -1479,13 +1427,8 @@ int  server;
 }
 
 /* Handles received notice */
-int HandleNotice(nick, notice, userhost, print, to, iscrypted)
-char *nick;
-char *notice;
-char *userhost;
-int  print;
-char *to;
-int *iscrypted;
+int 
+HandleNotice (char *nick, char *notice, char *userhost, int print, char *to, int *iscrypted)
 {
     int  isme;
     int  hooked = 1;
@@ -1595,17 +1538,16 @@ int *iscrypted;
 }
 
 /* Handles closed connections from server */
-void HandleClosedConn(server,reason)
-int server;
-char *reason;
+void 
+HandleClosedConn (int server, char *reason)
 {
     if (away_set || LogOn) AwaySave(reason,SAVESERVER);
 }
 
 #ifdef EXTRA_STUFF
 /* Handles on the fly renaming of files */
-void HandleRename(dccstuff)
-char **dccstuff;
+void 
+HandleRename (char **dccstuff)
 {
     char tmpbuf[mybufsize/8];
 
@@ -1618,11 +1560,8 @@ char **dccstuff;
 #endif
 
 /* Handles flooding */
-void HandleFlood(nick,userhost,target,ignoretype)
-char *nick;
-char *userhost;
-char *target;
-char *ignoretype;
+void 
+HandleFlood (char *nick, char *userhost, char *target, char *ignoretype)
 {
     char tmpbuf1[mybufsize/4];
     char tmpbuf2[mybufsize/4];
@@ -1657,10 +1596,8 @@ char *ignoretype;
 
 #ifdef EXTRAS
 /* Locks channel mode */
-void ModeLocked(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ModeLocked (char *command, char *args, char *subargs)
 {
     int first=1;
     char *mode=(char *) 0;
@@ -1789,9 +1726,8 @@ ChannelList *tmpchan;
 #endif
 
 /* Handles end of who reply */
-void HandleEndOfWho(channel,server)
-char *channel;
-int  server;
+void 
+HandleEndOfWho (char *channel, int server)
 {
     ChannelList *chan;
 
@@ -1801,10 +1737,8 @@ int  server;
 }
 
 /* Toggles CTCP cloaking on/off */
-void CTCPCloakingToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+CTCPCloakingToggle (char *command, char *args, char *subargs)
 {
     if (*args) {
         if (!my_stricmp(args,"ON")) CTCPCloaking=1;
@@ -1918,10 +1852,8 @@ ChannelList *chan;
 }
 
 /* This really unbans user */
-void UnbanIt(pattern,channel,server)
-char *pattern;
-char *channel;
-int  server;
+void 
+UnbanIt (char *pattern, char *channel, int server)
 {
     int  count=0;
     int  max=get_int_var(MAX_MODES_VAR);
@@ -1956,10 +1888,8 @@ int  server;
 }
 
 /* Shows all bans and asks which one you wanna remove */
-void TBan(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+TBan (char *command, char *args, char *subargs)
 {
     char *channel;
     char tmpbuf[mybufsize/4];
@@ -1992,16 +1922,16 @@ char *subargs;
 }
 
 /* Check if ban still exists on given channel */
-int CheckBanExists(channel)
-char *channel;
+int 
+CheckBanExists (char *channel)
 {
     if (!tmpbn) return(0);
     return(1);
 }
 
 /* Lists one page of bans list */
-void ListBansPage(line)
-char *line;
+void 
+ListBansPage (char *line)
 {
     int count=1;
 
@@ -2032,9 +1962,8 @@ char *line;
 }
 
 /* This waits for line input */
-void ListBansPrompt(stuff,line)
-char *stuff;
-char *line;
+void 
+ListBansPrompt (char *stuff, char *line)
 {
     int  max=get_int_var(MAX_MODES_VAR);
     int  count=0;
@@ -2074,10 +2003,8 @@ char *line;
 }
 
 /* Handles fake modes */
-void HandleFakes(line,from,server)
-char *line;
-char *from;
-int  server;
+void 
+HandleFakes (char *line, char *from, int server)
 {
     char *tmpstr=(char *) 0;
     char *tmpnick=(char *) 0;
@@ -2133,10 +2060,8 @@ int  server;
 
 #ifdef EXTRAS
 /* Resets channel's lock mode */
-void ModeUnlocked(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ModeUnlocked (char *command, char *args, char *subargs)
 {
     char *channel;
     char tmpbuf[mybufsize/4];
@@ -2165,10 +2090,8 @@ char *subargs;
 
 #ifdef SCKICKS
 /* Kicks nick with funny message */
-void ScatterKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ScatterKick (char *command, char *args, char *subargs)
 {
     int  number=0;
     int  kicked=0;
@@ -2314,10 +2237,8 @@ char *subargs;
 }
 
 /* Randomly picks a funny message and kicks nick */
-void RandomScatterKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RandomScatterKick (char *command, char *args, char *subargs)
 {
     int  number=0;
     char *channel;
@@ -2344,10 +2265,8 @@ char *subargs;
 
 #ifdef EXTRAS
 /* Kicks nick with last notice */
-void LastNoticeKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+LastNoticeKick (char *command, char *args, char *subargs)
 {
     char *channel;
     char *tmpnick;
@@ -2384,10 +2303,8 @@ char *subargs;
 #endif
 
 /* Prints some statistics about nick */
-void NickStat(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+NickStat (char *command, char *args, char *subargs)
 {
     int  found = 0;
     char *tmpnick;
@@ -2417,10 +2334,8 @@ char *subargs;
 }
 
 /* Adds nick to notify list */
-void AddNotify(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AddNotify (char *command, char *args, char *subargs)
 {
     char *tmpnick;
 
@@ -2432,10 +2347,8 @@ char *subargs;
 }
 
 /* Removes nick from notify list */
-void RemoveNotify(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveNotify (char *command, char *args, char *subargs)
 {
     char *tmpnick;
     char *tmpbuf = NULL;
@@ -2455,9 +2368,8 @@ char *subargs;
 }
 
 /* Handles notify reply */
-void HandleNotifyOn(nick,server)
-char *nick;
-int  server;
+void 
+HandleNotifyOn (char *nick, int server)
 {
     AddDelayNotify(nick);
 }
@@ -2624,10 +2536,8 @@ int isfriend;
 }
 
 /* Lists all users on notify list */
-void ListNotify(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ListNotify (char *command, char *args, char *subargs)
 {
     int  i;
     int  count;
@@ -3047,8 +2957,8 @@ ChannelList *chan;
 }
 
 /* This executes when you quit from IRC */
-void MyQuit(reason)
-char *reason;
+void 
+MyQuit (char *reason)
 {
     int active=0;
     DCC_list *client;
@@ -3069,9 +2979,8 @@ char *reason;
 }
 
 /* Prompt when you quit if you have dccs pending */
-void MyQuitPrompt(reason,line)
-char *reason;
-char *line;
+void 
+MyQuitPrompt (char *reason, char *line)
 {
     int max;
     int i;
@@ -3123,10 +3032,8 @@ char *line;
 }
 
 /* Adds nick to delay op list */
-void AddDelayOp(channel,nick,flag)
-char *channel;
-char *nick;
-char flag;
+void 
+AddDelayOp (char *channel, char *nick, int flag)
 {
     char tmpbuf[mybufsize/4];
     void (*func)()=(void(*)()) HandleDelayOp;
@@ -3136,8 +3043,8 @@ char flag;
 }
 
 /* Adds nick to delay notify list */
-void AddDelayNotify(nick)
-char *nick;
+void 
+AddDelayNotify (char *nick)
 {
     char tmpbuf[mybufsize/4];
     void (*func)()=(void(*)()) HandleDelayNotify;
@@ -3148,10 +3055,8 @@ char *nick;
 
 /* Adds given server to server list */
 #ifndef LITE
-void AddServer(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+AddServer (char *command, char *args, char *subargs)
 {
     int port=0;
     int old_server=0;
@@ -3180,10 +3085,8 @@ char *subargs;
 }
 
 /* Removes given server from server list */
-void RemoveServer(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+RemoveServer (char *command, char *args, char *subargs)
 {
     int port=0;
     int old_server=0;
@@ -3222,10 +3125,8 @@ char *subargs;
 }
 
 /* Lists servers on server list */
-void ListServers(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ListServers (char *command, char *args, char *subargs)
 {
     int  i;
     char tmpbuf[mybufsize/8];
@@ -3280,7 +3181,8 @@ ChannelList *tmpchan;
 
 #ifdef CELE
 /* Random signoff generator */
-char *CeleSignoff()
+char *
+CeleSignoff (void)
 {
     int num;
     int count;
@@ -3307,7 +3209,8 @@ char *CeleSignoff()
 }
 #else
 /* Randomly picks sign off message */
-char *PickSignOff()
+char *
+PickSignOff (void)
 {
     int  number;
     int  count=0;
@@ -3340,8 +3243,8 @@ char *PickSignOff()
 
 #ifdef SCKICKS
 /* Randomly picks scatter kick comment */
-char *PickScatterKick(number)
-int number;
+char *
+PickScatterKick (int number)
 {
     int  count=0;
     char *pointer=(char *) 0;
@@ -3368,10 +3271,8 @@ int number;
 #endif
 
 /* Clears tabkey list */
-void ClearTab(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ClearTab (char *command, char *args, char *subargs)
 {
     int curserv=from_server;
     struct nicks *nickstr;
@@ -3392,10 +3293,8 @@ char *subargs;
 
 #ifdef EXTRAS
 /* Stores links info internally */
-void LLook(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+LLook (char *command, char *args, char *subargs)
 {
     int cnt=0;
     char *tmpstr;
@@ -3492,10 +3391,8 @@ char *subargs;
 }
 
 /* Compares links info against one stored internally */
-void LLookUp(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+LLookUp (char *command, char *args, char *subargs)
 {
     time_t timenow=time((time_t *) 0);
     struct splitstr *tmpsplit;
@@ -3519,8 +3416,8 @@ char *subargs;
 }
 
 /* This handles links reply from server */
-void HandleLinks(servers)
-char *servers;
+void 
+HandleLinks (char *servers)
 {
     int  found1,found2;
     char *tmpstr=(char *) 0;
@@ -3615,7 +3512,8 @@ char *servers;
 }
 
 /* Prints all servers missing from links info */
-void ListSplitedServers()
+void 
+ListSplitedServers (void)
 {
     int found;
     struct splitstr *tmp,*tmpsplit;
@@ -3645,10 +3543,8 @@ void ListSplitedServers()
 #endif
 
 /* This will show the sucker that last killed you */
-void ShowKill(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+ShowKill (char *command, char *args, char *subargs)
 {
     if (WhoKilled) say("%s", WhoKilled);
     else say("You haven't been killed so far");

@@ -83,8 +83,8 @@ static	int	Init = 0;
 
 static	void	dump_mem _((void));
 
-static	void
-dump_mem()
+static void 
+dump_mem (void)
 {
 	int	i;
 	FILE	*fp;
@@ -171,9 +171,8 @@ dump_mem()
  * new_free:  Why do this?  Why not?  Saves me a bit of trouble here and
  * there 
  */
-void
-new_free(iptr)
-	void	*iptr;
+void 
+new_free (void *iptr)
 {
 	void	**ptr = (void **) iptr;
 #ifdef ALLOC_DEBUG
@@ -239,9 +238,8 @@ static char * wait_pointers[WAIT_BUFFER] = {0}, **current_wait_ptr = wait_pointe
 /*
  * wait_new_free: same as new_free() except that free() is postponed.
  */
-void
-wait_new_free(ptr)
-	char	**ptr;
+void 
+wait_new_free (char **ptr)
 {
 	if (*current_wait_ptr)
 		new_free(current_wait_ptr);
@@ -254,9 +252,8 @@ wait_new_free(ptr)
 /*
  * reall_free: really free the data if level == 0
  */
-void
-really_free(level)
-	int	level;
+void 
+really_free (int level)
 {
 	if (level != 0)
 		return;
@@ -361,11 +358,8 @@ new_malloc(size)
 }
 
 #ifdef ALLOC_DEBUG
-void
-alloc_cmd(command, args, subargs)
-	char    *command,
-		*args,
-		*subargs;
+void 
+alloc_cmd (char *command, char *args, char *subargs)
 {
 	char	*arg;
 	int	f_count = 0,
@@ -435,10 +429,8 @@ alloc_cmd(command, args, subargs)
  * Never call this with ptr pointing to an uninitialised string, as the
  * call to new_free() might crash the client... - phone, jan, 1993.
  */
-void
-malloc_strcpy(ptr, src)
-	char	**ptr;
-	char	*src;
+void 
+malloc_strcpy (char **ptr, char *src)
 {
 	/* no point doing anything else */
 	if (src == *ptr)
@@ -455,10 +447,8 @@ malloc_strcpy(ptr, src)
 }
 
 /* malloc_strcat: Yeah, right */
-void
-malloc_strcat(ptr, src)
-	char	**ptr;
-	char	*src;
+void 
+malloc_strcat (char **ptr, char *src)
 {
 	char	*new;
 
@@ -474,10 +464,8 @@ malloc_strcat(ptr, src)
 		malloc_strcpy(ptr, src);
 }
 
-void
-malloc_strcat_ue(ptr, src)
-	char	**ptr;
-	char	*src;
+void 
+malloc_strcat_ue (char **ptr, char *src)
 {
 	char	*new;
 
@@ -495,9 +483,8 @@ malloc_strcat_ue(ptr, src)
 		malloc_strcpy(ptr, src);
 }
 
-char	*
-upper(s)
-	char	*s;
+char *
+upper (char *s)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*char	*t = (char *) 0;*/
@@ -512,8 +499,7 @@ upper(s)
 }
 
 char *
-lower(s)
-	char *	s;
+lower (char *s)
 {
 	char *	t = (char *) 0;
 
@@ -526,10 +512,8 @@ lower(s)
 
 /**************************** PATCHED by Flier ******************************/
 /* try to find unused port in port range given in /set dcc_ports */
-int BindPort(s,slisten,localaddr)
-int s;
-int slisten;
-struct sockaddr_in *localaddr;
+int 
+BindPort (int s, int slisten, struct sockaddr_in *localaddr)
 {
     int sal=sizeof(struct sockaddr_in);
     int locport;
@@ -576,16 +560,14 @@ struct sockaddr_in *localaddr;
  *
  * -4 connect call failed 
  */
-int
-/**************************** PATCHED by Flier ******************************/
-/*connect_by_number(service, host, nonblocking)*/
-connect_by_number(service,host,nonblocking,dccget)
+int 
+connect_by_number (
 /****************************************************************************/
-	int	service;
-	char	*host;
-	int	nonblocking;
-/**************************** PATCHED by Flier ******************************/
-        int     dccget;
+    int service,
+    char *host,
+    int nonblocking,
+    int dccget
+)
 /****************************************************************************/
 {
 	int	s = -1;
@@ -864,12 +846,8 @@ connect_by_number(service,host,nonblocking,dccget)
  * -2  if host wasn't found
  * -10 if family type wasn't supported for specified host
  */
-static int
-bind_local_addr(localhost, localport, fd, family)
-	char *localhost;
-	char *localport;
-	int fd;
-	int family;
+static int 
+bind_local_addr (char *localhost, char *localport, int fd, int family)
 {
 	struct  addrinfo hintsx, *resx, *res0x;
 	int     err = -1;
@@ -911,10 +889,8 @@ bind_local_addr(localhost, localport, fd, family)
 }
 #endif
 
-char	*
-next_arg(str, new_ptr)
-	char	*str,
-		**new_ptr;
+char *
+next_arg (char *str, char **new_ptr)
 {
 	char	*ptr;
 
@@ -932,10 +908,8 @@ next_arg(str, new_ptr)
 	return ptr;
 }
 
-char	*
-new_next_arg(str, new_ptr)
-	char	*str,
-		**new_ptr;
+char *
+new_next_arg (char *str, char **new_ptr)
 {
 	char	*ptr,
 		*start;
@@ -980,13 +954,14 @@ new_next_arg(str, new_ptr)
 }
 
 /* my_stricmp: case insensitive version of strcmp */
-int
-my_stricmp(str1, str2)
+int 
+my_stricmp (
 /**************************** PATCHED by Flier ******************************/
         /*char	*str1,
 		*str2;*/
-register char	*str1,
-		*str2;
+    register char *str1,
+    register char *str2
+)
 /****************************************************************************/
 {
 	int	xor;
@@ -1118,10 +1093,8 @@ strmcat_ue(dest, src, maxlen)
  * 0.  If it is found, returns the position in source (1 being the first
  * position).  Not the best way to handle this, but what the hell 
  */
-extern	int
-scanstr(source, str)
-	char	*str,
-		*source;
+extern int 
+scanstr (char *source, char *str)
 {
 	int	i,
  		max;
@@ -1138,9 +1111,8 @@ scanstr(source, str)
 }
 
 /* expand_twiddle: expands ~ in pathnames. */
-char	*
-expand_twiddle(str)
-	char	*str;
+char *
+expand_twiddle (char *str)
 {
  	char	lbuf[BIG_BUFFER_SIZE + 1];
 
@@ -1194,9 +1166,8 @@ expand_twiddle(str)
  * rewritten, with help from do_nick_name() from the server code (2.8.5),
  * phone, april 1993.
  */
-char	*
-check_nickname(nick)
-	char	*nick;
+char *
+check_nickname (char *nick)
 {
 	char	*s;
 
@@ -1221,8 +1192,8 @@ check_nickname(nick)
 /*
  * We need this function otherwise bad things happen if you /nick erroneous_nick
  */
-char *check_nickname(nick)
-char *nick;
+char *
+check_nickname (char *nick)
 {
     char *s;
 
@@ -1240,13 +1211,14 @@ char *nick;
  * the group, and returns that position.  If the first character is a ^, then
  * this will match the first occurence not in that group.
  */
-char	*
-sindex(string, group)
+char *
+sindex (
 /**************************** PATCHED by Flier ******************************/
 	/*char	*string,
 		*group;*/
-register char	*string,
-		*group;
+    register char *string,
+    register char *group
+)
 /****************************************************************************/
 {
 	char	*ptr;
@@ -1286,13 +1258,14 @@ register char	*string,
  * the group, and returns that position.  If the first character is a ^, then
  * this will match the first occurence not in that group.
  */
-char	*
-srindex(string, group)
+char *
+srindex (
 /**************************** PATCHED by Flier ******************************/
 	/*char	*string,
 		*group;*/
-register char	*string,
-		*group;
+    register char *string,
+    register char *group
+)
 /****************************************************************************/
 {
 	char	*ptr, *str;
@@ -1329,11 +1302,12 @@ register char	*string,
 }
 
 /* is_number: returns true if the given string is a number, false otherwise */
-int
-is_number(str)
+int 
+is_number (
 /**************************** PATCHED by Flier ******************************/
 	/*char	*str;*/
-register char	*str;
+    register char *str
+)
 /****************************************************************************/
 {
 	while (*str == ' ')
@@ -1354,11 +1328,8 @@ register char	*str;
 }
 
 /* rfgets: exactly like fgets, cept it works backwards through a file!  */
-char	*
-rfgets(lbuf, size, file)
- 	char	*lbuf;
-	int	size;
-	FILE	*file;
+char *
+rfgets (char *lbuf, int size, FILE *file)
 {
 	char	*ptr;
 	off_t	pos;
@@ -1392,10 +1363,8 @@ rfgets(lbuf, size, file)
  * full path name of the file is returned in a static string.  If not, null
  * is returned.  Path is a colon separated list of directories 
  */
-char	*
-path_search(name, path)
-	char	*name;
-	char	*path;
+char *
+path_search (char *name, char *path)
 {
  	static	char	lbuf[BIG_BUFFER_SIZE + 1] = "";
 	char	*ptr,
@@ -1432,10 +1401,8 @@ path_search(name, path)
  * set stuff with the QUOTE_CHAR. It returns a malloced quoted, null
  * terminated string 
  */
-char	*
-double_quote(str, stuff)
-	char	*str;
-	char	*stuff;
+char *
+double_quote (char *str, char *stuff)
 {
  	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr = NULL;
@@ -1479,9 +1446,8 @@ double_quote(str, stuff)
  *                                    - Allanon -
  *
  */
-void
-new_stty(option)
-	char	*option;
+void 
+new_stty (char *option)
 {
 #if defined(ESIX) || defined(MIPS_SYSV)
 	struct	termio ttyset;
@@ -1544,9 +1510,8 @@ new_stty(option)
  * OUT: a FILE *, from which read the expanded file
  *
  */
-FILE	*
-zcat(name)
-	char	*name;
+FILE *
+zcat (char *name)
 {
 	FILE	*fp;
 	int	in[2];
@@ -1595,10 +1560,8 @@ zcat(name)
 
 #ifdef NEED_INDEX
 
-extern	char	*
-index(s, c)
-	char	*s;
-	char	c;
+extern char *
+index (char *s, int c)
 {
 # ifdef HAVE_STRSTR
 	return strstr(s, c);
@@ -1616,10 +1579,8 @@ index(s, c)
 
 #ifdef NEED_RINDEX
 
-extern	char	*
-rindex(s, c)
-	char	*s;
-	char	c;
+extern char *
+rindex (char *s, int c)
 {
 # ifdef HAVE_STRRSTR
 	return strrstr(s, c);
@@ -1638,9 +1599,8 @@ rindex(s, c)
 #endif /* NEED_RINDEX */
 
 #ifdef NON_BLOCKING_CONNECTS
-int
-set_non_blocking(fd)
-int	fd;
+int 
+set_non_blocking (int fd)
 {
 	int	res, nonb = 0;
 
@@ -1669,9 +1629,8 @@ no idea how to set an fd to non-blocking
 	return 0;
 }
 
-int
-set_blocking(fd)
-int	fd;
+int 
+set_blocking (int fd)
 {
 	int	res, nonb = 0;
 

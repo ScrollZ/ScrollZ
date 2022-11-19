@@ -102,12 +102,8 @@ char *onoffbuf;
     return(onoffbuf);
 }
 
-void addtobuf(files,buffer,choice,oldchoice,what)
-char *files;
-char *buffer;
-int  choice;
-int  oldchoice;
-int  what;
+void 
+addtobuf (char *files, char *buffer, int choice, int oldchoice, int what)
 {
     char buf[32];
     char tmpbuf[mybufsize];
@@ -145,9 +141,8 @@ struct stat *statbuf;
         printf("Error, couldn't set time on file %s\n",file);
 }
 
-int main(argc,argv)
-int argc;
-char **argv;
+int 
+main (int argc, char **argv)
 {
     int  i,choice=0,oldchoice=0;
     int  end=0;

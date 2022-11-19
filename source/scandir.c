@@ -59,16 +59,8 @@ static char sccsid[] = "@(#)scandir.c	5.3 (Berkeley) 6/18/88";
 */
 #include "scandir.h"
 
-int
-scandir(Name, dirlist, Selector, Sorter)
-#if defined(__linux__) || defined(__sgi)
-    const char            *Name;
-#else
-    char		  *Name;
-#endif
-    struct dirent		***dirlist;
-    int			 (*Selector)();
-    int			 (*Sorter)();
+int 
+scandir (char *Name, struct dirent ***dirlist, int (*Selector)(void), int (*Sorter)(void))
 {
     struct dirent	 **names;
     static  struct dirent	  *E;
@@ -129,8 +121,8 @@ scandir(Name, dirlist, Selector, Sorter)
  * Alphabetic order comparison routine for those who want it. 
  */
 #ifndef alphasort
-int alphasort(d1, d2)
-struct dirent **d1, **d2;
+int 
+alphasort (struct dirent **d1, struct dirent **d2)
 {
     return(strcmp((*d1)->d_name, (*d2)->d_name));
 }
@@ -141,14 +133,8 @@ struct dirent **d1, **d2;
 /* End of Mike Sandrof's change */
 #include "scandir.h"
 
-int scandir(dirname, namelist, select, dcomp)
-#ifdef NeXT
-const char *dirname;
-#else
-char *dirname;
-#endif /* NeXT */
-struct direct *(*namelist[]);
-int (*select) (), (*dcomp) ();
+int 
+scandir (char *dirname, struct direct *(*namelist[]), int (*select)(void), int (*dcomp)(void))
 {
     register struct direct *d,
           *p,
@@ -220,9 +206,8 @@ int (*select) (), (*dcomp) ();
 /*
  * Alphabetic order comparison routine for those who want it. 
  */
-int alphasort(d1, d2)
-struct direct **d1,
-     **d2;
+int 
+alphasort (struct direct **d1, struct direct **d2)
 {
     return (strcmp((*d1)->d_name, (*d2)->d_name));
 }

@@ -92,9 +92,8 @@ static	History	*history_tmp = (History *) 0;
  * is no match.  Note that this sticks a '*' at the end if one is not already
  * there. 
  */
-static	char	*
-history_match(match)
-	char	*match;
+static char *
+history_match (char *match)
 {
 	char	*ptr;
 	char	*match_str = (char *)NULL;
@@ -154,10 +153,8 @@ history_match(match)
  * add_to_history_file: This adds the given line of text to the end of the
  * history file using cnt as the history index number. 
  */
-static	void
-add_to_history_file(cnt, line)
-	int	cnt;
-	char	*line;
+static void 
+add_to_history_file (int cnt, char *line)
 {
 	if (hist_file)
 	{
@@ -168,10 +165,8 @@ add_to_history_file(cnt, line)
 	}
 }
 
-static	void
-add_to_history_list(cnt, stuff)
-	int	cnt;
-	char	*stuff;
+static void 
+add_to_history_list (int cnt, char *stuff)
 {
 	History *new;
 
@@ -217,9 +212,8 @@ add_to_history_list(cnt, stuff)
  * function to whatever you send as file.  This expands twiddles and opens
  * the file if all is well 
  */
-void
-set_history_file(file)
-	char	*file;
+void 
+set_history_file (char *file)
 {
 	char	*ptr;
 	int	i,
@@ -283,9 +277,8 @@ set_history_file(file)
  * nulled.  If it exists, it is resized to the new size with a realloc.  Any
  * new entries are nulled. 
  */
-void
-set_history_size(size)
-	int	size;
+void 
+set_history_size (int size)
 {
 	int	i,
 		cnt;
@@ -317,10 +310,8 @@ set_history_size(size)
  * parse_history: given a string of the form "number: stuff", this returns
  * the number as an integer and points ret to stuff 
  */
-static	int
-parse_history(lbuf, ret)
- 	char	*lbuf;
-	char	**ret;
+static int 
+parse_history (char *lbuf, char **ret)
 {
 	char	*ptr;
 	int	entry;
@@ -340,9 +331,8 @@ parse_history(lbuf, ret)
  * array is a circular buffer, and add_to_history handles all that stuff. It
  * automagically allocted and deallocated memory as needed 
  */
-void
-add_to_history(line)
-	char	*line;
+void 
+add_to_history (char *line)
 {
 	char	*ptr;
 
@@ -360,9 +350,8 @@ add_to_history(line)
 		}
 }
 
-static	char	*
-get_from_history_file(which)
-	int	which;
+static char *
+get_from_history_file (int which)
 {
 	char	*ptr;
 /**************************** PATCHED by Flier ******************************/
@@ -401,9 +390,8 @@ get_from_history_file(which)
 	return (ptr);
 }
 
-static	char	*
-get_from_history_buffer(which)
-	int	which;
+static char *
+get_from_history_buffer (int which)
 {
 	if ((get_int_var(HISTORY_VAR) == 0) || (hist_size == 0))
 		return (u_char *) 0;
@@ -444,9 +432,8 @@ get_from_history_buffer(which)
 	}
 }
 
-char	*
-get_from_history(which)
-	int	which;
+char *
+get_from_history (int which)
 {
 	char	*str = (char *)NULL;
 
@@ -459,11 +446,8 @@ get_from_history(which)
 
 /* history: the /HISTORY command, shows the command history buffer. */
 /*ARGSUSED*/
-void
-history(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+history (char *command, char *args, char *subargs)
 {
 	int	cnt,
 		max;
@@ -514,10 +498,8 @@ history(command, args, subargs)
  * returns the found entry as its function value, or null if the entry is not
  * found for some reason.  Note that this routine mallocs the string returned  
  */
-char	*
-do_history(com, rest)
-	char	*com,
-		*rest;
+char *
+do_history (char *com, char *rest)
 {
 	int	hist_num;
 	char	*ptr,

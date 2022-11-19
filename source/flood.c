@@ -64,17 +64,14 @@ static  int flood_users = 0;
  *
  * NOTE:  flood's are never freed.
  */
-int
-/**************************** PATCHED by Flier ******************************/
-/*check_flooding(nick, type, line)*/
-check_flooding(nick, target, type, line)
+int 
+check_flooding (
 /****************************************************************************/
-	char	*nick;
-/**************************** PATCHED by Flier ******************************/
-	char	*target;
-/****************************************************************************/
-	int	type;
-	char	*line;
+    char *nick,
+    char *target,
+    int type,
+    char *line
+)
 {
 	static	int	users = 0,
 			pos = 0;

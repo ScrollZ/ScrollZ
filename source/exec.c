@@ -137,9 +137,8 @@ static	void	send_exec_result _((Process *, char *));
  * exec_close: silly, eh?  Well, it makes the code look nicer.  Or does it
  * really?  No.  But what the hell 
  */
-static	int
-exec_close(des)
-	int	des;
+static int 
+exec_close (int des)
 {
 	if (des != -1)
 		new_close(des);
@@ -151,9 +150,8 @@ exec_close(des)
  * for upon process exit.  This is used by waitcmd() in edit.c.  An index of
  * -1 disables this.
  */
-void
-set_wait_process(proccess)
-	int	proccess;
+void 
+set_wait_process (int proccess)
 {
 	wait_index = proccess;
 }
@@ -162,9 +160,8 @@ set_wait_process(proccess)
  * valid_process_index: checks to see if index refers to a valid running
  * process and returns true if this is the case.  Returns false otherwise 
  */
-static	int
-valid_process_index(proccess)
-	int	proccess;
+static int 
+valid_process_index (int proccess)
 {
 	if ((proccess < 0) || (proccess >= process_list_size))
 		return (0);
@@ -185,17 +182,18 @@ valid_process_index(proccess)
 
 volatile static int _child_died = 0;
 
-static	void
-_child_death()
+static void 
+_child_death (void)
 {
 	_child_died = 1;
 }
 
-int
-waitpid(pid, status, options)
-	int	pid;	/* Only works if pid == -1! */
-	int	*status;
-	int	options;
+int 
+waitpid (
+    int pid,	/* Only works if pid == -1! */
+    int *status,
+    int options
+)
 {
 	int rval;
 	void (*prev_sigcld)();
@@ -219,9 +217,8 @@ waitpid(pid, status, options)
 }
 #endif /* not BSDWAIT && NEED_WAITPID */
 
-int
-get_child_exit(pid)
-	int	pid;
+int 
+get_child_exit (int pid)
 {
 	return (check_wait_status(pid));
 }
@@ -230,9 +227,8 @@ get_child_exit(pid)
  * check_wait_status: This waits on child processes, reporting terminations
  * as needed, etc 
  */
-int
-check_wait_status(wanted)
-	int wanted;
+int 
+check_wait_status (int wanted)
 {
 	Process	*proc;
 #ifdef BSDWAIT
@@ -285,8 +281,8 @@ check_wait_status(wanted)
  * the user selected maximum number of output lines.  If so, the processes is
  * effectively killed 
  */
-void
-check_process_limits()
+void 
+check_process_limits (void)
 {
 	int	limit;
 	int	i;
@@ -311,10 +307,8 @@ check_process_limits()
 	}
 }
 
-static void
-send_exec_result(proc, exec_buffer)
-	Process *proc;
-	char *exec_buffer;
+static void 
+send_exec_result (Process *proc, char *exec_buffer)
 {
 	if (proc->redirect)
 	{
@@ -525,8 +519,8 @@ set_process_bits(rd)
  * list_processes: displays a list of all currently running processes,
  * including index number, pid, and process name 
  */
-static	void
-list_processes()
+static void 
+list_processes (void)
 {
 	Process	*proc;
 	int	i;
@@ -555,10 +549,8 @@ list_processes()
 	set_lastlog_msg_level(lastlog_level);
 }
 
-void
-add_process_wait(proc_index, cmd)
-	int 	proc_index;
-	char 	*cmd;
+void 
+add_process_wait (int proc_index, char *cmd)
 {
 	List	*new,
 		**posn;
@@ -578,9 +570,8 @@ add_process_wait(proc_index, cmd)
  * thing.  It only deletes it from the list.  If appropriate, this will also
  * shrink the list as needed 
  */
-static	int
-delete_process(process)
-	int	process;
+static int 
+delete_process (int process)
 {
 	int	flag;
 	List	*cmd,
@@ -664,17 +655,8 @@ delete_process(process)
  * needed.  It will first try to add the process to a currently unused spot
  * in the process table before it increases it's size. 
  */
-static	void
-add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refnum)
-	char	*name,
-		*logical;
-	int	pid,
-		p_stdin,
-		p_stdout,
-		p_stderr;
-	char	*redirect;
-	char	*who;
-	unsigned int	refnum;
+static void 
+add_process (char *name, char *logical, int pid, int p_stdin, int p_stdout, int p_stderr, char *redirect, char *who, unsigned int refnum)
 {
 	int	i;
 	Process	*proc;
@@ -751,10 +733,8 @@ add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refn
  * index into the process table.  After the signal is sent, the process is
  * deleted from the process table
  */
-static	void
-kill_process(kill_index, sig)
-	int	kill_index,
-		sig;
+static void 
+kill_process (int kill_index, int sig)
 {
 	if (process_list && (kill_index < process_list_size) && process_list[kill_index])
 	{
@@ -803,9 +783,8 @@ kill_process(kill_index, sig)
 		say("There is no process %d", kill_index);
 }
 
-static	int
-is_logical_unique(logical)
-	char	*logical;
+static int 
+is_logical_unique (char *logical)
 {
 	Process	*proc;
 	int	i;
@@ -822,13 +801,8 @@ is_logical_unique(logical)
  * start_process: Attempts to start the given process using the SHELL as set
  * by the user.
  */
-static	void
-start_process(name, logical, redirect, who, refnum)
-	char	*name,
-		*logical,
-		*who,
-		*redirect;
-	unsigned int	refnum;
+static void 
+start_process (char *name, char *logical, char *redirect, char *who, unsigned int refnum)
 {
 	int	p0[2],
 		p1[2],
@@ -957,11 +931,8 @@ start_process(name, logical, redirect, who, refnum)
  * Otherwise 0 is returned.
  * Added show, to remove some bad recursion, phone, april 1993
  */
-int
-text_to_process(proc_index, text, show)
-	int	proc_index;
-	char	*text;
-	int	show;
+int 
+text_to_process (int proc_index, char *text, int show)
 {
  	u_int	ref;
 	Process	*proc;
@@ -988,9 +959,8 @@ text_to_process(proc_index, text, show)
  * is_process_running: Given an index, this returns true if the index referes
  * to a currently running process, 0 otherwise
  */
-int
-is_process_running(proc_index)
-	int	proc_index;
+int 
+is_process_running (int proc_index)
 {
 	if (proc_index < 0 || proc_index >= process_list_size)
 		return (0);
@@ -1003,9 +973,8 @@ is_process_running(proc_index)
  * logical_to_index: converts a logical process name to it's approriate index
  * in the process list, or -1 if not found
  */
-int
-logical_to_index(logical)
-	char	*logical;
+int 
+logical_to_index (char *logical)
 {
 	Process	*proc;
 	int	i;
@@ -1023,9 +992,8 @@ logical_to_index(logical)
  * get_process_index: parses out a process index or logical name from the
  * given string
  */
-int
-get_process_index(args)
-	char	**args;
+int 
+get_process_index (char **args)
 {
 	char	*s;
 
@@ -1045,9 +1013,8 @@ get_process_index(args)
 }
 
 /* is_process: checks to see if arg is a valid process specification */
-int
-is_process(arg)
-	char	*arg;
+int 
+is_process (char *arg)
 {
 	if (arg && *arg == '%')
 	{
@@ -1062,11 +1029,8 @@ is_process(arg)
  * exec: the /EXEC command.  Handles the whole IRCII process crap. 
  */
 /*ARGSUSED*/
-void
-execcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+execcmd (char *command, char *args, char *subargs)
 {
 	char	*who = (char *) 0,
 		*logical = (char *) 0,
@@ -1316,8 +1280,8 @@ out:
  * clean_up_processes: kills all processes in the procss list by first
  * sending a SIGTERM, then a SIGKILL to clean things up 
  */
-void
-clean_up_processes()
+void 
+clean_up_processes (void)
 {
 	int	i;
 
@@ -1343,8 +1307,8 @@ clean_up_processes()
  * with screen/X, to close all unnessicary fd's that might cause problems
  * later.
  */
-void
-close_all_exec()
+void 
+close_all_exec (void)
 {
 	int	i;
 	int	tmp;
@@ -1366,9 +1330,8 @@ close_all_exec()
 	window_display = tmp;
 }
 
-void
-exec_server_delete(i)
-	int	i;
+void 
+exec_server_delete (int i)
 {
 	int	j;
 

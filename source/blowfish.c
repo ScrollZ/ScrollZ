@@ -133,8 +133,8 @@ extern int FishDecrypt _((char *, char *, char *, int));
 extern int FishEncrypt _((char *, char *, char *, int, int));
 #endif
 
-static unsigned int F(x)
-unsigned int x;
+static unsigned int 
+F (unsigned int x)
 {
     unsigned int a, b, c, d, y;
 
@@ -151,9 +151,8 @@ unsigned int x;
     return(y);
 }
 
-static void BlowfishEncipher(xl, xr)
-unsigned int *xl;
-unsigned int *xr;
+static void 
+BlowfishEncipher (unsigned int *xl, unsigned int *xr)
 {
     int i;
     unsigned int Xl, Xr, temp;
@@ -176,9 +175,8 @@ unsigned int *xr;
     *xr = Xr;
 }
 
-static void BlowfishDecipher(xl, xr)
-unsigned int *xl;
-unsigned int *xr;
+static void 
+BlowfishDecipher (unsigned int *xl, unsigned int *xr)
 {
     int i;
     unsigned int Xl, Xr, temp;
@@ -201,10 +199,8 @@ unsigned int *xr;
     *xr = Xr;
 }
 
-static void BlowfishInit(key, keybytes, oldkey)
-char *key;
-int keybytes;
-int oldkey;
+static void 
+BlowfishInit (char *key, int keybytes, int oldkey)
 {
     int i, j, k, cnt;
     unsigned int data, datal, datar;
@@ -242,13 +238,8 @@ int oldkey;
     }
 }
 
-int EncryptString(dest, src, key, bufsize, szenc, type)
-char *dest;
-char *src;
-char *key;
-int  bufsize;
-int  szenc;
-int  type;
+int 
+EncryptString (char *dest, char *src, char *key, int bufsize, int szenc, int type)
 {
     int i;
     int oldk = 0;
@@ -294,8 +285,8 @@ int  type;
     return(szenc);
 }
 
-int Base64Decode(c)
-char c;
+int 
+Base64Decode (int c)
 {
     int i;
 
@@ -303,12 +294,8 @@ char c;
     return(0);
 }
 
-int DecryptString(dest, src, key, bufsize, szenc)
-char *dest;
-char *src;
-char *key;
-int  bufsize;
-int  szenc;
+int 
+DecryptString (char *dest, char *src, char *key, int bufsize, int szenc)
 {
     int i;
     int oldk = 0;

@@ -198,8 +198,8 @@ extern	SGroup	*server_group_list;
 	void	flush_server _((void));
         int	get_server_flag _((int, int));
 /**************************** PATCHED by Flier ******************************/
-	int	get_server_umode_flag _((int, char));
-	void    set_server_umode_flag _((int, char, int));
+	int	get_server_umode_flag _((int, int));
+	void    set_server_umode_flag _((int, int, int));
 /****************************************************************************/
 	void	set_server_operator _((int, int));
 	void	server_is_connected _((int, int));
@@ -223,6 +223,7 @@ extern	SGroup	*server_group_list;
 	void	close_all_server _((void));
 	void	disconnectcmd _((char *, char *, char *));
 	void	ctcp_reply_backlog_change _((int));
+    int is_server_ok(int server_index);
 
 	/* server_list: the list of servers that the user can connect to,etc */
 	extern	Server	*server_list;

@@ -54,6 +54,7 @@
 #include "dcc.h"
 #include "translat.h"
 #include "parse.h"
+#include "whowas.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -63,6 +64,8 @@
 #include <windows.h>
 #endif
 /****************************************************************************/
+
+extern void Trace(long area, char *format, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6, char *arg7, char *arg8, char *arg9, char *arg10);
 
 /* value for underline mode, is 0 when on!  -lynx */
 int	underline = 1;
@@ -340,7 +343,7 @@ add_window_to_server_group(window, group)
 		}
 	window->server_group = i;
 	say("Window's server group is now %s", group);
-        Trace(SZ_TRACE_WINDOW, "window %d set server group %s", window->refnum, group);
+        Trace(SZ_TRACE_WINDOW, "window %d set server group %s", (char *)window->refnum, (char *)group, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceWindowInfo(2, window);
 	update_window_status(window, 1);
 }
@@ -349,9 +352,8 @@ add_window_to_server_group(window, group)
  * set_scroll_lines: called by /SET SCROLL_LINES to check the scroll lines
  * value 
  */
-void
-set_scroll_lines(size)
-	int	size;
+void 
+set_scroll_lines (int size)
 {
 	if (size == 0)
 	{
@@ -371,9 +373,8 @@ set_scroll_lines(size)
  * set_scroll: called by /SET SCROLL to make sure the SCROLL_LINES variable
  * is set correctly 
  */
-void
-set_scroll(value)
-	int	value;
+void 
+set_scroll (int value)
 {
 	if (value && (get_int_var(SCROLL_LINES_VAR) == 0))
 	{
@@ -399,9 +400,8 @@ set_scroll(value)
  * reset_line_cnt: called by /SET HOLD_MODE to reset the line counter so we
  * always get a held screen after the proper number of lines 
  */
-void
-reset_line_cnt(value)
-	int	value;
+void 
+reset_line_cnt (int value)
 {
 	curr_scr_win->hold_mode = value;
 	curr_scr_win->hold_on_next_rite = 0;
@@ -412,9 +412,8 @@ reset_line_cnt(value)
  * set_continued_line: checks the value of CONTINUED_LINE for validity,
  * altering it if its no good 
  */
-void
-set_continued_line(value)
-	char	*value;
+void 
+set_continued_line (char *value)
 {
 	if (value && ((int) strlen(value) > (current_screen->co / 2)))
 		value[current_screen->co / 2] = '\0';
@@ -572,12 +571,12 @@ Window	*v_window,
         for (chan = server_list[v_window->server].chan_list; chan; chan = chan->next) {
             if (chan->window == v_window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
-                      chan->channel, chan->window, window);
+                      (char *)chan->channel, (char *)chan->window, (char *)window, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 chan->window = window;
             }
             else if (chan->window == window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
-                      chan->channel, chan->window, v_window);
+                      (char *)chan->channel, (char *)chan->window, (char *)v_window, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 chan->window = v_window;
             }
         }
@@ -598,12 +597,12 @@ Window	*v_window,
         for (chan = server_list[i].chan_list; chan; chan = chan->next) {
             if (chan->window == v_window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s, server %d, swap window %p -> %p",
-                      chan->channel, i, chan->window, window);
+                      (char *)chan->channel, (char *)i, (char *)chan->window, (char *)window, NULL, NULL, NULL, NULL, NULL, NULL);
                 chan->window = window;
             }
             else if (chan->window == window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s, server %d, swap window %p -> %p",
-                      chan->channel, i, chan->window, v_window);
+                      (char *)chan->channel, (char *)i, (char *)chan->window, (char *)v_window, NULL, NULL, NULL, NULL, NULL, NULL);
                 chan->window = v_window;
             }
         }
@@ -615,7 +614,7 @@ Window	*v_window,
         for (chan = server_list[window->server].chan_list; chan; chan = chan->next) {
             if (chan->window == window) {
                 Trace(SZ_TRACE_CHANNEL, "channel %s swap window %p -> %p",
-                      chan->channel, chan->window, v_window);
+                      (char *)chan->channel, (char *)chan->window, (char *)v_window, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                 chan->window = v_window;
             }
         }
@@ -651,8 +650,8 @@ swap_window(v_window, window)
         if (window->display_size != v_window->display_size)
             window->display_size = v_window->display_size;
         Trace(SZ_TRACE_WINDOW, "swapping window %d (%s) %p with window %d (%s) %p",
-              v_window->refnum, EMPTY_STR(v_window->name), v_window,
-              window->refnum, EMPTY_STR(window->name), window);
+              (char *)v_window->refnum, EMPTY_STR(v_window->name), (char *)v_window,
+              (char *)window->refnum, EMPTY_STR(window->name), (char *)window, NULL, NULL, NULL, NULL);
         swap_whowas_chan_win_ptr(v_window, window);
 /****************************************************************************/
 
@@ -869,8 +868,8 @@ struct mfstack
  * call another routine that might change who_from.   Note that if you
  * call this routine, you *must* call restore_message_from().
  */
-void
-save_message_from()
+void 
+save_message_from (void)
 {
  	struct mfstack *mfs;
 
@@ -885,8 +884,8 @@ save_message_from()
 }
 
 /* restore_message_from: restores a previously saved who_from variable */
-void
-restore_message_from()
+void 
+restore_message_from (void)
 {
  	struct mfstack *mfs = mfstack_head.next;
 
@@ -911,10 +910,8 @@ restore_message_from()
  * variable, used by the display routines to decide which window messages
  * should go to.  
  */
-void
-message_from(who, level)
-	char	*who;
-	int	level;
+void 
+message_from (char *who, int level)
 {
 	malloc_strcpy(&who_from, who);
 	who_level = level;
@@ -925,9 +922,8 @@ message_from(who, level)
  * this is needed by XECHO, because we could want to output things in more
  * than one level.
  */
-int
-message_from_level(level)
-	int	level;
+int 
+message_from_level (int level)
 {
 	int	temp;
 
@@ -1456,8 +1452,8 @@ remove_from_window_list(window)
  * primary server is no more, a new primary server is picked from the open
  * servers 
  */
-void
-window_check_servers()
+void 
+window_check_servers (void)
 {
 	Window	*tmp;
 	int	flag, cnt, max, i, not_connected,
@@ -1529,9 +1525,8 @@ window_check_servers()
  * associated with `server', that currently contain nothing, to said
  * server.
  */
-void
-window_restore_server(server)
-	int	server;
+void 
+window_restore_server (int server)
 {
 	Window	*tmp;
 	int	max = number_of_servers,
@@ -1703,8 +1698,8 @@ Window *window;
 /****************************************************************************/
 
 /* delete_other_windows: zaps all visible windows except the current one */
-static	void
-delete_other_windows()
+static void 
+delete_other_windows (void)
 {
 	Window	*tmp,
 		*cur,
@@ -1730,8 +1725,8 @@ delete_other_windows()
  * current window with the last one, and removing it at the same time.
  */
 
-void
-window_kill_swap()
+void 
+window_kill_swap (void)
 {
 	if (invisible_list != (Window *) 0)
 	{
@@ -1749,8 +1744,8 @@ window_kill_swap()
  * window is not held, the first line is displayed and removed from the hold
  * list.  Zero is returned if no infomation is displayed 
  */
-int
-unhold_windows()
+int 
+unhold_windows (void)
 {
 	Window	*tmp;
 	char	*stuff;
@@ -1802,8 +1797,8 @@ update_window_status(window, refreshit)
  * redraw_all_status: This redraws all of the status lines for all of the
  * windows. 
  */
-void
-redraw_all_status()
+void 
+redraw_all_status (void)
 {
 	Window	*tmp;
 
@@ -1828,8 +1823,8 @@ redraw_all_status()
  * line to the right edge of the screen 
  */
 /*ARGSUSED*/
-void
-update_all_status()
+void 
+update_all_status (void)
 {
 	Window	*window;
 	Screen	*screen;
@@ -1853,9 +1848,8 @@ update_all_status()
  * calls update_all_status(), which will update the status line if the flag
  * was true, otherwise it's just ignored 
  */
-void
-status_update(flag)
-	int	flag;
+void 
+status_update (int flag)
 {
 	status_update_flag = flag;
 	update_all_status();
@@ -1868,11 +1862,8 @@ status_update(flag)
  * channel and attempt to replace it by a non-current channel or the 
  * current_channel of window specified by value of delete
  */
-int
-is_current_channel(channel, server, delete)
-	char	*channel;
-	int	server;
-	int	delete;
+int 
+is_current_channel (char *channel, int server, int delete)
 {
 	Window	*tmp,
 		*found_window = (Window *) 0;
@@ -2067,7 +2058,7 @@ bind_channel(channel, window)
         if (window->name) strmcpy(tmpbuf, window->name, sizeof(tmpbuf) - 1);
         else snprintf(tmpbuf, sizeof(tmpbuf), "%d", window->refnum);
         say("Channel %s bound to window %s", channel, tmpbuf);
-        Trace(SZ_TRACE_WINDOW, "bind channel %s", channel);
+        Trace(SZ_TRACE_WINDOW, "bind channel %s", (char *)channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceWindowInfo(2, window);
 /****************************************************************************/
 }
@@ -2091,7 +2082,7 @@ unbind_channel(channel, window)
             new_free(&(chan->channel));
             new_free(&chan);
         }
-        Trace(SZ_TRACE_WINDOW, "unbind channel %s", channel);
+        Trace(SZ_TRACE_WINDOW, "unbind channel %s", (char *)channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceWindowInfo(2, window);
 /****************************************************************************/
 }
@@ -2100,8 +2091,8 @@ unbind_channel(channel, window)
  * get_window_server: returns the server index for the window with the given
  * refnum 
  */
-int	get_window_server(refnum)
-unsigned int	refnum;
+int 
+get_window_server (unsigned int refnum)
 {
 	Window	*tmp;
 
@@ -2121,11 +2112,8 @@ unsigned int	refnum;
  * WIN_TRANSFER will move the channels to the new server, WIN_FORCE will
  * force a 'sticky' behaviour of the window. -Sol
  */
-void
-window_set_server(refnum, server, misc)
-	int	refnum;
-	int	server;
-	int	misc;
+void 
+window_set_server (int refnum, int server, int misc)
 {
 	int	old_serv;
 	Window	*window = 0, *ptr, *new_win = (Window *) 0;
@@ -2279,10 +2267,8 @@ window_set_server(refnum, server, misc)
  * channel "0".  This frees the current_channel for the
  * current_screen->current_window, * setting it to null 
  */
-char	*
-set_channel_by_refnum(refnum, channel)
-	unsigned int	refnum;
-	char	*channel;
+char *
+set_channel_by_refnum (unsigned int refnum, char *channel)
 {
 	Window	*tmp;
 	Window *tmp2;
@@ -2301,7 +2287,7 @@ set_channel_by_refnum(refnum, channel)
 	malloc_strcpy(&tmp->current_channel, channel);
 	tmp->update |= UPDATE_STATUS;
 	set_channel_window(tmp, channel, tmp->server);
-        Trace(SZ_TRACE_WINDOW, "set channel %s", channel);
+        Trace(SZ_TRACE_WINDOW, "set channel %s", (char *)channel, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceWindowInfo(2, tmp);
 	return (channel);
 }
@@ -2319,15 +2305,15 @@ get_channel_by_refnum(refnum)
 }
 
 /* current_refnum: returns the reference number for the current window */
-unsigned int
-current_refnum()
+unsigned int 
+current_refnum (void)
 {
 	return (curr_scr_win->refnum);
 }
 
 /* query_nick: Returns the query nick for the current channel */
-char	*
-query_nick()
+char *
+query_nick (void)
 {
 	return (curr_scr_win->query_nick);
 }
@@ -2369,9 +2355,8 @@ get_target_by_refnum(refnum)
 }
 
 /* set_query_nick: sets the query nick for the current channel to nick */
-void
-set_query_nick(nick)
-	char	*nick;
+void 
+set_query_nick (char *nick)
 {
 	char	*ptr;
 	NickList *tmp;
@@ -2425,10 +2410,8 @@ set_query_nick(nick)
  */
 /**************************** PATCHED by Flier ******************************/
 /*static	void*/
-void
-/****************************************************************************/
-irc_goto_window(which)
-	int	which;
+void 
+irc_goto_window (int which)
 {
 	Window	*tmp;
 	int	i;
@@ -2480,8 +2463,8 @@ hide_window(window)
 }
 
 /* hide_other_windows: makes all visible windows but the current one hidden */
-static void
-hide_other_windows()
+static void 
+hide_other_windows (void)
 {
 	Window	*tmp,
 		*cur,
@@ -2535,8 +2518,8 @@ list_a_window(window, len, clen)
  * list_windows: This Gives a terse list of all the windows, visible or not,
  * by displaying their refnums, current channel, and current nick 
  */
-static	void
-list_windows()
+static void 
+list_windows (void)
 {
 	Window	*tmp;
 	char	buffer[BIG_BUFFER_SIZE+1];
@@ -2601,8 +2584,8 @@ push_window_by_refnum(refnum)
  * down is tried (as so on).  If the stack is empty, the current window is
  * left unchanged 
  */
-static	void
-pop_window()
+static void 
+pop_window (void)
 {
 	int	refnum;
 	WindowStack *tmp;
@@ -2637,8 +2620,8 @@ pop_window()
  * show_stack: displays the current window stack.  This also purges out of
  * the stack any window refnums that are no longer valid 
  */
-static	void
-show_stack()
+static void 
+show_stack (void)
 {
 	WindowStack *last = (WindowStack *) 0,
 	    *tmp, *crap;
@@ -2684,9 +2667,8 @@ show_stack()
  * is_window_name_unique: checks the given name vs the names of all the
  * windows and returns true if the given name is unique, false otherwise 
  */
-static	int
-is_window_name_unique(name)
-	char	*name;
+static int 
+is_window_name_unique (char *name)
 {
 	Window	*tmp;
 	int	flag = 1;
@@ -2858,10 +2840,8 @@ get_invisible_window(name, args)
 }
 
 /* get_number: parses out an integer number and returns it */
-static	int
-get_number(name, args)
-	char	*name;
-	char	**args;
+static int 
+get_number (char *name, char **args)
 {
 	char	*arg;
 
@@ -2877,11 +2857,8 @@ get_number(name, args)
  * accordingly.  Returns 0 if all went well, -1 if a bogus or missing value
  * was specified 
  */
-static	int
-get_boolean(name, args, var)
-	char	*name;
-	char	**args;
-	int	*var;
+static int 
+get_boolean (char *name, char **args, int *var)
 {
 	char	*arg;
 
@@ -2899,11 +2876,8 @@ get_boolean(name, args, var)
 }
 
 /*ARGSUSED*/
-void
-windowcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+windowcmd (char *command, char *args, char *subargs)
 {
  	size_t	len;
 	char	*arg,
@@ -2925,11 +2899,11 @@ windowcmd(command, args, subargs)
                 upper(cmd);
 		if (strncmp("NEW", cmd, len) == 0)
 		{
-                        Trace(SZ_TRACE_WINDOW, "adding new window");
+                        Trace(SZ_TRACE_WINDOW, "adding new window", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         TraceWindowInfo(2, NULL);
 			if ((tmp = new_window()) != NULL) {
 				window = tmp;
-                                Trace(SZ_TRACE_WINDOW, "window added");
+                                Trace(SZ_TRACE_WINDOW, "window added", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                                 TraceWindowInfo(2, NULL);
                         }
 		}
@@ -2966,10 +2940,10 @@ windowcmd(command, args, subargs)
 			}
 		}
 		else if (strncmp("KILL", cmd, len) == 0) {
-                        Trace(SZ_TRACE_WINDOW, "deleting window");
+                        Trace(SZ_TRACE_WINDOW, "deleting window", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         TraceWindowInfo(2, NULL);
 			delete_window(window);
-                        Trace(SZ_TRACE_WINDOW, "window deleted");
+                        Trace(SZ_TRACE_WINDOW, "window deleted", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         TraceWindowInfo(2, NULL);
                 }
 		else if (strncmp("SHRINK", cmd, len) == 0)
@@ -3246,7 +3220,7 @@ windowcmd(command, args, subargs)
  						add_channel(arg, from_server, CHAN_JOINING, (ChannelList *) 0,);*/
                                                 if (from_server >= 0)
                                                     add_channel(arg, from_server, CHAN_JOINING, NULL, key, 0);
-                                                Trace(SZ_TRACE_WINDOW, "joining channel %s", arg);
+                                                Trace(SZ_TRACE_WINDOW, "joining channel %s", (char *)arg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                                                 TraceWindowInfo(2, window);
 /****************************************************************************/
  						from_server = server;
@@ -3391,7 +3365,7 @@ windowcmd(command, args, subargs)
 			window->server_group = 0;
 			say("Window no longer has a server group");
 			update_window_status(window, 1);
-                        Trace(SZ_TRACE_WINDOW, "window %d unset server group", window->refnum);
+                        Trace(SZ_TRACE_WINDOW, "window %d unset server group", (char *)window->refnum, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
                         TraceWindowInfo(2, window);
 		}
 		else if (strncmp("DOUBLE", cmd, len) == 0)
@@ -3541,8 +3515,8 @@ out:
 /****************************************************************************/
 }
 
-int
-number_of_windows()
+int 
+number_of_windows (void)
 {
 	return (current_screen->visible_windows);
 }
@@ -3559,9 +3533,8 @@ unstop_all_windows(key, ptr)
 }
 
 /* this will make underline toggle between 2 and -1 and never let it get to 0 */
-void
-set_underline_video(value)
-	int	value;
+void 
+set_underline_video (int value)
 {
 	if (value == OFF)
 		underline = -1;
@@ -3667,7 +3640,7 @@ window_get_connected(window, arg, narg, args)
 	}
 	window_check_servers();
 /**************************** PATCHED by Flier ******************************/
-        Trace(SZ_TRACE_WINDOW, "connecting to server");
+        Trace(SZ_TRACE_WINDOW, "connecting to server", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         TraceWindowInfo(2, window);
         if (curr_scr_win->server >= 0)
             is_current_channel(NULL, curr_scr_win->server, 0);
@@ -3714,7 +3687,8 @@ Window *wind;
 }
 
 /* Clean up all memory related to window */
-void CleanUpWindows() {
+void 
+CleanUpWindows (void) {
     Screen *tmpscreen;
     Screen *tmpscreenfree;
     Window *tmpwindow;

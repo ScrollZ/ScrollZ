@@ -276,9 +276,8 @@ int term_read(char *buf, size_t count) {
 #endif /* SZNCURSES */
 /****************************************************************************/
 
-void
-term_set_fp(fp)
-	FILE	*fp;
+void 
+term_set_fp (FILE *fp)
 {
 	term_fp = fp;
 }
@@ -321,8 +320,8 @@ putchar_x(c)
 #endif
 }
 
-void
-term_flush()
+void 
+term_flush (void)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*fflush(term_fp);*/
@@ -338,8 +337,8 @@ term_flush()
  * term_reset: sets terminal attributed back to what they were before the
  * program started 
  */
-void
-term_reset()
+void 
+term_reset (void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
@@ -444,8 +443,8 @@ term_pause(key, ptr)
  * wserv, we set the termial to RAW, no ECHO, so that all the signals are
  * ignored.. fixes quite a few problems...  -phone, jan 1993..
  */
-void
-term_init()
+void 
+term_init (void)
 {
 #ifndef	STTY_ONLY
 /**************************** PATCHED by Flier ******************************/
@@ -705,7 +704,8 @@ term_init()
 }
 
 /**************************** PATCHED by Flier ******************************/
-void term_close() {
+void 
+term_close (void) {
     if (tty_des != -1)
         close(tty_des);
 }
@@ -718,8 +718,8 @@ void term_close() {
  * the terminal size has changed since last time term_resize() has been
  * called, 1 is returned.  If it is unchanged, 0 is returned. 
  */
-int
-term_resize()
+int 
+term_resize (void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -802,8 +802,8 @@ term_resize()
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-static	int
-term_null_function()
+static int 
+term_null_function (void)
 {
 	return (1);
 }
@@ -838,9 +838,8 @@ term_CE_clear_to_eol()
  * doesn't reposition the cursor at all, so the cursor must be in the correct
  * spot at the beginning and you must move it back afterwards 
  */
-void
-term_space_erase(x)
-	int	x;
+void 
+term_space_erase (int x)
 {
 	int	i,
 		cnt;
@@ -914,11 +913,8 @@ term_CS_scroll(line1, line2, n)
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-static	int
-term_ALDL_scroll(line1, line2, n)
-	int	line1,
-		line2,
-		n;
+static int 
+term_ALDL_scroll (int line1, int line2, int n)
 {
 	int	i;
 
@@ -953,11 +949,8 @@ term_ALDL_scroll(line1, line2, n)
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-static	int
-term_param_ALDL_scroll(line1, line2, n)
-	int	line1,
-		line2,
-		n;
+static int 
+term_param_ALDL_scroll (int line1, int line2, int n)
 {
 	if (n > 0)
 	{
@@ -1114,17 +1107,15 @@ term_LE_cursor_left()
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
 /****************************************************************************/
-static	int
-term_BS_cursor_left()
+static int 
+term_BS_cursor_left (void)
 {
 	fputc('\010', term_fp);
 	return (0);
 }
 
-extern	void
-copy_window_size(nlines, cols)
-	int	*nlines,
-		*cols;
+extern void 
+copy_window_size (int *nlines, int *cols)
 {
 	*nlines = li;
 	*cols = co;
@@ -1133,8 +1124,8 @@ copy_window_size(nlines, cols)
 #endif /* ! SZNCURSES */
 /****************************************************************************/
 
-extern	int
-term_eight_bit()
+extern int 
+term_eight_bit (void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -1153,9 +1144,8 @@ term_eight_bit()
 #endif /* STTY_ONLY */
 
 
-extern	void
-set_term_eight_bit(value)
-	int	value;
+extern void 
+set_term_eight_bit (int value)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES

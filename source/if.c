@@ -48,10 +48,8 @@ static	int	charcount _((char *, int));
  * next_expr finds the next expression delimited by brackets. The type
  * of bracket expected is passed as a parameter. Returns NULL on error.
  */
-char	*
-next_expr(args, itype)
-	char	**args;
-	int	itype;
+char *
+next_expr (char **args, int itype)
 {
 	char	*ptr,
 		*ptr2,
@@ -94,11 +92,8 @@ next_expr(args, itype)
 }
 
 /*ARGSUSED*/
-void
-ifcmd(command, args, subargs)
-	char	*command,
-		*args;
-	char	*subargs;
+void 
+ifcmd (char *command, char *args, char *subargs)
 {
 	char	*exp;
 	char	*sub;
@@ -130,11 +125,8 @@ ifcmd(command, args, subargs)
 }
 
 /*ARGSUSED*/
-void
-whilecmd(command, args, subargs)
-	char	*command,
-		*args;
-	char	*subargs;
+void 
+whilecmd (char *command, char *args, char *subargs)
 {
 	char	*exp = (char *) 0,
 		*ptr,
@@ -176,10 +168,8 @@ whilecmd(command, args, subargs)
 	new_free(&body);
 }
 
-static int    
-charcount(string, what)
-	char    *string;
- 	int	what;
+static int 
+charcount (char *string, int what)
 {
 	int     x       = 0;
 	char    *place  = string - 1;
@@ -195,11 +185,8 @@ charcount(string, what)
  * exactly two commas, it must be a C-like for command, else it must
  * must be an foreach word command
  */
-void
-foreach_handler(command,args,subargs)
-	char	*command,
-		*args,
-		*subargs;
+void 
+foreach_handler (char *command, char *args, char *subargs)
 {
 	char    *temp = (char *) 0;
 	char    *placeholder;
@@ -224,11 +211,8 @@ foreach_handler(command,args,subargs)
 }
 
 /*ARGSUSED*/
-void
-foreach(command, args, subargs)
-	char	*command,
-		*args;
-	char	*subargs;
+void 
+foreach (char *command, char *args, char *subargs)
 {
 	char	*struc = (char *) 0,
 		*ptr,
@@ -290,11 +274,8 @@ foreach(command, args, subargs)
  * some day.
  */
 
-void
-fe(command, args, subargs)
-	char    *command,
-		*args,
-		*subargs;
+void 
+fe (char *command, char *args, char *subargs)
 {
 	char    *list = (char *) 0,
 		*templist = (char *) 0,
@@ -403,11 +384,8 @@ fe(command, args, subargs)
  *  foreach_handler() routine weeds out any for command that doesnt have
  *  two commans, that checking for those 2 commas is a waste.  I suppose.
  */
-void
-forcmd(command, args, subargs)
-	char    *command;
-	char    *args;
-	char    *subargs;
+void 
+forcmd (char *command, char *args, char *subargs)
 {
 	char	*working = (char *) 0;
 	char	*commence = (char *) 0;
@@ -489,11 +467,8 @@ forcmd(command, args, subargs)
 
 /* fec - iterate over a list of characters */
 
-extern	void
-fec(command, args, subargs)
-	char	*command,
-	*args,
-	*subargs;
+extern void 
+fec (char *command, char *args, char *subargs)
 {
 	char    *pointer;
 	char    *list = (char *) 0;
@@ -571,10 +546,8 @@ fec(command, args, subargs)
  and the others are ignored, so placement of your switches are
  rather important:  Put your most general ones last. */
 #ifndef LITE
-void switchcmd(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+switchcmd (char *command, char *args, char *subargs)
 {
     char *control, *body, *header, *commands;
     int af;
@@ -619,10 +592,8 @@ char *subargs;
     }
 }
 
-void repeatcmd(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void 
+repeatcmd (char *command, char *args, char *subargs)
 {
     int value;
     char *num_expr = NULL;
