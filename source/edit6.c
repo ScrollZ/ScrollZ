@@ -697,24 +697,26 @@ void CheckTimeMinute() {
         }
 #ifdef EXTRAS
         i=0;
-        for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;tmpchan=tmpchan->next)
-            if (tmpchan->IdleKick && HAS_OPS(tmpchan->status)) {
-                if (i==max) break;
-                for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
+        if (curr_scr_win->server < number_of_servers) {
+            for (tmpchan=server_list[curr_scr_win->server].chan_list;tmpchan;tmpchan=tmpchan->next)
+                if (tmpchan->IdleKick && HAS_OPS(tmpchan->status)) {
                     if (i==max) break;
-                    if (tmpnick->frlist || tmpnick->chanop) continue;
-                    if (tmpnick->hasvoice && tmpchan->IdleKick==1) continue;
-                    if (timenow-tmpnick->lastmsg>IdleTime*60) {
-                        i++;
-                        CreateBan(tmpnick->nick,tmpnick->userhost,tmpbuf);
-                        send_to_server("MODE %s -o+b %s %s",tmpchan->channel,tmpnick->nick,
-                                       tmpbuf);
-                        send_to_server("KICK %s %s :Idle user",tmpchan->channel,tmpnick->nick);
-                        snprintf(tmpbuf2,sizeof(tmpbuf2),"30 MODE %s -b %s",tmpchan->channel,tmpbuf);
-                        timercmd("TIMER",tmpbuf2,NULL);
+                    for (tmpnick=tmpchan->nicks;tmpnick;tmpnick=tmpnick->next) {
+                        if (i==max) break;
+                        if (tmpnick->frlist || tmpnick->chanop) continue;
+                        if (tmpnick->hasvoice && tmpchan->IdleKick==1) continue;
+                        if (timenow-tmpnick->lastmsg>IdleTime*60) {
+                            i++;
+                            CreateBan(tmpnick->nick,tmpnick->userhost,tmpbuf);
+                            send_to_server("MODE %s -o+b %s %s",tmpchan->channel,tmpnick->nick,
+                                    tmpbuf);
+                            send_to_server("KICK %s %s :Idle user",tmpchan->channel,tmpnick->nick);
+                            snprintf(tmpbuf2,sizeof(tmpbuf2),"30 MODE %s -b %s",tmpchan->channel,tmpbuf);
+                            timercmd("TIMER",tmpbuf2,NULL);
+                        }
                     }
                 }
-            }
+        }
 #endif /* EXTRAS */
     }
     wholeft=wholist;
