@@ -1469,22 +1469,22 @@ char *newbuf;
     struct {
         char *fg, *bg;
     } codes[16] = {
-        { "[1;37m",   "[47m"        },      /* white                */
-        { "[0m",      "[40m"        },      /* black (grey for us)  */
-        { "[0;34m",   "[44m"        },      /* blue                 */
-        { "[0;32m",   "[42m"        },      /* green                */
-        { "[0;31m",   "[41m"        },      /* red                  */
-        { "[1;31m",   "[43m"        },      /* brown                */
-        { "[0;35m",   "[45m"        },      /* magenta              */
-        { "[0;33m",   "[46m"        },      /* bright red           */
-        { "[1;33m",   "[47m"        },      /* yellow               */
-        { "[1;32m",   "[42m"        },      /* bright green         */
-        { "[0;36m",   "[46m"        },      /* cyan                 */
-        { "[1;36m",   "[46m"        },      /* bright cyan          */
-        { "[1;34m",   "[44m"        },      /* bright blue          */
-        { "[1;35m",   "[45m"        },      /* bright magenta       */
-        { "[1;30m",   "[40m"        },      /* dark grey            */
-        { "[0;37m",   "[47m"        }       /* grey                 */
+        { "[38;5;15m",  "[48;5;15m"  },     /*  0 white             */
+        { "[38;5;16m",  "[48;5;16m"  },     /*  1 black             */
+        { "[38;5;19m",  "[48;5;19m"  },     /*  2 navy blue         */
+        { "[38;5;34m",  "[48;5;34m"  },     /*  3 green             */
+        { "[38;5;196m",  "[48;5;196m"  },     /*  4 red               */
+        { "[38;5;88m",  "[48;5;88m"  },     /*  5 maroon            */
+        { "[38;5;90m",  "[48;5;90m"  },     /*  6 purple            */
+        { "[38;5;208m",  "[48;5;208m"  },     /*  7 orange            */
+        { "[38;5;226m",  "[48;5;226m"  },     /*  8 yellow            */
+        { "[38;5;46m",  "[48;5;46m"  },     /*  9 light green       */
+        { "[38;5;30m",  "[48;5;30m"  },     /* 10 teal              */
+        { "[38;5;51m",  "[48;5;51m"  },     /* 11 cyan              */
+        { "[38;5;21m",  "[48;5;21m"  },     /* 12 royal blue        */
+        { "[38;5;201m",  "[48;5;201m"  },     /* 13 pink              */
+        { "[38;5;244m",  "[48;5;244m"  },     /* 14 grey              */
+        { "[38;5;252m",  "[48;5;252m"  }      /* 15 light grey        */
     };
     register char *sptr=buffer;
     register char *dptr=newbuf;
@@ -1505,7 +1505,7 @@ char *newbuf;
                 sptr++;
 	        code=(*sptr++)-'0';
 	        if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
-                if (code>0 && code<15 && DisplaymIRC==1) {
+                if (code>=0 && code<=15 && DisplaymIRC==1) {
                     strcpy(dptr,codes[code].bg);
                     while (*dptr) dptr++;
                 }
