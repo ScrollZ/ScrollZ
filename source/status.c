@@ -1412,7 +1412,7 @@ status_query_nick(window)
                 int buflen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
                 char tmpbuf[mybufsize / 4];
 
-                if (buflen > sizeof(tmpbuf)) buflen = sizeof(tmpbuf);
+                if (buflen > (int)sizeof(tmpbuf)) buflen = (int)sizeof(tmpbuf);
                 strmcpy(tmpbuf, window->query_nick, buflen);
 		snprintf(lbuf, sizeof(lbuf), query_format, tmpbuf);
 /****************************************************************************/
