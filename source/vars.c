@@ -158,6 +158,11 @@ IrcVariable irc_variable[] =
 	{ "CLOCK_24HOUR",		BOOL_TYPE_VAR,	DEFAULT_CLOCK_24HOUR, NULL, reset_clock, 0, 0 },
 	{ "CLOCK_ALARM",		STR_TYPE_VAR,	0, NULL, set_alarm, 0, 0 },
 	{ "CMDCHARS",			STR_TYPE_VAR,	0, NULL, NULL, 0, 0 },
+/**************************** PATCHED by Flier ******************************/
+	{ "COLORIZE_CHANNELS",		BOOL_TYPE_VAR,	DEFAULT_COLORIZE_CHANNELS, NULL, RedrawAll, 0, 0 },
+	{ "COLORIZE_NICKS",		BOOL_TYPE_VAR,	DEFAULT_COLORIZE_NICKS, NULL, RedrawAll, 0, 0 },
+	{ "COLORIZE_WARP",		INT_TYPE_VAR,	DEFAULT_COLORIZE_WARP, NULL, RedrawAll, 0, 0 },
+/****************************************************************************/
 	{ "COMMAND_MODE",		BOOL_TYPE_VAR,	DEFAULT_COMMAND_MODE, NULL, NULL, 0, 0 },
 	{ "CONTINUED_LINE",		STR_TYPE_VAR,	0, NULL, set_continued_line, 0, 0 },
 	{ "CTCP_REPLY_BACKLOG_SECONDS",	INT_TYPE_VAR,	DEFAULT_CTCP_REPLY_BACKLOG_SECONDS, NULL, ctcp_reply_backlog_change, 0, 0 },

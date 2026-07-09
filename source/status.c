@@ -55,6 +55,7 @@
 /**************************** PATCHED by Flier ******************************/
 #include "ctcp.h"
 #include "myvars.h"
+#include "colorhash.h"
 
 #ifdef WANTANSI
 extern int vt100Decode _((char));
@@ -1326,13 +1327,21 @@ status_nickname(window)
 	Window	*window;
 {
 	char	*ptr = (char *) 0;
+#ifdef WANTANSI
+	char	nbuf[COLORIZED_NICK_LEN];
+#endif
 
 	if ((connected_to_server == 1) && !get_int_var(SHOW_STATUS_ALL_VAR)
 	    && (!window->current_channel) &&
 	    (window->screen->current_window != window))
 		malloc_strcpy(&ptr, empty_string);
 	else
+#ifdef WANTANSI
+		malloc_strcpy(&ptr, colorize_nick(get_server_nickname(window->server),
+		    nbuf, sizeof(nbuf)));
+#else
 		malloc_strcpy(&ptr, get_server_nickname(window->server));
+#endif
 	return (ptr);
 }
 
@@ -1411,10 +1420,18 @@ status_query_nick(window)
 		/*snprintf(lbuf, sizeof lbuf, query_format, window->query_nick);*/
                 int buflen = get_int_var(CHANNEL_NAME_WIDTH_VAR);
                 char tmpbuf[mybufsize / 4];
+#ifdef WANTANSI
+                char nbuf[COLORIZED_NICK_LEN];
+#endif
 
-                if (buflen > sizeof(tmpbuf)) buflen = sizeof(tmpbuf);
+                if (buflen > (int)sizeof(tmpbuf)) buflen = (int)sizeof(tmpbuf);
                 strmcpy(tmpbuf, window->query_nick, buflen);
+#ifdef WANTANSI
+		snprintf(lbuf, sizeof(lbuf), query_format,
+		    colorize_nick(tmpbuf, nbuf, sizeof(nbuf)));
+#else
 		snprintf(lbuf, sizeof(lbuf), query_format, tmpbuf);
+#endif
 /****************************************************************************/
 		malloc_strcpy(&ptr, lbuf);
 	}
@@ -1671,6 +1688,9 @@ status_channel(window)
 	int	num;
 	char	*s, *ptr,
 		channel[IRCD_BUFFER_SIZE + 1];
+#ifdef WANTANSI
+	char	cbuf[COLORIZED_CHANNEL_LEN];
+#endif
 
 	s = window->current_channel;
 	if (s && chan_is_connected(s, window->server))
@@ -1695,7 +1715,12 @@ status_channel(window)
 			channel[num] = (char) 0;
 		/* num = atoi(channel); */
 		ptr = (char *) 0;
+#ifdef WANTANSI
+		snprintf(lbuf, sizeof lbuf, channel_format,
+		    colorize_channel(channel, cbuf, sizeof(cbuf)));
+#else
 		snprintf(lbuf, sizeof lbuf, channel_format, channel);
+#endif
 		malloc_strcpy(&ptr, lbuf);
 	}
 	else

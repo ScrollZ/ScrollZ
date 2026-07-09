@@ -1,0 +1,30 @@
+!	 $Id: colorize_nicks $
+!
+! Copyright (c) 1994-2026 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET COLORIZE_NICKS [ON|OFF|TOGGLE]
+  When ON (the default), every nickname the client displays is
+  shown in a colour picked deterministically from the nickname
+  itself. A given nick always gets the same colour, so the same
+  person looks the same in messages, joins, parts, NAMES, WHO and
+  the status bar. The colour is computed from a hash of the nick
+  (case is ignored), so no two sessions and no two windows ever
+  disagree.
+
+  The colours are drawn from a fixed palette chosen for legibility
+  on dark terminals. Colouring only wraps the nick
+  itself; mIRC colour codes in message text are left untouched.
+
+  Colours are only visible when SET DISPLAY_ANSI is ON; with ANSI
+  display OFF the colour codes are stripped and nicks show plain.
+
+  Use SET COLORIZE_WARP to shift the whole colour assignment if you
+  do not like the colour a particular nick was given.
+
+See Also:
+  SET COLORIZE_CHANNELS
+  SET COLORIZE_WARP
+  SET DISPLAY_ANSI

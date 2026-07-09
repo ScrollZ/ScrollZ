@@ -108,6 +108,7 @@
 #include "parse.h"
 #include "myvars.h" 
 #include "whowas.h"
+#include "colorhash.h"
 
 #include <sys/stat.h> /* for umask() */
 #include <term.h>     /* for tparm() */
@@ -229,8 +230,17 @@ char **ArgList;
             malloc_strcpy(&(chan->topicwho), ArgList[1]);
             save_message_from();
             message_from(channel, LOG_CRAP);
+#ifdef WANTANSI
+            {
+            char tinbuf[COLORIZED_NICK_LEN];
+            put_it("%sSet by %s on %.24s", numeric_banner(),
+                   colorize_nick(chan->topicwho, tinbuf, sizeof(tinbuf)),
+                   ctime(&(chan->topicwhen)));
+            }
+#else
             put_it("%sSet by %s on %.24s", numeric_banner(), chan->topicwho,
                    ctime(&(chan->topicwhen)));
+#endif
             restore_message_from();
             if (chan->ChanLog) {
                 char tmpbuf[mybufsize];
@@ -1066,18 +1076,22 @@ char *servmode;
     }
     else {
 #ifdef WANTANSI
+        {
+        char mnbuf[COLORIZED_NICK_LEN];
+        char mcbuf[COLORIZED_CHANNEL_LEN];
 #ifdef CELECOSM
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%smode%s in %s%s%s: \"%s%s%s\" by ",
                 CmdsColors[COLMODE].color5,Colors[COLOFF],
-                CmdsColors[COLMODE].color3,channel,Colors[COLOFF],
+                CmdsColors[COLMODE].color3,colorize_channel(channel, mcbuf, sizeof(mcbuf)),Colors[COLOFF],
                 CmdsColors[COLMODE].color4,line,Colors[COLOFF]);
 #else  /* CELECOSM */
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%sMode change%s \"%s%s%s\" on channel %s%s%s by ",
                 CmdsColors[COLMODE].color5,Colors[COLOFF],
                 CmdsColors[COLMODE].color4,line,Colors[COLOFF],
-                CmdsColors[COLMODE].color3,channel,Colors[COLOFF]);
+                CmdsColors[COLMODE].color3,colorize_channel(channel, mcbuf, sizeof(mcbuf)),Colors[COLOFF]);
 #endif /* CELECOSM */
-        say("%s%s%s%s",tmpbuf1,CmdsColors[COLMODE].color1,nick,Colors[COLOFF]);
+        say("%s%s%s%s",tmpbuf1,CmdsColors[COLMODE].color1,colorize_nick(nick, mnbuf, sizeof(mnbuf)),Colors[COLOFF]);
+        }
 #else  /* WANTANSI */
         say("Mode change \"%s\" on channel %s by %s",line, channel, nick);
 #endif /* WANTANSI */
@@ -1101,26 +1115,29 @@ int  frkick;
 #ifdef WANTANSI
     char *colnick;
     char tmpbuf[mybufsize/2];
+    char nbuf[COLORIZED_NICK_LEN];
+    char nbuf2[COLORIZED_NICK_LEN];
+    char cbuf[COLORIZED_CHANNEL_LEN];
 
     if (frkick) colnick=CmdsColors[COLKICK].color6;
     else colnick=CmdsColors[COLKICK].color1;
 #ifdef CELECOSM
     snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s %skicked%s from %s%s%s by",
-            colnick,who,Colors[COLOFF],word,
+            colnick,colorize_nick(who, nbuf, sizeof(nbuf)),Colors[COLOFF],word,
             CmdsColors[COLKICK].color5,Colors[COLOFF],
-            CmdsColors[COLKICK].color3,channel,Colors[COLOFF]);
+            CmdsColors[COLKICK].color3,colorize_channel(channel, cbuf, sizeof(cbuf)),Colors[COLOFF]);
 #else  /* CELECOSM */
     snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s %s been %skicked%s from channel %s%s%s by",
-            colnick,who,Colors[COLOFF],word,
+            colnick,colorize_nick(who, nbuf, sizeof(nbuf)),Colors[COLOFF],word,
             CmdsColors[COLKICK].color5,Colors[COLOFF],
-            CmdsColors[COLKICK].color3,channel,Colors[COLOFF]);
+            CmdsColors[COLKICK].color3,colorize_channel(channel, cbuf, sizeof(cbuf)),Colors[COLOFF]);
 #endif /* CELECOSM */
     if (comment && *comment)
         say("%s %s%s%s (%s%s%s)",tmpbuf,
-            CmdsColors[COLKICK].color2,from,Colors[COLOFF],
+            CmdsColors[COLKICK].color2,colorize_nick(from, nbuf2, sizeof(nbuf2)),Colors[COLOFF],
             CmdsColors[COLKICK].color4,comment,Colors[COLOFF]);
     else say("%s %s%s%s",tmpbuf,
-             CmdsColors[COLKICK].color2,from,Colors[COLOFF]);
+             CmdsColors[COLKICK].color2,colorize_nick(from, nbuf2, sizeof(nbuf2)),Colors[COLOFF]);
     if (rejoin) {
         save_message_from();
 	message_from(channel,LOG_CRAP);
@@ -1252,34 +1269,53 @@ char *server;
 int  show_server;
 {
     int  width=-1;
-    char format[40];
     char *stampbuf=TimeStamp(2);
 #ifdef WANTANSI
     char tmpbuf1[mybufsize/2];
     char tmpbuf2[mybufsize/2];
+    char uhbuf[mybufsize/2];
+    char nbuf[COLORIZED_NICK_LEN];
+    char cbuf[mybufsize/4];
 
-    if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
-        snprintf(format,sizeof(format),"%%s%%-%u.%us%%s %%s%%-9s%%s",
-                (unsigned char) width,(unsigned char) width);
-    else strcpy(format,"%s%s%s\t%s%-9s%s");
-    snprintf(tmpbuf1,sizeof(tmpbuf1),format,
-            CmdsColors[COLWHO].color3,channel,Colors[COLOFF],
-            CmdsColors[COLWHO].color1,nick,Colors[COLOFF]);
-    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s%-3s%s %s%s%s%s@%s%s%s%s",tmpbuf1,
-            CmdsColors[COLWHO].color4,stat,Colors[COLOFF],
+/**************************** PATCHED by Flier ******************************/
+    /* stock layout: channel %-w.ws (tab-separated when width is 0), nick
+     * %-9s, stat %-3s.  Each name is padded on its plain text and colorized
+     * afterwards, so the color escapes never enter the column arithmetic. */
+    colorize_and_pad(nick, 9, nbuf, sizeof(nbuf), 1, 0);
+    snprintf(uhbuf,sizeof(uhbuf),"%s%s%s%s@%s%s%s%s",
             CmdsColors[COLWHO].color2,user,Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHO].color2,host,Colors[COLOFF]);
+    width=get_int_var(CHANNEL_NAME_WIDTH_VAR);
+    if (width) {
+        colorize_and_pad(channel, width, cbuf, sizeof(cbuf), 0, 1);
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s %s%s%s",
+                CmdsColors[COLWHO].color3,cbuf,Colors[COLOFF],
+                CmdsColors[COLWHO].color1,nbuf,Colors[COLOFF]);
+    }
+    else {
+        colorize_channel(channel, cbuf, sizeof(cbuf));
+        snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s\t%s%s%s",
+                CmdsColors[COLWHO].color3,cbuf,Colors[COLOFF],
+                CmdsColors[COLWHO].color1,nbuf,Colors[COLOFF]);
+    }
+    snprintf(tmpbuf2,sizeof(tmpbuf2),"%s %s%-3s%s %s",tmpbuf1,
+            CmdsColors[COLWHO].color4,stat,Colors[COLOFF],uhbuf);
+/****************************************************************************/
     put_it("%s%s %c%s%s%s%c",stampbuf,tmpbuf2,
            show_server?'[':'(',
            CmdsColors[COLWHO].color5,show_server?server:name,Colors[COLOFF],
            show_server?']':')');
 #else
+    {
+    char format[40];
+
     if ((width=get_int_var(CHANNEL_NAME_WIDTH_VAR))!=0)
         snprintf(format,sizeof(format),"%s%%-%u.%us %%-9s %%-3s %%s@%%s (%%s)",
                 (unsigned char) width,(unsigned char) width);
     else strcpy(format,"%s%s\t%-9s %-3s %s@%s (%s)");
     put_it(format,stampbuf,channel,nick,stat,user,host,show_server?server:name);
+    }
 #endif
 }
 
@@ -1299,6 +1335,9 @@ char *channel;
 #ifdef GENX
     char tmpbuf2[mybufsize/2];
 #endif /* GENX */
+#ifdef WANTANSI
+    char winbuf[COLORIZED_NICK_LEN];
+#endif
 
     country=empty_string;
 #ifdef COUNTRY
@@ -1317,7 +1356,7 @@ char *channel;
     put_it("%s旼컴컴컴컴컫컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴",banner);
     snprintf(tmpbuf2,sizeof(tmpbuf2), "%s� %s%8s%s � %s%s%s%s!%s%s%s%s%s@%s%s%s%s",banner,
             CmdsColors[COLWHOIS].color5,word,Colors[COLOFF],
-            CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],
+            CmdsColors[COLWHOIS].color1,colorize_nick(nick, winbuf, sizeof(winbuf)),Colors[COLOFF],
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
@@ -1340,7 +1379,7 @@ char *channel;
             CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
     put_it("%s%s%s%s is %s",banner,
-           CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1);
+           CmdsColors[COLWHOIS].color1,colorize_nick(nick, winbuf, sizeof(winbuf)),Colors[COLOFF],tmpbuf1);
     put_it("%s%sircname%s:    %s%s%s",banner,
            CmdsColors[COLWHOIS].color5,Colors[COLOFF],
            CmdsColors[COLWHOIS].color3,name,Colors[COLOFF]);
@@ -1354,8 +1393,9 @@ char *channel;
             CmdsColors[COLWHOIS].color2,user,Colors[COLOFF],
  	    CmdsColors[COLMISC].color1,Colors[COLOFF],
             CmdsColors[COLWHOIS].color2,host,Colors[COLOFF]);
-    put_it("%s%s%-9s%s : %s (%s%s)%s",banner,
-           CmdsColors[COLWHOIS].color1,nick,Colors[COLOFF],tmpbuf1,name,
+    colorize_and_pad(nick, 9, winbuf, sizeof(winbuf), 1, 0);
+    put_it("%s%s%s%s : %s (%s%s)%s",banner,
+           CmdsColors[COLWHOIS].color1,winbuf,Colors[COLOFF],tmpbuf1,name,
            Colors[COLOFF],country);
 #ifdef COUNTRY
     new_free(&country);
@@ -1401,6 +1441,79 @@ char *channels;
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%s", channels);
     StripAnsi(tmpbuf1, tmpbuf2, 4);
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+    {
+        char wicbuf[4 * mybufsize];
+        char *src = tmpbuf2;
+        char *dst = wicbuf;
+        int remain = (int) sizeof(wicbuf) - 1;
+
+        while (*src && remain > 0)
+        {
+            /* peel channel-mode sigils (+, &) that prefix a real channel
+             * so the bare name is hashed; @ and % never pass is_channel
+             * and are copied by the fallback below */
+            while ((*src == '+' || *src == '&') &&
+                   is_channel(src + 1) && remain > 0)
+            {
+                *dst++ = *src++;
+                remain--;
+            }
+            if (!*src || remain <= 0)
+                break;
+            if (is_channel(src))
+            {
+                char *end = src;
+                char word[256];
+                char cbuf[COLORIZED_CHANNEL_LEN];
+                int wlen, clen;
+
+                while (*end && *end != ' ')
+                    end++;
+                wlen = (int)(end - src);
+                if (wlen > 0 && wlen < (int) sizeof(word))
+                {
+                    memcpy(word, src, (size_t) wlen);
+                    word[wlen] = '\0';
+                    colorize_channel(word, cbuf, sizeof(cbuf));
+                    clen = (int) strlen(cbuf);
+                    {
+                        /* colorize_channel closes a coloured channel
+                         * with \033[39m (default fg), which cancels the
+                         * outer COLWHOIS.color3 wrap; re-assert color3
+                         * after a coloured channel so the @/+ op sigils
+                         * and spaces that follow keep the whois channel
+                         * colour instead of dropping to the terminal
+                         * default.  When the channel was not coloured
+                         * (clen == wlen) nothing is re-asserted and the
+                         * output stays byte-identical to stock. */
+                        char *c3 = (clen > wlen) ?
+                                   CmdsColors[COLWHOIS].color3 : (char *) 0;
+                        int c3len = c3 ? (int) strlen(c3) : 0;
+                        if (clen + c3len <= remain)
+                        {
+                            memcpy(dst, cbuf, (size_t) clen);
+                            dst += clen;
+                            remain -= clen;
+                            if (c3len)
+                            {
+                                memcpy(dst, c3, (size_t) c3len);
+                                dst += c3len;
+                                remain -= c3len;
+                            }
+                            src = end;
+                            continue;
+                        }
+                    }
+                }
+            }
+            *dst++ = *src++;
+            remain--;
+        }
+        *dst = '\0';
+        strmcpy(tmpbuf2, wicbuf, sizeof(tmpbuf2));
+    }
+/****************************************************************************/
 #ifdef GENX
     put_it("%s� %schannels%s � %s%s%s", banner,
            CmdsColors[COLWHOIS].color5, Colors[COLOFF],
@@ -1521,6 +1634,8 @@ int  iscrypted;
     char tmpbuf4[2*mybufsize];
 #ifdef WANTANSI
     char tmpbuf5[mybufsize/16];
+    char nbuf[COLORIZED_NICK_LEN];
+    char cbuf[COLORIZED_CHANNEL_LEN];
 #endif
     char *stampbuf=TimeStamp(1);
 #ifdef WANTANSI
@@ -1585,6 +1700,10 @@ int  iscrypted;
     }
     else strmcpy(tmpbuf4,line,sizeof(tmpbuf4));
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+    colorize_at_nicks(tmpbuf4,tmpbuf3,sizeof(tmpbuf3));
+    strmcpy(tmpbuf4,tmpbuf3,sizeof(tmpbuf4));
+/****************************************************************************/
     if (!isitme || ShowNick) {
 #ifdef CELECOSM
         if (isfriend && !isshit && isitme) coln=CmdsColors[COLMISC].color4;
@@ -1638,11 +1757,11 @@ int  iscrypted;
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%c%s%s%s%s%s:%s%s%s%s%c%s ",
                         CmdsColors[COLPUBLIC].color2,pubschar,Colors[COLOFF],
                         tmpbuf3,
-                        CmdsColors[COLPUBLIC].color4,nick,Colors[COLOFF],
+                        CmdsColors[COLPUBLIC].color4,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],
 #ifdef CELE
                         CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF],
 #else
-                        CmdsColors[COLPUBLIC].color3,channel,Colors[COLOFF],
+                        CmdsColors[COLPUBLIC].color3,colorize_channel(channel, cbuf, sizeof(cbuf)),Colors[COLOFF],
 #endif
                         CmdsColors[COLPUBLIC].color2,pubechar,Colors[COLOFF]);
                 w = put_it("%s%s%s%s%s%s",cstr,stampbuf,tmpbuf2,
@@ -1656,11 +1775,11 @@ int  iscrypted;
             else strmcpy(channel1,newchan,sizeof(channel1));
 #endif
             snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s%s%s%s%s%s",tmpbuf1,
-                    nick,Colors[COLOFF],newcol,
+                    colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],newcol,
 #ifdef CELE
                     CmdsColors[COLPUBLIC].color3,channel1,Colors[COLOFF]
 #else
-                    CmdsColors[COLPUBLIC].color3,newchan,Colors[COLOFF]
+                    CmdsColors[COLPUBLIC].color3,colorize_channel(newchan, cbuf, sizeof(cbuf)),Colors[COLOFF]
 #endif
                     );
             w = put_it("%s%s%s%s %s%s%s",cstr,stampbuf,tmpbuf2,tmpbuf5,
@@ -2428,10 +2547,15 @@ int  iscrypted;
     snprintf(thingleft,sizeof(thingleft),"%s%s",iscrypted?"*":"",thing);
     snprintf(thingright,sizeof(thingright),"%s%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+    {
+    char dcnbuf[COLORIZED_NICK_LEN];
     snprintf(tmpbuf,sizeof(tmpbuf),"%s%s%s%s%s%s%s%s%s",
             CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
-            CmdsColors[COLDCCCHAT].color1,client->user,Colors[COLOFF],
+            CmdsColors[COLDCCCHAT].color1,colorize_nick(client->user, dcnbuf, sizeof(dcnbuf)),Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF]);
+    }
+/****************************************************************************/
 #ifdef TDF
     snprintf(tmpbuf2,sizeof(tmpbuf2),"<[%s%s%s]%s%s,%s%s>",
             CmdsColors[COLMSG].color4,update_clock(0,0,GET_TIME),Colors[COLOFF],
@@ -2474,13 +2598,18 @@ int  iscrypted;
     snprintf(thingleft,sizeof(thingleft),"%s%s",iscrypted?"*":"",thing);
     snprintf(thingright,sizeof(thingright),"%s%s",thing,iscrypted?"*":"");
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+    {
+    char mcnbuf[COLORIZED_NICK_LEN];
     snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s%s%s%s%s%s%s%s%s%s]%s",
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingleft,Colors[COLOFF],
-            CmdsColors[COLDCCCHAT].color5,nick,Colors[COLOFF],
+            CmdsColors[COLDCCCHAT].color5,colorize_nick(nick, mcnbuf, sizeof(mcnbuf)),Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color2,thingright,Colors[COLOFF],
             CmdsColors[COLDCCCHAT].color4,Colors[COLOFF]);
     func("%s %s%s%s",tmpbuf,CmdsColors[COLDCCCHAT].color3,line,Colors[COLOFF]);
+    }
+/****************************************************************************/
 #else
     func("[%s%s%s] %s",thingleft,nick,thingright,line);
 #endif
@@ -2615,9 +2744,12 @@ ChannelList *chan;
     if (do_hook(CHANNEL_SYNCH_LIST, "%s %s", chan->channel, tmpbuf1))
 #endif /* CELEHOOK */
 #ifdef WANTANSI
+        {
+        char syncbuf[COLORIZED_CHANNEL_LEN];
         say("Join to %s%s%s is now %ssynched%s (%s seconds)",
-            CmdsColors[COLJOIN].color3, chan->channel, Colors[COLOFF],
+            CmdsColors[COLJOIN].color3, colorize_channel(chan->channel, syncbuf, sizeof(syncbuf)), Colors[COLOFF],
             CmdsColors[COLJOIN].color4, Colors[COLOFF], tmpbuf1);
+        }
 #else  /* WANTANSI */
         say("Join to %s is now %csynched%c (%s seconds)",
             chan->channel, bold, bold, tmpbuf1);
@@ -2693,7 +2825,7 @@ char *buffer;
         count--;
     }
     if (joiner->chanop || joiner->halfop) {
-        snprintf(&thing[strlen(thing)],sizeof(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
+        snprintf(&thing[strlen(thing)],sizeof(thing)-strlen(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
         count--;
     }
     while (count) {
@@ -2701,7 +2833,11 @@ char *buffer;
         strmcpy(thing,buffer,sizeof(thing));
         count--;
     }
-    sprintf(buffer,"%s%s%-9s%s",thing,colnick,joiner->nick,Colors[COLOFF]);
+    {
+    char cjnbuf[COLORIZED_NICK_LEN + 10];
+    colorize_and_pad(joiner->nick, 9, cjnbuf, sizeof(cjnbuf), 1, 0);
+    sprintf(buffer,"%s%s%s%s",thing,colnick,cjnbuf,Colors[COLOFF]);
+    }
 }
 #endif
 
@@ -2848,10 +2984,14 @@ char *subargs;
                     strmcat(tmpbuf2, CmdsColors[COLCSCAN].color2, sizeof(tmpbuf2));
                     BuildPrivs(joiner->frlist, tmpbuf2);
                     strmcat(tmpbuf2,Colors[COLOFF], sizeof(tmpbuf2));
-                    say("%-3d %s%-14s%s %s %s",
+                    {
+                    char chbuf[COLORIZED_CHANNEL_LEN];
+                    colorize_and_pad(chan->channel, 14, chbuf, sizeof(chbuf), 0, 0);
+                    say("%-3d %s%s%s %s %s",
                         joiner->frlist ? joiner->frlist->number : 0,
-                        CmdsColors[COLWHO].color3, chan->channel, Colors[COLOFF],
+                        CmdsColors[COLWHO].color3, chbuf, Colors[COLOFF],
                         tmpbuf1, tmpbuf2);
+                    }
 #else
                     count = 0;
                     strmcpy(tmpbuf2, "  ", sizeof(tmpbuf2));
@@ -3512,6 +3652,8 @@ ChannelList *chan;
     char *tmpstr = NULL;
     char tmpbuf[mybufsize];
     char buffer[BIG_BUFFER_SIZE + 1];
+    char nbuf[COLORIZED_NICK_LEN];
+    char cbuf[COLORIZED_CHANNEL_LEN];
 
     strmcpy(tmpbuf, nicks, sizeof(tmpbuf));
     tmpstr = tmpbuf;
@@ -3520,14 +3662,18 @@ ChannelList *chan;
         if (addspace) strmcat(buffer, " ", sizeof(buffer));
         else addspace = 1;
         if (*nick == '@') {
-            strmcat(buffer, CmdsColors[COLNICK].color4, sizeof(buffer));
+            strmcat(buffer, get_int_var(COLORIZE_NICKS_VAR) ?
+                    CmdsColors[COLWHOIS].color3 : CmdsColors[COLNICK].color4,
+                    sizeof(buffer));
             strmcat(buffer, "@", sizeof(buffer));
             strmcat(buffer, Colors[COLOFF], sizeof(buffer));
             strmcat(buffer, CmdsColors[COLCSCAN].color3, sizeof(buffer));
             nick++;
         }
 	else if (*nick == '%') {
-	    strmcat(buffer, CmdsColors[COLNICK].color4, sizeof(buffer));
+	    strmcat(buffer, get_int_var(COLORIZE_NICKS_VAR) ?
+	            CmdsColors[COLWHOIS].color3 : CmdsColors[COLNICK].color4,
+	            sizeof(buffer));
 	    strmcat(buffer, "%", sizeof(buffer));
 	    strmcat(buffer, Colors[COLOFF], sizeof(buffer));
 	    strmcat(buffer, CmdsColors[COLCSCAN].color3, sizeof(buffer));
@@ -3541,15 +3687,15 @@ ChannelList *chan;
             nick++;
         }
         else strmcat(buffer, CmdsColors[COLCSCAN].color5, sizeof(buffer));
-        strmcat(buffer, nick, sizeof(buffer));
+        strmcat(buffer, colorize_nick(nick, nbuf, sizeof(nbuf)), sizeof(buffer));
         strmcat(buffer, Colors[COLOFF], sizeof(buffer));
         if (strlen(buffer) >= BIG_BUFFER_SIZE - 100) {
-            say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, channel, Colors[COLOFF], buffer);
+            say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, colorize_channel(channel, cbuf, sizeof(cbuf)), Colors[COLOFF], buffer);
             *buffer = '\0';
         }
     }
     if (*buffer)
-        say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, channel, Colors[COLOFF], buffer);
+        say("Users on %s%s%s: %s", CmdsColors[COLCSCAN].color1, colorize_channel(channel, cbuf, sizeof(cbuf)), Colors[COLOFF], buffer);
 #else
     say("Users on %s: %s", channel, nicks);
 #endif

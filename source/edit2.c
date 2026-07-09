@@ -99,6 +99,7 @@
 #include "parse.h"
 #include "myvars.h"
 #include "whowas.h"
+#include "colorhash.h"
 
 #include <sys/stat.h> /* for umask() */
 
@@ -1312,8 +1313,11 @@ char *subargs;
     szlen = strlen(ScrollZstr) - CountAnsi(prefstr, -1);
     snprintf(tmpbuf3, sizeof(tmpbuf3), "%%%ds",szlen);
 #endif /* NEWCSCAN */
+    {
+    char cscbuf[COLORIZED_CHANNEL_LEN];
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s%s%s :", prefstr, Stamp == 2 ? "" : " ",
-            CmdsColors[COLCSCAN].color1, chan->channel, Colors[COLOFF]);
+            CmdsColors[COLCSCAN].color1, colorize_channel(chan->channel, cscbuf, sizeof(cscbuf)), Colors[COLOFF]);
+    }
 #else /* WANTANSI */
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%sUsers on %s :", prefstr, Stamp == 2 ? "" : " ",
             chan->channel);
@@ -1442,14 +1446,20 @@ char *subargs;
 
 #ifdef WANTANSI
         if (tmp->chanop) {
-            snprintf(tmpbuf4, sizeof(tmpbuf4), "%s@%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+            snprintf(tmpbuf4, sizeof(tmpbuf4), "%s@%s",
+                     get_int_var(COLORIZE_NICKS_VAR) ?
+                     CmdsColors[COLWHOIS].color3 : CmdsColors[COLNICK].color4,
+                     Colors[COLOFF]);
             malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
             buflen += strlen(tmpbuf4) + 1;
 #endif /* NEWCSCAN */
         }
 	else if (tmp->halfop) {
-	    snprintf(tmpbuf4, sizeof(tmpbuf4), "%s%%%s", CmdsColors[COLNICK].color4, Colors[COLOFF]);
+	    snprintf(tmpbuf4, sizeof(tmpbuf4), "%s%%%s",
+	             get_int_var(COLORIZE_NICKS_VAR) ?
+	             CmdsColors[COLWHOIS].color3 : CmdsColors[COLNICK].color4,
+	             Colors[COLOFF]);
 	    malloc_strcat(&users, tmpbuf4);
 #ifndef NEWCSCAN
 	    buflen += strlen(tmpbuf4) + 1;
@@ -1476,25 +1486,48 @@ char *subargs;
 #endif /* NEWCSCAN */
 
 #ifdef WANTANSI
-        malloc_strcat(&users, colorstr);
+        if (!get_int_var(COLORIZE_NICKS_VAR))
+        {
+            malloc_strcat(&users, colorstr);
 #ifndef NEWCSCAN
-        buflen += strlen(colorstr);
+            buflen += strlen(colorstr);
 #endif /* NEWCSCAN */
+        }
 #endif /* WANTANSI */
 
 #ifndef NEWCSCAN
+#ifdef WANTANSI
+        {
+        char csnbuf[COLORIZED_NICK_LEN];
+        malloc_strcat(&users, colorize_nick(tmp->nick, csnbuf, sizeof(csnbuf)));
+        buflen += strlen(tmp->nick) + COLOR_ESCAPE_OVERHEAD;
+        }
+#else
         malloc_strcat(&users, tmp->nick);
         buflen += strlen(tmp->nick);
+#endif
+#else
+#ifdef WANTANSI
+        {
+        char csnbuf2[mybufsize/4];
+
+        colorize_and_pad(tmp->nick, len, csnbuf2, sizeof(csnbuf2), 1, 0);
+        malloc_strcat(&users, csnbuf2);
+        }
 #else
         snprintf(tmpbuf2, sizeof(tmpbuf2), tmpbuf1,tmp->nick);
         malloc_strcat(&users, tmpbuf2);
+#endif
 #endif /* NEWCSCAN */
 
 #ifdef WANTANSI
-        malloc_strcat(&users, Colors[COLOFF]);
+        if (!get_int_var(COLORIZE_NICKS_VAR))
+        {
+            malloc_strcat(&users, Colors[COLOFF]);
 #ifndef NEWCSCAN
-        buflen += 4;
+            buflen += 4;
 #endif /* NEWCSCAN */
+        }
 #endif /* WANTANSI */
 
 #ifndef NEWCSCAN
@@ -1756,12 +1789,36 @@ char *subargs;
                 iscrypted = DecryptMessage(tmpbuf, chan->channel);
                 if (iscrypted == 2) cstr = "[*]";
                 else if (iscrypted) cstr = "[!]";
+#ifdef WANTANSI
+                {
+                char tcbuf[COLORIZED_CHANNEL_LEN];
+                say("Topic for %s%s: %s", cstr,
+                    colorize_channel(chan->channel, tcbuf, sizeof(tcbuf)), x);
+                }
+#else
                 say("Topic for %s%s: %s", cstr, chan->channel, x);
+#endif
             }
-            else say("No topic is set for %s", chan->channel);
-            if (chan->topicwho)
+            else {
+#ifdef WANTANSI
+                char tcbuf2[COLORIZED_CHANNEL_LEN];
+                say("No topic is set for %s",
+                    colorize_channel(chan->channel, tcbuf2, sizeof(tcbuf2)));
+#else
+                say("No topic is set for %s", chan->channel);
+#endif
+            }
+            if (chan->topicwho) {
+#ifdef WANTANSI
+                char tnbuf[COLORIZED_NICK_LEN];
+                say("%s by %s on %.24s", chan->topicstr ? "Set" : "Unset",
+                    colorize_nick(chan->topicwho, tnbuf, sizeof(tnbuf)),
+                    ctime(&(chan->topicwhen)));
+#else
                 say("%s by %s on %.24s", chan->topicstr ? "Set" : "Unset",
                     chan->topicwho, ctime(&(chan->topicwhen)));
+#endif
+            }
         }
         else NoWindowChannel();
     }

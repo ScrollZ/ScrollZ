@@ -136,6 +136,11 @@
 #define DEFAULT_DISPLAY 1
 #define DEFAULT_DISPLAY_ENCODING "UTF-8"
 #define DEFAULT_DISPLAY_ANSI 1
+/**************************** PATCHED by Flier ******************************/
+#define DEFAULT_COLORIZE_NICKS    1
+#define DEFAULT_COLORIZE_CHANNELS 1
+#define DEFAULT_COLORIZE_WARP     0
+/****************************************************************************/
 #define DEFAULT_EIGHT_BIT_CHARACTERS 1
 #define DEFAULT_ENCRYPT_PROGRAM NULL
 #define DEFAULT_DECRYPT_PROGRAM NULL

@@ -1706,7 +1706,10 @@ split_up_line(str)
                 case '\033':
                         ansi_count = 0;
                         isiso = 0;
-                        while ((c = vt100Decode(*ptr))) {
+                        /* the pos bound keeps an escape crossing the buffer
+                         * end from writing past lbuf */
+                        while ((c = vt100Decode(*ptr)) &&
+                               pos < (int) sizeof(lbuf) - 2) {
                             /* terminate on escape if ISO-2022-JP support is enabled */
                             if (iso2022 && *ptr == '\033' && ansi_count) break;
                             if (c > 1) isiso = 1;

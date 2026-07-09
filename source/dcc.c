@@ -117,6 +117,7 @@ void	dcc_resend _((char *));
 void	dcc_regetfile _((char *));
 
 #include "myvars.h"
+#include "colorhash.h"
 
 static int StatusDCC _((DCC_list *));
 static void PrintEstablish _((char *, DCC_list *, struct sockaddr_in, unsigned long));
@@ -287,10 +288,12 @@ unsigned long byteoffset;
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%d",ntohs(remaddr.sin_port));
     malloc_strcpy(&(Client->port),tmpbuf1);
 #endif
+    {
+    char dcnbuf2[COLORIZED_NICK_LEN];
     snprintf(tmpbuf2,sizeof(tmpbuf2),"%sDCC%s %s%s%s connection with %s%s%s",
             CmdsColors[COLDCC].color5,Colors[COLOFF],
             CmdsColors[COLDCC].color3,type,Colors[COLOFF],
-            CmdsColors[COLDCC].color1,Client->user,Colors[COLOFF]);
+            CmdsColors[COLDCC].color1,colorize_nick(Client->user, dcnbuf2, sizeof(dcnbuf2)),Colors[COLOFF]);
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s[%s%s,%d%s]",tmpbuf2,
             CmdsColors[COLDCC].color4,inet_ntoa(remaddr.sin_addr),
             ntohs(remaddr.sin_port),Colors[COLOFF]);
@@ -301,6 +304,7 @@ unsigned long byteoffset;
     }
     snprintf(tmpbuf2,sizeof(tmpbuf1),"%s %sestablished%s",
             tmpbuf1,CmdsColors[COLDCC].color4,Colors[COLOFF]);
+    }
 #else
     snprintf(tmpbuf1,sizeof(tmpbuf1),"DCC %s connection with %s[%s,%d]",
             type,Client->user,inet_ntoa(remaddr.sin_addr),ntohs(remaddr.sin_port));
@@ -1994,10 +1998,13 @@ register_dcc_offer(user, type, description, address, port, size)
                         CmdsColors[COLDCC].color4,description,
                         (long) Client->filesize,Colors[COLOFF]);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
+                {
+                char drnbuf[COLORIZED_NICK_LEN];
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%sreceived%s from %s%s%s %s [%s:%s]",tmpbuf1,
                         CmdsColors[COLDCC].color4,Colors[COLOFF],
-                        CmdsColors[COLDCC].color1,user,Colors[COLOFF],tmpbuf3,
+                        CmdsColors[COLDCC].color1,colorize_nick(user, drnbuf, sizeof(drnbuf)),Colors[COLOFF],tmpbuf3,
                         inet_ntoa(Client->remote), port);
+                }
 #else
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"DCC %s (%s %ld) request received from %s (%s) [%s:%s]",
                         type,description,(long) Client->filesize,user,
@@ -2073,9 +2080,12 @@ register_dcc_offer(user, type, description, address, port, size)
                         CmdsColors[COLDCC].color4,description,Colors[COLOFF],
                         CmdsColors[COLDCC].color4);
                 ColorUserHost(FromUserHost,CmdsColors[COLDCC].color2,tmpbuf3,1);
+                {
+                char drnbuf2[COLORIZED_NICK_LEN];
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"%s%s from %s%s%s %s [%s:%s]",tmpbuf1,Colors[COLOFF],
-                        CmdsColors[COLDCC].color1,user,Colors[COLOFF],tmpbuf3,
+                        CmdsColors[COLDCC].color1,colorize_nick(user, drnbuf2, sizeof(drnbuf2)),Colors[COLOFF],tmpbuf3,
                         inet_ntoa(Client->remote),port);
+                }
 #else
                 snprintf(tmpbuf2,sizeof(tmpbuf2),"DCC %s (%s) request received from %s (%s) [%s:%s]",
                         type,description,user,FromUserHost,inet_ntoa(Client->remote),port);
@@ -2924,8 +2934,17 @@ dcc_list(args)
 		snprintf(rd, sizeof rd, "%ld", (long)Client->bytes_read);
  		timestr = (Client->starttime) ? dcc_time(Client->starttime) : "";
 		flags = Client->flags;
+		{
+#ifdef WANTANSI
+		char dcnbuf[mybufsize/4];
+		colorize_and_pad(Client->user, 9, dcnbuf, sizeof(dcnbuf), 1, 1);
+		put_it("%-7.7s %s %-10.10s %-20.20s %-8.8s %-8.8s %s",
+				dcc_types[flags & DCC_TYPES],
+				dcnbuf,
+#else
 		put_it(format, dcc_types[flags & DCC_TYPES],
 				Client->user,
+#endif
 				flags & DCC_OFFER ? "Offered" :
 				flags & DCC_DELETE ? "Closed" :
 				flags & DCC_ACTIVE ? "Active" :
@@ -2938,6 +2957,7 @@ dcc_list(args)
 #endif
 				"Unknown",
 				timestr, sent, rd, Client->description);
+		}
 		if (*timestr)
 			new_free(&timestr);
 	}

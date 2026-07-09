@@ -1,0 +1,28 @@
+!	 $Id: colorize_warp $
+!
+! Copyright (c) 1994-2026 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET COLORIZE_WARP <number>
+  Shifts the colour assignment used by COLORIZE_NICKS and
+  COLORIZE_CHANNELS. The default is 0.
+
+  Nick and channel colours are deterministic: each name is hashed
+  and the hash selects a palette colour. Sometimes that leaves two
+  names you care about in similar colours, or gives a name a colour
+  you simply dislike. Setting COLORIZE_WARP to any non-zero value
+  folds that value into the hash as salt, which deterministically
+  reshuffles every nick and channel to a different colour. Each
+  distinct warp value produces its own complete, stable assignment.
+
+  A value of 0 gives the standard assignment. There is no need to
+  use large numbers - small values such as 1, 2, 3 already produce
+  completely different colour sets; the variable simply accepts any
+  integer. The same warp value always yields the same colours, so
+  the setting is worth saving once you find an assignment you like.
+
+See Also:
+  SET COLORIZE_NICKS
+  SET COLORIZE_CHANNELS

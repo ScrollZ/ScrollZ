@@ -53,6 +53,7 @@
 #include "whois.h"
 #include "funny.h"
 #include "parse.h"
+#include "colorhash.h"
 /************************* PATCHED by Flier ***************************/
 #include "ignore.h"
 #include "status.h"
@@ -658,9 +659,18 @@ channel_topic(from, ArgList)
                 if (iscrypted == 2) cstr = "[*]";
                 else if (iscrypted) cstr = "[!]";
                 if (iscrypted) topic = tmpbuf;
+#ifdef WANTANSI
+		{
+			char cbuf[COLORIZED_CHANNEL_LEN];
+
+			put_it("%sTopic for %s%s: %s", numeric_banner(), cstr,
+				colorize_channel(channel, cbuf, sizeof(cbuf)), topic);
+		}
+#else
                 put_it("%sTopic for %s%s: %s", numeric_banner(), cstr, channel,
 /****************************************************************************/
 			topic);
+#endif
 	}
 	else
 	{
@@ -746,7 +756,10 @@ not_valid_channel(from, ArgList)
 		remove_channel(channel, parsing_server_index);
 /**************************** Patched by Flier ******************************/
 		/*put_it("%s %s %s", numeric_banner(), channel, ArgList[1]);*/
-		put_it("%s%s %s", numeric_banner(), channel, ArgList[1]);
+		{
+		char cbuf[COLORIZED_CHANNEL_LEN];
+		put_it("%s%s %s", numeric_banner(), colorize_channel(channel, cbuf, sizeof(cbuf)), ArgList[1]);
+		}
 /****************************************************************************/
 	}
 }
@@ -1027,9 +1040,14 @@ invite(from, ArgList)
 		if (do_hook(current_numeric, "%s %s %s", from, who, channel))
 /**************************** Patched by Flier ******************************/
 			/*put_it("%s Inviting %s to channel %s",*/
+			{
+			char nbuf[COLORIZED_NICK_LEN], cbuf[COLORIZED_CHANNEL_LEN];
 			put_it("%sInviting %s to channel %s",
+					numeric_banner(),
+					colorize_nick(who, nbuf, sizeof(nbuf)),
+					colorize_channel(channel, cbuf, sizeof(cbuf)));
+			}
 /****************************************************************************/
-					numeric_banner(), who, channel);
  		restore_message_from();
 	}
 }
