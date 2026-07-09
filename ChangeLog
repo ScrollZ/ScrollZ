@@ -8,6 +8,27 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ v2.4.0, 9.7.2026
+
+    ! crash (buffer overflow abort) right after JOIN on modern glibc,
+      caused by snprintf() passing the full buffer size for a write at
+      an offset; _FORTIFY_SOURCE aborts the client (patch by blaxthos)
+    + colour each nickname and channel name by a hash of its name so a
+      given name always gets the same colour; controlled by
+      SET COLORIZE_NICKS, SET COLORIZE_CHANNELS and SET COLORIZE_WARP
+      (ON by default, needs DISPLAY_ANSI; 72-colour palette for dark
+      terminals) (patch by blaxthos)
+    ! long outgoing PRIVMSG/NOTICE were silently truncated at the line
+      limit; they are now split into fitting lines on word boundaries,
+      carrying colour state across the split so colours do not bleed
+      (patch by blaxthos)
+    ! possible out-of-bounds copy in split_up_line() for an escape
+      sequence spanning the line buffer (patch by blaxthos)
+    ! status bar field-width clamp used an unsigned comparison
+      (patch by blaxthos)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.3.1, 6.5.2021
     ! some more crashes when last server is disconnected
     ! desktop notification via libnotify for messages and notices
