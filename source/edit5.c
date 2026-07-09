@@ -2693,7 +2693,7 @@ char *buffer;
         count--;
     }
     if (joiner->chanop || joiner->halfop) {
-        snprintf(&thing[strlen(thing)],sizeof(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
+        snprintf(&thing[strlen(thing)],sizeof(thing)-strlen(thing),"%s%c%s",CmdsColors[COLNICK].color4,joiner->chanop?'@':'%',Colors[COLOFF]);
         count--;
     }
     while (count) {
