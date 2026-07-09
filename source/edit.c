@@ -80,6 +80,7 @@
 #include "myvars.h"
 /****************************************************************************/
 #include "colorhash.h"
+#include "msgsplit.h"
 
 /*
  * current_exec_timer - used to make sure we don't remove a timer
@@ -3148,14 +3149,14 @@ send_text(org_nick, line, command)
 				char	*crypt_line;
 
 				if ((crypt_line = crypt_msg(line, key, 1)))
-					send_to_server("%s %s :%s", command, nick, crypt_line);
+					split_and_send(command, nick, crypt_line);
 				continue;
 			}
 #endif
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
-                            send_to_server("%s %s :%s", command, nick, tmpbuf);
+                            split_and_send(command, nick, tmpbuf);
                             continue;
                         }
 /****************************************************************************/
@@ -3270,7 +3271,7 @@ send_text(org_nick, line, command)
 				char	*crypt_line;
 
 				if ((crypt_line = crypt_msg(line, key, 1)))
-					send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, crypt_line);
+					split_and_send(command ? command : "PRIVMSG", nick, crypt_line);
 				continue;
 			}
 #endif
@@ -3278,7 +3279,7 @@ send_text(org_nick, line, command)
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
-                            send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, tmpbuf);
+                            split_and_send(command ? command : "PRIVMSG", nick, tmpbuf);
                             continue;
                         }
 /****************************************************************************/
@@ -3313,7 +3314,7 @@ send_text(org_nick, line, command)
 
 	malloc_strcpy((char **) &sent_body, line);
 	if (do_final_send)
-		send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick_list, line);
+		split_and_send(command ? command : "PRIVMSG", nick_list, line);
 	new_free(&free_nick);
 out:
  	restore_message_from();
