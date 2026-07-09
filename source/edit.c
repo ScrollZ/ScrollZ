@@ -79,6 +79,7 @@
 #include "struct.h"
 #include "myvars.h"
 /****************************************************************************/
+#include "colorhash.h"
 
 /*
  * current_exec_timer - used to make sure we don't remove a timer
@@ -4615,6 +4616,8 @@ describe(command, args, subargs)
         char    *curchan;
 #ifdef WANTANSI
         char    tmpbuf[mybufsize/2];
+        char    menbuf[COLORIZED_NICK_LEN];
+        char    tgtbuf[COLORIZED_CHANNEL_LEN];
 #endif
 
 #ifdef HAVE_ICONV_H
@@ -4659,7 +4662,7 @@ describe(command, args, subargs)
                         malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
                         put_it("%s%s%s %s%s%s %s%s%s",
                                tmpstr,thing,Colors[COLOFF],
-                               CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
+                               CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF],
                                CmdsColors[COLME].color5,message,Colors[COLOFF]);
                         new_free(&tmpstr);
 #else
@@ -4670,9 +4673,9 @@ describe(command, args, subargs)
                     else {
 #ifdef WANTANSI
                         snprintf(tmpbuf,sizeof(tmpbuf),"<%s%s%s> %s%s%s %s%s%s",
-                               CmdsColors[COLME].color4,target,Colors[COLOFF],
+                               CmdsColors[COLME].color4,is_channel(target)?colorize_channel(target, tgtbuf, sizeof(tgtbuf)):colorize_nick(target, tgtbuf, sizeof(tgtbuf)),Colors[COLOFF],
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                               CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF]);
+                               CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF]);
                         put_it("%s%s %s%s%s",stampbuf,tmpbuf,
                               CmdsColors[COLME].color5,message,Colors[COLOFF]);
 #else
@@ -4710,6 +4713,9 @@ me(command, args, subargs)
 {
 /**************************** PATCHED by Flier ******************************/
         char *thing;
+#ifdef WANTANSI
+        char    menbuf[COLORIZED_NICK_LEN];
+#endif
 
 #ifdef HAVE_ICONV_H
         if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\236";
@@ -4763,7 +4769,7 @@ me(command, args, subargs)
                             malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
                             put_it("%s%s%s %s%s%s %s%s%s",
                                     tmpstr,thing,Colors[COLOFF],
-                                    CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
+                                    CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF],
                                     CmdsColors[COLME].color5,message,Colors[COLOFF]);
                             new_free(&tmpstr);
 #else

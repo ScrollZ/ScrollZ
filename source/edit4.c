@@ -92,6 +92,7 @@
 #include "myvars.h"
 #include "whowas.h"
 #include "scandir.h"
+#include "colorhash.h"
 
 void   ListBansPage _((char *));
 void   ListBansPrompt _((char *, char *));
@@ -205,6 +206,7 @@ int  iscrypted;
     char tmpbuf1[mybufsize];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize];
+    char nbuf[COLORIZED_NICK_LEN];
 #endif
     char tmpbuf3[mybufsize];
     char tmpbuf4[mybufsize];
@@ -233,6 +235,16 @@ int  iscrypted;
         message = tmpbuf4;
     }
     else message = msg;
+/**************************** PATCHED by Flier ******************************/
+#ifdef WANTANSI
+    {
+	char atbuf[mybufsize];
+	colorize_at_nicks(message, atbuf, sizeof(atbuf));
+	strmcpy(tmpbuf4, atbuf, sizeof(tmpbuf4));
+	message = tmpbuf4;
+    }
+#endif
+/****************************************************************************/
     *tmpbuf3 = '\0';
 #ifdef WANTANSI
 #ifdef CELECOSM
@@ -241,7 +253,7 @@ int  iscrypted;
     else *tmpbuf2 = '\0';
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%s[%s%s%s%s%s%s]%s %s%s%s",
             CmdsColors[COLMSG].color5, Colors[COLOFF],
-            CmdsColors[COLMSG].color1, nick, Colors[COLOFF], tmpbuf2,
+            CmdsColors[COLMSG].color1, colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF], tmpbuf2,
             CmdsColors[COLMSG].color5, Colors[COLOFF],
             CmdsColors[COLMSG].color3, message, Colors[COLOFF]);
     if (Stamp<2)
@@ -249,7 +261,7 @@ int  iscrypted;
                  CmdsColors[COLMSG].color4, update_clock(0, 0, GET_TIME), Colors[COLOFF]);
 #else  /* CELECOSM */
     snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s%s%s %s%s%s",
-            thing, CmdsColors[COLMSG].color1, nick, Colors[COLOFF], thing,
+            thing, CmdsColors[COLMSG].color1, colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF], thing,
             CmdsColors[COLMSG].color3, message, Colors[COLOFF]);
     if (ExtMes && userhost) {
         ColorUserHost(userhost, CmdsColors[COLMSG].color2, tmpbuf2, 1);
@@ -428,6 +440,8 @@ ChannelList *chan;
     char tmpbuf1[mybufsize / 4];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize / 4];
+    char nbuf[COLORIZED_NICK_LEN];
+    char cbuf[COLORIZED_CHANNEL_LEN];
 #endif
 
     servername = tmpbuf1;
@@ -441,8 +455,8 @@ ChannelList *chan;
         else colnick = CmdsColors[COLJOIN].color1;
         ColorUserHost(userhost, CmdsColors[COLJOIN].color2, tmpbuf1, 1);
         say("%s%s%s %s has joined channel %s%s%s",
-            colnick, nick, Colors[COLOFF], tmpbuf1,
-            CmdsColors[COLJOIN].color3, channel, Colors[COLOFF]);
+            colnick, colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF], tmpbuf1,
+            CmdsColors[COLJOIN].color3, colorize_channel(channel, cbuf, sizeof(cbuf)), Colors[COLOFF]);
 #else
         say("%s (%s) has joined channel %s", nick, userhost, channel);
 #endif
@@ -536,12 +550,16 @@ char *channel;
             break;
         }
 #ifdef WANTANSI
+    {
+    char inbuf[COLORIZED_NICK_LEN];
+    char icbuf[COLORIZED_CHANNEL_LEN];
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s%s %s invites you to channel %s%s%s",
-            CmdsColors[COLINVITE].color1,nick,Colors[COLOFF],tmpbuf2,
-            CmdsColors[COLINVITE].color3,channel,Colors[COLOFF]);
+            CmdsColors[COLINVITE].color1,colorize_nick(nick, inbuf, sizeof(inbuf)),Colors[COLOFF],tmpbuf2,
+            CmdsColors[COLINVITE].color3,colorize_channel(channel, icbuf, sizeof(icbuf)),Colors[COLOFF]);
     if (isfake) {
         snprintf(tmpbuf2,sizeof(tmpbuf2)," - %sfake%s",CmdsColors[COLINVITE].color4,Colors[COLOFF]);
         strmcat(tmpbuf1,tmpbuf2,sizeof(tmpbuf1));
+    }
     }
 #else
     snprintf(tmpbuf1,sizeof(tmpbuf1),"%s (%s) invites you to channel %s",nick,userhost,channel);
@@ -562,7 +580,10 @@ char *channel;
         e_channel("JOIN",channel,NULL);
         if (printinv) {
 #ifdef WANTANSI
-            say("Auto joining %s%s%s",CmdsColors[COLINVITE].color3,channel,Colors[COLOFF]);
+            {
+            char ajcbuf[COLORIZED_CHANNEL_LEN];
+            say("Auto joining %s%s%s",CmdsColors[COLINVITE].color3,colorize_channel(channel, ajcbuf, sizeof(ajcbuf)),Colors[COLOFF]);
+            }
 #else
             say("Auto joining %s",channel);
 #endif
@@ -1236,6 +1257,15 @@ int length;
 {
     if (!CheckServer(curr_scr_win->server)) return(0);
 
+    /* An @-prefixed nick address is never a channel.  Bail before FixCompl:
+     * channel and nick completion share compl_last/compl_next, and the nick
+     * handler strips the @ before matching (it stores the bare nick).  If we
+     * let the channel handler run FixCompl on the raw "@nick" here, it never
+     * matches the stored bare nick, so it resets the cycle state on every Tab
+     * and @-completion can't advance past the first match.  Gated on
+     * COLORIZE_NICKS so the OFF path stays byte-identical to stock. */
+    if (*newcompl == '@' && get_int_var(COLORIZE_NICKS_VAR)) return(0);
+
     FixCompl(&server_list[curr_scr_win->server].compl_last,
              &server_list[curr_scr_win->server].compl_next,
              completing, newcompl, length);
@@ -1283,15 +1313,26 @@ int length;
 {
     int i;
     int channel_count = 0;
+    int at_prefix = 0;
     char *p;
+    char *match_str;
+    char *fixnewcompl = newcompl;
     ChannelList *channel_p = NULL;
     NickList *nick_p;
 
     if (!CheckServer(curr_scr_win->server)) return(0);
 
+    /* strip @ prefix so FixCompl matches compl_last (bare nick) */
+    if (*newcompl == '@' && get_int_var(COLORIZE_NICKS_VAR)) {
+        fixnewcompl = newcompl + 1;
+        at_prefix = 1;
+    }
+
     FixCompl(&server_list[curr_scr_win->server].compl_last,
              &server_list[curr_scr_win->server].compl_next,
-             completing, newcompl, length);
+             completing, fixnewcompl, at_prefix ? length - 1 : length);
+
+    match_str = completing;
 
     channel_p = server_list[curr_scr_win->server].chan_list;
     while (channel_p) {
@@ -1321,7 +1362,7 @@ next_channel:
             nick_p = channel_p->nicks;
 
         while (nick_p) {
-            if (!my_strnicmp(nick_p->nick, completing, strlen(completing))) {
+            if (!my_strnicmp(nick_p->nick, match_str, strlen(match_str))) {
                 if (IsCmdLine(argv[0], "op", 2)) {
                     if (!nick_p->chanop)
                         break;
@@ -1353,6 +1394,8 @@ next_channel:
         }
         if (nick_p) {
             for (i = 0; i < length; i++) input_backspace(' ', NULL);
+            if (at_prefix)
+                input_add_character('@', NULL);
             for (p = nick_p->nick; *p; p++) input_add_character(*p, NULL);
             server_list[curr_scr_win->server].compl_last = nick_p->nick;
             if (nick_p->next)
@@ -1561,24 +1604,31 @@ int *iscrypted;
             else if (*iscrypted) cstr = "[!]";
 
 #ifdef WANTANSI
+            {
+            char nbuf[COLORIZED_NICK_LEN];
+            char natbuf[mybufsize / 2];
+            char *ntext;
+
+            ntext = colorize_at_nicks(notice, natbuf, sizeof(natbuf));
 #ifdef CELECOSM
             if (ExtMes && userhost)
                 ColorUserHost(userhost, CmdsColors[COLNOTICE].color6, tmpbuf2, 1);
             else *tmpbuf2 = '\0';
             snprintf(tmpbuf, sizeof(tmpbuf), "%s-%s", CmdsColors[COLNOTICE].color5, Colors[COLOFF]);
             snprintf(tmpbuf1, sizeof(tmpbuf1), "%s%s%s%s%s%s%s%s", tmpbuf,
-                    CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF],
+                    CmdsColors[COLNOTICE].color1, colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF],
                     isme ? "" : ":", isme ? "" : to, tmpbuf2, tmpbuf);
             put_it("%s%s%s %s%s%s", cstr, stampbuf,
-                    tmpbuf1, CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
+                    tmpbuf1, CmdsColors[COLNOTICE].color3, ntext, Colors[COLOFF]);
 #else  /* CELECOSM */
             snprintf(tmpbuf, sizeof(tmpbuf), "%s-%s", CmdsColors[COLNOTICE].color5, Colors[COLOFF]);
             snprintf(tmpbuf2, sizeof(tmpbuf2), "%s%s%s%s", tmpbuf,
-                    CmdsColors[COLNOTICE].color1, nick, Colors[COLOFF]);
+                    CmdsColors[COLNOTICE].color1, colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF]);
             put_it("%s%s%s%s%s%s %s%s%s", cstr, stampbuf,
                    tmpbuf2, isme ? "" : ":", isme ? "" : to, tmpbuf,
-                   CmdsColors[COLNOTICE].color3, notice, Colors[COLOFF]);
+                   CmdsColors[COLNOTICE].color3, ntext, Colors[COLOFF]);
 #endif /* CELECOSM */
+            }
 #else  /* WANTANSI */
             put_it("%s%s-%s%s%s- %s", cstr, stampbuf,
                     nick, isme ? "" : ":", isme ? "" : to, notice);
@@ -1634,11 +1684,14 @@ char *ignoretype;
     tmpfriend=CheckUsers(tmpbuf1,NULL);
     if (!tmpfriend || !((tmpfriend->privs)&FLNOFLOOD)) {
 #ifdef WANTANSI
+        {
+        char nbuf[COLORIZED_NICK_LEN];
         ColorUserHost(userhost,CmdsColors[COLWARNING].color3,tmpbuf2,1);
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%s%s flooding%s detected from %s%s%s %s%s%s",
                 CmdsColors[COLWARNING].color1,ignoretype,Colors[COLOFF],
-                CmdsColors[COLWARNING].color2,nick,Colors[COLOFF],tmpbuf2,
+                CmdsColors[COLWARNING].color2,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],tmpbuf2,
 		showtarget?" to ":"",showtarget?target:"");
+        }
 #else
         snprintf(tmpbuf1,sizeof(tmpbuf1),"%c%s flooding%c detected from %s (%s)%s%s",
                 bold,ignoretype,bold,nick,userhost,showtarget?" to ":"",showtarget?target:"");
@@ -2402,12 +2455,25 @@ char *subargs;
                         say("Nick      Channel             +o    -o    +h    -h    +b    -b  kick  nick  pub");
                         found = 1;
                     }
+#ifdef WANTANSI
+                    {
+                    char nsnbuf[mybufsize/4];
+                    char nscbuf[mybufsize/4];
+                    colorize_and_pad(joiner->nick, 9, nsnbuf, sizeof(nsnbuf), 1, 1);
+                    colorize_and_pad(chan->channel, 17, nscbuf, sizeof(nscbuf), 0, 1);
+                    say("%s %s %4d  %4d  %4d  %4d  %4d  %4d  %4d  %4d %4d",
+                        nsnbuf, nscbuf,
+#else
                     say("%-9.9s %-17.17s %4d  %4d  %4d  %4d  %4d  %4d  %4d  %4d %4d",
                         joiner->nick, chan->channel,
+#endif
                         joiner->pluso, joiner->minuso,
                         joiner->plush, joiner->minush,
                         joiner->plusb, joiner->minusb,
                         joiner->kick, joiner->nickc, joiner->publics);
+#ifdef WANTANSI
+                    }
+#endif
                 }
             }
         }
@@ -2471,6 +2537,7 @@ char *text;
     char tmpbuf1[mybufsize/4];
 #ifdef WANTANSI
     char tmpbuf2[mybufsize/4];
+    char nbuf[COLORIZED_NICK_LEN];
 #endif
     NotifyList *notify;
 #ifdef WANTANSI
@@ -2518,14 +2585,14 @@ char *text;
 #ifdef CELECOSM
         snprintf(tmpbuf1,sizeof(tmpbuf1),"[sign%son%s]  %s%s%s %s ",
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-                colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
+                colnick,colorize_nick(wistuff->nick, nbuf, sizeof(nbuf)),Colors[COLOFF],tmpbuf2);
         if (Stamp<2) put_it("%s %s<%s%s%s>",CelerityNtfy,tmpbuf1,
                             CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
         else say("%s",tmpbuf1);
 #else  /* CELECOSM */
         snprintf(tmpbuf1,sizeof(tmpbuf1),"Sign%sOn%s detected: %s%s%s %s ",
                 CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-                colnick,wistuff->nick,Colors[COLOFF],tmpbuf2);
+                colnick,colorize_nick(wistuff->nick, nbuf, sizeof(nbuf)),Colors[COLOFF],tmpbuf2);
         if (Stamp<2) put_it("%s %s[%s%s%s]",CelerityNtfy,tmpbuf1,
                             CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
         else say("%s",tmpbuf1);
@@ -2549,22 +2616,23 @@ time_t timenow;
     char tmpbuf1[mybufsize/4];
 
 #ifdef WANTANSI
+    char nbuf[COLORIZED_NICK_LEN];
 #ifdef CELECOSM
     if (Stamp<2) put_it("%s [sign%soff%s]  %s%s%s <%s%s%s>",CelerityNtfy,
                         CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-                        CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color1,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],
                         CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
     else say("[sign%soff%s]  %s%s%s",
              CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-             CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF]);
+             CmdsColors[COLNOTIFY].color1,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF]);
 #else  /* CELECOSM */
     if (Stamp<2) put_it("%s Sign%sOff%s detected: %s%s%s [%s%s%s]",CelerityNtfy,
                         CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-                        CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF],
+                        CmdsColors[COLNOTIFY].color1,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],
                         CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
     else say("Sign%sOff%s detected: %s%s%s",
              CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-             CmdsColors[COLNOTIFY].color1,nick,Colors[COLOFF]);
+             CmdsColors[COLNOTIFY].color1,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF]);
 #endif /* CELECOSM */
 #else  /* WANTANSI */
     if (Stamp<2) put_it("%s SignOff detected: %s [%s]",CelerityNtfy,nick,update_clock(0,0,GET_TIME));
@@ -2586,6 +2654,7 @@ int isfriend;
 #ifdef WANTANSI
     char *colnick;
     char tmpbuf2[mybufsize/4];
+    char nbuf[COLORIZED_NICK_LEN];
 #endif
 
     if (mask) {
@@ -2602,14 +2671,14 @@ int isfriend;
 #ifdef CELECOSM
     snprintf(tmpbuf1,sizeof(tmpbuf1),"[sign%soff%s]  %s%s%s %s",
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-            colnick,nick,Colors[COLOFF],tmpbuf2);
+            colnick,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],tmpbuf2);
     if (Stamp<2) put_it("%s %s <%s%s%s>",CelerityNtfy,tmpbuf1,
                         CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
     else say("%s",tmpbuf1);
 #else  /* CELECOSM */
     snprintf(tmpbuf1,sizeof(tmpbuf1),"Sign%sOff%s detected: %s%s%s %s",
             CmdsColors[COLNOTIFY].color4,Colors[COLOFF],
-            colnick,nick,Colors[COLOFF],tmpbuf2);
+            colnick,colorize_nick(nick, nbuf, sizeof(nbuf)),Colors[COLOFF],tmpbuf2);
     if (Stamp<2) put_it("%s %s [%s%s%s]",CelerityNtfy,tmpbuf1,
                         CmdsColors[COLNOTIFY].color3,update_clock(0,0,GET_TIME),Colors[COLOFF]);
     else say("%s",tmpbuf1);
@@ -2720,11 +2789,15 @@ char *subargs;
                             if (!wild_match(tmpbuf1, tmpbuf3)) maskmatch = 0;
                         }
 #ifdef WANTANSI
+                        {
+                        char ntfnbuf[COLORIZED_NICK_LEN + 14];
+                        colorize_and_pad(tmp->nick, 13, ntfnbuf, sizeof(ntfnbuf), 1, 0);
                         if (tmp->userhost && maskmatch) {
                             ColorUserHost(tmp->userhost, CmdsColors[COLNOTIFY].color2, tmpbuf2, 1);
-                            say("%s %s%-13s%s %s", msg, ncolor, tmp->nick, Colors[COLOFF], tmpbuf2);
+                            say("%s %s%s%s %s", msg, ncolor, ntfnbuf, Colors[COLOFF], tmpbuf2);
                         }
-                        else say("%s %s%-13s%s", msg, ncolor, tmp->nick, Colors[COLOFF]);
+                        else say("%s %s%s%s", msg, ncolor, ntfnbuf, Colors[COLOFF]);
+                        }
 #else
                         if (tmp->userhost && maskmatch)
                             say("%s %c%-13s%c [%s]", msg, bold, tmp->nick, bold, notify->userhost);
@@ -2783,11 +2856,15 @@ char *subargs;
                     if (!wild_match(tmpbuf1, tmpbuf3)) maskmatch = 0;
                 }
 #ifdef WANTANSI
+                {
+                char ntfnbuf2[COLORIZED_NICK_LEN + 14];
+                colorize_and_pad(notify->nick, 13, ntfnbuf2, sizeof(ntfnbuf2), 1, 0);
                 if (notify->userhost && maskmatch) {
                     ColorUserHost(notify->userhost, CmdsColors[COLNOTIFY].color2, tmpbuf2, 1);
-                    say("%s %s%-13s%s %s", msg, ncolor, notify->nick, Colors[COLOFF], tmpbuf2);
+                    say("%s %s%s%s %s", msg, ncolor, ntfnbuf2, Colors[COLOFF], tmpbuf2);
                 }
-                else say("%s %s%-13s%s", msg, ncolor, notify->nick, Colors[COLOFF]);
+                else say("%s %s%s%s", msg, ncolor, ntfnbuf2, Colors[COLOFF]);
+                }
 #else
                 if (notify->userhost && maskmatch)
                     say("%s %c%-13s%c [%s]", msg, bold, notify->nick, bold, notify->userhost);

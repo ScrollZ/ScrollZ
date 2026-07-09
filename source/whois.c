@@ -56,6 +56,7 @@
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "colorhash.h"
 
 extern void PrintWhoIsUser _((char *, char *, char *, char *, char *, char *, char *));
 extern void PrintWhoIsChannels _((char *, char *));
@@ -1164,21 +1165,25 @@ if (!from)
 				/*put_it("%s %s is away: %s",numeric_banner(),
 					who, message);*/
 #ifdef WANTANSI
+{
+                                char wabuf[COLORIZED_NICK_LEN];
+                                colorize_nick(who, wabuf, sizeof(wabuf));
 #ifdef GENX
                                 put_it("%s³     %saway%s ³ (%s) %s",numeric_banner(),
                                         CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-                                        who,message);
+                                        wabuf,message);
 #elif defined(CELECOSM)
                                 put_it("%s%saway%s:       (%s) %s",
                                        numeric_banner(),
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-                                       who,message);
+                                       wabuf,message);
 #else  /* CELECOSM */
                                 put_it("%s%sSetAway%s   : (%s) %s",
                                        numeric_banner(),
                                        CmdsColors[COLWHOIS].color5,Colors[COLOFF],
-                                       who,message);
+                                       wabuf,message);
 #endif /* GENX */
+                                }
 #else  /* WANTANSI */
                                 put_it("%sSetAway   : (%s) %s",
                                        numeric_banner(),who,message);
@@ -1237,13 +1242,25 @@ whois_ignore_msgs(stuff, nick, text)
 					msg = (char *) new_malloc(len);
 					snprintf(msg, len, "%s <%.16s>", text,
 						ctime(&t));
+#ifdef WANTANSI
+					{
+					char wnbuf[COLORIZED_NICK_LEN];
+					put_it("*%s* %s", colorize_nick(stuff->nick, wnbuf, sizeof(wnbuf)), msg);
+					}
+#else
 					put_it("*%s* %s", stuff->nick, msg);
+#endif
 					new_free(&msg);
 					beep_em(get_int_var(BEEP_WHEN_AWAY_VAR));
 				}
 				else
 				{
+#ifdef WANTANSI
+					char wnbuf2[COLORIZED_NICK_LEN];
+					put_it("*%s* %s", colorize_nick(stuff->nick, wnbuf2, sizeof(wnbuf2)), text);
+#else
 					put_it("*%s* %s", stuff->nick, text);
+#endif
 					beep_em(get_int_var(BEEP_ON_MSG_VAR));
 				}
 			}
@@ -1308,7 +1325,14 @@ whois_ignore_notices(stuff, nick, text)
 				return;
 			}
 			if (do_hook(NOTICE_LIST, "%s %s", stuff->nick, text))
+#ifdef WANTANSI
+			{
+				char wnbuf3[COLORIZED_NICK_LEN];
+				put_it("-%s- %s", colorize_nick(stuff->nick, wnbuf3, sizeof(wnbuf3)), text);
+			}
+#else
 				put_it("-%s- %s", stuff->nick, text);
+#endif
 			set_lastlog_msg_level(level);
  			restore_message_from();
 		}
@@ -1376,7 +1400,14 @@ whois_ignore_walls(stuff, nick, text)
 		if (is_ignored(ptr, IGNORE_WALLS) != IGNORED)
 		{
 			if (do_hook(WALL_LIST, "%s %s", stuff->nick, text))
+#ifdef WANTANSI
+			{
+				char wnbuf4[COLORIZED_NICK_LEN];
+				put_it("#%s# %s", colorize_nick(stuff->nick, wnbuf4, sizeof(wnbuf4)), text);
+			}
+#else
 				put_it("#%s# %s", stuff->nick, text);
+#endif
 			if (beep_on_level & LOG_WALL)
 				beep_em(1);
 		}
@@ -1511,14 +1542,30 @@ whois_new_wallops(stuff, nick, text)
 		{
 			if (do_hook(WALLOP_LIST, "%s %s %s", nick,
 					(stuff->oper ? "+" : "-"), text))
+			{
+#ifdef WANTANSI
+				char wnbuf5[COLORIZED_NICK_LEN];
+				put_it("%s!%s%s!%s %s", high, colorize_nick(nick, wnbuf5, sizeof(wnbuf5)),
+					stuff->oper ? "*" : empty_string,
+					high, text);
+#else
 				put_it("%s!%s%s!%s %s", high, nick,
 					stuff->oper ? "*" : empty_string,
 					high, text);
+#endif
+			}
 		}
 		else
 		{
 			if (do_hook(WALLOP_LIST, "%s - %s", nick, text))
+			{
+#ifdef WANTANSI
+				char wnbuf6[COLORIZED_NICK_LEN];
+				put_it("%s!%s!%s %s", high, colorize_nick(nick, wnbuf6, sizeof(wnbuf6)), high, text);
+#else
 				put_it("%s!%s!%s %s", high, nick, high, text);
+#endif
+			}
 		}
 		if (beep_on_level & LOG_WALLOP)
 			beep_em(1);

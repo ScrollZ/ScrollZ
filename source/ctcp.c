@@ -63,6 +63,7 @@
 #include "flood.h"
 #include "screen.h"
 #include "ircterm.h"
+#include "colorhash.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -354,14 +355,18 @@ int  required;
     int access=privs&required;
 #ifdef WANTANSI
     char tmpbuf1[mybufsize/2];
+/**************************** PATCHED by Flier ******************************/
+    char cnbuf[COLORIZED_NICK_LEN];
+    char ccbuf[COLORIZED_CHANNEL_LEN];
+/****************************************************************************/
 
     ColorUserHost(userhost,CmdsColors[COLCTCP].color2,tmpbuf1,1);
     snprintf(tmpaway,sizeof(tmpaway),"%s%s%s request received from %s%s%s %s",
             CmdsColors[COLCTCP].color4,ctcp,Colors[COLOFF],
-            CmdsColors[COLCTCP].color1,nick,Colors[COLOFF],tmpbuf1);
+            CmdsColors[COLCTCP].color1,colorize_nick(nick, cnbuf, sizeof(cnbuf)),Colors[COLOFF],tmpbuf1);
     if (channel && *channel) {
         snprintf(tmpbuf1,sizeof(tmpaway)," to %s%s%s",
-                CmdsColors[COLCTCP].color3,channel,Colors[COLOFF]);
+                CmdsColors[COLCTCP].color3,colorize_channel(channel, ccbuf, sizeof(ccbuf)),Colors[COLOFF]);
         strmcat(tmpaway,tmpbuf1,sizeof(tmpaway));
     }
 #else
@@ -1425,6 +1430,10 @@ do_atmosphere(ctcp, from, to, cmd)
 #else
         char    *color = "";
 #endif
+#ifdef WANTANSI
+        char    nbuf[COLORIZED_NICK_LEN];
+        char    cbuf[COLORIZED_CHANNEL_LEN];
+#endif
         char    tmpbuf1[mybufsize / 2];
         Window *(*func)();
         ChannelList *chan;
@@ -1473,7 +1482,7 @@ do_atmosphere(ctcp, from, to, cmd)
 #ifdef WANTANSI
                                     w = func("%s%s%s %s%s%s %s%s%s",
                                              CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                             color, from, Colors[COLOFF],
+                                             color, colorize_nick(from, nbuf, sizeof(nbuf)), Colors[COLOFF],
                                              CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
                                     w = func("%s %s%s%s %s", thing, color, from, color, cmd);
@@ -1481,9 +1490,9 @@ do_atmosphere(ctcp, from, to, cmd)
                                 else {
 #ifdef WANTANSI
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"<%s%s%s> %s%s%s %s%s%s",
-                                           CmdsColors[COLME].color4, to, Colors[COLOFF],
+                                           CmdsColors[COLME].color4, colorize_channel(to, cbuf, sizeof(cbuf)), Colors[COLOFF],
                                            CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                           color, from, Colors[COLOFF]);
+                                           color, colorize_nick(from, nbuf, sizeof(nbuf)), Colors[COLOFF]);
                                     w = func("%s %s%s%s",tmpbuf1,
                                              CmdsColors[COLME].color5,cmd, Colors[COLOFF]);
 #else
@@ -1520,10 +1529,10 @@ do_atmosphere(ctcp, from, to, cmd)
 #ifdef WANTANSI
                             snprintf(tmpbuf1, sizeof(tmpbuf1),
                                     "<%s%s%s> %s%s%s %s%s%s",
-                                    CmdsColors[COLME].color4, to, Colors[COLOFF],
+                                    CmdsColors[COLME].color4, colorize_channel(to, cbuf, sizeof(cbuf)), Colors[COLOFF],
                                     CmdsColors[COLME].color1, thing,
                                     Colors[COLOFF],
-                                    color, from, Colors[COLOFF]);
+                                    color, colorize_nick(from, nbuf, sizeof(nbuf)), Colors[COLOFF]);
 #else
                             sprintf(tmpbuf1, "<%s> %s %s%s%s %s",
                                     to, thing, color, from, color, cmd);
@@ -1561,7 +1570,7 @@ do_atmosphere(ctcp, from, to, cmd)
 #ifdef WANTANSI
                                 w = func("%s%s%s> %s%s%s %s%s%s",
                                          CmdsColors[COLME].color1, thing, Colors[COLOFF],
-                                         color, from, Colors[COLOFF],
+                                         color, colorize_nick(from, nbuf, sizeof(nbuf)), Colors[COLOFF],
                                          CmdsColors[COLME].color5, cmd, Colors[COLOFF]);
 #else
 				w = func("%s> %s%s%s %s", thing, color, from, color, cmd);
@@ -1779,13 +1788,18 @@ do_ctcp(from, to, str)
                                 if (i == NUMBER_OF_CTCPS && get_int_var(VERBOSE_CTCP_VAR)) {
 				    if (beep_on_level & LOG_CTCP) beep_em(1);
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+                                    {
+                                    char cnbuf2[COLORIZED_NICK_LEN];
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"%sUnknown CTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
-                                            CmdsColors[COLCTCP].color1,from,Colors[COLOFF]);
+                                            CmdsColors[COLCTCP].color1,colorize_nick(from, cnbuf2, sizeof(cnbuf2)),Colors[COLOFF]);
                                     if (to && my_stricmp(to,mynick))
                                         say("%s %s to %s%s%s",tmpbuf1,tmpaway,
                                             CmdsColors[COLCTCP].color3,to,Colors[COLOFF]);
                                     else say("%s %s",tmpbuf1,tmpaway);
+                                    }
+/****************************************************************************/
 #else
                                     say("Unknown CTCP %s from %s (%s)%s%s",
                                         cmd,from,FromUserHost,
@@ -1796,13 +1810,18 @@ do_ctcp(from, to, str)
 				else if (ctcp_flag & CTCP_VERBOSE && get_int_var(VERBOSE_CTCP_VAR)) {
 				    if (beep_on_level & LOG_CTCP) beep_em(1);
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+                                    {
+                                    char cnbuf3[COLORIZED_NICK_LEN];
                                     snprintf(tmpbuf1,sizeof(tmpbuf1),"%sCTCP %s%s from %s%s%s",
                                             CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
-                                            CmdsColors[COLCTCP].color1,from,Colors[COLOFF]);
+                                            CmdsColors[COLCTCP].color1,colorize_nick(from, cnbuf3, sizeof(cnbuf3)),Colors[COLOFF]);
                                     if (to && my_stricmp(to,mynick))
                                         say("%s %s to %s%s%s",tmpbuf1,tmpaway,
                                             CmdsColors[COLCTCP].color3,to,Colors[COLOFF]);
                                     else say("%s %s",tmpbuf1,tmpaway);
+                                    }
+/****************************************************************************/
 #else
                                     say("CTCP %s from %s (%s)%s%s",
                                         cmd,from,FromUserHost,
@@ -2054,9 +2073,14 @@ do_new_notice_ctcp(from, to, str, cmd)
 				args);*/
                         if (my_stricmp(cmd, "PING") && my_stricmp(cmd, "DCC")) {
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+                            {
+                            char cnbuf4[COLORIZED_NICK_LEN];
                             say("%sCTCP %s%s reply from %s%s%s: %s",
                                 CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
-                                CmdsColors[COLCTCP].color1,from,Colors[COLOFF],args);
+                                CmdsColors[COLCTCP].color1,colorize_nick(from, cnbuf4, sizeof(cnbuf4)),Colors[COLOFF],args);
+                            }
+/****************************************************************************/
 #else
                             say("CTCP %s reply from %s: %s",cmd,from,args);
 #endif
@@ -2065,9 +2089,14 @@ do_new_notice_ctcp(from, to, str, cmd)
                                  my_strnicmp(args, "REJECT ", 7)) {
                             isitme=!my_stricmp(from,get_server_nickname(from_server));
 #ifdef WANTANSI
+/**************************** PATCHED by Flier ******************************/
+                            {
+                            char cnbuf5[COLORIZED_NICK_LEN];
                             say("%sCTCP %s%s reply from %s%s%s: %s",
                                 CmdsColors[COLCTCP].color4,cmd,Colors[COLOFF],
-                                CmdsColors[COLCTCP].color1,from,Colors[COLOFF],args);
+                                CmdsColors[COLCTCP].color1,colorize_nick(from, cnbuf5, sizeof(cnbuf5)),Colors[COLOFF],args);
+                            }
+/****************************************************************************/
 #else
                             say("CTCP %s reply from %s: %s",cmd,from,args);
 #endif

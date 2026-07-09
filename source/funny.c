@@ -48,6 +48,7 @@
 #include "numbers.h"
 #include "parse.h"
 #include "screen.h"
+#include "colorhash.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -268,7 +269,22 @@ funny_list(from, ArgList)
 			else
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, channel, user_cnt, line);*/
+#ifdef WANTANSI
+			{
+				char cbuf[mybufsize/4];
+
+				if (last_width) {
+					colorize_and_pad(channel, last_width, cbuf, sizeof(cbuf), 0, 1);
+					say("*** %s %-5s  %s", cbuf, user_cnt, line);
+				}
+				else {
+					colorize_channel(channel, cbuf, sizeof(cbuf));
+					say("%s\t%-5s  %s", cbuf, user_cnt, line);
+				}
+			}
+#else
 				say(format, channel, user_cnt, line);
+#endif
 /****************************************************************************/
 		}
 	}
@@ -343,6 +359,20 @@ funny_namreply(from, Args)
 		if (do_hook(current_numeric, "%s %s %s %s", from, type, channel,
 			line) && do_hook(NAMES_LIST, "%s %s", channel, line))
 		{
+#ifdef WANTANSI
+			{
+				char cbuf[COLORIZED_CHANNEL_LEN];
+
+				if (*type == '=' && last_width &&
+				    (strlen(channel) > last_width))
+				{
+					channel[last_width-1] = '>';
+					channel[last_width] = (char) 0;
+				}
+				colorize_channel(channel, cbuf, sizeof(cbuf));
+				say("Users on %s are : %s", cbuf, line);
+			}
+#else
 			switch (*type)
 			{
 			case '=':
@@ -354,21 +384,22 @@ funny_namreply(from, Args)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Pub", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			case '*':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Prv", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			case '@':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Sec", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			}
+#endif
 		}
 	}
 out:
@@ -435,11 +466,15 @@ funny_mode(from, ArgList)
 /**************************** Patched by Flier ******************************/
 				/*put_it("%s Mode for channel %s is \"%s\"",*/
 #ifdef WANTANSI
+			{
+			char cbuf[COLORIZED_CHANNEL_LEN];
 				put_it("%sMode for channel %s%s%s is \"%s%s%s\"",
 					numeric_banner(),
-					CmdsColors[COLMODE].color3, channel,
+					CmdsColors[COLMODE].color3,
+					colorize_channel(channel, cbuf, sizeof(cbuf)),
 					Colors[COLOFF],
                                         CmdsColors[COLMODE].color4, mode, Colors[COLOFF]);
+			}
 #else
 				put_it("%sMode for channel %s is \"%s\"",
 /****************************************************************************/

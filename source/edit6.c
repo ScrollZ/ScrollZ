@@ -115,6 +115,7 @@
 #include "struct.h"
 #include "parse.h"
 #include "myvars.h" 
+#include "colorhash.h"
 #include "whowas.h"
 
 #include <sys/stat.h> /* for umask() */
@@ -1718,8 +1719,12 @@ char **ArgList;
         message_from(channel,LOG_CRAP);
         if (createtime) {
 #ifdef WANTANSI
+            char ctbuf[COLORIZED_CHANNEL_LEN];
+
             put_it("%sChannel %s%s%s created on %s%.24s%s",numeric_banner(),
-                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF],
+                    CmdsColors[COLJOIN].color3,
+                    colorize_channel(channel, ctbuf, sizeof(ctbuf)),
+                    Colors[COLOFF],
                     CmdsColors[COLJOIN].color4,ctime(&createtime),Colors[COLOFF]);
 #else
             put_it("%sChannel %s created on %.24s",numeric_banner(),channel,
@@ -1728,8 +1733,12 @@ char **ArgList;
         }
         else {
 #ifdef WANTANSI
+            char ctbuf[COLORIZED_CHANNEL_LEN];
+
             put_it("%sTime stamping is off for channel %s%s%s",numeric_banner(),
-                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
+                    CmdsColors[COLJOIN].color3,
+                    colorize_channel(channel, ctbuf, sizeof(ctbuf)),
+                    Colors[COLOFF]);
 #else
             put_it("%sTime stamping is off for channel %s",numeric_banner(),channel);
 #endif
@@ -2655,8 +2664,12 @@ char *stuff;
             mattcount++;
             if (*ftpattern == ':') return;
 #ifdef WANTANSI
+            {
+            char fwnbuf[mybufsize/4];
             ColorUserHost(host, CmdsColors[COLWHO].color2, tmpbuf, 0);
-            say("%s%-9s%s %s", CmdsColors[COLWHO].color1, nick, Colors[COLOFF], tmpbuf);
+            colorize_and_pad(nick, 9, fwnbuf, sizeof(fwnbuf), 1, 0);
+            say("%s%s%s %s", CmdsColors[COLWHO].color1, fwnbuf, Colors[COLOFF], tmpbuf);
+            }
 #else
             say("%-9s %s", nick, tmpbuf);
 #endif

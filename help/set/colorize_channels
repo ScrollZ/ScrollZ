@@ -1,0 +1,29 @@
+!	 $Id: colorize_channels $
+!
+! Copyright (c) 1994-2026 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: SET COLORIZE_CHANNELS [ON|OFF|TOGGLE]
+  When ON (the default), every channel name the client displays is
+  shown in a colour picked deterministically from the channel name
+  itself. A given channel always gets the same colour, so it looks
+  the same in joins, parts, topic lines, the channel list, WHO
+  output and the status bar. The colour is computed from a hash of
+  the name (case is ignored).
+
+  The colours are drawn from a fixed palette chosen for legibility
+  on dark terminals. Colouring only wraps the channel
+  name itself; surrounding text is left untouched.
+
+  Colours are only visible when SET DISPLAY_ANSI is ON; with ANSI
+  display OFF the colour codes are stripped and names show plain.
+
+  Use SET COLORIZE_WARP to shift the whole colour assignment if you
+  do not like the colour a particular channel was given.
+
+See Also:
+  SET COLORIZE_NICKS
+  SET COLORIZE_WARP
+  SET DISPLAY_ANSI

@@ -15,7 +15,7 @@ DEFS	= @DEFS@ @CPPFLAGS@
 LN	= @LN@
 RM	= @RM@
 
-OBJECTS = alias.o blowfish.o cdcc.o celerity.o crypt.o ctcp.o dcc.o debug.o\
+OBJECTS = alias.o blowfish.o cdcc.o celerity.o colorhash.o crypt.o ctcp.o dcc.o debug.o\
 	edit.o edit2.o edit3.o edit4.o edit5.o edit6.o exec.o files.o\
 	flood.o funny.o help.o history.o hold.o hook.o if.o ignore.o\
 	input.o irc.o ircaux.o ircsig.o keys.o lastlog.o list.o log.o\
@@ -24,7 +24,7 @@ OBJECTS = alias.o blowfish.o cdcc.o celerity.o crypt.o ctcp.o dcc.o debug.o\
 	status.o term.o translat.o vars.o whois.o whowas.o window.o\
 	dh1080.o fish.o sha-256.o trace.o @EXTRA_OBJECTS@
 
-SOURCES = alias.c blowfish.c cdcc.c celerity.c crypt.c ctcp.c dcc.c debug.c\
+SOURCES = alias.c blowfish.c cdcc.c celerity.c colorhash.c crypt.c ctcp.c dcc.c debug.c\
 	edit.c edit2.c edit3.c edit4.c edit5.c edit6.c exec.c files.c\
 	flood.c funny.c help.c history.c hold.c hook.c if.c ignore.c\
 	input.c irc.c ircaux.c ircsig.c keys.c lastlog.c list.c log.c\
@@ -127,6 +127,11 @@ wterm.c: term.c
 
 wterm.o:
 	$(CC) $(CFLAGS) $(DEFS) $(INCLUDES) -DSTTY_ONLY -c wterm.c
+
+colorhash.o: colorhash.c ../include/irc.h ../include/defs.h \
+      ../include/celerity.h ../include/config.h ../include/irc_std.h \
+      ../include/debug.h ../include/struct.h ../include/mystructs.h \
+      ../include/vars.h ../include/ircaux.h ../include/colorhash.h
 
 # this is the "depend.mk" file created above.
 # --- ALL BELOW IS AUTOMATICALLY GENERATED ---
