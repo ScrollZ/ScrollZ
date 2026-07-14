@@ -3248,8 +3248,8 @@ send_text(org_nick, line, command)
 #endif /* WANTANSI */
                             }
                         }
-                        if (line != server_list[from_server].LastMessageSent &&
-                            line != server_list[from_server].LastNoticeSent) {
+                        if (is_server_valid(from_server) && (line != server_list[from_server].LastMessageSent)
+                                && (line != server_list[from_server].LastNoticeSent)) {
                             if (!my_stricmp(command, "NOTICE")) {
                                 snprintf(tmpbuf, sizeof(tmpbuf), "-> -%s- %s", nick, line);
                                 if (CheckServer(from_server))
@@ -3307,7 +3307,8 @@ send_text(org_nick, line, command)
 			do_final_send = 1;
 		}
 	}
-	if (check_away && server_list[curr_scr_win->server].away && get_int_var(AUTO_UNMARK_AWAY_VAR))
+	if (check_away && is_server_valid(curr_scr_win->server)
+                && server_list[curr_scr_win->server].away && get_int_var(AUTO_UNMARK_AWAY_VAR))
 		away("AWAY", empty_string, empty_string);
 
 	malloc_strcpy((char **) &sent_body, line);
