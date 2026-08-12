@@ -198,8 +198,8 @@ extern	SGroup	*server_group_list;
 	void	flush_server _((void));
         int	get_server_flag _((int, int));
 /**************************** PATCHED by Flier ******************************/
-	int	get_server_umode_flag _((int, char));
-	void    set_server_umode_flag _((int, char, int));
+	int	get_server_umode_flag _((int, int));
+	void    set_server_umode_flag _((int, int, int));
 /****************************************************************************/
 	void	set_server_operator _((int, int));
 	void	server_is_connected _((int, int));
@@ -211,6 +211,7 @@ extern	SGroup	*server_group_list;
 	int	is_server_open _((int));
 /**************************** PATCHED by Flier ******************************/
         int     is_server_valid _((int));
+        int     is_server_ok _((int));
 /****************************************************************************/
 	int	get_server_port _((int));
 	char	*get_server_group _((int));

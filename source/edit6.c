@@ -261,10 +261,7 @@ extern time_t start_time;
 
 #if defined(EXTRAS) || defined(FLIER)
 /* Checks if signed on user should be invited */
-void CheckInvite(nick,userhost,server)
-char *nick;
-char *userhost;
-int  server;
+void CheckInvite(char *nick, char *userhost, int server)
 {
     char tmpbuf[mybufsize/4];
     NickList *tmpnick;
@@ -310,9 +307,7 @@ int  server;
 #endif /* EXTRAS || FLIER */
 
 /* Returns privilege as flags */
-void BuildPrivs(user,buffer)
-struct friends *user;
-char *buffer;
+void BuildPrivs(struct friends *user, char *buffer)
 {
     if (user && user->privs) {
         if ((user->privs)&FLINVITE) strcat(buffer,"I");
@@ -387,8 +382,7 @@ ChannelList *tmpchan;
 }
 
 /* Removes nick from DCC list */
-void RemoveFromDCCList(nick)
-char *nick;
+void RemoveFromDCCList(char *nick)
 {
     DCC_list *Client;
     DCC_list *tmp;
@@ -448,10 +442,7 @@ ChannelList *chan;
 
 /* Does trace then kills users matching filter */
 #ifdef OPER
-void TraceKill(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void TraceKill(char *command, char *args, char *subargs)
 {
     char *filter;
 
@@ -473,8 +464,7 @@ char *subargs;
 }
 
 /* Does the actual killing */
-void DoTraceKill(user)
-char *user;
+void DoTraceKill(char *user)
 {
     char *nick;
     char *host=(char *) 0;
@@ -500,7 +490,7 @@ char *user;
 }
 
 /* Reports statistics for filter kill */
-void HandleEndOfTraceKill() {
+void HandleEndOfTraceKill(void) {
     if (inSZFKill) {
         say("Total of %d users were killed",FilterKillNum);
         inSZFKill=0;
@@ -512,10 +502,7 @@ void HandleEndOfTraceKill() {
 
 /* Generates map of IRC servers */
 #ifndef LITE
-void Map(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void Map(char *command, char *args, char *subargs)
 {
     char *server;
     char servbuf[mybufsize/16+4];
@@ -537,9 +524,7 @@ char *subargs;
 }
 
 /* This stores map info to memory */
-void AddToMap(server,distance)
-char *server;
-char *distance;
+void AddToMap(char *server, char *distance)
 {
     int dist=atoi(distance);
     struct mapstr *tmpmap;
@@ -570,7 +555,7 @@ char *distance;
 }
 
 /* This prints map */
-void PrintMap() {
+void PrintMap(void) {
     int  prevdist=0;
     char *ascii;
     char tmpbuf1[mybufsize/2];
@@ -611,9 +596,7 @@ void PrintMap() {
 #endif
 
 /* Updates pointer to shit list */
-struct autobankicks *FindShit(userhost,channel)
-char *userhost;
-char *channel;
+struct autobankicks *FindShit(char *userhost, char *channel)
 {
     struct autobankicks *tmpabk;
 
@@ -626,7 +609,7 @@ char *channel;
 }
 
 /* Checks for things every minute */
-void CheckTimeMinute() {
+void CheckTimeMinute(void) {
     int  i;
 #ifdef EXTRAS
     int  max=get_int_var(MAX_MODES_VAR);
@@ -774,10 +757,7 @@ void CheckTimeMinute() {
 }
 
 /* Adds/removes flags for userlist entries */
-void AddFriendPrivs(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void AddFriendPrivs(char *command, char *args, char *subargs)
 {
     int  i;
     int  add=!strcmp(command,"ADD")?1:0;
@@ -835,10 +815,7 @@ char *subargs;
 }
 
 /* Adds/removes channel from a list separated by , */
-int AddRemoveChannel(setting,channel,add)
-char **setting;
-char *channel;
-int  add;
+int AddRemoveChannel(char **setting, char *channel, int add)
 {
     int  change=0;
     char *tmpstr;
@@ -877,10 +854,7 @@ int  add;
 }
 
 /* Adds/removes channels for userlist entries */
-void AddFriendChannel(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void AddFriendChannel(char *command, char *args, char *subargs)
 {
     int  i,j;
     int  add=!strcmp(command,"ADD")?1:0;
@@ -930,10 +904,7 @@ char *subargs;
 }
 
 /* Kicks multiple nicks at the same time */
-void MassKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void MassKick(char *command, char *args, char *subargs)
 {
     char *channel;
     char *comment;
@@ -966,10 +937,7 @@ char *subargs;
 }
 
 /* Pings a server for precise lag time accros net. - Zakath */
-void ServerPing(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ServerPing(char *command, char *args, char *subargs)
 {
     char *server;
     struct spingstr *spingnew;
@@ -1013,10 +981,7 @@ char *subargs;
 }
 
 /* Sets ScrollZ settings (on/off) */
-void OnOffCommand(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void OnOffCommand(char *command, char *args, char *subargs)
 {
     int  i;
     char *tmpstr;
@@ -1113,10 +1078,7 @@ char *subargs;
 }
 
 /* Sets ScrollZ settings (numbers) */
-void NumberCommand(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void NumberCommand(char *command, char *args, char *subargs)
 {
     int  i;
     int  number;
@@ -1172,8 +1134,7 @@ char *subargs;
 }
 
 /* Sets channels' settings */
-void SetChannels(setting)
-int setting;
+void SetChannels(int setting)
 {
     int i;
     int oldlog;
@@ -1302,10 +1263,7 @@ int setting;
 }
 
 /* Sets auto completion on/off */
-void SetAutoCompletion(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void SetAutoCompletion(char *command, char *args, char *subargs)
 {
     int newset=0;
     char *tmpstr;
@@ -1345,10 +1303,7 @@ char *subargs;
 
 #ifdef EXTRAS
 /* Sets idle kick on/off */
-void SetIdleKick(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void SetIdleKick(char *command, char *args, char *subargs)
 {
     int newset=0;
     char *tmpstr;
@@ -1385,10 +1340,7 @@ char *subargs;
 #endif /* EXTRAS */
 
 /* Sets ScrollZ settings (on channels/off) */
-void ChannelCommand(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ChannelCommand(char *command, char *args, char *subargs)
 {
     int  i;
     int  isorignick;
@@ -1456,17 +1408,14 @@ char *subargs;
 }
 
 /* Prints usage for command */
-void PrintUsage(line)
-char *line;
+void PrintUsage(char *line)
 {
     say("Usage: /%s",line);
 }
 
 #ifdef WANTANSI
 /* Converts mIRC colors to ANSI, by Ananda - fix by ddd */
-void ConvertmIRC(buffer,newbuf)
-char *buffer;
-char *newbuf;
+void ConvertmIRC(char *buffer, char *newbuf)
 {
     struct {
         char *fg, *bg;
@@ -1528,14 +1477,7 @@ char *newbuf;
 
 #ifdef CELE
 /* Formats TRACE - by Zakath */
-void HandleTrace(trnum,type,sclass,arg1,arg2,arg3,arg4)
-int  trnum;
-char *type;
-char *sclass;
-char *arg1;
-char *arg2;
-char *arg3;
-char *arg4;
+void HandleTrace(int trnum, char *type, char *sclass, char *arg1, char *arg2, char *arg3, char *arg4)
 {
     if ((TraceOper || TraceAll) && trnum==204)
         put_it("%sOper: %c%s%c (%s)",numeric_banner(),bold,arg1,bold,sclass);
@@ -1547,10 +1489,7 @@ char *arg4;
 }
 
 /* Sends TRACE command, allows for switches - by Zakath */
-void ScrollZTrace(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ScrollZTrace(char *command, char *args, char *subargs)
 {
     char *tswitch;
     char *server=(char *) 0;
@@ -1590,11 +1529,7 @@ char *subargs;
 
 #ifdef WANTANSI
 /* Colorizes user@host */
-void ColorUserHost(userhost,color,buffer,parentheses)
-char *userhost;
-char *color;
-char *buffer;
-int  parentheses;
+void ColorUserHost(char *userhost, char *color, char *buffer, int parentheses)
 {
     char *tmpstr;
     char tmpbuf[mybufsize/4+1];
@@ -1627,10 +1562,7 @@ int  parentheses;
 #endif
 
 /* Adds/removes channels to ScrollZ settings */
-void AddChannel(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void AddChannel(char *command, char *args, char *subargs)
 {
     int  i;
     int  add=!strcmp(command,"ADD")?1:0;
@@ -1667,8 +1599,7 @@ char *subargs;
 }
 
 /* Used to calculate hash value */
-int HashFunc(nick)
-char *nick;
+int HashFunc(char *nick)
 {
     int  sum=0;
     unsigned char *tmp;
@@ -1679,10 +1610,7 @@ char *nick;
 }
 
 /* Shows some ScrollZ related information */
-void ScrollZInfo(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ScrollZInfo(char *command, char *args, char *subargs)
 {
     int  timediff = time(NULL) - start_time;
     char *szver;
@@ -1706,9 +1634,7 @@ char *subargs;
 }
 
 /* Handles reply number 329 from server */
-void ChannelCreateTime(from,ArgList)
-char *from;
-char **ArgList;
+void ChannelCreateTime(char *from, char **ArgList)
 {
     char *channel;
     time_t createtime;
@@ -1742,10 +1668,7 @@ char **ArgList;
 
 #ifdef CELE
 /* displays your system's uptime */
-void ExecUptime(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ExecUptime(char *command, char *args, char *subargs)
 {
     char tmpbuf[mybufsize/4];
 
@@ -1754,10 +1677,7 @@ char *subargs;
 }
 
 /* Does /CTCP nick finger */
-void CTCPFing(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void CTCPFing(char *command, char *args, char *subargs)
 {
     char *target=NULL;
 
@@ -1771,9 +1691,7 @@ char *subargs;
 #endif
 
 /* Checks whether we tried to ping non existing server */
-void NoSuchServer4SPing(from,ArgList)
-char *from;
-char **ArgList;
+void NoSuchServer4SPing(char *from, char **ArgList)
 {
     char *server=ArgList[0];
     struct spingstr *spingtmp;
@@ -1793,9 +1711,7 @@ char **ArgList;
 }
 
 /* Returns server from netsplit info */
-char *GetNetsplitServer(channel,nick)
-char *channel;
-char *nick;
+char *GetNetsplitServer(char *channel, char *nick)
 {
     char *server;
     struct wholeftch  *wholch;
@@ -1813,8 +1729,7 @@ char *nick;
 }
 
 /* Handles delayed opping */
-void HandleDelayOp(stuff)
-char *stuff;
+void HandleDelayOp(char *stuff)
 {
     char *flag;
     char mode=' ';
@@ -1848,8 +1763,7 @@ char *stuff;
 }
 
 /* Handles delayed notify */
-void HandleDelayNotify(stuff)
-char *stuff;
+void HandleDelayNotify(char *stuff)
 {
     int old_server=from_server;
     void (*func)()=(void(*)()) HandleUserhost;
@@ -1893,10 +1807,7 @@ NickList **user2;
 }
 
 /* Show idle time for users */
-void ShowIdle(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void ShowIdle(char *command, char *args, char *subargs)
 {
 #ifdef WANTANSI
     int  len = 0;
@@ -2000,7 +1911,7 @@ char *subargs;
 #endif
 
 /* Try to switch nick to orignick */
-void SwitchNick() {
+void SwitchNick(void) {
     int i=0;
     char savechar='\0';
     char *curnick=(char *) 0;
@@ -2036,10 +1947,7 @@ void SwitchNick() {
 
 #ifdef OPER
 /* Kills multiple nicks at the same time by acidflash */
-void MassKill(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void MassKill(char *command, char *args, char *subargs)
 {
     int	 meep=1;
     char *comment;
@@ -2060,8 +1968,7 @@ char *subargs;
 #endif /* OPER */
 
 /* Check if given server is valid, ie. it still exists and it's connected */
-int CheckServer(server)
-int server;
+int CheckServer(int server)
 {
     if (server>=0 && server<number_of_servers && server_list[server].connected)
         return(1);
@@ -2069,7 +1976,7 @@ int server;
 }
 
 /* Clean up ScrollZ allocated variables */
-void CleanUpScrollZVars() {
+void CleanUpScrollZVars(void) {
     new_free(&DefaultServer);
     new_free(&ScrollZstr);
     new_free(&ScrollZver1);
@@ -2137,7 +2044,7 @@ void CleanUpScrollZVars() {
 }
 
 /* Clean up all stuff from memory on exit */
-void CleanUp() {
+void CleanUp(void) {
     int i;
     char tmpbuf[mybufsize/32];
     struct list *tmplist;
@@ -2314,10 +2221,7 @@ void CleanUp() {
 }
 
 /* Support for encrypted sessions */
-void EncryptMsg(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void EncryptMsg(char *command, char *args, char *subargs)
 {
     int show_keys = 0;
     int clear_all = 0;
@@ -2412,9 +2316,7 @@ void EncryptMasterPass(char *user, char *pass)
 }
 
 /* Handle encryption list */
-void EncryptAdd(user, key)
-char *user;
-char *key;
+void EncryptAdd(char *user, char *key)
 {
     int show_keys = 0;
     struct encrstr *tmp;
@@ -2542,9 +2444,7 @@ void EncryptList(char *flags)
 }
 
 /* Encrypt message */
-int EncryptMessage(message, user)
-char *message;
-char *user;
+int EncryptMessage(char *message, char *user)
 {
     int type = 1;
     int encr_type = SZ_ENCR_PRIVMSG;
@@ -2563,9 +2463,7 @@ char *user;
 }
 
 /* Decrypt message */
-int DecryptMessage(message, user)
-char *message;
-char *user;
+int DecryptMessage(char *message, char *user)
 {
     int type = 1;
     struct encrstr *tmp;
@@ -2580,10 +2478,7 @@ char *user;
 
 #ifdef OPER
 /* Filtered trace */
-void FilterTrace(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void FilterTrace(char *command, char *args, char *subargs)
 {
     int etrace = 0;
     int countonly = 0;
@@ -2633,8 +2528,7 @@ char *subargs;
 }
 
 /* Actual filtered trace */
-void DoFilterTrace(stuff)
-char *stuff;
+void DoFilterTrace(char *stuff)
 {
     char *nick;
     char *host;
@@ -2668,8 +2562,7 @@ char *stuff;
 #endif /* OPER */
 
 /* Format time in compressed format */
-char *FormatTime(timediff)
-int timediff;
+char *FormatTime(int timediff)
 {
     static char timebuf[mybufsize/32];
 
@@ -2679,9 +2572,7 @@ int timediff;
 }
 
 /* Store key for later join */
-void AddJoinKey(clienttype,notice)
-int clienttype;
-char *notice;
+void AddJoinKey(int clienttype, char *notice)
 {
     int i;
     static int joinkeyinit=0;
@@ -2803,8 +2694,7 @@ char *notice;
 }
 
 /* Check key for join */
-char *CheckJoinKey(channel)
-char *channel;
+char *CheckJoinKey(char *channel)
 {
     int i;
     char *key=empty_string;
@@ -2821,7 +2711,7 @@ char *channel;
 
 /* Try to join a channel */
 #ifdef ACID
-void TryChannelJoin() {
+void TryChannelJoin(void) {
     int  found;
     int  lasttimer=0;
     char *tmpstr;
@@ -2888,10 +2778,7 @@ void TryChannelJoin() {
 #endif /* ACID */
 
 /* Change user's password */
-void ChangePassword(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ChangePassword(char *command, char *args, char *subargs)
 {
     int count=0;
     int isfilt=0;
@@ -2930,10 +2817,7 @@ char *subargs;
 
 /* Does /STATS i with filter */
 #ifdef OPER
-void StatsIFilter(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void StatsIFilter(char *command, char *args, char *subargs)
 {
     char *tmpstr;
 
@@ -2947,10 +2831,7 @@ char *subargs;
 }
 
 /* Parses STATS i reply from server */
-void HandleStatsI(statschar, ipiline, uhiline)
-char *statschar;
-char *ipiline;
-char *uhiline;
+void HandleStatsI(char *statschar, char *ipiline, char *uhiline)
 {
     char *tmpstr;
     char tmpbuf1[mybufsize / 2 + 1];
@@ -2970,10 +2851,7 @@ char *uhiline;
 }
 
 /* Does /STATS c with filter */
-void StatsCFilter(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void StatsCFilter(char *command, char *args, char *subargs)
 {
     char *tmpstr;
 
@@ -2987,10 +2865,7 @@ char *subargs;
 }
 
 /* Parses STATS c reply from server */
-void HandleStatsC(statschar,str1,str2)
-char *statschar;
-char *str1;
-char *str2;
+void HandleStatsC(char *statschar, char *str1, char *str2)
 {
     char *tmpstr;
     char tmpbuf1[mybufsize/2+1];
@@ -3009,10 +2884,7 @@ char *str2;
 }
 
 /* Does /STATS L with filter */
-void StatsLFilter(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void StatsLFilter(char *command, char *args, char *subargs)
 {
     char statschar='L';
     char *tmpstr;
@@ -3034,10 +2906,7 @@ char *subargs;
 }
 
 /* Parses STATS L reply from server */
-void HandleStatsL(statschar,str1,str2)
-char *statschar;
-char *str1;
-char *str2;
+void HandleStatsL(char *statschar, char *str1, char *str2)
 {
     if (!StatslNumber) say("L-Line");
     if (!StatslFilter || (StatslFilter && (wild_match(StatslFilter,statschar))))
@@ -3047,10 +2916,7 @@ char *str2;
 #endif /* OPER */
 
 /* Toggle value of ARinWindow */
-void ARinWindowToggle(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void ARinWindowToggle(char *command, char *args, char *subargs)
 {
     char *tmpstr;
 
@@ -3083,8 +2949,7 @@ char *subargs;
 }
 
 /* Figure out if we're dealing with IrcNet's oper channel */
-int IsIrcNetOperChannel(channel)
-char *channel;
+int IsIrcNetOperChannel(char *channel)
 {
     if (!my_stricmp(channel,"&servers") || !my_stricmp(channel,"&errors")   ||
         !my_stricmp(channel,"&notices") || !my_stricmp(channel,"&local")    ||
@@ -3120,10 +2985,7 @@ int CompareAddr(element1,element2)
 
 /* Topic locking */
 #ifdef EXTRAS
-void TopicLocked(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void TopicLocked(char *command, char *args, char *subargs)
 {
     int first = 1;
     int remove;
@@ -3221,8 +3083,7 @@ ChannelList *tmpchan;
 #endif
 
 /* Return time stamp in static buffer */
-char *TimeStamp(when)
-int when;
+char *TimeStamp(int when)
 {
     static char stampbuf[mybufsize / 4 + 1];
 
@@ -3232,10 +3093,7 @@ int when;
 }
 
 /* CJOIN and KNOCK by braneded */
-void CJoin(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void CJoin(char *command, char *args, char *subargs)
 {
     char *tmpchan=(char *) 0;
     char tmpbuf[mybufsize/4];
@@ -3254,10 +3112,7 @@ char *subargs;
 }
 
 /* Configures per channel logging */
-void ChanLogCommand(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void ChanLogCommand(char *command, char *args, char *subargs)
 {
     char *setting = (char *) 0;
 
@@ -3402,10 +3257,7 @@ ChannelList *chan;
 
 #ifdef OPER
 /* Does /STATS D with filter */
-void StatsDFilter(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void StatsDFilter(char *command, char *args, char *subargs)
 {
     int doall=1;
     char *tmpstr;
@@ -3429,10 +3281,7 @@ char *subargs;
 }
 
 /* Parses STATS d reply from server */
-void HandleStatsD(statschar,str1,str2)
-char *statschar;
-char *str1;
-char *str2;
+void HandleStatsD(char *statschar, char *str1, char *str2)
 {
     char *tmpstr;
     char tmpbuf1[mybufsize/2+1];
@@ -3452,10 +3301,7 @@ char *str2;
 #endif /* OPER */
 
 /* Clears channel of ban exceptions */
-void CdExceptions(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void CdExceptions(char *command, char *args, char *subargs)
 {
     int  count = 0;
     int  send = 0;
@@ -3518,15 +3364,13 @@ char *subargs;
 }
 
 /* Send data to server */
-void SendToServer(stuff)
-char *stuff;
+void SendToServer(char *stuff)
 {
     send_to_server("%s", stuff);
 }
 
 /* Should we rate limit the join */
-int RateLimitJoin(server_index)
-int server_index;
+int RateLimitJoin(int server_index)
 {
     char *verstr = server_list[server_index].version_string;
     char *buf = NULL;
@@ -3550,10 +3394,7 @@ int server_index;
 }
 
 /* Extends current topic */
-void ExtendTopic(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void ExtendTopic(char *command, char *args, char *subargs)
 {
     char *tmpchan = NULL;
     ChannelList *chan;
@@ -3574,10 +3415,7 @@ char *subargs;
 }
 
 /* Sets topic delimiter */
-void TopicDelimiter(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void TopicDelimiter(char *command, char *args, char *subargs)
 {
     char *delim;
     char tmpbuf[mybufsize / 32];
@@ -3591,10 +3429,7 @@ char *subargs;
     say("Topic delimiter is %s", ExtTopicDelimiter);
 }
 
-void Monitor(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void Monitor(char *command, char *args, char *subargs)
 {
 	char *nicks;
 
@@ -3682,8 +3517,7 @@ char *ptr;
 }
 
 /* Format server name - enclose IPv6 address in []s */
-char *FormatServerName(server)
-char *server;
+char *FormatServerName(char *server)
 {
 #ifdef INET6
     struct in6_addr ipv6_addr;
@@ -3700,9 +3534,7 @@ char *server;
 }
 
 /* Verify if given window pointer is still valid */
-int IsValidWindow(server, window)
-int server;
-Window *window;
+int IsValidWindow(int server, Window *window)
 {
     int flag = 1;
     Window *tmp;
@@ -3714,10 +3546,7 @@ Window *window;
 }
 
 /* Parse notification level string */
-void SetNotificationLevel(command, args, subargs)
-char *command;
-char *args;
-char *subargs;
+void SetNotificationLevel(char *command, char *args, char *subargs)
 {
 #ifdef HAVE_LIBNOTIFY
     char *tmpstr;
@@ -3758,9 +3587,7 @@ void InitOther(void) {
 }
 
 /* Send notification using libnotify */
-void SendNotification(type, str)
-int type;
-char *str;
+void SendNotification(int type, char *str)
 {
 #ifdef HAVE_LIBNOTIFY
     NotifyNotification *n;

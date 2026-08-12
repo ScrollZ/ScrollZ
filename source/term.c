@@ -277,8 +277,7 @@ int term_read(char *buf, size_t count) {
 /****************************************************************************/
 
 void
-term_set_fp(fp)
-	FILE	*fp;
+term_set_fp(FILE *fp)
 {
 	term_fp = fp;
 }
@@ -322,7 +321,7 @@ putchar_x(c)
 }
 
 void
-term_flush()
+term_flush(void)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*fflush(term_fp);*/
@@ -339,7 +338,7 @@ term_flush()
  * program started 
  */
 void
-term_reset()
+term_reset(void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES
@@ -445,7 +444,7 @@ term_pause(key, ptr)
  * ignored.. fixes quite a few problems...  -phone, jan 1993..
  */
 void
-term_init()
+term_init(void)
 {
 #ifndef	STTY_ONLY
 /**************************** PATCHED by Flier ******************************/
@@ -705,7 +704,7 @@ term_init()
 }
 
 /**************************** PATCHED by Flier ******************************/
-void term_close() {
+void term_close(void) {
     if (tty_des != -1)
         close(tty_des);
 }
@@ -719,7 +718,7 @@ void term_close() {
  * called, 1 is returned.  If it is unchanged, 0 is returned. 
  */
 int
-term_resize()
+term_resize(void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -803,7 +802,7 @@ term_resize()
 #ifndef SZNCURSES
 /****************************************************************************/
 static	int
-term_null_function()
+term_null_function(void)
 {
 	return (1);
 }
@@ -839,8 +838,7 @@ term_CE_clear_to_eol()
  * spot at the beginning and you must move it back afterwards 
  */
 void
-term_space_erase(x)
-	int	x;
+term_space_erase(int x)
 {
 	int	i,
 		cnt;
@@ -915,10 +913,7 @@ term_CS_scroll(line1, line2, n)
 #ifndef SZNCURSES
 /****************************************************************************/
 static	int
-term_ALDL_scroll(line1, line2, n)
-	int	line1,
-		line2,
-		n;
+term_ALDL_scroll(int line1, int line2, int n)
 {
 	int	i;
 
@@ -954,10 +949,7 @@ term_ALDL_scroll(line1, line2, n)
 #ifndef SZNCURSES
 /****************************************************************************/
 static	int
-term_param_ALDL_scroll(line1, line2, n)
-	int	line1,
-		line2,
-		n;
+term_param_ALDL_scroll(int line1, int line2, int n)
 {
 	if (n > 0)
 	{
@@ -1115,16 +1107,14 @@ term_LE_cursor_left()
 #ifndef SZNCURSES
 /****************************************************************************/
 static	int
-term_BS_cursor_left()
+term_BS_cursor_left(void)
 {
 	fputc('\010', term_fp);
 	return (0);
 }
 
 extern	void
-copy_window_size(nlines, cols)
-	int	*nlines,
-		*cols;
+copy_window_size(int *nlines, int *cols)
 {
 	*nlines = li;
 	*cols = co;
@@ -1134,7 +1124,7 @@ copy_window_size(nlines, cols)
 /****************************************************************************/
 
 extern	int
-term_eight_bit()
+term_eight_bit(void)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifdef SZNCURSES
@@ -1154,8 +1144,7 @@ term_eight_bit()
 
 
 extern	void
-set_term_eight_bit(value)
-	int	value;
+set_term_eight_bit(int value)
 {
 /**************************** PATCHED by Flier ******************************/
 #ifndef SZNCURSES

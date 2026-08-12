@@ -176,7 +176,7 @@ dgets_timeout(sec)
 }
 
 static	void
-init_io()
+init_io(void)
 {
 	static	int	first = 1;
 
@@ -197,11 +197,7 @@ init_io()
  * -1 on a timeout (see dgets_timeout()) 
  */
 int
-dgets(str, len, des, specials)
-	char	*str;
-	int	len;
-	int	des;
-	char	*specials;
+dgets(char *str, int len, int des, char *specials)
 {
 	char	*ptr, ch;
  	size_t	cnt = 0;
@@ -535,8 +531,7 @@ new_select(rd, wd, time_out)
 
 /* new_close: works just like close */
 void
-new_close(des)
-	int	des;
+new_close(int des)
 {
 	if (des < 0)
 		return;
@@ -550,8 +545,7 @@ new_close(des)
 
 /* set's socket options */
 extern	void
-set_socket_options(s)
-	int	s;
+set_socket_options(int s)
 {
 #if defined(ESIX)
 	mark_socket(s);

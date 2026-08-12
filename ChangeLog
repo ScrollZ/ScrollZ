@@ -8,6 +8,17 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
+ScrollZ 
+
+    ! some potential memory leaks (patch by TrN, thanks)
+    ! crash with empty server list after disconnecting
+      (patch by jm_)
+    ! more crashes when disconnected
+    ! compilation with modern compilers such as gcc 14 or Clang 21
+      (patch by Pascal Jäger with some modifications)
+
+------------------------------------------------------------------------------
+
 ScrollZ v2.3.1, 6.5.2021
     ! some more crashes when last server is disconnected
     ! desktop notification via libnotify for messages and notices

@@ -74,9 +74,7 @@ static	void	bind_it _((char *, char *, u_int, int));
  * to to be the index of the (first) function found.
  */
 static int
-lookup_function(name, func_index)
-	char	*name;
-	int	*func_index;
+lookup_function(char *name, int *func_index)
 {
  	size_t	len;
  	int	cnt,
@@ -479,10 +477,7 @@ bind_it(function, string, key, m)
 /* parsekeycmd: does the PARSEKEY command.  */
 #ifndef LITE
 void
-parsekeycmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+parsekeycmd(char *command, char *args, char *subargs)
 {
 	int	i;
 	char	*arg;
@@ -513,10 +508,7 @@ parsekeycmd(command, args, subargs)
  */
 /*ARGSUSED*/
 void
-bindcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+bindcmd(char *command, char *args, char *subargs)
 {
 	u_char	*key;
 	char	*function;
@@ -660,10 +652,7 @@ bindcmd(command, args, subargs)
  */
 #ifndef LITE
 void
-rbindcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+rbindcmd(char *command, char *args, char *subargs)
 {
 	int	f;
 	char	*arg;
@@ -753,10 +742,7 @@ change_send_line(func)
 /*ARGSUSED*/
 #ifndef LITE
 void
-typecmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+typecmd(char *command, char *args, char *subargs)
 {
 	int	c;
 	char	key;
@@ -3637,9 +3623,7 @@ write_binding(c, m, fp, do_all)
  * FILE pointer using the write_binding function 
  */
 void
-save_bindings(fp, do_all)
-	FILE	*fp;
-	int	do_all;
+save_bindings(FILE *fp, int do_all)
 {
 	int	i;
 	int	charsize = charset_size();

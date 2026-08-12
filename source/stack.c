@@ -56,9 +56,7 @@ static	void	do_stack_alias _((int, char *, int));
 static	void	do_stack_set _((int, char *));
 
 static	void
-do_stack_on(type, args)
-	int	type;
-	char	*args;
+do_stack_on(int type, char *args)
 {
 	char	foo[4];
  	int	cnt, i, which = 0;
@@ -230,10 +228,7 @@ do_stack_on(type, args)
 }
 
 static	void
-do_stack_alias(type, args, which)
-	int	type;
-	char	*args;
-	int	which;
+do_stack_alias(int type, char *args, int which)
 {
 	char	*name;
 	AliasStack	*aptr,
@@ -288,9 +283,7 @@ do_stack_alias(type, args, which)
 }
 
 static	void
-do_stack_set(type, args)
-	int	type;
-	char	*args;
+do_stack_set(int type, char *args)
 {
 	SetStack *tmp = set_stack;
 
@@ -333,10 +326,7 @@ alias_stack_add(aptr, which)
 }
 
 void
-stackcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+stackcmd(char *command, char *args, char *subargs)
 {
 	char	*arg,
 		*cmd = NULL;

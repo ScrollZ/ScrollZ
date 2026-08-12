@@ -81,8 +81,7 @@ static	char	*levels[] =
  * string format.
  */
 char	*
-bits_to_lastlog_level(level)
-	int	level;
+bits_to_lastlog_level(int level)
 {
 	static	u_char	lbuf[128]; /* this *should* be enough for this */
 	int	i,
@@ -108,8 +107,7 @@ bits_to_lastlog_level(level)
 }
 
 int
-parse_lastlog_level(str)
-	char	*str;
+parse_lastlog_level(char *str)
 {
 	char	*ptr,
 		*rest,
@@ -189,8 +187,7 @@ parse_lastlog_level(str)
  * also rewrites the LASTLOG_LEVEL variable to make it look nice 
  */
 void
-set_lastlog_level(str)
-	char	*str;
+set_lastlog_level(char *str)
 {
 	lastlog_level = parse_lastlog_level(str);
 	set_string_var(LASTLOG_LEVEL_VAR, bits_to_lastlog_level(lastlog_level));
@@ -225,8 +222,7 @@ remove_from_lastlog(window)
  * If it get smaller, some are deleted from the end. 
  */
 void
-set_lastlog_size(size)
-	int	size;
+set_lastlog_size(int size)
 {
 	int	i,
 		diff;
@@ -250,10 +246,7 @@ set_lastlog_size(size)
  */
 /*ARGSUSED*/
 void
-lastlog(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+lastlog(char *command, char *args, char *subargs)
 {
 	int	cnt,
 		from = 0,
@@ -614,8 +607,7 @@ out:
 
 /* set_lastlog_msg_level: sets the message level for recording in the lastlog */
 int
-set_lastlog_msg_level(level)
-	int	level;
+set_lastlog_msg_level(int level)
 {
 	int	old;
 
@@ -677,20 +669,19 @@ islogged(window)
 }
 
 int
-real_notify_level()
+real_notify_level(void)
 {
 	return (notify_level);
 }
 
 int
-real_lastlog_level()
+real_lastlog_level(void)
 {
 	return (lastlog_level);
 }
 
 void
-set_notify_level(str)
-	char	*str;
+set_notify_level(char *str)
 {
 	notify_level = parse_lastlog_level(str);
 	set_string_var(NOTIFY_LEVEL_VAR, bits_to_lastlog_level(notify_level));

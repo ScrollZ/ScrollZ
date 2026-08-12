@@ -7,6 +7,7 @@
 #include "irc.h"
 #include "vars.h"
 #include "ircaux.h"
+#include "output.h"
 #include "server.h"
 #include "trace.h"
 
@@ -39,8 +40,7 @@ void SetTraceLevel(long mask)
     TraceMask = mask;
 }
 
-char *BitsToTraceLevel(mask)
-long mask;
+char *BitsToTraceLevel(long mask)
 {
     int i;
     static char buf[mybufsize];
@@ -61,8 +61,7 @@ long mask;
 #endif
 
 /* Set trace mask */
-void SetTrace(level)
-char *level;
+void SetTrace(char *level)
 {
 #ifdef SZTRACE
     int i, neg, len;
@@ -123,8 +122,7 @@ char *level;
 }
 
 #ifdef SZTRACE
-char *FindArea(area)
-long area;
+char *FindArea(long area)
 {
     int i;
 
@@ -140,19 +138,7 @@ long area;
 #ifdef HAVE_STDARG_H
 void Trace(long area, char *format, ...)
 #else
-void Trace(area, format, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
-long area;
-char *format;
-char *arg1;
-char *arg2;
-char *arg3;
-char *arg4;
-char *arg5;
-char *arg6;
-char *arg7;
-char *arg8;
-char *arg9,
-char *arg10;
+void Trace(long area, char *format, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6, char *arg7, char *arg8, char *arg9, char *arg10)
 #endif
 {
 #ifdef SZTRACE
@@ -201,9 +187,7 @@ char *arg10;
 #endif
 }
 
-void TraceServerInfo(indent, fullinfo)
-int indent;
-int fullinfo;
+void TraceServerInfo(int indent, int fullinfo)
 {
 #ifdef SZTRACE
     int i;
@@ -240,9 +224,7 @@ int fullinfo;
 #endif
 }
 
-void TraceChannelInfo(indent, channels)
-int indent;
-ChannelList *channels;
+void TraceChannelInfo(int indent, ChannelList *channels)
 {
 #ifdef SZTRACE
     int i;
@@ -273,9 +255,7 @@ ChannelList *channels;
 #endif
 }
 
-void TraceNickListInfo(indent, nicks)
-int indent;
-NickList *nicks;
+void TraceNickListInfo(int indent, NickList *nicks)
 {
 #ifdef SZTRACE
     int i;
@@ -306,9 +286,7 @@ NickList *nicks;
 #endif
 }
 
-void TraceWindowInfo(indent, window)
-int indent;
-Window *window;
+void TraceWindowInfo(int indent, Window *window)
 {
 #ifdef SZTRACE
     int i, flag = 1;

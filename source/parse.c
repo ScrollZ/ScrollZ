@@ -108,6 +108,7 @@ extern char *OpenCreateFile _((char *, int));
 extern void e_nick _((char *, char *, char *));
 extern void e_channel _((char *, char *, char *));
 extern void timercmd _((char *, char *, char *));
+extern int  GrabURL _((char *, char *, size_t, char *, char *, char *, int));
 
 #if defined(CELE)
 extern struct timeval PingSent;
@@ -178,8 +179,7 @@ static	void	p_part _((char *, char **));
  * channel 
  */
 int
-is_channel(to)
- 	char	*to;
+is_channel(char *to)
 {
 	int	version;
 
@@ -195,9 +195,7 @@ is_channel(to)
 
 
 char	*
-PasteArgs(Args, StartPoint)
-	char	**Args;
-	int	StartPoint;
+PasteArgs(char **Args, int StartPoint)
 {
 	int	i;
 
@@ -216,10 +214,7 @@ PasteArgs(Args, StartPoint)
  * that are there.   Re-written by phone, dec 1992.
  */
 static	void
-BreakArgs(Input, Sender, OutPut)
-	char	*Input;
-	char	**Sender;
-	char	**OutPut;
+BreakArgs(char *Input, char **Sender, char **OutPut)
 {
 	char	*s = Input,
 		*t;
@@ -276,8 +271,7 @@ BreakArgs(Input, Sender, OutPut)
 
 /* beep_em: Not hard to figure this one out */
 void
-beep_em(beeps)
-	int	beeps;
+beep_em(int beeps)
 {
 	int	cnt,
 		i;
@@ -288,9 +282,7 @@ beep_em(beeps)
 
 /* in response to a TOPIC message from the server */
 static	void
-p_topic(from, ArgList)
-	char	*from,
-		**ArgList;
+p_topic(char *from, char **ArgList)
 {
 	int	flag;
 /**************************** PATCHED by Flier ******************************/
@@ -385,17 +377,14 @@ p_topic(from, ArgList)
 }
 
 static	void
-p_linreply(ArgList)
-	char	**ArgList;
+p_linreply(char **ArgList)
 {
 	PasteArgs(ArgList, 0);
 	say("%s", ArgList[0]);
 }
 
 static	void
-p_wall(from, ArgList)
-	char	*from,
-		**ArgList;
+p_wall(char *from, char **ArgList)
 {
 	int	flag,
 		level;
@@ -437,9 +426,7 @@ p_wall(from, ArgList)
 }
 
 static	void
-p_wallops(from, ArgList)
-	char	*from,
-		**ArgList;
+p_wallops(char *from, char **ArgList)
 {
 	int	flag, level;
 	char	*line;
@@ -508,9 +495,7 @@ p_wallops(from, ArgList)
 
 /*ARGSUSED*/
 void
-whoreply(from, ArgList)
-	char	**ArgList,
-		*from;
+whoreply(char *from, char **ArgList)
 {
 	static	char	format[40];
 	static	int	last_width = -1;
@@ -673,9 +658,7 @@ whoreply(from, ArgList)
 }
 
 static	void
-p_privmsg(from, Args)
-	char	*from,
-		**Args;
+p_privmsg(char *from, char **Args)
 {
 	int	level,
 		flag,
@@ -911,9 +894,7 @@ out:
 
 #if 0
 static	void
-p_msgcmd(from, ArgList)
-	char	*from,
-		**ArgList;
+p_msgcmd(char *from, char **ArgList)
 {
 	char	*high,
 		*channel,
@@ -973,9 +954,7 @@ p_msgcmd(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-p_quit(from, ArgList)
-	char	*from,
-		**ArgList;
+p_quit(char *from, char **ArgList)
 {
 	int	one_prints = 0;
 	char	*chan;
@@ -1126,9 +1105,7 @@ done:
 
 /*ARGSUSED*/
 static	void
-p_pong(from, ArgList)
-	char	*from,
-		**ArgList;
+p_pong(char *from, char **ArgList)
 {
 	int	flag;
 /**************************** PATCHED by Flier ******************************/
@@ -1207,9 +1184,7 @@ p_pong(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-p_error(from, ArgList)
-	char	*from,
-		**ArgList;
+p_error(char *from, char **ArgList)
 {
 	PasteArgs(ArgList, 0);
 	if (!ArgList[0])
@@ -1218,9 +1193,7 @@ p_error(from, ArgList)
 }
 
 static	void
-p_channel(from, ArgList)
-	char	*from;
-	char	**ArgList;
+p_channel(char *from, char **ArgList)
 {
 	int	join;
 	char	*channel;
@@ -1414,9 +1387,7 @@ p_channel(from, ArgList)
 }
 
 static	void
-p_invite(from, ArgList)
-	char	*from,
-		**ArgList;
+p_invite(char *from, char **ArgList)
 {
 	char	*high;
 	int	flag;
@@ -1468,9 +1439,7 @@ p_invite(from, ArgList)
 }
 
 static	void
-p_server_kill(from, ArgList)
-	char	*from,
-		**ArgList;
+p_server_kill(char *from, char **ArgList)
 {
 	/*
 	 * this is so bogus checking for a server name having a '.'
@@ -1496,17 +1465,14 @@ p_server_kill(from, ArgList)
 }
 
 static	void
-p_ping(ArgList)
-	char	**ArgList;
+p_ping(char **ArgList)
 {
 	PasteArgs(ArgList, 0);
 	send_to_server("PONG :%s", ArgList[0]);
 }
 
 static	void
-p_nick(from, ArgList)
-	char	*from,
-		**ArgList;
+p_nick(char *from, char **ArgList)
 {
 	int	one_prints = 0,
 		its_me = 0;
@@ -1634,9 +1600,7 @@ p_nick(from, ArgList)
 }
 
 static	void
-p_mode(from, ArgList)
-	char	*from,
-		**ArgList;
+p_mode(char *from, char **ArgList)
 {
 	char	*channel;
 	char	*line;
@@ -1693,9 +1657,7 @@ p_mode(from, ArgList)
 }
 
 static	void
-p_kick(from, ArgList)
-	char	*from,
-		**ArgList;
+p_kick(char *from, char **ArgList)
 {
 	char	*channel,
 		*who,
@@ -1832,9 +1794,7 @@ p_kick(from, ArgList)
 }
 
 static	void
-p_part(from, ArgList)
-	char	*from,
-		**ArgList;
+p_part(char *from, char **ArgList)
 {
 	char	*channel;
 	char	*comment;
@@ -1918,15 +1878,13 @@ p_part(from, ArgList)
  * with them 
  */
 void
-parse_server(line)
-	char	*line;
+parse_server(char *line)
 {
 	server_list[parsing_server_index].parse_server(line);
 }
 
 void
-irc2_parse_server(line)
-	char	*line;
+irc2_parse_server(char *line)
 {
 	char	*from,
 		*comm,

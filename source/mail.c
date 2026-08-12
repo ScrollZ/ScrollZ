@@ -93,7 +93,7 @@ static	void	init_mail _((void));
 
 /* init_mail: this initialized the path to the users mailbox */
 static	void
-init_mail()
+init_mail(void)
 {
 #if defined(AMS_MAIL) || defined(UNIX_MAIL)
 # ifdef UNIX_MAIL
@@ -128,9 +128,7 @@ init_mail()
  * returns that number as the function value 
  */
 static	u_int
-count_files(dir_name, lasttime)
-	char	*dir_name;
-	time_t	lasttime;
+count_files(char *dir_name, time_t lasttime)
 {
 	DIR	*dir;
 	struct	direct	*dirbuf;
@@ -187,7 +185,7 @@ end:
  * status has changed 
  */
 int
-check_mail_status()
+check_mail_status(void)
 {
 
 #if defined(AMS_MAIL) || defined(UNIX_MAIL)
@@ -222,7 +220,7 @@ check_mail_status()
  * returned. 
  */
 char	*
-check_mail()
+check_mail(void)
 {
 #if !defined(AMS_MAIL) && !defined(UNIX_MAIL)
 	return	(char *) 0;

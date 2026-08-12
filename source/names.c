@@ -52,6 +52,7 @@
 #include "myvars.h"
 #include "whowas.h"
 #include "trace.h"
+#include "struct.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -76,6 +77,7 @@ extern void UpdateChanLogFName _((ChannelList *));
 extern void ChannelLogReport _((char *, ChannelList *));
 extern void ChannelLogSave _((char *, ChannelList *));
 extern int  RateLimitJoin _((int));
+extern int IsValidWindow _((int, Window *));
 
 extern NickList *tabnickcompl;
 /****************************************************************************/
@@ -196,9 +198,7 @@ lookup_channel(channel, server, do_unlink)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void rename_channel(old_channel, new_channel)
-char *old_channel;
-char *new_channel;
+void rename_channel(char *old_channel, char *new_channel)
 {
     ChannelList	*chan;
 
@@ -1609,9 +1609,7 @@ char    *servmodes;
  * get_channel_mode: returns the current mode string for the given channel
  */
 char	*
-get_channel_mode(channel, server)
-	char	*channel;
-	int	server;
+get_channel_mode(char *channel, int server)
 {
 	ChannelList *tmp;
 
@@ -1662,10 +1660,7 @@ ChannelList *tmpchan;
  * channels mode.  Useful for testing a channels mode 
  */
 int
-is_channel_mode(channel, mode, server_index)
-	char	*channel;
-	int	mode;
-	int	server_index;
+is_channel_mode(char *channel, int mode, int server_index)
 {
 	ChannelList *tmp;
 
@@ -1724,9 +1719,7 @@ free_channel(channel)
  * list is empty. 
  */
 void
-remove_channel(channel, server)
-	char	*channel;
-	int	server;
+remove_channel(char *channel, int server)
 {
 	ChannelList *tmp;
 
@@ -1778,9 +1771,7 @@ remove_channel(channel, server)
  * purge given channel from memory, for use on numeric 405
  */
 void
-PurgeChannel(channel,server)
-char *channel;
-int  server;
+PurgeChannel(char *channel, int server)
 {
     ChannelList *tmp;
 
@@ -1823,10 +1814,7 @@ NickList *tmp;
  * happens. 
  */
 void
-remove_from_channel(channel, nick, server)
-	char	*channel;
-	char	*nick;
-	int	server;
+remove_from_channel(char *channel, char *nick, int server)
 {
 	ChannelList *chan;
 	NickList *tmp;
@@ -1884,10 +1872,7 @@ remove_from_channel(channel, nick, server)
  * nickname on all you channels and changes it the new_nick 
  */
 void
-rename_nick(old_nick, new_nick, server)
-	char	*old_nick,
-		*new_nick;
-	int	server;
+rename_nick(char *old_nick, char *new_nick, int server)
 {
 	ChannelList *chan;
 	NickList *tmp;
@@ -1938,10 +1923,7 @@ rename_nick(old_nick, new_nick, server)
  * channel list. 
  */
 int
-is_on_channel(channel, server, nick)
-	char	*channel;
-	int	server;
-	char	*nick;
+is_on_channel(char *channel, int server, char *nick)
 {
 	ChannelList *chan;
 
@@ -1958,9 +1940,7 @@ is_on_channel(channel, server, nick)
 }
 
 int
-is_chanop(channel, nick)
-	char	*channel;
-	char	*nick;
+is_chanop(char *channel, char *nick)
 {
 	ChannelList *chan;
 	NickList *Nick;
@@ -1979,10 +1959,7 @@ is_chanop(channel, nick)
 }
 
 int
-has_voice(channel, nick, server)
-	char	*channel;
-	char	*nick;
-	int	server;
+has_voice(char *channel, char *nick, int server)
 {
 	ChannelList *chan;
 	NickList *Nick;
@@ -2035,7 +2012,7 @@ show_channel(chan)
 
 /* list_channels: displays your current channel and your channel list */
 void
-list_channels()
+list_channels(void)
 {
 	ChannelList *tmp;
 	int	server,
@@ -2087,9 +2064,7 @@ list_channels()
 }
 
 void
-switch_channels(key, ptr)
- 	u_int	key;
-	char *	ptr;
+switch_channels(u_int key, char *ptr)
 {
 	ChannelList *	tmp;
 	char *	s;
@@ -2136,9 +2111,7 @@ switch_channels(key, ptr)
 }
 
 void
-change_server_channels(old, new)
-	int	old,
-		new;
+change_server_channels(int old, int new)
 {
 	ChannelList *tmp;
 
@@ -2155,8 +2128,7 @@ change_server_channels(old, new)
 }
 
 void
-clear_channel_list(server)
-	int	server;
+clear_channel_list(int server)
 {
 	ChannelList *tmp,
 		*next;
@@ -2185,8 +2157,7 @@ clear_channel_list(server)
  * channel_list ..  
  */
 void
-reconnect_all_channels(server)
-	int	server;
+reconnect_all_channels(int server)
 {
 	ChannelList *tmp = (ChannelList *) 0;
 	char	*mode, *chan;
@@ -2246,9 +2217,7 @@ reconnect_all_channels(server)
 }
 
 char	*
-what_channel(nick, server)
-	char	*nick;
-	int	server;
+what_channel(char *nick, int server)
 {
 	ChannelList *tmp;
 
@@ -2266,10 +2235,7 @@ what_channel(nick, server)
 }
 
 char	*
-walk_channels(nick, init, server)
-	int	init;
-	char	*nick;
-	int	server;
+walk_channels(char *nick, int init, int server)
 {
 	static	ChannelList *tmp = (ChannelList *) 0;
 
@@ -2287,9 +2253,7 @@ walk_channels(nick, init, server)
 }
 
 int
-get_channel_oper(channel, server)
-	char	*channel;
-	int	server;
+get_channel_oper(char *channel, int server)
 {
 	ChannelList *chan;
 
@@ -2341,8 +2305,7 @@ create_channel_list(window)
 }
 
 extern void
-channel_server_delete(server)
-	int     server;
+channel_server_delete(int server)
 {
 	ChannelList     *tmp;
 	int	i;
@@ -2354,9 +2317,7 @@ channel_server_delete(server)
 }
 
 extern	int
-chan_is_connected(channel, server)
-	char *	channel;
-	int	server;
+chan_is_connected(char *channel, int server)
 {
 	ChannelList *	cp = lookup_channel(channel, server, CHAN_NOUNLINK);
 
@@ -2367,8 +2328,7 @@ chan_is_connected(channel, server)
 }
 
 void
-mark_not_connected(server)
-	int	server;
+mark_not_connected(int server)
 {
 	ChannelList	*tmp;
 

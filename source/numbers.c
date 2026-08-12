@@ -125,6 +125,9 @@ static	void	not_valid_channel _((char *, char **));
 static	void	cannot_join_channel _((char *, char **));
 static	void	version _((char *, char **));
 static	void	invite _((char *, char **));
+/**************************** PATCHED by Flier ******************************/
+extern  int     DecryptMessage _((char *, char *));
+/****************************************************************************/
 
 static	int	already_doing_reset_nickname = 0;
 /**************************** Patched by Flier ******************************/
@@ -137,7 +140,7 @@ char *OldNick = NULL;
  * xxx is the current numeric, or "***" if SHOW_NUMBERS is OFF 
  */
 char	*
-numeric_banner()
+numeric_banner(void)
 {
 /**************************** PATCHED by Flier ******************************/
         /*static	char	thing[4];*/
@@ -168,9 +171,7 @@ numeric_banner()
  * simplify this 
  */
 void
-display_msg(from, ArgList)
-	char	*from,
-		**ArgList;
+display_msg(char *from, char **ArgList)
 {
 	char	*ptr;
 	char	*rest;
@@ -235,10 +236,7 @@ display_msg(from, ArgList)
 
 /**************************** PATCHED by Flier ******************************/
 /* display_luser: handles the /Luser formatting. By Zakath */
-void display_luser(comm, from, ArgList)
-int  comm;
-char *from;
-char **ArgList;
+void display_luser(int comm, char *from, char **ArgList)
 {
     int  invnum;
     int  opernum;
@@ -490,9 +488,7 @@ char **ArgList;
  * hitting of the return key, etc 
  */
 static	void
-password_sendline(data, line)
-	char	*data;
-	char	*line;
+password_sendline(char *data, char *line)
 {
 	int	new_server;
 
@@ -510,7 +506,7 @@ password_sendline(data, line)
  * the situation is that no one really uses user passwords.  ah well 
  */
 static	void
-get_password()
+get_password(void)
 {
 	char	server_num[8];
 
@@ -530,9 +526,7 @@ get_password()
 /*static	void*/
 void
 /****************************************************************************/
-nickname_sendline(data, nick)
-	char	*data;
-	char	*nick;
+nickname_sendline(char *data, char *nick)
 {
 	int	new_server, server;
 
@@ -589,9 +583,7 @@ nickname_sendline(data, nick)
 /*static	void*/
 void
 /****************************************************************************/
-reset_nickname(from, ArgList)
-	char	*from,
-		**ArgList;
+reset_nickname(char *from, char **ArgList)
 {
 	char	server_num[10];
 	char	*s;
@@ -632,9 +624,7 @@ reset_nickname(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-channel_topic(from, ArgList)
-	char	*from,
-		**ArgList;
+channel_topic(char *from, char **ArgList)
 {
 	char	*topic, *channel;
 /**************************** Patched by Flier ******************************/
@@ -686,7 +676,7 @@ channel_topic(from, ArgList)
 }
 
 /**************************** Patched by Flier ******************************/
-int DisplayNickInfo() {
+int DisplayNickInfo(void) {
     int ret=1;
 
     if (OrigNickChange && OrigNickSent && OrigNickQuiet) ret=0;
@@ -695,9 +685,7 @@ int DisplayNickInfo() {
 /****************************************************************************/
 
 static	void
-nickname_in_use(from, ArgList)
-	char	*from,
-		**ArgList;
+nickname_in_use(char *from, char **ArgList)
 {
 	PasteArgs(ArgList, 0);
  	if (is_server_connected(parsing_server_index)) {
@@ -727,9 +715,7 @@ nickname_in_use(from, ArgList)
 }
 
 static	void
-not_valid_channel(from, ArgList)
-	char	*from,
-		**ArgList;
+not_valid_channel(char *from, char **ArgList)
 {
 	char	*channel;
 	char	*s;
@@ -760,9 +746,7 @@ not_valid_channel(from, ArgList)
 #define ERR_BADCHANMASK      476
 */
 static	void
-cannot_join_channel(from, ArgList)
-	char	*from,	
-		**ArgList;
+cannot_join_channel(char *from, char **ArgList)
 {
 	char	*chan;
 	char	buffer[BIG_BUFFER_SIZE+1];
@@ -911,9 +895,7 @@ cannot_join_channel(from, ArgList)
 
 /*ARGSUSED*/
 static	void
-version(from, ArgList)
-	char	*from,
-		**ArgList;
+version(char *from, char **ArgList)
 {
 	if (ArgList[2])
 	{
@@ -1013,9 +995,7 @@ char **ArgList;
 
 /*ARGSUSED*/
 static	void
-invite(from, ArgList)
-	char	*from,
-		**ArgList;
+invite(char *from, char **ArgList)
 {
 	char	*who,
 		*channel;
@@ -1041,10 +1021,7 @@ invite(from, ArgList)
  * all, but the default case should handle any I missed (sorry) 
  */
 void
-numbered_command(from, comm, ArgList)
-	char	*from;
-	int	comm;
-	char	**ArgList;
+numbered_command(char *from, int comm, char **ArgList)
 {
 	char	*user;
 	char	none_of_these = 0;

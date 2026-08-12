@@ -450,7 +450,7 @@ alarmer()
 }
 
 static int
-crypt_dev_random_byte()
+crypt_dev_random_byte(void)
 {
 	static	int	devrndfd = -1;
 	u_char	c;

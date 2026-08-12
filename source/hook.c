@@ -181,9 +181,7 @@ extern	int	load_depth;
 };
 
 static char	*
-fill_it_out(str, params)
-	char	*str;
-	int	params;
+fill_it_out(char *str, int params)
 {
  	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*arg,
@@ -232,11 +230,7 @@ struct	CmpInfoStruc
 int   cmpinfodone = 0;
 
 static void
-setup_struct(ServReq, SkipSer, SerNum, flags)
-	int	ServReq;
-	int	SkipSer;
-	int	SerNum;
-	int	flags;
+setup_struct(int ServReq, int SkipSer, int SerNum, int flags)
 {
 	cmp_info.ServerRequired = ServReq;
 	cmp_info.SkipSerialNum = SkipSer;
@@ -270,14 +264,7 @@ Add_Remove_Check_List(_Item, _Item2)
 }
 
 static	void
-add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
-	int	numeric;
-	char	*nick,
-		*stuff;
-	int	noisy,
-		not;
-	int	server,
-		sernum;
+add_numeric_hook(int numeric, char *nick, char *stuff, int noisy, int not, int server, int sernum)
 {
 	NumericList *entry;
 	Hook	*new;
@@ -321,14 +308,7 @@ add_numeric_hook(numeric, nick, stuff, noisy, not, server, sernum)
  * entry is added in alphabetical order (by nick). 
  */
 static	void
-add_hook(which, nick, stuff, noisy, not, server, sernum)
-	int	which;
-	char	*nick,
-		*stuff;
-	int	noisy,
-		not;
-	int	server,
-		sernum;
+add_hook(int which, char *nick, char *stuff, int noisy, int not, int server, int sernum)
 {
 	Hook	*new;
 
@@ -392,8 +372,7 @@ show_hook(list, name)
  * number of entries displayed is returned 
  */
 static	int
-show_numeric_list(numeric)
-	int	numeric;
+show_numeric_list(int numeric)
 {
 	NumericList *tmp;
 	Hook	*list;
@@ -427,8 +406,7 @@ show_numeric_list(numeric)
  * the list displayed 
  */
 static	int
-show_list(which)
-	int	which;
+show_list(int which)
 {
 	Hook	*list;
 	int	cnt = 0;

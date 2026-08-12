@@ -172,8 +172,7 @@ do_log(flag, logfile, fp)
 
 /* logger: if flag is 0, logging is turned off, else it's turned on */
 void
-logger(flag)
-	int	flag;
+logger(int flag)
 {
 	char	*logfile;
 
@@ -197,8 +196,7 @@ logger(flag)
  * automatically when you SET LOGFILE. 
  */
 void
-set_log_file(filename)
-	char	*filename;
+set_log_file(char *filename)
 {
 	char	*expanded;
 

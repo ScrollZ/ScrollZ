@@ -62,6 +62,10 @@ int	connect_to_unix _((int, char *));
 #include "hook.h"
 
 /**************************** PATCHED by Flier ******************************/
+#ifdef HAVE_SSL
+#include <gnutls/x509.h>
+#endif
+
 #include "myvars.h"
 #include "trace.h"
 
@@ -121,9 +125,7 @@ extern	int	dgets_errno;
  * closed
  */
 void
-close_server(server_index, message)
-	int	server_index;
-	char	*message;
+close_server(int server_index, char *message)
 {
 	char	buffer[BIG_BUFFER_SIZE+1];
 	int	i,
@@ -258,8 +260,7 @@ close_server(server_index, message)
  */
 
 void
-set_server_bits(rd, wd)
-	fd_set *rd, *wd;
+set_server_bits(fd_set *rd, fd_set *wd)
 {
 	int	i;
 
@@ -285,8 +286,7 @@ set_server_bits(rd, wd)
  * try to keep that connection alive.
  */
 void
-do_server(rd, wd)
-	fd_set	*rd, *wd;
+do_server(fd_set *rd, fd_set *wd)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	int	des, j;
@@ -489,10 +489,7 @@ real_continue:
  * -1 if not found
  */
 extern	int
-find_in_server_list(server, port, nick)
-	char	*server;
-	int	port;
-	char	*nick;
+find_in_server_list(char *server, int port, char *nick)
 {
 	int	i, maybe = -1;
 	size_t	len;
@@ -546,8 +543,7 @@ find_in_server_list(server, port, nick)
  * so checks it validity as a server index.  Otherwise -1 is returned
  */
 int
-parse_server_index(str)
-	char	*str;
+parse_server_index(char *str)
 {
 	int	i;
 
@@ -568,13 +564,7 @@ parse_server_index(str)
  * either case, the server is made the current server.
  */
 void
-add_to_server_list(server, port, password, nick, group, overwrite)
-	char	*server;
-	int	port;
-	char	*password;
-	char	*nick;
-	char	*group;
-	int	overwrite;
+add_to_server_list(char *server, int port, char *password, char *nick, char *group, int overwrite)
 {
 	int	i;
 
@@ -708,8 +698,7 @@ add_to_server_list(server, port, password, nick, group, overwrite)
 }
 
 extern  void
-ctcp_reply_backlog_change(s)
-	int	s;
+ctcp_reply_backlog_change(int s)
 {
 	int	i, j, delta;
 
@@ -734,8 +723,7 @@ ctcp_reply_backlog_change(s)
 }
 
 extern	void
-remove_from_server_list(i)
-	int	i;
+remove_from_server_list(int i)
 {
 	int	old_server = from_server,
 		flag = 1;
@@ -862,12 +850,7 @@ remove_from_server_list(i)
  * point to null.
  */
 void
-parse_server_info(name, port, password, nick, group)
-	char	**name,
-		**port,
-		**password,
-		**nick,
-		**group;
+parse_server_info(char **name, char **port, char **password, char **nick, char **group)
 {
 	char *ptr, *ename, *savename = (char *) 0;
 
@@ -946,8 +929,7 @@ parse_server_info(name, port, password, nick, group)
  * so make sure this is ok .
  */
 void
-build_server_list(servers)
-	char	*servers;
+build_server_list(char *servers)
 {
 	char	*host,
 		*rest,
@@ -991,11 +973,7 @@ build_server_list(servers)
  * This version of connect_to_server() connects directly to a server
  */
 static	int
-connect_to_server_direct(server_name, port, nick, group)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
+connect_to_server_direct(char *server_name, int port, char *nick, char *group)
 {
 	int	new_des;
 #ifdef INET6
@@ -1105,11 +1083,7 @@ connect_to_server_direct(server_name, port, nick, group)
  * server
  */
 static	int
-connect_to_server_process(server_name, port, nick, group)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
+connect_to_server_process(char *server_name, int port, char *nick, char *group)
 {
 	int	write_des[2],
 		read_des[2],
@@ -1219,12 +1193,7 @@ connect_to_server_process(server_name, port, nick, group)
  * successful (and not closed immediately by the server).
  */
 int
-connect_to_server(server_name, port, nick, group, c_server)
-	char	*server_name;
-	int	port;
-	char	*nick;
-	char	*group;
-	int	c_server;
+connect_to_server(char *server_name, int port, char *nick, char *group, int c_server)
 {
 	int	server_index;
 #ifdef INET6
@@ -1553,8 +1522,7 @@ char **errorstr;
 #endif
 
 static	void
-login_to_server(server)
-	int server;
+login_to_server(int server)
 {
 #ifdef NON_BLOCKING_CONNECTS
 	int	old_serv = server_list[server].close_serv;
@@ -1706,8 +1674,7 @@ login_to_server(server)
 }
 
 static	void
-irc2_login_to_server(server)
-	int	server;
+irc2_login_to_server(int server)
 {
 
 	if (server_list[server].password)
@@ -1726,9 +1693,7 @@ irc2_login_to_server(server)
  * resurected (eg. connection to server failed).
  */
 void
-get_connected(server, oldconn)
-	int	server;
-	int	oldconn;
+get_connected(int server, int oldconn)
 {
 	int	s,
 		ret = -1;
@@ -1792,7 +1757,7 @@ get_connected(server, oldconn)
  * build_server_list()
  */
 int
-read_server_file()
+read_server_file(void)
 {
 	FILE *fp;
 	char format[11];
@@ -1817,7 +1782,7 @@ read_server_file()
 
 /* display_server_list: just guess what this does */
 void
-display_server_list()
+display_server_list(void)
 {
 	int	i;
 /**************************** Patched by Flier ******************************/
@@ -1943,9 +1908,7 @@ display_server_list()
 }
 
 void
-MarkAllAway(command, message)
-	char	*command;
-	char	*message;
+MarkAllAway(char *command, char *message)
 {
 	int	old_server;
 
@@ -1977,9 +1940,7 @@ MarkAllAway(command, message)
  * index.  If password is null, the password for the given server is returned
  */
 char	*
-set_server_password(server_index, password)
-	int	server_index;
-	char	*password;
+set_server_password(int server_index, char *password)
 {
 
 	if (server_list)
@@ -1997,10 +1958,7 @@ set_server_password(server_index, password)
  */
 /*ARGSUSED*/
 void
-servercmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+servercmd(char *command, char *args, char *subargs)
 {
 	char	*server,
 		*port,
@@ -2203,7 +2161,7 @@ servercmd(command, args, subargs)
  * second delay between bits of servers crap... useful to abort a /links.
  */
 void
-flush_server()
+flush_server(void)
 {
 	fd_set rd;
 	struct timeval time_out;
@@ -2254,17 +2212,14 @@ flush_server()
  * can be done more effienciently
  */
 void
-set_server_whois(server_index, value)
-	int	server_index,
-		value;
+set_server_whois(int server_index, int value)
 {
 	server_list[server_index].whois = value;
 }
 
 /* get_server_whois: Returns the whois value for the given server index */
 int
-get_server_whois(server_index)
-	int	server_index;
+get_server_whois(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2273,16 +2228,13 @@ get_server_whois(server_index)
 
 
 void
-set_server_2_6_2(server_index, value)
-	int	server_index,
-		value;
+set_server_2_6_2(int server_index, int value)
 {
 	set_server_flag(server_index, SERVER_2_6_2, value);
 }
 
 int
-get_server_2_6_2(server_index)
-	int	server_index;
+get_server_2_6_2(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2290,10 +2242,7 @@ get_server_2_6_2(server_index)
 }
 
 void
-set_server_flag(server_index, flag, value)
-	int	server_index;
-	int	flag;
-	int	value;
+set_server_flag(int server_index, int flag, int value)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2304,9 +2253,7 @@ set_server_flag(server_index, flag, value)
 }
 
 int
-get_server_flag(server_index, value)
-	int	server_index;
-	int	value;
+get_server_flag(int server_index, int value)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2314,10 +2261,7 @@ get_server_flag(server_index, value)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void set_server_umode_flag(server_index, flag, add)
-int server_index;
-char flag;
-int add;
+void set_server_umode_flag(int server_index, int flag, int add)
 {
     int flagvalue;
     int *flags;
@@ -2334,9 +2278,7 @@ int add;
     else *flags &= ~flagvalue;
 }
 
-int get_server_umode_flag(server_index, flag)
-int server_index;
-char flag;
+int get_server_umode_flag(int server_index, int flag)
 {
     int flagvalue;
     int flags;
@@ -2357,8 +2299,7 @@ char flag;
  * get_server_password: get the password for this server.
  */
 char *
-get_server_password(server_index)
-	int	server_index;
+get_server_password(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2369,8 +2310,7 @@ get_server_password(server_index)
  * get_server_group: get the group for this server.
  */
 char *
-get_server_group(server_index)
-	int	server_index;
+get_server_group(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2383,9 +2323,7 @@ get_server_group(server_index)
  * for typedef)
  */
 void
-set_server_version(server_index, version)
-	int	server_index;
-	int	version;
+set_server_version(int server_index, int version)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2397,8 +2335,7 @@ set_server_version(server_index, version)
  * index
  */
 int
-get_server_version(server_index)
-	int	server_index;
+get_server_version(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2410,8 +2347,7 @@ get_server_version(server_index)
 
 /* get_server_name: returns the name for the given server index */
 char	*
-get_server_name(server_index)
-	int	server_index;
+get_server_name(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2420,8 +2356,7 @@ get_server_name(server_index)
 
 /* set_server_itsname: returns the server's idea of its name */
 char	*
-get_server_itsname(server_index)
-	int	server_index;
+get_server_itsname(int server_index)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2434,9 +2369,7 @@ get_server_itsname(server_index)
 }
 
 void
-set_server_itsname(server_index, name)
-	int	server_index;
-	char	*name;
+set_server_itsname(int server_index, char *name)
 {
 	if (server_index == -1 || !is_server_ok(server_index))
 		server_index = primary_server;
@@ -2448,8 +2381,7 @@ set_server_itsname(server_index, name)
  * with a live connection, returns false otherwise
  */
 int
-is_server_open(server_index)
-	int	server_index;
+is_server_open(int server_index)
 {
 	if (!is_server_ok(server_index))
 		return (0);
@@ -2460,8 +2392,7 @@ is_server_open(server_index)
 /*
  * is_server_valid: Returns true if the given server index is valid
  */
-int is_server_valid(server_index)
-int server_index;
+int is_server_valid(int server_index)
 {
     if (server_index < 0 || server_index >= number_of_servers)
         return(0);
@@ -2483,8 +2414,7 @@ int is_server_ok(int server_index) {
  * registered
  */
 int
-is_server_connected(server_index)
-	int	server_index;
+is_server_connected(int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index < 0)
@@ -2496,8 +2426,7 @@ is_server_connected(server_index)
 
 /* get_server_port: Returns the connection port for the given server index */
 int
-get_server_port(server_index)
-	int	server_index;
+get_server_port(int server_index)
 {
     if (server_index == -1 || !is_server_ok(server_index))
         server_index = primary_server;
@@ -2512,8 +2441,7 @@ get_server_port(server_index)
  * index
  */
 char	*
-get_server_nickname(server_index)
-	int	server_index;
+get_server_nickname(int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index))
@@ -2620,8 +2548,7 @@ set_server_qtail(server_index, value)
  * false otherwise
  */
 int
-get_server_operator(server_index)
-	int	server_index;
+get_server_operator(int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return(0);
@@ -2634,9 +2561,7 @@ get_server_operator(server_index)
  * privs on the given server.
  */
 void
-set_server_operator(server_index, flag)
-	int	server_index;
-	int	flag;
+set_server_operator(int server_index, int flag)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return;
@@ -2650,9 +2575,7 @@ set_server_operator(server_index, flag)
  * (unless changed with NICK while connected to the server
  */
 void
-set_server_nickname(server_index, nick)
-	int	server_index;
-	char	*nick;
+set_server_nickname(int server_index, char *nick)
 {
     if (server_index != -1)
     {
@@ -2670,9 +2593,7 @@ set_server_nickname(server_index, nick)
 }
 
 void
-set_server_motd(server_index, flag)
-	int	server_index;
-	int	flag;
+set_server_motd(int server_index, int flag)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
@@ -2682,8 +2603,7 @@ set_server_motd(server_index, flag)
 }
 
 int
-get_server_motd(server_index)
-	int	server_index;
+get_server_motd(int server_index)
 {
 /**************************** PATCHED by Flier ******************************/
 	/*if (server_index != -1)*/
@@ -2694,9 +2614,7 @@ get_server_motd(server_index)
 }
 
 void
-server_is_connected(server_index, value)
-	int	server_index,
-		value;
+server_is_connected(int server_index, int value)
 {
 /**************************** PATCHED by Flier ******************************/
     if (!is_server_ok(server_index)) return;
@@ -2820,9 +2738,7 @@ send_to_server(format, arg1, arg2, arg3, arg4, arg5,
  * submitted by Avalon for use with server 2.7.2 and beyond.
  */
 int
-connect_to_unix(port, path)
-	int	port;
-	char	*path;
+connect_to_unix(int port, char *path)
 {
 	struct	sockaddr_un un;
 	int	    sock;
@@ -2846,7 +2762,7 @@ connect_to_unix(port, path)
  * server connections in the child process...
  */
 extern	void
-close_all_server()
+close_all_server(void)
 {
 	int	i;
 
@@ -2860,7 +2776,7 @@ close_all_server()
 }
 
 extern	char	*
-create_server_list()
+create_server_list(void)
 {
 	int	i;
 	char	*value = (char *) 0;
@@ -2883,9 +2799,7 @@ create_server_list()
 }
 
 static	void
-add_to_server_buffer(server, buf)
-	int	server;
-	char	*buf;
+add_to_server_buffer(int server, char *buf)
 {
 	if (buf && *buf)
 	{
@@ -2897,10 +2811,7 @@ add_to_server_buffer(server, buf)
 }
 
 void
-disconnectcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+disconnectcmd(char *command, char *args, char *subargs)
 {
 	char	*server;
 	char	*message;
@@ -2975,9 +2886,7 @@ done:
 }
 
 int
-find_server_group(group, add)
-	char	*group;
-	int	add;
+find_server_group(char *group, int add)
 {
 	static	int	next = 1;
 	SGroup *g = (SGroup *) find_in_list((List **) &server_group_list, group, 0);
@@ -2998,8 +2907,7 @@ end:
 }
 
 char	*
-find_server_group_name(number)
-	int	number;
+find_server_group_name(int number)
 {
 	SGroup *g = server_group_list;
 

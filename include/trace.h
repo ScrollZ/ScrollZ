@@ -25,9 +25,16 @@ typedef struct {
     char *area;
 } TraceArea;
 
-void TraceServerInfo _((int indent, int fullinfo));
-void TraceChannelInfo _((int indent, ChannelList *channels));
-void TraceNickListInfo _((int indent, NickList *nicks));
-void TraceWindowInfo _((int indent, Window *window));
+void TraceServerInfo _((int, int));
+void TraceChannelInfo _((int, ChannelList *));
+void TraceNickListInfo _((int, NickList *));
+void TraceWindowInfo _((int, Window *));
+long GetTraceLevel _((void));
+void SetTraceLevel _((long));
+#ifdef HAVE_STDARG_H
+void Trace _((long, char *, ...));
+#else
+void Trace _((long, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *, char *));
+#endif
 
 #endif

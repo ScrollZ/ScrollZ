@@ -41,9 +41,7 @@ static  int  OldWord;   /* holds number  for previous word, if NewNotice is 0 */
 static  int  OVTS=1;    /* 1 if time stamping is enabled */
 static  char *OldPtr;   /* holds pointer for previous word, if NewNotice is 0 */
 
-void CreateMode(tmpbuf,sizeofbuf)
-char *tmpbuf;
-int  sizeofbuf;
+void CreateMode(char *tmpbuf, int sizeofbuf)
 {
     /* we need to send aditional usermodes (+swfuckrn), for ircd 2.9/2.10 only send +w */
     if (get_server_version(from_server)==Server2_11)
@@ -51,10 +49,7 @@ int  sizeofbuf;
     else strmcpy(tmpbuf,"swfuckrn",sizeofbuf);
 }
 
-void OperVision(command,args,subargs)
-char *command;
-char *args;
-char *subargs;
+void OperVision(char *command, char *args, char *subargs)
 {
     int incurwin=0;
     int sendmodes=1;
@@ -126,8 +121,7 @@ char *subargs;
 /* Takes (u@h), removes (), colorizes, returns u@h */
 /* Also works with [u@h]   -Flier */
 /* Also works with n!u@h   -Pier  */
-char *OVuh(word)
-char *word;
+char *OVuh(char *word)
 {
     int i;
     int sht = 1;
@@ -167,8 +161,7 @@ char *word;
 
 /* Returns domain, minus host and top */
 /* fixed by Flier to work on hostname.domain (like irc.net) */
-char *OVsvdmn(string)
-char *string;
+char *OVsvdmn(char *string)
 {
     int  i, l;
     char *c;
@@ -190,10 +183,7 @@ char *string;
 
 /* Gets word(s) from string. Similar to $word() in IrcII */
 /* Added caching   -Flier */
-char *OVgetword(a,b,string)
-int a;
-int b;
-char *string;
+char *OVgetword(int a, int b, char *string)
 {
     int  i=1;
     static char tmpbuf1[mybufsize/2];
@@ -248,8 +238,7 @@ char *string;
 }
 
 /* Gets nick form nick!user@host */
-char *OVgetnick(nuh)
-char *nuh;
+char *OVgetnick(char *nuh)
 {
     char *tmpstr;
     static char tmpbuf[mybufsize/4];
@@ -270,9 +259,7 @@ void OVnobrackets(char *inbuf, char *outbuf, int outsize)
         outbuf[strlen(outbuf) - 1] = '\0';
 }
 
-void OVformat(line,from)
-char *line;
-char *from;
+void OVformat(char *line, char *from)
 {
     char *tmp;
     char *tmpline;
@@ -393,7 +380,7 @@ char *from;
             strcpy(word3,OVgetword(0,5,tmpline));  /* user */
 	    snprintf(word2,sizeof(word2),"(%s@%s)",word3,
                     OVgetword(0,7,tmpline));       /* host */
-            strcpy(word3,OVgetword(9,0));
+            strcpy(word3,OVgetword(9,0,tmpline));
         }
         else {
 	    strcpy(word2,OVgetword(0,4,tmpline));  /* user@host */
@@ -1074,7 +1061,7 @@ char *from;
         if ((tmp=index(word1,'!')) && index(word1,'@')) {
             *tmp++='\0';
             snprintf(word2,sizeof(word2),"(%s)",tmp);
-            strcpy(word3,OVgetword(0,3));
+            strcpy(word3,OVgetword(0,3,tmpline));
         }
         else {
             strcpy(word1,OVgetword(0,5,tmpline));  /* Nick */

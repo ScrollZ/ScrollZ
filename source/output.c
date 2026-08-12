@@ -82,9 +82,7 @@ extern char *TimeStamp _((int));
  */
 /*ARGSUSED*/
 void
-refresh_screen(key, ptr)
- 	u_int	key;
-	char *	ptr;
+refresh_screen(u_int key, char *ptr)
 {
 	term_clear_screen();
 	if (term_resize())
@@ -97,7 +95,7 @@ refresh_screen(key, ptr)
 
 /* init_windows:  */
 void
-init_screen()
+init_screen(void)
 {
 	new_window();
 	term_init();
@@ -111,8 +109,7 @@ init_screen()
 
 /* put_file: uses put_it() to display the contents of a file to the display */
 void
-put_file(filename)
-	char	*filename;
+put_file(char *filename)
 {
 	FILE	*fp;
 	char	line[1024];		/* too big?  too small?  who cares? */

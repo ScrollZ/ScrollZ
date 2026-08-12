@@ -125,8 +125,7 @@ install_menu(NewMenu, TotalMade)
 }
 
 void
-load_menu(FileName)
-	char	*FileName;
+load_menu(char *FileName)
 {
 	FILE	*fp;
 	Menu	*NewMenu = NULL;
@@ -273,8 +272,7 @@ ShowMenuByWindow(window, flags)
 }
 
 int
-ShowMenu(Name)
-	char	*Name;
+ShowMenu(char *Name)
 {
 	Menu	*ThisMenu;
 	Window	*window;
@@ -294,8 +292,7 @@ ShowMenu(Name)
 }
 
 void
-set_menu(Value)
-	char	*Value;
+set_menu(char *Value)
 {
 	Window	*window;
 	WindowMenu *menu_info;
@@ -342,27 +339,23 @@ enter_menu(key, ptr)
 
 
 void
-menu_previous(args)
-	char	*args;
+menu_previous(char *args)
 {
 }
 
 void
-menu_submenu(args)
-	char	*args;
+menu_submenu(char *args)
 {
 }
 
 void
-menu_exit(args)
-	char	*args;
+menu_exit(char *args)
 {
 	current_screen->inside_menu = -1;
 }
 
 void
-menu_channels(args)
-	char	*args;
+menu_channels(char *args)
 {
 }
 
@@ -441,8 +434,7 @@ menu_key(ikey)
 }
 
 void
-menu_command(args)
-	char	*args;
+menu_command(char *args)
 {
 	parse_line((char *) 0, args, empty_string, 0, 0, 0);
 }

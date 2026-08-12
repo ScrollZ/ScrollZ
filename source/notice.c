@@ -81,9 +81,7 @@ static	void	parse_server_notice _((char *, char *, char *));
  */
 #ifndef LITE
 static	void
-parse_note(server, line)
-	char	*server;
-	char	*line;
+parse_note(char *server, char *line)
 {
 	char	*date,
 		*nick,
@@ -126,10 +124,7 @@ parse_note(server, line)
 #endif
 
 static	void
-parse_server_notice(from, to, line)
-	char	*from,
- 		*to,
-		*line;
+parse_server_notice(char *from, char *to, char *line)
 {
 	char	server[81],
 		version[21];
@@ -243,10 +238,8 @@ parse_server_notice(from, to, line)
 	}
 }
 
-void 
-parse_notice(from, Args)
-	char 	*from;
-	char 	**Args;
+void
+parse_notice(char *from, char **Args)
 {
 	int	level,
 		type;
@@ -393,7 +386,7 @@ out:
  * load the initial .ircrc
  */
 void
-load_ircrc()
+load_ircrc(void)
 {
 	static	int done = 0;
 
@@ -416,7 +409,7 @@ load_ircrc()
  * load the initial .ircquick
  */
 void
-load_ircquick()
+load_ircquick(void)
 {
 	static	int done = 0;
 
@@ -440,8 +433,7 @@ load_ircquick()
  * added by phone, late 1992.
  */
 void
-got_initial_version(line)
-	char	*line;
+got_initial_version(char *line)
 {
  	char	server[256],
 		version[256];
@@ -561,7 +553,7 @@ got_initial_version(line)
 }
 
 void
-maybe_load_ircrc()
+maybe_load_ircrc(void)
 {
 	if (never_connected)
 	{

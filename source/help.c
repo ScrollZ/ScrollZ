@@ -105,9 +105,7 @@ static	int	use_help_window = 0;
 
 /* compar: used by scandir to alphabetize the help entries */
 static	int
-compar(e1, e2)
-	const struct dirent	**e1;
-	const struct dirent	**e2;
+compar(const struct dirent **e1, const struct dirent **e2)
 {
 	return (my_stricmp((char *) (*e1)->d_name, (char *) (*e2)->d_name));
 }
@@ -117,8 +115,7 @@ compar(e1, e2)
  * listing.  
  */
 static	int
-selectent(entry)
-	const struct dirent	*entry;
+selectent(const struct dirent *entry)
 {
 	if (*(entry->d_name) == '.')
 		return (0);
@@ -233,9 +230,7 @@ show_help(window, name)
  */
 
 static	void
-help_prompt(name, line)
-	char	*name,
-		*line;
+help_prompt(char *name, char *line)
 {
 	if (finished_help_paging)
 	{
@@ -317,9 +312,7 @@ help_prompt(name, line)
  * on the road.
  */
 static	void
-help_topic(path, name)
-	char	*path;
-	char	*name;
+help_topic(char *path, char *name)
 {
 	struct	stat	stat_buf;
 	char	filename[BIG_BUFFER_SIZE+1];

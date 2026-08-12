@@ -93,8 +93,7 @@ static	History	*history_tmp = (History *) 0;
  * there. 
  */
 static	char	*
-history_match(match)
-	char	*match;
+history_match(char *match)
 {
 	char	*ptr;
 	char	*match_str = (char *)NULL;
@@ -155,9 +154,7 @@ history_match(match)
  * history file using cnt as the history index number. 
  */
 static	void
-add_to_history_file(cnt, line)
-	int	cnt;
-	char	*line;
+add_to_history_file(int cnt, char *line)
 {
 	if (hist_file)
 	{
@@ -169,9 +166,7 @@ add_to_history_file(cnt, line)
 }
 
 static	void
-add_to_history_list(cnt, stuff)
-	int	cnt;
-	char	*stuff;
+add_to_history_list(int cnt, char *stuff)
 {
 	History *new;
 
@@ -218,8 +213,7 @@ add_to_history_list(cnt, stuff)
  * the file if all is well 
  */
 void
-set_history_file(file)
-	char	*file;
+set_history_file(char *file)
 {
 	char	*ptr;
 	int	i,
@@ -284,8 +278,7 @@ set_history_file(file)
  * new entries are nulled. 
  */
 void
-set_history_size(size)
-	int	size;
+set_history_size(int size)
 {
 	int	i,
 		cnt;
@@ -318,9 +311,7 @@ set_history_size(size)
  * the number as an integer and points ret to stuff 
  */
 static	int
-parse_history(lbuf, ret)
- 	char	*lbuf;
-	char	**ret;
+parse_history(char *lbuf, char **ret)
 {
 	char	*ptr;
 	int	entry;
@@ -341,8 +332,7 @@ parse_history(lbuf, ret)
  * automagically allocted and deallocated memory as needed 
  */
 void
-add_to_history(line)
-	char	*line;
+add_to_history(char *line)
 {
 	char	*ptr;
 
@@ -361,8 +351,7 @@ add_to_history(line)
 }
 
 static	char	*
-get_from_history_file(which)
-	int	which;
+get_from_history_file(int which)
 {
 	char	*ptr;
 /**************************** PATCHED by Flier ******************************/
@@ -402,8 +391,7 @@ get_from_history_file(which)
 }
 
 static	char	*
-get_from_history_buffer(which)
-	int	which;
+get_from_history_buffer(int which)
 {
 	if ((get_int_var(HISTORY_VAR) == 0) || (hist_size == 0))
 		return (u_char *) 0;
@@ -445,8 +433,7 @@ get_from_history_buffer(which)
 }
 
 char	*
-get_from_history(which)
-	int	which;
+get_from_history(int which)
 {
 	char	*str = (char *)NULL;
 
@@ -460,10 +447,7 @@ get_from_history(which)
 /* history: the /HISTORY command, shows the command history buffer. */
 /*ARGSUSED*/
 void
-history(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+history(char *command, char *args, char *subargs)
 {
 	int	cnt,
 		max;
@@ -515,9 +499,7 @@ history(command, args, subargs)
  * found for some reason.  Note that this routine mallocs the string returned  
  */
 char	*
-do_history(com, rest)
-	char	*com,
-		*rest;
+do_history(char *com, char *rest)
 {
 	int	hist_num;
 	char	*ptr,

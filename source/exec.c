@@ -138,8 +138,7 @@ static	void	send_exec_result _((Process *, char *));
  * really?  No.  But what the hell 
  */
 static	int
-exec_close(des)
-	int	des;
+exec_close(int des)
 {
 	if (des != -1)
 		new_close(des);
@@ -152,8 +151,7 @@ exec_close(des)
  * -1 disables this.
  */
 void
-set_wait_process(proccess)
-	int	proccess;
+set_wait_process(int proccess)
 {
 	wait_index = proccess;
 }
@@ -163,8 +161,7 @@ set_wait_process(proccess)
  * process and returns true if this is the case.  Returns false otherwise 
  */
 static	int
-valid_process_index(proccess)
-	int	proccess;
+valid_process_index(int proccess)
 {
 	if ((proccess < 0) || (proccess >= process_list_size))
 		return (0);
@@ -186,16 +183,13 @@ valid_process_index(proccess)
 volatile static int _child_died = 0;
 
 static	void
-_child_death()
+_child_death(void)
 {
 	_child_died = 1;
 }
 
 int
-waitpid(pid, status, options)
-	int	pid;	/* Only works if pid == -1! */
-	int	*status;
-	int	options;
+waitpid(int pid	/* Only works if pid == -1! */, int *status, int options)
 {
 	int rval;
 	void (*prev_sigcld)();
@@ -220,8 +214,7 @@ waitpid(pid, status, options)
 #endif /* not BSDWAIT && NEED_WAITPID */
 
 int
-get_child_exit(pid)
-	int	pid;
+get_child_exit(int pid)
 {
 	return (check_wait_status(pid));
 }
@@ -231,8 +224,7 @@ get_child_exit(pid)
  * as needed, etc 
  */
 int
-check_wait_status(wanted)
-	int wanted;
+check_wait_status(int wanted)
 {
 	Process	*proc;
 #ifdef BSDWAIT
@@ -286,7 +278,7 @@ check_wait_status(wanted)
  * effectively killed 
  */
 void
-check_process_limits()
+check_process_limits(void)
 {
 	int	limit;
 	int	i;
@@ -312,9 +304,7 @@ check_process_limits()
 }
 
 static void
-send_exec_result(proc, exec_buffer)
-	Process *proc;
-	char *exec_buffer;
+send_exec_result(Process *proc, char *exec_buffer)
 {
 	if (proc->redirect)
 	{
@@ -526,7 +516,7 @@ set_process_bits(rd)
  * including index number, pid, and process name 
  */
 static	void
-list_processes()
+list_processes(void)
 {
 	Process	*proc;
 	int	i;
@@ -556,9 +546,7 @@ list_processes()
 }
 
 void
-add_process_wait(proc_index, cmd)
-	int 	proc_index;
-	char 	*cmd;
+add_process_wait(int proc_index, char *cmd)
 {
 	List	*new,
 		**posn;
@@ -579,8 +567,7 @@ add_process_wait(proc_index, cmd)
  * shrink the list as needed 
  */
 static	int
-delete_process(process)
-	int	process;
+delete_process(int process)
 {
 	int	flag;
 	List	*cmd,
@@ -665,16 +652,7 @@ delete_process(process)
  * in the process table before it increases it's size. 
  */
 static	void
-add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refnum)
-	char	*name,
-		*logical;
-	int	pid,
-		p_stdin,
-		p_stdout,
-		p_stderr;
-	char	*redirect;
-	char	*who;
-	unsigned int	refnum;
+add_process(char *name, char *logical, int pid, int p_stdin, int p_stdout, int p_stderr, char *redirect, char *who, unsigned int refnum)
 {
 	int	i;
 	Process	*proc;
@@ -752,9 +730,7 @@ add_process(name, logical, pid, p_stdin, p_stdout, p_stderr, redirect, who, refn
  * deleted from the process table
  */
 static	void
-kill_process(kill_index, sig)
-	int	kill_index,
-		sig;
+kill_process(int kill_index, int sig)
 {
 	if (process_list && (kill_index < process_list_size) && process_list[kill_index])
 	{
@@ -804,8 +780,7 @@ kill_process(kill_index, sig)
 }
 
 static	int
-is_logical_unique(logical)
-	char	*logical;
+is_logical_unique(char *logical)
 {
 	Process	*proc;
 	int	i;
@@ -823,12 +798,7 @@ is_logical_unique(logical)
  * by the user.
  */
 static	void
-start_process(name, logical, redirect, who, refnum)
-	char	*name,
-		*logical,
-		*who,
-		*redirect;
-	unsigned int	refnum;
+start_process(char *name, char *logical, char *redirect, char *who, unsigned int refnum)
 {
 	int	p0[2],
 		p1[2],
@@ -958,10 +928,7 @@ start_process(name, logical, redirect, who, refnum)
  * Added show, to remove some bad recursion, phone, april 1993
  */
 int
-text_to_process(proc_index, text, show)
-	int	proc_index;
-	char	*text;
-	int	show;
+text_to_process(int proc_index, char *text, int show)
 {
  	u_int	ref;
 	Process	*proc;
@@ -989,8 +956,7 @@ text_to_process(proc_index, text, show)
  * to a currently running process, 0 otherwise
  */
 int
-is_process_running(proc_index)
-	int	proc_index;
+is_process_running(int proc_index)
 {
 	if (proc_index < 0 || proc_index >= process_list_size)
 		return (0);
@@ -1004,8 +970,7 @@ is_process_running(proc_index)
  * in the process list, or -1 if not found
  */
 int
-logical_to_index(logical)
-	char	*logical;
+logical_to_index(char *logical)
 {
 	Process	*proc;
 	int	i;
@@ -1024,8 +989,7 @@ logical_to_index(logical)
  * given string
  */
 int
-get_process_index(args)
-	char	**args;
+get_process_index(char **args)
 {
 	char	*s;
 
@@ -1046,8 +1010,7 @@ get_process_index(args)
 
 /* is_process: checks to see if arg is a valid process specification */
 int
-is_process(arg)
-	char	*arg;
+is_process(char *arg)
 {
 	if (arg && *arg == '%')
 	{
@@ -1063,10 +1026,7 @@ is_process(arg)
  */
 /*ARGSUSED*/
 void
-execcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+execcmd(char *command, char *args, char *subargs)
 {
 	char	*who = (char *) 0,
 		*logical = (char *) 0,
@@ -1317,7 +1277,7 @@ out:
  * sending a SIGTERM, then a SIGKILL to clean things up 
  */
 void
-clean_up_processes()
+clean_up_processes(void)
 {
 	int	i;
 
@@ -1344,7 +1304,7 @@ clean_up_processes()
  * later.
  */
 void
-close_all_exec()
+close_all_exec(void)
 {
 	int	i;
 	int	tmp;
@@ -1367,8 +1327,7 @@ close_all_exec()
 }
 
 void
-exec_server_delete(i)
-	int	i;
+exec_server_delete(int i)
 {
 	int	j;
 

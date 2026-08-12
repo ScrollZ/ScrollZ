@@ -641,7 +641,7 @@ struct colorstr CmdsColors[NUMCMDCOLORS];
 /* irc_exit: cleans up and leaves */
 RETSIGTYPE
 /**************************** PATCHED by Flier ******************************/
-irc_exit(quit)
+irc_exit(int quit)
 /****************************************************************************/
 {
 	do_hook(EXIT_LIST, "Exiting");
@@ -701,9 +701,7 @@ coredump(sig)
  * user gets booted from irc.  Otherwise, life goes on. 
  */
 static	void
-quit_response(dummy, ptr)
-	char	*dummy;
-	char	*ptr;
+quit_response(char *dummy, char *ptr)
 {
  	size_t	len;
  	int	old_irc_io_loop;
@@ -767,7 +765,7 @@ sig_user1()
 }
 
 static void
-real_sig_user1()
+real_sig_user1(void)
 {
 	say("Got SIGUSR1, closing DCC connections and EXECed processes");
 	close_all_dcc();
@@ -812,7 +810,7 @@ sig_refresh_screen()
 
 /* shows the version of irc */
 static	void
-show_version()
+show_version(void)
 {
 	printf("ircII version %s\n\r", irc_version);
 	exit (0);
@@ -822,7 +820,7 @@ show_version()
  * process_hostname: Called at startup and to deal with /SET IRCHOST changes.
  */
 static void
-process_hostname()
+process_hostname(void)
 {
 #ifndef INET6
 	struct hostent *hp;
@@ -861,10 +859,7 @@ process_hostname()
 
 /* get_arg: used by parse_args() to get an argument after a switch */
 static	char	*
-get_arg(arg, next, ac)
-	char	*arg;
-	char	*next;
-	int	*ac;
+get_arg(char *arg, char *next, int *ac)
 {
 	(*ac)++;
 	if (*arg)
@@ -884,9 +879,7 @@ get_arg(arg, next, ac)
  * flags, etc. 
  */
 static	char	*
-parse_args(argv, argc)
-	char	**argv;
-	int	argc;
+parse_args(char **argv, int argc)
 {
 	char	*arg,
 		*ptr;
@@ -1743,10 +1736,7 @@ int
 main _((int, char *[], char *[]));
 
 int
-main(argc, argv, envp)
-	int	argc;
-	char	*argv[];
-	char	*envp[];
+main(int argc, char *argv[], char *envp[])
 {
 	char	*channel;
 
@@ -1943,7 +1933,7 @@ main(argc, argv, envp)
  * set_irchost: This sets the source host for subsequent connections.
  */
 void
-set_irchost ()
+set_irchost (void)
 {
 	char *irchost;
 

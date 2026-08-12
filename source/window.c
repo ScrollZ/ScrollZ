@@ -54,6 +54,7 @@
 #include "dcc.h"
 #include "translat.h"
 #include "parse.h"
+#include "whowas.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -350,8 +351,7 @@ add_window_to_server_group(window, group)
  * value 
  */
 void
-set_scroll_lines(size)
-	int	size;
+set_scroll_lines(int size)
 {
 	if (size == 0)
 	{
@@ -372,8 +372,7 @@ set_scroll_lines(size)
  * is set correctly 
  */
 void
-set_scroll(value)
-	int	value;
+set_scroll(int value)
 {
 	if (value && (get_int_var(SCROLL_LINES_VAR) == 0))
 	{
@@ -400,8 +399,7 @@ set_scroll(value)
  * always get a held screen after the proper number of lines 
  */
 void
-reset_line_cnt(value)
-	int	value;
+reset_line_cnt(int value)
 {
 	curr_scr_win->hold_mode = value;
 	curr_scr_win->hold_on_next_rite = 0;
@@ -413,8 +411,7 @@ reset_line_cnt(value)
  * altering it if its no good 
  */
 void
-set_continued_line(value)
-	char	*value;
+set_continued_line(char *value)
 {
 	if (value && ((int) strlen(value) > (current_screen->co / 2)))
 		value[current_screen->co / 2] = '\0';
@@ -870,7 +867,7 @@ struct mfstack
  * call this routine, you *must* call restore_message_from().
  */
 void
-save_message_from()
+save_message_from(void)
 {
  	struct mfstack *mfs;
 
@@ -886,7 +883,7 @@ save_message_from()
 
 /* restore_message_from: restores a previously saved who_from variable */
 void
-restore_message_from()
+restore_message_from(void)
 {
  	struct mfstack *mfs = mfstack_head.next;
 
@@ -912,9 +909,7 @@ restore_message_from()
  * should go to.  
  */
 void
-message_from(who, level)
-	char	*who;
-	int	level;
+message_from(char *who, int level)
 {
 	malloc_strcpy(&who_from, who);
 	who_level = level;
@@ -926,8 +921,7 @@ message_from(who, level)
  * than one level.
  */
 int
-message_from_level(level)
-	int	level;
+message_from_level(int level)
 {
 	int	temp;
 
@@ -1457,7 +1451,7 @@ remove_from_window_list(window)
  * servers 
  */
 void
-window_check_servers()
+window_check_servers(void)
 {
 	Window	*tmp;
 	int	flag, cnt, max, i, not_connected,
@@ -1530,8 +1524,7 @@ window_check_servers()
  * server.
  */
 void
-window_restore_server(server)
-	int	server;
+window_restore_server(int server)
 {
 	Window	*tmp;
 	int	max = number_of_servers,
@@ -1704,7 +1697,7 @@ Window *window;
 
 /* delete_other_windows: zaps all visible windows except the current one */
 static	void
-delete_other_windows()
+delete_other_windows(void)
 {
 	Window	*tmp,
 		*cur,
@@ -1731,7 +1724,7 @@ delete_other_windows()
  */
 
 void
-window_kill_swap()
+window_kill_swap(void)
 {
 	if (invisible_list != (Window *) 0)
 	{
@@ -1750,7 +1743,7 @@ window_kill_swap()
  * list.  Zero is returned if no infomation is displayed 
  */
 int
-unhold_windows()
+unhold_windows(void)
 {
 	Window	*tmp;
 	char	*stuff;
@@ -1803,7 +1796,7 @@ update_window_status(window, refreshit)
  * windows. 
  */
 void
-redraw_all_status()
+redraw_all_status(void)
 {
 	Window	*tmp;
 
@@ -1829,7 +1822,7 @@ redraw_all_status()
  */
 /*ARGSUSED*/
 void
-update_all_status()
+update_all_status(void)
 {
 	Window	*window;
 	Screen	*screen;
@@ -1854,8 +1847,7 @@ update_all_status()
  * was true, otherwise it's just ignored 
  */
 void
-status_update(flag)
-	int	flag;
+status_update(int flag)
 {
 	status_update_flag = flag;
 	update_all_status();
@@ -1869,10 +1861,7 @@ status_update(flag)
  * current_channel of window specified by value of delete
  */
 int
-is_current_channel(channel, server, delete)
-	char	*channel;
-	int	server;
-	int	delete;
+is_current_channel(char *channel, int server, int delete)
 {
 	Window	*tmp,
 		*found_window = (Window *) 0;
@@ -2100,8 +2089,7 @@ unbind_channel(channel, window)
  * get_window_server: returns the server index for the window with the given
  * refnum 
  */
-int	get_window_server(refnum)
-unsigned int	refnum;
+int	get_window_server(unsigned int refnum)
 {
 	Window	*tmp;
 
@@ -2122,10 +2110,7 @@ unsigned int	refnum;
  * force a 'sticky' behaviour of the window. -Sol
  */
 void
-window_set_server(refnum, server, misc)
-	int	refnum;
-	int	server;
-	int	misc;
+window_set_server(int refnum, int server, int misc)
 {
 	int	old_serv;
 	Window	*window = 0, *ptr, *new_win = (Window *) 0;
@@ -2280,9 +2265,7 @@ window_set_server(refnum, server, misc)
  * current_screen->current_window, * setting it to null 
  */
 char	*
-set_channel_by_refnum(refnum, channel)
-	unsigned int	refnum;
-	char	*channel;
+set_channel_by_refnum(unsigned int refnum, char *channel)
 {
 	Window	*tmp;
 	Window *tmp2;
@@ -2320,14 +2303,14 @@ get_channel_by_refnum(refnum)
 
 /* current_refnum: returns the reference number for the current window */
 unsigned int
-current_refnum()
+current_refnum(void)
 {
 	return (curr_scr_win->refnum);
 }
 
 /* query_nick: Returns the query nick for the current channel */
 char	*
-query_nick()
+query_nick(void)
 {
 	return (curr_scr_win->query_nick);
 }
@@ -2370,8 +2353,7 @@ get_target_by_refnum(refnum)
 
 /* set_query_nick: sets the query nick for the current channel to nick */
 void
-set_query_nick(nick)
-	char	*nick;
+set_query_nick(char *nick)
 {
 	char	*ptr;
 	NickList *tmp;
@@ -2427,8 +2409,7 @@ set_query_nick(nick)
 /*static	void*/
 void
 /****************************************************************************/
-irc_goto_window(which)
-	int	which;
+irc_goto_window(int which)
 {
 	Window	*tmp;
 	int	i;
@@ -2481,7 +2462,7 @@ hide_window(window)
 
 /* hide_other_windows: makes all visible windows but the current one hidden */
 static void
-hide_other_windows()
+hide_other_windows(void)
 {
 	Window	*tmp,
 		*cur,
@@ -2536,7 +2517,7 @@ list_a_window(window, len, clen)
  * by displaying their refnums, current channel, and current nick 
  */
 static	void
-list_windows()
+list_windows(void)
 {
 	Window	*tmp;
 	char	buffer[BIG_BUFFER_SIZE+1];
@@ -2602,7 +2583,7 @@ push_window_by_refnum(refnum)
  * left unchanged 
  */
 static	void
-pop_window()
+pop_window(void)
 {
 	int	refnum;
 	WindowStack *tmp;
@@ -2638,7 +2619,7 @@ pop_window()
  * the stack any window refnums that are no longer valid 
  */
 static	void
-show_stack()
+show_stack(void)
 {
 	WindowStack *last = (WindowStack *) 0,
 	    *tmp, *crap;
@@ -2685,8 +2666,7 @@ show_stack()
  * windows and returns true if the given name is unique, false otherwise 
  */
 static	int
-is_window_name_unique(name)
-	char	*name;
+is_window_name_unique(char *name)
 {
 	Window	*tmp;
 	int	flag = 1;
@@ -2859,9 +2839,7 @@ get_invisible_window(name, args)
 
 /* get_number: parses out an integer number and returns it */
 static	int
-get_number(name, args)
-	char	*name;
-	char	**args;
+get_number(char *name, char **args)
 {
 	char	*arg;
 
@@ -2878,10 +2856,7 @@ get_number(name, args)
  * was specified 
  */
 static	int
-get_boolean(name, args, var)
-	char	*name;
-	char	**args;
-	int	*var;
+get_boolean(char *name, char **args, int *var)
 {
 	char	*arg;
 
@@ -2900,10 +2875,7 @@ get_boolean(name, args, var)
 
 /*ARGSUSED*/
 void
-windowcmd(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+windowcmd(char *command, char *args, char *subargs)
 {
  	size_t	len;
 	char	*arg,
@@ -3542,7 +3514,7 @@ out:
 }
 
 int
-number_of_windows()
+number_of_windows(void)
 {
 	return (current_screen->visible_windows);
 }
@@ -3560,8 +3532,7 @@ unstop_all_windows(key, ptr)
 
 /* this will make underline toggle between 2 and -1 and never let it get to 0 */
 void
-set_underline_video(value)
-	int	value;
+set_underline_video(int value)
 {
 	if (value == OFF)
 		underline = -1;
@@ -3714,7 +3685,7 @@ Window *wind;
 }
 
 /* Clean up all memory related to window */
-void CleanUpWindows() {
+void CleanUpWindows(void) {
     Screen *tmpscreen;
     Screen *tmpscreenfree;
     Window *tmpwindow;

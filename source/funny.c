@@ -68,17 +68,13 @@ static	int	funny_max;
 static	int	funny_flags;
 
 void
-funny_match(stuff)
-	char	*stuff;
+funny_match(char *stuff)
 {
 	malloc_strcpy(&match_str, stuff);
 }
 
 void
-set_funny_flags(min, max, flags)
-	int	min,
-		max,
-		flags;
+set_funny_flags(int min, int max, int flags)
 {
 	funny_min = min;
 	funny_max = max;
@@ -101,9 +97,7 @@ static	int	funny_widelist_users _((WideList **, WideList **));
 static	int	funny_widelist_names _((WideList **, WideList **));
 
 static	int
-funny_widelist_users(left, right)
-	WideList	**left,
-			**right;
+funny_widelist_users(WideList **left, WideList **right)
 {
 	if ((**left).users > (**right).users)
 		return -1;
@@ -114,9 +108,7 @@ funny_widelist_users(left, right)
 }
 
 static	int
-funny_widelist_names(left, right)
-	WideList	**left,
-			**right;
+funny_widelist_names(WideList **left, WideList **right)
 {
 	int	comp;
 
@@ -132,7 +124,7 @@ funny_widelist_names(left, right)
 
 
 void
-funny_print_widelist()
+funny_print_widelist(void)
 {
 	int	i;
 	char	buffer1[BIG_BUFFER_SIZE+1];
@@ -184,9 +176,7 @@ funny_print_widelist()
 
 /*ARGSUSED*/
 void
-funny_list(from, ArgList)
-	char	*from;
-	char	**ArgList;
+funny_list(char *from, char **ArgList)
 {
 	char	*channel,
 		*user_cnt,
@@ -275,9 +265,7 @@ funny_list(from, ArgList)
 }
 
 void
-funny_namreply(from, Args)
-	char	*from;
-	char	**Args;
+funny_namreply(char *from, char **Args)
 {
 	char	*type,
 		*nick,
@@ -376,9 +364,7 @@ out:
 }
 
 void
-funny_mode(from, ArgList)
-	char	*from,
-		**ArgList;
+funny_mode(char *from, char **ArgList)
 {
 	char	*mode, *channel;
 	ChannelList	*tmp = (ChannelList *) 0;
@@ -460,8 +446,7 @@ funny_mode(from, ArgList)
 }
 
 /**************************** PATCHED by Flier ******************************/
-void update_user_mode(modes)
-char *modes;
+void update_user_mode(char *modes)
 {
     int	onoff = 1;
 
@@ -477,7 +462,7 @@ char *modes;
     }
 }
 
-void reinstate_user_modes()
+void reinstate_user_modes(void)
 {
     int  i;
     char modes[64]; /* more than enough */

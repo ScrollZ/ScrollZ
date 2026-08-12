@@ -365,11 +365,7 @@ DCC_list *Client;
     if (away_set || LogOn) AwaySave(tmpbuf1,SAVEDCC);
 }
 
-static void PrintError(type,user,description,error)
-char *type;
-char *user;
-char *description;
-char *error;
+static void PrintError(char *type, char *user, char *description, char *error)
 {
     char *tmpstr="to";
     char tmpbuf1[mybufsize/4];
@@ -523,7 +519,7 @@ dcc_erase(Element)
 }
 
 static	void
-dcc_really_erase()
+dcc_really_erase(void)
 {
 	struct deadlist *dies;
 
@@ -540,8 +536,7 @@ dcc_really_erase()
  * be checked for data.
  */
 void
-set_dcc_bits(rd, wd)
-	fd_set	*rd, *wd;
+set_dcc_bits(fd_set *rd, fd_set *wd)
 {
 	DCC_list	*Client;
 
@@ -567,9 +562,7 @@ set_dcc_bits(rd, wd)
  * actions are required.
  */
 void
-dcc_check(rd, wd)
-	fd_set	*rd,
-		*wd;
+dcc_check(fd_set *rd, fd_set *wd)
 {
 	DCC_list	**Client;
 	struct	timeval	time_out;
@@ -711,8 +704,7 @@ dcc_check(rd, wd)
  * Process a DCC command from the user.
  */
 void
-process_dcc(args)
-	char	*args;
+process_dcc(char *args)
 {
 	char	*command;
 	int	i;
@@ -922,8 +914,7 @@ dcc_open(Client)
 /*static void*/
 void
 /****************************************************************************/
-dcc_chat(args)
-	char	*args;
+dcc_chat(char *args)
 {
 	char	*user;
 	DCC_list	*Client;
@@ -945,8 +936,7 @@ dcc_chat(args)
 
 #ifndef LITE
 char	*
-dcc_raw_listen(iport)
- 	u_int	iport;
+dcc_raw_listen(u_int iport)
 {
 	DCC_list	*Client;
 	char	PortName[10];
@@ -1005,9 +995,7 @@ dcc_raw_listen(iport)
 }
 
 char	*
-dcc_raw_connect(host, iport)
-	char	*host;
- 	u_int	iport;
+dcc_raw_connect(char *host, u_int iport)
 {
 	DCC_list	*Client;
 	char	PortName[10];
@@ -1334,8 +1322,7 @@ send_talk_control(Client, MessageType)
 /*static	void*/
 void
 /****************************************************************************/
-dcc_filesend(args)
-	char	*args;
+dcc_filesend(char *args)
 {
 	char	*user;
 	char	*filename,
@@ -1435,8 +1422,7 @@ dcc_filesend(args)
 
 /**************************** PATCHED by Flier ******************************/
 void
-dcc_resend(args)
-	char	*args;
+dcc_resend(char *args)
 {
 	char	*user;
 	char	*filename,
@@ -1524,8 +1510,7 @@ dcc_resend(args)
 /*static	void*/
 void
 /****************************************************************************/
-dcc_getfile(args)
-	char	*args;
+dcc_getfile(char *args)
 {
 	char	*user;
 	char	*filename;
@@ -1612,8 +1597,7 @@ dcc_getfile(args)
 
 #ifdef BROKEN_MIRC_RESUME
 void
-dcc_getfile_resume(args)
-	char	*args;
+dcc_getfile_resume(char *args)
 {
 	char		*user;
 	char		*filename;
@@ -1674,11 +1658,7 @@ dcc_getfile_resume(args)
 }
 
 void
-dcc_getfile_resume_demanded(user, filename, port, offset)
-	char	*user,
-		*filename,
-		*port,
-		*offset;
+dcc_getfile_resume_demanded(char *user, char *filename, char *port, char *offset)
 {
 	DCC_list	*Client;
 
@@ -1695,11 +1675,7 @@ dcc_getfile_resume_demanded(user, filename, port, offset)
 }
 
 void
-dcc_getfile_resume_start(user, filename, port, offset)
-	char	*user,
-		*filename,
-		*port,
-		*offset;
+dcc_getfile_resume_start(char *user, char *filename, char *port, char *offset)
 {
 	DCC_list	*Client;
 
@@ -1719,8 +1695,7 @@ dcc_getfile_resume_start(user, filename, port, offset)
 
 /**************************** PATCHED by Flier ******************************/
 void
-dcc_regetfile(args)
-	char	*args;
+dcc_regetfile(char *args)
 {
 	char	*user;
 	char	*filename;
@@ -1819,13 +1794,7 @@ dcc_regetfile(args)
 /****************************************************************************/
 
 void
-register_dcc_offer(user, type, description, address, port, size)
-	char	*user;
-	char	*type;
-	char	*description;
-	char	*address;
-	char	*port;
-	char	*size;
+register_dcc_offer(char *user, char *type, char *description, char *address, char *port, char *size)
 {
 	DCC_list	*Client;
 	int	CType;
@@ -2690,11 +2659,7 @@ process_incoming_file(Client)
 /* flag == 1 means show it.  flag == 0 used by redirect */
 
 void
-dcc_message_transmit(user, text, type, flag)
-	char	*user;
-	char	*text;
-	int	type,
-		flag;
+dcc_message_transmit(char *user, char *text, int type, int flag)
 {
 	DCC_list	*Client;
 	char	tmp[BIG_BUFFER_SIZE+1];
@@ -2829,9 +2794,7 @@ out1:
 }
 
 void
-dcc_chat_transmit(user,	text)
-	char	*user;
-	char	*text;
+dcc_chat_transmit(char *user, char *text)
 {
 	dcc_message_transmit(user, text, DCC_CHAT, 1);
 }
@@ -2854,8 +2817,7 @@ dcc_tmsg(args)
 
 #ifndef LITE
 static	void
-dcc_send_raw(args)
-	char	*args;
+dcc_send_raw(char *args)
 {
 	char	*name;
 
@@ -2878,8 +2840,7 @@ dcc_send_raw(args)
  * dcc_list() to show the start time.
  */
 static	char	*
-dcc_time(the_time)
-	time_t	the_time;
+dcc_time(time_t the_time)
 {
 	struct	tm	*btime;
 	char	*buf;
@@ -2902,8 +2863,7 @@ dcc_time(the_time)
 }
 
 void
-dcc_list(args)
-	char	*args;
+dcc_list(char *args)
 {
 	DCC_list	*Client;
 	static	char	*format =
@@ -2948,8 +2908,7 @@ dcc_list(args)
 /*static	void*/
 void
 /****************************************************************************/
-dcc_close(args)
-	char	*args;
+dcc_close(char *args)
 {
 	DCC_list	*Client;
 	unsigned	flags;
@@ -3018,8 +2977,7 @@ out:
 /* this depends on dcc_rename() setting loglevel */
 #ifndef LITE
 static void
-dcc_chat_rename(args)
-	char	*args;
+dcc_chat_rename(char *args)
 {
 	DCC_list	*Client;
 	char	*user;
@@ -3064,8 +3022,7 @@ dcc_chat_rename(args)
 
 
 static	void
-dcc_rename(args)
-	char	*args;
+dcc_rename(char *args)
 {
 	DCC_list	*Client;
 	char	*user;
@@ -3119,7 +3076,7 @@ out:
  */
 
 void
-close_all_dcc()
+close_all_dcc(void)
 {
 	DCC_list *Client;
 
@@ -3136,7 +3093,7 @@ close_all_dcc()
    returns 1 if system stores numbers in little indian/big indian order,
    returns 0 if system stores numbers in big indian/little indian order.
  */
-unsigned char byteordertest()
+unsigned char byteordertest(void)
 {
     unsigned short test=DCC_PACKETID;
 
@@ -3160,10 +3117,7 @@ add_to_dcc_buffer(Client, buf)
 	}
 }
 
-void dcc_reject(user, type, filename)
-char *user;
-char *type;
-char *filename;
+void dcc_reject(char *user, char *type, char *filename)
 {
     int i;
     DCC_list *Client;

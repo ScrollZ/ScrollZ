@@ -72,7 +72,7 @@ death()
  * pty as the master device and the tty as the slace device 
  */
 static void
-setup_master_slave()
+setup_master_slave(void)
 {
 	char	line[11];
 	char	linec;
@@ -111,9 +111,7 @@ setup_master_slave()
  * process is fooled into flushing each line of output as it occurs.  
  */
 int
-main(argc, argv)
-	int	argc;
-	char	**argv;
+main(int argc, char **argv)
 {
 	char	buffer[BUFFER_SIZE];
 	int	cnt;

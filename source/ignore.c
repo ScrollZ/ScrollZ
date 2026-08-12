@@ -97,9 +97,7 @@ typedef struct	IgnoreStru
 static	Ignore *ignored_nicks = NULL;
 
 static	int
-ignore_usernames_mask(mask, thing)
-	int	mask;
-	int	thing;
+ignore_usernames_mask(int mask, int thing)
 {
 	int	i;
 	int	p;
@@ -126,11 +124,7 @@ static	void
 	char	*nick;
 	int	type;
 	int	flag;*/
-ignore_nickname(nick, type, flag, timedignore)
-	char	*nick;
-	int	type;
-        int	flag;
-        char    *timedignore;
+ignore_nickname(char *nick, int type, int flag, char *timedignore)
 /***************************************************************************/
 {
 	Ignore	*new;
@@ -309,8 +303,7 @@ ignore_nickname(nick, type, flag, timedignore)
 /*static	int*/
 static void
 /****************************************************************************/
-remove_ignore(nick)
-	char	*nick;
+remove_ignore(char *nick)
 {
 	Ignore	*tmp;
 /**************************** PATCHED by Flier ******************************/
@@ -355,9 +348,7 @@ remove_ignore(nick)
  * returned.
  */
 int
-is_ignored(nick, type)
-	char	*nick;
-	int	type;
+is_ignored(char *nick, int type)
 {
 	Ignore	*tmp;
 
@@ -382,8 +373,7 @@ is_ignored(nick, type)
 
 /* ignore_list: shows the entired ignorance list */
 static	void
-ignore_list(nick)
-	char	*nick;
+ignore_list(char *nick)
 {
 	Ignore	*tmp;
  	size_t	len = 0;
@@ -600,10 +590,7 @@ ignore_list(nick)
  */
 /*ARGSUSED*/
 void
-ignore(command, args, subargs)
-	char	*command,
-		*args,
-		*subargs;
+ignore(char *command, char *args, char *subargs)
 {
 	char	*nick,
 		*type;
@@ -685,8 +672,7 @@ NOTICES NOTES CTCPS CRAP PART JOIN NICK QUIT NONE");
  * for highlighting..  either BOLD, INVERSE, or UNDERLINE..
  */
 void
-set_highlight_char(s)
-	char	*s;
+set_highlight_char(char *s)
 {
  	size_t	len;
 
@@ -714,9 +700,7 @@ set_highlight_char(s)
 }
 
 int
-ignore_combo(flag1, flag2)
-	int	flag1;
-	int	flag2;
+ignore_combo(int flag1, int flag2)
 {
         if (flag1 == DONT_IGNORE || flag2 == DONT_IGNORE)
                 return DONT_IGNORE;
@@ -732,10 +716,7 @@ ignore_combo(flag1, flag2)
  * added, april 1993, phone.
  */
 int
-double_ignore(nick, userhost, type)
-	char	*nick,
-		*userhost;
-	int	type;
+double_ignore(char *nick, char *userhost, int type)
 {
 /**************************** Patched by Flier ******************************/
         int isignored;
@@ -774,8 +755,7 @@ double_ignore(nick, userhost, type)
 }
 
 int
-get_ignore_type(type)
-	char	*type;
+get_ignore_type(char *type)
 {
 	size_t len = strlen(type);
 	int rv;
@@ -822,7 +802,7 @@ get_ignore_type(type)
 
 /**************************** PATCHED by Flier ******************************/
 /* Clean up allocated memory */
-void CleanUpIgnore() {
+void CleanUpIgnore(void) {
     Ignore *tmpignore;
 
     while (ignored_nicks) {
@@ -834,8 +814,7 @@ void CleanUpIgnore() {
 }
 
 /* Save ignore list */
-int IgnoreSave(fp)
-FILE *fp;
+int IgnoreSave(FILE *fp)
 {
     int count = 0;
     char *tmpstr;

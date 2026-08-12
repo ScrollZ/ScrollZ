@@ -217,7 +217,7 @@ alarmed()
 }
 
 void
-real_status_alarmed()
+real_status_alarmed(void)
 {
 	char	time_str[16];
 
@@ -234,8 +234,7 @@ real_status_alarmed()
  * and signal stuff are reset 
  */
 static	void
-alarm_switch(flag)
-	int	flag;
+alarm_switch(int flag)
 {
 	static	int	alarm_on = 0;
 
@@ -266,8 +265,7 @@ alarm_switch(flag)
  * case, "OFF", which sets the alarm string to null 
  */
 void
-set_alarm(str)
-	char	*str;
+set_alarm(char *str)
 {
 	char	hours[10],
 		minutes[10],
@@ -465,8 +463,7 @@ update_clock(buf, len, flag)
 
 /*ARGSUSED*/
 void
-reset_clock(unused)
-	char	*unused;
+reset_clock(char *unused)
 {
 	update_clock(0, 0, RESET_TIME);
 	update_all_status();
@@ -475,10 +472,7 @@ reset_clock(unused)
 /**************************** PATCHED by Flier ******************************/
 /* Insert SBAR color into buffer - for status bar */
 #ifdef WANTANSI
-void InsertStatusColor(ccode,buffer,bufsize)
-char ccode;
-char *buffer;
-int  bufsize;
+void InsertStatusColor(int ccode, char *buffer, int bufsize)
 {
     char *color=empty_string;
 
@@ -542,9 +536,7 @@ int  bufsize;
  * mallocs the returned string. 
  */
 static	char	*
-convert_sub_format(format, c)
-	char	*format;
-	int	c;
+convert_sub_format(char *format, int c)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	static	char	bletch[] = "%% ";
@@ -592,9 +584,7 @@ convert_sub_format(format, c)
 }
 
 static	char	*
-convert_format(format, k)
-	char	*format;
-	int	k;
+convert_format(char *format, int k)
 {
 	char	lbuf[BIG_BUFFER_SIZE + 1];
 	char	*ptr,
@@ -1050,8 +1040,7 @@ convert_format(format, k)
 }
 
 void
-build_status(format)
-	char	*format;
+build_status(char *format)
 {
 	int	i, k;
 
@@ -1092,9 +1081,7 @@ build_status(format)
 /**************************** PATCHED by Flier ******************************/
 #ifdef CELE
 void
-Cquick_status(format,qstat)
-char *format;
-int qstat;
+Cquick_status(char *format, int qstat)
 {
     int	i,k;
 

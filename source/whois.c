@@ -105,8 +105,7 @@ static	void	(*whois_func_head _((int))) _((WhoisStuff *, char *, char *));
 static	WhoisQueue	*remove_from_whois_queue _((int));
 
 void
-set_beep_on_msg(str)
-	char	*str;
+set_beep_on_msg(char *str)
 {
 	beep_on_level = parse_lastlog_level(str);
 	set_string_var(BEEP_ON_MSG_VAR, bits_to_lastlog_level(beep_on_level));
@@ -117,8 +116,7 @@ set_beep_on_msg(str)
  * NULL if the queue is empty.  It does not modify the queue in any way. 
  */
 static	char	*
-whois_queue_head(server_index)
-int	server_index;
+whois_queue_head(int server_index)
 {
 	if ((WQ_head = (WhoisQueue *) get_server_qhead(server_index)) != NULL)
 		return (WQ_head->nick);
@@ -127,8 +125,7 @@ int	server_index;
 }
 
 static	int
-whois_type_head(server_index)
-int	server_index;
+whois_type_head(int server_index)
 {
 	if ((WQ_head = (WhoisQueue *) get_server_qhead(server_index)) != NULL)
 		return (WQ_head->type);
@@ -171,7 +168,7 @@ int	server_index;
  * queue 
  */
 void
-clean_whois_queue()
+clean_whois_queue(void)
 {
 	WhoisQueue *thing;
 
@@ -194,9 +191,7 @@ clean_whois_queue()
  */
 /*ARGSUSED*/
 void
-ison_returned(from, ArgList)
-	char	*from,
-		**ArgList;
+ison_returned(char *from, char **ArgList)
 {
 	WhoisQueue *thing;
 
@@ -247,9 +242,7 @@ ison_returned(from, ArgList)
  */
 /*ARGSUSED*/
 void
-userhost_returned(from, ArgList)
-	char	*from,
-		**ArgList;
+userhost_returned(char *from, char **ArgList)
 {
 	WhoisQueue *thing;
 	WhoisStuff *whois_stuff = NULL;
@@ -386,9 +379,7 @@ userhost_returned(from, ArgList)
  * channel() in edit.c 
  */
 void
-whois_name(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_name(char *from, char **ArgList)
 {
 	char	*nick,
 		*user,
@@ -443,9 +434,7 @@ whois_name(from, ArgList)
  * and has set the AUTO_WHOWAS variable.
  */
 void
-whowas_name(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whowas_name(char *from, char **ArgList)
 {
 	char	*nick,
 		*user,
@@ -499,9 +488,7 @@ whowas_name(from, ArgList)
 }
 
 void
-whois_channels(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_channels(char *from, char **ArgList)
 {
 	char	*ptr;
 	char	*line;
@@ -541,9 +528,7 @@ whois_channels(from, ArgList)
  * between the whois name being received and the server.
  */
 void
-whois_server(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_server(char *from, char **ArgList)
 {
 	char	*server,
 		*ptr;
@@ -589,9 +574,7 @@ whois_server(from, ArgList)
  * nothing is dispayed. 
  */
 void
-whois_oper(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_oper(char *from, char **ArgList)
 {
 	WhoisStuff *whois_stuff;
 
@@ -637,9 +620,7 @@ whois_oper(from, ArgList)
 
 /**************************** Patched by Flier ******************************/
 /* by braneded */
-void whois_admin(from,ArgList)
-char *from;
-char **ArgList;
+void whois_admin(char *from, char **ArgList)
 {
     if (!ignore_whois_crap) {
         char *nick;
@@ -671,9 +652,7 @@ char **ArgList;
 }
 
 /* by flashback */
-void whois_secure(from,ArgList)
-    char *from;
-    char **ArgList;
+void whois_secure(char *from, char **ArgList)
 {
     if (!ignore_whois_crap) {
         char *nick;
@@ -705,9 +684,7 @@ void whois_secure(from,ArgList)
 }
 
 /* by braneded */
-void whois_identified(from,ArgList)
-char *from;
-char **ArgList;
+void whois_identified(char *from, char **ArgList)
 {
     if (!ignore_whois_crap) {
         char *nick;
@@ -738,9 +715,7 @@ char **ArgList;
     }
 }
 
-void whois_actually(from,ArgList)
-char *from;
-char **ArgList;
+void whois_actually(char *from, char **ArgList)
 {
     if (!ignore_whois_crap) {
         char *nick;
@@ -773,9 +748,7 @@ char **ArgList;
     }
 }
 
-void whois_connecting(from, ArgList)
-char *from;
-char **ArgList;
+void whois_connecting(char *from, char **ArgList)
 {
     if (!ignore_whois_crap) {
         char *str;
@@ -825,9 +798,7 @@ char **ArgList;
 /****************************************************************************/
 
 void
-whois_lastcom(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_lastcom(char *from, char **ArgList)
 {
 	if (!ignore_whois_crap)
 	{
@@ -938,9 +909,7 @@ whois_lastcom(from, ArgList)
  * nothing is dispayed. 
  */
 void
-whois_chop(from, ArgList)
-	char	*from;
-	char	**ArgList;
+whois_chop(char *from, char **ArgList)
 {
 	WhoisStuff *whois_stuff;
 
@@ -966,9 +935,7 @@ whois_chop(from, ArgList)
 }
 
 void
-end_of_whois(from, ArgList)
-	char	*from;
-	char	**ArgList;
+end_of_whois(char *from, char **ArgList)
 {
 	char	*nick;
 	char	*ptr;
@@ -1035,12 +1002,7 @@ end_of_whois(from, ArgList)
 void
 /**************************** PATCHED by Flier ******************************/
 /*no_such_nickname(from, ArgList)*/
-no_such_nickname(from,ArgList,dontshow)
-/****************************************************************************/
-	char	*from,
-		**ArgList;
-/**************************** PATCHED by Flier ******************************/
-        int     dontshow;
+no_such_nickname(char *from, char **ArgList, int dontshow)
 /****************************************************************************/
 {
 	char	*nick;
@@ -1126,9 +1088,7 @@ no_such_nickname(from,ArgList,dontshow)
  */
 /*ARGSUSED*/
 void
-user_is_away(from, ArgList)
-	char	*from,
-		**ArgList;
+user_is_away(char *from, char **ArgList)
 {
 	static	char	*last_away_msg = (char *) 0,
 			*last_away_nick = (char *) 0;
@@ -1391,7 +1351,7 @@ whois_ignore_walls(stuff, nick, text)
 }
 
 void
-convert_to_whois()
+convert_to_whois(void)
 {
 	char	*NextAsked;
 	char	*Names;
@@ -1600,14 +1560,12 @@ add_ison_to_whois(nick, func)
 
 /**************************** PATCHED by Flier ******************************/
 void
-add_userhost_to_whois(nick, func)
-	char	*nick;
-	void	(*func)();
+add_userhost_to_whois(char *nick, void (*func)(void))
 {
 #ifdef HAVE_STDARG_H
 	va_list vlist;
 
-	typed_add_to_whois_queue(WHOIS_USERHOST, nick, func, (char *) 0, vlist);
+	typed_add_to_whois_queue(WHOIS_USERHOST, nick, (void (*)(WhoisStuff *, char *, char *))func, (char *) 0, vlist);
 #else
 	typed_add_to_whois_queue(WHOIS_USERHOST, nick, func, (char *) 0, 0);
 #endif /* HAVE_STDARG_H */

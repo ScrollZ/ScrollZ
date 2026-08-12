@@ -49,11 +49,7 @@ static int whowas_userlist_count=0;
 static int whowas_reg_count=0;
 static int whowas_chan_count=0;
 
-extern WhowasList *check_whowas_buffer(nick,userhost,channel,unlink)
-char *nick;
-char *userhost;
-char *channel;
-int  unlink;
+extern WhowasList *check_whowas_buffer(char *nick, char *userhost, char *channel, int unlink)
 {
     WhowasList *tmp;
     WhowasList *last=(WhowasList *) 0;
@@ -193,14 +189,13 @@ int count;
     return(total);
 }
 
-void clean_whowas_list() {
+void clean_whowas_list(void) {
     whowas_userlist_count-=remove_oldest_whowas(&whowas_userlist_list,25*60,0);
     whowas_reg_count-=remove_oldest_whowas(&whowas_reg_list,15*60,0);
 }
 
 /* Used to rehash whowas listings for new users */
-void synch_whowas_adduser(added)
-struct friends *added;
+void synch_whowas_adduser(struct friends *added)
 {
     WhowasList *tmp;
     char user[mybufsize/2];
@@ -234,8 +229,7 @@ struct friends *added;
 }
 
 /* Used to rehash whowas listings for removed userlist entries */
-void synch_whowas_unuser(entry)
-struct friends *entry;
+void synch_whowas_unuser(struct friends *entry)
 {
     WhowasList *tmp;
 
@@ -264,8 +258,7 @@ struct friends *entry;
 }
 
 /* Used to rehash whowas listings for new shitlist entries */
-void synch_whowas_addshit(added)
-struct autobankicks *added;
+void synch_whowas_addshit(struct autobankicks *added)
 {
     WhowasList *tmp;
     char user[BIG_BUFFER_SIZE+1];
@@ -299,8 +292,7 @@ struct autobankicks *added;
 }
 
 /* Used to rehash whowas listings for removed shitlist entries */
-void synch_whowas_unshit(entry)
-struct autobankicks *entry;
+void synch_whowas_unshit(struct autobankicks *entry)
 {
     WhowasList *tmp;
 
@@ -442,12 +434,12 @@ int count;
     return(total);
 }
 
-void clean_whowas_chan_list() {
+void clean_whowas_chan_list(void) {
     whowas_chan_count-=remove_oldest_chan_whowas(&whowas_chan_list,24*60*60,0);
 }
 
 /* Clean up memory used by whowas lists */
-void CleanUpWhowas() {
+void CleanUpWhowas(void) {
     Trace(SZ_TRACE_WHOWAS, "clean up whowas");
     remove_oldest_whowas(&whowas_userlist_list,0,whowas_userlist_max);
     remove_oldest_whowas(&whowas_reg_list,0,whowas_reg_max);

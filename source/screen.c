@@ -70,7 +70,7 @@
 
 #ifdef WANTANSI
 extern  int  CountAnsi _((char *, int));
-extern  int  vt100Decode _((char));
+extern  int  vt100Decode _((int));
 extern  void FixColorAnsi _((char *));
 extern  void ConvertmIRC _((char *, char *));
 #endif
@@ -129,9 +129,7 @@ void debugit(char *format,...) {
 #endif
 
 #ifdef SZNCURSES
-void my_addstr(str,len)
-char *str;
-int len;
+void my_addstr(char *str, int len)
 {
     if (len) {
 #ifdef WANTANSI
@@ -297,9 +295,7 @@ set_current_screen(screen)
  * to who.  Setting who to null disables this 
  */
 void
-window_redirect(who, server)
-	char	*who;
-	int	server;
+window_redirect(char *who, int server)
 {
 	char	buf[BIG_BUFFER_SIZE+1];
 
@@ -313,8 +309,7 @@ window_redirect(who, server)
 }
 
 int
-check_screen_redirect(nick)
-	char	*nick;
+check_screen_redirect(char *nick)
 {
 	Screen	*screen,
 		*tmp_screen;
@@ -480,8 +475,7 @@ scroll_window(window)
 
 /* display_highlight: turns off and on the display highlight.  */
 static	char
-display_highlight(flag)
-	int	flag;
+display_highlight(int flag)
 {
 	static	int	highlight = OFF;
 
@@ -521,8 +515,7 @@ display_highlight(flag)
 
 /* display_bold: turns off and on the display bolding.  */
 static	char
-display_bold(flag)
-	int	flag;
+display_bold(int flag)
 {
 	static	int	bold = OFF;
 
@@ -735,9 +728,7 @@ display_nonshift(void)
  * Return value: Number of columns printed
  */
 int
-output_line(str, startpos)
-	char	*str;
-	int	startpos;
+output_line(char *str, int startpos)
 {
 	static	int	high = OFF,
 			bold = OFF;
@@ -1053,7 +1044,7 @@ rite(window, str, show, redraw, backscroll, logged)
  * cursor upon its next call 
  */
 void
-cursor_not_in_display()
+cursor_not_in_display(void)
 {
 	Debug((3, "cursor_not_in_display: screen %d cursor_window set to NULL", current_screen->screennum));
 	current_screen->cursor_window = NULL;
@@ -1067,7 +1058,7 @@ cursor_not_in_display()
  * cursor down to the input line.  Dumb dumb dumb 
  */
 void
-cursor_in_display()
+cursor_in_display(void)
 {
 	Debug((3, "cursor_in_display: screen %d cursor_window set to window %d (%d)", current_screen->screennum, curr_scr_win->refnum, curr_scr_win->screen->screennum));
 	current_screen->cursor_window = curr_scr_win;
@@ -1078,7 +1069,7 @@ cursor_in_display()
  * (cursor_window is not null), false otherwise 
  */
 int
-is_cursor_in_display()
+is_cursor_in_display(void)
 {
 	if  (current_screen->cursor_window)
 		return (1);
@@ -1221,7 +1212,7 @@ resize_display(window)
  * window size proportionality is lost 
  */
 void
-recalculate_windows()
+recalculate_windows(void)
 {
 	int	base_size,
 	size,
@@ -1289,8 +1280,7 @@ clear_window(window)
 
 /* clear_all_windows: This clears all *visible* windows */
 void
-clear_all_windows(unhold)
-	int	unhold;
+clear_all_windows(int unhold)
 {
 	Window	*tmp;
 
@@ -1377,7 +1367,7 @@ redraw_window(window, just_one, backscroll)
  * the windows 
  */
 void
-recalculate_window_positions()
+recalculate_window_positions(void)
 {
 	Window	*tmp;
 	int	top;
@@ -1399,7 +1389,7 @@ recalculate_window_positions()
  * nothing for the input line of the screen.  Only visible windows are drawn 
  */
 void
-redraw_all_windows()
+redraw_all_windows(void)
 {
 	Window	*tmp;
 
@@ -1412,8 +1402,7 @@ redraw_all_windows()
 /* strlen() with internal format codes stripped */
 /* Return value: number of columns this string takes */
 int
-my_strlen_i(c)
-	char *c;
+my_strlen_i(char *c)
 {
 	int result = 0;
 	
@@ -1446,8 +1435,7 @@ my_strlen_i(c)
 /* strlen() with colour codes stripped */
 /* Return value: number of columns this string takes */
 int
-my_strlen_c(c)
-	char *c;
+my_strlen_c(char *c)
 {
 	int result = 0;
 	
@@ -1490,8 +1478,7 @@ my_strlen_c(c)
 /* Doesn't do actual conversion */
 /* Return value: Number of bytes this string takes when converted */
 int
-my_strlen_ci(c)
-	char *c;
+my_strlen_ci(char *c)
 {
 	int result = 0;
 
@@ -1524,9 +1511,7 @@ my_strlen_ci(c)
 /* strcpy() with colour codes converted to internal codes */
 /* Converts the codes */
 void
-my_strcpy_ci(dest, c)
-	char *dest;
-	char *c;
+my_strcpy_ci(char *dest, char *c)
 {
 	struct mb_data mbdata;
 #ifdef HAVE_ICONV_OPEN
@@ -1566,8 +1551,7 @@ my_strcpy_ci(dest, c)
 
 #define	MAXIMUM_SPLITS	40
 static	char	**
-split_up_line(str)
-	char	*str;
+split_up_line(char *str)
 {
 	static	char	*output[MAXIMUM_SPLITS] =
 	{ 
@@ -2172,7 +2156,7 @@ add_to_screen(incoming)
  * necessary portions according the the update field of the window. 
  */
 void
-update_all_windows()
+update_all_windows(void)
 {
 	Window	*tmp;
 	int	fast_window,
@@ -2334,7 +2318,7 @@ new_window()
 }
 
 void
-close_all_screen()
+close_all_screen(void)
 {
 	Screen *screen;
 
@@ -2848,8 +2832,7 @@ display_lastlog_lines(start, end, window)
  * internal functions here.
  */
 static	void
-scrollback_backwards_lines(ScrollDist)
-	int	ScrollDist;
+scrollback_backwards_lines(int ScrollDist)
 {
 	Window	*window;
 	int totallines;
@@ -2918,8 +2901,7 @@ scrollback_backwards_lines(ScrollDist)
 }
 
 static	void
-scrollback_forwards_lines(ScrollDist)
-	int	ScrollDist;
+scrollback_forwards_lines(int ScrollDist)
 {
 	Window	*window;
 
