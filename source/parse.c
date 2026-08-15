@@ -1259,7 +1259,7 @@ p_channel(char *from, char **ArgList)
                             if (chan && chan->gotwho) *tmpbuf = '\0';
                             else snprintf(tmpbuf,sizeof(tmpbuf), "WHO %s", channel);
                             if (*channel != '+') {
-                                snprintf(&tmpbuf[strlen(tmpbuf)], sizeof(tmpbuf),
+                                snprintf(&tmpbuf[strlen(tmpbuf)], sizeof(tmpbuf) - strlen(tmpbuf),
                                         "\r\nMODE %s\r\nMODE %s e\r\nMODE %s b",
                                         channel, channel, channel);
                             }
@@ -1857,7 +1857,7 @@ p_part(char *from, char **ArgList)
 
                             snprintf(tmpbuf2, sizeof(tmpbuf2), "%s has left channel %s", from, channel);
                             if (comment && *comment)
-                                snprintf(&tmpbuf2[strlen(tmpbuf2)], sizeof(tmpbuf2), "(%s)", comment);
+                                snprintf(&tmpbuf2[strlen(tmpbuf2)], sizeof(tmpbuf2) - strlen(tmpbuf2), "(%s)", comment);
                             ChannelLogSave(tmpbuf2, chan);
                         }
                     }
