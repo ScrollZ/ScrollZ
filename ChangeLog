@@ -16,6 +16,10 @@ ScrollZ
     ! more crashes when disconnected
     ! compilation with modern compilers such as gcc 14 or Clang 21
       (patch by Pascal Jäger with some modifications)
+    ! crash upon joining a channel with FORTIFY_SOURCE
+      (patch by patryksg)
+    ~ mIRC colours should now be rendered much closer to original
+      mIRC colours, requires 256 colour terminal (patch by patryksg)
 
 ------------------------------------------------------------------------------
 
