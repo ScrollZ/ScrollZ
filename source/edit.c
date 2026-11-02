@@ -79,6 +79,8 @@
 #include "struct.h"
 #include "myvars.h"
 /****************************************************************************/
+#include "colorhash.h"
+#include "msgsplit.h"
 
 /*
  * current_exec_timer - used to make sure we don't remove a timer
@@ -2876,7 +2878,7 @@ send_text(char *org_nick, char *line, char *command)
 #ifdef HAVE_ICONV_H
         if (get_int_var(HIGH_ASCII_VAR)) thing = "\342\210\231";
 #else
-        if (get_int_var(HIGH_ASCII_VAR)) thing = "ù";
+        if (get_int_var(HIGH_ASCII_VAR)) thing = "ï¿½";
 #endif /* HAVE_ICONV_H */
         else thing = "-";
 /****************************************************************************/
@@ -3029,6 +3031,8 @@ send_text(char *org_nick, char *line, char *command)
 				char	*crypt_line;
 
 				if ((crypt_line = crypt_msg(line, key, 1)))
+					/* encrypted line: splitting would break
+					 * per-line decryption, so send it whole */
 					send_to_server("%s %s :%s", command, nick, crypt_line);
 				continue;
 			}
@@ -3036,6 +3040,7 @@ send_text(char *org_nick, char *line, char *command)
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
+                            /* encrypted line: see above */
                             send_to_server("%s %s :%s", command, nick, tmpbuf);
                             continue;
                         }
@@ -3097,9 +3102,12 @@ send_text(char *org_nick, char *line, char *command)
                                         CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #else  /* CELECOSM */
+                                char nbuf[COLORIZED_NICK_LEN];
+
                                 snprintf(tmpbuf, sizeof(tmpbuf), "%s<%s-%s%s%s-%s>%s",
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF],
-                                        CmdsColors[COLNOTICE].color2, nick, Colors[COLOFF],
+                                        CmdsColors[COLNOTICE].color2,
+                                        colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF],
                                         CmdsColors[COLNOTICE].color4, Colors[COLOFF]);
 #endif /* CELECOSM */
                                 put_it("%s%s%s %s%s%s", cstr, stampbuf, tmpbuf,
@@ -3117,9 +3125,12 @@ send_text(char *org_nick, char *line, char *command)
                                         CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
                                         CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #else  /* CELECOSM */
+                                char nbuf[COLORIZED_NICK_LEN];
+
                                 snprintf(tmpbuf,sizeof(tmpbuf),"%s[%s%s%s%s%s%s%s]%s",
 					CmdsColors[COLMSG].color5, Colors[COLOFF], thing,
-					CmdsColors[COLMSG].color6, nick, Colors[COLOFF],
+					CmdsColors[COLMSG].color6, 
+                                        colorize_nick(nick, nbuf, sizeof(nbuf)), Colors[COLOFF],
                                         thing, CmdsColors[COLMSG].color5, Colors[COLOFF]);
 #endif /* CELECOSM */
                                 put_it("%s%s%s %s%s%s", stampbuf, cstr, tmpbuf,
@@ -3151,6 +3162,8 @@ send_text(char *org_nick, char *line, char *command)
 				char	*crypt_line;
 
 				if ((crypt_line = crypt_msg(line, key, 1)))
+					/* encrypted line: splitting would break
+					 * per-line decryption, so send it whole */
 					send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, crypt_line);
 				continue;
 			}
@@ -3159,6 +3172,7 @@ send_text(char *org_nick, char *line, char *command)
 /**************************** PATCHED by Flier ******************************/
                         strmcpy(tmpbuf, line, sizeof(tmpbuf));
                         if (EncryptMessage(tmpbuf, nick)) {
+                            /* encrypted line: see above */
                             send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick, tmpbuf);
                             continue;
                         }
@@ -3195,7 +3209,7 @@ send_text(char *org_nick, char *line, char *command)
 
 	malloc_strcpy((char **) &sent_body, line);
 	if (do_final_send)
-		send_to_server("%s %s :%s", command ? command : "PRIVMSG", nick_list, line);
+		split_and_send(command ? command : "PRIVMSG", nick_list, line);
 	new_free(&free_nick);
 out:
  	restore_message_from();
@@ -4429,12 +4443,14 @@ describe(char *command, char *args, char *subargs)
         char    *curchan;
 #ifdef WANTANSI
         char    tmpbuf[mybufsize/2];
+        char    menbuf[COLORIZED_NICK_LEN];
+        char    tgtbuf[COLORIZED_CHANNEL_LEN];
 #endif
 
 #ifdef HAVE_ICONV_H
         if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\236";
 #else
-        if (get_int_var(HIGH_ASCII_VAR)) thing="ì";
+        if (get_int_var(HIGH_ASCII_VAR)) thing="ï¿½";
 #endif /* HAVE_ICONV_H */
         else thing="*";
 /****************************************************************************/
@@ -4473,7 +4489,7 @@ describe(char *command, char *args, char *subargs)
                         malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
                         put_it("%s%s%s %s%s%s %s%s%s",
                                tmpstr,thing,Colors[COLOFF],
-                               CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
+                               CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF],
                                CmdsColors[COLME].color5,message,Colors[COLOFF]);
                         new_free(&tmpstr);
 #else
@@ -4484,9 +4500,9 @@ describe(char *command, char *args, char *subargs)
                     else {
 #ifdef WANTANSI
                         snprintf(tmpbuf,sizeof(tmpbuf),"<%s%s%s> %s%s%s %s%s%s",
-                               CmdsColors[COLME].color4,target,Colors[COLOFF],
+                               CmdsColors[COLME].color4,is_channel(target)?colorize_channel(target, tgtbuf, sizeof(tgtbuf)):colorize_nick(target, tgtbuf, sizeof(tgtbuf)),Colors[COLOFF],
                                CmdsColors[COLME].color1,thing,Colors[COLOFF],
-                               CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF]);
+                               CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF]);
                         put_it("%s%s %s%s%s",stampbuf,tmpbuf,
                               CmdsColors[COLME].color5,message,Colors[COLOFF]);
 #else
@@ -4521,11 +4537,14 @@ me(char *command, char *args, char *subargs)
 {
 /**************************** PATCHED by Flier ******************************/
         char *thing;
+#ifdef WANTANSI
+        char    menbuf[COLORIZED_NICK_LEN];
+#endif
 
 #ifdef HAVE_ICONV_H
         if (get_int_var(HIGH_ASCII_VAR)) thing="\342\210\236";
 #else
-        if (get_int_var(HIGH_ASCII_VAR)) thing="ì";
+        if (get_int_var(HIGH_ASCII_VAR)) thing="ï¿½";
 #endif /* HAVE_ICONV_H */
         else thing="*";
 /****************************************************************************/
@@ -4574,7 +4593,7 @@ me(char *command, char *args, char *subargs)
                             malloc_strcat(&tmpstr,CmdsColors[COLME].color1);
                             put_it("%s%s%s %s%s%s %s%s%s",
                                     tmpstr,thing,Colors[COLOFF],
-                                    CmdsColors[COLME].color2,get_server_nickname(from_server),Colors[COLOFF],
+                                    CmdsColors[COLME].color2,colorize_nick(get_server_nickname(from_server), menbuf, sizeof(menbuf)),Colors[COLOFF],
                                     CmdsColors[COLME].color5,message,Colors[COLOFF]);
                             new_free(&tmpstr);
 #else

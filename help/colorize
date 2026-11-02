@@ -1,0 +1,35 @@
+!	 $Id: colorize $
+!
+! Copyright (c) 1994-2026 Flier
+!
+! All rights reserved.  See the HELP SCROLLZ COPYRIGHT file for more
+! information.
+!
+Usage: see SET COLORIZE_NICKS, COLORIZE_CHANNELS, COLORIZE_WARP
+  ScrollZ can colour nicknames and channel names automatically.
+  Every name is given a colour computed from the name itself, so a
+  given nick or channel always appears in the same colour - across
+  every window, every message type and every session. This makes it
+  easier to follow who is talking and which channel a line came
+  from, without any manual colour setup.
+
+  The feature is controlled entirely through SET variables:
+
+    SET COLORIZE_NICKS ON|OFF      colour nicknames     (default ON)
+    SET COLORIZE_CHANNELS ON|OFF   colour channel names (default ON)
+    SET COLORIZE_WARP <number>     reshuffle the colours (default 0)
+
+  Colours come from a fixed palette chosen for legibility on dark
+  terminals, and only the name itself is wrapped -
+  mIRC colour codes and the rest of the line are left untouched.
+
+  Colours are only shown when SET DISPLAY_ANSI is ON. This automatic
+  colouring is separate from the COLOR command, which sets the fixed
+  colours used for event types such as joins and kicks.
+
+See Also:
+  SET COLORIZE_NICKS
+  SET COLORIZE_CHANNELS
+  SET COLORIZE_WARP
+  SET DISPLAY_ANSI
+  COLOR

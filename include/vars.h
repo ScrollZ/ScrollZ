@@ -103,6 +103,11 @@ enum {
 	CLOCK_24HOUR_VAR,
 	CLOCK_ALARM_VAR,
 	CMDCHARS_VAR,
+/**************************** PATCHED by Flier ******************************/
+	COLORIZE_CHANNELS_VAR,
+	COLORIZE_NICKS_VAR,
+	COLORIZE_WARP_VAR,
+/****************************************************************************/
 	COMMAND_MODE_VAR,
 	CONTINUED_LINE_VAR,
 	CTCP_REPLY_BACKLOG_SECONDS_VAR,

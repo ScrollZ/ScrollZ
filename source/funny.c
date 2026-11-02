@@ -48,6 +48,7 @@
 #include "numbers.h"
 #include "parse.h"
 #include "screen.h"
+#include "colorhash.h"
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
@@ -258,7 +259,22 @@ funny_list(char *from, char **ArgList)
 			else
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, channel, user_cnt, line);*/
+#ifdef WANTANSI
+			{
+				char cbuf[mybufsize/4];
+
+				if (last_width) {
+					colorize_and_pad(channel, last_width, cbuf, sizeof(cbuf), 0, 1);
+					say("*** %s %-5s  %s", cbuf, user_cnt, line);
+				}
+				else {
+					colorize_channel(channel, cbuf, sizeof(cbuf));
+					say("%s\t%-5s  %s", cbuf, user_cnt, line);
+				}
+			}
+#else
 				say(format, channel, user_cnt, line);
+#endif
 /****************************************************************************/
 		}
 	}
@@ -331,6 +347,29 @@ funny_namreply(char *from, char **Args)
 		if (do_hook(current_numeric, "%s %s %s %s", from, type, channel,
 			line) && do_hook(NAMES_LIST, "%s %s", channel, line))
 		{
+#ifdef WANTANSI
+			{
+				char cbuf[COLORIZED_CHANNEL_LEN];
+
+				if (*type == '=' && last_width &&
+				    (strlen(channel) > last_width))
+				{
+					int	len;
+
+					/* hash the full name then truncate the visible field */
+					colorize_and_pad(channel, last_width, cbuf, sizeof(cbuf), 0, 1);
+					len = (int) strlen(cbuf);
+					if (len >= 6 && !strcmp(cbuf + len - 5, "\033[39m"))
+						/* replace the last visible char, inside the colour span */
+						cbuf[len - 6] = '>';
+					else if (len >= 1)
+						cbuf[len - 1] = '>';
+				}
+				else
+					colorize_channel(channel, cbuf, sizeof(cbuf));
+				say("Users on %s are : %s", cbuf, line);
+			}
+#else
 			switch (*type)
 			{
 			case '=':
@@ -342,21 +381,22 @@ funny_namreply(char *from, char **Args)
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Pub", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			case '*':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Prv", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			case '@':
 /**************************** PATCHED by Flier ******************************/
 				/*put_it(format, "Sec", channel, line);*/
 				say("Users on %s are : %s", channel, line);
-/****************************************************************************/				
+/****************************************************************************/
 				break;
 			}
+#endif
 		}
 	}
 out:
@@ -420,17 +460,21 @@ funny_mode(char *from, char **ArgList)
 					channel, mode))
 /**************************** Patched by Flier ******************************/
 				/*put_it("%s Mode for channel %s is \"%s\"",*/
+			{
 #ifdef WANTANSI
-				put_it("%sMode for channel %s%s%s is \"%s%s%s\"",
-					numeric_banner(),
-					CmdsColors[COLMODE].color3, channel,
-					Colors[COLOFF],
-                                        CmdsColors[COLMODE].color4, mode, Colors[COLOFF]);
+                            char cbuf[COLORIZED_CHANNEL_LEN];
+                            put_it("%sMode for channel %s%s%s is \"%s%s%s\"",
+                                    numeric_banner(),
+                                    CmdsColors[COLMODE].color3,
+                                    colorize_channel(channel, cbuf, sizeof(cbuf)),
+                                    Colors[COLOFF],
+                                    CmdsColors[COLMODE].color4, mode, Colors[COLOFF]);
 #else
 				put_it("%sMode for channel %s is \"%s\"",
 /****************************************************************************/
 					numeric_banner(), channel, mode);
 #endif
+			}
 		}
 		else
 		{

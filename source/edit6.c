@@ -115,6 +115,7 @@
 #include "struct.h"
 #include "parse.h"
 #include "myvars.h" 
+#include "colorhash.h"
 #include "whowas.h"
 
 #include <sys/stat.h> /* for umask() */
@@ -1443,22 +1444,25 @@ void ConvertmIRC(char *buffer, char *newbuf)
 
     *dptr='\0';
     while (*sptr) {
-        if (*sptr=='' && isdigit(*(sptr+1))) {
+        if (*sptr=='' && (isdigit(*(sptr+1)) || *(sptr+1)==',')) {
             sptr++;
-	    code=(*sptr++)-'0';
-	    if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
-            if (code>15 || code<0) continue;
-            if (DisplaymIRC==1) {
-                strcpy(dptr,codes[code].fg);
-                while (*dptr) dptr++;
+            if (isdigit(*sptr)) {
+                code=(*sptr++)-'0';
+                if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
+                if (code>=0 && code<=15 && DisplaymIRC==1) {
+                    strcpy(dptr,codes[code].fg);
+                    while (*dptr) dptr++;
+                }
             }
             if (*sptr==',') {
                 sptr++;
-	        code=(*sptr++)-'0';
-	        if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
-                if (code>=0 && code<=15 && DisplaymIRC==1) {
-                    strcpy(dptr,codes[code].bg);
-                    while (*dptr) dptr++;
+                if (isdigit(*sptr)) {
+                    code=(*sptr++)-'0';
+                    if (isdigit(*sptr)) code=code*10+(*sptr++)-'0';
+                    if (code>=0 && code<=15 && DisplaymIRC==1) {
+                        strcpy(dptr,codes[code].bg);
+                        while (*dptr) dptr++;
+                    }
                 }
             }
         }
@@ -1646,8 +1650,12 @@ void ChannelCreateTime(char *from, char **ArgList)
         message_from(channel,LOG_CRAP);
         if (createtime) {
 #ifdef WANTANSI
+            char ctbuf[COLORIZED_CHANNEL_LEN];
+
             put_it("%sChannel %s%s%s created on %s%.24s%s",numeric_banner(),
-                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF],
+                    CmdsColors[COLJOIN].color3,
+                    colorize_channel(channel, ctbuf, sizeof(ctbuf)),
+                    Colors[COLOFF],
                     CmdsColors[COLJOIN].color4,ctime(&createtime),Colors[COLOFF]);
 #else
             put_it("%sChannel %s created on %.24s",numeric_banner(),channel,
@@ -1656,8 +1664,12 @@ void ChannelCreateTime(char *from, char **ArgList)
         }
         else {
 #ifdef WANTANSI
+            char ctbuf[COLORIZED_CHANNEL_LEN];
+
             put_it("%sTime stamping is off for channel %s%s%s",numeric_banner(),
-                    CmdsColors[COLJOIN].color3,channel,Colors[COLOFF]);
+                    CmdsColors[COLJOIN].color3,
+                    colorize_channel(channel, ctbuf, sizeof(ctbuf)),
+                    Colors[COLOFF]);
 #else
             put_it("%sTime stamping is off for channel %s",numeric_banner(),channel);
 #endif
@@ -2536,6 +2548,9 @@ void DoFilterTrace(char *stuff)
     char *tmpstr;
     char *pattern = ftpattern;
     char tmpbuf[mybufsize / 4];
+#ifdef WANTANSI
+    char fwnbuf[mybufsize/4];
+#endif
 
     nick = stuff;
     while ((host = index(prevhost, '['))) prevhost = host + 1;
@@ -2552,7 +2567,8 @@ void DoFilterTrace(char *stuff)
             if (*ftpattern == ':') return;
 #ifdef WANTANSI
             ColorUserHost(host, CmdsColors[COLWHO].color2, tmpbuf, 0);
-            say("%s%-9s%s %s", CmdsColors[COLWHO].color1, nick, Colors[COLOFF], tmpbuf);
+            colorize_and_pad(nick, 9, fwnbuf, sizeof(fwnbuf), 1, 0);
+            say("%s%s%s %s", CmdsColors[COLWHO].color1, fwnbuf, Colors[COLOFF], tmpbuf);
 #else
             say("%-9s %s", nick, tmpbuf);
 #endif

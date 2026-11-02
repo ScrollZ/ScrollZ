@@ -50,6 +50,7 @@
 
 /**************************** PATCHED by Flier ******************************/
 #include "myvars.h"
+#include "colorhash.h"
 #include "whowas.h"
 #include "trace.h"
 #include "struct.h"
@@ -1987,6 +1988,9 @@ show_channel(chan)
 	char	*nicks = (char *) 0;
 	char	*s;
 	char	buffer[BIG_BUFFER_SIZE+1];
+/**************************** PATCHED by Flier ******************************/
+        char cbuf[COLORIZED_CHANNEL_LEN];
+/****************************************************************************/
 
 	s = recreate_mode(chan);
 	*buffer = (char) 0;
@@ -1997,7 +2001,10 @@ show_channel(chan)
 		if (buffer_len + len >= (BIG_BUFFER_SIZE / 2))
 		{
 			malloc_strcpy(&nicks, buffer);
-			say("\t%s +%s (%s): %s", chan->channel, s, get_server_name(chan->server), nicks);
+/**************************** PATCHED by Flier ******************************/
+			/*say("\t%s +%s (%s): %s", chan->channel, s, get_server_name(chan->server), nicks);*/
+			say("\t%s +%s (%s): %s", colorize_channel(chan->channel, cbuf, sizeof(cbuf)), s, get_server_name(chan->server), nicks);
+/****************************************************************************/
 			*buffer = (char) 0;
 			buffer_len = 0;
 		}
@@ -2006,7 +2013,10 @@ show_channel(chan)
 		buffer_len += len + 1;
 	}
 	malloc_strcpy(&nicks, buffer);
-	say("\t%s +%s (%s): %s", chan->channel, s, get_server_name(chan->server), nicks);
+/**************************** PATCHED by Flier ******************************/
+	/*say("\t%s +%s (%s): %s", chan->channel, s, get_server_name(chan->server), nicks);*/
+	say("\t%s +%s (%s): %s", colorize_channel(chan->channel, cbuf, sizeof(cbuf)), s, get_server_name(chan->server), nicks);
+/****************************************************************************/
 	new_free(&nicks);
 }
 
@@ -2025,7 +2035,13 @@ list_channels(void)
 		return;
 	}
 	if (get_channel_by_refnum(0))
-		say("Current channel %s", get_channel_by_refnum(0));
+/**************************** PATCHED by Flier ******************************/
+		/*say("Current channel %s", get_channel_by_refnum(0));*/
+        {
+            char cbuf[COLORIZED_CHANNEL_LEN];
+            say("Current channel %s", colorize_channel(get_channel_by_refnum(0), cbuf, sizeof(cbuf)));
+        }
+/****************************************************************************/
 	else
 		say("No current channel for this window");
 	first = 1;

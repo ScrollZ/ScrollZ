@@ -20,6 +20,19 @@ ScrollZ
       (patch by patryksg)
     ~ mIRC colours should now be rendered much closer to original
       mIRC colours, requires 256 colour terminal (patch by patryksg)
+    + colour each nickname and channel name by a hash of its name so a
+      given name always gets the same colour; controlled by
+      SET COLORIZE_NICKS, SET COLORIZE_CHANNELS and SET COLORIZE_WARP
+      (ON by default, needs DISPLAY_ANSI; 72-colour palette for dark
+      terminals) (patch by blaxthos)
+    ! long outgoing PRIVMSG/NOTICE were silently truncated at the line
+      limit; they are now split into fitting lines on word boundaries,
+      carrying colour state across the split so colours do not bleed
+      (patch by blaxthos)
+    ! possible out-of-bounds copy in split_up_line() for an escape
+      sequence spanning the line buffer (patch by blaxthos)
+    ! status bar field-width clamp used an unsigned comparison
+      (patch by blaxthos)
 
 ------------------------------------------------------------------------------
 

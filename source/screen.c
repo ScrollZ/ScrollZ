@@ -1690,7 +1690,10 @@ split_up_line(char *str)
                 case '\033':
                         ansi_count = 0;
                         isiso = 0;
-                        while ((c = vt100Decode(*ptr))) {
+                        /* the pos bound keeps an escape crossing the buffer
+                         * end from writing past lbuf */
+                        while ((c = vt100Decode(*ptr)) &&
+                               pos < (int) sizeof(lbuf) - 2) {
                             /* terminate on escape if ISO-2022-JP support is enabled */
                             if (iso2022 && *ptr == '\033' && ansi_count) break;
                             if (c > 1) isiso = 1;
@@ -1770,6 +1773,30 @@ split_up_line(char *str)
 			if (word_break == 0)
 				word_break = pos - (col - current_screen->co);
 /**************************** PATCHED by Flier ******************************/
+			/* the cut above is computed from columns while lbuf holds
+			 * bytes, so it can land inside a colour escape; pull it
+			 * back to the start of any escape it straddles */
+			if (word_break > 0)
+			{
+				for (i = 0; i < word_break; i++)
+				{
+					int	end;
+
+					if (lbuf[i] != '\033')
+						continue;
+					end = i + 1;
+					while (end < word_break &&
+					    !(lbuf[end] >= 0x40 && lbuf[end] <= 0x7e))
+						end++;
+					if (end < word_break)
+						i = end;
+					else
+					{
+						word_break = i;
+						break;
+					}
+				}
+			}
                         else if (word_break_col < current_screen->co / 5)
                             word_break = pos;
 /****************************************************************************/

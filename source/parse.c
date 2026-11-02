@@ -63,6 +63,7 @@
 #include "status.h"
 #include "myvars.h"
 #include "trace.h"
+#include "colorhash.h"
 
 extern void OnWho _((char *, char *, char *, char *, char *));
 extern void PrintMessage _((char *, char *, char *, int, int));
@@ -285,6 +286,10 @@ static	void
 p_topic(char *from, char **ArgList)
 {
 	int	flag;
+#ifdef WANTANSI
+	char	nbuf[COLORIZED_NICK_LEN];
+	char	cbuf[COLORIZED_CHANNEL_LEN];
+#endif
 /**************************** PATCHED by Flier ******************************/
         time_t  timenow = time(NULL);
         ChannelList *chan;
@@ -336,9 +341,19 @@ p_topic(char *from, char **ArgList)
 			/*say("%s has changed the topic to %s", from, ArgList[0]);*/
                 {
                         if (*ArgList[0])
+#ifdef WANTANSI
+                            say("%s has set the topic to %s",
+                                colorize_nick(from, nbuf, sizeof(nbuf)), ArgList[0]);
+#else
                             say("%s has set the topic to %s", from, ArgList[0]);
+#endif
                         else
+#ifdef WANTANSI
+                            say("%s has unset the topic",
+                                colorize_nick(from, nbuf, sizeof(nbuf)));
+#else
                             say("%s has unset the topic", from);
+#endif
                 }
 /****************************************************************************/				
 	}
@@ -362,11 +377,26 @@ p_topic(char *from, char **ArgList)
 				from, ArgList[0], ArgList[1]);*/
                 {
                         if (*ArgList[1])
+#ifdef WANTANSI
+                            say("%s has set the topic on channel %s%s to %s",
+                                colorize_nick(from, nbuf, sizeof(nbuf)),
+                                cstr,
+                                colorize_channel(ArgList[0], cbuf, sizeof(cbuf)),
+                                ArgList[1]);
+#else
                             say("%s has set the topic on channel %s%s to %s",
                                     from, cstr, ArgList[0], ArgList[1]);
+#endif
                         else
+#ifdef WANTANSI
+                            say("%s has unset the topic on channel %s%s",
+                                colorize_nick(from, nbuf, sizeof(nbuf)),
+                                cstr,
+                                colorize_channel(ArgList[0], cbuf, sizeof(cbuf)));
+#else
                             say("%s has unset the topic on channel %s%s",
                                     from, cstr, ArgList[0]);
+#endif
                 }
 /****************************************************************************/
 	}
@@ -390,6 +420,9 @@ p_wall(char *from, char **ArgList)
 		level;
 	char	*line;
 	char	*high;
+#ifdef WANTANSI
+	char	nbuf[COLORIZED_NICK_LEN];
+#endif
 
         if (!from)
 		return;
@@ -416,7 +449,11 @@ p_wall(char *from, char **ArgList)
 			if (check_flooding(from, NULL, WALL_FLOOD, line) &&
 /****************************************************************************/
 					do_hook(WALL_LIST, "%s %s", from, line))
+#ifdef WANTANSI
+				put_it("%s#%s#%s %s", high, colorize_nick(from, nbuf, sizeof(nbuf)), high, line);
+#else
 				put_it("%s#%s#%s %s", high, from, high, line);
+#endif
 			if (beep_on_level & LOG_WALL)
 				beep_em(1);
 			set_lastlog_msg_level(level);
@@ -430,6 +467,9 @@ p_wallops(char *from, char **ArgList)
 {
 	int	flag, level;
 	char	*line;
+#ifdef WANTANSI
+	char	nbuf[COLORIZED_NICK_LEN];
+#endif
 
 	if (!from)
 		return;
@@ -458,7 +498,12 @@ p_wallops(char *from, char **ArgList)
                             if (OperV) OVformat(line, from);
                             else
 #endif
+#ifdef WANTANSI
+                            put_it("%s%s!%s!%s %s", stampbuf, high,
+                                colorize_nick(from, nbuf, sizeof(nbuf)), high, line);
+#else
                             put_it("%s%s!%s!%s %s", stampbuf, high, from, high, line);
+#endif
                         }
 /****************************************************************************/
 			if (beep_on_level & LOG_WALLOP)
@@ -485,7 +530,12 @@ p_wallops(char *from, char **ArgList)
                     if (OperV) OVformat(line,from);
                     else
 #endif
+#ifdef WANTANSI
+                    put_it("%s!%s! %s", stampbuf,
+                        colorize_nick(from, nbuf, sizeof(nbuf)), line);
+#else
                     put_it("%s!%s! %s", stampbuf, from, line);
+#endif
                 }
 /****************************************************************************/
 	}
@@ -964,6 +1014,7 @@ p_quit(char *from, char **ArgList)
         int     netsplit;
 #ifdef WANTANSI
         char    *colnick;
+        char    nbuf[COLORIZED_NICK_LEN];
 #endif
         NickList *joiner;
 #ifdef EXTRAS
@@ -1066,7 +1117,7 @@ p_quit(char *from, char **ArgList)
 #else  /* EXTRAS */
                                     say("Signoff: %s%s%s (%s%s%s)",
 #endif /* EXTRAS */
-                                        colnick,from,Colors[COLOFF],
+                                        colnick,colorize_nick(from, nbuf, sizeof(nbuf)),Colors[COLOFF],
 #ifdef EXTRAS
                                         chanbuf,
 #endif /* EXTRAS */
@@ -1203,6 +1254,10 @@ p_channel(char *from, char **ArgList)
 /**************************** PATCHED by Flier ******************************/
         int     donelj = 0;
         char    tmpbuf[mybufsize + 1];
+#ifdef WANTANSI
+        char    nbuf[COLORIZED_NICK_LEN];
+        char    cbuf[COLORIZED_CHANNEL_LEN];
+#endif
         NickList *joiner = NULL;
         ChannelList *chan = NULL;
 /****************************************************************************/
@@ -1366,9 +1421,21 @@ p_channel(char *from, char **ArgList)
                         }
                         else
                             if (ov && *ov)
+#ifdef WANTANSI
+                                say("%s has joined channel %s +%s",
+                                    colorize_nick(from, nbuf, sizeof(nbuf)),
+                                    colorize_channel(channel, cbuf, sizeof(cbuf)), ov);
+#else
                                 say("%s has joined channel %s +%s", from, channel, ov);
+#endif
                             else
+#ifdef WANTANSI
+                                say("%s has joined channel %s",
+                                    colorize_nick(from, nbuf, sizeof(nbuf)),
+                                    colorize_channel(channel, cbuf, sizeof(cbuf)));
+#else
                                 say("%s has joined channel %s", from, channel);
+#endif
 /****************************************************************************/				
 		}
 /**************************** PATCHED by Flier ******************************/
@@ -1479,7 +1546,10 @@ p_nick(char *from, char **ArgList)
 	char	*chan;
 	char	*line;
 	int	flag;
-
+#ifdef WANTANSI
+	char	nbuf[COLORIZED_NICK_LEN];
+	char	nbuf2[COLORIZED_NICK_LEN];
+#endif
 	if (!from)
 		return;
 	/*flag = double_ignore(from, FromUserHost, IGNORE_CRAP);*/
@@ -1565,9 +1635,9 @@ p_nick(char *from, char **ArgList)
 #endif /* EXTRAS */
 #ifdef WANTANSI
                                 say("%s%s%s is now %sknown%s as %s%s%s",
-                                        CmdsColors[COLNICK].color1, from, Colors[COLOFF],
+                                        CmdsColors[COLNICK].color1, colorize_nick(from, nbuf, sizeof(nbuf)), Colors[COLOFF],
                                         CmdsColors[COLNICK].color2, Colors[COLOFF],
-                                        CmdsColors[COLNICK].color3, line, Colors[COLOFF]);
+                                        CmdsColors[COLNICK].color3, colorize_nick(line, nbuf2, sizeof(nbuf2)), Colors[COLOFF]);
 #else  /* WANTANSI */
                                 say("%s is now known as %s", from, line);
 #endif /* WANTANSI */
@@ -1803,6 +1873,8 @@ p_part(char *from, char **ArgList)
 #ifdef WANTANSI
         char    *colnick;
         NickList *joiner;
+        char    nbuf[COLORIZED_NICK_LEN];
+        char    cbuf[COLORIZED_CHANNEL_LEN];
 #endif
         ChannelList *chan;
 /****************************************************************************/
@@ -1840,11 +1912,11 @@ p_part(char *from, char **ArgList)
                     else colnick=CmdsColors[COLLEAVE].color1;
                     if (comment && *comment!='\0' && strcmp(from,comment))
                         say("%s%s%s has left channel %s%s%s (%s%s%s)",
-                            colnick,from,Colors[COLOFF],
-                            CmdsColors[COLLEAVE].color2,channel,Colors[COLOFF],
+                            colnick,colorize_nick(from, nbuf, sizeof(nbuf)),Colors[COLOFF],
+                            CmdsColors[COLLEAVE].color2,colorize_channel(channel, cbuf, sizeof(cbuf)),Colors[COLOFF],
                             CmdsColors[COLLEAVE].color6,comment,Colors[COLOFF]);
-                    else say("%s%s%s has left channel %s%s%s",colnick,from,Colors[COLOFF],
-                             CmdsColors[COLLEAVE].color2,channel,Colors[COLOFF]);
+                    else say("%s%s%s has left channel %s%s%s",colnick,colorize_nick(from, nbuf, sizeof(nbuf)),Colors[COLOFF],
+                             CmdsColors[COLLEAVE].color2,colorize_channel(channel, cbuf, sizeof(cbuf)),Colors[COLOFF]);
 #else
                     if (comment && *comment!='\0' && strcmp(from,comment))
                         say("%s has left channel %s (%s)",from,channel,comment);

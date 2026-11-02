@@ -36,7 +36,7 @@
 
 #define IRCII_VERSION	"20210506"	/* YYYYMMDD */
 /**************************** PATCHED by Flier ******************************/
-#define SCROLLZ_VERSION "2.3.1"
+#define SCROLLZ_VERSION "2.4.0"
 /****************************************************************************/
 
 #include "irc.h"
@@ -266,7 +266,7 @@ char  defban;
 char  bold=2;
 char  *DefaultServer=(char *) 0;
 char  *ScrollZstr=(char *) 0;
-char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (11.2.2016)+Cdcc v" CDCC_VERSION;
+char  *ScrollZver="ircII " IRCII_VERSION "+ScrollZ " SCROLLZ_VERSION " (9.7.2026)+Cdcc v" CDCC_VERSION;
 char  *ScrollZver1=(char *) 0;
 #ifdef EXTRA_STUFF
 char  *EString=(char *) 0;
