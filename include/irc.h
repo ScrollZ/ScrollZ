@@ -147,7 +147,7 @@
 #ifdef CELE
 #define IRCII_COMMENT   "Need for Speed!"
 #else
-#define IRCII_COMMENT   "Year of the monkey"
+#define IRCII_COMMENT   "Still kicking"
 #endif
 /****************************************************************************/
 

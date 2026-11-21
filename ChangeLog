@@ -8,7 +8,7 @@ Meaning of flags:
 
 ------------------------------------------------------------------------------
 
-ScrollZ 
+ScrollZ v2.4, 21.11.2021
 
     ! some potential memory leaks (patch by TrN, thanks)
     ! crash with empty server list after disconnecting
